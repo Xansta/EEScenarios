@@ -9045,7 +9045,15 @@ function pincerAttack(delta)
 		if foundInitialFleetMember then
 			pincerAngle = exampleEnemy:getHeading()
 		else
-			pincerAngle = attackAngle
+			if attackAngle ~= nil then
+				pincerAngle = attackAngle
+			else
+				pincerAngle = angleFromVector(kraylorCentroidX, kraylorCentroidY, humanCentroidX, humanCentroidY)
+				if pincerAngle == nil then
+					pincerAngle = random(0,360)
+					print("Nil angle observed. Choosing random angle: %.1f",pincerAngle)
+				end
+			end
 		end
 		leftPincerAngle = pincerAngle
 		if leftPincerAngle > 360 then
