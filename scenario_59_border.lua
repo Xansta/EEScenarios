@@ -1,7 +1,7 @@
 -- Name: Borderline Fever
 -- Description: War temperature rises along the border between Human Navy space and Kraylor space. The treaty holds for now, but the diplomats and intelligence operatives fear the Kraylors are about to break the treaty. We must maintain the treaty despite provocation until war is formally declared.
 ---
---- Version 4 updated enemy ship interactions
+--- Version 4 updated enemy ship interactions including continuum weapon
 -- Type: Replayable Mission
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
@@ -6766,9 +6766,11 @@ function enemyComms(comms_data)
 		local taunt_option = "We will see to your destruction!"
 		local taunt_success_reply = "Your bloodline will end here!"
 		local taunt_failed_reply = "Your feeble threats are meaningless."
-		local taunt_threshold = 30	--base chance of being taunted
+		local taunt_threshold = 30		--base chance of being taunted
+		local immolation_threshold = 5	--base chance that taunting will enrage to the point of revenge immolation
 		if faction == "Kraylor" then
 			taunt_threshold = 35
+			immolation_threshold = 6
 			setCommsMessage("Ktzzzsss.\nYou will DIEEee weaklingsss!");
 			local kraylorTauntChoice = math.random(1,3)
 			if kraylorTauntChoice == 1 then
@@ -6785,12 +6787,15 @@ function enemyComms(comms_data)
 			end
 		elseif faction == "Arlenians" then
 			taunt_threshold = 25
+			immolation_threshold = 4
 			setCommsMessage("We wish you no harm, but will harm you if we must.\nEnd of transmission.");
 		elseif faction == "Exuari" then
 			taunt_threshold = 40
+			immolation_threshold = 7
 			setCommsMessage("Stay out of our way, or your death will amuse us extremely!");
 		elseif faction == "Ghosts" then
 			taunt_threshold = 20
+			immolation_threshold = 3
 			setCommsMessage("One zero one.\nNo binary communication detected.\nSwitching to universal speech.\nGenerating appropriate response for target from human language archives.\n:Do not cross us:\nCommunication halted.");
 			taunt_option = "EXECUTE: SELFDESTRUCT"
 			taunt_success_reply = "Rogue command received. Targeting source."
@@ -6802,19 +6807,22 @@ function enemyComms(comms_data)
 			taunt_failed_reply = "The hive has greater priorities than exterminating pests."
 		elseif faction == "TSN" then
 			taunt_threshold = 15
+			immolation_threshold = 2
 			setCommsMessage("State your business")
 		elseif faction == "USN" then
 			taunt_threshold = 15
+			immolation_threshold = 2
 			setCommsMessage("What do you want? (not that we care)")
 		elseif faction == "CUF" then
 			taunt_threshold = 15
+			immolation_threshold = 2
 			setCommsMessage("Don't waste our time")
 		else
 			setCommsMessage("Mind your own business!");
 		end
 		comms_data.friendlyness = comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
 		addCommsReply(taunt_option, function()
-			if random(0, 100) <= taunt_threshold then	--final: 30
+			if random(0, 100) <= taunt_threshold then
 				local current_order = comms_target:getOrder()
 				print("order: " .. current_order)
 				--Possible order strings returned:
@@ -6848,7 +6856,15 @@ function enemyComms(comms_data)
 				comms_target:orderAttack(comms_source)	--consider alternative options besides attack in future refactoring
 				setCommsMessage(taunt_success_reply);
 			else
-				setCommsMessage(taunt_failed_reply);
+				--possible alternative consequences when taunt fails
+				if random(1,100) < 100 then	--final: immolation_threshold (set to 100 for testing)
+					setCommsMessage("Subspace and time continuum disruption authorized")
+					comms_source.continuum_target = true
+					comms_source.continuum_initiator = comms_target
+					plotContinuum = checkContinuum
+				else
+					setCommsMessage(taunt_failed_reply);
+				end
 			end
 		end)
 		tauntable = true
@@ -7175,6 +7191,65 @@ function revertCheck(delta)
 		end
 	end
 	plotRevert = revertWait
+end
+function checkContinuum(delta)
+	local continuum_count = 0
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if p.continuum_target then
+				continuum_count = continuum_count + 1
+				if p.continuum_timer == nil then
+					p.continuum_timer = delta + 30
+				end
+				p.continuum_timer = p.continuum_timer - delta
+				if p.continuum_timer < 0 then
+					if p.continuum_initiator ~= nil and p.continuum_initiator:isValid() then
+						p:setSystemHealth("frontshield",(p:getSystemHealth("frontshield") - 1)/2)
+						p:setSystemHealth("rearshield",(p:getSystemHealth("rearshield") - 1)/2)
+						p:setSystemHealth("reactor",(p:getSystemHealth("reactor") - 1)/2)
+						p:setSystemHealth("maneuver",(p:getSystemHealth("maneuver") - 1)/2)
+						p:setSystemHealth("impulse",(p:getSystemHealth("impulse") - 1)/2)
+						p:setSystemHealth("beamweapons",(p:getSystemHealth("beamweapons") - 1)/2)
+						p:setSystemHealth("missilesystem",(p:getSystemHealth("missilesystem") - 1)/2)
+						p:setSystemHealth("warp",(p:getSystemHealth("warp") - 1)/2)
+						p:setSystemHealth("jumpdrive",(p:getSystemHealth("jumpdrive") - 1)/2)
+						local ex, ey = p.continuum_initiator:getPosition()
+						p.continuum_initiator:destroy()
+						ExplosionEffect():setPosition(ex,ey):setSize(3000)
+						resetContinuum(p)
+					else
+						resetContinuum(p)
+					end
+				else
+					local timer_display = string.format("Disruption %i",math.floor(p.continuum_timer))
+					if p:hasPlayerAtPosition("Relay") then
+						p.continuum_timer_display = "continuum_timer_display"
+						p:addCustomInfo("Relay",p.continuum_timer_display,timer_display)
+					end
+					if p:hasPlayerAtPosition("Operations") then
+						p.continuum_timer_display_ops = "continuum_timer_display_ops"
+						p:addCustomInfo("Operations",p.continuum_timer_display_ops,timer_display)
+					end
+				end
+			else
+				resetContinuum(p)
+			end
+		end
+	end
+end
+function resetContinuum(p)
+	p.continuum_target = nil
+	p.continuum_timer = nil
+	p.continuum_initiator = nil
+	if p.continuum_timer_display ~= nil then
+		p:removeCustom("Relay",p.continuum_timer_display)
+		p.continuum_timer_display = nil
+	end
+	if p.continuum_timer_display_ops ~= nil then
+		p:removeCustom("Operations",p.continuum_timer_display_ops)
+		p.continuum_timer_display_ops = nil
+	end
 end
 --[[	old version of ship comms, enemy ships
 function enemyComms(comms_data)
@@ -10432,5 +10507,8 @@ function update(delta)
 	end
 	if plotRevert ~= nil then
 		plotRevert(delta)
+	end
+	if plotContinuum ~= nil then
+		plotContinuum(delta)
 	end
 end
