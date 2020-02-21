@@ -6857,7 +6857,7 @@ function enemyComms(comms_data)
 				setCommsMessage(taunt_success_reply);
 			else
 				--possible alternative consequences when taunt fails
-				if random(1,100) < 100 then	--final: immolation_threshold (set to 100 for testing)
+				if random(1,100) < (immolation_threshold + difficulty) then	--final: immolation_threshold (set to 100 for testing)
 					setCommsMessage("Subspace and time continuum disruption authorized")
 					comms_source.continuum_target = true
 					comms_source.continuum_initiator = comms_target
@@ -7205,15 +7205,15 @@ function checkContinuum(delta)
 				p.continuum_timer = p.continuum_timer - delta
 				if p.continuum_timer < 0 then
 					if p.continuum_initiator ~= nil and p.continuum_initiator:isValid() then
-						p:setSystemHealth("frontshield",(p:getSystemHealth("frontshield") - 1)/2)
-						p:setSystemHealth("rearshield",(p:getSystemHealth("rearshield") - 1)/2)
-						p:setSystemHealth("reactor",(p:getSystemHealth("reactor") - 1)/2)
-						p:setSystemHealth("maneuver",(p:getSystemHealth("maneuver") - 1)/2)
-						p:setSystemHealth("impulse",(p:getSystemHealth("impulse") - 1)/2)
-						p:setSystemHealth("beamweapons",(p:getSystemHealth("beamweapons") - 1)/2)
-						p:setSystemHealth("missilesystem",(p:getSystemHealth("missilesystem") - 1)/2)
-						p:setSystemHealth("warp",(p:getSystemHealth("warp") - 1)/2)
-						p:setSystemHealth("jumpdrive",(p:getSystemHealth("jumpdrive") - 1)/2)
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("frontshield",(p:getSystemHealth("frontshield") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("rearshield",(p:getSystemHealth("rearshield") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("reactor",(p:getSystemHealth("reactor") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("maneuver",(p:getSystemHealth("maneuver") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("impulse",(p:getSystemHealth("impulse") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("beamweapons",(p:getSystemHealth("beamweapons") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("missilesystem",(p:getSystemHealth("missilesystem") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("warp",(p:getSystemHealth("warp") - 1)/2) end
+						if random(1,100) < (30 + (difficulty*4)) then p:setSystemHealth("jumpdrive",(p:getSystemHealth("jumpdrive") - 1)/2) end
 						local ex, ey = p.continuum_initiator:getPosition()
 						p.continuum_initiator:destroy()
 						ExplosionEffect():setPosition(ex,ey):setSize(3000)
