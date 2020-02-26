@@ -203,6 +203,8 @@ function setConstants()
 							["Holmes"] =				35,
 							["Focus"] =					35,
 							["Flavia 2C"] = 			25,
+							["Destroyer IV"] = 			25,
+							["Destroyer III"] = 		25,
 							["Atlantis II"] =			60	}
 	playerShipCargo = 	{	["MP52 Hornet"] =			3,
 							["Piranha"] = 				8,
@@ -231,6 +233,8 @@ function setConstants()
 							["Holmes"] =				6,
 							["Focus"] =					4,
 							["Flavia 2C"] = 			12,
+							["Destroyer IV"] = 			5,
+							["Destroyer III"] = 		7,
 							["Atlantis II"] =			6	}
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
@@ -281,6 +285,8 @@ function setConstants()
 							["Holmes"] =				200,
 							["Focus"] =					200,
 							["Flavia 2C"] = 			200,
+							["Destroyer IV"] = 			400,
+							["Destroyer III"] = 		200,
 							["Atlantis II"] =			400	}
 	spaceStationDistance = {["Small Station"] = 400, ["Medium Station"] = 1200, ["Large Station"] = 1400, ["Huge Station"] = 2000}
 	commonGoods = {"food","medicine","nickel","platinum","gold","dilithium","tritanium","luxury","cobalt","impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
@@ -652,20 +658,20 @@ function playerShip()
 	if playerHolmes == nil then
 		addGMFunction("Holmes",createPlayerShipHolmes)
 	end
-	if playerMagnum == nil then
-		addGMFunction("Magnum",createPlayerShipMagnum)
-	end
-	if playerNarsil == nil then
-		addGMFunction("Narsil",createPlayerShipNarsil)
-	end
 	if playerOsprey == nil then
 		addGMFunction("Osprey",createPlayerShipOsprey)
 	end
 	if playerRattler == nil then
 		addGMFunction("Rattler",createPlayerShipRattler)
 	end
+	if playerSimian == nil then
+		addGMFunction("Simian",createPlayerShipSimian)
+	end
 	if playerSpyder == nil then
 		addGMFunction("Spyder",createPlayerShipSpyder)
+	end
+	if playerThunderbird == nil then
+		addGMFunction("Thunderbird",createPlayerShipThunderbird)
 	end
 --[[	
 	if playerAmbition == nil then
@@ -680,6 +686,12 @@ function playerShip()
 	if playerHeadhunter == nil then
 		addGMFunction("Headhunter",createPlayerShipHeadhunter)
 	end
+	if playerMagnum == nil then
+		addGMFunction("Magnum",createPlayerShipMagnum)
+	end
+	if playerNarsil == nil then
+		addGMFunction("Narsil",createPlayerShipNarsil)
+	end
 	if playerSpike == nil then
 		addGMFunction("Spike",createPlayerShipSpike)
 	end
@@ -691,44 +703,6 @@ function playerShip()
 	end
 --]]
 end
---[[ destroyed 8feb2020
-function createPlayerShipBarracuda()
-	--clone of Headhunter
-	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
-	playerBarracuda:setTypeName("Redhook")
-	playerBarracuda:setRepairCrewCount(4)						--more repair crew (vs 2)
-	playerBarracuda:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
-	playerBarracuda:setHullMax(140)								--stronger hull (vs 120)
-	playerBarracuda:setHull(140)
-	playerBarracuda:setShieldsMax(100, 100)						--stronger shields (vs 70, 70)
-	playerBarracuda:setShields(100, 100)
-	playerBarracuda:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)		--one beam (vs 0)
-	playerBarracuda:setBeamWeaponTurret(0, 80, 0, 1)			--slow turret 
-	playerBarracuda:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
-	playerBarracuda:setWeaponTubeDirection(6, 180)				--mine tube points straight back
-	playerBarracuda:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(5,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(6,"Mine")
-	playerBarracuda:weaponTubeAllowMissle(1,"Homing")
-	playerBarracuda:weaponTubeAllowMissle(1,"EMP")
-	playerBarracuda:weaponTubeAllowMissle(1,"Nuke")
-	playerBarracuda:weaponTubeAllowMissle(4,"Homing")
-	playerBarracuda:weaponTubeAllowMissle(4,"EMP")
-	playerBarracuda:weaponTubeAllowMissle(4,"Nuke")
-	playerBarracuda:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerBarracuda:setWeaponStorage("Mine", 4)				
-	playerBarracuda:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
-	playerBarracuda:setWeaponStorage("EMP", 4)					
-	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
-	playerBarracuda:setWeaponStorage("Nuke", 4)				
-	playerBarracuda:addReputationPoints(50)
-	playerShip()
-end
---]]
 function createPlayerShipHalberd()
 	playerHalberd = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Halberd")
 	playerHalberd:setTypeName("Proto-Atlantis")
@@ -785,32 +759,55 @@ function createPlayerShipOsprey()
 	playerOsprey:addReputationPoints(50)
 	playerShip()
 end
-function createPlayerShipMagnum()
-	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
-	playerMagnum:setTypeName("Focus")
-	playerMagnum:setImpulseMaxSpeed(70)						--slower (vs 80)
-	playerMagnum:setRotationMaxSpeed(20)					--faster spin (vs 15)
-	playerMagnum:setWarpDrive(false)						--no warp
-	playerMagnum:setJumpDrive(true)							--jump drive
-	playerMagnum:setJumpDriveRange(2500,25000)				--shorter jump drive range (vs 5-50)
-	playerMagnum:setHullMax(100)							--weaker hull (vs 160)
-	playerMagnum:setHull(100)
-	playerMagnum:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
-	playerMagnum:setShields(100, 100)
-	playerMagnum:setBeamWeapon(0, 60, -20, 1000.0, 6.0, 5)	--narrower (vs 70)
-	playerMagnum:setBeamWeapon(1, 60,  20, 1000.0, 6.0, 5)	
-	playerMagnum:setWeaponTubeCount(4)						--fewer (vs 6)
-	playerMagnum:weaponTubeAllowMissle(2,"Homing")
-	playerMagnum:weaponTubeAllowMissle(2,"EMP")
-	playerMagnum:weaponTubeAllowMissle(2,"Nuke")
-	playerMagnum:setWeaponTubeExclusiveFor(3,"Mine")
-	playerMagnum:setWeaponTubeDirection(3, 180)
-	playerMagnum:setWeaponStorageMax("EMP",2)				--fewer (vs 6)
-	playerMagnum:setWeaponStorage("EMP", 2)				
-	playerMagnum:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
-	playerMagnum:setWeaponStorage("Nuke", 1)	
-	playerMagnum:addReputationPoints(50)
-	playerShip()
+function createPlayerShipSimian()
+	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
+	playerSimian:setTypeName("Destroyer III")
+	playerSimian:setWarpDrive(false)
+	playerSimian:setJumpDrive(true)
+	playerSimian:setJumpDriveRange(2000,20000)						--shorter than typical jump drive range (vs 5-50)
+	playerSimian:setHullMax(100)									--weaker hull (vs 200)
+	playerSimian:setHull(100)
+--                 				 Arc, Dir, Range, CycleTime, Damage
+	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
+--									    Arc, Dir, Rotate speed
+	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
+	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
+	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
+	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
+	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
+	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
+	playerSimian:setWeaponStorage("Homing", 10)				
+	playerSimian:setWeaponStorageMax("Nuke",4)						--less (vs 8)
+	playerSimian:setWeaponStorage("Nuke", 4)				
+	playerSimian:setWeaponStorageMax("EMP",5)						--less (vs 10)
+	playerSimian:setWeaponStorage("EMP", 5)				
+	playerSimian:setWeaponStorageMax("Mine",6)						--less (vs 12)
+	playerSimian:setWeaponStorage("Mine", 6)				
+	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
+	playerSimian:setWeaponStorage("HVLI", 10)				
+end
+function createPlayerShipThunderbird()
+	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
+	playerThunderbird:setTypeName("Destroyer IV")
+	playerThunderbird:setJumpDriveRange(2000,20000)				--shorter jump drive range (vs 5-50)
+	playerThunderbird:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
+	playerThunderbird:setShields(100, 100)
+	playerThunderbird:setHullMax(100)							--weaker hull (vs 200)
+	playerThunderbird:setHull(100)
+	playerThunderbird:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
+	playerThunderbird:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
+	playerThunderbird:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
+	playerThunderbird:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
+	playerThunderbird:setWeaponStorageMax("Homing",6)			--less (vs 12)
+	playerThunderbird:setWeaponStorage("Homing", 6)				
+	playerThunderbird:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
+	playerThunderbird:setWeaponStorage("Nuke", 2)				
+	playerThunderbird:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
+	playerThunderbird:setWeaponStorage("EMP", 3)				
+	playerThunderbird:setWeaponStorageMax("Mine",4)				--fewer (vs 8)
+	playerThunderbird:setWeaponStorage("Mine", 4)				
+	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
+	playerThunderbird:setWeaponStorage("HVLI", 6)				
 end
 function createPlayerShipHolmes()
 	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
@@ -846,34 +843,6 @@ function createPlayerShipRattler()
 	playerRattler:setJumpDriveRange(3000,20000)
 	playerRattler:setImpulseMaxSpeed(85)
 	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
-	playerShip()
-end
-function createPlayerShipSpike()
-	playerSpike = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Spike")
-	playerSpike:setTypeName("Phobos T2")
-	playerSpike:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerSpike:setJumpDrive(true)						--jump drive (vs none)
-	playerSpike:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
-	playerSpike:setRotationMaxSpeed(20)					--faster spin (vs 10)
-	playerSpike:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
-	playerSpike:setShields(120,80)
-	playerSpike:setMaxEnergy(800)						--less maximum energy (vs 1000)
-	playerSpike:setEnergy(800)
---                 				Arc, Dir, Range, CycleTime, Dmg
-	playerSpike:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
-	playerSpike:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
---										 Arc, Dir, Rotate speed
-	playerSpike:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
-	playerSpike:setBeamWeaponTurret(1, 40,  30, .2)
-	playerSpike:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
-	playerSpike:setWeaponTubeDirection(0,0)				--first tube points straight forward
-	playerSpike:setWeaponTubeDirection(1,180)			--second tube points straight back
-	playerSpike:setWeaponTubeExclusiveFor(1,"Mine")
-	playerSpike:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
-	playerSpike:setWeaponStorage("Homing",8)
-	playerSpike:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
-	playerSpike:setWeaponStorage("HVLI",16)
-	playerSpike:addReputationPoints(50)
 	playerShip()
 end
 function createPlayerShipSpyder()
@@ -921,32 +890,29 @@ function createPlayerShipNarsil()
 	playerNarsil:addReputationPoints(50)
 	playerShip()
 end
---[[	sent to Kraylor war front. May return later
-function createPlayerShipSting()
-	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
-	playerSting:setTypeName("Surkov")
-	playerSting:setRepairCrewCount(3)	--more repair crew (vs 2)
-	playerSting:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
-	playerSting:setJumpDrive(false)		--no jump
-	playerSting:setWarpDrive(true)		--add warp
-	playerSting:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
-	playerSting:setWeaponTubeDirection(0, -90)
-	playerSting:weaponTubeDisallowMissle(0,"Mine")
-	playerSting:weaponTubeDisallowMissle(0,"Nuke")
-	playerSting:weaponTubeDisallowMissle(0,"EMP")
-	playerSting:setWeaponStorageMax("Mine",3)
-	playerSting:setWeaponStorage("Mine",3)
-	playerSting:setWeaponStorageMax("Nuke",0)
-	playerSting:setWeaponStorage("Nuke",0)
-	playerSting:setWeaponStorageMax("EMP",0)
-	playerSting:setWeaponStorage("EMP",0)
-	playerSting:setWeaponTubeDirection(1, 90)
-	playerSting:weaponTubeDisallowMissle(1,"Mine")
-	playerSting:weaponTubeDisallowMissle(1,"Nuke")
-	playerSting:weaponTubeDisallowMissle(1,"EMP")
-	playerSting:setWeaponTubeDirection(2,180)
-	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
-	playerSting:addReputationPoints(50)
+--[[ destroyed 1Feb2020
+function createPlayerShipAmbition()
+	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
+	playerAmbition:setTypeName("Phobos T2")
+	playerAmbition:setRepairCrewCount(5)					--more repair crew (vs 3)
+	playerAmbition:setJumpDrive(true)						--jump drive (vs none)
+	playerAmbition:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
+	playerAmbition:setRotationMaxSpeed(20)					--faster spin (vs 10)
+--                 				   Arc, Dir, Range, CycleTime, Dmg
+	playerAmbition:setBeamWeapon(0, 10, -15,  1200,         8, 6)
+	playerAmbition:setBeamWeapon(1, 10,  15,  1200,        16, 6)
+--										 Arc, Dir, Rotate speed
+	playerAmbition:setBeamWeaponTurret(0, 90, -15, .2)		--slow turret beams
+	playerAmbition:setBeamWeaponTurret(1, 90,  15, .2)
+	playerAmbition:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
+	playerAmbition:setWeaponTubeDirection(0,0)				--first tube points straight forward
+	playerAmbition:setWeaponTubeDirection(1,180)			--second tube points straight back
+	playerAmbition:setWeaponTubeExclusiveFor(1,"Mine")
+	playerAmbition:setWeaponStorageMax("Homing",6)			--reduce homing storage (vs 10)
+	playerAmbition:setWeaponStorage("Homing",6)
+	playerAmbition:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
+	playerAmbition:setWeaponStorage("HVLI",10)
+	playerAmbition:addReputationPoints(50)
 	playerShip()
 end
 --]]
@@ -988,29 +954,72 @@ function createPlayerShipArwine()
 	playerShip()
 end
 --]]
---[[ destroyed 1Feb2020
-function createPlayerShipAmbition()
-	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
-	playerAmbition:setTypeName("Phobos T2")
-	playerAmbition:setRepairCrewCount(5)					--more repair crew (vs 3)
-	playerAmbition:setJumpDrive(true)						--jump drive (vs none)
-	playerAmbition:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
-	playerAmbition:setRotationMaxSpeed(20)					--faster spin (vs 10)
---                 				   Arc, Dir, Range, CycleTime, Dmg
-	playerAmbition:setBeamWeapon(0, 10, -15,  1200,         8, 6)
-	playerAmbition:setBeamWeapon(1, 10,  15,  1200,        16, 6)
---										 Arc, Dir, Rotate speed
-	playerAmbition:setBeamWeaponTurret(0, 90, -15, .2)		--slow turret beams
-	playerAmbition:setBeamWeaponTurret(1, 90,  15, .2)
-	playerAmbition:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
-	playerAmbition:setWeaponTubeDirection(0,0)				--first tube points straight forward
-	playerAmbition:setWeaponTubeDirection(1,180)			--second tube points straight back
-	playerAmbition:setWeaponTubeExclusiveFor(1,"Mine")
-	playerAmbition:setWeaponStorageMax("Homing",6)			--reduce homing storage (vs 10)
-	playerAmbition:setWeaponStorage("Homing",6)
-	playerAmbition:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
-	playerAmbition:setWeaponStorage("HVLI",10)
-	playerAmbition:addReputationPoints(50)
+--[[ destroyed 8feb2020
+function createPlayerShipBarracuda()
+	--clone of Headhunter
+	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
+	playerBarracuda:setTypeName("Redhook")
+	playerBarracuda:setRepairCrewCount(4)						--more repair crew (vs 2)
+	playerBarracuda:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
+	playerBarracuda:setHullMax(140)								--stronger hull (vs 120)
+	playerBarracuda:setHull(140)
+	playerBarracuda:setShieldsMax(100, 100)						--stronger shields (vs 70, 70)
+	playerBarracuda:setShields(100, 100)
+	playerBarracuda:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)		--one beam (vs 0)
+	playerBarracuda:setBeamWeaponTurret(0, 80, 0, 1)			--slow turret 
+	playerBarracuda:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
+	playerBarracuda:setWeaponTubeDirection(6, 180)				--mine tube points straight back
+	playerBarracuda:setWeaponTubeExclusiveFor(0,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(1,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(2,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(4,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(5,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(6,"Mine")
+	playerBarracuda:weaponTubeAllowMissle(1,"Homing")
+	playerBarracuda:weaponTubeAllowMissle(1,"EMP")
+	playerBarracuda:weaponTubeAllowMissle(1,"Nuke")
+	playerBarracuda:weaponTubeAllowMissle(4,"Homing")
+	playerBarracuda:weaponTubeAllowMissle(4,"EMP")
+	playerBarracuda:weaponTubeAllowMissle(4,"Nuke")
+	playerBarracuda:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
+	playerBarracuda:setWeaponStorage("Mine", 4)				
+	playerBarracuda:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
+	playerBarracuda:setWeaponStorage("EMP", 4)					
+	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
+	playerBarracuda:setWeaponStorage("Nuke", 4)				
+	playerBarracuda:addReputationPoints(50)
+	playerShip()
+end
+--]]
+--[[	ship destroyed 24Aug2019
+function createPlayerShipBlazon()
+	playerBlazon = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Blazon")
+	playerBlazon:setTypeName("Stricken")
+	playerBlazon:setRepairCrewCount(2)
+	playerBlazon:setImpulseMaxSpeed(105)					-- up from default of 45
+	playerBlazon:setRotationMaxSpeed(35)					-- up from default of 15
+	playerBlazon:setShieldsMax(80,50)						-- up from 50, 30
+	playerBlazon:setShields(80,50)							-- up from 50, 30
+	playerBlazon:setBeamWeaponTurret(0,60,-15,2)			-- 60: narrower than default 100, 
+	playerBlazon:setBeamWeaponTurret(1,60, 15,2)			-- 2: slower than default 6
+	playerBlazon:setBeamWeapon(2,20,0,1200,6,5)				-- add forward facing beam
+	playerBlazon:setWeaponTubeCount(3)						-- add tubes
+	playerBlazon:setWeaponTubeDirection(0,-60)
+	playerBlazon:setWeaponTubeDirection(1,60)
+	playerBlazon:setWeaponTubeDirection(2,180)
+	playerBlazon:weaponTubeDisallowMissle(0,"Mine")
+	playerBlazon:weaponTubeDisallowMissle(1,"Mine")
+	playerBlazon:setWeaponTubeExclusiveFor(2,"Mine")
+	playerBlazon:setWeaponStorageMax("Homing",6)
+	playerBlazon:setWeaponStorage("Homing",6)
+	playerBlazon:setWeaponStorageMax("EMP",2)
+	playerBlazon:setWeaponStorage("EMP",2)
+	playerBlazon:setWeaponStorageMax("Nuke",2)
+	playerBlazon:setWeaponStorage("Nuke",2)
+	playerBlazon:setWeaponStorageMax("Mine",4)
+	playerBlazon:setWeaponStorage("Mine",4)
+	playerBlazon:addReputationPoints(50)
 	playerShip()
 end
 --]]
@@ -1051,34 +1060,91 @@ function createPlayerShipHeadhunter()
 	playerShip()
 end
 --]]
---[[	ship destroyed 24Aug2019
-function createPlayerShipBlazon()
-	playerBlazon = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Blazon")
-	playerBlazon:setTypeName("Stricken")
-	playerBlazon:setRepairCrewCount(2)
-	playerBlazon:setImpulseMaxSpeed(105)					-- up from default of 45
-	playerBlazon:setRotationMaxSpeed(35)					-- up from default of 15
-	playerBlazon:setShieldsMax(80,50)						-- up from 50, 30
-	playerBlazon:setShields(80,50)							-- up from 50, 30
-	playerBlazon:setBeamWeaponTurret(0,60,-15,2)			-- 60: narrower than default 100, 
-	playerBlazon:setBeamWeaponTurret(1,60, 15,2)			-- 2: slower than default 6
-	playerBlazon:setBeamWeapon(2,20,0,1200,6,5)				-- add forward facing beam
-	playerBlazon:setWeaponTubeCount(3)						-- add tubes
-	playerBlazon:setWeaponTubeDirection(0,-60)
-	playerBlazon:setWeaponTubeDirection(1,60)
-	playerBlazon:setWeaponTubeDirection(2,180)
-	playerBlazon:weaponTubeDisallowMissle(0,"Mine")
-	playerBlazon:weaponTubeDisallowMissle(1,"Mine")
-	playerBlazon:setWeaponTubeExclusiveFor(2,"Mine")
-	playerBlazon:setWeaponStorageMax("Homing",6)
-	playerBlazon:setWeaponStorage("Homing",6)
-	playerBlazon:setWeaponStorageMax("EMP",2)
-	playerBlazon:setWeaponStorage("EMP",2)
-	playerBlazon:setWeaponStorageMax("Nuke",2)
-	playerBlazon:setWeaponStorage("Nuke",2)
-	playerBlazon:setWeaponStorageMax("Mine",4)
-	playerBlazon:setWeaponStorage("Mine",4)
-	playerBlazon:addReputationPoints(50)
+--[[
+function createPlayerShipMagnum()
+	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
+	playerMagnum:setTypeName("Focus")
+	playerMagnum:setImpulseMaxSpeed(70)						--slower (vs 80)
+	playerMagnum:setRotationMaxSpeed(20)					--faster spin (vs 15)
+	playerMagnum:setWarpDrive(false)						--no warp
+	playerMagnum:setJumpDrive(true)							--jump drive
+	playerMagnum:setJumpDriveRange(2500,25000)				--shorter jump drive range (vs 5-50)
+	playerMagnum:setHullMax(100)							--weaker hull (vs 160)
+	playerMagnum:setHull(100)
+	playerMagnum:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
+	playerMagnum:setShields(100, 100)
+	playerMagnum:setBeamWeapon(0, 60, -20, 1000.0, 6.0, 5)	--narrower (vs 70)
+	playerMagnum:setBeamWeapon(1, 60,  20, 1000.0, 6.0, 5)	
+	playerMagnum:setWeaponTubeCount(4)						--fewer (vs 6)
+	playerMagnum:weaponTubeAllowMissle(2,"Homing")
+	playerMagnum:weaponTubeAllowMissle(2,"EMP")
+	playerMagnum:weaponTubeAllowMissle(2,"Nuke")
+	playerMagnum:setWeaponTubeExclusiveFor(3,"Mine")
+	playerMagnum:setWeaponTubeDirection(3, 180)
+	playerMagnum:setWeaponStorageMax("EMP",2)				--fewer (vs 6)
+	playerMagnum:setWeaponStorage("EMP", 2)				
+	playerMagnum:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
+	playerMagnum:setWeaponStorage("Nuke", 1)	
+	playerMagnum:addReputationPoints(50)
+	playerShip()
+end
+--]]
+--[[
+function createPlayerShipSpike()
+	playerSpike = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Spike")
+	playerSpike:setTypeName("Phobos T2")
+	playerSpike:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerSpike:setJumpDrive(true)						--jump drive (vs none)
+	playerSpike:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
+	playerSpike:setRotationMaxSpeed(20)					--faster spin (vs 10)
+	playerSpike:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
+	playerSpike:setShields(120,80)
+	playerSpike:setMaxEnergy(800)						--less maximum energy (vs 1000)
+	playerSpike:setEnergy(800)
+--                 				Arc, Dir, Range, CycleTime, Dmg
+	playerSpike:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
+	playerSpike:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
+--										 Arc, Dir, Rotate speed
+	playerSpike:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
+	playerSpike:setBeamWeaponTurret(1, 40,  30, .2)
+	playerSpike:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
+	playerSpike:setWeaponTubeDirection(0,0)				--first tube points straight forward
+	playerSpike:setWeaponTubeDirection(1,180)			--second tube points straight back
+	playerSpike:setWeaponTubeExclusiveFor(1,"Mine")
+	playerSpike:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
+	playerSpike:setWeaponStorage("Homing",8)
+	playerSpike:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
+	playerSpike:setWeaponStorage("HVLI",16)
+	playerSpike:addReputationPoints(50)
+	playerShip()
+end
+--]]
+--[[	sent to Kraylor war front. May return later
+function createPlayerShipSting()
+	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
+	playerSting:setTypeName("Surkov")
+	playerSting:setRepairCrewCount(3)	--more repair crew (vs 2)
+	playerSting:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
+	playerSting:setJumpDrive(false)		--no jump
+	playerSting:setWarpDrive(true)		--add warp
+	playerSting:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
+	playerSting:setWeaponTubeDirection(0, -90)
+	playerSting:weaponTubeDisallowMissle(0,"Mine")
+	playerSting:weaponTubeDisallowMissle(0,"Nuke")
+	playerSting:weaponTubeDisallowMissle(0,"EMP")
+	playerSting:setWeaponStorageMax("Mine",3)
+	playerSting:setWeaponStorage("Mine",3)
+	playerSting:setWeaponStorageMax("Nuke",0)
+	playerSting:setWeaponStorage("Nuke",0)
+	playerSting:setWeaponStorageMax("EMP",0)
+	playerSting:setWeaponStorage("EMP",0)
+	playerSting:setWeaponTubeDirection(1, 90)
+	playerSting:weaponTubeDisallowMissle(1,"Mine")
+	playerSting:weaponTubeDisallowMissle(1,"Nuke")
+	playerSting:weaponTubeDisallowMissle(1,"EMP")
+	playerSting:setWeaponTubeDirection(2,180)
+	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
+	playerSting:addReputationPoints(50)
 	playerShip()
 end
 --]]
@@ -1122,6 +1188,19 @@ function createPlayerShipWombat()
 	playerShip()
 end
 --]]
+
+--[[
+function toggleBlazonAutoCool()
+	if playerBlazon.autoCoolant then
+		playerBlazon.autoCoolant = false
+		playerBlazon:setAutoCoolant(false)
+	else
+		playerBlazon.autoCoolant = true
+		playerBlazon:setAutoCoolant(true)
+	end
+	autoCool()
+end
+--]]
 --[[
 function toggleHeadhunterAutoCool()
 	if playerHeadhunter.autoCoolant then
@@ -1134,16 +1213,7 @@ function toggleHeadhunterAutoCool()
 	autoCool()
 end
 --]]
-function toggleHalberdAutoCool()
-	if playerHalberd.autoCoolant then
-		playerHalberd.autoCoolant = false
-		playerHalberd:setAutoCoolant(false)
-	else
-		playerHalberd.autoCoolant = true
-		playerHalberd:setAutoCoolant(true)
-	end
-	autoCool()
-end
+--[[
 function toggleMagnumAutoCool()
 	if playerMagnum.autoCoolant then
 		playerMagnum.autoCoolant = false
@@ -1151,6 +1221,41 @@ function toggleMagnumAutoCool()
 	else
 		playerMagnum.autoCoolant = true
 		playerMagnum:setAutoCoolant(true)
+	end
+	autoCool()
+end
+--]]
+--[[
+function toggleSpikeAutoCool()
+	if playerSpike.autoCoolant then
+		playerSpike.autoCoolant = false
+		playerSpike:setAutoCoolant(false)
+	else
+		playerSpike.autoCoolant = true
+		playerSpike:setAutoCoolant(true)
+	end
+	autoCool()
+end
+--]]
+--[[
+function toggleStingAutoCool()
+	if playerSting.autoCoolant then
+		playerSting.autoCoolant = false
+		playerSting:setAutoCoolant(false)
+	else
+		playerSting.autoCoolant = true
+		playerSting:setAutoCoolant(true)
+	end
+	autoCool()
+end
+--]]
+function toggleHalberdAutoCool()
+	if playerHalberd.autoCoolant then
+		playerHalberd.autoCoolant = false
+		playerHalberd:setAutoCoolant(false)
+	else
+		playerHalberd.autoCoolant = true
+		playerHalberd:setAutoCoolant(true)
 	end
 	autoCool()
 end
@@ -1174,16 +1279,6 @@ function toggleRattlerAutoCool()
 	end
 	autoCool()
 end
-function toggleSpikeAutoCool()
-	if playerSpike.autoCoolant then
-		playerSpike.autoCoolant = false
-		playerSpike:setAutoCoolant(false)
-	else
-		playerSpike.autoCoolant = true
-		playerSpike:setAutoCoolant(true)
-	end
-	autoCool()
-end
 function toggleSpyderAutoCool()
 	if playerSpyder.autoCoolant then
 		playerSpyder.autoCoolant = false
@@ -1204,26 +1299,7 @@ function toggleNarsilAutoCool()
 	end
 	autoCool()
 end
-function toggleStingAutoCool()
-	if playerSting.autoCoolant then
-		playerSting.autoCoolant = false
-		playerSting:setAutoCoolant(false)
-	else
-		playerSting.autoCoolant = true
-		playerSting:setAutoCoolant(true)
-	end
-	autoCool()
-end
-function toggleBlazonAutoCool()
-	if playerBlazon.autoCoolant then
-		playerBlazon.autoCoolant = false
-		playerBlazon:setAutoCoolant(false)
-	else
-		playerBlazon.autoCoolant = true
-		playerBlazon:setAutoCoolant(true)
-	end
-	autoCool()
-end
+
 -------------------------
 --	Tweak player ship  --
 -------------------------
