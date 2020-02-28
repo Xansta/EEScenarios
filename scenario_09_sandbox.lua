@@ -2322,6 +2322,9 @@ function createIcarusStations()
     	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes"
 	}
 	table.insert(stations,stationCindyFolly)
+	local borlanZone = squareZone(68808, 39300, "Borlan")
+	borlanZone:setColor(51,153,255)
+	--[[	Destroyed 22Feb2020
 	--Borlan
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2346,6 +2349,10 @@ function createIcarusStations()
     	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich"
 	}
 	table.insert(stations,stationBorlan)
+	--]]
+	local slurryZone = squareZone(100342, 27871, "Slurry")
+	slurryZone:setColor(51,153,255)
+	--[[	Destroyed 22Feb2020
 	--Slurry
     stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry 2"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2370,6 +2377,10 @@ function createIcarusStations()
     	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research"
 	}
 	table.insert(stations,stationSlurry)
+	--]]
+	local relay13Zone = squareZone(77918, 23876, "Relay13")
+	relay13Zone:setColor(0,255,0)
+	--[[	Destroyed 22Fen2020
 	--Relay-13
     stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
@@ -2387,6 +2398,7 @@ function createIcarusStations()
         general_information = "Communication traffic relay and coordination"
 	}
 	table.insert(stations,stationRelay13)
+	--]]
 	--Stromboli
     stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
