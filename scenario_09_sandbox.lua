@@ -205,6 +205,9 @@ function setConstants()
 							["Flavia 2C"] = 			25,
 							["Destroyer IV"] = 			25,
 							["Destroyer III"] = 		25,
+							["MX-Lindworm"] =			10,
+							["Striker LX"] =			15,
+							["Maverick XP"] =			23,
 							["Atlantis II"] =			60	}
 	playerShipCargo = 	{	["MP52 Hornet"] =			3,
 							["Piranha"] = 				8,
@@ -235,6 +238,9 @@ function setConstants()
 							["Flavia 2C"] = 			12,
 							["Destroyer IV"] = 			5,
 							["Destroyer III"] = 		7,
+							["MX-Lindworm"] =			3,
+							["Striker LX"] =			4,
+							["Maverick XP"] =			5,
 							["Atlantis II"] =			6	}
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
@@ -287,6 +293,9 @@ function setConstants()
 							["Flavia 2C"] = 			200,
 							["Destroyer IV"] = 			400,
 							["Destroyer III"] = 		200,
+							["MX-Lindworm"] =			100,
+							["Striker LX"] =			200,
+							["Maverick XP"] =			200,
 							["Atlantis II"] =			400	}
 	spaceStationDistance = {["Small Station"] = 400, ["Medium Station"] = 1200, ["Large Station"] = 1400, ["Huge Station"] = 2000}
 	commonGoods = {"food","medicine","nickel","platinum","gold","dilithium","tritanium","luxury","cobalt","impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
@@ -652,26 +661,21 @@ function playerShip()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Tweak player",tweakPlayerShip)
-	if playerHalberd == nil then
-		addGMFunction("Halberd",createPlayerShipHalberd)
+	addGMFunction("+Descriptions",describePlayerShips)
+	if playerCobra == nil then
+		addGMFunction("Cobra",createPlayerShipCobra)
 	end
 	if playerHolmes == nil then
 		addGMFunction("Holmes",createPlayerShipHolmes)
 	end
-	if playerOsprey == nil then
-		addGMFunction("Osprey",createPlayerShipOsprey)
-	end
 	if playerRattler == nil then
+		addGMFunction("Rogue",createPlayerShipRogue)
+	end
+	if playerRogue == nil then
 		addGMFunction("Rattler",createPlayerShipRattler)
 	end
 	if playerSimian == nil then
 		addGMFunction("Simian",createPlayerShipSimian)
-	end
-	if playerSpyder == nil then
-		addGMFunction("Spyder",createPlayerShipSpyder)
-	end
-	if playerThunderbird == nil then
-		addGMFunction("Thunderbird",createPlayerShipThunderbird)
 	end
 --[[	
 	if playerAmbition == nil then
@@ -683,6 +687,9 @@ function playerShip()
 	if playerBlazon == nil then
 		addGMFunction("Blazon",createPlayerShipBlazon)
 	end
+	if playerHalberd == nil then
+		addGMFunction("Halberd",createPlayerShipHalberd)
+	end
 	if playerHeadhunter == nil then
 		addGMFunction("Headhunter",createPlayerShipHeadhunter)
 	end
@@ -692,125 +699,139 @@ function playerShip()
 	if playerNarsil == nil then
 		addGMFunction("Narsil",createPlayerShipNarsil)
 	end
+	if playerOsprey == nil then
+		addGMFunction("Osprey",createPlayerShipOsprey)
+	end
 	if playerSpike == nil then
 		addGMFunction("Spike",createPlayerShipSpike)
 	end
+	if playerSpyder == nil then
+		addGMFunction("Spyder",createPlayerShipSpyder)
+	end
 	if playerSting == nil then
 		addGMFunction("Sting",createPlayerShipSting)
+	end
+	if playerThunderbird == nil then
+		addGMFunction("Thunderbird",createPlayerShipThunderbird)
 	end
 	if playerWombat == nil then
 		addGMFunction("Wombat",createPlayerShipWombat)
 	end
 --]]
 end
-function createPlayerShipHalberd()
-	playerHalberd = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Halberd")
-	playerHalberd:setTypeName("Proto-Atlantis")
-	playerHalberd:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerHalberd:setImpulseMaxSpeed(70)				--slower impulse max (vs 90)
-	playerHalberd:setRotationMaxSpeed(14)				--faster spin (vs 10)
-	playerHalberd:setJumpDriveRange(3000,30000)			--shorter jump drive range (vs 5-50)
-	playerHalberd:setHullMax(200)						--weaker hull (vs 250)
-	playerHalberd:setHull(200)							
-	playerHalberd:setShieldsMax(150,150)				--weaker shields (vs 200)
-	playerHalberd:setShields(150,150)
-	
---                 				 Arc, Dir, Range, CycleTime, Dmg
-	playerHalberd:setBeamWeapon(0, 5, -10,  1500,       6.0, 8)		--narrower turreted beams
-	playerHalberd:setBeamWeapon(1, 5,  10,  1500,       6.0, 8)		--vs arc:100, dir:-20
---									    Arc, Dir, Rotate speed
-	playerHalberd:setBeamWeaponTurret(0, 70, -10, .25)
-	playerHalberd:setBeamWeaponTurret(1, 70,  10, .25)
+function describePlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ships",playerShip)
+	addGMFunction("+Describe Special",describeSpecialPlayerShips)
+	addGMFunction("+Describe Stock",describeStockPlayerShips)
+end
+function describeSpecialPlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Back",describePlayerShips)
+	addGMFunction("Cobra",function()
+		addGMMessage("Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)")
+	end)
+	addGMFunction("Holmes",function()
+		addGMMessage("Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nDefault advanced engine:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only")
+	end)
+	addGMFunction("Rattler",function()
+		addGMMessage("MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nDefault advanced engine:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret")
+	end)
+	addGMFunction("Rogue",function()
+		addGMMessage("Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)")
+	end)
+	addGMFunction("Simian",function()
+		addGMMessage("Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI")
+	end)	
+end
+function describeStockPlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Back",describePlayerShips)
+	addGMFunction("Atlantis",function()
+		addGMMessage("Atlantis: Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:3   Cargo:6   R.Strength:52\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:10   Side:4   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP\n      20 HVLI\nA refitted Atlantis X23 for more general tasks. The large shield system has been replaced with an advanced combat maneuvering systems and improved impulse engines. Its missile loadout is also more diverse. Mistaking the modified Atlantis for an Atlantis X23 would be a deadly mistake.")
+	end)
+	addGMFunction("Benedict",function()
+		addGMMessage("Benedict: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Jump (5U - 90U)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nBenedict is an improved version of the Jump Carrier")
+	end)
+	addGMFunction("Crucible",function()
+		addGMMessage("Crucible: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:5   R.Strength:45\nDefault advanced engine:Warp (750)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:70   Direction:-30   Range:1   Cycle:6   Damage:5\n   Arc:70   Direction: 30   Range:1   Cycle:6   Damage:5\nTubes:6   Load Speed:8   Front:3   Side:2   Back:1\n   Direction:   0   Type:HVLI Only - Small\n   Direction:   0   Type:HVLI Only\n   Direction:   0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      04 Nuke\n      06 Mine\n      06 EMP\n      24 HVLI\nA number of missile tubes range around this ship. Beams were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
+	end)
+	addGMFunction("Ender",function()
+		addGMMessage("Ender: Dreadnaught, Battlecruiser   Hull:100   Shield:1200,1200   Size:2000   Repair Crew:8   Cargo Space:20   R.Strength:100\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette   Energy:1200\nDefault advanced engine:Jump   Speeds: Impulse:30   Spin:2   Accelerate:6   C.Maneuver: Boost:800 Strafe:500\nBeams:12 6 left, 6 right turreted Speed:6\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.1   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.0   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.8   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.3   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.9   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.4   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.7   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.2   Damage:4\nTubes:2   Load Speed:8   Front:1   Back:1\n   Direction:   0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      6 Mine")
+	end)
+	addGMFunction("Flavia P.Falcon",function()
+		addGMMessage("Flavia P.Falcon: Frigate, Light Transport   Hull:100   Shield:70,70   Size:200   Repair Crew:8   Cargo Space:15   R.Strength:13\nDefault advanced engine:Warp (500)   Speeds: Impulse:60   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 rear facing\n   Arc:40   Direction:170   Range:1.2   Cycle:6   Damage:6\n   Arc:40   Direction:190   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Back:1\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nThe Flavia P.Falcon has a nuclear-capable rear-facing weapon tube and a warp drive.")
+	end)
+	addGMFunction("Hathcock",function()
+		addGMMessage("Hathcock: Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo Space:6   R.Strength:30\nDefault advanced engine:Jump   Speeds: Impulse:50   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeams:4 front facing\n   Arc:04   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nLong range narrow beam and some point defense beams, broadside missiles. Agile for a frigate")
+	end)
+	addGMFunction("Kiriya",function()
+		addGMMessage("Kiriya: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Warp (750)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nKiriya is an improved warp drive version of the Jump Carrier")
+	end)
+	addGMFunction("MP52 Hornet",function()
+		addGMMessage("MP52 Hornet: Starfighter, Interceptor   Hull:70   Shield:60   Size:100   Repair Crew:1   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:125   Spin:32   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:30   Direction: 5   Range:.9   Cycle:4   Damage:2.5\n   Arc:30   Direction:-5   Range:.9   Cycle:4   Damage:2.5\nThe MP52 Hornet is a significantly upgraded version of MU52 Hornet, with nearly twice the hull strength, nearly three times the shielding, better acceleration, impulse boosters, and a second laser cannon.")
+	end)
+	addGMFunction("Maverick",function()
+		addGMMessage("Maverick: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:6   3 forward, 2 side, 1 back (turreted speed .5)\n   Arc:10   Direction:  0   Range:2.0   Cycle:6   Damage:6\n   Arc: 90   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc: 90   Direction: 20   Range:1.5   Cycle:6   Damage:8\n   Arc: 40   Direction:-70   Range:1.0   Cycle:4   Damage:6\n   Arc: 40   Direction: 70   Range:1.0   Cycle:4   Damage:6\n   Arc:180   Direction:180   Range:0.8   Cycle:6   Damage:4   (turreted speed: .5)\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nA number of beams bristle from various points on this gunner. Missiles were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
+	end)
+	addGMFunction("Nautilus",function()
+		addGMMessage("Nautilus: Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:12\nDefault advanced engine:Jump   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Back:3\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Mine\nSmall mine laying vessel with minimal armament, shields and hull")
+	end)
+	addGMFunction("Phobos MP3",function()
+		addGMMessage("Phobos MP3: Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:3   Cargo:10   R.Strength:19\nDefault advanced engine:None   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:3   Load Speed:10   Front:2   Back:1\n   Direction: -1   Type:Exclude Mine\n   Direction:  1   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      02 Nuke\n      04 Mine\n      03 EMP\n      20 HVLI\nPlayer variant of the Phobos M3, not as strong as the atlantis, but has front firing tubes, making it an easier to use ship in some scenarios.")
+	end)
+	addGMFunction("Piranha",function()
+		addGMMessage("Piranha: Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo:8   R.Strength:16\nDefault advanced engine:None   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nTubes:8   Load Speed:8   Side:6   Back:2\n   Direction:-90   Type:HVLI and Homing Only\n   Direction:-90   Type:Any\n   Direction:-90   Type:HVLI and Homing Only\n   Direction: 90   Type:HVLI and Homing Only\n   Direction: 90   Type:Any\n   Direction: 90   Type:HVLI and Homing Only\n   Direction:170   Type:Mine Only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Nuke\n      08 Mine\n      20 HVLI\nThis combat-specialized Piranha F12 adds mine-laying tubes, combat maneuvering systems, and a jump drive.")
+	end)	
+	addGMFunction("Player Cruiser",function()
+		addGMMessage("Player Cruiser:   Hull:200   Shield:80,80   Size:400   Repair Crew:3   Cargo:6   R.Strength:40\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1   Cycle:6   Damage:10\n   Arc:90   Direction: 15   Range:1   Cycle:6   Damage:10\nTubes:3   Load Speed:8   Front:2   Back:1\n   Direction: -5   Type:Exclude Mine\n   Direction:  5   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP")
+	end)
+	addGMFunction("Player Fighter",function()
+		addGMMessage("Player Fighter:   Hull:60   Shield:40   Size:100   Repair Crew:3   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:40   Direction:-10   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:1   Cycle:6   Damage:8\nTube:1   Load Speed:10   Front:1\n   Direction:0   Type:HVLI Only\n   Ordnance stock and type:\n      4 HVLI")
+	end)
+	addGMFunction("Player Missile Cr.",function()
+		addGMMessage("Player Missile Cr.:   Hull:200   Shield:110,70   Size:200   Repair Crew:3   Cargo:8   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nTubes:7   Load Speed:8   Front:2   Side:4   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction: 90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      30 Homing\n      08 Nuke\n      12 Mine\n      10 EMP")
+	end)	
+	addGMFunction("Repulse",function()
+		addGMMessage("Repulse: Frigate, Armored Transport   Hull:120   Shield:80,80   Size:200   Repair Crew:8   Cargo:12   R.Strength:14\nDefault advanced engine:Jump   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:5\n   Arc:200   Direction: 90   Range:1.2   Cycle:6   Damage:5\n   Arc:200   Direction:-90   Range:1.2   Cycle:6   Damage:5\nTubes:2   Load Speed:20   Front:1   Back:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      6 HVLI\nJump/Turret version of Flavia Falcon")
+	end)
+	addGMFunction("Striker",function()
+		addGMMessage("Striker: Starfighter, Patrol   Hull:120   Shield:50,30   Size:200   Repair Crew:2   Cargo:4   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:45   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:500\nBeams:2 Turreted Speed:6\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nThe Striker is the predecessor to the advanced striker, slow but agile, but does not do an extreme amount of damage, and lacks in shields")
+	end)
+	addGMFunction("ZX-Lindworm",function()
+		addGMMessage("ZX-Lindworm: Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:1   Cargo:3   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI")
+	end)
+end
 
-	playerHalberd:setWeaponTubeDirection(0,-90)			--front left facing (vs left)
-	playerHalberd:setWeaponTubeDirection(1,-60)			--front left facing (vs left)
-	playerHalberd:setWeaponTubeDirection(2, 60)			--front right facing (vs right)
-	playerHalberd:setWeaponTubeDirection(3, 90)			--front right facing (vs right)
-	playerHalberd:setWeaponTubeExclusiveFor(0,"Nuke")	--HVLI only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(1,"HVLI")	--Nuke only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
-	playerHalberd:addReputationPoints(50)
-	playerShip()
-end
-function createPlayerShipOsprey()
-	playerOsprey = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Osprey")
-	playerOsprey:setTypeName("Flavia 2C")
-	playerOsprey:setRotationMaxSpeed(20)					--faster spin (vs 10)
-	playerOsprey:setImpulseMaxSpeed(70)						--faster (vs 60)
-	playerOsprey:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
-	playerOsprey:setShields(100, 100)
-	playerOsprey:setBeamWeapon(0, 40, -10, 1200.0, 5.5, 6.5)	--two forward (vs rear)
-	playerOsprey:setBeamWeapon(1, 40,  10, 1200.0, 5.5, 6.5)	--faster (vs 6.0) and stronger (vs 6.0)
-	playerOsprey:setWeaponTubeCount(3)						--more (vs 1)
-	playerOsprey:setWeaponTubeDirection(0,-90)				--left facing (vs none)
-	playerOsprey:setWeaponTubeDirection(1, 90)				--right facing (vs none)
-	playerOsprey:setWeaponTubeDirection(2, 180)				--rear facing
-	playerOsprey:setWeaponTubeExclusiveFor(0,"Homing")		
-	playerOsprey:setWeaponTubeExclusiveFor(1,"Homing")
-	playerOsprey:setWeaponStorageMax("EMP",2)				--more (vs 0)
-	playerOsprey:setWeaponStorage("EMP", 2)				
-	playerOsprey:setWeaponStorageMax("Nuke",2)				--more (vs 1)
-	playerOsprey:setWeaponStorage("Nuke", 2)				
-	playerOsprey:setWeaponStorageMax("Mine",2)				--more (vs 1)
-	playerOsprey:setWeaponStorage("Mine", 2)				
-	playerOsprey:setWeaponStorageMax("Homing",4)			--more (vs 3)
-	playerOsprey:setWeaponStorage("Homing", 4)				
-	playerOsprey:addReputationPoints(50)
-	playerShip()
-end
-function createPlayerShipSimian()
-	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
-	playerSimian:setTypeName("Destroyer III")
-	playerSimian:setWarpDrive(false)
-	playerSimian:setJumpDrive(true)
-	playerSimian:setJumpDriveRange(2000,20000)						--shorter than typical jump drive range (vs 5-50)
-	playerSimian:setHullMax(100)									--weaker hull (vs 200)
-	playerSimian:setHull(100)
---                 				 Arc, Dir, Range, CycleTime, Damage
-	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
---									    Arc, Dir, Rotate speed
-	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
-	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
-	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
-	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
-	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
-	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
-	playerSimian:setWeaponStorage("Homing", 10)				
-	playerSimian:setWeaponStorageMax("Nuke",4)						--less (vs 8)
-	playerSimian:setWeaponStorage("Nuke", 4)				
-	playerSimian:setWeaponStorageMax("EMP",5)						--less (vs 10)
-	playerSimian:setWeaponStorage("EMP", 5)				
-	playerSimian:setWeaponStorageMax("Mine",6)						--less (vs 12)
-	playerSimian:setWeaponStorage("Mine", 6)				
-	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
-	playerSimian:setWeaponStorage("HVLI", 10)				
-	playerSimian:addReputationPoints(50)
-	playerShip()
-end
-function createPlayerShipThunderbird()
-	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
-	playerThunderbird:setTypeName("Destroyer IV")
-	playerThunderbird:setJumpDriveRange(2000,20000)				--shorter jump drive range (vs 5-50)
-	playerThunderbird:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
-	playerThunderbird:setShields(100, 100)
-	playerThunderbird:setHullMax(100)							--weaker hull (vs 200)
-	playerThunderbird:setHull(100)
-	playerThunderbird:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
-	playerThunderbird:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
-	playerThunderbird:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
-	playerThunderbird:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
-	playerThunderbird:setWeaponStorageMax("Homing",6)			--less (vs 12)
-	playerThunderbird:setWeaponStorage("Homing", 6)				
-	playerThunderbird:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
-	playerThunderbird:setWeaponStorage("Nuke", 2)				
-	playerThunderbird:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
-	playerThunderbird:setWeaponStorage("EMP", 3)				
-	playerThunderbird:setWeaponStorageMax("Mine",4)				--fewer (vs 8)
-	playerThunderbird:setWeaponStorage("Mine", 4)				
-	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
-	playerThunderbird:setWeaponStorage("HVLI", 6)				
-	playerThunderbird:addReputationPoints(50)
+function createPlayerShipCobra()
+	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
+	playerCobra:setTypeName("Striker LX")
+	playerCobra:setShieldsMax(100,100)						--stronger shields (vs 50, 30)
+	playerCobra:setShields(100,100)
+	playerCobra:setMaxEnergy(800)							--more maximum energy (vs 500)
+	playerCobra:setEnergy(800)
+	playerCobra:setJumpDrive(true)
+	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
+	playerCobra:setImpulseMaxSpeed(65)						--faster impulse max (vs 45)
+--									   Arc, Dir, Rotate speed
+	playerCobra:setBeamWeaponTurret(0, 100, -15, .1)		--slower turret speed (vs 6)
+	playerCobra:setBeamWeaponTurret(1, 100,  15, .1)
+	playerCobra:setWeaponTubeCount(2)						--more tubes (vs 0)
+	playerCobra:setWeaponTubeDirection(0,180)				
+	playerCobra:setWeaponTubeDirection(1,180)
+	playerCobra:setWeaponStorageMax("Homing",4)
+	playerCobra:setWeaponStorage("Homing", 4)	
+	playerCobra:setWeaponStorageMax("Nuke",2)	
+	playerCobra:setWeaponStorage("Nuke", 2)	
+	playerCobra:setWeaponStorageMax("EMP",3)	
+	playerCobra:setWeaponStorage("EMP", 3)		
+	playerCobra:setWeaponStorageMax("Mine",3)	
+	playerCobra:setWeaponStorage("Mine", 3)	
+	playerCobra:setWeaponStorageMax("HVLI",6)	
+	playerCobra:setWeaponStorage("HVLI", 6)	
+	playerCobra:addReputationPoints(50)
 	playerShip()
 end
 function createPlayerShipHolmes()
@@ -849,52 +870,59 @@ function createPlayerShipRattler()
 	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
 	playerShip()
 end
-function createPlayerShipSpyder()
-	playerSpyder = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Spyder")
-	playerSpyder:setTypeName("Atlantis II")
-	playerSpyder:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerSpyder:setImpulseMaxSpeed(80)					--slower impulse max (vs 90)
-	playerSpyder:setWeaponTubeCount(6)					--one more tube
-	playerSpyder:setWeaponTubeDirection(5,0)			--front facing
-	playerSpyder:weaponTubeDisallowMissle(5,"Mine")		--no Mine
-	playerSpyder:weaponTubeDisallowMissle(5,"EMP")		--no EMP
-	playerSpyder:weaponTubeDisallowMissle(5,"Nuke")		--no Nuke
-	playerSpyder:setWeaponTubeDirection(0,-60)			--left front facing
-	playerSpyder:setWeaponTubeDirection(1,-120)			--left rear facing
-	playerSpyder:setWeaponTubeDirection(2,60)			--right front facing
-	playerSpyder:setWeaponTubeDirection(3,120)			--right rear facing
-	playerSpyder:addReputationPoints(50)
+function createPlayerShipRogue()
+	playerRogue = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Rogue")
+	playerRogue:setTypeName("Maverick XP")
+	playerRogue:setImpulseMaxSpeed(65)						--slower impulse max (vs 80)
+	playerRogue:setWarpDrive(false)							--no warp
+	playerRogue:setJumpDrive(true)
+	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
+--                  		    Arc, Dir,  Range, CycleTime, Dmg
+	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 18)
+--									   Arc, Dir, Rotate speed
+	playerRogue:setBeamWeaponTurret(0, 270,   0, .1)
+	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*5)
+	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
+	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
+	playerRogue:setBeamWeapon(2, 0, 0, 0, 0, 0)				
+	playerRogue:setBeamWeapon(3, 0, 0, 0, 0, 0)				
+	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
+	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
+	playerRogue:addReputationPoints(50)
 	playerShip()
 end
-function createPlayerShipNarsil()
-	playerNarsil = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Narsil")
-	playerNarsil:setTypeName("Proto-Atlantis")
-	playerNarsil:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerNarsil:setImpulseMaxSpeed(70)					--slower impulse max (vs 90)
-	playerNarsil:setRotationMaxSpeed(14)				--faster spin (vs 10)
-	playerNarsil:setJumpDrive(false)					--no Jump
-	playerNarsil:setWarpDrive(true)						--add warp
-	playerNarsil:setHullMax(200)						--weaker hull (vs 250)
-	playerNarsil:setHull(200)							
-	playerNarsil:setShieldsMax(150,150)					--weaker shields (vs 200)
-	playerNarsil:setShields(150,150)
-	playerNarsil:setWeaponTubeCount(6)					--one more forward tube, less flexible ordnance
-	playerNarsil:setWeaponTubeDirection(0,0)			--front facing
-	playerNarsil:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(1,-90)			--left facing
-	playerNarsil:weaponTubeDisallowMissle(1,"Mine")		--all but mine
-	playerNarsil:setWeaponTubeDirection(2,-90)			--left facing
-	playerNarsil:setWeaponTubeExclusiveFor(2,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(3,90)			--right facing
-	playerNarsil:weaponTubeDisallowMissle(3,"Mine")		--all but mine
-	playerNarsil:setWeaponTubeDirection(4,90)			--right facing
-	playerNarsil:setWeaponTubeExclusiveFor(4,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(5,180)			--rear facing
-	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
-	playerNarsil:addReputationPoints(50)
+function createPlayerShipSimian()
+	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
+	playerSimian:setTypeName("Destroyer III")
+	playerSimian:setWarpDrive(false)
+	playerSimian:setJumpDrive(true)
+	playerSimian:setJumpDriveRange(2000,20000)						--shorter than typical jump drive range (vs 5-50)
+	playerSimian:setHullMax(100)									--weaker hull (vs 200)
+	playerSimian:setHull(100)
+--                 				 Arc, Dir, Range, CycleTime, Damage
+	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
+--									    Arc, Dir, Rotate speed
+	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
+	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
+	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
+	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
+	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
+	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
+	playerSimian:setWeaponStorage("Homing", 10)				
+	playerSimian:setWeaponStorageMax("Nuke",4)						--less (vs 8)
+	playerSimian:setWeaponStorage("Nuke", 4)				
+	playerSimian:setWeaponStorageMax("EMP",5)						--less (vs 10)
+	playerSimian:setWeaponStorage("EMP", 5)				
+	playerSimian:setWeaponStorageMax("Mine",6)						--less (vs 12)
+	playerSimian:setWeaponStorage("Mine", 6)				
+	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
+	playerSimian:setWeaponStorage("HVLI", 10)				
+	playerSimian:addReputationPoints(50)
 	playerShip()
 end
---[[ destroyed 1Feb2020
+
+--[[ 
+--destroyed 1Feb2020
 function createPlayerShipAmbition()
 	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
 	playerAmbition:setTypeName("Phobos T2")
@@ -920,7 +948,8 @@ function createPlayerShipAmbition()
 	playerShip()
 end
 --]]
---[[  destroyed 14Dec2019
+--[[  
+--destroyed 14Dec2019
 function createPlayerShipArwine()
 	playerArwine = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Arwine")
 	playerArwine:setTypeName("Pacu")
@@ -958,7 +987,8 @@ function createPlayerShipArwine()
 	playerShip()
 end
 --]]
---[[ destroyed 8feb2020
+--[[ 
+--destroyed 8feb2020
 function createPlayerShipBarracuda()
 	--clone of Headhunter
 	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
@@ -1028,6 +1058,39 @@ function createPlayerShipBlazon()
 end
 --]]
 --[[
+--destroyed 29Feb2020
+function createPlayerShipHalberd()
+	playerHalberd = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Halberd")
+	playerHalberd:setTypeName("Proto-Atlantis")
+	playerHalberd:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerHalberd:setImpulseMaxSpeed(70)				--slower impulse max (vs 90)
+	playerHalberd:setRotationMaxSpeed(14)				--faster spin (vs 10)
+	playerHalberd:setJumpDriveRange(3000,30000)			--shorter jump drive range (vs 5-50)
+	playerHalberd:setHullMax(200)						--weaker hull (vs 250)
+	playerHalberd:setHull(200)							
+	playerHalberd:setShieldsMax(150,150)				--weaker shields (vs 200)
+	playerHalberd:setShields(150,150)
+	
+--                 				 Arc, Dir, Range, CycleTime, Dmg
+	playerHalberd:setBeamWeapon(0, 5, -10,  1500,       6.0, 8)		--narrower turreted beams
+	playerHalberd:setBeamWeapon(1, 5,  10,  1500,       6.0, 8)		--vs arc:100, dir:-20
+--									    Arc, Dir, Rotate speed
+	playerHalberd:setBeamWeaponTurret(0, 70, -10, .25)
+	playerHalberd:setBeamWeaponTurret(1, 70,  10, .25)
+
+	playerHalberd:setWeaponTubeDirection(0,-90)			--front left facing (vs left)
+	playerHalberd:setWeaponTubeDirection(1,-60)			--front left facing (vs left)
+	playerHalberd:setWeaponTubeDirection(2, 60)			--front right facing (vs right)
+	playerHalberd:setWeaponTubeDirection(3, 90)			--front right facing (vs right)
+	playerHalberd:setWeaponTubeExclusiveFor(0,"Nuke")	--HVLI only (vs all but Mine)
+	playerHalberd:setWeaponTubeExclusiveFor(1,"HVLI")	--Nuke only (vs all but Mine)
+	playerHalberd:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs all but Mine)
+	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
+	playerHalberd:addReputationPoints(50)
+	playerShip()
+end
+--]]
+--[[
 function createPlayerShipHeadhunter()
 	playerHeadhunter = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Headhunter")
 	playerHeadhunter:setTypeName("Redhook")
@@ -1093,6 +1156,65 @@ function createPlayerShipMagnum()
 	playerShip()
 end
 --]]
+--[[	experimental
+function createPlayerShipNarsil()
+	playerNarsil = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Narsil")
+	playerNarsil:setTypeName("Proto-Atlantis")
+	playerNarsil:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerNarsil:setImpulseMaxSpeed(70)					--slower impulse max (vs 90)
+	playerNarsil:setRotationMaxSpeed(14)				--faster spin (vs 10)
+	playerNarsil:setJumpDrive(false)					--no Jump
+	playerNarsil:setWarpDrive(true)						--add warp
+	playerNarsil:setHullMax(200)						--weaker hull (vs 250)
+	playerNarsil:setHull(200)							
+	playerNarsil:setShieldsMax(150,150)					--weaker shields (vs 200)
+	playerNarsil:setShields(150,150)
+	playerNarsil:setWeaponTubeCount(6)					--one more forward tube, less flexible ordnance
+	playerNarsil:setWeaponTubeDirection(0,0)			--front facing
+	playerNarsil:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only
+	playerNarsil:setWeaponTubeDirection(1,-90)			--left facing
+	playerNarsil:weaponTubeDisallowMissle(1,"Mine")		--all but mine
+	playerNarsil:setWeaponTubeDirection(2,-90)			--left facing
+	playerNarsil:setWeaponTubeExclusiveFor(2,"HVLI")	--HVLI only
+	playerNarsil:setWeaponTubeDirection(3,90)			--right facing
+	playerNarsil:weaponTubeDisallowMissle(3,"Mine")		--all but mine
+	playerNarsil:setWeaponTubeDirection(4,90)			--right facing
+	playerNarsil:setWeaponTubeExclusiveFor(4,"HVLI")	--HVLI only
+	playerNarsil:setWeaponTubeDirection(5,180)			--rear facing
+	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
+	playerNarsil:addReputationPoints(50)
+	playerShip()
+end
+--]]
+--[[
+--destroyed 29Feb2020
+function createPlayerShipOsprey()
+	playerOsprey = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Osprey")
+	playerOsprey:setTypeName("Flavia 2C")
+	playerOsprey:setRotationMaxSpeed(20)					--faster spin (vs 10)
+	playerOsprey:setImpulseMaxSpeed(70)						--faster (vs 60)
+	playerOsprey:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
+	playerOsprey:setShields(100, 100)
+	playerOsprey:setBeamWeapon(0, 40, -10, 1200.0, 5.5, 6.5)	--two forward (vs rear)
+	playerOsprey:setBeamWeapon(1, 40,  10, 1200.0, 5.5, 6.5)	--faster (vs 6.0) and stronger (vs 6.0)
+	playerOsprey:setWeaponTubeCount(3)						--more (vs 1)
+	playerOsprey:setWeaponTubeDirection(0,-90)				--left facing (vs none)
+	playerOsprey:setWeaponTubeDirection(1, 90)				--right facing (vs none)
+	playerOsprey:setWeaponTubeDirection(2, 180)				--rear facing
+	playerOsprey:setWeaponTubeExclusiveFor(0,"Homing")		
+	playerOsprey:setWeaponTubeExclusiveFor(1,"Homing")
+	playerOsprey:setWeaponStorageMax("EMP",2)				--more (vs 0)
+	playerOsprey:setWeaponStorage("EMP", 2)				
+	playerOsprey:setWeaponStorageMax("Nuke",2)				--more (vs 1)
+	playerOsprey:setWeaponStorage("Nuke", 2)				
+	playerOsprey:setWeaponStorageMax("Mine",2)				--more (vs 1)
+	playerOsprey:setWeaponStorage("Mine", 2)				
+	playerOsprey:setWeaponStorageMax("Homing",4)			--more (vs 3)
+	playerOsprey:setWeaponStorage("Homing", 4)				
+	playerOsprey:addReputationPoints(50)
+	playerShip()
+end
+--]]
 --[[
 function createPlayerShipSpike()
 	playerSpike = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Spike")
@@ -1123,6 +1245,25 @@ function createPlayerShipSpike()
 	playerShip()
 end
 --]]
+--[[ experimental
+function createPlayerShipSpyder()
+	playerSpyder = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Spyder")
+	playerSpyder:setTypeName("Atlantis II")
+	playerSpyder:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerSpyder:setImpulseMaxSpeed(80)					--slower impulse max (vs 90)
+	playerSpyder:setWeaponTubeCount(6)					--one more tube
+	playerSpyder:setWeaponTubeDirection(5,0)			--front facing
+	playerSpyder:weaponTubeDisallowMissle(5,"Mine")		--no Mine
+	playerSpyder:weaponTubeDisallowMissle(5,"EMP")		--no EMP
+	playerSpyder:weaponTubeDisallowMissle(5,"Nuke")		--no Nuke
+	playerSpyder:setWeaponTubeDirection(0,-60)			--left front facing
+	playerSpyder:setWeaponTubeDirection(1,-120)			--left rear facing
+	playerSpyder:setWeaponTubeDirection(2,60)			--right front facing
+	playerSpyder:setWeaponTubeDirection(3,120)			--right rear facing
+	playerSpyder:addReputationPoints(50)
+	playerShip()
+end
+--]]
 --[[	sent to Kraylor war front. May return later
 function createPlayerShipSting()
 	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
@@ -1149,6 +1290,34 @@ function createPlayerShipSting()
 	playerSting:setWeaponTubeDirection(2,180)
 	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
 	playerSting:addReputationPoints(50)
+	playerShip()
+end
+--]]
+--[[
+--destroyed 29Feb2020
+function createPlayerShipThunderbird()
+	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
+	playerThunderbird:setTypeName("Destroyer IV")
+	playerThunderbird:setJumpDriveRange(2000,20000)				--shorter jump drive range (vs 5-50)
+	playerThunderbird:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
+	playerThunderbird:setShields(100, 100)
+	playerThunderbird:setHullMax(100)							--weaker hull (vs 200)
+	playerThunderbird:setHull(100)
+	playerThunderbird:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
+	playerThunderbird:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
+	playerThunderbird:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
+	playerThunderbird:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
+	playerThunderbird:setWeaponStorageMax("Homing",6)			--less (vs 12)
+	playerThunderbird:setWeaponStorage("Homing", 6)				
+	playerThunderbird:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
+	playerThunderbird:setWeaponStorage("Nuke", 2)				
+	playerThunderbird:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
+	playerThunderbird:setWeaponStorage("EMP", 3)				
+	playerThunderbird:setWeaponStorageMax("Mine",4)				--fewer (vs 8)
+	playerThunderbird:setWeaponStorage("Mine", 4)				
+	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
+	playerThunderbird:setWeaponStorage("HVLI", 6)				
+	playerThunderbird:addReputationPoints(50)
 	playerShip()
 end
 --]]
@@ -1206,6 +1375,18 @@ function toggleBlazonAutoCool()
 end
 --]]
 --[[
+function toggleHalberdAutoCool()
+	if playerHalberd.autoCoolant then
+		playerHalberd.autoCoolant = false
+		playerHalberd:setAutoCoolant(false)
+	else
+		playerHalberd.autoCoolant = true
+		playerHalberd:setAutoCoolant(true)
+	end
+	autoCool()
+end
+--]]
+--[[
 function toggleHeadhunterAutoCool()
 	if playerHeadhunter.autoCoolant then
 		playerHeadhunter.autoCoolant = false
@@ -1253,16 +1434,6 @@ function toggleStingAutoCool()
 	autoCool()
 end
 --]]
-function toggleHalberdAutoCool()
-	if playerHalberd.autoCoolant then
-		playerHalberd.autoCoolant = false
-		playerHalberd:setAutoCoolant(false)
-	else
-		playerHalberd.autoCoolant = true
-		playerHalberd:setAutoCoolant(true)
-	end
-	autoCool()
-end
 function toggleHolmesAutoCool()
 	if playerHolmes.autoCoolant then
 		playerHolmes.autoCoolant = false
@@ -2322,11 +2493,10 @@ function createIcarusStations()
     	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes"
 	}
 	table.insert(stations,stationCindyFolly)
-	local borlanZone = squareZone(68808, 39300, "Borlan")
-	borlanZone:setColor(51,153,255)
-	--[[	Destroyed 22Feb2020
+	--local borlanZone = squareZone(68808, 39300, "Borlan")
+	--borlanZone:setColor(51,153,255)
 	--Borlan
-    stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
+    stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -2345,16 +2515,14 @@ function createIcarusStations()
         			luxury ={quantity = math.random(2,8),	cost = math.random(55,95)} },
         trade = {	food = false, medicine = tradeMedicine, luxury = false },
         public_relations = true,
-        general_information = "Mining and resupply",
+        general_information = "Mining and resupply, New and improved",
     	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich"
 	}
 	table.insert(stations,stationBorlan)
-	--]]
-	local slurryZone = squareZone(100342, 27871, "Slurry")
-	slurryZone:setColor(51,153,255)
-	--[[	Destroyed 22Feb2020
+	--local slurryZone = squareZone(100342, 27871, "Slurry")
+	--slurryZone:setColor(51,153,255)
 	--Slurry
-    stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry 2"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry 3"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -2377,12 +2545,10 @@ function createIcarusStations()
     	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research"
 	}
 	table.insert(stations,stationSlurry)
-	--]]
-	local relay13Zone = squareZone(77918, 23876, "Relay13")
-	relay13Zone:setColor(0,255,0)
-	--[[	Destroyed 22Fen2020
+	--local relay13Zone = squareZone(77918, 23876, "Relay13")
+	--relay13Zone:setColor(0,255,0)
 	--Relay-13
-    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 B"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
     stationRelay13.comms_data = {
     	friendlyness = 75,
@@ -2398,7 +2564,6 @@ function createIcarusStations()
         general_information = "Communication traffic relay and coordination"
 	}
 	table.insert(stations,stationRelay13)
-	--]]
 	--Stromboli
     stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -9901,6 +10066,109 @@ function update(delta)
 		timer_value = timer_value - delta
 	end
 	healthCheckTimer = healthCheckTimer - delta
+	local warning_message = nil
+	local warning_station = nil
+	for station_index=1,#regionStations do
+		local current_station = regionStations[station_index]
+		if current_station ~= nil and current_station:isValid() then
+			if current_station.proximity_warning == nil then
+				for _, obj in ipairs(current_station:getObjectsInRange(30000)) do
+					if obj ~= nil and obj:isValid() then
+						if obj:isEnemy(current_station) then
+							local detected_enemy_ship = false
+							local obj_type_name = obj.typeName
+							if obj_type_name ~= nil then
+								if string.find(obj_type_name,"CpuShip") then
+									detected_enemy_ship = true
+								end
+							end
+							if detected_enemy_ship then
+								warning_station = current_station
+								warning_message = string.format("[%s in %s] We detect one or more enemies nearby. At least one is of type %s",current_station:getCallSign(),current_station:getSectorName(),obj:getTypeName())
+								current_station.proximity_warning = warning_message
+								current_station.proximity_warning_timer = delta + 300
+								break
+							end
+						end
+					end
+				end
+				if warning_station ~= nil then
+					break
+				end
+			else
+				current_station.proximity_warning_timer = current_station.proximity_warning_timer - delta
+				if current_station.proximity_warning_timer < 0 then
+					current_station.proximity_warning = nil
+				end
+			end
+			if warning_station == nil then
+				if current_station.shield_damage_warning == nil then
+					for i=1,current_station:getShieldCount() do
+						if current_station:getShieldLevel(i-1) < current_station:getShieldMax(i-1) then
+							warning_station = current_station
+							warning_message = string.format("[%s in %s] Our shields have taken damage",current_station:getCallSign(),current_station:getSectorName())
+							current_station.shield_damage_warning = warning_message
+							current_station.shield_damage_warning_timer = delta + 300
+							break
+						end
+					end
+					if warning_station ~= nil then
+						break
+					end
+				else
+					current_station.shield_damage_warning_timer = current_station.shield_damage_warning_timer - delta
+					if current_station.shield_damage_warning_timer < 0 then
+						current_station.shield_damage_warning = nil
+					end
+				end
+			end
+			if warning_station == nil then
+				if current_station.severe_shield_warning == nil then
+					local current_station_shield_count = current_station:getShieldCount()
+					for i=1,current_station_shield_count do
+						if current_station:getShieldLevel(i-1) < current_station:getShieldMax(i-1)*.1 then
+							warning_station = current_station
+							if current_station_shield_count == 1 then
+								warning_message = string.format("[%s in %s] Our shields are nearly gone",current_station:getCallSign(),current_station:getSectorName())
+							else
+								warning_message = string.format("[%s in %s] One or more of our shields are nearly gone",current_station:getCallSign(),current_station:getSectorName())
+							end
+							current_station.severe_shield_warning = warning_message
+							current_station.severe_shield_warning_timer = delta + 300
+							break
+						end
+					end
+					if warning_station ~= nil then
+						break
+					end
+				else
+					current_station.severe_shield_warning_timer = current_station.severe_shield_warning_timer - delta
+					if current_station.severe_shield_warning_timer < 0 then
+						current_station.severe_shield_warning = nil
+					end
+				end
+			end
+			if warning_station == nil then
+				if current_station.hull_warning == nil then
+					if current_station:getHull() < current_station:getHullMax() then
+						warning_station = current_station
+						warning_message = string.format("[%s in %s] Our hull has been damaged",current_station:getCallSign(),current_station:getSectorName())
+						current_station.hull_warning = warning_message
+						break
+					end
+				end
+			end
+			if warning_station == nil then
+				if current_station.severe_hull_warning == nil then
+					if current_station:getHull() < current_station:getHullMax()*.1 then
+						warning_station = current_station
+						warning_message = string.format("[%s in %s] We are on the brink of destruction",current_station:getCallSign(),current_station:getSectorName())
+						current_station.severe_hull_warning = warning_message
+					end
+				end
+			end
+		end
+	end
 	for pidx=1,8 do
 		if updateDiagnostic then print("update: pidx: " .. pidx) end
 		local p = getPlayerShip(pidx)
@@ -9910,6 +10178,9 @@ function update(delta)
 				p:setPosition(playerSpawnX,playerSpawnY)	--put player in the correct region when spawned
 				p.spawnAdjust = true
 				assignPlayerShipScore(p)
+			end
+			if warning_station ~= nil then
+				p:addToShipLog(warning_message,"Red")
 			end
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
