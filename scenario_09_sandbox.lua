@@ -618,6 +618,7 @@ function setConstants()
 	timer_purpose = "Timer"
 	coolant_amount = 1
 	jammer_range = 10000
+	automated_station_danger_warning = true
 end
 function initialGMFunctions()
 	clearGMFunctions()
@@ -652,6 +653,17 @@ function initialSetUp()
 	addGMFunction(string.format("+Player ships %i/%i",playerShipCount,highestPlayerIndex),playerShip)
 	addGMFunction("+Wormholes",setWormholes)
 	addGMFunction("+Zones",changeZones)
+	if automated_station_danger_warning then
+		addGMFunction("Auto Station Warn Off",function()
+			automated_station_danger_warning = false
+			initialSetUp()
+		end)
+	else
+		addGMFunction("Auto Station Warn On",function()
+			automated_station_danger_warning = true
+			initialSetUp()
+		end)
+	end
 end
 --------------------------
 --	Player Ship set up  --
@@ -10066,104 +10078,106 @@ function update(delta)
 		timer_value = timer_value - delta
 	end
 	healthCheckTimer = healthCheckTimer - delta
-	local warning_message = nil
-	local warning_station = nil
-	for station_index=1,#regionStations do
-		local current_station = regionStations[station_index]
-		if current_station ~= nil and current_station:isValid() then
-			if current_station.proximity_warning == nil then
-				for _, obj in ipairs(current_station:getObjectsInRange(30000)) do
-					if obj ~= nil and obj:isValid() then
-						if obj:isEnemy(current_station) then
-							local detected_enemy_ship = false
-							local obj_type_name = obj.typeName
-							if obj_type_name ~= nil then
-								if string.find(obj_type_name,"CpuShip") then
-									detected_enemy_ship = true
+	if automated_station_danger_warning then
+		local warning_message = nil
+		local warning_station = nil
+		for station_index=1,#regionStations do
+			local current_station = regionStations[station_index]
+			if current_station ~= nil and current_station:isValid() then
+				if current_station.proximity_warning == nil then
+					for _, obj in ipairs(current_station:getObjectsInRange(30000)) do
+						if obj ~= nil and obj:isValid() then
+							if obj:isEnemy(current_station) then
+								local detected_enemy_ship = false
+								local obj_type_name = obj.typeName
+								if obj_type_name ~= nil then
+									if string.find(obj_type_name,"CpuShip") then
+										detected_enemy_ship = true
+									end
+								end
+								if detected_enemy_ship then
+									warning_station = current_station
+									warning_message = string.format("[%s in %s] We detect one or more enemies nearby. At least one is of type %s",current_station:getCallSign(),current_station:getSectorName(),obj:getTypeName())
+									current_station.proximity_warning = warning_message
+									current_station.proximity_warning_timer = delta + 300
+									break
 								end
 							end
-							if detected_enemy_ship then
+						end
+					end
+					if warning_station ~= nil then
+						break
+					end
+				else
+					current_station.proximity_warning_timer = current_station.proximity_warning_timer - delta
+					if current_station.proximity_warning_timer < 0 then
+						current_station.proximity_warning = nil
+					end
+				end
+				if warning_station == nil then
+					if current_station.shield_damage_warning == nil then
+						for i=1,current_station:getShieldCount() do
+							if current_station:getShieldLevel(i-1) < current_station:getShieldMax(i-1) then
 								warning_station = current_station
-								warning_message = string.format("[%s in %s] We detect one or more enemies nearby. At least one is of type %s",current_station:getCallSign(),current_station:getSectorName(),obj:getTypeName())
-								current_station.proximity_warning = warning_message
-								current_station.proximity_warning_timer = delta + 300
+								warning_message = string.format("[%s in %s] Our shields have taken damage",current_station:getCallSign(),current_station:getSectorName())
+								current_station.shield_damage_warning = warning_message
+								current_station.shield_damage_warning_timer = delta + 300
 								break
 							end
 						end
-					end
-				end
-				if warning_station ~= nil then
-					break
-				end
-			else
-				current_station.proximity_warning_timer = current_station.proximity_warning_timer - delta
-				if current_station.proximity_warning_timer < 0 then
-					current_station.proximity_warning = nil
-				end
-			end
-			if warning_station == nil then
-				if current_station.shield_damage_warning == nil then
-					for i=1,current_station:getShieldCount() do
-						if current_station:getShieldLevel(i-1) < current_station:getShieldMax(i-1) then
-							warning_station = current_station
-							warning_message = string.format("[%s in %s] Our shields have taken damage",current_station:getCallSign(),current_station:getSectorName())
-							current_station.shield_damage_warning = warning_message
-							current_station.shield_damage_warning_timer = delta + 300
+						if warning_station ~= nil then
 							break
 						end
-					end
-					if warning_station ~= nil then
-						break
-					end
-				else
-					current_station.shield_damage_warning_timer = current_station.shield_damage_warning_timer - delta
-					if current_station.shield_damage_warning_timer < 0 then
-						current_station.shield_damage_warning = nil
+					else
+						current_station.shield_damage_warning_timer = current_station.shield_damage_warning_timer - delta
+						if current_station.shield_damage_warning_timer < 0 then
+							current_station.shield_damage_warning = nil
+						end
 					end
 				end
-			end
-			if warning_station == nil then
-				if current_station.severe_shield_warning == nil then
-					local current_station_shield_count = current_station:getShieldCount()
-					for i=1,current_station_shield_count do
-						if current_station:getShieldLevel(i-1) < current_station:getShieldMax(i-1)*.1 then
-							warning_station = current_station
-							if current_station_shield_count == 1 then
-								warning_message = string.format("[%s in %s] Our shields are nearly gone",current_station:getCallSign(),current_station:getSectorName())
-							else
-								warning_message = string.format("[%s in %s] One or more of our shields are nearly gone",current_station:getCallSign(),current_station:getSectorName())
+				if warning_station == nil then
+					if current_station.severe_shield_warning == nil then
+						local current_station_shield_count = current_station:getShieldCount()
+						for i=1,current_station_shield_count do
+							if current_station:getShieldLevel(i-1) < current_station:getShieldMax(i-1)*.1 then
+								warning_station = current_station
+								if current_station_shield_count == 1 then
+									warning_message = string.format("[%s in %s] Our shields are nearly gone",current_station:getCallSign(),current_station:getSectorName())
+								else
+									warning_message = string.format("[%s in %s] One or more of our shields are nearly gone",current_station:getCallSign(),current_station:getSectorName())
+								end
+								current_station.severe_shield_warning = warning_message
+								current_station.severe_shield_warning_timer = delta + 300
+								break
 							end
-							current_station.severe_shield_warning = warning_message
-							current_station.severe_shield_warning_timer = delta + 300
+						end
+						if warning_station ~= nil then
+							break
+						end
+					else
+						current_station.severe_shield_warning_timer = current_station.severe_shield_warning_timer - delta
+						if current_station.severe_shield_warning_timer < 0 then
+							current_station.severe_shield_warning = nil
+						end
+					end
+				end
+				if warning_station == nil then
+					if current_station.hull_warning == nil then
+						if current_station:getHull() < current_station:getHullMax() then
+							warning_station = current_station
+							warning_message = string.format("[%s in %s] Our hull has been damaged",current_station:getCallSign(),current_station:getSectorName())
+							current_station.hull_warning = warning_message
 							break
 						end
 					end
-					if warning_station ~= nil then
-						break
-					end
-				else
-					current_station.severe_shield_warning_timer = current_station.severe_shield_warning_timer - delta
-					if current_station.severe_shield_warning_timer < 0 then
-						current_station.severe_shield_warning = nil
-					end
 				end
-			end
-			if warning_station == nil then
-				if current_station.hull_warning == nil then
-					if current_station:getHull() < current_station:getHullMax() then
-						warning_station = current_station
-						warning_message = string.format("[%s in %s] Our hull has been damaged",current_station:getCallSign(),current_station:getSectorName())
-						current_station.hull_warning = warning_message
-						break
-					end
-				end
-			end
-			if warning_station == nil then
-				if current_station.severe_hull_warning == nil then
-					if current_station:getHull() < current_station:getHullMax()*.1 then
-						warning_station = current_station
-						warning_message = string.format("[%s in %s] We are on the brink of destruction",current_station:getCallSign(),current_station:getSectorName())
-						current_station.severe_hull_warning = warning_message
+				if warning_station == nil then
+					if current_station.severe_hull_warning == nil then
+						if current_station:getHull() < current_station:getHullMax()*.1 then
+							warning_station = current_station
+							warning_message = string.format("[%s in %s] We are on the brink of destruction",current_station:getCallSign(),current_station:getSectorName())
+							current_station.severe_hull_warning = warning_message
+						end
 					end
 				end
 			end
