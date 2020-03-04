@@ -1341,119 +1341,6 @@ function createPlayerShipWombat()
 	playerShipSpawned("Devon")
 end
 
---[[
-function toggleBlazonAutoCool()
-	if playerBlazon.autoCoolant then
-		playerBlazon.autoCoolant = false
-		playerBlazon:setAutoCoolant(false)
-	else
-		playerBlazon.autoCoolant = true
-		playerBlazon:setAutoCoolant(true)
-	end
-	autoCool()
-end
---]]
---[[
-function toggleHalberdAutoCool()
-	if playerHalberd.autoCoolant then
-		playerHalberd.autoCoolant = false
-		playerHalberd:setAutoCoolant(false)
-	else
-		playerHalberd.autoCoolant = true
-		playerHalberd:setAutoCoolant(true)
-	end
-	autoCool()
-end
---]]
---[[
-function toggleHeadhunterAutoCool()
-	if playerHeadhunter.autoCoolant then
-		playerHeadhunter.autoCoolant = false
-		playerHeadhunter:setAutoCoolant(false)
-	else
-		playerHeadhunter.autoCoolant = true
-		playerHeadhunter:setAutoCoolant(true)
-	end
-	autoCool()
-end
---]]
---[[
-function toggleMagnumAutoCool()
-	if playerMagnum.autoCoolant then
-		playerMagnum.autoCoolant = false
-		playerMagnum:setAutoCoolant(false)
-	else
-		playerMagnum.autoCoolant = true
-		playerMagnum:setAutoCoolant(true)
-	end
-	autoCool()
-end
---]]
---[[
-function toggleSpikeAutoCool()
-	if playerSpike.autoCoolant then
-		playerSpike.autoCoolant = false
-		playerSpike:setAutoCoolant(false)
-	else
-		playerSpike.autoCoolant = true
-		playerSpike:setAutoCoolant(true)
-	end
-	autoCool()
-end
---]]
---[[
-function toggleStingAutoCool()
-	if playerSting.autoCoolant then
-		playerSting.autoCoolant = false
-		playerSting:setAutoCoolant(false)
-	else
-		playerSting.autoCoolant = true
-		playerSting:setAutoCoolant(true)
-	end
-	autoCool()
-end
---]]
-function toggleHolmesAutoCool()
-	if playerHolmes.autoCoolant then
-		playerHolmes.autoCoolant = false
-		playerHolmes:setAutoCoolant(false)
-	else
-		playerHolmes.autoCoolant = true
-		playerHolmes:setAutoCoolant(true)
-	end
-	autoCool()
-end
-function toggleRattlerAutoCool()
-	if playerRattler.autoCoolant then
-		playerRattler.autoCoolant = false
-		playerRattler:setAutoCoolant(false)
-	else
-		playerRattler.autoCoolant = true
-		playerRattler:setAutoCoolant(true)
-	end
-	autoCool()
-end
-function toggleSpyderAutoCool()
-	if playerSpyder.autoCoolant then
-		playerSpyder.autoCoolant = false
-		playerSpyder:setAutoCoolant(false)
-	else
-		playerSpyder.autoCoolant = true
-		playerSpyder:setAutoCoolant(true)
-	end
-	autoCool()
-end
-function toggleNarsilAutoCool()
-	if playerNarsil.autoCoolant then
-		playerNarsil.autoCoolant = false
-		playerNarsil:setAutoCoolant(false)
-	else
-		playerNarsil.autoCoolant = true
-		playerNarsil:setAutoCoolant(true)
-	end
-	autoCool()
-end
-
 function playerShipSpawned(shipName)
 	for shipNum = 1, #playerShipInfo do
 		if playerShipInfo[shipNum][1] == shipName then
@@ -1487,108 +1374,30 @@ function autoCool()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Auto Cool",tweakPlayerShip)
-	if playerBlazon ~= nil then
-		if playerBlazon.autoCoolant == nil then
-			playerBlazon.autoCoolant = false
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if p.autoCoolant == nil then
+				p.autoCoolant = false
+			end
+			local button_label = p:getCallSign()
+			if p.autoCoolant then
+				button_label = button_label .. " on"
+			else
+				button_label = button_label .. " off"
+			end
+			addGMFunction(button_label,function()
+				if p.autoCoolant then
+					p.autoCoolant = false
+					p:setAutoCoolant(false)
+				else
+					p.autoCoolant = true
+					p:setAutoCoolant(true)
+				end
+				autoCool()
+			end)
 		end
-		local playerBlazonAutoCoolant = "Blazon"
-		if playerBlazon.autoCoolant then
-			playerBlazonAutoCoolant = "Blazon*"
-		end
-		addGMFunction(playerBlazonAutoCoolant,toggleBlazonAutoCool)
 	end
-	if playerHalberd ~= nil then
-		if playerHalberd.autoCoolant == nil then
-			playerHalberd.autoCoolant = false
-		end
-		local playerHalberdAutoCoolant = "Halberd"
-		if playerHalberd.autoCoolant then
-			playerHalberdAutoCoolant = "Halberd*"
-		end
-		addGMFunction(playerHalberdAutoCoolant,toggleHalberdAutoCool)
-	end
-	if playerHolmes ~= nil then
-		if playerHolmes.autoCoolant == nil then
-			playerHolmes.autoCoolant = false
-		end
-		local playerHolmesAutoCoolant = "Holmes"
-		if playerHolmes.autoCoolant then
-			playerHolmesAutoCoolant = "Holmes*"
-		end
-		addGMFunction(playerHolmesAutoCoolant,toggleHolmesAutoCool)
-	end
-	if playerMagnum ~= nil then
-		if playerMagnum.autoCoolant == nil then
-			playerMagnum.autoCoolant = false
-		end
-		local playerMagnumAutoCoolant = "Magnum"
-		if playerMagnum.autoCoolant then
-			playerMagnumAutoCoolant = "Magnum*"
-		end
-		addGMFunction(playerMagnumAutoCoolant,toggleMagnumAutoCool)
-	end
-	if playerNarsil ~= nil then
-		if playerNarsil.autoCoolant == nil then
-			playerNarsil.autoCoolant = false
-		end
-		local playerNarsilAutoCoolant = "Narsil"
-		if playerNarsil.autoCoolant then
-			playerNarsilAutoCoolant = "Narsil*"
-		end
-		addGMFunction(playerNarsilAutoCoolant,toggleNarsilAutoCool)
-	end
-	if playerRattler ~= nil then
-		if playerRattler.autoCoolant == nil then
-			playerRattler.autoCoolant = false
-		end
-		local playerRattlerAutoCoolant = "Rattler"
-		if playerRattler.autoCoolant then
-			playerRattlerAutoCoolant = "Rattler*"
-		end
-		addGMFunction(playerRattlerAutoCoolant,toggleRattlerAutoCool)
-	end
-	if playerSpike ~= nil then
-		if playerSpike.autoCoolant == nil then
-			playerSpike.autoCoolant = false
-		end
-		local playerSpikeAutoCoolant = "Spike"
-		if playerSpike.autoCoolant then
-			playerSpikeAutoCoolant = "Spike*"
-		end
-		addGMFunction(playerSpikeAutoCoolant,toggleSpikeAutoCool)
-	end
-	if playerSpyder ~= nil then
-		if playerSpyder.autoCoolant == nil then
-			playerSpyder.autoCoolant = false
-		end
-		local playerSpyderAutoCoolant = "Spyder"
-		if playerSpyder.autoCoolant then
-			playerSpyderAutoCoolant = "Spyder*"
-		end
-		addGMFunction(playerSpyderAutoCoolant,toggleSpyderAutoCool)
-	end
-	if playerSting ~= nil then
-		if playerSting.autoCoolant == nil then
-			playerSting.autoCoolant = false
-		end
-		local playerStingAutoCoolant = "Sting"
-		if playerSting.autoCoolant then
-			playerStingAutoCoolant = "Sting*"
-		end
-		addGMFunction(playerStingAutoCoolant,toggleStingAutoCool)
-	end
-	--[[
-	if playerHeadhunter ~= nil then
-		if playerHeadhunter.autoCoolant == nil then
-			playerHeadhunter.autoCoolant = false
-		end
-		local playerHeadhunterAutoCoolant = "Headhunter"
-		if playerHeadhunter.autoCoolant then
-			playerHeadhunterAutoCoolant = "*Headhunter"
-		end
-		addGMFunction(playerHeadhunterAutoCoolant,toggleHeadhunterAutoCool)
-	end
-	--]]
 end
 function changePlayerCoolant()
 	clearGMFunctions()
@@ -2486,8 +2295,8 @@ function createIcarusStations()
     	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes"
 	}
 	table.insert(stations,stationCindyFolly)
-	--local borlanZone = squareZone(68808, 39300, "Borlan")
-	--borlanZone:setColor(51,153,255)
+	local speculatorZone = squareZone(55000,108000, "Speculator")
+	speculatorZone:setColor(51,153,255)
 	--Borlan
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
