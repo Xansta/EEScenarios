@@ -121,10 +121,14 @@ function setConstants()
 	--stsl: Ship Template Score List
 	--stbl: Ship Template Boolean List
 	--nsfl: Non Standard Function List
-	stnl = {"Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	stsl = {11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	stbl = {false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
+	stnl = {"Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
+	stsl = {15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
+	stbl = {false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
 	nsfl = {}
+	table.insert(nsfl,jade5)
+	table.insert(nsfl,waddle5)
+	table.insert(nsfl,stalkerR5)
+	table.insert(nsfl,stalkerQ5)
 	table.insert(nsfl,adderMk9)
 	table.insert(nsfl,k2fighter)
 	table.insert(nsfl,k3fighter)
@@ -140,33 +144,33 @@ function setConstants()
 	table.insert(nsfl,adderMk3)
 	
 	--Adder Ship Template Name List, Score List and Boolean List
-	stnlAdder = {"Adder MK9","Adder MK8","Adder MK7","Adder MK3","Adder MK5","Adder MK4","Adder MK6","Cruiser"}
-	stslAdder = {11         ,10         ,9          ,5          ,7          ,6          ,8          ,18       }
-	stblAdder = {false      ,false      ,false      ,false      ,true       ,true       ,true       ,true     }
+	stnlAdder = {"Jade 5","Waddle 5","Adder MK9","Adder MK8","Adder MK7","Adder MK3","Adder MK5","Adder MK4","Adder MK6","Cruiser"}
+	stslAdder = {15      ,15        ,11         ,10         ,9          ,5          ,7          ,6          ,8          ,18       }
+	stblAdder = {false   ,false     ,false      ,false      ,false      ,false      ,true       ,true       ,true       ,true     }
 	--Missiler Ship Template Name List, Score List and Boolean List
 	stnlMissiler = {"WX-Lindworm","Piranha F8","Piranha F12","Ranus U","Missile Cruiser","Storm"}
 	stslMissiler = {7            ,15          ,15           ,25       ,14               ,22     }
 	stblMissiler = {true         ,true        ,true         ,true     ,true             ,true   }
 	--Beamer Ship Template Name List, Score List and Boolean List
-	stnlBeamer = {"K2 Fighter","K3 Fighter","Nirvana R3","MV52 Hornet","MT52 Hornet","MU52 Hornet","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Fighter","Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout"}
-	stslBeamer = {7           ,8           ,12          ,6            ,5            ,5            ,19          ,20           ,25          ,25          ,6        ,18       ,30          ,27            ,80           ,100            ,65               ,6                ,40              ,4              ,48              ,8              }
-	stblBeamer = {false       ,false       ,false       ,false        ,true         ,true         ,true        ,true         ,true        ,true        ,true     ,true     ,true        ,true          ,true         ,true           ,true             ,true             ,true            ,true           ,true            ,true           }
+	stnlBeamer = {"Stalker R5","Stalker Q5","K2 Fighter","K3 Fighter","Nirvana R3","MV52 Hornet","MT52 Hornet","MU52 Hornet","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Fighter","Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout"}
+	stslBeamer = {22          ,22          ,7           ,8           ,12          ,6            ,5            ,5            ,19          ,20           ,25          ,25          ,6        ,18       ,30          ,27            ,80           ,100            ,65               ,6                ,40              ,4              ,48              ,8              }
+	stblBeamer = {false       ,false       ,false       ,false       ,false       ,false        ,true         ,true         ,true        ,true         ,true        ,true        ,true     ,true     ,true        ,true          ,true         ,true           ,true             ,true             ,true            ,true           ,true            ,true           }
 	--Frigates Ship Template Name List, Score List and Boolean List
-	stnlFrigate = {"Fiend G3","Fiend G4","Fiend G5","Fiend G6","Phobos R2","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Storm"}
-	stslFrigate = {33        ,35        ,37        ,39        ,13         ,15         ,16         ,15          ,15           ,16             ,25       ,20           ,25          ,25          ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,22     }
-	stblFrigate = {false     ,false     ,false     ,false     ,false      ,true       ,true       ,true        ,true         ,true           ,true     ,true         ,true        ,true        ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true   }
+	stnlFrigate = {"Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Phobos R2","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Storm"}
+	stslFrigate = {22          ,22          ,33        ,35        ,37        ,39        ,13         ,15         ,16         ,15          ,15           ,16             ,25       ,20           ,25          ,25          ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,22     }
+	stblFrigate = {false       ,false       ,false     ,false     ,false     ,false     ,false      ,true       ,true       ,true        ,true         ,true           ,true     ,true         ,true        ,true        ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true   }
 	--Chaser Ship Template Name List, Score List and Boolean List
-	stnlChaser = {"Fiend G3","Fiend G4","Fiend G5","Fiend G6","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Strikeship","Adv. Striker","Battlestation"}
-	stslChaser = {33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
-	stblChaser = {false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
+	stnlChaser = {"Jade 5","Waddle 5","Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Strikeship","Adv. Striker","Battlestation"}
+	stslChaser = {15      ,15        ,22          ,22          ,33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
+	stblChaser = {false   ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
 	--Fighter Ship Template Name List, Score List and Boolean List
-	stnlFighter = {"K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
-	stslFighter = {7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
-	stblFighter = {false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
+	stnlFighter = {"Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
+	stslFighter = {15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
+	stblFighter = {false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
 	--Non database Ship Template Name List, Score List and Boolean List
-	stnlNonDB = {"Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
-	stslNonDB = {11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
-	stblNonDB = {false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
+	stnlNonDB = {"Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
+	stslNonDB = {15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
+	stblNonDB = {false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
 
 	-- square grid deployment	
 	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4}
@@ -463,6 +467,10 @@ function setConstants()
 								["Fiend G6"] =						400,
 								["K2 Fighter"] =					300,
 								["K3 Fighter"] =					300,
+								["Stalker Q5"] =					200,
+								["Stalker R5"] =					200,
+								["Jade 5"] =						100,
+								["Waddle 5"] =						100,
 								["Jump Carrier"] =					800		}
 	unscannedClues = {	["Energy Signature"] = "Energy signature",
 						["Trace Elements"] = "Trace elements",
@@ -674,62 +682,53 @@ function playerShip()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Tweak player",tweakPlayerShip)
 	addGMFunction("+Descriptions",describePlayerShips)
-	if playerCobra == nil then
-		addGMFunction("Cobra",createPlayerShipCobra)
+	addGMFunction("+Current",activePlayerShip)
+	addGMFunction("+Scrapped",inactivePlayerShip)
+	if playerShipInfo == nil then
+		playerShipInfo={
+			{"Ambition"   ,"inactive",createPlayerShipAmbition   },
+			{"Arwine"     ,"inactive",createPlayerShipArwine     },
+			{"Barracuda"  ,"inactive",createPlayerShipBarracuda  },
+			{"Blazon"     ,"inactive",createPlayerShipBlazon     },
+			{"Cobra"      ,"active"  ,createPlayerShipCobra      ,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
+			{"Halberd"    ,"inactive",createPlayerShipHalberd    },
+			{"Headhunter" ,"inactive",createPlayerShipHeadhunter },
+			{"Holmes"     ,"active"  ,createPlayerShipHolmes     ,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nDefault advanced engine:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
+			{"Magnum"     ,"inactive",createPlayerShipMagnum     },
+			{"Narsil"     ,"inactive",createPlayerShipNarsil     },
+			{"Osprey"     ,"inactive",createPlayerShipOsprey     },
+			{"Rattler"    ,"active"  ,createPlayerShipRattler    ,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nDefault advanced engine:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
+			{"Rogue"      ,"active"  ,createPlayerShipRogue      ,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
+			{"Simian"     ,"active"  ,createPlayerShipSimian     ,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
+			{"Spike"      ,"inactive",createPlayerShipSpike      },
+			{"Spyder"     ,"inactive",createPlayerShipSpyder     },
+			{"Sting"      ,"inactive",createPlayerShipSting      },
+			{"Thunderbird","inactive",createPlayerShipThunderbird},
+			{"Wombat"     ,"inactive",createPlayerShipWombat     }
+		}
 	end
-	if playerHolmes == nil then
-		addGMFunction("Holmes",createPlayerShipHolmes)
+end
+function activePlayerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][2] == "active" then
+			addGMFunction(playerShipInfo[shipNum][1],playerShipInfo[shipNum][3])
+		end
 	end
-	if playerRattler == nil then
-		addGMFunction("Rogue",createPlayerShipRogue)
+end
+function inactivePlayerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][2] == "inactive" then
+			addGMFunction(playerShipInfo[shipNum][1],playerShipInfo[shipNum][3])
+		end
 	end
-	if playerRogue == nil then
-		addGMFunction("Rattler",createPlayerShipRattler)
-	end
-	if playerSimian == nil then
-		addGMFunction("Simian",createPlayerShipSimian)
-	end
---[[	
-	if playerAmbition == nil then
-		addGMFunction("Ambition",createPlayerShipAmbition)
-	end
-	if playerArwine == nil then
-		addGMFunction("Arwine",createPlayerShipArwine)
-	end
-	if playerBlazon == nil then
-		addGMFunction("Blazon",createPlayerShipBlazon)
-	end
-	if playerHalberd == nil then
-		addGMFunction("Halberd",createPlayerShipHalberd)
-	end
-	if playerHeadhunter == nil then
-		addGMFunction("Headhunter",createPlayerShipHeadhunter)
-	end
-	if playerMagnum == nil then
-		addGMFunction("Magnum",createPlayerShipMagnum)
-	end
-	if playerNarsil == nil then
-		addGMFunction("Narsil",createPlayerShipNarsil)
-	end
-	if playerOsprey == nil then
-		addGMFunction("Osprey",createPlayerShipOsprey)
-	end
-	if playerSpike == nil then
-		addGMFunction("Spike",createPlayerShipSpike)
-	end
-	if playerSpyder == nil then
-		addGMFunction("Spyder",createPlayerShipSpyder)
-	end
-	if playerSting == nil then
-		addGMFunction("Sting",createPlayerShipSting)
-	end
-	if playerThunderbird == nil then
-		addGMFunction("Thunderbird",createPlayerShipThunderbird)
-	end
-	if playerWombat == nil then
-		addGMFunction("Wombat",createPlayerShipWombat)
-	end
---]]
 end
 function describePlayerShips()
 	clearGMFunctions()
@@ -742,21 +741,13 @@ end
 function describeSpecialPlayerShips()
 	clearGMFunctions()
 	addGMFunction("-Back",describePlayerShips)
-	addGMFunction("Cobra",function()
-		addGMMessage("Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)")
-	end)
-	addGMFunction("Holmes",function()
-		addGMMessage("Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nDefault advanced engine:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only")
-	end)
-	addGMFunction("Rattler",function()
-		addGMMessage("MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nDefault advanced engine:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret")
-	end)
-	addGMFunction("Rogue",function()
-		addGMMessage("Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)")
-	end)
-	addGMFunction("Simian",function()
-		addGMMessage("Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI")
-	end)	
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][4] ~= nil then
+			addGMFunction(playerShipInfo[shipNum][1],function()
+				addGMMessage(playerShipInfo[shipNum][4])
+			end)
+		end
+	end
 end
 function describeStockPlayerShips()
 	clearGMFunctions()
@@ -817,125 +808,8 @@ function describeStockPlayerShips()
 	end)
 end
 
-function createPlayerShipCobra()
-	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
-	playerCobra:setTypeName("Striker LX")
-	playerCobra:setShieldsMax(100,100)						--stronger shields (vs 50, 30)
-	playerCobra:setShields(100,100)
-	playerCobra:setMaxEnergy(800)							--more maximum energy (vs 500)
-	playerCobra:setEnergy(800)
-	playerCobra:setJumpDrive(true)
-	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
-	playerCobra:setImpulseMaxSpeed(65)						--faster impulse max (vs 45)
---									   Arc, Dir, Rotate speed
-	playerCobra:setBeamWeaponTurret(0, 100, -15, .1)		--slower turret speed (vs 6)
-	playerCobra:setBeamWeaponTurret(1, 100,  15, .1)
-	playerCobra:setWeaponTubeCount(2)						--more tubes (vs 0)
-	playerCobra:setWeaponTubeDirection(0,180)				
-	playerCobra:setWeaponTubeDirection(1,180)
-	playerCobra:setWeaponStorageMax("Homing",4)
-	playerCobra:setWeaponStorage("Homing", 4)	
-	playerCobra:setWeaponStorageMax("Nuke",2)	
-	playerCobra:setWeaponStorage("Nuke", 2)	
-	playerCobra:setWeaponStorageMax("EMP",3)	
-	playerCobra:setWeaponStorage("EMP", 3)		
-	playerCobra:setWeaponStorageMax("Mine",3)	
-	playerCobra:setWeaponStorage("Mine", 3)	
-	playerCobra:setWeaponStorageMax("HVLI",6)	
-	playerCobra:setWeaponStorage("HVLI", 6)	
-	playerCobra:addReputationPoints(50)
-	playerShip()
-end
-function createPlayerShipHolmes()
-	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
-	playerHolmes:setTypeName("Holmes")
-	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
---                  			 Arc, Dir,  Range, CycleTime, Dmg
-	playerHolmes:setBeamWeapon(0, 60, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
-	playerHolmes:setBeamWeapon(1, 60, -95, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(2, 60,  85, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(3, 60,  95, 1000.0, 6.0, 5)	
-	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
-	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
-	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
-	playerHolmes:setWeaponTubeExclusiveFor(2,"Homing")
-	playerHolmes:setWeaponTubeExclusiveFor(3,"Mine")
-	playerHolmes:setWeaponTubeDirection(3, 180)
-	playerHolmes:setWeaponStorageMax("Homing",12)			--more (vs 8)
-	playerHolmes:setWeaponStorage("Homing", 12)				
-	playerHolmes:setWeaponStorageMax("HVLI",0)				--fewer
-	playerHolmes:setWeaponStorage("HVLI", 0)				
-	playerHolmes:setWeaponStorageMax("EMP",0)				--fewer
-	playerHolmes:setWeaponStorage("EMP", 0)				
-	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
-	playerHolmes:setWeaponStorage("Nuke", 0)	
-	playerHolmes:addReputationPoints(50)
-	playerShip()			
-end
-function createPlayerShipRattler()
-	playerRattler = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rattler")
-	playerRattler:setTypeName("MX-Lindworm")
-	playerRattler:setRepairCrewCount(2)
-	playerRattler:setJumpDrive(true)
-	playerRattler:setJumpDriveRange(3000,20000)
-	playerRattler:setImpulseMaxSpeed(85)
-	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
-	playerShip()
-end
-function createPlayerShipRogue()
-	playerRogue = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Rogue")
-	playerRogue:setTypeName("Maverick XP")
-	playerRogue:setImpulseMaxSpeed(65)						--slower impulse max (vs 80)
-	playerRogue:setWarpDrive(false)							--no warp
-	playerRogue:setJumpDrive(true)
-	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
---                  		    Arc, Dir,  Range, CycleTime, Dmg
-	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 18)
---									   Arc, Dir, Rotate speed
-	playerRogue:setBeamWeaponTurret(0, 270,   0, .1)
-	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*5)
-	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
-	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
-	playerRogue:setBeamWeapon(2, 0, 0, 0, 0, 0)				
-	playerRogue:setBeamWeapon(3, 0, 0, 0, 0, 0)				
-	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
-	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
-	playerRogue:addReputationPoints(50)
-	playerShip()
-end
-function createPlayerShipSimian()
-	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
-	playerSimian:setTypeName("Destroyer III")
-	playerSimian:setWarpDrive(false)
-	playerSimian:setJumpDrive(true)
-	playerSimian:setJumpDriveRange(2000,20000)						--shorter than typical jump drive range (vs 5-50)
-	playerSimian:setHullMax(100)									--weaker hull (vs 200)
-	playerSimian:setHull(100)
---                 				 Arc, Dir, Range, CycleTime, Damage
-	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
---									    Arc, Dir, Rotate speed
-	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
-	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
-	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
-	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
-	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
-	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
-	playerSimian:setWeaponStorage("Homing", 10)				
-	playerSimian:setWeaponStorageMax("Nuke",4)						--less (vs 8)
-	playerSimian:setWeaponStorage("Nuke", 4)				
-	playerSimian:setWeaponStorageMax("EMP",5)						--less (vs 10)
-	playerSimian:setWeaponStorage("EMP", 5)				
-	playerSimian:setWeaponStorageMax("Mine",6)						--less (vs 12)
-	playerSimian:setWeaponStorage("Mine", 6)				
-	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
-	playerSimian:setWeaponStorage("HVLI", 10)				
-	playerSimian:addReputationPoints(50)
-	playerShip()
-end
-
---[[ 
---destroyed 1Feb2020
 function createPlayerShipAmbition()
+	--destroyed 1Feb2020
 	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
 	playerAmbition:setTypeName("Phobos T2")
 	playerAmbition:setRepairCrewCount(5)					--more repair crew (vs 3)
@@ -957,12 +831,9 @@ function createPlayerShipAmbition()
 	playerAmbition:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
 	playerAmbition:setWeaponStorage("HVLI",10)
 	playerAmbition:addReputationPoints(50)
-	playerShip()
 end
---]]
---[[  
---destroyed 14Dec2019
 function createPlayerShipArwine()
+	--destroyed 14Dec2019
 	playerArwine = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Arwine")
 	playerArwine:setTypeName("Pacu")
 	playerArwine:setRepairCrewCount(5)						--more repair crew (vs 2)
@@ -996,12 +867,10 @@ function createPlayerShipArwine()
 	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerArwine:setWeaponStorage("Nuke", 4)				
 	playerArwine:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Arwine")
 end
---]]
---[[ 
---destroyed 8feb2020
 function createPlayerShipBarracuda()
+	--destroyed 8feb2020
 	--clone of Headhunter
 	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
 	playerBarracuda:setTypeName("Redhook")
@@ -1035,11 +904,10 @@ function createPlayerShipBarracuda()
 	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerBarracuda:setWeaponStorage("Nuke", 4)				
 	playerBarracuda:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Barracuda")
 end
---]]
---[[	ship destroyed 24Aug2019
 function createPlayerShipBlazon()
+	--ship destroyed 24Aug2019
 	playerBlazon = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Blazon")
 	playerBlazon:setTypeName("Stricken")
 	playerBlazon:setRepairCrewCount(2)
@@ -1066,12 +934,39 @@ function createPlayerShipBlazon()
 	playerBlazon:setWeaponStorageMax("Mine",4)
 	playerBlazon:setWeaponStorage("Mine",4)
 	playerBlazon:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Blazon")
 end
---]]
---[[
---destroyed 29Feb2020
+function createPlayerShipCobra()
+	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
+	playerCobra:setTypeName("Striker LX")
+	playerCobra:setShieldsMax(100,100)						--stronger shields (vs 50, 30)
+	playerCobra:setShields(100,100)
+	playerCobra:setMaxEnergy(800)							--more maximum energy (vs 500)
+	playerCobra:setEnergy(800)
+	playerCobra:setJumpDrive(true)
+	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
+	playerCobra:setImpulseMaxSpeed(65)						--faster impulse max (vs 45)
+--									   Arc, Dir, Rotate speed
+	playerCobra:setBeamWeaponTurret(0, 100, -15, .1)		--slower turret speed (vs 6)
+	playerCobra:setBeamWeaponTurret(1, 100,  15, .1)
+	playerCobra:setWeaponTubeCount(2)						--more tubes (vs 0)
+	playerCobra:setWeaponTubeDirection(0,180)				
+	playerCobra:setWeaponTubeDirection(1,180)
+	playerCobra:setWeaponStorageMax("Homing",4)
+	playerCobra:setWeaponStorage("Homing", 4)	
+	playerCobra:setWeaponStorageMax("Nuke",2)	
+	playerCobra:setWeaponStorage("Nuke", 2)	
+	playerCobra:setWeaponStorageMax("EMP",3)	
+	playerCobra:setWeaponStorage("EMP", 3)		
+	playerCobra:setWeaponStorageMax("Mine",3)	
+	playerCobra:setWeaponStorage("Mine", 3)	
+	playerCobra:setWeaponStorageMax("HVLI",6)	
+	playerCobra:setWeaponStorage("HVLI", 6)	
+	playerCobra:addReputationPoints(50)
+	playerShipSpawned("Cobra")
+end
 function createPlayerShipHalberd()
+	--destroyed 29Feb2020
 	playerHalberd = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Halberd")
 	playerHalberd:setTypeName("Proto-Atlantis")
 	playerHalberd:setRepairCrewCount(4)					--more repair crew (vs 3)
@@ -1099,10 +994,8 @@ function createPlayerShipHalberd()
 	playerHalberd:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs all but Mine)
 	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
 	playerHalberd:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Halberd")
 end
---]]
---[[
 function createPlayerShipHeadhunter()
 	playerHeadhunter = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Headhunter")
 	playerHeadhunter:setTypeName("Redhook")
@@ -1136,10 +1029,34 @@ function createPlayerShipHeadhunter()
 	playerHeadhunter:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerHeadhunter:setWeaponStorage("Nuke", 4)				
 	playerHeadhunter:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Headhunter")
 end
---]]
---[[
+function createPlayerShipHolmes()
+	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
+	playerHolmes:setTypeName("Holmes")
+	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
+--                  			 Arc, Dir,  Range, CycleTime, Dmg
+	playerHolmes:setBeamWeapon(0, 60, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
+	playerHolmes:setBeamWeapon(1, 60, -95, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(2, 60,  85, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(3, 60,  95, 1000.0, 6.0, 5)	
+	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
+	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
+	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
+	playerHolmes:setWeaponTubeExclusiveFor(2,"Homing")
+	playerHolmes:setWeaponTubeExclusiveFor(3,"Mine")
+	playerHolmes:setWeaponTubeDirection(3, 180)
+	playerHolmes:setWeaponStorageMax("Homing",12)			--more (vs 8)
+	playerHolmes:setWeaponStorage("Homing", 12)				
+	playerHolmes:setWeaponStorageMax("HVLI",0)				--fewer
+	playerHolmes:setWeaponStorage("HVLI", 0)				
+	playerHolmes:setWeaponStorageMax("EMP",0)				--fewer
+	playerHolmes:setWeaponStorage("EMP", 0)				
+	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
+	playerHolmes:setWeaponStorage("Nuke", 0)	
+	playerHolmes:addReputationPoints(50)
+	playerShipSpawned("Holmes")
+end
 function createPlayerShipMagnum()
 	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
 	playerMagnum:setTypeName("Focus")
@@ -1165,11 +1082,10 @@ function createPlayerShipMagnum()
 	playerMagnum:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
 	playerMagnum:setWeaponStorage("Nuke", 1)	
 	playerMagnum:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Magnum")
 end
---]]
---[[	experimental
 function createPlayerShipNarsil()
+	--experimental
 	playerNarsil = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Narsil")
 	playerNarsil:setTypeName("Proto-Atlantis")
 	playerNarsil:setRepairCrewCount(4)					--more repair crew (vs 3)
@@ -1195,12 +1111,10 @@ function createPlayerShipNarsil()
 	playerNarsil:setWeaponTubeDirection(5,180)			--rear facing
 	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
 	playerNarsil:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Narsil")
 end
---]]
---[[
---destroyed 29Feb2020
 function createPlayerShipOsprey()
+	--destroyed 29Feb2020
 	playerOsprey = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Osprey")
 	playerOsprey:setTypeName("Flavia 2C")
 	playerOsprey:setRotationMaxSpeed(20)					--faster spin (vs 10)
@@ -1224,10 +1138,69 @@ function createPlayerShipOsprey()
 	playerOsprey:setWeaponStorageMax("Homing",4)			--more (vs 3)
 	playerOsprey:setWeaponStorage("Homing", 4)				
 	playerOsprey:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Osprey")
 end
---]]
---[[
+function createPlayerShipRattler()
+	playerRattler = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rattler")
+	playerRattler:setTypeName("MX-Lindworm")
+	playerRattler:setRepairCrewCount(2)
+	playerRattler:setJumpDrive(true)
+	playerRattler:setJumpDriveRange(3000,20000)
+	playerRattler:setImpulseMaxSpeed(85)
+	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
+	playerRattler:addReputationPoints(50)
+	playerShipSpawned("Rattler")
+end
+function createPlayerShipRogue()
+	playerRogue = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Rogue")
+	playerRogue:setTypeName("Maverick XP")
+	playerRogue:setImpulseMaxSpeed(65)						--slower impulse max (vs 80)
+	playerRogue:setWarpDrive(false)							--no warp
+	playerRogue:setJumpDrive(true)
+	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
+--                  		    Arc, Dir,  Range, CycleTime, Dmg
+	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 18)
+--									   Arc, Dir, Rotate speed
+	playerRogue:setBeamWeaponTurret(0, 270,   0, .1)
+	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*5)
+	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
+	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
+	playerRogue:setBeamWeapon(2, 0, 0, 0, 0, 0)				
+	playerRogue:setBeamWeapon(3, 0, 0, 0, 0, 0)				
+	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
+	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
+	playerRogue:addReputationPoints(50)
+	playerShipSpawned("Rogue")
+end
+function createPlayerShipSimian()
+	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
+	playerSimian:setTypeName("Destroyer III")
+	playerSimian:setWarpDrive(false)
+	playerSimian:setJumpDrive(true)
+	playerSimian:setJumpDriveRange(2000,20000)						--shorter than typical jump drive range (vs 5-50)
+	playerSimian:setHullMax(100)									--weaker hull (vs 200)
+	playerSimian:setHull(100)
+--                 				 Arc, Dir, Range, CycleTime, Damage
+	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
+--									    Arc, Dir, Rotate speed
+	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
+	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
+	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
+	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
+	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
+	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
+	playerSimian:setWeaponStorage("Homing", 10)				
+	playerSimian:setWeaponStorageMax("Nuke",4)						--less (vs 8)
+	playerSimian:setWeaponStorage("Nuke", 4)				
+	playerSimian:setWeaponStorageMax("EMP",5)						--less (vs 10)
+	playerSimian:setWeaponStorage("EMP", 5)				
+	playerSimian:setWeaponStorageMax("Mine",6)						--less (vs 12)
+	playerSimian:setWeaponStorage("Mine", 6)				
+	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
+	playerSimian:setWeaponStorage("HVLI", 10)				
+	playerSimian:addReputationPoints(50)
+	playerShipSpawned("Simian")
+end
 function createPlayerShipSpike()
 	playerSpike = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Spike")
 	playerSpike:setTypeName("Phobos T2")
@@ -1254,11 +1227,10 @@ function createPlayerShipSpike()
 	playerSpike:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
 	playerSpike:setWeaponStorage("HVLI",16)
 	playerSpike:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Spike")
 end
---]]
---[[ experimental
 function createPlayerShipSpyder()
+	--experimental
 	playerSpyder = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Spyder")
 	playerSpyder:setTypeName("Atlantis II")
 	playerSpyder:setRepairCrewCount(4)					--more repair crew (vs 3)
@@ -1273,11 +1245,10 @@ function createPlayerShipSpyder()
 	playerSpyder:setWeaponTubeDirection(2,60)			--right front facing
 	playerSpyder:setWeaponTubeDirection(3,120)			--right rear facing
 	playerSpyder:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Spyder")
 end
---]]
---[[	sent to Kraylor war front. May return later
 function createPlayerShipSting()
+	--sent to Kraylor war front. May return later
 	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
 	playerSting:setTypeName("Surkov")
 	playerSting:setRepairCrewCount(3)	--more repair crew (vs 2)
@@ -1302,12 +1273,10 @@ function createPlayerShipSting()
 	playerSting:setWeaponTubeDirection(2,180)
 	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
 	playerSting:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Sting")
 end
---]]
---[[
---destroyed 29Feb2020
 function createPlayerShipThunderbird()
+	--destroyed 29Feb2020
 	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
 	playerThunderbird:setTypeName("Destroyer IV")
 	playerThunderbird:setJumpDriveRange(2000,20000)				--shorter jump drive range (vs 5-50)
@@ -1330,11 +1299,10 @@ function createPlayerShipThunderbird()
 	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
 	playerThunderbird:setWeaponStorage("HVLI", 6)				
 	playerThunderbird:addReputationPoints(50)
-	playerShip()
+	playerShipSpawned("Thunderbird")
 end
---]]
---[[ destroyed 1Feb2020
 function createPlayerShipWombat()
+	--destroyed 1Feb2020
 	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
@@ -1370,9 +1338,8 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponStorage("HVLI", 15)				
 	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
 	playerWombat:setWeaponStorage("Homing", 8)				
-	playerShip()
+	playerShipSpawned("Devon")
 end
---]]
 
 --[[
 function toggleBlazonAutoCool()
@@ -1487,6 +1454,20 @@ function toggleNarsilAutoCool()
 	autoCool()
 end
 
+function playerShipSpawned(shipName)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][1] == shipName then
+			if playerShipInfo[shipNum][2] == "active" then
+				playerShipInfo[shipNum][2] = "inactive"
+				activePlayerShip()
+				return
+			else
+				inactivePlayerShip()
+				return
+			end
+		end
+	end
+end
 -------------------------
 --	Tweak player ship  --
 -------------------------
@@ -4809,6 +4790,37 @@ function k3fighter(enemyFaction)
 	ship:setHull(60)
 	return ship
 end	
+function stalkerQ5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming()
+	ship:setTypeName("Stalker Q5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+end
+function stalkerR5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming()
+	ship:setTypeName("Stalker R5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+end
+function waddle5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:setTypeName("Waddle 5")
+	ship:setWarpDrive(true)
+	return ship
+end
+function jade5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:setTypeName("Jade 5")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)			
+	return ship
+end
 -------------------
 --	Order fleet  --
 -------------------
