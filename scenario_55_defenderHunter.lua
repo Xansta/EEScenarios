@@ -272,9 +272,8 @@ function init()
 end
 -- Let the GM spawn a random group of enemies to attack a player
 function GMSpawnsEnemies()
-	gmPlayer = nil
-	gmSelected = false
-	gmSelect = getGMSelection()
+	local gmPlayer = nil
+	local gmSelect = getGMSelection()
 	for _, obj in ipairs(gmSelect) do
 		if obj.typeName == "PlayerSpaceship" then
 			gmPlayer = obj
@@ -284,8 +283,8 @@ function GMSpawnsEnemies()
 	if gmPlayer == nil then
 		gmPlayer = closestPlayerTo(targetEnemyStation)
 	end
-	px, py = gmPlayer:getPosition()
-	sx, sy = vectorFromAngle(random(0,360),random(20000,30000))
+	local px, py = gmPlayer:getPosition()
+	local sx, sy = vectorFromAngle(random(0,360),random(20000,30000))
 	ntf = spawnEnemies(px+sx,py+sy,dangerValue,targetEnemyStation:getFaction())
 	for _, enemy in ipairs(ntf) do
 		enemy:orderAttack(gmPlayer)
