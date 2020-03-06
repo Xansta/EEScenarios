@@ -63,22 +63,6 @@ function init()
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
 	--Ship Template Score List
 	stsl = {5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,25       ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,18       ,14               ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	--Player Ship Beams
-	psb = {}
-	psb["MP52 Hornet"] = 2
-	psb["Phobos M3P"] = 2
-	psb["Flavia P.Falcon"] = 2
-	psb["Atlantis"] = 2
-	psb["Player Cruiser"] = 2
-	psb["Player Fighter"] = 2
-	psb["Striker"] = 2
-	psb["ZX-Lindworm"] = 1
-	psb["Ender"] = 12
-	psb["Repulse"] = 2
-	psb["Benedict"] = 2
-	psb["Kiriya"] = 2
-	psb["Nautilus"] = 2
-	psb["Hathcock"] = 4
 	-- square grid deployment
 	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1}
 	fleetPosDelta1y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2}
@@ -3561,8 +3545,7 @@ function beamTimeStation()
 	if beamTimeUpgradeAvailable then
 		if not player.beamTimeUpgrade then
 			addCommsReply("Upgrade beam cycle time", function()
-				tempBeam = psb[player:getTypeName()]
-				if tempBeam == nil then
+				if comms_source:getBeamWeaponRange(0) < 1 then
 					setCommsMessage("Your ship type does not support a beam weapon upgrade.")
 				else
 					gi = 1
@@ -3576,15 +3559,17 @@ function beamTimeStation()
 					if beamTimeUpgradePartQuantity > 0 then
 						player.beamTimeUpgrade = true
 						decrementPlayerGoods(beamTimeGood)
-						player.cargo = player.cargo + 1					
-						for b=0,tempBeam-1 do
-							tempRange = player:getBeamWeaponRange(b)
-							newCycle = player:getBeamWeaponCycleTime(b) * .8
-							tempDamage = player:getBeamWeaponDamage(b)
-							tempArc = player:getBeamWeaponArc(b)
-							tempDirection = player:getBeamWeaponDirection(b)
-							player:setBeamWeapon(b,tempArc,tempDirection,tempRange,newCycle,tempDamage)
-						end
+						player.cargo = player.cargo + 1
+						local bi = 0
+						repeat
+							local tempArc = comms_source:getBeamWeaponArc(bi)
+							local tempDir = comms_source:getBeamWeaponDirection(bi)
+							local tempRng = comms_source:getBeamWeaponRange(bi)
+							local tempCyc = comms_source:getBeamWeaponCycleTime(bi)
+							local tempDmg = comms_source:getBeamWeaponDamage(bi)
+							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng,tempCyc * .8,tempDmg)
+							bi = bi + 1
+						until(comms_source:getBeamWeaponRange(bi) < 1)
 						setCommsMessage("Beam cycle time reduced by 20%")
 					else
 						setCommsMessage(string.format("We require %s before we can upgrade your beam weapons",beamTimeGood))
@@ -6764,7 +6749,7 @@ function setPlayers()
 					pobj.prevManeuver = 1.0
 					pobj.healthyImpulse = 1.0
 					pobj.prevImpulse = 1.0
-					if psb[pobj:getTypeName()] ~= nil then
+					if pobj:getBeamWeaponRange(0) > 0 then
 						pobj.healthyBeam = 1.0
 						pobj.prevBeam = 1.0
 					end
@@ -6809,7 +6794,7 @@ function healthCheck(delta)
 					p.prevManeuver = p:getSystemHealth("maneuver")
 					fatalityChance = fatalityChance + (p.prevImpulse - p:getSystemHealth("impulse"))
 					p.prevImpulse = p:getSystemHealth("impulse")
-					if psb[p:getTypeName()] ~= nil then
+					if p:getBeamWeaponRange(0) > 0 then
 						if p.healthyBeam == nil then
 							p.healthyBeam = 1.0
 							p.prevBeam = 1.0
