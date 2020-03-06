@@ -58,7 +58,18 @@ function init()
 	setMovingAsteroids()
 	setMovingNebulae()
 	setWormArt()
-	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
+	setConstants()
+	diagnostic = false		
+	helpfulWarningDiagnostic = false
+	GMDiagnosticOn = "Turn On Diagnostic"
+	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
+	interWave = 280			
+	GMDelayNormalToSlow = "Delay normal to slow"
+	addGMFunction(GMDelayNormalToSlow,delayNormalToSlow)
+	buildStations()
+	wfv = "end of init"
+end
+function setConstants()
 	--Ship Template Name List
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
 	--Ship Template Score List
@@ -98,13 +109,6 @@ function init()
 					{"software",0},
 					{"circuit",0},
 					{"battery",0}	}
-	diagnostic = false		
-	helpfulWarningDiagnostic = false
-	GMDiagnosticOn = "Turn On Diagnostic"
-	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
-	interWave = 280			
-	GMDelayNormalToSlow = "Delay normal to slow"
-	addGMFunction(GMDelayNormalToSlow,delayNormalToSlow)
 	goods = {}					--overall tracking of goods
 	stationList = {}			--friendly and neutral stations
 	friendlyStationList = {}	
@@ -220,7 +224,6 @@ function init()
 	table.insert(gossipSnippets,"I think the shuttle pilot has a tame miniature Ktlitan caged in his quarters. Sometimes I hear it at night")	--9
 	table.insert(gossipSnippets,"Did you hear the screaming chase in the corridors on level 4 last night? Three Kraylors were captured and put in the brig")	--10
 	table.insert(gossipSnippets,"Rumor has it that the two Lichten brothers are on the verge of a new discovery. And it's not another wine flavor either")		--11
-	buildStations()
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
 	playerShipNamesForPiranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
@@ -268,7 +271,6 @@ function init()
 	table.insert(plot4choices,stationShieldDelay)
 	table.insert(plot4choices,repairBountyDelay)
 	table.insert(plot4choices,insertAgentDelay)
-	wfv = "end of init"
 end
 -- Let the GM spawn a random group of enemies to attack a player
 function GMSpawnsEnemies()
@@ -294,14 +296,12 @@ end
 function turnOnDiagnostic()
 	diagnostic = true
 	removeGMFunction(GMDiagnosticOn)
-	GMDiagnosticOff = "Turn Off Diagnostic"
-	addGMFunction(GMDiagnosticOff,turnOffDiagnostic)
+	addGMFunction("Turn Off Diagnostic",turnOffDiagnostic)
 end
 function turnOffDiagnostic()
 	diagnostic = false
 	removeGMFunction(GMDiagnosticOff)
-	GMDiagnosticOn = "Turn On Diagnostic"
-	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
+	addGMFunction("Turn On Diagnostic",turnOnDiagnostic)
 end
 ------- In game GM buttons to change the delay between waves -------
 -- Default is normal, so the fist button switches from a normal delay to a slow delay.
@@ -312,20 +312,17 @@ end
 function delayNormalToSlow()
 	interWave = 600
 	removeGMFunction(GMDelayNormalToSlow)
-	GMDelaySlowToFast = "Delay slow to fast"
-	addGMFunction(GMDelaySlowToFast,delaySlowToFast)
+	addGMFunction("Delay slow to fast",delaySlowToFast)
 end
 function delaySlowToFast()
 	interwave = 20
 	removeGMFunction(GMDelaySlowToFast)
-	GMDelayFastToNormal = "Delay fast to normal"
-	addGMFunction(GMDelayFastToNormal,delayFastToNormal)
+	addGMFunction("Delay fast to normal",delayFastToNormal)
 end
 function delayFastToNormal()
 	interwave = 280
 	removeGMFunction(GMDelayFastToNormal)
-	GMDelayNormalToSlow = "Delay normal to slow"
-	addGMFunction(GMDelayNormalToSlow,delayNormalToSlow)
+	addGMFunction("Delay normal to slow",delayNormalToSlow)
 end
 --translate variations into a numeric difficulty value
 function setVariations()
@@ -2935,6 +2932,7 @@ function handleDockedState()
 	end
 	setCommsMessage(oMsg)
 	missilePresence = 0
+	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	for _, missile_type in ipairs(missile_types) do
 		missilePresence = missilePresence + player:getWeaponStorageMax(missile_type)
 	end
@@ -4267,8 +4265,7 @@ function friendlyComms(comms_data)
 				msg = msg .. "Shield " .. n .. ": " .. math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100) .. "%\n"
 			end
 		end
-
-		missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
+		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 		for i, missile_type in ipairs(missile_types) do
 			if comms_target:getWeaponStorageMax(missile_type) > 0 then
 					msg = msg .. missile_type .. " Missiles: " .. math.floor(comms_target:getWeaponStorage(missile_type)) .. "/" .. math.floor(comms_target:getWeaponStorageMax(missile_type)) .. "\n"
