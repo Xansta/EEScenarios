@@ -121,10 +121,13 @@ function setConstants()
 	--stsl: Ship Template Score List
 	--stbl: Ship Template Boolean List
 	--nsfl: Non Standard Function List
-	stnl = {"Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	stsl = {15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	stbl = {false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
+	stnl = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
+	stsl = {4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
+	stbl = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
 	nsfl = {}
+	table.insert(nsfl,droneJacket)
+	table.insert(nsfl,droneHeavy)
+	table.insert(nsfl,droneLite)
 	table.insert(nsfl,jade5)
 	table.insert(nsfl,waddle5)
 	table.insert(nsfl,stalkerR5)
@@ -164,13 +167,17 @@ function setConstants()
 	stslChaser = {15      ,15        ,22          ,22          ,33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
 	stblChaser = {false   ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
 	--Fighter Ship Template Name List, Score List and Boolean List
-	stnlFighter = {"Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
-	stslFighter = {15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
-	stblFighter = {false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
+	stnlFighter = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
+	stslFighter = {4             ,5            ,3           ,15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
+	stblFighter = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
 	--Non database Ship Template Name List, Score List and Boolean List
-	stnlNonDB = {"Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
-	stslNonDB = {15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
-	stblNonDB = {false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
+	stnlNonDB = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
+	stslNonDB = {4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
+	stblNonDB = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
+	--Drone Ship Template Name List, Score List and Boolean List
+	stnlDrone = {"Jacket Drone","Heavy Drone","Lite Drone","Ktlitan Drone"}
+	stslDrone = {4             ,5            ,3           ,4}
+	stblDrone = {false         ,false        ,false       ,true}
 
 	-- square grid deployment	
 	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4}
@@ -686,8 +693,8 @@ function playerShip()
 	addGMFunction("+Scrapped",inactivePlayerShip)
 	if playerShipInfo == nil then
 		playerShipInfo={
-			{"Ambition"   ,"inactive",createPlayerShipAmbition   },
-			{"Arwine"     ,"inactive",createPlayerShipArwine     },
+			{"Ambition"   ,"inactive",createPlayerShipAmbition   ,"Phobos T2(Ambition): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
+			{"Arwine"     ,"inactive",createPlayerShipArwine     ,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
 			{"Barracuda"  ,"inactive",createPlayerShipBarracuda  },
 			{"Blazon"     ,"inactive",createPlayerShipBlazon     },
 			{"Cobra"      ,"active"  ,createPlayerShipCobra      ,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
@@ -735,14 +742,26 @@ function describePlayerShips()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ships",playerShip)
-	addGMFunction("+Describe Special",describeSpecialPlayerShips)
+	addGMFunction("+Describe Current",describeCurrentSpecialPlayerShips)
+	addGMFunction("+Describe Scrapped",describeScrappedSpecialPlayerShips)
 	addGMFunction("+Describe Stock",describeStockPlayerShips)
 end
-function describeSpecialPlayerShips()
+function describeCurrentSpecialPlayerShips()
 	clearGMFunctions()
 	addGMFunction("-Back",describePlayerShips)
 	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][4] ~= nil then
+		if playerShipInfo[shipNum][4] ~= nil and playerShipInfo[shipNum][2] == "active" then
+			addGMFunction(playerShipInfo[shipNum][1],function()
+				addGMMessage(playerShipInfo[shipNum][4])
+			end)
+		end
+	end
+end
+function describeScrappedSpecialPlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Back",describePlayerShips)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][4] ~= nil and playerShipInfo[shipNum][2] == "inactive" then
 			addGMFunction(playerShipInfo[shipNum][1],function()
 				addGMMessage(playerShipInfo[shipNum][4])
 			end)
@@ -3610,8 +3629,7 @@ end
 --Fleet Composition
 function setFleetComposition()
 	clearGMFunctions()
-	addGMFunction("-Main from Flt Comp",initialGMFunctions)
-	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("-From composition",spawnGMFleet)
 	local GMSetFleetCompositionRandom = "Random"
 	if fleetComposition == "Random" then
 		GMSetFleetCompositionRandom = "Random*"
@@ -3674,6 +3692,14 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionNonDB,function()
 		fleetComposition = "Non-DB"
+		setFleetComposition()
+	end)		
+	local GMSetFleetCompositionDrone = "Drones"
+	if fleetComposition == "Drones" then
+		GMSetFleetCompositionDrone = "Drones*"
+	end
+	addGMFunction(GMSetFleetCompositionDrone,function()
+		fleetComposition = "Drones"
 		setFleetComposition()
 	end)		
 end
@@ -4247,6 +4273,10 @@ function parmSpawnFleet()
 		sl = stslNonDB
 		nl = stnlNonDB
 		bl = stblNonDB
+	elseif fleetComposition == "Drones" then
+		sl = stslDrone
+		nl = stnlDrone
+		bl = stblDrone
 	end
 	local fleet = nil
 	if fleetSpawnLocation == "Ambush" then
@@ -4630,13 +4660,40 @@ function jade5(enemyFaction)
 	ship:setJumpDriveRange(5000,35000)			
 	return ship
 end
+function droneLite(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Lite Drone")
+	ship:setHullMax(20)					--weaker hull (vs 30)
+	ship:setHull(20)
+	ship:setImpulseMaxSpeed(130)		--faster impulse (vs 120)
+	ship:setRotationMaxSpeed(20)		--faster maneuver (vs 10)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	return ship
+end
+function droneHeavy(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Heavy Drone")
+	ship:setHullMax(40)					--stronger hull (vs 30)
+	ship:setHull(40)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,8)	--stronger (vs 6) beam
+	return ship
+end
+function droneJacket(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Jacket Drone")
+	ship:setShieldsMax(20)				--stronger shields (vs none)
+	ship:setShields(20)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	return ship
+end
 -------------------
 --	Order fleet  --
 -------------------
 function orderFleet()
 	clearGMFunctions()
 	addGMFunction("-Main from Order Flt",initialGMFunctions)
-	addGMFunction(string.format("+%s",existing_fleet_order),changeFleetOrder)
 	local select_fleet_label = "Select Fleet"
 	if selected_fleet_representative ~= nil and selected_fleet_representative:isValid() then
 		if selected_fleet_index ~= nil and fleetList[selected_fleet_index] ~= nil then
@@ -4652,6 +4709,7 @@ function orderFleet()
 	end
 	addGMFunction(string.format("+%s",select_fleet_label),selectOrderFleet)
 	if select_fleet_label ~= "Select Fleet" then
+		addGMFunction(string.format("+%s",existing_fleet_order),changeFleetOrder)
 		addGMFunction("Give Order To Fleet",function()
 			if existing_fleet_order == "Idle" then
 				for _, fm in pairs(fleetList[selected_fleet_index]) do
@@ -4761,7 +4819,187 @@ function orderFleet()
 				end
 			end
 			if existing_fleet_order == "Fly Formation" then
-				addGMMessage("Fly Formation has not yet been implemented. Choose a different order. No action taken")
+				if formation_lead == nil then
+					addGMMessage("choose a formation lead. no action taken")
+					return
+				end
+				local fto = fleetList[selected_fleet_index]
+				local found_formation_lead = false
+				for _, fm in pairs(fto) do
+					if fm == formation_lead then
+						found_formation_lead = true
+					end
+				end
+				if found_formation_lead then
+					--Note: Formation only works when I force them all to be facing 0
+					--      Unsuccessful at generalization to any angle. May try again later
+					local formation_heading = 0
+					formation_lead:setHeading(formation_heading)
+					local formation_rotation = -90
+					formation_lead:setRotation(formation_rotation)
+					local fx, fy = formation_lead:getPosition()
+					local formation_spacing_increment = 1000
+					local formation_spacing = 0
+					local position_index = 1
+					if formation_type == "V" then
+						local first_v_leg_place = formation_rotation + 120
+						local first_v_leg_fly = formation_heading + 120
+						if first_v_leg_place > 360 then
+							first_v_leg_place = first_v_leg_place - 360
+						end
+						if first_v_leg_fly > 360 then
+							first_v_leg_fly = first_v_leg_fly - 360
+						end
+						local second_v_leg_place = formation_rotation + 240
+						local second_v_leg_fly = formation_heading + 240
+						if second_v_leg_place > 360 then
+							second_v_leg_place = second_v_leg_place - 360
+						end
+						if second_v_leg_fly > 360 then
+							second_v_leg_fly = second_v_leg_fly - 360
+						end
+						--print("formation_heading: " .. formation_heading)
+						--print("formation_rotation: " .. formation_rotation)
+						--print("first_v_leg_place: " .. first_v_leg_place)
+						--print("second_v_leg_place: " .. second_v_leg_place)
+						--print(string.format("fx: %.1f, fy: %.1f",fx,fy))
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								fm:setHeading(formation_heading)
+								fm:setRotation(formation_rotation)
+								local rpx = nil
+								local rpy = nil
+								local fpx = nil
+								local fpy = nil
+								if position_index % 2 ~= 0 then
+									formation_spacing = formation_spacing + formation_spacing_increment
+									rpx, rpy = vectorFromAngle(first_v_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(first_v_leg_fly,formation_spacing)
+								else
+									rpx, rpy = vectorFromAngle(second_v_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(second_v_leg_fly,formation_spacing)
+								end--
+								--print(string.format("rpx: %.1f, rpy: %.1f",rpx,rpy))
+								--print(string.format("fx+rpx: %.1f, fy+rpy: %.1f",fx+rpx,fy+rpy))
+								fm:setPosition(fx+rpx,fy+rpy)
+								fm:orderFlyFormation(formation_lead,fpx,fpy)
+								position_index = position_index + 1
+							end
+						end
+					elseif formation_type == "A" then
+						local first_A_leg_place = formation_rotation + 60
+						local first_A_leg_fly = formation_heading + 60
+						if first_A_leg_place > 360 then
+							first_A_leg_place = first_A_leg_place - 360
+						end
+						if first_A_leg_fly > 360 then
+							first_A_leg_fly = first_A_leg_fly - 360
+						end
+						local second_A_leg_place = formation_rotation + 300
+						local second_A_leg_fly = formation_heading + 300
+						if second_A_leg_place > 360 then
+							second_A_leg_place = second_A_leg_place - 360
+						end
+						if second_A_leg_fly > 360 then
+							second_A_leg_fly = second_A_leg_fly - 360
+						end
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								fm:setHeading(formation_heading)
+								fm:setRotation(formation_rotation)
+								local rpx = nil
+								local rpy = nil
+								local fpx = nil
+								local fpy = nil
+								if position_index % 2 ~= 0 then
+									formation_spacing = formation_spacing + formation_spacing_increment
+									rpx, rpy = vectorFromAngle(first_A_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(first_A_leg_fly,formation_spacing)
+								else
+									rpx, rpy = vectorFromAngle(second_A_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(second_A_leg_fly,formation_spacing)
+								end--
+								fm:setPosition(fx+rpx,fy+rpy)
+								fm:orderFlyFormation(formation_lead,fpx,fpy)
+								position_index = position_index + 1
+							end
+						end
+					elseif formation_type == "circle" then
+						local placement_angle = 30
+						local circle_top_place = formation_rotation + placement_angle
+						local circle_top_fly = formation_heading + placement_angle
+						if circle_top_place > 360 then
+							circle_top_place = circle_top_place - 360
+						end
+						if circle_top_fly > 360 then
+							circle_top_fly = circle_top_fly - 360
+						end
+						local circle_count = 0
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								circle_count = circle_count + 1
+							end
+						end
+						local circle_radius = 1500
+						if circle_count > 0 then
+							local angle_increment = 360/circle_count
+							for _, fm in pairs(fto) do
+								if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+									fm:setHeading(formation_heading)
+									fm:setRotation(formation_rotation)
+									rpx, rpy = vectorFromAngle(circle_top_place,circle_radius)
+									fpx, fpy = vectorFromAngle(circle_top_fly,circle_radius)
+									fm:setPosition(fx+rpx,fy+rpy)
+									fm:orderFlyFormation(formation_lead,fpx,fpy)
+									circle_top_place = circle_top_place + angle_increment
+									if circle_top_place > 360 then
+										circle_top_place = circle_top_place - 360
+									end
+									circle_top_fly = circle_top_fly + angle_increment
+									if circle_top_fly > 360 then
+										circle_top_fly = circle_top_fly - 360
+									end
+								end
+							end
+						end
+					elseif formation_type == "square" then
+						local corner_spot = 1
+						local edge_spot = 1
+						local layer_count = 1
+						local square_spacing = 1000
+						local corner_x = {1,-1,1,-1}
+						local corner_y = {1,-1,-1,1}
+						local edge_x = {0,0,1,-1}
+						local edge_y = {1,-1,0,0}
+						local fly_corner_x = {-1,1,1,-1}
+						local fly_corner_y = {1,-1,1,-1}
+						local fly_edge_x = {-1,1,0,0}
+						local fly_edge_y = {0,0,-1,1}
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								fm:setHeading(formation_heading)
+								fm:setRotation(formation_rotation)
+								if corner_spot <= 4 then
+									fm:setPosition(fx+layer_count*square_spacing*corner_x[corner_spot],fy+layer_count*square_spacing*corner_y[corner_spot])
+									fm:orderFlyFormation(formation_lead,layer_count*square_spacing*fly_corner_x[corner_spot],layer_count*square_spacing*fly_corner_y[corner_spot])
+									corner_spot = corner_spot + 1
+								elseif edge_spot <= 4 then
+									fm:setPosition(fx+layer_count*square_spacing*edge_x[edge_spot],fy+layer_count*square_spacing*edge_y[edge_spot])
+									fm:orderFlyFormation(formation_lead,layer_count*square_spacing*fly_edge_x[edge_spot],layer_count*square_spacing*fly_edge_y[edge_spot])
+									edge_spot = edge_spot + 1
+								else
+									corner_spot = 1
+									edge_spot = 1
+									layer_count = layer_count + 1
+								end
+							end
+						end
+					else
+						addGMMessage("formation type unrecognized. no action taken")
+					end
+				else
+					addGMMessage("formation lead not in fleet. no action taken")
+				end
 			end
 		end)
 	end
@@ -4870,13 +5108,11 @@ function changeFleetOrder()
 		existing_fleet_order = "Dock"
 		orderFleet()
 	end)
-	--[[
 	local order_fly_formation = "Fly Formation"
 	if existing_fleet_order == "Fly Formation" then
 		order_fly_formation = "Fly Formation*"
 	end
 	addGMFunction(string.format("+%s",order_fly_formation),flyFormationParameters)
-	--]]
 end
 function flyFormationParameters()
 	existing_fleet_order = "Fly Formation"
@@ -4891,7 +5127,9 @@ function flyFormationParameters()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Order Fleet",orderFleet)
 	addGMFunction(string.format("Formation %s",formation_type),changeFormation)
-	addGMFunction(string.format("Lead %s",formation_lead:getCallSign()),changeFormationLead)
+	if formation_lead ~= nil then
+		addGMFunction(string.format("Lead %s",formation_lead:getCallSign()),changeFormationLead)
+	end
 end
 function changeFormation()
 	clearGMFunctions()
@@ -9899,7 +10137,7 @@ function update(delta)
 		timer_value = timer_value - delta
 	end
 	healthCheckTimer = healthCheckTimer - delta
-	if automated_station_danger_warning then
+	if automated_station_danger_warning and regionStations ~= nil then
 		local warning_message = nil
 		local warning_station = nil
 		for station_index=1,#regionStations do
