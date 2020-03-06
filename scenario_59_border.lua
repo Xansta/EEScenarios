@@ -134,6 +134,7 @@ function init()
 	plotPA = personalAmbush
 	plotCN = coolantNebulae
 	plotSS = spinalShip
+	plotExDk = expediteDockCheck
 	enemyVesselDestroyedNameList = {}
 	enemyVesselDestroyedType = {}
 	enemyVesselDestroyedValue = {}
@@ -5655,6 +5656,7 @@ function commsStation()
         services = {
             supplydrop = "friend",
             reinforcements = "friend",
+            preorder = "friend"
         },
         service_cost = {
             supplydrop = math.random(80,120),
@@ -6207,6 +6209,97 @@ function handleUndockedState()
 		oMsg = oMsg .. "\nBe aware that if enemies in the area get much closer, we will be too busy to conduct business with you."
 	end
 	setCommsMessage(oMsg)
+	if isAllowedTo(ctd.services.preorder) then
+		addCommsReply("Expedite Dock",function()
+			if comms_source.expedite_dock == nil then
+				comms_source.expedite_dock = false
+			end
+			if comms_source.expedite_dock then
+				--handle expedite request already present
+				local existing_expedite = "Docking crew is standing by"
+				if comms_target == comms_source.expedite_dock_station then
+					existing_expedite = existing_expedite .. ". Current preorders:"
+					local preorders_identified = false
+					if comms_source.preorder_hvli ~= nil then
+						preorders_identified = true
+						existing_expedite = existing_expedite .. string.format("\n   HVLIs: %i",comms_source.preorder_hvli)
+					end
+					if comms_source.preorder_homing ~= nil then
+						preorders_identified = true
+						existing_expedite = existing_expedite .. string.format("\n   Homings: %i",comms_source.preorder_homing)						
+					end
+					if comms_source.preorder_mine ~= nil then
+						preorders_identified = true
+						existing_expedite = existing_expedite .. string.format("\n   Mines: %i",comms_source.preorder_mine)						
+					end
+					if comms_source.preorder_emp ~= nil then
+						preorders_identified = true
+						existing_expedite = existing_expedite .. string.format("\n   EMPs: %i",comms_source.preorder_emp)						
+					end
+					if comms_source.preorder_nuke ~= nil then
+						preorders_identified = true
+						existing_expedite = existing_expedite .. string.format("\n   Nukes: %i",comms_source.preorder_nuke)						
+					end
+					if comms_source.preorder_repair_crew ~= nil then
+						preorders_identified = true
+						existing_expedite = existing_expedite .. "\n   One repair crew"						
+					end
+					if comms_source.preorder_coolant ~= nil then
+						preorders_identified = true
+						existing_expedite = existing_expedite .. "\n   Coolant"						
+					end
+					if preorders_identified then
+						existing_expedite = existing_expedite .. "\nWould you like to preorder anything else?"
+					else
+						existing_expedite = existing_expedite .. " none.\nWould you like to preorder anything?"						
+					end
+					preorder_message = existing_expedite
+					preOrderOrdnance()
+				else
+					existing_expedite = existing_expedite .. string.format(" on station %s (not this station, %s).",comms_source.expedite_dock_station:getCallSign(),comms_target:getCallSign())
+					setCommsMessage(existing_expedite)
+				end
+				addCommsReply("Back",commsStation)
+			else
+				setCommsMessage("If you would like to speed up the addition of resources such as energy, ordnance, etc., please provide a time frame for your arrival. A docking crew will stand by until that time, after which they will return to their normal duties")
+				preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+				addCommsReply("One minute (5 rep)", function()
+					if comms_source:takeReputationPoints(5) then
+						comms_source.expedite_dock = true
+						comms_source.expedite_dock_station = comms_target
+						comms_source.expedite_dock_timer_max = 60
+						preOrderOrdnance()
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("Two minutes (10 Rep)", function()
+					if comms_source:takeReputationPoints(10) then
+						comms_source.expedite_dock = true
+						comms_source.expedite_dock_station = comms_target
+						comms_source.expedite_dock_timer_max = 120
+						preOrderOrdnance()
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("Three minutes (15 Rep)", function()
+					if comms_source:takeReputationPoints(15) then
+						comms_source.expedite_dock = true
+						comms_source.expedite_dock_station = comms_target
+						comms_source.expedite_dock_timer_max = 180
+						preOrderOrdnance()
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			addCommsReply("Back", commsStation)
+		end)
+	end	
  	addCommsReply("I need information", function()
 		setCommsMessage("What kind of information do you need?")
 		addCommsReply("What are my current orders?", function()
@@ -6470,6 +6563,173 @@ function handleUndockedState()
             addCommsReply("Back", commsStation)
         end)
     end
+end
+function preOrderOrdnance()
+	setCommsMessage(preorder_message)
+	local ctd = comms_target.comms_data
+	local hvli_count = math.floor(comms_source:getWeaponStorageMax("HVLI") * ctd.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage("HVLI")
+	if ctd.weapon_available.HVLI and isAllowedTo(ctd.weapons["HVLI"]) and hvli_count > 0 then
+		local hvli_prompt = ""
+		local hvli_cost = getWeaponCost("HVLI")
+		if hvli_count > 1 then
+			hvli_prompt = string.format("%i HVLIs * %i Rep = %i Rep",hvli_count,hvli_cost,hvli_count*hvli_cost)
+		else
+			hvli_prompt = string.format("%i HVLI * %i Rep = %i Rep",hvli_count,hvli_cost,hvli_count*hvli_cost)
+		end
+		addCommsReply(hvli_prompt,function()
+			if comms_source:takeReputationPoints(hvli_count*hvli_cost) then
+				comms_source.preorder_hvli = hvli_count
+				if hvli_count > 1 then
+					setCommsMessage(string.format("%i HVLIs preordered",hvli_count))
+				else
+					setCommsMessage(string.format("%i HVLI preordered",hvli_count))
+				end
+			else
+				setCommsMessage("Insufficient reputation")
+			end
+			preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+			addCommsReply("Back",preOrderOrdnance)
+		end)
+	end
+	local homing_count = math.floor(comms_source:getWeaponStorageMax("Homing") * ctd.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage("Homing")
+	if ctd.weapon_available.Homing and isAllowedTo(ctd.weapons["Homing"]) and homing_count > 0 then
+		local homing_prompt = ""
+		local homing_cost = getWeaponCost("Homing")
+		if homing_count > 1 then
+			homing_prompt = string.format("%i Homings * %i Rep = %i Rep",homing_count,homing_cost,homing_count*homing_cost)
+		else
+			homing_prompt = string.format("%i Homing * %i Rep = %i Rep",homing_count,homing_cost,homing_count*homing_cost)
+		end
+		addCommsReply(homing_prompt,function()
+			if comms_source:takeReputationPoints(homing_count*homing_cost) then
+				comms_source.preorder_homing = homing_count
+				if homing_count > 1 then
+					setCommsMessage(string.format("%i Homings preordered",homing_count))
+				else
+					setCommsMessage(string.format("%i Homing preordered",homing_count))
+				end
+			else
+				setCommsMessage("Insufficient reputation")
+			end
+			preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+			addCommsReply("Back",preOrderOrdnance)
+		end)
+	end
+	local mine_count = math.floor(comms_source:getWeaponStorageMax("Mine") * ctd.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage("Mine")
+	if ctd.weapon_available.Mine and isAllowedTo(ctd.weapons["Mine"]) and mine_count > 0 then
+		local mine_prompt = ""
+		local mine_cost = getWeaponCost("Mine")
+		if mine_count > 1 then
+			mine_prompt = string.format("%i Mines * %i Rep = %i Rep",mine_count,mine_cost,mine_count*mine_cost)
+		else
+			mine_prompt = string.format("%i Mine * %i Rep = %i Rep",mine_count,mine_cost,mine_count*mine_cost)
+		end
+		addCommsReply(mine_prompt,function()
+			if comms_source:takeReputationPoints(mine_count*mine_cost) then
+				comms_source.preorder_mine = mine_count
+				if mine_count > 1 then
+					setCommsMessage(string.format("%i Mines preordered",mine_count))
+				else
+					setCommsMessage(string.format("%i Mine preordered",mine_count))
+				end
+			else
+				setCommsMessage("Insufficient reputation")
+			end
+			preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+			addCommsReply("Back",preOrderOrdnance)
+		end)
+	end
+	local emp_count = math.floor(comms_source:getWeaponStorageMax("EMP") * ctd.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage("EMP")
+	if ctd.weapon_available.EMP and isAllowedTo(ctd.weapons["EMP"]) and emp_count > 0 then
+		local emp_prompt = ""
+		local emp_cost = getWeaponCost("EMP")
+		if emp_count > 1 then
+			emp_prompt = string.format("%i EMPs * %i Rep = %i Rep",emp_count,emp_cost,emp_count*emp_cost)
+		else
+			emp_prompt = string.format("%i EMP * %i Rep = %i Rep",emp_count,emp_cost,emp_count*emp_cost)
+		end
+		addCommsReply(emp_prompt,function()
+			if comms_source:takeReputationPoints(emp_count*emp_cost) then
+				comms_source.preorder_emp = emp_count
+				if emp_count > 1 then
+					setCommsMessage(string.format("%i EMPs preordered",emp_count))
+				else
+					setCommsMessage(string.format("%i EMP preordered",emp_count))
+				end
+			else
+				setCommsMessage("Insufficient reputation")
+			end
+			preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+			addCommsReply("Back",preOrderOrdnance)
+		end)
+	end
+	local nuke_count = math.floor(comms_source:getWeaponStorageMax("Nuke") * ctd.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage("Nuke")
+	if ctd.weapon_available.Nuke and isAllowedTo(ctd.weapons["Nuke"]) and nuke_count > 0 then
+		local nuke_prompt = ""
+		local nuke_cost = getWeaponCost("Nuke")
+		if nuke_count > 1 then
+			nuke_prompt = string.format("%i Nukes * %i Rep = %i Rep",nuke_count,nuke_cost,nuke_count*nuke_cost)
+		else
+			nuke_prompt = string.format("%i Nuke * %i Rep = %i Rep",nuke_count,nuke_cost,nuke_count*nuke_cost)
+		end
+		addCommsReply(nuke_prompt,function()
+			if comms_source:takeReputationPoints(nuke_count*nuke_cost) then
+				comms_source.preorder_nuke = nuke_count
+				if nuke_count > 1 then
+					setCommsMessage(string.format("%i Nukes preordered",nuke_count))
+				else
+					setCommsMessage(string.format("%i Nuke preordered",nuke_count))
+				end
+			else
+				setCommsMessage("Insufficient reputation")
+			end
+			preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+			addCommsReply("Back",preOrderOrdnance)
+		end)
+	end
+	if comms_source.preorder_repair_crew == nil then
+		if random(1,100) <= 20 then
+			if comms_source:isFriendly(comms_target) then
+				if comms_source:getRepairCrewCount() < comms_source.maxRepairCrew then
+					hireCost = math.random(30,60)
+				else
+					hireCost = math.random(45,90)
+				end
+				addCommsReply(string.format("Recruit repair crew member for %i reputation",hireCost), function()
+					if not comms_source:takeReputationPoints(hireCost) then
+						setCommsMessage("Insufficient reputation")
+					else
+						comms_source.preorder_repair_crew = 1
+						setCommsMessage("Repair crew hired on your behalf. They will board when you dock")
+					end				
+					preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+					addCommsReply("Back",preOrderOrdnance)
+				end)
+			end
+		end
+	end
+	if comms_source.preorder_coolant == nil then
+		if random(1,100) <= 20 then
+			if comms_source:isFriendly(comms_target) then
+				if comms_source.initialCoolant ~= nil then
+					local coolant_cost = math.random(45,90)
+					if comms_source:getMaxCoolant() < comms_source.initialCoolant then
+						coolant_cost = math.random(30,60)
+					end
+					addCommsReply(string.format("Set aside coolant for %i reputation",coolant_cost), function()
+						if comms_source:takeReputationPoints(coolant_cost) then
+							comms_source.preorder_coolant = 2
+							setCommsMessage("Coolant set aside for you. It will be loaded when you dock")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						preorder_message = "Docking crew is standing by. Would you like to pre-order anything?"
+						addCommsReply("Back",preOrderOrdnance)
+					end)
+				end
+			end
+		end
+	end
 end
 function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for
@@ -7395,59 +7655,6 @@ function resetContinuum(p)
 		p.continuum_timer_display_ops = nil
 	end
 end
---[[	old version of ship comms, enemy ships
-function enemyComms(comms_data)
-	if comms_data.friendlyness > 50 then
-		local faction = comms_target:getFaction()
-		local taunt_option = "We will see to your destruction!"
-		local taunt_success_reply = "Your bloodline will end here!"
-		local taunt_failed_reply = "Your feeble threats are meaningless."
-		if faction == "Kraylor" then
-			setCommsMessage("Ktzzzsss.\nYou will DIEEee weaklingsss!");
-			local kraylorTauntChoice = math.random(1,3)
-			if kraylorTauntChoice == 1 then
-				taunt_option = "We will destroy you"
-				taunt_success_reply = "We think not. It is you who will experience destruction!"
-			elseif kraylorTauntChoice == 2 then
-				taunt_option = "You have no honor"
-				taunt_success_reply = "Your insult has brought our wrath upon you. Prepare to die."
-				taunt_failed_reply = "Your comments about honor have no meaning to us"
-			else
-				taunt_option = "We pity your pathetic race"
-				taunt_success_reply = "Pathetic? You will regret your disparagement!"
-				taunt_failed_reply = "We don't care what you think of us"
-			end
-		elseif faction == "Arlenians" then
-			setCommsMessage("We wish you no harm, but will harm you if we must.\nEnd of transmission.");
-		elseif faction == "Exuari" then
-			setCommsMessage("Stay out of our way, or your death will amuse us extremely!");
-		elseif faction == "Ghosts" then
-			setCommsMessage("One zero one.\nNo binary communication detected.\nSwitching to universal speech.\nGenerating appropriate response for target from human language archives.\n:Do not cross us:\nCommunication halted.");
-			taunt_option = "EXECUTE: SELFDESTRUCT"
-			taunt_success_reply = "Rogue command received. Targeting source."
-			taunt_failed_reply = "External command ignored."
-		elseif faction == "Ktlitans" then
-			setCommsMessage("The hive suffers no threats. Opposition to any of us is opposition to us all.\nStand down or prepare to donate your corpses toward our nutrition.");
-			taunt_option = "<Transmit 'The Itsy-Bitsy Spider' on all wavelengths>"
-			taunt_success_reply = "We do not need permission to pluck apart such an insignificant threat."
-			taunt_failed_reply = "The hive has greater priorities than exterminating pests."
-		else
-			setCommsMessage("Mind your own business!");
-		end
-		comms_data.friendlyness = comms_data.friendlyness - random(0, 10)
-		addCommsReply(taunt_option, function()
-			if random(0, 100) < 30 then
-				comms_target:orderAttack(comms_source)
-				setCommsMessage(taunt_success_reply);
-			else
-				setCommsMessage(taunt_failed_reply);
-			end
-		end)
-		return true
-	end
-	return false
-end
---]]
 function neutralComms(comms_data)
 	local shipType = comms_target:getTypeName()
 	if shipType:find("Freighter") ~= nil then
@@ -8096,6 +8303,119 @@ function setPlayers()
 				end
 			end
 			pobj.initialCoolant = pobj:getMaxCoolant()
+		end
+	end
+end
+function expediteDockCheck(delta)
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if p.expedite_dock then
+				if p.expedite_dock_timer == nil then
+					p.expedite_dock_timer = p.expedite_dock_timer_max + delta
+				end
+				p.expedite_dock_timer = p.expedite_dock_timer - delta
+				if p.expedite_dock_timer < 0 then
+					if p.expedite_dock_timer < -1 then
+						if p.expedite_dock_timer_info ~= nil then
+							p:removeCustom(p.expedite_dock_timer_info)
+							p.expedite_dock_timer_info = nil
+						end
+						if p.expedite_dock_timer_info_ops ~= nil then
+							p:removeCustom(p.expedite_dock_timer_info_ops)
+							p.expedite_dock_timer_info_ops = nil
+						end
+						p.expedite_dock = nil
+						p:addToShipLog(string.format("Docking crew of station %s returned to their normal duties",p.expedite_doc_station:getCallSign()),"Yellow")
+						p.expedite_timer = nil
+						p.expedite_dock_station = nil
+						p.preorder_hvli = nil
+						p.preorder_homing = nil
+						p.preorder_emp = nil
+						p.preorder_nuke = nil
+						p.preorder_repair_crew = nil
+						p.preorder_coolant = nil
+					else
+						if p:hasPlayerAtPosition("Relay") then
+							p.expedite_dock_timer_info = "expedite_dock_timer_info"
+							p:addCustomInfo("Relay",p.expedite_dock_timer_info,"Fast Dock Expired")						
+						end
+						if p:hasPlayerAtPosition("Operations") then
+							p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
+							p:addCustomInfo("Relay",p.expedite_dock_timer_info_ops,"Fast Dock Expired")						
+						end
+					end
+				else	--timer not expired
+					local expedite_dock_timer_status = "Fast Dock"
+					local expedite_dock_timer_minutes = math.floor(p.expedite_dock_timer / 60)
+					local expedite_dock_timer_seconds = math.floor(p.expedite_dock_timer % 60)
+					if expedite_dock_timer_minutes <= 0 then
+						expedite_dock_timer_status = string.format("%s %i",expedite_dock_timer_status,expedite_dock_timer_seconds)
+					else
+						expedite_dock_timer_status = string.format("%s %i:%.2i",expedite_dock_timer_status,expedite_dock_timer_minutes,expedite_dock_timer_seconds)
+					end
+					if p:hasPlayerAtPosition("Relay") then
+						p.expedite_dock_timer_info = "expedite_dock_timer_info"
+						p:addCustomInfo("Relay",p.expedite_dock_timer_info,expedite_dock_timer_status)
+					end
+					if p:hasPlayerAtPosition("Operations") then
+						p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
+						p:addCustomInfo("Operations",p.expedite_dock_timer_info_ops,expedite_dock_timer_status)
+					end					
+				end
+				if p.expedite_dock_station ~= nil and p.expedite_dock_station:isValid() then
+					if p:isDocked(p.expedite_dock_station) then
+						p:setEnergy(p:getMaxEnergy())
+						p:setScanProbeCount(p:getMaxScanProbeCount())
+						if p.preorder_hvli ~= nil then
+							local new_amount = math.min(p:getWeaponStorage("HVLI") + p.preorder_hvli,p:getWeaponStorageMax("HVLI"))
+							p:setWeaponStorage("HVLI",new_amount)
+						end
+						if p.preorder_homing ~= nil then
+							new_amount = math.min(p:getWeaponStorage("Homing") + p.preorder_homing,p:getWeaponStorageMax("Homing"))
+							p:setWeaponStorage("Homing",new_amount)
+						end
+						if p.preorder_mine ~= nil then
+							new_amount = math.min(p:getWeaponStorage("Mine") + p.preorder_mine,p:getWeaponStorageMax("Mine"))
+							p:setWeaponStorage("Mine",new_amount)
+						end
+						if p.preorder_emp ~= nil then
+							new_amount = math.min(p:getWeaponStorage("EMP") + p.preorder_emp,p:getWeaponStorageMax("EMP"))
+							p:setWeaponStorage("EMP",new_amount)
+						end
+						if p.preorder_nuke ~= nil then
+							new_amount = math.min(p:getWeaponStorage("Nuke") + p.preorder_nuke,p:getWeaponStorageMax("Nuke"))
+							p:setWeaponStorage("Nuke",new_amount)
+						end
+						if p.preorder_repair_crew ~= nil then
+							p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+							resetPreviousSystemHealth(p)
+						end
+						if p.preorder_coolant ~= nil then
+							p:setMaxCoolant(p:getMaxCoolant() + 2)
+						end
+						if p.expedite_dock_timer_info ~= nil then
+							p:removeCustom(p.expedite_dock_timer_info)
+							p.expedite_dock_timer_info = nil
+						end
+						if p.expedite_dock_timer_info_ops ~= nil then
+							p:removeCustom(p.expedite_dock_timer_info_ops)
+							p.expedite_dock_timer_info_ops = nil
+						end
+						p:addToShipLog(string.format("Docking crew at station %s completed replenishment as requested",p.expedite_dock_station:getCallSign()),"Yellow")
+						p.expedite_dock = nil
+						p.expedite_timer = nil
+						p.expedite_dock_station = nil
+						p.preorder_hvli = nil
+						p.preorder_homing = nil
+						p.preorder_emp = nil
+						p.preorder_nuke = nil
+						p.preorder_repair_crew = nil
+						p.preorder_coolant = nil
+					end
+				end
+			end
+
 		end
 	end
 end
@@ -10670,5 +10990,8 @@ function update(delta)
 	end
 	if plotContinuum ~= nil then
 		plotContinuum(delta)
+	end
+	if plotExDk ~= nil then	--expedite dock
+		plotExDk(delta)
 	end
 end
