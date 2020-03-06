@@ -63,7 +63,8 @@ function init()
 	helpfulWarningDiagnostic = false
 	GMDiagnosticOn = "Turn On Diagnostic"
 	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
-	interWave = 280			
+	default_interwave_interval = 280
+	interWave = default_interwave_interval			
 	GMDelayNormalToSlow = "Delay normal to slow"
 	addGMFunction(GMDelayNormalToSlow,delayNormalToSlow)
 	buildStations()
@@ -272,8 +273,8 @@ function setConstants()
 	table.insert(plot4choices,repairBountyDelay)
 	table.insert(plot4choices,insertAgentDelay)
 end
--- Let the GM spawn a random group of enemies to attack a player
 function GMSpawnsEnemies()
+-- Let the GM spawn a random group of enemies to attack a player
 	local gmPlayer = nil
 	local gmSelect = getGMSelection()
 	for _, obj in ipairs(gmSelect) do
@@ -320,7 +321,7 @@ function delaySlowToFast()
 	addGMFunction("Delay fast to normal",delayFastToNormal)
 end
 function delayFastToNormal()
-	interwave = 280
+	interwave = default_interwave_interval
 	removeGMFunction(GMDelayFastToNormal)
 	addGMFunction("Delay normal to slow",delayNormalToSlow)
 end
@@ -347,23 +348,22 @@ end
 -- dynamic universe functions: asteroids and nebulae in motion
 function setMovingNebulae()
 	movingNebulae = {}
-	upperNeb = math.random(5,10)
+	local upperNeb = math.random(5,10)
 	for nidx=1,upperNeb do
-		xNeb = random(-100000,100000)
-		yNeb = random(-100000,100000)
-		mNeb = Nebula():setPosition(xNeb, yNeb)
+		local xNeb = random(-100000,100000)
+		local yNeb = random(-100000,100000)
+		local mNeb = Nebula():setPosition(xNeb, yNeb)
 		mNeb.angle = random(0,360)
 		mNeb.travel = random(1,100)
 		table.insert(movingNebulae,mNeb)
 	end
 	plotN = moveNebulae
 end
-
 function moveNebulae(delta)
 	for nidx=1,#movingNebulae do
-		mnx, mny = movingNebulae[nidx]:getPosition()
+		local mnx, mny = movingNebulae[nidx]:getPosition()
 		if mnx ~= nil and mny ~= nil then
-			angleChange = false
+			local angleChange = false
 			if mnx < -100000 then
 				angleChange = true
 				movingNebulae[nidx].angle = random(0,180) + 270
@@ -380,26 +380,23 @@ function moveNebulae(delta)
 				angleChange = true
 				movingNebulae[nidx].angle = random(180,360)
 			end
+			local deltaNebx, deltaNeby = vectorFromAngle(movingNebulae[nidx].angle, movingNebulae[nidx].travel/10)
 			if angleChange then
 				deltaNebx, deltaNeby = vectorFromAngle(movingNebulae[nidx].angle, movingNebulae[nidx].travel/10+20)
-				movingNebulae[nidx]:setPosition(mnx+deltaNebx, mny+deltaNeby)
 				movingNebulae.travel = random(1,100)
-			else
-				deltaNebx, deltaNeby = vectorFromAngle(movingNebulae[nidx].angle, movingNebulae[nidx].travel/10)
-				movingNebulae[nidx]:setPosition(mnx+deltaNebx, mny+deltaNeby)
 			end
+			movingNebulae[nidx]:setPosition(mnx+deltaNebx, mny+deltaNeby)
 		end
 	end
 end
-
 function setMovingAsteroids()
 	movingAsteroidList = {}
 	for aidx=1,30 do
-		xAst = random(-100000,100000)
-		yAst = random(-100000,100000)
-		outRange = true
+		local xAst = random(-100000,100000)
+		local yAst = random(-100000,100000)
+		local outRange = true
 		for p2idx=1,8 do
-			p2obj = getPlayerShip(p2idx)
+			local p2obj = getPlayerShip(p2idx)
 			if p2obj ~= nil and p2obj:isValid() then
 				if distance(p2obj,xAst,yAst) < 30000 then
 					outRange = false
@@ -407,7 +404,7 @@ function setMovingAsteroids()
 			end
 		end
 		if outRange then
-			mAst = Asteroid():setPosition(xAst,yAst)
+			local mAst = Asteroid():setPosition(xAst,yAst)
 			mAst.angle = random(0,360)
 			mAst.travel = random(40,220)
 			if random(1,100) < 50 then
@@ -422,11 +419,11 @@ function setMovingAsteroids()
 end
 
 function moveAsteroids(delta)
-	movingAsteroidCount = 0
+	local movingAsteroidCount = 0
 	for aidx, aObj in ipairs(movingAsteroidList) do
 		if aObj:isValid() then
 			movingAsteroidCount = movingAsteroidCount + 1
-			mAstx, mAsty = aObj:getPosition()
+			local mAstx, mAsty = aObj:getPosition()
 			if mAstx < -150000 or mAstx > 150000 or mAsty < -150000 or mAsty > 150000 then
 				aObj.angle = random(0,360)
 				if random(1,100) < 50 then
@@ -464,7 +461,7 @@ function moveAsteroids(delta)
 					end
 				end
 			else
-				deltaAstx, deltaAsty = vectorFromAngle(aObj.angle,aObj.travel)
+				local deltaAstx, deltaAsty = vectorFromAngle(aObj.angle,aObj.travel)
 				aObj:setPosition(mAstx+deltaAstx,mAsty+deltaAsty)
 				aObj.angle = aObj.angle + aObj.curve
 			end
