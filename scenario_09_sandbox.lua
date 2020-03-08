@@ -2314,8 +2314,31 @@ function createIcarusStations()
     	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes"
 	}
 	table.insert(stations,stationCindyFolly)
-	local speculatorZone = squareZone(55000,108000, "Speculator")
-	speculatorZone:setColor(51,153,255)
+	--Speculator
+    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 13 then tradeMedicine = true else tradeMedicine = false end
+    stationSpeculator.comms_data = {
+    	friendlyness = 82,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
+        weapon_available = 	{Homing = true,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
+        goods = {	nickel = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
+        			dilithium =	{quantity = math.random(6,12),	cost = math.random(75,95)},
+        			tritanium =	{quantity = math.random(2,8),	cost = math.random(45,85)} },
+        trade = {	food = false, medicine = tradeMedicine, luxury = true },
+        public_relations = true,
+        general_information = "Mining operations are the primary purpose, but there are scientists here conducting research on the mobile nebula in the area",
+    	history = "A consorium of mining interests and scientists banded together to create this station. It was considered a risk for both groups, but they undertook it anyway."
+	}
+	table.insert(stations,stationSpeculator)
+	--local speculatorZone = squareZone(55000,108000, "Speculator")
+	--speculatorZone:setColor(51,153,255)
 	--Borlan
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -10137,9 +10160,9 @@ function update(delta)
 		timer_value = timer_value - delta
 	end
 	healthCheckTimer = healthCheckTimer - delta
+	local warning_message = nil
+	local warning_station = nil
 	if automated_station_danger_warning and regionStations ~= nil then
-		local warning_message = nil
-		local warning_station = nil
 		for station_index=1,#regionStations do
 			local current_station = regionStations[station_index]
 			if current_station ~= nil and current_station:isValid() then
