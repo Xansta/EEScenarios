@@ -1,6 +1,6 @@
 -- Name: Sandbox
 -- Description: GM controlled missions
---- Version 0
+--- Version 1
 -- Type: GM Controlled missions
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
@@ -635,6 +635,20 @@ function setConstants()
 	jammer_range = 10000
 	automated_station_danger_warning = true
 end
+----------------------------
+--  Main Menu of Buttons  --
+----------------------------
+-- 2nd column: F = Fixed text, D = Dynamic text, * = Fixed with asterisk indicating selection
+-- Button Text		   FD*	Related Function(s)
+-- +INITIAL SET UP		F	initialSetUp
+-- +SPAWN FLEET			F	spawnGMFleet
+-- +ORDER FLEET			F	orderFleet
+-- +ORDER SHIP			F	orderShip
+-- +DROP POINT			F	dropPoint
+-- +SCAN CLUE			F	scanClue
+-- +TWEAK TERRAIN		F	tweakTerrain
+-- +COUNTDOWN TIMER		F	countdownTimer
+-- +END MISSION			F	endMission
 function initialGMFunctions()
 	clearGMFunctions()
 	addGMFunction("+Initial Set Up",initialSetUp)
@@ -647,9 +661,16 @@ function initialGMFunctions()
 	addGMFunction("+Countdown Timer",countdownTimer)
 	addGMFunction("+End Mission",endMission)
 end
----------------------
---  Initial set up --
----------------------
+----------------------
+--  Initial set up  --
+----------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM INITIAL		F	initialGMFunctions
+-- +START REGION			F	setStartRegion
+-- +PLAYER SHIPS 0/0		D	playerShip (inline calculation of values "current ships"/"total ships")
+-- +WORMHOLES				F	setWormholes
+-- +ZONES					F	changeZones
+-- AUTO STATION WARN OFF	F	inline (alternates between ON and OFF)
 function initialSetUp()
 	clearGMFunctions()
 	addGMFunction("-Main from Initial",initialGMFunctions)
@@ -680,1279 +701,771 @@ function initialSetUp()
 		end)
 	end
 end
---------------------------
---	Player Ship set up  --
---------------------------
-function playerShip()
+-------------------
+--	Spawn fleet  --
+-------------------
+-- Button Text			   FD*	Explanation							Related Function(s)
+-- -MAIN FROM FLT SPWN		F										initialGMFunctions
+-- +EXUARI					D	(faction)							setGMFleetFaction
+-- +1 PLAYER STRENGTH: n*	D	/Asterisk on selection between		setGMFleetStrength
+-- +SET FIXED STRENGTH		D	\relative and fixed strength		setFixedFleetStrength
+-- +RANDOM					D	(composition)						setFleetComposition
+-- +UNMODIFIED				D	(random tweaking)					setFleetChange
+-- +IDLE					D	(orders)							setFleetOrders
+-- +AWAY					D	(position)							setFleetSpawnLocation
+-- SPAWN					F										parmSpawnFleet
+function spawnGMFleet()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Tweak player",tweakPlayerShip)
-	addGMFunction("+Descriptions",describePlayerShips)
-	addGMFunction("+Current",activePlayerShip)
-	addGMFunction("+Scrapped",inactivePlayerShip)
-	if playerShipInfo == nil then
-		playerShipInfo={
-			{"Ambition"   ,"inactive",createPlayerShipAmbition   ,"Phobos T2(Ambition): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
-			{"Arwine"     ,"inactive",createPlayerShipArwine     ,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
-			{"Barracuda"  ,"inactive",createPlayerShipBarracuda  },
-			{"Blazon"     ,"inactive",createPlayerShipBlazon     },
-			{"Cobra"      ,"active"  ,createPlayerShipCobra      ,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
-			{"Halberd"    ,"inactive",createPlayerShipHalberd    },
-			{"Headhunter" ,"inactive",createPlayerShipHeadhunter },
-			{"Holmes"     ,"active"  ,createPlayerShipHolmes     ,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nDefault advanced engine:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
-			{"Magnum"     ,"inactive",createPlayerShipMagnum     },
-			{"Narsil"     ,"inactive",createPlayerShipNarsil     },
-			{"Osprey"     ,"inactive",createPlayerShipOsprey     },
-			{"Rattler"    ,"active"  ,createPlayerShipRattler    ,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nDefault advanced engine:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
-			{"Rogue"      ,"active"  ,createPlayerShipRogue      ,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
-			{"Simian"     ,"active"  ,createPlayerShipSimian     ,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
-			{"Spike"      ,"inactive",createPlayerShipSpike      },
-			{"Spyder"     ,"inactive",createPlayerShipSpyder     },
-			{"Sting"      ,"inactive",createPlayerShipSting      },
-			{"Thunderbird","inactive",createPlayerShipThunderbird},
-			{"Wombat"     ,"inactive",createPlayerShipWombat     }
-		}
+	addGMFunction("-Main From Flt Spwn",initialGMFunctions)
+	addGMFunction(string.format("+%s",fleetSpawnFaction),setGMFleetFaction)
+	if fleetStrengthFixed then
+		addGMFunction("+Set Relative Strength",setGMFleetStrength)
+		addGMFunction(string.format("+Strength %i*",fleetStrengthFixedValue),setFixedFleetStrength)
+	else
+		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
+		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
+		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
+		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
 	end
+	addGMFunction(string.format("+%s",fleetComposition),setFleetComposition)
+	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
+	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
+	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
+	addGMFunction("Spawn",parmSpawnFleet)
 end
-function activePlayerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][2] == "active" then
-			addGMFunction(playerShipInfo[shipNum][1],playerShipInfo[shipNum][3])
-		end
-	end
-end
-function inactivePlayerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][2] == "inactive" then
-			addGMFunction(playerShipInfo[shipNum][1],playerShipInfo[shipNum][3])
-		end
-	end
-end
-function describePlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ships",playerShip)
-	addGMFunction("+Describe Current",describeCurrentSpecialPlayerShips)
-	addGMFunction("+Describe Scrapped",describeScrappedSpecialPlayerShips)
-	addGMFunction("+Describe Stock",describeStockPlayerShips)
-end
-function describeCurrentSpecialPlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Back",describePlayerShips)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][4] ~= nil and playerShipInfo[shipNum][2] == "active" then
-			addGMFunction(playerShipInfo[shipNum][1],function()
-				addGMMessage(playerShipInfo[shipNum][4])
-			end)
-		end
-	end
-end
-function describeScrappedSpecialPlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Back",describePlayerShips)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][4] ~= nil and playerShipInfo[shipNum][2] == "inactive" then
-			addGMFunction(playerShipInfo[shipNum][1],function()
-				addGMMessage(playerShipInfo[shipNum][4])
-			end)
-		end
-	end
-end
-function describeStockPlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Back",describePlayerShips)
-	addGMFunction("Atlantis",function()
-		addGMMessage("Atlantis: Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:3   Cargo:6   R.Strength:52\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:10   Side:4   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP\n      20 HVLI\nA refitted Atlantis X23 for more general tasks. The large shield system has been replaced with an advanced combat maneuvering systems and improved impulse engines. Its missile loadout is also more diverse. Mistaking the modified Atlantis for an Atlantis X23 would be a deadly mistake.")
-	end)
-	addGMFunction("Benedict",function()
-		addGMMessage("Benedict: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Jump (5U - 90U)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nBenedict is an improved version of the Jump Carrier")
-	end)
-	addGMFunction("Crucible",function()
-		addGMMessage("Crucible: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:5   R.Strength:45\nDefault advanced engine:Warp (750)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:70   Direction:-30   Range:1   Cycle:6   Damage:5\n   Arc:70   Direction: 30   Range:1   Cycle:6   Damage:5\nTubes:6   Load Speed:8   Front:3   Side:2   Back:1\n   Direction:   0   Type:HVLI Only - Small\n   Direction:   0   Type:HVLI Only\n   Direction:   0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      04 Nuke\n      06 Mine\n      06 EMP\n      24 HVLI\nA number of missile tubes range around this ship. Beams were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
-	end)
-	addGMFunction("Ender",function()
-		addGMMessage("Ender: Dreadnaught, Battlecruiser   Hull:100   Shield:1200,1200   Size:2000   Repair Crew:8   Cargo Space:20   R.Strength:100\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette   Energy:1200\nDefault advanced engine:Jump   Speeds: Impulse:30   Spin:2   Accelerate:6   C.Maneuver: Boost:800 Strafe:500\nBeams:12 6 left, 6 right turreted Speed:6\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.1   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.0   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.8   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.3   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.9   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.4   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.7   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.2   Damage:4\nTubes:2   Load Speed:8   Front:1   Back:1\n   Direction:   0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      6 Mine")
-	end)
-	addGMFunction("Flavia P.Falcon",function()
-		addGMMessage("Flavia P.Falcon: Frigate, Light Transport   Hull:100   Shield:70,70   Size:200   Repair Crew:8   Cargo Space:15   R.Strength:13\nDefault advanced engine:Warp (500)   Speeds: Impulse:60   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 rear facing\n   Arc:40   Direction:170   Range:1.2   Cycle:6   Damage:6\n   Arc:40   Direction:190   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Back:1\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nThe Flavia P.Falcon has a nuclear-capable rear-facing weapon tube and a warp drive.")
-	end)
-	addGMFunction("Hathcock",function()
-		addGMMessage("Hathcock: Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo Space:6   R.Strength:30\nDefault advanced engine:Jump   Speeds: Impulse:50   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeams:4 front facing\n   Arc:04   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nLong range narrow beam and some point defense beams, broadside missiles. Agile for a frigate")
-	end)
-	addGMFunction("Kiriya",function()
-		addGMMessage("Kiriya: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Warp (750)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nKiriya is an improved warp drive version of the Jump Carrier")
-	end)
-	addGMFunction("MP52 Hornet",function()
-		addGMMessage("MP52 Hornet: Starfighter, Interceptor   Hull:70   Shield:60   Size:100   Repair Crew:1   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:125   Spin:32   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:30   Direction: 5   Range:.9   Cycle:4   Damage:2.5\n   Arc:30   Direction:-5   Range:.9   Cycle:4   Damage:2.5\nThe MP52 Hornet is a significantly upgraded version of MU52 Hornet, with nearly twice the hull strength, nearly three times the shielding, better acceleration, impulse boosters, and a second laser cannon.")
-	end)
-	addGMFunction("Maverick",function()
-		addGMMessage("Maverick: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:6   3 forward, 2 side, 1 back (turreted speed .5)\n   Arc:10   Direction:  0   Range:2.0   Cycle:6   Damage:6\n   Arc: 90   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc: 90   Direction: 20   Range:1.5   Cycle:6   Damage:8\n   Arc: 40   Direction:-70   Range:1.0   Cycle:4   Damage:6\n   Arc: 40   Direction: 70   Range:1.0   Cycle:4   Damage:6\n   Arc:180   Direction:180   Range:0.8   Cycle:6   Damage:4   (turreted speed: .5)\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nA number of beams bristle from various points on this gunner. Missiles were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
-	end)
-	addGMFunction("Nautilus",function()
-		addGMMessage("Nautilus: Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:12\nDefault advanced engine:Jump   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Back:3\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Mine\nSmall mine laying vessel with minimal armament, shields and hull")
-	end)
-	addGMFunction("Phobos MP3",function()
-		addGMMessage("Phobos MP3: Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:3   Cargo:10   R.Strength:19\nDefault advanced engine:None   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:3   Load Speed:10   Front:2   Back:1\n   Direction: -1   Type:Exclude Mine\n   Direction:  1   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      02 Nuke\n      04 Mine\n      03 EMP\n      20 HVLI\nPlayer variant of the Phobos M3, not as strong as the atlantis, but has front firing tubes, making it an easier to use ship in some scenarios.")
-	end)
-	addGMFunction("Piranha",function()
-		addGMMessage("Piranha: Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo:8   R.Strength:16\nDefault advanced engine:None   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nTubes:8   Load Speed:8   Side:6   Back:2\n   Direction:-90   Type:HVLI and Homing Only\n   Direction:-90   Type:Any\n   Direction:-90   Type:HVLI and Homing Only\n   Direction: 90   Type:HVLI and Homing Only\n   Direction: 90   Type:Any\n   Direction: 90   Type:HVLI and Homing Only\n   Direction:170   Type:Mine Only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Nuke\n      08 Mine\n      20 HVLI\nThis combat-specialized Piranha F12 adds mine-laying tubes, combat maneuvering systems, and a jump drive.")
-	end)	
-	addGMFunction("Player Cruiser",function()
-		addGMMessage("Player Cruiser:   Hull:200   Shield:80,80   Size:400   Repair Crew:3   Cargo:6   R.Strength:40\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1   Cycle:6   Damage:10\n   Arc:90   Direction: 15   Range:1   Cycle:6   Damage:10\nTubes:3   Load Speed:8   Front:2   Back:1\n   Direction: -5   Type:Exclude Mine\n   Direction:  5   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP")
-	end)
-	addGMFunction("Player Fighter",function()
-		addGMMessage("Player Fighter:   Hull:60   Shield:40   Size:100   Repair Crew:3   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:40   Direction:-10   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:1   Cycle:6   Damage:8\nTube:1   Load Speed:10   Front:1\n   Direction:0   Type:HVLI Only\n   Ordnance stock and type:\n      4 HVLI")
-	end)
-	addGMFunction("Player Missile Cr.",function()
-		addGMMessage("Player Missile Cr.:   Hull:200   Shield:110,70   Size:200   Repair Crew:3   Cargo:8   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nTubes:7   Load Speed:8   Front:2   Side:4   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction: 90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      30 Homing\n      08 Nuke\n      12 Mine\n      10 EMP")
-	end)	
-	addGMFunction("Repulse",function()
-		addGMMessage("Repulse: Frigate, Armored Transport   Hull:120   Shield:80,80   Size:200   Repair Crew:8   Cargo:12   R.Strength:14\nDefault advanced engine:Jump   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:5\n   Arc:200   Direction: 90   Range:1.2   Cycle:6   Damage:5\n   Arc:200   Direction:-90   Range:1.2   Cycle:6   Damage:5\nTubes:2   Load Speed:20   Front:1   Back:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      6 HVLI\nJump/Turret version of Flavia Falcon")
-	end)
-	addGMFunction("Striker",function()
-		addGMMessage("Striker: Starfighter, Patrol   Hull:120   Shield:50,30   Size:200   Repair Crew:2   Cargo:4   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:45   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:500\nBeams:2 Turreted Speed:6\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nThe Striker is the predecessor to the advanced striker, slow but agile, but does not do an extreme amount of damage, and lacks in shields")
-	end)
-	addGMFunction("ZX-Lindworm",function()
-		addGMMessage("ZX-Lindworm: Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:1   Cargo:3   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI")
-	end)
-end
-
-function createPlayerShipAmbition()
-	--destroyed 1Feb2020
-	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
-	playerAmbition:setTypeName("Phobos T2")
-	playerAmbition:setRepairCrewCount(5)					--more repair crew (vs 3)
-	playerAmbition:setJumpDrive(true)						--jump drive (vs none)
-	playerAmbition:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
-	playerAmbition:setRotationMaxSpeed(20)					--faster spin (vs 10)
---                 				   Arc, Dir, Range, CycleTime, Dmg
-	playerAmbition:setBeamWeapon(0, 10, -15,  1200,         8, 6)
-	playerAmbition:setBeamWeapon(1, 10,  15,  1200,        16, 6)
---										 Arc, Dir, Rotate speed
-	playerAmbition:setBeamWeaponTurret(0, 90, -15, .2)		--slow turret beams
-	playerAmbition:setBeamWeaponTurret(1, 90,  15, .2)
-	playerAmbition:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
-	playerAmbition:setWeaponTubeDirection(0,0)				--first tube points straight forward
-	playerAmbition:setWeaponTubeDirection(1,180)			--second tube points straight back
-	playerAmbition:setWeaponTubeExclusiveFor(1,"Mine")
-	playerAmbition:setWeaponStorageMax("Homing",6)			--reduce homing storage (vs 10)
-	playerAmbition:setWeaponStorage("Homing",6)
-	playerAmbition:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
-	playerAmbition:setWeaponStorage("HVLI",10)
-	playerAmbition:addReputationPoints(50)
-end
-function createPlayerShipArwine()
-	--destroyed 14Dec2019
-	playerArwine = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Arwine")
-	playerArwine:setTypeName("Pacu")
-	playerArwine:setRepairCrewCount(5)						--more repair crew (vs 2)
-	playerArwine:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
-	playerArwine:setImpulseMaxSpeed(70)						--faster impulse max (vs 40)
-	playerArwine:setHullMax(150)							--stronger hull (vs 120)
-	playerArwine:setHull(150)
-	playerArwine:setShieldsMax(100,100)						--stronger shields (vs 70, 70)
-	playerArwine:setShields(100,100)
-	playerArwine:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
-	playerArwine:setBeamWeaponTurret(0, 80, 0, .2)			--slow turret
-	playerArwine:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
-	playerArwine:setWeaponTubeDirection(6, 180)				--mine tube points straight back
-	playerArwine:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(5,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(6,"Mine")
-	playerArwine:weaponTubeAllowMissle(1,"Homing")
-	playerArwine:weaponTubeAllowMissle(1,"EMP")
-	playerArwine:weaponTubeAllowMissle(1,"Nuke")
-	playerArwine:weaponTubeAllowMissle(4,"Homing")
-	playerArwine:weaponTubeAllowMissle(4,"EMP")
-	playerArwine:weaponTubeAllowMissle(4,"Nuke")
-	playerArwine:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerArwine:setWeaponStorage("Mine", 4)				
-	playerArwine:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
-	playerArwine:setWeaponStorage("EMP", 4)					
-	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
-	playerArwine:setWeaponStorage("Nuke", 4)				
-	playerArwine:addReputationPoints(50)
-	playerShipSpawned("Arwine")
-end
-function createPlayerShipBarracuda()
-	--destroyed 8feb2020
-	--clone of Headhunter
-	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
-	playerBarracuda:setTypeName("Redhook")
-	playerBarracuda:setRepairCrewCount(4)						--more repair crew (vs 2)
-	playerBarracuda:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
-	playerBarracuda:setHullMax(140)								--stronger hull (vs 120)
-	playerBarracuda:setHull(140)
-	playerBarracuda:setShieldsMax(100, 100)						--stronger shields (vs 70, 70)
-	playerBarracuda:setShields(100, 100)
-	playerBarracuda:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)		--one beam (vs 0)
-	playerBarracuda:setBeamWeaponTurret(0, 80, 0, 1)			--slow turret 
-	playerBarracuda:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
-	playerBarracuda:setWeaponTubeDirection(6, 180)				--mine tube points straight back
-	playerBarracuda:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(5,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(6,"Mine")
-	playerBarracuda:weaponTubeAllowMissle(1,"Homing")
-	playerBarracuda:weaponTubeAllowMissle(1,"EMP")
-	playerBarracuda:weaponTubeAllowMissle(1,"Nuke")
-	playerBarracuda:weaponTubeAllowMissle(4,"Homing")
-	playerBarracuda:weaponTubeAllowMissle(4,"EMP")
-	playerBarracuda:weaponTubeAllowMissle(4,"Nuke")
-	playerBarracuda:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerBarracuda:setWeaponStorage("Mine", 4)				
-	playerBarracuda:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
-	playerBarracuda:setWeaponStorage("EMP", 4)					
-	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
-	playerBarracuda:setWeaponStorage("Nuke", 4)				
-	playerBarracuda:addReputationPoints(50)
-	playerShipSpawned("Barracuda")
-end
-function createPlayerShipBlazon()
-	--ship destroyed 24Aug2019
-	playerBlazon = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Blazon")
-	playerBlazon:setTypeName("Stricken")
-	playerBlazon:setRepairCrewCount(2)
-	playerBlazon:setImpulseMaxSpeed(105)					-- up from default of 45
-	playerBlazon:setRotationMaxSpeed(35)					-- up from default of 15
-	playerBlazon:setShieldsMax(80,50)						-- up from 50, 30
-	playerBlazon:setShields(80,50)							-- up from 50, 30
-	playerBlazon:setBeamWeaponTurret(0,60,-15,2)			-- 60: narrower than default 100, 
-	playerBlazon:setBeamWeaponTurret(1,60, 15,2)			-- 2: slower than default 6
-	playerBlazon:setBeamWeapon(2,20,0,1200,6,5)				-- add forward facing beam
-	playerBlazon:setWeaponTubeCount(3)						-- add tubes
-	playerBlazon:setWeaponTubeDirection(0,-60)
-	playerBlazon:setWeaponTubeDirection(1,60)
-	playerBlazon:setWeaponTubeDirection(2,180)
-	playerBlazon:weaponTubeDisallowMissle(0,"Mine")
-	playerBlazon:weaponTubeDisallowMissle(1,"Mine")
-	playerBlazon:setWeaponTubeExclusiveFor(2,"Mine")
-	playerBlazon:setWeaponStorageMax("Homing",6)
-	playerBlazon:setWeaponStorage("Homing",6)
-	playerBlazon:setWeaponStorageMax("EMP",2)
-	playerBlazon:setWeaponStorage("EMP",2)
-	playerBlazon:setWeaponStorageMax("Nuke",2)
-	playerBlazon:setWeaponStorage("Nuke",2)
-	playerBlazon:setWeaponStorageMax("Mine",4)
-	playerBlazon:setWeaponStorage("Mine",4)
-	playerBlazon:addReputationPoints(50)
-	playerShipSpawned("Blazon")
-end
-function createPlayerShipCobra()
-	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
-	playerCobra:setTypeName("Striker LX")
-	playerCobra:setShieldsMax(100,100)						--stronger shields (vs 50, 30)
-	playerCobra:setShields(100,100)
-	playerCobra:setMaxEnergy(800)							--more maximum energy (vs 500)
-	playerCobra:setEnergy(800)
-	playerCobra:setJumpDrive(true)
-	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
-	playerCobra:setImpulseMaxSpeed(65)						--faster impulse max (vs 45)
---									   Arc, Dir, Rotate speed
-	playerCobra:setBeamWeaponTurret(0, 100, -15, .1)		--slower turret speed (vs 6)
-	playerCobra:setBeamWeaponTurret(1, 100,  15, .1)
-	playerCobra:setWeaponTubeCount(2)						--more tubes (vs 0)
-	playerCobra:setWeaponTubeDirection(0,180)				
-	playerCobra:setWeaponTubeDirection(1,180)
-	playerCobra:setWeaponStorageMax("Homing",4)
-	playerCobra:setWeaponStorage("Homing", 4)	
-	playerCobra:setWeaponStorageMax("Nuke",2)	
-	playerCobra:setWeaponStorage("Nuke", 2)	
-	playerCobra:setWeaponStorageMax("EMP",3)	
-	playerCobra:setWeaponStorage("EMP", 3)		
-	playerCobra:setWeaponStorageMax("Mine",3)	
-	playerCobra:setWeaponStorage("Mine", 3)	
-	playerCobra:setWeaponStorageMax("HVLI",6)	
-	playerCobra:setWeaponStorage("HVLI", 6)	
-	playerCobra:addReputationPoints(50)
-	playerShipSpawned("Cobra")
-end
-function createPlayerShipHalberd()
-	--destroyed 29Feb2020
-	playerHalberd = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Halberd")
-	playerHalberd:setTypeName("Proto-Atlantis")
-	playerHalberd:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerHalberd:setImpulseMaxSpeed(70)				--slower impulse max (vs 90)
-	playerHalberd:setRotationMaxSpeed(14)				--faster spin (vs 10)
-	playerHalberd:setJumpDriveRange(3000,30000)			--shorter jump drive range (vs 5-50)
-	playerHalberd:setHullMax(200)						--weaker hull (vs 250)
-	playerHalberd:setHull(200)							
-	playerHalberd:setShieldsMax(150,150)				--weaker shields (vs 200)
-	playerHalberd:setShields(150,150)
-	
---                 				 Arc, Dir, Range, CycleTime, Dmg
-	playerHalberd:setBeamWeapon(0, 5, -10,  1500,       6.0, 8)		--narrower turreted beams
-	playerHalberd:setBeamWeapon(1, 5,  10,  1500,       6.0, 8)		--vs arc:100, dir:-20
---									    Arc, Dir, Rotate speed
-	playerHalberd:setBeamWeaponTurret(0, 70, -10, .25)
-	playerHalberd:setBeamWeaponTurret(1, 70,  10, .25)
-
-	playerHalberd:setWeaponTubeDirection(0,-90)			--front left facing (vs left)
-	playerHalberd:setWeaponTubeDirection(1,-60)			--front left facing (vs left)
-	playerHalberd:setWeaponTubeDirection(2, 60)			--front right facing (vs right)
-	playerHalberd:setWeaponTubeDirection(3, 90)			--front right facing (vs right)
-	playerHalberd:setWeaponTubeExclusiveFor(0,"Nuke")	--HVLI only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(1,"HVLI")	--Nuke only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
-	playerHalberd:addReputationPoints(50)
-	playerShipSpawned("Halberd")
-end
-function createPlayerShipHeadhunter()
-	playerHeadhunter = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Headhunter")
-	playerHeadhunter:setTypeName("Redhook")
-	playerHeadhunter:setRepairCrewCount(4)						--more repair crew (vs 2)
-	playerHeadhunter:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
-	playerHeadhunter:setHullMax(140)							--stronger hull (vs 120)
-	playerHeadhunter:setHull(140)
-	playerHeadhunter:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
-	playerHeadhunter:setShields(100, 100)
-	playerHeadhunter:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
-	playerHeadhunter:setBeamWeaponTurret(0, 80, 0, 1)			--slow turret 
-	playerHeadhunter:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
-	playerHeadhunter:setWeaponTubeDirection(6, 180)				--mine tube points straight back
-	playerHeadhunter:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(5,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(6,"Mine")
-	playerHeadhunter:weaponTubeAllowMissle(1,"Homing")
-	playerHeadhunter:weaponTubeAllowMissle(1,"EMP")
-	playerHeadhunter:weaponTubeAllowMissle(1,"Nuke")
-	playerHeadhunter:weaponTubeAllowMissle(4,"Homing")
-	playerHeadhunter:weaponTubeAllowMissle(4,"EMP")
-	playerHeadhunter:weaponTubeAllowMissle(4,"Nuke")
-	playerHeadhunter:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerHeadhunter:setWeaponStorage("Mine", 4)				
-	playerHeadhunter:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
-	playerHeadhunter:setWeaponStorage("EMP", 4)					
-	playerHeadhunter:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
-	playerHeadhunter:setWeaponStorage("Nuke", 4)				
-	playerHeadhunter:addReputationPoints(50)
-	playerShipSpawned("Headhunter")
-end
-function createPlayerShipHolmes()
-	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
-	playerHolmes:setTypeName("Holmes")
-	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
---                  			 Arc, Dir,  Range, CycleTime, Dmg
-	playerHolmes:setBeamWeapon(0, 60, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
-	playerHolmes:setBeamWeapon(1, 60, -95, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(2, 60,  85, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(3, 60,  95, 1000.0, 6.0, 5)	
-	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
-	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
-	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
-	playerHolmes:setWeaponTubeExclusiveFor(2,"Homing")
-	playerHolmes:setWeaponTubeExclusiveFor(3,"Mine")
-	playerHolmes:setWeaponTubeDirection(3, 180)
-	playerHolmes:setWeaponStorageMax("Homing",12)			--more (vs 8)
-	playerHolmes:setWeaponStorage("Homing", 12)				
-	playerHolmes:setWeaponStorageMax("HVLI",0)				--fewer
-	playerHolmes:setWeaponStorage("HVLI", 0)				
-	playerHolmes:setWeaponStorageMax("EMP",0)				--fewer
-	playerHolmes:setWeaponStorage("EMP", 0)				
-	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
-	playerHolmes:setWeaponStorage("Nuke", 0)	
-	playerHolmes:addReputationPoints(50)
-	playerShipSpawned("Holmes")
-end
-function createPlayerShipMagnum()
-	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
-	playerMagnum:setTypeName("Focus")
-	playerMagnum:setImpulseMaxSpeed(70)						--slower (vs 80)
-	playerMagnum:setRotationMaxSpeed(20)					--faster spin (vs 15)
-	playerMagnum:setWarpDrive(false)						--no warp
-	playerMagnum:setJumpDrive(true)							--jump drive
-	playerMagnum:setJumpDriveRange(2500,25000)				--shorter jump drive range (vs 5-50)
-	playerMagnum:setHullMax(100)							--weaker hull (vs 160)
-	playerMagnum:setHull(100)
-	playerMagnum:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
-	playerMagnum:setShields(100, 100)
-	playerMagnum:setBeamWeapon(0, 60, -20, 1000.0, 6.0, 5)	--narrower (vs 70)
-	playerMagnum:setBeamWeapon(1, 60,  20, 1000.0, 6.0, 5)	
-	playerMagnum:setWeaponTubeCount(4)						--fewer (vs 6)
-	playerMagnum:weaponTubeAllowMissle(2,"Homing")
-	playerMagnum:weaponTubeAllowMissle(2,"EMP")
-	playerMagnum:weaponTubeAllowMissle(2,"Nuke")
-	playerMagnum:setWeaponTubeExclusiveFor(3,"Mine")
-	playerMagnum:setWeaponTubeDirection(3, 180)
-	playerMagnum:setWeaponStorageMax("EMP",2)				--fewer (vs 6)
-	playerMagnum:setWeaponStorage("EMP", 2)				
-	playerMagnum:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
-	playerMagnum:setWeaponStorage("Nuke", 1)	
-	playerMagnum:addReputationPoints(50)
-	playerShipSpawned("Magnum")
-end
-function createPlayerShipNarsil()
-	--experimental
-	playerNarsil = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Narsil")
-	playerNarsil:setTypeName("Proto-Atlantis")
-	playerNarsil:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerNarsil:setImpulseMaxSpeed(70)					--slower impulse max (vs 90)
-	playerNarsil:setRotationMaxSpeed(14)				--faster spin (vs 10)
-	playerNarsil:setJumpDrive(false)					--no Jump
-	playerNarsil:setWarpDrive(true)						--add warp
-	playerNarsil:setHullMax(200)						--weaker hull (vs 250)
-	playerNarsil:setHull(200)							
-	playerNarsil:setShieldsMax(150,150)					--weaker shields (vs 200)
-	playerNarsil:setShields(150,150)
-	playerNarsil:setWeaponTubeCount(6)					--one more forward tube, less flexible ordnance
-	playerNarsil:setWeaponTubeDirection(0,0)			--front facing
-	playerNarsil:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(1,-90)			--left facing
-	playerNarsil:weaponTubeDisallowMissle(1,"Mine")		--all but mine
-	playerNarsil:setWeaponTubeDirection(2,-90)			--left facing
-	playerNarsil:setWeaponTubeExclusiveFor(2,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(3,90)			--right facing
-	playerNarsil:weaponTubeDisallowMissle(3,"Mine")		--all but mine
-	playerNarsil:setWeaponTubeDirection(4,90)			--right facing
-	playerNarsil:setWeaponTubeExclusiveFor(4,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(5,180)			--rear facing
-	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
-	playerNarsil:addReputationPoints(50)
-	playerShipSpawned("Narsil")
-end
-function createPlayerShipOsprey()
-	--destroyed 29Feb2020
-	playerOsprey = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Osprey")
-	playerOsprey:setTypeName("Flavia 2C")
-	playerOsprey:setRotationMaxSpeed(20)					--faster spin (vs 10)
-	playerOsprey:setImpulseMaxSpeed(70)						--faster (vs 60)
-	playerOsprey:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
-	playerOsprey:setShields(100, 100)
-	playerOsprey:setBeamWeapon(0, 40, -10, 1200.0, 5.5, 6.5)	--two forward (vs rear)
-	playerOsprey:setBeamWeapon(1, 40,  10, 1200.0, 5.5, 6.5)	--faster (vs 6.0) and stronger (vs 6.0)
-	playerOsprey:setWeaponTubeCount(3)						--more (vs 1)
-	playerOsprey:setWeaponTubeDirection(0,-90)				--left facing (vs none)
-	playerOsprey:setWeaponTubeDirection(1, 90)				--right facing (vs none)
-	playerOsprey:setWeaponTubeDirection(2, 180)				--rear facing
-	playerOsprey:setWeaponTubeExclusiveFor(0,"Homing")		
-	playerOsprey:setWeaponTubeExclusiveFor(1,"Homing")
-	playerOsprey:setWeaponStorageMax("EMP",2)				--more (vs 0)
-	playerOsprey:setWeaponStorage("EMP", 2)				
-	playerOsprey:setWeaponStorageMax("Nuke",2)				--more (vs 1)
-	playerOsprey:setWeaponStorage("Nuke", 2)				
-	playerOsprey:setWeaponStorageMax("Mine",2)				--more (vs 1)
-	playerOsprey:setWeaponStorage("Mine", 2)				
-	playerOsprey:setWeaponStorageMax("Homing",4)			--more (vs 3)
-	playerOsprey:setWeaponStorage("Homing", 4)				
-	playerOsprey:addReputationPoints(50)
-	playerShipSpawned("Osprey")
-end
-function createPlayerShipRattler()
-	playerRattler = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rattler")
-	playerRattler:setTypeName("MX-Lindworm")
-	playerRattler:setRepairCrewCount(2)
-	playerRattler:setJumpDrive(true)
-	playerRattler:setJumpDriveRange(3000,20000)
-	playerRattler:setImpulseMaxSpeed(85)
-	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
-	playerRattler:addReputationPoints(50)
-	playerShipSpawned("Rattler")
-end
-function createPlayerShipRogue()
-	playerRogue = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Rogue")
-	playerRogue:setTypeName("Maverick XP")
-	playerRogue:setImpulseMaxSpeed(65)						--slower impulse max (vs 80)
-	playerRogue:setWarpDrive(false)							--no warp
-	playerRogue:setJumpDrive(true)
-	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
---                  		    Arc, Dir,  Range, CycleTime, Dmg
-	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 18)
---									   Arc, Dir, Rotate speed
-	playerRogue:setBeamWeaponTurret(0, 270,   0, .1)
-	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*5)
-	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
-	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
-	playerRogue:setBeamWeapon(2, 0, 0, 0, 0, 0)				
-	playerRogue:setBeamWeapon(3, 0, 0, 0, 0, 0)				
-	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
-	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
-	playerRogue:addReputationPoints(50)
-	playerShipSpawned("Rogue")
-end
-function createPlayerShipSimian()
-	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
-	playerSimian:setTypeName("Destroyer III")
-	playerSimian:setWarpDrive(false)
-	playerSimian:setJumpDrive(true)
-	playerSimian:setJumpDriveRange(2000,20000)						--shorter than typical jump drive range (vs 5-50)
-	playerSimian:setHullMax(100)									--weaker hull (vs 200)
-	playerSimian:setHull(100)
---                 				 Arc, Dir, Range, CycleTime, Damage
-	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
---									    Arc, Dir, Rotate speed
-	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
-	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
-	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
-	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
-	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
-	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
-	playerSimian:setWeaponStorage("Homing", 10)				
-	playerSimian:setWeaponStorageMax("Nuke",4)						--less (vs 8)
-	playerSimian:setWeaponStorage("Nuke", 4)				
-	playerSimian:setWeaponStorageMax("EMP",5)						--less (vs 10)
-	playerSimian:setWeaponStorage("EMP", 5)				
-	playerSimian:setWeaponStorageMax("Mine",6)						--less (vs 12)
-	playerSimian:setWeaponStorage("Mine", 6)				
-	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
-	playerSimian:setWeaponStorage("HVLI", 10)				
-	playerSimian:addReputationPoints(50)
-	playerShipSpawned("Simian")
-end
-function createPlayerShipSpike()
-	playerSpike = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Spike")
-	playerSpike:setTypeName("Phobos T2")
-	playerSpike:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerSpike:setJumpDrive(true)						--jump drive (vs none)
-	playerSpike:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
-	playerSpike:setRotationMaxSpeed(20)					--faster spin (vs 10)
-	playerSpike:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
-	playerSpike:setShields(120,80)
-	playerSpike:setMaxEnergy(800)						--less maximum energy (vs 1000)
-	playerSpike:setEnergy(800)
---                 				Arc, Dir, Range, CycleTime, Dmg
-	playerSpike:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
-	playerSpike:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
---										 Arc, Dir, Rotate speed
-	playerSpike:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
-	playerSpike:setBeamWeaponTurret(1, 40,  30, .2)
-	playerSpike:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
-	playerSpike:setWeaponTubeDirection(0,0)				--first tube points straight forward
-	playerSpike:setWeaponTubeDirection(1,180)			--second tube points straight back
-	playerSpike:setWeaponTubeExclusiveFor(1,"Mine")
-	playerSpike:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
-	playerSpike:setWeaponStorage("Homing",8)
-	playerSpike:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
-	playerSpike:setWeaponStorage("HVLI",16)
-	playerSpike:addReputationPoints(50)
-	playerShipSpawned("Spike")
-end
-function createPlayerShipSpyder()
-	--experimental
-	playerSpyder = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Spyder")
-	playerSpyder:setTypeName("Atlantis II")
-	playerSpyder:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerSpyder:setImpulseMaxSpeed(80)					--slower impulse max (vs 90)
-	playerSpyder:setWeaponTubeCount(6)					--one more tube
-	playerSpyder:setWeaponTubeDirection(5,0)			--front facing
-	playerSpyder:weaponTubeDisallowMissle(5,"Mine")		--no Mine
-	playerSpyder:weaponTubeDisallowMissle(5,"EMP")		--no EMP
-	playerSpyder:weaponTubeDisallowMissle(5,"Nuke")		--no Nuke
-	playerSpyder:setWeaponTubeDirection(0,-60)			--left front facing
-	playerSpyder:setWeaponTubeDirection(1,-120)			--left rear facing
-	playerSpyder:setWeaponTubeDirection(2,60)			--right front facing
-	playerSpyder:setWeaponTubeDirection(3,120)			--right rear facing
-	playerSpyder:addReputationPoints(50)
-	playerShipSpawned("Spyder")
-end
-function createPlayerShipSting()
-	--sent to Kraylor war front. May return later
-	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
-	playerSting:setTypeName("Surkov")
-	playerSting:setRepairCrewCount(3)	--more repair crew (vs 2)
-	playerSting:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
-	playerSting:setJumpDrive(false)		--no jump
-	playerSting:setWarpDrive(true)		--add warp
-	playerSting:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
-	playerSting:setWeaponTubeDirection(0, -90)
-	playerSting:weaponTubeDisallowMissle(0,"Mine")
-	playerSting:weaponTubeDisallowMissle(0,"Nuke")
-	playerSting:weaponTubeDisallowMissle(0,"EMP")
-	playerSting:setWeaponStorageMax("Mine",3)
-	playerSting:setWeaponStorage("Mine",3)
-	playerSting:setWeaponStorageMax("Nuke",0)
-	playerSting:setWeaponStorage("Nuke",0)
-	playerSting:setWeaponStorageMax("EMP",0)
-	playerSting:setWeaponStorage("EMP",0)
-	playerSting:setWeaponTubeDirection(1, 90)
-	playerSting:weaponTubeDisallowMissle(1,"Mine")
-	playerSting:weaponTubeDisallowMissle(1,"Nuke")
-	playerSting:weaponTubeDisallowMissle(1,"EMP")
-	playerSting:setWeaponTubeDirection(2,180)
-	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
-	playerSting:addReputationPoints(50)
-	playerShipSpawned("Sting")
-end
-function createPlayerShipThunderbird()
-	--destroyed 29Feb2020
-	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
-	playerThunderbird:setTypeName("Destroyer IV")
-	playerThunderbird:setJumpDriveRange(2000,20000)				--shorter jump drive range (vs 5-50)
-	playerThunderbird:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
-	playerThunderbird:setShields(100, 100)
-	playerThunderbird:setHullMax(100)							--weaker hull (vs 200)
-	playerThunderbird:setHull(100)
-	playerThunderbird:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
-	playerThunderbird:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
-	playerThunderbird:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
-	playerThunderbird:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
-	playerThunderbird:setWeaponStorageMax("Homing",6)			--less (vs 12)
-	playerThunderbird:setWeaponStorage("Homing", 6)				
-	playerThunderbird:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
-	playerThunderbird:setWeaponStorage("Nuke", 2)				
-	playerThunderbird:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
-	playerThunderbird:setWeaponStorage("EMP", 3)				
-	playerThunderbird:setWeaponStorageMax("Mine",4)				--fewer (vs 8)
-	playerThunderbird:setWeaponStorage("Mine", 4)				
-	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
-	playerThunderbird:setWeaponStorage("HVLI", 6)				
-	playerThunderbird:addReputationPoints(50)
-	playerShipSpawned("Thunderbird")
-end
-function createPlayerShipWombat()
-	--destroyed 1Feb2020
-	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
-	playerWombat:setTypeName("Wombat")
-	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
-	playerWombat:setJumpDrive(true)							--jump drive (vs none)
-	playerWombat:setJumpDriveRange(3000,20000)
-	playerWombat:setImpulseMaxSpeed(85)						--faster (vs 70)
-	playerWombat:setBeamWeapon(0, 10, 0, 600.0, 4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
-	playerWombat:setBeamWeapon(1, 10, 0, 900.0, 4.0, 3)	
-	playerWombat:setBeamWeaponTurret( 0, 80, -20, .3)
-	playerWombat:setBeamWeaponTurret( 1, 80,  20, .3)
-	playerWombat:setWeaponTubeCount(5)						--more (vs 3)
-	playerWombat:setWeaponTubeDirection(0, 180)				
-	playerWombat:setWeaponTubeDirection(1, 180)				
-	playerWombat:setWeaponTubeDirection(2, 180)				
-	playerWombat:setWeaponTubeDirection(3, 180)
-	playerWombat:setWeaponTubeDirection(4, 180)
-	playerWombat:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerWombat:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerWombat:weaponTubeAllowMissle(1,"Homing")
-	playerWombat:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerWombat:weaponTubeAllowMissle(2,"Homing")
-	playerWombat:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerWombat:weaponTubeAllowMissle(3,"EMP")
-	playerWombat:weaponTubeAllowMissle(3,"Nuke")
-	playerWombat:setWeaponTubeExclusiveFor(4,"Mine")
-	playerWombat:setWeaponStorageMax("Mine",2)				--more (vs 0)
-	playerWombat:setWeaponStorage("Mine", 2)				
-	playerWombat:setWeaponStorageMax("EMP",2)				--more (vs 0)
-	playerWombat:setWeaponStorage("EMP", 2)				
-	playerWombat:setWeaponStorageMax("Nuke",1)				--more (vs 0)
-	playerWombat:setWeaponStorage("Nuke", 1)				
-	playerWombat:setWeaponStorageMax("HVLI",15)				--more (vs 12)	
-	playerWombat:setWeaponStorage("HVLI", 15)				
-	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
-	playerWombat:setWeaponStorage("Homing", 8)				
-	playerShipSpawned("Devon")
-end
-
-function playerShipSpawned(shipName)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][1] == shipName then
-			if playerShipInfo[shipNum][2] == "active" then
-				playerShipInfo[shipNum][2] = "inactive"
-				activePlayerShip()
-				return
-			else
-				inactivePlayerShip()
-				return
-			end
-		end
-	end
-end
--------------------------
---	Tweak player ship  --
--------------------------
-function tweakPlayerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("+Auto Cool",autoCool)
-	addGMFunction("+Coolant",changePlayerCoolant)
-	addGMFunction("+Repair Crew",changePlayerRepairCrew)
-	addGMFunction("+Cargo",changePlayerCargo)
-	addGMFunction("+Reputation",changePlayerReputation)
-end
-function autoCool()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-From Auto Cool",tweakPlayerShip)
+--General use functions for spawning fleets
+function playerPower()
+	local playerShipScore = 0
 	for pidx=1,8 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
-			if p.autoCoolant == nil then
-				p.autoCoolant = false
+			if p.shipScore == nil then
+				assignPlayerShipScore(p)
 			end
-			local button_label = p:getCallSign()
-			if p.autoCoolant then
-				button_label = button_label .. " on"
-			else
-				button_label = button_label .. " off"
+			playerShipScore = playerShipScore + p.shipScore
+		end
+	end
+	return playerShipScore
+end
+function assignPlayerShipScore(p)
+	local tempTypeName = p:getTypeName()
+	if tempTypeName ~= nil then
+		local shipScore = playerShipStrength[tempTypeName]
+		if shipScore ~= nil and shipScore > 0 then
+			p.shipScore = shipScore
+			p.maxCargo = playerShipCargo[tempTypeName]
+			p.cargo = p.maxCargo
+		else
+			p.shipScore = 24
+			p.maxCargo = 5
+			p.cargo = p.maxCargo
+		end
+	else
+		p.shipScore = 24
+		p.maxCargo = 5
+		p.cargo = p.maxCargo
+	end
+	p.maxRepairCrew = p:getRepairCrewCount()
+	p.healthyShield = 1.0
+	p.prevShield = 1.0
+	p.healthyReactor = 1.0
+	p.prevReactor = 1.0
+	p.healthyManeuver = 1.0
+	p.prevManeuver = 1.0
+	p.healthyImpulse = 1.0
+	p.prevImpulse = 1.0
+	if p:getBeamWeaponRange(0) > 0 then
+		p.healthyBeam = 1.0
+		p.prevBeam = 1.0
+	end
+	if p:getWeaponTubeCount() > 0 then
+		p.healthyMissile = 1.0
+		p.prevMissile = 1.0
+	end
+	if p:hasWarpDrive() then
+		p.healthyWarp = 1.0
+		p.prevWarp = 1.0
+	end
+	if p:hasJumpDrive() then
+		p.healthyJump = 1.0
+		p.prevJump = 1.0
+	end
+	p.initialCoolant = p:getMaxCoolant()
+end
+-------------------
+--	Order fleet  --
+-------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM ORDER FLT		F	initialGMFunctions
+-- +SELECT FLEET			D	selectOrderFleet
+-- +REORGANIZE FLEET		F	orderFleetChange
+--
+-- after fleet selected
+--
+-- -MAIN FROM ORDER FLT		F	initialGMFunctions
+-- +1 ship-in-fleet			D	selectOrderFleet
+-- +ROAMING					D	changeFleetOrder
+-- GIVE ORDER TO FLEET		F	inline
+-- +REORGANIZE FLEET		F	orderFleetChange
+function orderFleet()
+	clearGMFunctions()
+	addGMFunction("-Main from Order Flt",initialGMFunctions)
+	local select_fleet_label = "Select Fleet"
+	if selected_fleet_representative ~= nil and selected_fleet_representative:isValid() then
+		if selected_fleet_index ~= nil and fleetList[selected_fleet_index] ~= nil then
+			local fl = fleetList[selected_fleet_index]
+			if fl ~= nil then
+				if selected_fleet_representative_index ~= nil then
+					if selected_fleet_representative == fl[selected_fleet_representative_index] then
+						select_fleet_label = string.format("%i %s",selected_fleet_index,selected_fleet_representative:getCallSign())
+					end
+				end
 			end
-			addGMFunction(button_label,function()
-				if p.autoCoolant then
-					p.autoCoolant = false
-					p:setAutoCoolant(false)
+		end
+	end
+	addGMFunction(string.format("+%s",select_fleet_label),selectOrderFleet)
+	if select_fleet_label ~= "Select Fleet" then
+		addGMFunction(string.format("+%s",existing_fleet_order),changeFleetOrder)
+		addGMFunction("Give Order To Fleet",function()
+			if existing_fleet_order == "Idle" then
+				for _, fm in pairs(fleetList[selected_fleet_index]) do
+					if fm ~= nil and fm:isValid() then
+						fm:orderIdle()
+					end
+				end
+				addGMMessage(string.format("Fleet %i which includes %s has been ordered to go idle",selected_fleet_index,selected_fleet_representative:getCallSign()))
+			end
+			if existing_fleet_order == "Roaming" then
+				for _, fm in pairs(fleetList[selected_fleet_index]) do
+					if fm ~= nil and fm:isValid() then
+						fm:orderRoaming()
+					end
+				end	
+				addGMMessage(string.format("Fleet %i which includes %s has been ordered to roam",selected_fleet_index,selected_fleet_representative:getCallSign()))
+			end			
+			if existing_fleet_order == "Stand Ground" then
+				for _, fm in pairs(fleetList[selected_fleet_index]) do
+					if fm ~= nil and fm:isValid() then
+						fm:orderStandGround()
+					end
+				end	
+			end			
+			if existing_fleet_order == "Attack" then
+				local objectList = getGMSelection()
+				if #objectList ~= 1 then
+					addGMMessage("Need to select a target for fleet to attack")
 				else
-					p.autoCoolant = true
-					p:setAutoCoolant(true)
-				end
-				autoCool()
-			end)
-		end
-	end
-end
-function changePlayerCoolant()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction(string.format("Add %.1f coolant",coolant_amount), function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
-			local coolant_reason_given = false
-			p:setMaxCoolant(p:getMaxCoolant() + coolant_amount)
-			addGMMessage(string.format("%.1f coolant added to %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
-			for i=1,#regionStations do
-				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","coolant_bonus_message",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
-				end
-			end
-			if not coolant_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","coolant_bonus_message","Additional coolant was added. It was missed during the last inventory cycle")
-				end
-			end
-		else
-			addGMMessage("No player selected. No action taken")
-		end
-		changePlayerCoolant()
-	end)
-	addGMFunction(string.format("Remove %.1f coolant",coolant_amount), function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
-			local coolant_reason_given = false
-			p:setMaxCoolant(p:getMaxCoolant() - coolant_amount)
-			addGMMessage(string.format("%.1f coolant removed from %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
-			for i=1,#regionStations do
-				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","coolant_loss_message",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
-				end
-			end
-			if not coolant_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","coolant_loss_message","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
-				end
-			end
-		else
-			addGMMessage("No player selected. No action taken")
-		end
-		changePlayerCoolant()
-	end)
-	if coolant_amount > .5 then
-		addGMFunction(string.format("%.1f - %.1f = %.1f",coolant_amount,.5,coolant_amount-.5),function()
-			coolant_amount = coolant_amount - .5
-			changePlayerCoolant()
-		end)
-	end
-	if coolant_amount < 10 then
-		addGMFunction(string.format("%.1f + %.1f = %.1f",coolant_amount,.5,coolant_amount+.5),function()
-			coolant_amount = coolant_amount + .5
-			changePlayerCoolant()
-		end)
-	end
-end
-function changePlayerRepairCrew()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("Add repair crew", function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
-			local crew_reason_given = false
-			p:setRepairCrewCount(p:getRepairCrewCount()+1)
-			addGMMessage(string.format("1 repair crew added to %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
-			for i=1,#regionStations do
-				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","added_repair_crew_message",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
-						crew_reason_given = true
-						break
-					end
-				end
-			end
-			if not crew_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","added_repair_crew_message","A crew member from a different department has completed training and has transferred to your repair crew")
-				end
-			end
-		else
-			addGMMessage("No player selected. No action taken")
-		end
-		changePlayerRepairCrew()
-	end)
-	addGMFunction("Remove repair crew", function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
-			local crew_reason_given = false
-			if p:getRepairCrewCount() > 0 then
-				p:setRepairCrewCount(p:getRepairCrewCount()-1)
-				addGMMessage(string.format("1 repair crew removed from %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
-				for i=1,#regionStations do
-					if p:isDocked(regionStations[i]) then
-						if p:hasPlayerAtPosition("Engineering") then
-							p:addCustomMessage("Engineering","removed_repair_crew_message",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
-							crew_reason_given = true
-							break
+					local fto = fleetList[selected_fleet_index]
+					for _, fm in pairs(fto) do
+						if fm ~= nil and fm:isValid() then
+							fm:orderAttack(objectList[1])
 						end
 					end
+					addGMMessage(string.format("Fleet %i which includes %s has been ordered to attack",selected_fleet_index,selected_fleet_representative:getCallSign()))		
 				end
-				if not crew_reason_given then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","removed_repair_crew_message","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
-					end
-				end
-			end
-		else
-			addGMMessage("No player selected. No action taken")
-		end
-		changePlayerRepairCrew()
-	end)
-end
-function changePlayerCargo()
-	clearGMFunctions()
-	addGMFunction("-Main from Cargo",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("+Remove Cargo",removeCargo)
-	addGMFunction("+Add Mineral",addMineralCargo)
-	addGMFunction("+Add Component",addComponentCargo)
-end
-function removeCargo()
-	clearGMFunctions()
-	addGMFunction("-Cargo From Del",changePlayerCargo)
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
-				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
-		if p.goods ~= nil then
-			local cargo_found = false
-			for good, good_quantity in pairs(p.goods) do
-				if good_quantity > 0 then
-					cargo_found = true
-					addGMFunction(good,function()
-						p.goods[good] = p.goods[good] - 1
-						p.cargo = p.cargo + 1
-						addGMMessage(string.format("one %s removed",good))
-						removeCargo()
-					end)
-				end
-			end
-			if not cargo_found then
-				addGMMessage("selected player has no cargo to delete")
-				changePlayerCargo()
-			end
-		else
-			addGMMessage("selected player has no cargo to delete")
-			changePlayerCargo()
-		end
-	else
-		addGMMessage("No player selected. No action taken")
-		changePlayerCargo()
-	end
-end
-function addMineralCargo()
-	clearGMFunctions()
-	addGMFunction("-Cargo From Add",changePlayerCargo)
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
-				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
-		for _, good in pairs(mineralGoods) do
-			addGMFunction(good,function()
-				if p.cargo > 0 then
-					if p.goods == nil then
-						p.goods = {}
-					end
-					if p.goods[good] == nil then
-						p.goods[good] = 0
-					end
-					p.goods[good] = p.goods[good] + 1
-					p.cargo = p.cargo - 1
-					addGMMessage(string.format("one %s added",good))
+			end			
+			if existing_fleet_order == "Defend" then
+				local objectList = getGMSelection()
+				if #objectList ~= 1 then
+					addGMMessage("Need to select a target for fleet to defend")
 				else
-					addGMMessage("Insufficient cargo space")
-					changePlayerCargo()
+					local fto = fleetList[selected_fleet_index]
+					for _, fm in pairs(fto) do
+						if fm ~= nil and fm:isValid() then
+							fm:orderDefendTarget(objectList[1])
+						end
+					end
+					addGMMessage(string.format("Fleet %i which includes %s has been ordered to defend",selected_fleet_index,selected_fleet_representative:getCallSign()))
+				end
+			end			
+			if existing_fleet_order == "Fly To" then
+				local flyx = 0
+				local flyy = 0
+				local objectList = getGMSelection()
+				if #objectList < 1 then
+					addGMMessage("Need to select a target for fleet to fly to")
+				else
+					if #objectList == 1 then
+						flyx, flyy = objectList[1]:getPosition()
+					else
+						flyx, flyy = centerOfSelected(objectList)
+					end
+					local fto = fleetList[selected_fleet_index]
+					for _, fm in pairs(fto) do
+						if fm ~= nil and fm:isValid() then
+							fm:orderFlyTowards(flyx,flyy)
+						end
+					end
+					addGMMessage(string.format("Fleet %i which includes %s has been ordered to fly towards %.1f, %.1f",selected_fleet_index,selected_fleet_representative:getCallSign(),flyx,flyy))
+				end
+			end			
+			if existing_fleet_order == "Fly Blindly To" then
+				local flyx = 0
+				local flyy = 0
+				local objectList = getGMSelection()
+				if #objectList < 1 then
+					addGMMessage("Need to select a target for fleet to fly blindly to")
+				else
+					if #objectList == 1 then
+						flyx, flyy = objectList[1]:getPosition()
+					else
+						flyx, flyy = centerOfSelected(objectList)
+					end
+					local fto = fleetList[selected_fleet_index]
+					for _, fm in pairs(fto) do
+						if fm ~= nil and fm:isValid() then
+							fm:orderFlyTowardsBlind(flyx,flyy)
+						end
+					end
+					addGMMessage(string.format("Fleet %i which includes %s has been ordered to fly blindly towards %.1f, %.1f",selected_fleet_index,selected_fleet_representative:getCallSign(),flyx,flyy))
+				end
+			end
+			if existing_fleet_order == "Dock" then
+				local objectList = getGMSelection()
+				if #objectList ~= 1 then
+					addGMMessage("Need to select a target for fleet to dock")
+				else
+					local fto = fleetList[selected_fleet_index]
+					for _, fm in pairs(fto) do
+						if fm ~= nil and fm:isValid() then
+							fm:orderDock(objectList[1])
+						end
+					end
+					addGMMessage(string.format("Fleet %i which includes %s has been ordered to dock",selected_fleet_index,selected_fleet_representative:getCallSign()))
+				end
+			end
+			if existing_fleet_order == "Fly Formation" then
+				if formation_lead == nil then
+					addGMMessage("choose a formation lead. no action taken")
 					return
 				end
-				addMineralCargo()			
-			end)
-		end
-	else
-		addGMMessage("No player selected. No action taken")
-		changePlayerCargo()
-	end
-end
-function addComponentCargo()
-	clearGMFunctions()
-	addGMFunction("-Cargo From Add",changePlayerCargo)
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
+				local fto = fleetList[selected_fleet_index]
+				local found_formation_lead = false
+				for _, fm in pairs(fto) do
+					if fm == formation_lead then
+						found_formation_lead = true
+					end
 				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
-		for _, good in pairs(componentGoods) do
-			addGMFunction(good,function()
-				if p.cargo > 0 then
-					if p.goods == nil then
-						p.goods = {}
+				if found_formation_lead then
+					--Note: Formation only works when I force them all to be facing 0
+					--      Unsuccessful at generalization to any angle. May try again later
+					local formation_heading = 0
+					formation_lead:setHeading(formation_heading)
+					local formation_rotation = -90
+					formation_lead:setRotation(formation_rotation)
+					local fx, fy = formation_lead:getPosition()
+					local formation_spacing_increment = 1000
+					local formation_spacing = 0
+					local position_index = 1
+					if formation_type == "V" then
+						local first_v_leg_place = formation_rotation + 120
+						local first_v_leg_fly = formation_heading + 120
+						if first_v_leg_place > 360 then
+							first_v_leg_place = first_v_leg_place - 360
+						end
+						if first_v_leg_fly > 360 then
+							first_v_leg_fly = first_v_leg_fly - 360
+						end
+						local second_v_leg_place = formation_rotation + 240
+						local second_v_leg_fly = formation_heading + 240
+						if second_v_leg_place > 360 then
+							second_v_leg_place = second_v_leg_place - 360
+						end
+						if second_v_leg_fly > 360 then
+							second_v_leg_fly = second_v_leg_fly - 360
+						end
+						--print("formation_heading: " .. formation_heading)
+						--print("formation_rotation: " .. formation_rotation)
+						--print("first_v_leg_place: " .. first_v_leg_place)
+						--print("second_v_leg_place: " .. second_v_leg_place)
+						--print(string.format("fx: %.1f, fy: %.1f",fx,fy))
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								fm:setHeading(formation_heading)
+								fm:setRotation(formation_rotation)
+								local rpx = nil
+								local rpy = nil
+								local fpx = nil
+								local fpy = nil
+								if position_index % 2 ~= 0 then
+									formation_spacing = formation_spacing + formation_spacing_increment
+									rpx, rpy = vectorFromAngle(first_v_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(first_v_leg_fly,formation_spacing)
+								else
+									rpx, rpy = vectorFromAngle(second_v_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(second_v_leg_fly,formation_spacing)
+								end--
+								--print(string.format("rpx: %.1f, rpy: %.1f",rpx,rpy))
+								--print(string.format("fx+rpx: %.1f, fy+rpy: %.1f",fx+rpx,fy+rpy))
+								fm:setPosition(fx+rpx,fy+rpy)
+								fm:orderFlyFormation(formation_lead,fpx,fpy)
+								position_index = position_index + 1
+							end
+						end
+					elseif formation_type == "A" then
+						local first_A_leg_place = formation_rotation + 60
+						local first_A_leg_fly = formation_heading + 60
+						if first_A_leg_place > 360 then
+							first_A_leg_place = first_A_leg_place - 360
+						end
+						if first_A_leg_fly > 360 then
+							first_A_leg_fly = first_A_leg_fly - 360
+						end
+						local second_A_leg_place = formation_rotation + 300
+						local second_A_leg_fly = formation_heading + 300
+						if second_A_leg_place > 360 then
+							second_A_leg_place = second_A_leg_place - 360
+						end
+						if second_A_leg_fly > 360 then
+							second_A_leg_fly = second_A_leg_fly - 360
+						end
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								fm:setHeading(formation_heading)
+								fm:setRotation(formation_rotation)
+								local rpx = nil
+								local rpy = nil
+								local fpx = nil
+								local fpy = nil
+								if position_index % 2 ~= 0 then
+									formation_spacing = formation_spacing + formation_spacing_increment
+									rpx, rpy = vectorFromAngle(first_A_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(first_A_leg_fly,formation_spacing)
+								else
+									rpx, rpy = vectorFromAngle(second_A_leg_place,formation_spacing)
+									fpx, fpy = vectorFromAngle(second_A_leg_fly,formation_spacing)
+								end--
+								fm:setPosition(fx+rpx,fy+rpy)
+								fm:orderFlyFormation(formation_lead,fpx,fpy)
+								position_index = position_index + 1
+							end
+						end
+					elseif formation_type == "circle" then
+						local placement_angle = 30
+						local circle_top_place = formation_rotation + placement_angle
+						local circle_top_fly = formation_heading + placement_angle
+						if circle_top_place > 360 then
+							circle_top_place = circle_top_place - 360
+						end
+						if circle_top_fly > 360 then
+							circle_top_fly = circle_top_fly - 360
+						end
+						local circle_count = 0
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								circle_count = circle_count + 1
+							end
+						end
+						local circle_radius = 1500
+						if circle_count > 0 then
+							local angle_increment = 360/circle_count
+							for _, fm in pairs(fto) do
+								if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+									fm:setHeading(formation_heading)
+									fm:setRotation(formation_rotation)
+									rpx, rpy = vectorFromAngle(circle_top_place,circle_radius)
+									fpx, fpy = vectorFromAngle(circle_top_fly,circle_radius)
+									fm:setPosition(fx+rpx,fy+rpy)
+									fm:orderFlyFormation(formation_lead,fpx,fpy)
+									circle_top_place = circle_top_place + angle_increment
+									if circle_top_place > 360 then
+										circle_top_place = circle_top_place - 360
+									end
+									circle_top_fly = circle_top_fly + angle_increment
+									if circle_top_fly > 360 then
+										circle_top_fly = circle_top_fly - 360
+									end
+								end
+							end
+						end
+					elseif formation_type == "square" then
+						local corner_spot = 1
+						local edge_spot = 1
+						local layer_count = 1
+						local square_spacing = 1000
+						local corner_x = {1,-1,1,-1}
+						local corner_y = {1,-1,-1,1}
+						local edge_x = {0,0,1,-1}
+						local edge_y = {1,-1,0,0}
+						local fly_corner_x = {-1,1,1,-1}
+						local fly_corner_y = {1,-1,1,-1}
+						local fly_edge_x = {-1,1,0,0}
+						local fly_edge_y = {0,0,-1,1}
+						for _, fm in pairs(fto) do
+							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
+								fm:setHeading(formation_heading)
+								fm:setRotation(formation_rotation)
+								if corner_spot <= 4 then
+									fm:setPosition(fx+layer_count*square_spacing*corner_x[corner_spot],fy+layer_count*square_spacing*corner_y[corner_spot])
+									fm:orderFlyFormation(formation_lead,layer_count*square_spacing*fly_corner_x[corner_spot],layer_count*square_spacing*fly_corner_y[corner_spot])
+									corner_spot = corner_spot + 1
+								elseif edge_spot <= 4 then
+									fm:setPosition(fx+layer_count*square_spacing*edge_x[edge_spot],fy+layer_count*square_spacing*edge_y[edge_spot])
+									fm:orderFlyFormation(formation_lead,layer_count*square_spacing*fly_edge_x[edge_spot],layer_count*square_spacing*fly_edge_y[edge_spot])
+									edge_spot = edge_spot + 1
+								else
+									corner_spot = 1
+									edge_spot = 1
+									layer_count = layer_count + 1
+								end
+							end
+						end
+					else
+						addGMMessage("formation type unrecognized. no action taken")
 					end
-					if p.goods[good] == nil then
-						p.goods[good] = 0
-					end
-					p.goods[good] = p.goods[good] + 1
-					p.cargo = p.cargo - 1
-					addGMMessage(string.format("one %s added",good))
 				else
-					addGMMessage("Insufficient cargo space")
-				end
-				addComponentCargo()			
-			end)
-		end
-	else
-		addGMMessage("No player selected. No action taken")
-	end
-end
-function changePlayerReputation()
-	clearGMFunctions()
-	addGMFunction("-Main From Rep",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
+					addGMMessage("formation lead not in fleet. no action taken")
 				end
 			end
+		end)
+	end
+	addGMFunction("+Reorganize Fleet",orderFleetChange)
+end
+------------------
+--	Order Ship  --
+------------------
+-- Button Text			   DF*	Related Function(s)
+-- -MAIN FROM ORDER SHIP	F	initialGMFunctions
+-- JAM RANGE 10 - 5 = 5U	D	inline
+-- JAM RANGE 10 + 5 = 15U	D	inline
+-- DROP JAMMER 10U			D	dropJammer
+function orderShip()
+	clearGMFunctions()
+	addGMFunction("-Main from order ship",initialGMFunctions)
+	if jammer_range > 5000 then
+		addGMFunction(string.format("Jam range %i - %i = %iU",jammer_range/1000,5,(jammer_range-5000)/1000),function()
+			jammer_range = jammer_range - 5000
+			orderShip()
+		end)
+	end
+	if jammer_range < 50000 then
+		addGMFunction(string.format("Jam range %i + %i = %iU",jammer_range/1000,5,(jammer_range+5000)/1000),function()
+			jammer_range = jammer_range + 5000
+			orderShip()
+		end)
+	end
+	addGMFunction(string.format("Drop Jammer %iU",jammer_range/1000),dropJammer)
+end
+function dropJammer()
+	local object_list = getGMSelection()
+	if #object_list < 1 then
+		addGMMessage("Jammer drop failed - nothing selected for location determination") 
+		return
+	end
+	local selected_matches_npc_ship = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		if current_selected_object.typeName == "CpuShip" then
+			local csox, csoy = current_selected_object:getPosition()
+			local vx, vy = vectorFromAngle(current_selected_object:getHeading()+90,500)
+			WarpJammer():setRange(jammer_range):setPosition(csox+vx,csoy+vy):setFaction(current_selected_object:getFaction())
 		end
-		if selected_matches_player then
+	end
+end
+-------------------
+--	Drop Points  --
+-------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM DROP PNT		F	initialGMFunctions
+-- +ESCAPE POD				F	setEscapePod
+-- +MARINE POINT			F	setMarinePoint
+-- +ENGINEER POINT			F	setEngineerPoint
+-- +MEDICAL TEAM POINT		F	setMedicPoint
+-- +CUSTOM SUPPLY			F	setCustomSupply
+function dropPoint()
+	clearGMFunctions()
+	addGMFunction("-Main from Drop Pnt",initialGMFunctions)
+	addGMFunction("+Escape Pod",setEscapePod)
+	addGMFunction("+Marine Point",setMarinePoint)
+	addGMFunction("+Engineer Point",setEngineerPoint)
+	addGMFunction("+Medical Team Point",setMedicPoint)
+	addGMFunction("+Custom Supply",setCustomSupply)
+end
+-----------------
+--	Scan Clue  --
+-----------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM SCAN CLUE		F	initialGMFunctions
+-- +UNSCANNED DESC			F	setUnscannedDescription
+-- +SCANNED DESC			F	setScannedDescription
+-- SHOW DESCRIPTIONS		F	inline
+-- +SCAN COMPLEX: 1			D	setScanComplexity
+-- +SCAN DEPTH: 1			D	setScanDepth
+-- UNRETRIEVABLE			D	inline (toggles between retrievable and unretrievable)
+-- +NEAR TO					F	scanClueNearTo
+function scanClue()
+	clearGMFunctions()
+	addGMFunction("-Main from Scan Clue",initialGMFunctions)
+	addGMFunction("+Unscanned Desc",setUnscannedDescription)
+	addGMFunction("+Scanned Desc",setScannedDescription)
+	addGMFunction("Show Descriptions",function()
+		local unscannedDescription = unscannedClues[unscannedClueKey]
+		local scannedDescription = ""
+		if scannedClues1[scannedClueKey1] ~= nil and scannedClues1[scannedClueKey1] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues1[scannedClueKey1] .. " "
+		end
+		if scannedClues2[scannedClueKey2] ~= nil and scannedClues2[scannedClueKey2] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues2[scannedClueKey2] .. " "
+		end
+		if scannedClues3[scannedClueKey3] ~= nil and scannedClues3[scannedClueKey3] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues3[scannedClueKey3] .. " "
+		end
+		if scannedClues4[scannedClueKey4] ~= nil and scannedClues4[scannedClueKey4] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues4[scannedClueKey4] .. " "
+		end
+		if scannedClues5[scannedClueKey5] ~= nil and scannedClues5[scannedClueKey5] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues5[scannedClueKey5] .. " "
+		end
+		addGMMessage(string.format("Unscanned description:\n%s\nScanned Description:\n%s",unscannedDescription,scannedDescription))
+	end)
+	local GMSetScanComplexity = "+Scan Complex: " .. scanComplexity
+	addGMFunction(GMSetScanComplexity,setScanComplexity)
+	local GMSetScanDepth = "+Scan Depth: " .. scanDepth
+	addGMFunction(GMSetScanDepth,setScanDepth)
+	if scan_clue_retrievable then
+		addGMFunction("Retrievable",function()
+			scan_clue_retrievable = false
+			scanClue()
+		end)
+	else
+		addGMFunction("Unretrievable",function()
+			scan_clue_retrievable = true
+			scanClue()
+		end)
+	end
+	addGMFunction("+Near To",scanClueNearTo)
+end
+---------------------
+--	Tweak Terrain  --
+---------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- EXPLODE SEL ART		F	explodeSelectedArtifact
+-- PULSE ASTEROID		F	pulseAsteroid
+function tweakTerrain()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("Explode Sel Art",explodeSelectedArtifact)
+	addGMFunction("Pulse Asteroid",pulseAsteroid)
+end
+function explodeSelectedArtifact()
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMMessage("You need to select an object. No action taken.")
+		return
+	end
+	local tempObject = objectList[1]
+	local tempType = tempObject.typeName
+	if tempType ~= "Artifact" then
+		addGMMessage("Only select an artifact since only artifacts explode. No action taken.")
+		return
+	end
+	tempObject:explode()
+end
+function pulseAsteroid()
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMMessage("You need to select an object. No action taken.")
+		return
+	end
+	local tempObject = objectList[1]
+	local tempType = tempObject.typeName
+	if tempType ~= "Asteroid" then
+		addGMMessage("Only select an asteroid. No action taken.")
+		return
+	end
+	local selected_in_list = false
+	for i=1,#J4_to_L8_asteroids do
+		if tempObject == J4_to_L8_asteroids[i] then
+			selected_in_list = true
 			break
 		end
 	end
-	if selected_matches_player then
-		local current_rep = math.floor(p:getReputationPoints())
-		addGMFunction(string.format("Add one rep %i",current_rep),function()
-			p:addReputationPoints(1)
-			changePlayerReputation()
-		end)
-		addGMFunction(string.format("Add five rep %i",current_rep),function()
-			p:addReputationPoints(5)
-			changePlayerReputation()
-		end)
-		addGMFunction(string.format("Add ten rep %i",current_rep),function()
-			p:addReputationPoints(10)
-			changePlayerReputation()
-		end)
-		if current_rep > 0 then
-			addGMFunction(string.format("Del one rep %i",current_rep),function()
-				p:takeReputationPoints(1)
-				changePlayerReputation()
-			end)
+	if selected_in_list then
+		if tempObject.original_size == nil then
+			addGMMessage("selected has a nil value where it should have an original_size. No action taken")
+			return
 		end
-		if current_rep > 5 then
-			addGMFunction(string.format("Del five rep %i",current_rep),function()
-				p:takeReputationPoints(5)
-				changePlayerReputation()
-			end)
+		if tempObject.original_size < 120 then
+			tempObject.grow = true
+			tempObject.max_size = 300
+			tempObject.increment = (300 - tempObject.original_size)/10
+			plotPulse = growAsteroid
+		else
+			tempObject.shrink = true
+			tempObject.min_size = tempObject.original_size/2
+			tempObject.increment = (tempObject.original_size - (tempObject.original_size/2))/10
+			plotPulse = shrinkAsteroid
 		end
-		if current_rep > 10 then
-			addGMFunction(string.format("Del ten rep %i",current_rep),function()
-				p:takeReputationPoints(10)
-				changePlayerReputation()
-			end)
+		if pulse_asteroid_list == nil then
+			pulse_asteroid_list = {}
 		end
+		table.insert(pulse_asteroid_list,tempObject)
 	else
-		addGMMessage("No player selected. No action taken. No reputation options presented")
-		tweakPlayerShip()
+		addGMMessage("Only asteroids in J4 to L8 can pulse. No action taken")
+		return
 	end
 end
------------------
---	Wormholes  --
------------------
-function setWormholes()
-	clearGMFunctions()
-	addGMFunction("-Main From Wormhole",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Icarus to " .. wormholeIcarus.exit,setIcarusWormholeExit)
-end
-function setIcarusWormholeExit()
-	clearGMFunctions()
-	addGMFunction("-Wormhole",setWormholes)
-	local icarus_label = "Default"
-	if wormholeIcarus.exit == "default" then
-		icarus_label = "Default*"
-	end
-	addGMFunction(icarus_label, function()
-		wormholeIcarus.exit = "default"
-		wormholeIcarus:setTargetPosition(wormholeIcarus.default_exit_point_x,wormholeIcarus.default_exit_point_y)
-		setIcarusWormholeExit()
-	end)
-	icarus_label = "Kentar"
-	if wormholeIcarus.exit == "kentar" then
-		icarus_label = "Kentar*"
-	end
-	addGMFunction(icarus_label, function()
-		wormholeIcarus.exit = "kentar"
-		wormholeIcarus:setTargetPosition(wormholeIcarus.kentar_exit_point_x,wormholeIcarus.kentar_exit_point_y)
-		setIcarusWormholeExit()
-	end)
-end
-function throughWormhole(worm_hole,transportee)
-	if worm_hole == wormholeIcarus then
-		if worm_hole.exit == "default" then
-			--exited near Icarus, near station Macassa
-		end
-		if worm_hole.exit == "kentar" then
-			--exited near station Kentar
-		end
-	end
-end
--------------
---	Zones  --
--------------
-function changeZones()
-	clearGMFunctions()
-	addGMFunction("-Main From Zones",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Add Zone",addZone)
-	if zone_list ~= nil and #zone_list > 0 then
-		addGMFunction("+Delete Zone",deleteZone)
-	end
-end
-function addZone()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Zones from add",changeZones)
-	addGMFunction("Sector", function()
-		local object_list = getGMSelection()
-		if #object_list ~= nil and #object_list == 1 then
-			local ox, oy = object_list[1]:getPosition()
-			ox = math.floor(ox / 20000)
-			ox = ox * 20000
-			oy = math.floor(oy / 20000)
-			oy = oy * 20000
-			local zone = Zone():setPoints(ox,oy,ox+20000,oy,ox+20000,oy+20000,ox,oy+20000)
-			zone:setColor(64,64,64)
-			zone.name = object_list[1]:getSectorName()
-			if zone_list == nil then
-				zone_list = {}
+function growAsteroid(delta)
+	if pulse_asteroid_list ~= nil then
+		if #pulse_asteroid_list > 0 then
+			for i=1,#pulse_asteroid_list do
+				local ta = pulse_asteroid_list[i]
+				if ta ~= nil and ta:isValid() then
+					if ta.grow_size == nil then
+						ta.grow_size = ta.original_size
+					end
+					ta.grow_size = ta.grow_size + ta.increment
+					ta:setSize(ta.grow_size)
+					print(string.format("grow_size: %.1f, max_size: %.1f",ta.grow_size,ta.max_size))
+					if ta.grow_size >= ta.max_size then
+						--end of growth
+						print("end of growth")
+						resetPulsingAsteroid(ta)
+					end
+				end
 			end
-			table.insert(zone_list,zone)
-		else
-			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
 		end
-	end)
-	addGMFunction("Small Square",function()
-		local object_list = getGMSelection()
-		if #object_list ~= nil and #object_list == 1 then
-			local ox, oy = object_list[1]:getPosition()
-			local zone = Zone():setPoints(ox+500,oy+500,ox-500,oy+500,ox-500,oy-500,ox+500,oy-500)
-			zone:setColor(255,255,128)
-			if square_zone_char_val == nil then
-				square_zone_char_val = 65
-			end
-			zone.name = string.char(square_zone_char_val)
-			square_zone_char_val = square_zone_char_val + 1
-			zone.sector_name = object_list[1]:getSectorName()
-			if zone_list == nil then
-				zone_list = {}
-			end
-			table.insert(zone_list,zone)
-			addGMMessage(string.format("Added small square zone %s in %s",zone.name,zone.sector_name))
-		else
-			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
-		end
-	end)
-end
-function deleteZone()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Zones from delete",changeZones)
-	if selected_zone_index == nil then
-		selected_zone_index = 1
 	end
-	if #zone_list > 0 then
-		local zone_delete_label = string.format("Del %s",zone_list[selected_zone_index].name)
-		if zone_list[selected_zone_index].sector_name ~= nil then
-			zone_delete_label = string.format("%s in %s",zone_delete_label,zone_list[selected_zone_index].sector_name)
+end
+function resetPulsingAsteroid(ta)
+	ta.grow = nil
+	ta.shrink = nil
+	ta.max_size = nil
+	ta.min_size = nil
+	ta.grow_size = nil
+	ta.shrink_size = nil
+	ta:setSize(ta.original_size)
+	for i=1,#pulse_asteroid_list do
+		if ta == pulse_asteroid_list[i] then
+			table.remove(pulse_asteroid_list,i)
+			break
 		end
-		addGMFunction(zone_delete_label,function()
-			local zone_to_delete = zone_list[selected_zone_index]
-			table.remove(zone_list,selected_zone_index)
-			zone_to_delete:destroy()
-			selected_zone_index = nil
-			deleteZone()
-		end)
-		addGMFunction("Select Next Zone",function()
-			selected_zone_index = selected_zone_index + 1
-			if selected_zone_index > #zone_list then
-				selected_zone_index = 1
+	end
+	print("done resetting")
+end
+function shrinkAsteroid(delta)
+	if pulse_asteroid_list ~= nil then
+		if #pulse_asteroid_list > 0 then
+			for i=1,#pulse_asteroid_list do
+				local ta = pulse_asteroid_list[i]
+				if ta ~= nil and ta:isValid() then
+					if ta.shrink_size == nil then
+						ta.shrink_size = ta.original_size
+					end
+					ta.shrink_size = ta.shrink_size - ta.increment
+					ta:setSize(ta.shrink_size)
+					print(string.format("shrink_size: %.1f, min_size: %.1f",ta.shrink_size,ta.min_size))
+					if ta.shrink_size <= ta.min_size then
+						--end of shrink
+						print("end of shrink")
+						resetPulsingAsteroid(ta)
+					end
+				end
 			end
-			deleteZone()
+		end
+	end
+end
+-----------------------
+--	Countdown Timer  --
+-----------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM TIMER		F	initialGMFunctions
+-- +DISPLAY: GM			D	GMTimerDisplay
+-- +LENGTH: 5			D	GMTimerLength
+-- +PURPOSE: TIMER		D	GMTimerPurpose
+-- START TIMER			F	inline: toggles between START and STOP (related code in update)
+function countdownTimer()
+	clearGMFunctions()
+	addGMFunction("-Main from Timer",initialGMFunctions)
+	local timer_display = "+Display: GM"
+	if timer_display_helm then
+		timer_display = timer_display .. ",H"
+	end
+	if timer_display_weapons then
+		timer_display = timer_display .. ",W"
+	end
+	if timer_display_engineer then
+		timer_display = timer_display .. ",E"
+	end
+	if timer_display_science then
+		timer_display = timer_display .. ",S"
+	end
+	if timer_display_relay then
+		timer_display = timer_display .. ",R"
+	end
+	addGMFunction(timer_display,GMTimerDisplay)
+	addGMFunction(string.format("+Length: %i",timer_start_length),GMTimerLength)
+	addGMFunction(string.format("+Purpose: %s",timer_purpose),GMTimerPurpose)
+	if timer_started then
+		addGMFunction("Stop Timer", function()
+			timer_started = false
+			countdownTimer()
 		end)
 	else
-		changeZones()
+		addGMFunction("Start Timer", function()
+			timer_started = true
+			countdownTimer()
+		end)
 	end
 end
---------------
---	Region  --
---------------
+-------------------
+--	End Mission  --
+-------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM END		F	inline
+-- HUMAN VICTORY		F	inline
+-- KRAYLOR VICTORY		F	inline
+-- EXUARI VICTORY		F	inline
+-- GHOST VICTORY		F	inline
+-- ARLENIAN VICTORY		F	inline
+-- INDEPENDENT VICTORY	F	inline
+-- KTLITAN VICTORY		F	inline
+-- TSN VICTORY			F	inline
+-- USN VICTORY			F	inline
+-- CUF VICTORY			F	inline
+function endMission()
+	clearGMFunctions()
+	addGMFunction("-Main from End",initialGMFunctions)
+	addGMFunction("Human Victory",function()
+		victory("Human Navy")
+	end)
+	addGMFunction("Kraylor Victory",function()
+		victory("Kraylor")
+	end)
+	addGMFunction("Exuari Victory",function() 
+		victory("Exuari")
+	end)
+	addGMFunction("Ghost Victory",function() 
+		victory("Ghosts")
+	end)
+	addGMFunction("Arlenian Victory",function() 
+		victory("Arlenians")	
+	end)
+	addGMFunction("Independent Victory",function() 
+		victory("Independent")
+	end)
+	addGMFunction("Ktlitan Victory",function() 
+		victory("Ktlitans")
+	end)
+	addGMFunction("TSN Victory",function()
+		victory("TSN")
+	end)
+	addGMFunction("USN Victory",function()
+		victory("USN")
+	end)
+	addGMFunction("CUF Victory",function()
+		victory("CUF")
+	end)
+end
+-------------------------------------
+--	Initial Set Up > Start Region  --
+-------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM REGION	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- DEFAULT*				*	setDefaultRegion
+-- KENTAR (R17)			*	setKentarRegion
 function setStartRegion()
 	clearGMFunctions()
 	addGMFunction("-Main From Region",initialGMFunctions)
@@ -3408,88 +2921,1399 @@ function removeKentarColor()
 	end
 	kentar_stations = nil
 end
--------------------
---	Spawn fleet  --
--------------------
---General use functions for spawning fleets
-function playerPower()
-	local playerShipScore = 0
+-------------------------------------
+--	Initial Set Up > Player Ships  --
+-------------------------------------
+-- Button text	   FD*	Related function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- +TWEAK PLAYER	F	tweakPlayerShip
+-- +DESCRIPTIONS	F	describePlayerShips
+-- +CURRENT			F	activePlayerShip
+-- +SCRAPPED		F	inactivePlayerShip
+function playerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Tweak player",tweakPlayerShip)
+	addGMFunction("+Descriptions",describePlayerShips)
+	addGMFunction("+Current",activePlayerShip)
+	addGMFunction("+Scrapped",inactivePlayerShip)
+	if playerShipInfo == nil then
+		playerShipInfo={
+			{"Ambition"   ,"inactive",createPlayerShipAmbition   ,"Phobos T2(Ambition): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
+			{"Arwine"     ,"inactive",createPlayerShipArwine     ,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
+			{"Barracuda"  ,"inactive",createPlayerShipBarracuda  },
+			{"Blazon"     ,"inactive",createPlayerShipBlazon     },
+			{"Cobra"      ,"active"  ,createPlayerShipCobra      ,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
+			{"Halberd"    ,"inactive",createPlayerShipHalberd    },
+			{"Headhunter" ,"inactive",createPlayerShipHeadhunter },
+			{"Holmes"     ,"active"  ,createPlayerShipHolmes     ,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nDefault advanced engine:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
+			{"Magnum"     ,"inactive",createPlayerShipMagnum     },
+			{"Narsil"     ,"inactive",createPlayerShipNarsil     },
+			{"Osprey"     ,"inactive",createPlayerShipOsprey     },
+			{"Rattler"    ,"active"  ,createPlayerShipRattler    ,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nDefault advanced engine:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
+			{"Rogue"      ,"active"  ,createPlayerShipRogue      ,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
+			{"Simian"     ,"active"  ,createPlayerShipSimian     ,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
+			{"Spike"      ,"inactive",createPlayerShipSpike      },
+			{"Spyder"     ,"inactive",createPlayerShipSpyder     },
+			{"Sting"      ,"inactive",createPlayerShipSting      },
+			{"Thunderbird","inactive",createPlayerShipThunderbird},
+			{"Wombat"     ,"inactive",createPlayerShipWombat     }
+		}
+	end
+end
+----------------------------------
+--	Initial Set Up > Wormholes  --
+----------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM WORMHOLE		F	initialGMFunctions
+-- -SETUP					F	initialSetUp
+-- +ICARUS TO DEFAULT		D	setIcarusWormholeExit
+function setWormholes()
+	clearGMFunctions()
+	addGMFunction("-Main From Wormhole",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Icarus to " .. wormholeIcarus.exit,setIcarusWormholeExit)
+end
+function setIcarusWormholeExit()
+	clearGMFunctions()
+	addGMFunction("-Wormhole",setWormholes)
+	local icarus_label = "Default"
+	if wormholeIcarus.exit == "default" then
+		icarus_label = "Default*"
+	end
+	addGMFunction(icarus_label, function()
+		wormholeIcarus.exit = "default"
+		wormholeIcarus:setTargetPosition(wormholeIcarus.default_exit_point_x,wormholeIcarus.default_exit_point_y)
+		setIcarusWormholeExit()
+	end)
+	icarus_label = "Kentar"
+	if wormholeIcarus.exit == "kentar" then
+		icarus_label = "Kentar*"
+	end
+	addGMFunction(icarus_label, function()
+		wormholeIcarus.exit = "kentar"
+		wormholeIcarus:setTargetPosition(wormholeIcarus.kentar_exit_point_x,wormholeIcarus.kentar_exit_point_y)
+		setIcarusWormholeExit()
+	end)
+end
+function throughWormhole(worm_hole,transportee)
+	if worm_hole == wormholeIcarus then
+		if worm_hole.exit == "default" then
+			--exited near Icarus, near station Macassa
+		end
+		if worm_hole.exit == "kentar" then
+			--exited near station Kentar
+		end
+	end
+end
+------------------------------
+--	Initial Set Up > Zones  --
+------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM ZONES		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- +ADD ZONE			F	addZone
+-- +DELETE ZONE			F	deleteZone (button only present if zones available to delete)
+function changeZones()
+	clearGMFunctions()
+	addGMFunction("-Main From Zones",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Add Zone",addZone)
+	if zone_list ~= nil and #zone_list > 0 then
+		addGMFunction("+Delete Zone",deleteZone)
+	end
+end
+function addZone()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones from add",changeZones)
+	addGMFunction("Sector", function()
+		local object_list = getGMSelection()
+		if #object_list ~= nil and #object_list == 1 then
+			local ox, oy = object_list[1]:getPosition()
+			ox = math.floor(ox / 20000)
+			ox = ox * 20000
+			oy = math.floor(oy / 20000)
+			oy = oy * 20000
+			local zone = Zone():setPoints(ox,oy,ox+20000,oy,ox+20000,oy+20000,ox,oy+20000)
+			zone:setColor(64,64,64)
+			zone.name = object_list[1]:getSectorName()
+			if zone_list == nil then
+				zone_list = {}
+			end
+			table.insert(zone_list,zone)
+		else
+			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
+		end
+	end)
+	addGMFunction("Small Square",function()
+		local object_list = getGMSelection()
+		if #object_list ~= nil and #object_list == 1 then
+			local ox, oy = object_list[1]:getPosition()
+			local zone = Zone():setPoints(ox+500,oy+500,ox-500,oy+500,ox-500,oy-500,ox+500,oy-500)
+			zone:setColor(255,255,128)
+			if square_zone_char_val == nil then
+				square_zone_char_val = 65
+			end
+			zone.name = string.char(square_zone_char_val)
+			square_zone_char_val = square_zone_char_val + 1
+			zone.sector_name = object_list[1]:getSectorName()
+			if zone_list == nil then
+				zone_list = {}
+			end
+			table.insert(zone_list,zone)
+			addGMMessage(string.format("Added small square zone %s in %s",zone.name,zone.sector_name))
+		else
+			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
+		end
+	end)
+end
+function deleteZone()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones from delete",changeZones)
+	if selected_zone_index == nil then
+		selected_zone_index = 1
+	end
+	if #zone_list > 0 then
+		local zone_delete_label = string.format("Del %s",zone_list[selected_zone_index].name)
+		if zone_list[selected_zone_index].sector_name ~= nil then
+			zone_delete_label = string.format("%s in %s",zone_delete_label,zone_list[selected_zone_index].sector_name)
+		end
+		addGMFunction(zone_delete_label,function()
+			local zone_to_delete = zone_list[selected_zone_index]
+			table.remove(zone_list,selected_zone_index)
+			zone_to_delete:destroy()
+			selected_zone_index = nil
+			deleteZone()
+		end)
+		addGMFunction("Select Next Zone",function()
+			selected_zone_index = selected_zone_index + 1
+			if selected_zone_index > #zone_list then
+				selected_zone_index = 1
+			end
+			deleteZone()
+		end)
+	else
+		changeZones()
+	end
+end
+
+----------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player  --
+----------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -PLAYER SHIP		F	playerShip
+-- +AUTO COOL		F	autoCool
+-- +COOLANT			F	changePlayerCoolant
+-- +REPAIR CREW		F	changePlayerRepairCrew
+-- +CARGO			F	changePlayerCargo
+-- +REPUTATION		F	changePlayerReputation
+function tweakPlayerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("+Auto Cool",autoCool)
+	addGMFunction("+Coolant",changePlayerCoolant)
+	addGMFunction("+Repair Crew",changePlayerRepairCrew)
+	addGMFunction("+Cargo",changePlayerCargo)
+	addGMFunction("+Reputation",changePlayerReputation)
+end
+----------------------------------------------------
+--	Initial Set Up > Player Ships > Descriptions  --
+----------------------------------------------------
+-- -MAIN			   FD*	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIPS		F	playerShip
+-- +DESCRIBE CURRENT	F	describeCurrentSpecialPlayerShips
+-- +DESCRIBE SCRAPPED	F	describeScrappedSpecialPlayerShips
+-- +DESCRIBE STOCK		F	describeStockPlayerShips
+function describePlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ships",playerShip)
+	addGMFunction("+Describe Current",describeCurrentSpecialPlayerShips)
+	addGMFunction("+Describe Scrapped",describeScrappedSpecialPlayerShips)
+	addGMFunction("+Describe Stock",describeStockPlayerShips)
+end
+-----------------------------------------------
+--	Initial Set Up > Player Ships > Current  --
+-----------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -PLAYER SHIP		F	playerShip
+-- Button to spawn each currently active player ship name
+function activePlayerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][2] == "active" then
+			addGMFunction(playerShipInfo[shipNum][1],playerShipInfo[shipNum][3])
+		end
+	end
+end
+------------------------------------------------
+--	Initial Set Up > Player Ships > Scrapped  --
+------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -PLAYER SHIP		F	playerShip
+-- Button to spawn each currently inactive or scrapped player ship name
+function inactivePlayerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][2] == "inactive" then
+			addGMFunction(playerShipInfo[shipNum][1],playerShipInfo[shipNum][3])
+		end
+	end
+end
+---------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Auto Cool --
+---------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -FROM AUTO COOL	F	tweakPlayerShip
+-- Button to toggle auto cool for each player ship already spawned
+function autoCool()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-From Auto Cool",tweakPlayerShip)
 	for pidx=1,8 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
-			if p.shipScore == nil then
-				assignPlayerShipScore(p)
+			if p.autoCoolant == nil then
+				p.autoCoolant = false
 			end
-			playerShipScore = playerShipScore + p.shipScore
+			local button_label = p:getCallSign()
+			if p.autoCoolant then
+				button_label = button_label .. " on"
+			else
+				button_label = button_label .. " off"
+			end
+			addGMFunction(button_label,function()
+				if p.autoCoolant then
+					p.autoCoolant = false
+					p:setAutoCoolant(false)
+				else
+					p.autoCoolant = true
+					p:setAutoCoolant(true)
+				end
+				autoCool()
+			end)
 		end
 	end
-	return playerShipScore
 end
-function assignPlayerShipScore(p)
-	local tempTypeName = p:getTypeName()
-	if tempTypeName ~= nil then
-		local shipScore = playerShipStrength[tempTypeName]
-		if shipScore ~= nil and shipScore > 0 then
-			p.shipScore = shipScore
-			p.maxCargo = playerShipCargo[tempTypeName]
-			p.cargo = p.maxCargo
-		else
-			p.shipScore = 24
-			p.maxCargo = 5
-			p.cargo = p.maxCargo
-		end
-	else
-		p.shipScore = 24
-		p.maxCargo = 5
-		p.cargo = p.maxCargo
-	end
-	p.maxRepairCrew = p:getRepairCrewCount()
-	p.healthyShield = 1.0
-	p.prevShield = 1.0
-	p.healthyReactor = 1.0
-	p.prevReactor = 1.0
-	p.healthyManeuver = 1.0
-	p.prevManeuver = 1.0
-	p.healthyImpulse = 1.0
-	p.prevImpulse = 1.0
-	if p:getBeamWeaponRange(0) > 0 then
-		p.healthyBeam = 1.0
-		p.prevBeam = 1.0
-	end
-	if p:getWeaponTubeCount() > 0 then
-		p.healthyMissile = 1.0
-		p.prevMissile = 1.0
-	end
-	if p:hasWarpDrive() then
-		p.healthyWarp = 1.0
-		p.prevWarp = 1.0
-	end
-	if p:hasJumpDrive() then
-		p.healthyJump = 1.0
-		p.prevJump = 1.0
-	end
-	p.initialCoolant = p:getMaxCoolant()
-end
-function spawnGMFleet()
+--------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Coolant  --
+--------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- ADD 1.0 COOLANT		D	inline (add coolant to selected player ship)
+-- REMOVE 1.0 COOLANT	D	inline (remove coolant from selected player ship)
+-- 1.0 - 0.5 = 0.5		D	inline (decrease coolant change value)
+-- 1.0 + 0.5 = 1.5		D	inline (increase coolant change value)
+function changePlayerCoolant()
 	clearGMFunctions()
-	addGMFunction("-Main From Flt Spwn",initialGMFunctions)
-	addGMFunction(string.format("+%s",fleetSpawnFaction),setGMFleetFaction)
-	if fleetStrengthFixed then
-		addGMFunction("+Set Relative Strength",setGMFleetStrength)
-		addGMFunction(string.format("+Strength %i*",fleetStrengthFixedValue),setFixedFleetStrength)
-	else
-		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
-		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
-		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
-		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction(string.format("Add %.1f coolant",coolant_amount), function()
+		local p = getPlayerShip(-1)
+		local object_list = getGMSelection()
+		local selected_matches_player = false
+		for i=1,#object_list do
+			local current_selected_object = object_list[i]
+			for pidx=1,8 do
+				p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					if p == current_selected_object then
+						selected_matches_player = true
+						break
+					end
+				end
+			end
+			if selected_matches_player then
+				break
+			end
+		end
+		if selected_matches_player then
+			local coolant_reason_given = false
+			p:setMaxCoolant(p:getMaxCoolant() + coolant_amount)
+			addGMMessage(string.format("%.1f coolant added to %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
+			for i=1,#regionStations do
+				if p:isDocked(regionStations[i]) then
+					if p:hasPlayerAtPosition("Engineering") then
+						p:addCustomMessage("Engineering","coolant_bonus_message",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
+						coolant_reason_given = true
+						break
+					end
+				end
+			end
+			if not coolant_reason_given then
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","coolant_bonus_message","Additional coolant was added. It was missed during the last inventory cycle")
+				end
+			end
+		else
+			addGMMessage("No player selected. No action taken")
+		end
+		changePlayerCoolant()
+	end)
+	addGMFunction(string.format("Remove %.1f coolant",coolant_amount), function()
+		local p = getPlayerShip(-1)
+		local object_list = getGMSelection()
+		local selected_matches_player = false
+		for i=1,#object_list do
+			local current_selected_object = object_list[i]
+			for pidx=1,8 do
+				p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					if p == current_selected_object then
+						selected_matches_player = true
+						break
+					end
+				end
+			end
+			if selected_matches_player then
+				break
+			end
+		end
+		if selected_matches_player then
+			local coolant_reason_given = false
+			p:setMaxCoolant(p:getMaxCoolant() - coolant_amount)
+			addGMMessage(string.format("%.1f coolant removed from %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
+			for i=1,#regionStations do
+				if p:isDocked(regionStations[i]) then
+					if p:hasPlayerAtPosition("Engineering") then
+						p:addCustomMessage("Engineering","coolant_loss_message",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
+						coolant_reason_given = true
+						break
+					end
+				end
+			end
+			if not coolant_reason_given then
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","coolant_loss_message","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
+				end
+			end
+		else
+			addGMMessage("No player selected. No action taken")
+		end
+		changePlayerCoolant()
+	end)
+	if coolant_amount > .5 then
+		addGMFunction(string.format("%.1f - %.1f = %.1f",coolant_amount,.5,coolant_amount-.5),function()
+			coolant_amount = coolant_amount - .5
+			changePlayerCoolant()
+		end)
 	end
-	addGMFunction(string.format("+%s",fleetComposition),setFleetComposition)
-	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
-	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
-	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
-	addGMFunction("Spawn",parmSpawnFleet)
+	if coolant_amount < 10 then
+		addGMFunction(string.format("%.1f + %.1f = %.1f",coolant_amount,.5,coolant_amount+.5),function()
+			coolant_amount = coolant_amount + .5
+			changePlayerCoolant()
+		end)
+	end
 end
---Fleet faction
+------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Repair Crew  --
+------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- ADD REPAIR CREW		F	inline
+-- REMOVE REPAIR CREW	F	inline
+function changePlayerRepairCrew()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("Add repair crew", function()
+		local p = getPlayerShip(-1)
+		local object_list = getGMSelection()
+		local selected_matches_player = false
+		for i=1,#object_list do
+			local current_selected_object = object_list[i]
+			for pidx=1,8 do
+				p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					if p == current_selected_object then
+						selected_matches_player = true
+						break
+					end
+				end
+			end
+			if selected_matches_player then
+				break
+			end
+		end
+		if selected_matches_player then
+			local crew_reason_given = false
+			p:setRepairCrewCount(p:getRepairCrewCount()+1)
+			addGMMessage(string.format("1 repair crew added to %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
+			for i=1,#regionStations do
+				if p:isDocked(regionStations[i]) then
+					if p:hasPlayerAtPosition("Engineering") then
+						p:addCustomMessage("Engineering","added_repair_crew_message",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
+						crew_reason_given = true
+						break
+					end
+				end
+			end
+			if not crew_reason_given then
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","added_repair_crew_message","A crew member from a different department has completed training and has transferred to your repair crew")
+				end
+			end
+		else
+			addGMMessage("No player selected. No action taken")
+		end
+		changePlayerRepairCrew()
+	end)
+	addGMFunction("Remove repair crew", function()
+		local p = getPlayerShip(-1)
+		local object_list = getGMSelection()
+		local selected_matches_player = false
+		for i=1,#object_list do
+			local current_selected_object = object_list[i]
+			for pidx=1,8 do
+				p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					if p == current_selected_object then
+						selected_matches_player = true
+						break
+					end
+				end
+			end
+			if selected_matches_player then
+				break
+			end
+		end
+		if selected_matches_player then
+			local crew_reason_given = false
+			if p:getRepairCrewCount() > 0 then
+				p:setRepairCrewCount(p:getRepairCrewCount()-1)
+				addGMMessage(string.format("1 repair crew removed from %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
+				for i=1,#regionStations do
+					if p:isDocked(regionStations[i]) then
+						if p:hasPlayerAtPosition("Engineering") then
+							p:addCustomMessage("Engineering","removed_repair_crew_message",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
+							crew_reason_given = true
+							break
+						end
+					end
+				end
+				if not crew_reason_given then
+					if p:hasPlayerAtPosition("Engineering") then
+						p:addCustomMessage("Engineering","removed_repair_crew_message","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
+					end
+				end
+			end
+		else
+			addGMMessage("No player selected. No action taken")
+		end
+		changePlayerRepairCrew()
+	end)
+end
+------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Cargo  --
+------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM CARGO		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +REMOVE CARGO		F	removeCargo
+-- +ADD MINERAL			F	addMineralCargo
+-- +ADD COMPONENT		F	addComponentCargo
+function changePlayerCargo()
+	clearGMFunctions()
+	addGMFunction("-Main from Cargo",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("+Remove Cargo",removeCargo)
+	addGMFunction("+Add Mineral",addMineralCargo)
+	addGMFunction("+Add Component",addComponentCargo)
+end
+function removeCargo()
+	clearGMFunctions()
+	addGMFunction("-Cargo From Del",changePlayerCargo)
+	local p = getPlayerShip(-1)
+	local object_list = getGMSelection()
+	local selected_matches_player = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		for pidx=1,8 do
+			p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				if p == current_selected_object then
+					selected_matches_player = true
+					break
+				end
+			end
+		end
+		if selected_matches_player then
+			break
+		end
+	end
+	if selected_matches_player then
+		if p.goods ~= nil then
+			local cargo_found = false
+			for good, good_quantity in pairs(p.goods) do
+				if good_quantity > 0 then
+					cargo_found = true
+					addGMFunction(good,function()
+						p.goods[good] = p.goods[good] - 1
+						p.cargo = p.cargo + 1
+						addGMMessage(string.format("one %s removed",good))
+						removeCargo()
+					end)
+				end
+			end
+			if not cargo_found then
+				addGMMessage("selected player has no cargo to delete")
+				changePlayerCargo()
+			end
+		else
+			addGMMessage("selected player has no cargo to delete")
+			changePlayerCargo()
+		end
+	else
+		addGMMessage("No player selected. No action taken")
+		changePlayerCargo()
+	end
+end
+function addMineralCargo()
+	clearGMFunctions()
+	addGMFunction("-Cargo From Add",changePlayerCargo)
+	local p = getPlayerShip(-1)
+	local object_list = getGMSelection()
+	local selected_matches_player = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		for pidx=1,8 do
+			p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				if p == current_selected_object then
+					selected_matches_player = true
+					break
+				end
+			end
+		end
+		if selected_matches_player then
+			break
+		end
+	end
+	if selected_matches_player then
+		for _, good in pairs(mineralGoods) do
+			addGMFunction(good,function()
+				if p.cargo > 0 then
+					if p.goods == nil then
+						p.goods = {}
+					end
+					if p.goods[good] == nil then
+						p.goods[good] = 0
+					end
+					p.goods[good] = p.goods[good] + 1
+					p.cargo = p.cargo - 1
+					addGMMessage(string.format("one %s added",good))
+				else
+					addGMMessage("Insufficient cargo space")
+					changePlayerCargo()
+					return
+				end
+				addMineralCargo()			
+			end)
+		end
+	else
+		addGMMessage("No player selected. No action taken")
+		changePlayerCargo()
+	end
+end
+function addComponentCargo()
+	clearGMFunctions()
+	addGMFunction("-Cargo From Add",changePlayerCargo)
+	local p = getPlayerShip(-1)
+	local object_list = getGMSelection()
+	local selected_matches_player = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		for pidx=1,8 do
+			p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				if p == current_selected_object then
+					selected_matches_player = true
+					break
+				end
+			end
+		end
+		if selected_matches_player then
+			break
+		end
+	end
+	if selected_matches_player then
+		for _, good in pairs(componentGoods) do
+			addGMFunction(good,function()
+				if p.cargo > 0 then
+					if p.goods == nil then
+						p.goods = {}
+					end
+					if p.goods[good] == nil then
+						p.goods[good] = 0
+					end
+					p.goods[good] = p.goods[good] + 1
+					p.cargo = p.cargo - 1
+					addGMMessage(string.format("one %s added",good))
+				else
+					addGMMessage("Insufficient cargo space")
+				end
+				addComponentCargo()			
+			end)
+		end
+	else
+		addGMMessage("No player selected. No action taken")
+	end
+end
+-----------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Reputation  --
+-----------------------------------------------------------------
+-- Button text	   FD*	Related Function(s)
+-- -MAIN FROM REP	F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -TWEAK PLAYER	F	tweakPlayerShip
+-- ADD ONE REP n	D	inline
+-- ADD FIVE REP n	D	inline
+-- ADD TEN REP n	D	inline
+-- DEL ONE REP n	D	inline
+-- DEL FIVE REP n	D	inline
+-- DEL TEN REP n	D	inline
+function changePlayerReputation()
+	clearGMFunctions()
+	addGMFunction("-Main From Rep",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	local p = getPlayerShip(-1)
+	local object_list = getGMSelection()
+	local selected_matches_player = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		for pidx=1,8 do
+			p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				if p == current_selected_object then
+					selected_matches_player = true
+					break
+				end
+			end
+		end
+		if selected_matches_player then
+			break
+		end
+	end
+	if selected_matches_player then
+		local current_rep = math.floor(p:getReputationPoints())
+		addGMFunction(string.format("Add one rep %i",current_rep),function()
+			p:addReputationPoints(1)
+			changePlayerReputation()
+		end)
+		addGMFunction(string.format("Add five rep %i",current_rep),function()
+			p:addReputationPoints(5)
+			changePlayerReputation()
+		end)
+		addGMFunction(string.format("Add ten rep %i",current_rep),function()
+			p:addReputationPoints(10)
+			changePlayerReputation()
+		end)
+		if current_rep > 0 then
+			addGMFunction(string.format("Del one rep %i",current_rep),function()
+				p:takeReputationPoints(1)
+				changePlayerReputation()
+			end)
+		end
+		if current_rep > 5 then
+			addGMFunction(string.format("Del five rep %i",current_rep),function()
+				p:takeReputationPoints(5)
+				changePlayerReputation()
+			end)
+		end
+		if current_rep > 10 then
+			addGMFunction(string.format("Del ten rep %i",current_rep),function()
+				p:takeReputationPoints(10)
+				changePlayerReputation()
+			end)
+		end
+	else
+		addGMMessage("No player selected. No action taken. No reputation options presented")
+		tweakPlayerShip()
+	end
+end
+-----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Descriptions > Describe Current  --
+-----------------------------------------------------------------------
+-- -BACK		F	describePlayerShips
+-- Button to describe each currently active player ship name
+function describeCurrentSpecialPlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Back",describePlayerShips)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][4] ~= nil and playerShipInfo[shipNum][2] == "active" then
+			addGMFunction(playerShipInfo[shipNum][1],function()
+				addGMMessage(playerShipInfo[shipNum][4])
+			end)
+		end
+	end
+end
+------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Descriptions > Describe Scrapped  --
+------------------------------------------------------------------------
+-- -BACK		F	describePlayerShips
+-- Button to describe each scrapped or inactive player ship name
+function describeScrappedSpecialPlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Back",describePlayerShips)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][4] ~= nil and playerShipInfo[shipNum][2] == "inactive" then
+			addGMFunction(playerShipInfo[shipNum][1],function()
+				addGMMessage(playerShipInfo[shipNum][4])
+			end)
+		end
+	end
+end
+---------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Descriptions > Describe Stock  --
+---------------------------------------------------------------------
+-- -BACK		F	describePlayerShips
+-- Button to describe each player ship that can be spawned from the standard spawn player ship screen
+function describeStockPlayerShips()
+	clearGMFunctions()
+	addGMFunction("-Back",describePlayerShips)
+	addGMFunction("Atlantis",function()
+		addGMMessage("Atlantis: Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:3   Cargo:6   R.Strength:52\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:10   Side:4   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP\n      20 HVLI\nA refitted Atlantis X23 for more general tasks. The large shield system has been replaced with an advanced combat maneuvering systems and improved impulse engines. Its missile loadout is also more diverse. Mistaking the modified Atlantis for an Atlantis X23 would be a deadly mistake.")
+	end)
+	addGMFunction("Benedict",function()
+		addGMMessage("Benedict: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Jump (5U - 90U)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nBenedict is an improved version of the Jump Carrier")
+	end)
+	addGMFunction("Crucible",function()
+		addGMMessage("Crucible: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:5   R.Strength:45\nDefault advanced engine:Warp (750)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:70   Direction:-30   Range:1   Cycle:6   Damage:5\n   Arc:70   Direction: 30   Range:1   Cycle:6   Damage:5\nTubes:6   Load Speed:8   Front:3   Side:2   Back:1\n   Direction:   0   Type:HVLI Only - Small\n   Direction:   0   Type:HVLI Only\n   Direction:   0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      04 Nuke\n      06 Mine\n      06 EMP\n      24 HVLI\nA number of missile tubes range around this ship. Beams were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
+	end)
+	addGMFunction("Ender",function()
+		addGMMessage("Ender: Dreadnaught, Battlecruiser   Hull:100   Shield:1200,1200   Size:2000   Repair Crew:8   Cargo Space:20   R.Strength:100\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette   Energy:1200\nDefault advanced engine:Jump   Speeds: Impulse:30   Spin:2   Accelerate:6   C.Maneuver: Boost:800 Strafe:500\nBeams:12 6 left, 6 right turreted Speed:6\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.1   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.0   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.8   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.3   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.9   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.4   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.7   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.2   Damage:4\nTubes:2   Load Speed:8   Front:1   Back:1\n   Direction:   0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      6 Mine")
+	end)
+	addGMFunction("Flavia P.Falcon",function()
+		addGMMessage("Flavia P.Falcon: Frigate, Light Transport   Hull:100   Shield:70,70   Size:200   Repair Crew:8   Cargo Space:15   R.Strength:13\nDefault advanced engine:Warp (500)   Speeds: Impulse:60   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 rear facing\n   Arc:40   Direction:170   Range:1.2   Cycle:6   Damage:6\n   Arc:40   Direction:190   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Back:1\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nThe Flavia P.Falcon has a nuclear-capable rear-facing weapon tube and a warp drive.")
+	end)
+	addGMFunction("Hathcock",function()
+		addGMMessage("Hathcock: Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo Space:6   R.Strength:30\nDefault advanced engine:Jump   Speeds: Impulse:50   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeams:4 front facing\n   Arc:04   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nLong range narrow beam and some point defense beams, broadside missiles. Agile for a frigate")
+	end)
+	addGMFunction("Kiriya",function()
+		addGMMessage("Kiriya: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Warp (750)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nKiriya is an improved warp drive version of the Jump Carrier")
+	end)
+	addGMFunction("MP52 Hornet",function()
+		addGMMessage("MP52 Hornet: Starfighter, Interceptor   Hull:70   Shield:60   Size:100   Repair Crew:1   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:125   Spin:32   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:30   Direction: 5   Range:.9   Cycle:4   Damage:2.5\n   Arc:30   Direction:-5   Range:.9   Cycle:4   Damage:2.5\nThe MP52 Hornet is a significantly upgraded version of MU52 Hornet, with nearly twice the hull strength, nearly three times the shielding, better acceleration, impulse boosters, and a second laser cannon.")
+	end)
+	addGMFunction("Maverick",function()
+		addGMMessage("Maverick: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:6   3 forward, 2 side, 1 back (turreted speed .5)\n   Arc:10   Direction:  0   Range:2.0   Cycle:6   Damage:6\n   Arc: 90   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc: 90   Direction: 20   Range:1.5   Cycle:6   Damage:8\n   Arc: 40   Direction:-70   Range:1.0   Cycle:4   Damage:6\n   Arc: 40   Direction: 70   Range:1.0   Cycle:4   Damage:6\n   Arc:180   Direction:180   Range:0.8   Cycle:6   Damage:4   (turreted speed: .5)\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nA number of beams bristle from various points on this gunner. Missiles were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
+	end)
+	addGMFunction("Nautilus",function()
+		addGMMessage("Nautilus: Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:12\nDefault advanced engine:Jump   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Back:3\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Mine\nSmall mine laying vessel with minimal armament, shields and hull")
+	end)
+	addGMFunction("Phobos MP3",function()
+		addGMMessage("Phobos MP3: Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:3   Cargo:10   R.Strength:19\nDefault advanced engine:None   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:3   Load Speed:10   Front:2   Back:1\n   Direction: -1   Type:Exclude Mine\n   Direction:  1   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      02 Nuke\n      04 Mine\n      03 EMP\n      20 HVLI\nPlayer variant of the Phobos M3, not as strong as the atlantis, but has front firing tubes, making it an easier to use ship in some scenarios.")
+	end)
+	addGMFunction("Piranha",function()
+		addGMMessage("Piranha: Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo:8   R.Strength:16\nDefault advanced engine:None   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nTubes:8   Load Speed:8   Side:6   Back:2\n   Direction:-90   Type:HVLI and Homing Only\n   Direction:-90   Type:Any\n   Direction:-90   Type:HVLI and Homing Only\n   Direction: 90   Type:HVLI and Homing Only\n   Direction: 90   Type:Any\n   Direction: 90   Type:HVLI and Homing Only\n   Direction:170   Type:Mine Only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Nuke\n      08 Mine\n      20 HVLI\nThis combat-specialized Piranha F12 adds mine-laying tubes, combat maneuvering systems, and a jump drive.")
+	end)	
+	addGMFunction("Player Cruiser",function()
+		addGMMessage("Player Cruiser:   Hull:200   Shield:80,80   Size:400   Repair Crew:3   Cargo:6   R.Strength:40\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1   Cycle:6   Damage:10\n   Arc:90   Direction: 15   Range:1   Cycle:6   Damage:10\nTubes:3   Load Speed:8   Front:2   Back:1\n   Direction: -5   Type:Exclude Mine\n   Direction:  5   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP")
+	end)
+	addGMFunction("Player Fighter",function()
+		addGMMessage("Player Fighter:   Hull:60   Shield:40   Size:100   Repair Crew:3   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:40   Direction:-10   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:1   Cycle:6   Damage:8\nTube:1   Load Speed:10   Front:1\n   Direction:0   Type:HVLI Only\n   Ordnance stock and type:\n      4 HVLI")
+	end)
+	addGMFunction("Player Missile Cr.",function()
+		addGMMessage("Player Missile Cr.:   Hull:200   Shield:110,70   Size:200   Repair Crew:3   Cargo:8   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nTubes:7   Load Speed:8   Front:2   Side:4   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction: 90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      30 Homing\n      08 Nuke\n      12 Mine\n      10 EMP")
+	end)	
+	addGMFunction("Repulse",function()
+		addGMMessage("Repulse: Frigate, Armored Transport   Hull:120   Shield:80,80   Size:200   Repair Crew:8   Cargo:12   R.Strength:14\nDefault advanced engine:Jump   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:5\n   Arc:200   Direction: 90   Range:1.2   Cycle:6   Damage:5\n   Arc:200   Direction:-90   Range:1.2   Cycle:6   Damage:5\nTubes:2   Load Speed:20   Front:1   Back:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      6 HVLI\nJump/Turret version of Flavia Falcon")
+	end)
+	addGMFunction("Striker",function()
+		addGMMessage("Striker: Starfighter, Patrol   Hull:120   Shield:50,30   Size:200   Repair Crew:2   Cargo:4   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:45   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:500\nBeams:2 Turreted Speed:6\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nThe Striker is the predecessor to the advanced striker, slow but agile, but does not do an extreme amount of damage, and lacks in shields")
+	end)
+	addGMFunction("ZX-Lindworm",function()
+		addGMMessage("ZX-Lindworm: Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:1   Cargo:3   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI")
+	end)
+end
+----------------------------------------------------
+--	Support the creation of various player ships  --
+----------------------------------------------------
+function createPlayerShipAmbition()
+	--destroyed 1Feb2020
+	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
+	playerAmbition:setTypeName("Phobos T2")
+	playerAmbition:setRepairCrewCount(5)					--more repair crew (vs 3)
+	playerAmbition:setJumpDrive(true)						--jump drive (vs none)
+	playerAmbition:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
+	playerAmbition:setRotationMaxSpeed(20)					--faster spin (vs 10)
+--                 				   Arc, Dir, Range, CycleTime, Dmg
+	playerAmbition:setBeamWeapon(0, 10, -15,  1200,         8, 6)
+	playerAmbition:setBeamWeapon(1, 10,  15,  1200,        16, 6)
+--										 Arc, Dir, Rotate speed
+	playerAmbition:setBeamWeaponTurret(0, 90, -15, .2)		--slow turret beams
+	playerAmbition:setBeamWeaponTurret(1, 90,  15, .2)
+	playerAmbition:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
+	playerAmbition:setWeaponTubeDirection(0,0)				--first tube points straight forward
+	playerAmbition:setWeaponTubeDirection(1,180)			--second tube points straight back
+	playerAmbition:setWeaponTubeExclusiveFor(1,"Mine")
+	playerAmbition:setWeaponStorageMax("Homing",6)			--reduce homing storage (vs 10)
+	playerAmbition:setWeaponStorage("Homing",6)
+	playerAmbition:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
+	playerAmbition:setWeaponStorage("HVLI",10)
+	playerAmbition:addReputationPoints(50)
+end
+function createPlayerShipArwine()
+	--destroyed 14Dec2019
+	playerArwine = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Arwine")
+	playerArwine:setTypeName("Pacu")
+	playerArwine:setRepairCrewCount(5)						--more repair crew (vs 2)
+	playerArwine:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
+	playerArwine:setImpulseMaxSpeed(70)						--faster impulse max (vs 40)
+	playerArwine:setHullMax(150)							--stronger hull (vs 120)
+	playerArwine:setHull(150)
+	playerArwine:setShieldsMax(100,100)						--stronger shields (vs 70, 70)
+	playerArwine:setShields(100,100)
+	playerArwine:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
+	playerArwine:setBeamWeaponTurret(0, 80, 0, .2)			--slow turret
+	playerArwine:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
+	playerArwine:setWeaponTubeDirection(6, 180)				--mine tube points straight back
+	playerArwine:setWeaponTubeExclusiveFor(0,"HVLI")
+	playerArwine:setWeaponTubeExclusiveFor(1,"HVLI")
+	playerArwine:setWeaponTubeExclusiveFor(2,"HVLI")
+	playerArwine:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerArwine:setWeaponTubeExclusiveFor(4,"HVLI")
+	playerArwine:setWeaponTubeExclusiveFor(5,"HVLI")
+	playerArwine:setWeaponTubeExclusiveFor(6,"Mine")
+	playerArwine:weaponTubeAllowMissle(1,"Homing")
+	playerArwine:weaponTubeAllowMissle(1,"EMP")
+	playerArwine:weaponTubeAllowMissle(1,"Nuke")
+	playerArwine:weaponTubeAllowMissle(4,"Homing")
+	playerArwine:weaponTubeAllowMissle(4,"EMP")
+	playerArwine:weaponTubeAllowMissle(4,"Nuke")
+	playerArwine:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
+	playerArwine:setWeaponStorage("Mine", 4)				
+	playerArwine:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
+	playerArwine:setWeaponStorage("EMP", 4)					
+	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
+	playerArwine:setWeaponStorage("Nuke", 4)				
+	playerArwine:addReputationPoints(50)
+	playerShipSpawned("Arwine")
+end
+function createPlayerShipBarracuda()
+	--destroyed 8feb2020
+	--clone of Headhunter
+	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
+	playerBarracuda:setTypeName("Redhook")
+	playerBarracuda:setRepairCrewCount(4)						--more repair crew (vs 2)
+	playerBarracuda:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
+	playerBarracuda:setHullMax(140)								--stronger hull (vs 120)
+	playerBarracuda:setHull(140)
+	playerBarracuda:setShieldsMax(100, 100)						--stronger shields (vs 70, 70)
+	playerBarracuda:setShields(100, 100)
+	playerBarracuda:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)		--one beam (vs 0)
+	playerBarracuda:setBeamWeaponTurret(0, 80, 0, 1)			--slow turret 
+	playerBarracuda:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
+	playerBarracuda:setWeaponTubeDirection(6, 180)				--mine tube points straight back
+	playerBarracuda:setWeaponTubeExclusiveFor(0,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(1,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(2,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(4,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(5,"HVLI")
+	playerBarracuda:setWeaponTubeExclusiveFor(6,"Mine")
+	playerBarracuda:weaponTubeAllowMissle(1,"Homing")
+	playerBarracuda:weaponTubeAllowMissle(1,"EMP")
+	playerBarracuda:weaponTubeAllowMissle(1,"Nuke")
+	playerBarracuda:weaponTubeAllowMissle(4,"Homing")
+	playerBarracuda:weaponTubeAllowMissle(4,"EMP")
+	playerBarracuda:weaponTubeAllowMissle(4,"Nuke")
+	playerBarracuda:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
+	playerBarracuda:setWeaponStorage("Mine", 4)				
+	playerBarracuda:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
+	playerBarracuda:setWeaponStorage("EMP", 4)					
+	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
+	playerBarracuda:setWeaponStorage("Nuke", 4)				
+	playerBarracuda:addReputationPoints(50)
+	playerShipSpawned("Barracuda")
+end
+function createPlayerShipBlazon()
+	--ship destroyed 24Aug2019
+	playerBlazon = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Blazon")
+	playerBlazon:setTypeName("Stricken")
+	playerBlazon:setRepairCrewCount(2)
+	playerBlazon:setImpulseMaxSpeed(105)					-- up from default of 45
+	playerBlazon:setRotationMaxSpeed(35)					-- up from default of 15
+	playerBlazon:setShieldsMax(80,50)						-- up from 50, 30
+	playerBlazon:setShields(80,50)							-- up from 50, 30
+	playerBlazon:setBeamWeaponTurret(0,60,-15,2)			-- 60: narrower than default 100, 
+	playerBlazon:setBeamWeaponTurret(1,60, 15,2)			-- 2: slower than default 6
+	playerBlazon:setBeamWeapon(2,20,0,1200,6,5)				-- add forward facing beam
+	playerBlazon:setWeaponTubeCount(3)						-- add tubes
+	playerBlazon:setWeaponTubeDirection(0,-60)
+	playerBlazon:setWeaponTubeDirection(1,60)
+	playerBlazon:setWeaponTubeDirection(2,180)
+	playerBlazon:weaponTubeDisallowMissle(0,"Mine")
+	playerBlazon:weaponTubeDisallowMissle(1,"Mine")
+	playerBlazon:setWeaponTubeExclusiveFor(2,"Mine")
+	playerBlazon:setWeaponStorageMax("Homing",6)
+	playerBlazon:setWeaponStorage("Homing",6)
+	playerBlazon:setWeaponStorageMax("EMP",2)
+	playerBlazon:setWeaponStorage("EMP",2)
+	playerBlazon:setWeaponStorageMax("Nuke",2)
+	playerBlazon:setWeaponStorage("Nuke",2)
+	playerBlazon:setWeaponStorageMax("Mine",4)
+	playerBlazon:setWeaponStorage("Mine",4)
+	playerBlazon:addReputationPoints(50)
+	playerShipSpawned("Blazon")
+end
+function createPlayerShipCobra()
+	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
+	playerCobra:setTypeName("Striker LX")
+	playerCobra:setShieldsMax(100,100)						--stronger shields (vs 50, 30)
+	playerCobra:setShields(100,100)
+	playerCobra:setMaxEnergy(800)							--more maximum energy (vs 500)
+	playerCobra:setEnergy(800)
+	playerCobra:setJumpDrive(true)
+	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
+	playerCobra:setImpulseMaxSpeed(65)						--faster impulse max (vs 45)
+--									   Arc, Dir, Rotate speed
+	playerCobra:setBeamWeaponTurret(0, 100, -15, .1)		--slower turret speed (vs 6)
+	playerCobra:setBeamWeaponTurret(1, 100,  15, .1)
+	playerCobra:setWeaponTubeCount(2)						--more tubes (vs 0)
+	playerCobra:setWeaponTubeDirection(0,180)				
+	playerCobra:setWeaponTubeDirection(1,180)
+	playerCobra:setWeaponStorageMax("Homing",4)
+	playerCobra:setWeaponStorage("Homing", 4)	
+	playerCobra:setWeaponStorageMax("Nuke",2)	
+	playerCobra:setWeaponStorage("Nuke", 2)	
+	playerCobra:setWeaponStorageMax("EMP",3)	
+	playerCobra:setWeaponStorage("EMP", 3)		
+	playerCobra:setWeaponStorageMax("Mine",3)	
+	playerCobra:setWeaponStorage("Mine", 3)	
+	playerCobra:setWeaponStorageMax("HVLI",6)	
+	playerCobra:setWeaponStorage("HVLI", 6)	
+	playerCobra:addReputationPoints(50)
+	playerShipSpawned("Cobra")
+end
+function createPlayerShipHalberd()
+	--destroyed 29Feb2020
+	playerHalberd = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Halberd")
+	playerHalberd:setTypeName("Proto-Atlantis")
+	playerHalberd:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerHalberd:setImpulseMaxSpeed(70)				--slower impulse max (vs 90)
+	playerHalberd:setRotationMaxSpeed(14)				--faster spin (vs 10)
+	playerHalberd:setJumpDriveRange(3000,30000)			--shorter jump drive range (vs 5-50)
+	playerHalberd:setHullMax(200)						--weaker hull (vs 250)
+	playerHalberd:setHull(200)							
+	playerHalberd:setShieldsMax(150,150)				--weaker shields (vs 200)
+	playerHalberd:setShields(150,150)
+	
+--                 				 Arc, Dir, Range, CycleTime, Dmg
+	playerHalberd:setBeamWeapon(0, 5, -10,  1500,       6.0, 8)		--narrower turreted beams
+	playerHalberd:setBeamWeapon(1, 5,  10,  1500,       6.0, 8)		--vs arc:100, dir:-20
+--									    Arc, Dir, Rotate speed
+	playerHalberd:setBeamWeaponTurret(0, 70, -10, .25)
+	playerHalberd:setBeamWeaponTurret(1, 70,  10, .25)
+
+	playerHalberd:setWeaponTubeDirection(0,-90)			--front left facing (vs left)
+	playerHalberd:setWeaponTubeDirection(1,-60)			--front left facing (vs left)
+	playerHalberd:setWeaponTubeDirection(2, 60)			--front right facing (vs right)
+	playerHalberd:setWeaponTubeDirection(3, 90)			--front right facing (vs right)
+	playerHalberd:setWeaponTubeExclusiveFor(0,"Nuke")	--HVLI only (vs all but Mine)
+	playerHalberd:setWeaponTubeExclusiveFor(1,"HVLI")	--Nuke only (vs all but Mine)
+	playerHalberd:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs all but Mine)
+	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
+	playerHalberd:addReputationPoints(50)
+	playerShipSpawned("Halberd")
+end
+function createPlayerShipHeadhunter()
+	playerHeadhunter = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Headhunter")
+	playerHeadhunter:setTypeName("Redhook")
+	playerHeadhunter:setRepairCrewCount(4)						--more repair crew (vs 2)
+	playerHeadhunter:setJumpDriveRange(2000,25000)				--shorter jump drive range (vs 5-50)
+	playerHeadhunter:setHullMax(140)							--stronger hull (vs 120)
+	playerHeadhunter:setHull(140)
+	playerHeadhunter:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
+	playerHeadhunter:setShields(100, 100)
+	playerHeadhunter:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
+	playerHeadhunter:setBeamWeaponTurret(0, 80, 0, 1)			--slow turret 
+	playerHeadhunter:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
+	playerHeadhunter:setWeaponTubeDirection(6, 180)				--mine tube points straight back
+	playerHeadhunter:setWeaponTubeExclusiveFor(0,"HVLI")
+	playerHeadhunter:setWeaponTubeExclusiveFor(1,"HVLI")
+	playerHeadhunter:setWeaponTubeExclusiveFor(2,"HVLI")
+	playerHeadhunter:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerHeadhunter:setWeaponTubeExclusiveFor(4,"HVLI")
+	playerHeadhunter:setWeaponTubeExclusiveFor(5,"HVLI")
+	playerHeadhunter:setWeaponTubeExclusiveFor(6,"Mine")
+	playerHeadhunter:weaponTubeAllowMissle(1,"Homing")
+	playerHeadhunter:weaponTubeAllowMissle(1,"EMP")
+	playerHeadhunter:weaponTubeAllowMissle(1,"Nuke")
+	playerHeadhunter:weaponTubeAllowMissle(4,"Homing")
+	playerHeadhunter:weaponTubeAllowMissle(4,"EMP")
+	playerHeadhunter:weaponTubeAllowMissle(4,"Nuke")
+	playerHeadhunter:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
+	playerHeadhunter:setWeaponStorage("Mine", 4)				
+	playerHeadhunter:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
+	playerHeadhunter:setWeaponStorage("EMP", 4)					
+	playerHeadhunter:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
+	playerHeadhunter:setWeaponStorage("Nuke", 4)				
+	playerHeadhunter:addReputationPoints(50)
+	playerShipSpawned("Headhunter")
+end
+function createPlayerShipHolmes()
+	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
+	playerHolmes:setTypeName("Holmes")
+	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
+--                  			 Arc, Dir,  Range, CycleTime, Dmg
+	playerHolmes:setBeamWeapon(0, 60, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
+	playerHolmes:setBeamWeapon(1, 60, -95, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(2, 60,  85, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(3, 60,  95, 1000.0, 6.0, 5)	
+	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
+	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
+	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
+	playerHolmes:setWeaponTubeExclusiveFor(2,"Homing")
+	playerHolmes:setWeaponTubeExclusiveFor(3,"Mine")
+	playerHolmes:setWeaponTubeDirection(3, 180)
+	playerHolmes:setWeaponStorageMax("Homing",12)			--more (vs 8)
+	playerHolmes:setWeaponStorage("Homing", 12)				
+	playerHolmes:setWeaponStorageMax("HVLI",0)				--fewer
+	playerHolmes:setWeaponStorage("HVLI", 0)				
+	playerHolmes:setWeaponStorageMax("EMP",0)				--fewer
+	playerHolmes:setWeaponStorage("EMP", 0)				
+	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
+	playerHolmes:setWeaponStorage("Nuke", 0)	
+	playerHolmes:addReputationPoints(50)
+	playerShipSpawned("Holmes")
+end
+function createPlayerShipMagnum()
+	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
+	playerMagnum:setTypeName("Focus")
+	playerMagnum:setImpulseMaxSpeed(70)						--slower (vs 80)
+	playerMagnum:setRotationMaxSpeed(20)					--faster spin (vs 15)
+	playerMagnum:setWarpDrive(false)						--no warp
+	playerMagnum:setJumpDrive(true)							--jump drive
+	playerMagnum:setJumpDriveRange(2500,25000)				--shorter jump drive range (vs 5-50)
+	playerMagnum:setHullMax(100)							--weaker hull (vs 160)
+	playerMagnum:setHull(100)
+	playerMagnum:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
+	playerMagnum:setShields(100, 100)
+	playerMagnum:setBeamWeapon(0, 60, -20, 1000.0, 6.0, 5)	--narrower (vs 70)
+	playerMagnum:setBeamWeapon(1, 60,  20, 1000.0, 6.0, 5)	
+	playerMagnum:setWeaponTubeCount(4)						--fewer (vs 6)
+	playerMagnum:weaponTubeAllowMissle(2,"Homing")
+	playerMagnum:weaponTubeAllowMissle(2,"EMP")
+	playerMagnum:weaponTubeAllowMissle(2,"Nuke")
+	playerMagnum:setWeaponTubeExclusiveFor(3,"Mine")
+	playerMagnum:setWeaponTubeDirection(3, 180)
+	playerMagnum:setWeaponStorageMax("EMP",2)				--fewer (vs 6)
+	playerMagnum:setWeaponStorage("EMP", 2)				
+	playerMagnum:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
+	playerMagnum:setWeaponStorage("Nuke", 1)	
+	playerMagnum:addReputationPoints(50)
+	playerShipSpawned("Magnum")
+end
+function createPlayerShipNarsil()
+	--experimental
+	playerNarsil = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Narsil")
+	playerNarsil:setTypeName("Proto-Atlantis")
+	playerNarsil:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerNarsil:setImpulseMaxSpeed(70)					--slower impulse max (vs 90)
+	playerNarsil:setRotationMaxSpeed(14)				--faster spin (vs 10)
+	playerNarsil:setJumpDrive(false)					--no Jump
+	playerNarsil:setWarpDrive(true)						--add warp
+	playerNarsil:setHullMax(200)						--weaker hull (vs 250)
+	playerNarsil:setHull(200)							
+	playerNarsil:setShieldsMax(150,150)					--weaker shields (vs 200)
+	playerNarsil:setShields(150,150)
+	playerNarsil:setWeaponTubeCount(6)					--one more forward tube, less flexible ordnance
+	playerNarsil:setWeaponTubeDirection(0,0)			--front facing
+	playerNarsil:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only
+	playerNarsil:setWeaponTubeDirection(1,-90)			--left facing
+	playerNarsil:weaponTubeDisallowMissle(1,"Mine")		--all but mine
+	playerNarsil:setWeaponTubeDirection(2,-90)			--left facing
+	playerNarsil:setWeaponTubeExclusiveFor(2,"HVLI")	--HVLI only
+	playerNarsil:setWeaponTubeDirection(3,90)			--right facing
+	playerNarsil:weaponTubeDisallowMissle(3,"Mine")		--all but mine
+	playerNarsil:setWeaponTubeDirection(4,90)			--right facing
+	playerNarsil:setWeaponTubeExclusiveFor(4,"HVLI")	--HVLI only
+	playerNarsil:setWeaponTubeDirection(5,180)			--rear facing
+	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
+	playerNarsil:addReputationPoints(50)
+	playerShipSpawned("Narsil")
+end
+function createPlayerShipOsprey()
+	--destroyed 29Feb2020
+	playerOsprey = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Osprey")
+	playerOsprey:setTypeName("Flavia 2C")
+	playerOsprey:setRotationMaxSpeed(20)					--faster spin (vs 10)
+	playerOsprey:setImpulseMaxSpeed(70)						--faster (vs 60)
+	playerOsprey:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
+	playerOsprey:setShields(100, 100)
+	playerOsprey:setBeamWeapon(0, 40, -10, 1200.0, 5.5, 6.5)	--two forward (vs rear)
+	playerOsprey:setBeamWeapon(1, 40,  10, 1200.0, 5.5, 6.5)	--faster (vs 6.0) and stronger (vs 6.0)
+	playerOsprey:setWeaponTubeCount(3)						--more (vs 1)
+	playerOsprey:setWeaponTubeDirection(0,-90)				--left facing (vs none)
+	playerOsprey:setWeaponTubeDirection(1, 90)				--right facing (vs none)
+	playerOsprey:setWeaponTubeDirection(2, 180)				--rear facing
+	playerOsprey:setWeaponTubeExclusiveFor(0,"Homing")		
+	playerOsprey:setWeaponTubeExclusiveFor(1,"Homing")
+	playerOsprey:setWeaponStorageMax("EMP",2)				--more (vs 0)
+	playerOsprey:setWeaponStorage("EMP", 2)				
+	playerOsprey:setWeaponStorageMax("Nuke",2)				--more (vs 1)
+	playerOsprey:setWeaponStorage("Nuke", 2)				
+	playerOsprey:setWeaponStorageMax("Mine",2)				--more (vs 1)
+	playerOsprey:setWeaponStorage("Mine", 2)				
+	playerOsprey:setWeaponStorageMax("Homing",4)			--more (vs 3)
+	playerOsprey:setWeaponStorage("Homing", 4)				
+	playerOsprey:addReputationPoints(50)
+	playerShipSpawned("Osprey")
+end
+function createPlayerShipRattler()
+	playerRattler = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rattler")
+	playerRattler:setTypeName("MX-Lindworm")
+	playerRattler:setRepairCrewCount(2)
+	playerRattler:setJumpDrive(true)
+	playerRattler:setJumpDriveRange(3000,20000)
+	playerRattler:setImpulseMaxSpeed(85)
+	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
+	playerRattler:addReputationPoints(50)
+	playerShipSpawned("Rattler")
+end
+function createPlayerShipRogue()
+	playerRogue = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Rogue")
+	playerRogue:setTypeName("Maverick XP")
+	playerRogue:setImpulseMaxSpeed(65)						--slower impulse max (vs 80)
+	playerRogue:setWarpDrive(false)							--no warp
+	playerRogue:setJumpDrive(true)
+	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
+--                  		    Arc, Dir,  Range, CycleTime, Dmg
+	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 18)
+--									   Arc, Dir, Rotate speed
+	playerRogue:setBeamWeaponTurret(0, 270,   0, .1)
+	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*5)
+	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
+	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
+	playerRogue:setBeamWeapon(2, 0, 0, 0, 0, 0)				
+	playerRogue:setBeamWeapon(3, 0, 0, 0, 0, 0)				
+	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
+	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
+	playerRogue:addReputationPoints(50)
+	playerShipSpawned("Rogue")
+end
+function createPlayerShipSimian()
+	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
+	playerSimian:setTypeName("Destroyer III")
+	playerSimian:setWarpDrive(false)
+	playerSimian:setJumpDrive(true)
+	playerSimian:setJumpDriveRange(2000,20000)						--shorter than typical jump drive range (vs 5-50)
+	playerSimian:setHullMax(100)									--weaker hull (vs 200)
+	playerSimian:setHull(100)
+--                 				 Arc, Dir, Range, CycleTime, Damage
+	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
+--									    Arc, Dir, Rotate speed
+	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
+	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
+	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
+	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
+	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
+	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
+	playerSimian:setWeaponStorage("Homing", 10)				
+	playerSimian:setWeaponStorageMax("Nuke",4)						--less (vs 8)
+	playerSimian:setWeaponStorage("Nuke", 4)				
+	playerSimian:setWeaponStorageMax("EMP",5)						--less (vs 10)
+	playerSimian:setWeaponStorage("EMP", 5)				
+	playerSimian:setWeaponStorageMax("Mine",6)						--less (vs 12)
+	playerSimian:setWeaponStorage("Mine", 6)				
+	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
+	playerSimian:setWeaponStorage("HVLI", 10)				
+	playerSimian:addReputationPoints(50)
+	playerShipSpawned("Simian")
+end
+function createPlayerShipSpike()
+	playerSpike = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Spike")
+	playerSpike:setTypeName("Phobos T2")
+	playerSpike:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerSpike:setJumpDrive(true)						--jump drive (vs none)
+	playerSpike:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
+	playerSpike:setRotationMaxSpeed(20)					--faster spin (vs 10)
+	playerSpike:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
+	playerSpike:setShields(120,80)
+	playerSpike:setMaxEnergy(800)						--less maximum energy (vs 1000)
+	playerSpike:setEnergy(800)
+--                 				Arc, Dir, Range, CycleTime, Dmg
+	playerSpike:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
+	playerSpike:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
+--										 Arc, Dir, Rotate speed
+	playerSpike:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
+	playerSpike:setBeamWeaponTurret(1, 40,  30, .2)
+	playerSpike:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
+	playerSpike:setWeaponTubeDirection(0,0)				--first tube points straight forward
+	playerSpike:setWeaponTubeDirection(1,180)			--second tube points straight back
+	playerSpike:setWeaponTubeExclusiveFor(1,"Mine")
+	playerSpike:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
+	playerSpike:setWeaponStorage("Homing",8)
+	playerSpike:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
+	playerSpike:setWeaponStorage("HVLI",16)
+	playerSpike:addReputationPoints(50)
+	playerShipSpawned("Spike")
+end
+function createPlayerShipSpyder()
+	--experimental
+	playerSpyder = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Spyder")
+	playerSpyder:setTypeName("Atlantis II")
+	playerSpyder:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerSpyder:setImpulseMaxSpeed(80)					--slower impulse max (vs 90)
+	playerSpyder:setWeaponTubeCount(6)					--one more tube
+	playerSpyder:setWeaponTubeDirection(5,0)			--front facing
+	playerSpyder:weaponTubeDisallowMissle(5,"Mine")		--no Mine
+	playerSpyder:weaponTubeDisallowMissle(5,"EMP")		--no EMP
+	playerSpyder:weaponTubeDisallowMissle(5,"Nuke")		--no Nuke
+	playerSpyder:setWeaponTubeDirection(0,-60)			--left front facing
+	playerSpyder:setWeaponTubeDirection(1,-120)			--left rear facing
+	playerSpyder:setWeaponTubeDirection(2,60)			--right front facing
+	playerSpyder:setWeaponTubeDirection(3,120)			--right rear facing
+	playerSpyder:addReputationPoints(50)
+	playerShipSpawned("Spyder")
+end
+function createPlayerShipSting()
+	--sent to Kraylor war front. May return later
+	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
+	playerSting:setTypeName("Surkov")
+	playerSting:setRepairCrewCount(3)	--more repair crew (vs 2)
+	playerSting:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
+	playerSting:setJumpDrive(false)		--no jump
+	playerSting:setWarpDrive(true)		--add warp
+	playerSting:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
+	playerSting:setWeaponTubeDirection(0, -90)
+	playerSting:weaponTubeDisallowMissle(0,"Mine")
+	playerSting:weaponTubeDisallowMissle(0,"Nuke")
+	playerSting:weaponTubeDisallowMissle(0,"EMP")
+	playerSting:setWeaponStorageMax("Mine",3)
+	playerSting:setWeaponStorage("Mine",3)
+	playerSting:setWeaponStorageMax("Nuke",0)
+	playerSting:setWeaponStorage("Nuke",0)
+	playerSting:setWeaponStorageMax("EMP",0)
+	playerSting:setWeaponStorage("EMP",0)
+	playerSting:setWeaponTubeDirection(1, 90)
+	playerSting:weaponTubeDisallowMissle(1,"Mine")
+	playerSting:weaponTubeDisallowMissle(1,"Nuke")
+	playerSting:weaponTubeDisallowMissle(1,"EMP")
+	playerSting:setWeaponTubeDirection(2,180)
+	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
+	playerSting:addReputationPoints(50)
+	playerShipSpawned("Sting")
+end
+function createPlayerShipThunderbird()
+	--destroyed 29Feb2020
+	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
+	playerThunderbird:setTypeName("Destroyer IV")
+	playerThunderbird:setJumpDriveRange(2000,20000)				--shorter jump drive range (vs 5-50)
+	playerThunderbird:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
+	playerThunderbird:setShields(100, 100)
+	playerThunderbird:setHullMax(100)							--weaker hull (vs 200)
+	playerThunderbird:setHull(100)
+	playerThunderbird:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
+	playerThunderbird:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
+	playerThunderbird:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
+	playerThunderbird:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
+	playerThunderbird:setWeaponStorageMax("Homing",6)			--less (vs 12)
+	playerThunderbird:setWeaponStorage("Homing", 6)				
+	playerThunderbird:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
+	playerThunderbird:setWeaponStorage("Nuke", 2)				
+	playerThunderbird:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
+	playerThunderbird:setWeaponStorage("EMP", 3)				
+	playerThunderbird:setWeaponStorageMax("Mine",4)				--fewer (vs 8)
+	playerThunderbird:setWeaponStorage("Mine", 4)				
+	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
+	playerThunderbird:setWeaponStorage("HVLI", 6)				
+	playerThunderbird:addReputationPoints(50)
+	playerShipSpawned("Thunderbird")
+end
+function createPlayerShipWombat()
+	--destroyed 1Feb2020
+	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
+	playerWombat:setTypeName("Wombat")
+	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
+	playerWombat:setJumpDrive(true)							--jump drive (vs none)
+	playerWombat:setJumpDriveRange(3000,20000)
+	playerWombat:setImpulseMaxSpeed(85)						--faster (vs 70)
+	playerWombat:setBeamWeapon(0, 10, 0, 600.0, 4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
+	playerWombat:setBeamWeapon(1, 10, 0, 900.0, 4.0, 3)	
+	playerWombat:setBeamWeaponTurret( 0, 80, -20, .3)
+	playerWombat:setBeamWeaponTurret( 1, 80,  20, .3)
+	playerWombat:setWeaponTubeCount(5)						--more (vs 3)
+	playerWombat:setWeaponTubeDirection(0, 180)				
+	playerWombat:setWeaponTubeDirection(1, 180)				
+	playerWombat:setWeaponTubeDirection(2, 180)				
+	playerWombat:setWeaponTubeDirection(3, 180)
+	playerWombat:setWeaponTubeDirection(4, 180)
+	playerWombat:setWeaponTubeExclusiveFor(0,"HVLI")
+	playerWombat:setWeaponTubeExclusiveFor(1,"HVLI")
+	playerWombat:weaponTubeAllowMissle(1,"Homing")
+	playerWombat:setWeaponTubeExclusiveFor(2,"HVLI")
+	playerWombat:weaponTubeAllowMissle(2,"Homing")
+	playerWombat:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerWombat:weaponTubeAllowMissle(3,"EMP")
+	playerWombat:weaponTubeAllowMissle(3,"Nuke")
+	playerWombat:setWeaponTubeExclusiveFor(4,"Mine")
+	playerWombat:setWeaponStorageMax("Mine",2)				--more (vs 0)
+	playerWombat:setWeaponStorage("Mine", 2)				
+	playerWombat:setWeaponStorageMax("EMP",2)				--more (vs 0)
+	playerWombat:setWeaponStorage("EMP", 2)				
+	playerWombat:setWeaponStorageMax("Nuke",1)				--more (vs 0)
+	playerWombat:setWeaponStorage("Nuke", 1)				
+	playerWombat:setWeaponStorageMax("HVLI",15)				--more (vs 12)	
+	playerWombat:setWeaponStorage("HVLI", 15)				
+	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
+	playerWombat:setWeaponStorage("Homing", 8)				
+	playerShipSpawned("Devon")
+end
+
+function playerShipSpawned(shipName)
+	for shipNum = 1, #playerShipInfo do
+		if playerShipInfo[shipNum][1] == shipName then
+			if playerShipInfo[shipNum][2] == "active" then
+				playerShipInfo[shipNum][2] = "inactive"
+				activePlayerShip()
+				return
+			else
+				inactivePlayerShip()
+				return
+			end
+		end
+	end
+end
+----------------------------
+--	Spawn Fleet > Exuari  --
+----------------------------
+-- Select faction for fleet being spawned. Button for each faction. Asterisk = current choice
 function setGMFleetFaction()
 	clearGMFunctions()
 	--addGMFunction("-Main from Flt Fctn",initialGMFunctions)
@@ -3575,7 +4399,18 @@ function setGMFleetFaction()
 		spawnGMFleet()
 	end)
 end
---Fleet strength
+---------------------------------------------
+--  Spawn Fleet > Relative Fleet Strength  --
+---------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM REL STR	F	initialGMFunctions
+-- -FLEET SPAWN			F	spawnGMFleet		
+-- .5					*	inline
+-- 1*					*	inline		asterisk = current selection
+-- 2					*	inline
+-- 3					*	inline
+-- 4					*	inline
+-- 5					*	inline
 function setGMFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Rel Str",initialGMFunctions)
@@ -3630,6 +4465,15 @@ function setGMFleetStrength()
 	end)
 	fleetStrengthFixed = false
 end
+----------------------------------------
+--	Spawn Fleet > Set Fixed Strength  --
+----------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM FIX STR	F	initialGMFunctions
+-- -FLEET SPAWN			F	spawnGMFleet
+-- -FIXED STRENGTH 250	D	spawnGMFleet
+-- 250 - 50 = 200		D	inline
+-- 250 + 50 = 250		D	inline
 function setFixedFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Fix Str",initialGMFunctions)
@@ -3649,7 +4493,20 @@ function setFixedFleetStrength()
 	end	
 	fleetStrengthFixed = true
 end
---Fleet Composition
+------------------------------------------------
+--	Spawn Fleet > Random (Fleet Composition)  --
+------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM COMPOSITION	F	spawnGMFleet
+-- RANDOM*				*	inline		asterisk = current selection
+-- FIGHTERS				*	inline
+-- CHASERS				*	inline
+-- FRIGATES				*	inline
+-- BEAMERS				*	inline
+-- MISSILERS			*	inline
+-- ADDERS				*	inline
+-- NON-DB				*	inline
+-- DRONES				*	inline
 function setFleetComposition()
 	clearGMFunctions()
 	addGMFunction("-From composition",spawnGMFleet)
@@ -3726,7 +4583,19 @@ function setFleetComposition()
 		setFleetComposition()
 	end)		
 end
---Fleet change
+------------------------------------------------------------------
+--	Spawn Fleet > Unmodified (Random Tweaking or Fleet Change)  --
+------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM FLT CHNG	F	initialGMFunctions
+-- -FLEET SPAWN			F	spawnGMFleet
+-- UNMODIFIED*			*	inline		asterisk = current selection
+-- IMPROVED				*	inline
+-- DEGRADED				*	inline
+-- TINKERED				*	inline
+-- CHANGE CHANCE: 20	D	inline
+-- SET TO 10			D	inline
+-- SET TO 30			D	inline
 function setFleetChange()
 	clearGMFunctions()
 	addGMFunction("-Main from Flt Chng",initialGMFunctions)
@@ -3839,7 +4708,15 @@ function setFleetChange()
 		end
 	end
 end
---Fleet orders when spawned
+------------------------------------------------------
+--	Spawn Fleet > Idle (Fleet Orders When Spawned)  --
+------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM FLT ORD	F	initialGMFunctions
+-- -FLEET SPAWN			F	spawnGMFleet
+-- ROAMING				*	inline
+-- IDLE*				*	inline		asterisk = current selection
+-- STAND GROUND			*	inline
 function setFleetOrders()
 	clearGMFunctions()
 	addGMFunction("-Main from Flt Ord",initialGMFunctions)
@@ -3869,7 +4746,18 @@ function setFleetOrders()
 		setFleetOrders()
 	end)
 end
---Fleet spawn location
+-------------------------------------------------
+--	Spawn Fleet > Away (Fleet Spawn Location)  --
+-------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM FLT LOCTN		F	initialGMFunctions
+-- -FLEET SPAWN				F	spawnGMFleet
+-- AT SELECTION				*	inline
+-- SENSOR EDGE				*	inline 
+-- BEYOND SENSORS			*	inline
+-- +RANDOM DIRECTION		D	setFleetSpawnRelativeDirection (button only appears for SENSOR EDGE and BEYOND SENSORS selections)
+-- +AWAY*					D*	setSpawnLocationAway
+-- +AMBUSH 5				D*	inline, setFleetAmbushDistance
 function setFleetSpawnLocation()
 	clearGMFunctions()
 	addGMFunction("-Main from Flt Loctn",initialGMFunctions)
@@ -3898,14 +4786,6 @@ function setFleetSpawnLocation()
 		fleetSpawnLocation = "Beyond Sensors"
 		setFleetSpawnLocation()
 	end)
-	local GMSetSpawnLocationAmbush = string.format("Ambush %i",fleetAmbushDistance) 
-	if fleetSpawnLocation == "Ambush" then
-		GMSetSpawnLocationAmbush = string.format("Ambush* %i",fleetAmbushDistance)
-	end
-	addGMFunction(string.format("+%s",GMSetSpawnLocationAmbush),function()
-		fleetSpawnLocation = "Ambush"
-		setFleetAmbushDistance()
-	end)
 	if fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" then
 		addGMFunction(string.format("+%s",fleetSpawnRelativeDirection),setFleetSpawnRelativeDirection)
 	end
@@ -3914,7 +4794,25 @@ function setFleetSpawnLocation()
 		GMSetSpawnLocationAway = fleetSpawnLocation .. "*"
 	end
 	addGMFunction(string.format("+%s",GMSetSpawnLocationAway),setSpawnLocationAway)
+	local GMSetSpawnLocationAmbush = string.format("Ambush %i",fleetAmbushDistance) 
+	if fleetSpawnLocation == "Ambush" then
+		GMSetSpawnLocationAmbush = string.format("Ambush* %i",fleetAmbushDistance)
+	end
+	addGMFunction(string.format("+%s",GMSetSpawnLocationAmbush),function()
+		fleetSpawnLocation = "Ambush"
+		setFleetAmbushDistance()
+	end)
 end
+--------------------------------------------------------
+--	Spawn Fleet > Ambush (Set Fleet Ambush Distance)  --
+--------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM AMBUSH DIST  	F	setFleetSpawnLocation
+-- 3					*	inline
+-- 4					*	inline
+-- 5*					*	inline		asterisk = current selection
+-- 6					*	inline
+-- 7					*	inline
 function setFleetAmbushDistance()
 	clearGMFunctions()
 	addGMFunction("-From Ambush Dist",setFleetSpawnLocation)
@@ -3959,7 +4857,20 @@ function setFleetAmbushDistance()
 		setFleetAmbushDistance()
 	end)
 end
---Fleet spawn relative direction from player
+-----------------------------------------------------------------------------------------------------------------
+--	Spawn Fleet > Away (Fleet Spawn Location) > Random Direction (Fleet Spawn Relative Direction From Player)  --
+-----------------------------------------------------------------------------------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -FROM SPWN DIRECTION		F	setFleetSpawnLocation
+-- RANDOM DIRECTION*		*	inline		asterisk = current selection
+-- 0						*	inline
+-- 45						*	inline
+-- 90						*	inline
+-- 135						*	inline
+-- 180						*	inline
+-- 225						*	inline
+-- 270						*	inline
+-- 315						*	inline
 function setFleetSpawnRelativeDirection()
 	clearGMFunctions()
 	addGMFunction("-From Spwn Direction",setFleetSpawnLocation)
@@ -4036,7 +4947,15 @@ function setFleetSpawnRelativeDirection()
 		setFleetSpawnRelativeDirection()
 	end)
 end
---Fleet spawn at a location away from GM selection
+---------------------------------------------------------------------------------------------------
+--	Spawn Fleet > Away (Fleet Spawn Location) > Away (Set Spawn Location Away from GM Selection) --
+---------------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM SPWN AWY	F	initialGMFunctions
+-- -FLEET SPAWN			F	spawnGMFleet
+-- -FROM SPAWN AWAY		F	setFleetSpawnLocation
+-- +90 DEGREES			D	setFleetSpawnAwayDirection
+-- +60U					D	setFleetSpawnAwayDistance
 function setSpawnLocationAway()
 	clearGMFunctions()
 	addGMFunction("-Main from Spwn Awy",initialGMFunctions)
@@ -4048,6 +4967,20 @@ function setSpawnLocationAway()
 	addGMFunction(string.format("+%s",GMSetFleetSpawnAwayDistance),setFleetSpawnAwayDistance)
 	fleetSpawnLocation = string.format("%s Deg Away %iU",fleetSpawnAwayDirection,fleetSpawnAwayDistance)
 end
+-------------------------------------------------------------------------------------------------
+--	Spawn Fleet > Away > Away > 90 Degrees (Set Fleet Spawn Away Direction From GM Selection)  --
+-------------------------------------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -SPAWN AWAY		F	setSpawnLocationAway
+-- RANDOM			*	inline
+-- 0				*	inline
+-- 45				*	inline
+-- 90*				*	inline		asterisk = current selection
+-- 135				*	inline
+-- 180				*	inline
+-- 225				*	inline
+-- 270				*	inline
+-- 315				*	inline
 function setFleetSpawnAwayDirection()
 	clearGMFunctions()
 	addGMFunction("-Spawn Away",setSpawnLocationAway)
@@ -4124,6 +5057,18 @@ function setFleetSpawnAwayDirection()
 		setFleetSpawnAwayDirection()
 	end)
 end
+----------------------------------------------------------------------------------------
+--	Spawn Fleet > Away > Away > 60U (Set Fleet Spawn Away Distance From GM Selection) --
+----------------------------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -SPAWN AWAY		F	setSpawnLocationAway
+-- 5U				*	inline
+-- 10U				*	inline
+-- 20U				*	inline
+-- 30U				*	inline
+-- 40U				*	inline
+-- 50U				*	inline
+-- 60U*				*	inline		asterisk = current selection
 function setFleetSpawnAwayDistance()
 	clearGMFunctions()
 	addGMFunction("-Spawn Away",setSpawnLocationAway)
@@ -4184,7 +5129,9 @@ function setFleetSpawnAwayDistance()
 		setFleetSpawnAwayDistance()
 	end)
 end
---Spawn fleet based on parameters
+---------------------------------------
+--	Spawn fleet based on parameters  --
+---------------------------------------
 function centerOfSelected(objectList)
 	local xSum = 0
 	local ySum = 0
@@ -4541,7 +5488,9 @@ function modifiedValue()
 	end
 	return modValue
 end
---additional enemy ships with some modifications from the original template parameters
+--------------------------------------------------------------------------------------------
+--	Additional enemy ships with some modifications from the original template parameters  --
+--------------------------------------------------------------------------------------------
 function adderMk3(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK4"):orderRoaming()
 	ship:setTypeName("Adder MK3")
@@ -4711,333 +5660,11 @@ function droneJacket(enemyFaction)
 	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
 	return ship
 end
--------------------
---	Order fleet  --
--------------------
-function orderFleet()
-	clearGMFunctions()
-	addGMFunction("-Main from Order Flt",initialGMFunctions)
-	local select_fleet_label = "Select Fleet"
-	if selected_fleet_representative ~= nil and selected_fleet_representative:isValid() then
-		if selected_fleet_index ~= nil and fleetList[selected_fleet_index] ~= nil then
-			local fl = fleetList[selected_fleet_index]
-			if fl ~= nil then
-				if selected_fleet_representative_index ~= nil then
-					if selected_fleet_representative == fl[selected_fleet_representative_index] then
-						select_fleet_label = string.format("%i %s",selected_fleet_index,selected_fleet_representative:getCallSign())
-					end
-				end
-			end
-		end
-	end
-	addGMFunction(string.format("+%s",select_fleet_label),selectOrderFleet)
-	if select_fleet_label ~= "Select Fleet" then
-		addGMFunction(string.format("+%s",existing_fleet_order),changeFleetOrder)
-		addGMFunction("Give Order To Fleet",function()
-			if existing_fleet_order == "Idle" then
-				for _, fm in pairs(fleetList[selected_fleet_index]) do
-					if fm ~= nil and fm:isValid() then
-						fm:orderIdle()
-					end
-				end
-				addGMMessage(string.format("Fleet %i which includes %s has been ordered to go idle",selected_fleet_index,selected_fleet_representative:getCallSign()))
-			end
-			if existing_fleet_order == "Roaming" then
-				for _, fm in pairs(fleetList[selected_fleet_index]) do
-					if fm ~= nil and fm:isValid() then
-						fm:orderRoaming()
-					end
-				end	
-				addGMMessage(string.format("Fleet %i which includes %s has been ordered to roam",selected_fleet_index,selected_fleet_representative:getCallSign()))
-			end			
-			if existing_fleet_order == "Stand Ground" then
-				for _, fm in pairs(fleetList[selected_fleet_index]) do
-					if fm ~= nil and fm:isValid() then
-						fm:orderStandGround()
-					end
-				end	
-			end			
-			if existing_fleet_order == "Attack" then
-				local objectList = getGMSelection()
-				if #objectList ~= 1 then
-					addGMMessage("Need to select a target for fleet to attack")
-				else
-					local fto = fleetList[selected_fleet_index]
-					for _, fm in pairs(fto) do
-						if fm ~= nil and fm:isValid() then
-							fm:orderAttack(objectList[1])
-						end
-					end
-					addGMMessage(string.format("Fleet %i which includes %s has been ordered to attack",selected_fleet_index,selected_fleet_representative:getCallSign()))		
-				end
-			end			
-			if existing_fleet_order == "Defend" then
-				local objectList = getGMSelection()
-				if #objectList ~= 1 then
-					addGMMessage("Need to select a target for fleet to defend")
-				else
-					local fto = fleetList[selected_fleet_index]
-					for _, fm in pairs(fto) do
-						if fm ~= nil and fm:isValid() then
-							fm:orderDefendTarget(objectList[1])
-						end
-					end
-					addGMMessage(string.format("Fleet %i which includes %s has been ordered to defend",selected_fleet_index,selected_fleet_representative:getCallSign()))
-				end
-			end			
-			if existing_fleet_order == "Fly To" then
-				local flyx = 0
-				local flyy = 0
-				local objectList = getGMSelection()
-				if #objectList < 1 then
-					addGMMessage("Need to select a target for fleet to fly to")
-				else
-					if #objectList == 1 then
-						flyx, flyy = objectList[1]:getPosition()
-					else
-						flyx, flyy = centerOfSelected(objectList)
-					end
-					local fto = fleetList[selected_fleet_index]
-					for _, fm in pairs(fto) do
-						if fm ~= nil and fm:isValid() then
-							fm:orderFlyTowards(flyx,flyy)
-						end
-					end
-					addGMMessage(string.format("Fleet %i which includes %s has been ordered to fly towards %.1f, %.1f",selected_fleet_index,selected_fleet_representative:getCallSign(),flyx,flyy))
-				end
-			end			
-			if existing_fleet_order == "Fly Blindly To" then
-				local flyx = 0
-				local flyy = 0
-				local objectList = getGMSelection()
-				if #objectList < 1 then
-					addGMMessage("Need to select a target for fleet to fly blindly to")
-				else
-					if #objectList == 1 then
-						flyx, flyy = objectList[1]:getPosition()
-					else
-						flyx, flyy = centerOfSelected(objectList)
-					end
-					local fto = fleetList[selected_fleet_index]
-					for _, fm in pairs(fto) do
-						if fm ~= nil and fm:isValid() then
-							fm:orderFlyTowardsBlind(flyx,flyy)
-						end
-					end
-					addGMMessage(string.format("Fleet %i which includes %s has been ordered to fly blindly towards %.1f, %.1f",selected_fleet_index,selected_fleet_representative:getCallSign(),flyx,flyy))
-				end
-			end
-			if existing_fleet_order == "Dock" then
-				local objectList = getGMSelection()
-				if #objectList ~= 1 then
-					addGMMessage("Need to select a target for fleet to dock")
-				else
-					local fto = fleetList[selected_fleet_index]
-					for _, fm in pairs(fto) do
-						if fm ~= nil and fm:isValid() then
-							fm:orderDock(objectList[1])
-						end
-					end
-					addGMMessage(string.format("Fleet %i which includes %s has been ordered to dock",selected_fleet_index,selected_fleet_representative:getCallSign()))
-				end
-			end
-			if existing_fleet_order == "Fly Formation" then
-				if formation_lead == nil then
-					addGMMessage("choose a formation lead. no action taken")
-					return
-				end
-				local fto = fleetList[selected_fleet_index]
-				local found_formation_lead = false
-				for _, fm in pairs(fto) do
-					if fm == formation_lead then
-						found_formation_lead = true
-					end
-				end
-				if found_formation_lead then
-					--Note: Formation only works when I force them all to be facing 0
-					--      Unsuccessful at generalization to any angle. May try again later
-					local formation_heading = 0
-					formation_lead:setHeading(formation_heading)
-					local formation_rotation = -90
-					formation_lead:setRotation(formation_rotation)
-					local fx, fy = formation_lead:getPosition()
-					local formation_spacing_increment = 1000
-					local formation_spacing = 0
-					local position_index = 1
-					if formation_type == "V" then
-						local first_v_leg_place = formation_rotation + 120
-						local first_v_leg_fly = formation_heading + 120
-						if first_v_leg_place > 360 then
-							first_v_leg_place = first_v_leg_place - 360
-						end
-						if first_v_leg_fly > 360 then
-							first_v_leg_fly = first_v_leg_fly - 360
-						end
-						local second_v_leg_place = formation_rotation + 240
-						local second_v_leg_fly = formation_heading + 240
-						if second_v_leg_place > 360 then
-							second_v_leg_place = second_v_leg_place - 360
-						end
-						if second_v_leg_fly > 360 then
-							second_v_leg_fly = second_v_leg_fly - 360
-						end
-						--print("formation_heading: " .. formation_heading)
-						--print("formation_rotation: " .. formation_rotation)
-						--print("first_v_leg_place: " .. first_v_leg_place)
-						--print("second_v_leg_place: " .. second_v_leg_place)
-						--print(string.format("fx: %.1f, fy: %.1f",fx,fy))
-						for _, fm in pairs(fto) do
-							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
-								fm:setHeading(formation_heading)
-								fm:setRotation(formation_rotation)
-								local rpx = nil
-								local rpy = nil
-								local fpx = nil
-								local fpy = nil
-								if position_index % 2 ~= 0 then
-									formation_spacing = formation_spacing + formation_spacing_increment
-									rpx, rpy = vectorFromAngle(first_v_leg_place,formation_spacing)
-									fpx, fpy = vectorFromAngle(first_v_leg_fly,formation_spacing)
-								else
-									rpx, rpy = vectorFromAngle(second_v_leg_place,formation_spacing)
-									fpx, fpy = vectorFromAngle(second_v_leg_fly,formation_spacing)
-								end--
-								--print(string.format("rpx: %.1f, rpy: %.1f",rpx,rpy))
-								--print(string.format("fx+rpx: %.1f, fy+rpy: %.1f",fx+rpx,fy+rpy))
-								fm:setPosition(fx+rpx,fy+rpy)
-								fm:orderFlyFormation(formation_lead,fpx,fpy)
-								position_index = position_index + 1
-							end
-						end
-					elseif formation_type == "A" then
-						local first_A_leg_place = formation_rotation + 60
-						local first_A_leg_fly = formation_heading + 60
-						if first_A_leg_place > 360 then
-							first_A_leg_place = first_A_leg_place - 360
-						end
-						if first_A_leg_fly > 360 then
-							first_A_leg_fly = first_A_leg_fly - 360
-						end
-						local second_A_leg_place = formation_rotation + 300
-						local second_A_leg_fly = formation_heading + 300
-						if second_A_leg_place > 360 then
-							second_A_leg_place = second_A_leg_place - 360
-						end
-						if second_A_leg_fly > 360 then
-							second_A_leg_fly = second_A_leg_fly - 360
-						end
-						for _, fm in pairs(fto) do
-							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
-								fm:setHeading(formation_heading)
-								fm:setRotation(formation_rotation)
-								local rpx = nil
-								local rpy = nil
-								local fpx = nil
-								local fpy = nil
-								if position_index % 2 ~= 0 then
-									formation_spacing = formation_spacing + formation_spacing_increment
-									rpx, rpy = vectorFromAngle(first_A_leg_place,formation_spacing)
-									fpx, fpy = vectorFromAngle(first_A_leg_fly,formation_spacing)
-								else
-									rpx, rpy = vectorFromAngle(second_A_leg_place,formation_spacing)
-									fpx, fpy = vectorFromAngle(second_A_leg_fly,formation_spacing)
-								end--
-								fm:setPosition(fx+rpx,fy+rpy)
-								fm:orderFlyFormation(formation_lead,fpx,fpy)
-								position_index = position_index + 1
-							end
-						end
-					elseif formation_type == "circle" then
-						local placement_angle = 30
-						local circle_top_place = formation_rotation + placement_angle
-						local circle_top_fly = formation_heading + placement_angle
-						if circle_top_place > 360 then
-							circle_top_place = circle_top_place - 360
-						end
-						if circle_top_fly > 360 then
-							circle_top_fly = circle_top_fly - 360
-						end
-						local circle_count = 0
-						for _, fm in pairs(fto) do
-							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
-								circle_count = circle_count + 1
-							end
-						end
-						local circle_radius = 1500
-						if circle_count > 0 then
-							local angle_increment = 360/circle_count
-							for _, fm in pairs(fto) do
-								if fm ~= nil and fm:isValid() and fm ~= formation_lead then
-									fm:setHeading(formation_heading)
-									fm:setRotation(formation_rotation)
-									rpx, rpy = vectorFromAngle(circle_top_place,circle_radius)
-									fpx, fpy = vectorFromAngle(circle_top_fly,circle_radius)
-									fm:setPosition(fx+rpx,fy+rpy)
-									fm:orderFlyFormation(formation_lead,fpx,fpy)
-									circle_top_place = circle_top_place + angle_increment
-									if circle_top_place > 360 then
-										circle_top_place = circle_top_place - 360
-									end
-									circle_top_fly = circle_top_fly + angle_increment
-									if circle_top_fly > 360 then
-										circle_top_fly = circle_top_fly - 360
-									end
-								end
-							end
-						end
-					elseif formation_type == "square" then
-						local corner_spot = 1
-						local edge_spot = 1
-						local layer_count = 1
-						local square_spacing = 1000
-						local corner_x = {1,-1,1,-1}
-						local corner_y = {1,-1,-1,1}
-						local edge_x = {0,0,1,-1}
-						local edge_y = {1,-1,0,0}
-						local fly_corner_x = {-1,1,1,-1}
-						local fly_corner_y = {1,-1,1,-1}
-						local fly_edge_x = {-1,1,0,0}
-						local fly_edge_y = {0,0,-1,1}
-						for _, fm in pairs(fto) do
-							if fm ~= nil and fm:isValid() and fm ~= formation_lead then
-								fm:setHeading(formation_heading)
-								fm:setRotation(formation_rotation)
-								if corner_spot <= 4 then
-									fm:setPosition(fx+layer_count*square_spacing*corner_x[corner_spot],fy+layer_count*square_spacing*corner_y[corner_spot])
-									fm:orderFlyFormation(formation_lead,layer_count*square_spacing*fly_corner_x[corner_spot],layer_count*square_spacing*fly_corner_y[corner_spot])
-									corner_spot = corner_spot + 1
-								elseif edge_spot <= 4 then
-									fm:setPosition(fx+layer_count*square_spacing*edge_x[edge_spot],fy+layer_count*square_spacing*edge_y[edge_spot])
-									fm:orderFlyFormation(formation_lead,layer_count*square_spacing*fly_edge_x[edge_spot],layer_count*square_spacing*fly_edge_y[edge_spot])
-									edge_spot = edge_spot + 1
-								else
-									corner_spot = 1
-									edge_spot = 1
-									layer_count = layer_count + 1
-								end
-							end
-						end
-					else
-						addGMMessage("formation type unrecognized. no action taken")
-					end
-				else
-					addGMMessage("formation lead not in fleet. no action taken")
-				end
-			end
-		end)
-	end
-	
---	addGMFunction("Idle",orderFleetIdle)
---	addGMFunction("Roaming",orderFleetRoaming)
---	addGMFunction("Stand Ground",orderFleetStandGround)
---	addGMFunction("Attack",orderFleetAttack)
---	addGMFunction("Defend",orderFleetDefend)
---	addGMFunction("Fly To",orderFleetFly)
---	addGMFunction("Fly Blindly To",orderFleetFlyBlind)
---	addGMFunction("Dock",orderFleetDock)
---	addGMFunction("Fly Formation",orderFleetFlyFormation)
-	addGMFunction("+Reorganize Fleet",orderFleetChange)
-end
+------------------------------------------------------------------
+--	Order Fleet > Select Fleet (Select Fleet To Give Order To)  --
+------------------------------------------------------------------
+-- -ORDER FLEET		F	orderFleet
+-- Button for each fleet, numbered and with a representative ship name
 function selectOrderFleet()
 	clearGMFunctions()
 	addGMFunction("-Order Fleet",orderFleet)
@@ -5064,6 +5691,19 @@ function selectOrderFleet()
 		end
 	end
 end
+------------------------------------------------------------
+--	Order Fleet > Roaming (Set Order For Selected Fleet)  --
+------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- ROAMING*			*	inline, orderFleet		asterisk = current selection
+-- IDLE 			*	inline, orderFleet		
+-- STAND GROUND		*	inline, orderFleet
+-- ATTACK			*	inline, orderFleet
+-- DEFEND			*	inline, orderFleet
+-- FLY TO			*	inline, orderFleet
+-- FLY BLINDLY TO	*	inline, orderFleet
+-- DOCK				*	inline, orderFleet
+-- +FLY FORMATION	*	inline, orderFlyFormation
 function changeFleetOrder()
 	clearGMFunctions()
 	--addGMFunction("-Order Fleet",orderFleet)
@@ -5137,6 +5777,14 @@ function changeFleetOrder()
 	end
 	addGMFunction(string.format("+%s",order_fly_formation),flyFormationParameters)
 end
+----------------------------------------------------------------------------
+--	Order Fleet > Roaming (Set Order For Selected Fleet) > Fly Formation  --
+----------------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -ORDER FLEET		F	orderFleet
+-- +FORMATION V		D	changeFormation
+-- +LEAD shipname	D	changeFormationLead
 function flyFormationParameters()
 	existing_fleet_order = "Fly Formation"
 	if formation_type == nil then
@@ -5149,11 +5797,19 @@ function flyFormationParameters()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Order Fleet",orderFleet)
-	addGMFunction(string.format("Formation %s",formation_type),changeFormation)
+	addGMFunction(string.format("+Formation %s",formation_type),changeFormation)
 	if formation_lead ~= nil then
-		addGMFunction(string.format("Lead %s",formation_lead:getCallSign()),changeFormationLead)
+		addGMFunction(string.format("+Lead %s",formation_lead:getCallSign()),changeFormationLead)
 	end
 end
+----------------------------------------------------------------------------------------
+--	Order Fleet > Roaming (Set Order For Selected Fleet) > Fly Formation > Formation  --
+----------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- FORMATION V*			*	inline, flyFormationParameters		asterisk = current selection
+-- FORMATION A			*	inline, flyFormationParameters
+-- FORMATION CIRCLE		*	inline, flyFormationParameters
+-- FORMATION SQUARE		*	inline, flyFormationParameters
 function changeFormation()
 	clearGMFunctions()
 	local formation_v = "V"
@@ -5189,6 +5845,10 @@ function changeFormation()
 		flyFormationParameters()
 	end)
 end
+----------------------------------------------------------------------------------------
+--	Order Fleet > Roaming (Set Order For Selected Fleet) > Fly Formation > Lead Ship  --
+----------------------------------------------------------------------------------------
+-- Button for each ship in the selected fleet including ship name.
 function changeFormationLead()
 	clearGMFunctions()
 	if fleetList ~= nil and #fleetList > 0 then
@@ -5222,13 +5882,10 @@ function changeFormationLead()
 		addGMMessage("No fleets spawned")
 	end
 end
-function orderFleetFlyFormation()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Order Fleet",orderFleet)
-	addGMMessage("incomplete function. Need to complete later")
-end
---New Fleet
+------------------------------------------------------------------------------------------------------
+--	Order Fleet > Reorganize Fleet (Take Elements From Existing Fleets and Combine Into New Fleet)  --
+------------------------------------------------------------------------------------------------------
+-- Incomplete 
 function orderFleetChange()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -6047,69 +6704,31 @@ function orderFleetDock8()
 		end
 	end
 end
-------------------
---	Order Ship  --
-------------------
-function orderShip()
-	clearGMFunctions()
-	addGMFunction("-Main from order ship",initialGMFunctions)
-	if jammer_range > 5000 then
-		addGMFunction(string.format("Jam range %i - %i = %iU",jammer_range/1000,5,(jammer_range-5000)/1000),function()
-			jammer_range = jammer_range - 5000
-			orderShip()
-		end)
-	end
-	if jammer_range < 50000 then
-		addGMFunction(string.format("Jam range %i + %i = %iU",jammer_range/1000,5,(jammer_range+5000)/1000),function()
-			jammer_range = jammer_range + 5000
-			orderShip()
-		end)
-	end
-	addGMFunction(string.format("Drop Jammer %iU",jammer_range/1000),dropJammer)
-end
-function dropJammer()
-	local object_list = getGMSelection()
-	if #object_list < 1 then
-		addGMMessage("Jammer drop failed - nothing selected for location determination") 
-		return
-	end
-	local selected_matches_npc_ship = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		if current_selected_object.typeName == "CpuShip" then
-			local csox, csoy = current_selected_object:getPosition()
-			local vx, vy = vectorFromAngle(current_selected_object:getHeading()+90,500)
-			WarpJammer():setRange(jammer_range):setPosition(csox+vx,csoy+vy):setFaction(current_selected_object:getFaction())
-		end
-	end
-end
--------------------
---	Drop Points  --
--------------------
-function dropPoint()
-	clearGMFunctions()
-	addGMFunction("-Main from Drop Pnt",initialGMFunctions)
-	addGMFunction("+Escape Pod",setEscapePod)
-	addGMFunction("+Marine Point",setMarinePoint)
-	addGMFunction("+Engineer Point",setEngineerPoint)
-	addGMFunction("+Medical Team Point",setMedicPoint)
-	addGMFunction("+Custom Supply",setCustomSupply)
-	--Default supply drop gives:
-	--500 energy
-	--4 Homing
-	--1 Nuke
-	--2 Mines
-	--1 EMP
-end
---   ***   Escape Pod   ***
+-------------------------------
+--	Drop Point > Escape Pod  --
+-------------------------------
+-- Button Text		   DF*	Related Function(s)
+-- -MAIN FROM ESC POD	F	initialGMFunctions
+-- -FROM ESCAPE POD		F	dropPoint
+-- (+)ASSOCIATED		F	podAssociatedTo (selection determines association or activation of submenus)
+-- +NEAR TO				F	podNearTo
 function setEscapePod()
 	clearGMFunctions()
 	addGMFunction("-Main from Esc Pod",initialGMFunctions)
 	addGMFunction("-From Escape Pod",dropPoint)
-	addGMFunction("Associated",podAssociatedTo)
+	addGMFunction("(+)Associated",podAssociatedTo)
 	addGMFunction("+Near to",podNearTo)
 end
+--------------------------------------------
+--	Drop Point > Escape Pod > Associated  --
+--------------------------------------------
 --Create escape pod associated to selected object
+--If selected object is a black hole, add these two buttons
+-- NEAR RADIUS BUT SAFE		F	nearButSafe
+-- EDGE BUT IN DANGER		F	edgeButDanger
+--If selected object is a wormhole, add these two buttons
+-- NEAR RADIUS BUT OUTSIDE	F	nearButOutside
+-- EDGE BUT INSIDE			F	edgeButInside
 function podAssociatedTo()
 	local objectList = getGMSelection()
 	if #objectList ~= 1 then
@@ -6121,7 +6740,6 @@ function podAssociatedTo()
 	local podDistance = associatedTypeDistance[tempType]
 	if podDistance == nil then
 		addGMMessage(tempType .. ": not type which can be associated")
-		--print(tempType .. ": not type which can be associated")
 		return
 	end
 	local aox, aoy = tempObject:getPosition()
@@ -6229,7 +6847,18 @@ function podPickupProcess(self,retriever)
 		end
 	end
 end
+-----------------------------------------
+--	Drop Point > Escape Pod > Near To  --
+-----------------------------------------
 --Create escape pod near to selected object(s)
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM NEAR TO		F	initialGMFunctions
+-- -DROP POINT				F	dropPoint
+-- -SET ESCAPE POD			F	setEscapePod
+-- Up to 3 buttons of nearby CpuShips for association
+-- +90 DEGREES				D	setCreateDirection
+-- +30 UNITS				D	setCreateDistance
+-- CREATE AT 90 DEG, 30U	D	createPodAway
 function podNearTo()
 	clearGMFunctions()
 	addGMFunction("-Main from Near To",initialGMFunctions)
@@ -6283,7 +6912,40 @@ function podNearTo()
 	local GMCreatePodAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreatePodAway,createPodAway)
 end
---Near to distance
+--Associate to CpuShip since they cannot be part of GM selection in this context
+function podAssociatedToCpuShip1()
+	podAssociatedToGivenCpuShip(cpuShipList[1])
+end
+function podAssociatedToCpuShip2()
+	podAssociatedToGivenCpuShip(cpuShipList[2])
+end
+function podAssociatedToCpuShip3()
+	podAssociatedToGivenCpuShip(cpuShipList[3])
+end
+function podAssociatedToGivenCpuShip(tempObject)
+	local podDistance = associatedTypeDistance["CpuShip"]
+	local aox, aoy = tempObject:getPosition()
+	local tempShipType = tempObject:getTypeName()
+	local csd = shipTemplateDistance[tempShipType]
+	if csd ~= nil then
+		podDistance = csd
+	end
+	local sox, soy = vectorFromAngle(random(0,360),podDistance)
+	podCreation(aox, aoy, sox, soy)
+end
+----------------------------------------------------------------------------------------------------------
+--	Drop Point > Escape Pod (or other drop point type) > Near To > +30 Units (Set Pod Create Distance)  --
+----------------------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM CREATE DIST	F	callingNearTo (set prior to invocation)
+-- .5U					*	inline, setCreateDistanceHalf
+-- 1U					*	inline, setCreateDistance1
+-- 2U					*	inline, setCreateDistance2
+-- 3U					*	inline, setCreateDistance3
+-- 5U					*	inline, setCreateDistance5
+-- 10U					*	inline, setCreateDistance10
+-- 20U					*	inline, setCreateDistance20
+-- 30U*					*	inline, setCreateDistance30		asterisk = current selection		
 function setCreateDistance()
 	clearGMFunctions()
 	addGMFunction("-From Create Dist",callingNearTo)
@@ -6368,7 +7030,19 @@ function setCreateDistance30()
 	createDistance = 30
 	setCreateDistance()
 end
---Near to direction
+-------------------------------------------------------------------------------------------------------------
+--	Drop Point > Escape Pod (or other drop point type) > Near To > +90 Degrees (Set Pod Create Direction)  --
+-------------------------------------------------------------------------------------------------------------
+-- Button Text		   DF*	Related Function(s)
+-- -FROM CREATE DIR		F	callingNearTo (set prior to invocation)
+-- 0					*	inline, setCreateDirection0
+-- 45					*	inline, setCreateDirection45
+-- 90*					*	inline, setCreateDirection90		asterisk = current selection
+-- 135					*	inline, setCreateDirection135
+-- 180					*	inline, setCreateDirection180
+-- 225					*	inline, setCreateDirection225
+-- 270					*	inline, setCreateDirection270
+-- 315					*	inline, setCreateDirection315
 function setCreateDirection()
 	clearGMFunctions()
 	addGMFunction("-From Create Dir",callingNearTo)
@@ -6445,27 +7119,6 @@ function setCreateDirection315()
 	createDirection = 315
 	setCreateDirection()
 end
---Associate to CpuShip since they cannot be part of GM selection in this context
-function podAssociatedToCpuShip1()
-	podAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function podAssociatedToCpuShip2()
-	podAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function podAssociatedToCpuShip3()
-	podAssociatedToGivenCpuShip(cpuShipList[3])
-end
-function podAssociatedToGivenCpuShip(tempObject)
-	local podDistance = associatedTypeDistance["CpuShip"]
-	local aox, aoy = tempObject:getPosition()
-	local tempShipType = tempObject:getTypeName()
-	local csd = shipTemplateDistance[tempShipType]
-	if csd ~= nil then
-		podDistance = csd
-	end
-	local sox, soy = vectorFromAngle(random(0,360),podDistance)
-	podCreation(aox, aoy, sox, soy)
-end
 --Pod creation after distance and direction parameters set
 function createPodAway()
 	local angle = createDirection + 270
@@ -6509,7 +7162,16 @@ function podCreation(originx, originy, vectorx, vectory)
 		end
 	end
 end
---   ***   Marine point   ***
+---------------------------------
+--	Drop Point > Marine Point  --
+---------------------------------
+-- Button Text		   DF*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -FROM MARINE POINT	F	dropPoint
+-- DROP MARINES*		*	setDropAction		asterisk = current selection
+-- EXTRACT MARINES		*	setExtractAction
+-- ASSOCIATED			F	marineAssociatedTo
+-- +NEAR TO				F	marineNearTo
 function setMarinePoint()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -6675,7 +7337,18 @@ function marinePointPickupProcess(self,retriever)
 		end
 	end
 end
+-------------------------------------------
+--	Drop Point > Marine Point > Near To  --
+-------------------------------------------
 --Create marine point near to selected object(s)
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -DROP POINT				F	dropPoint
+-- -FROM NEAR TO			F	setMarinePoint
+-- Up to 3 buttons of nearby CpuShips for association
+-- +90 DEGREES				D	setCreateDirection
+-- +30 UNITS				D	setCreateDistance
+-- CREATE AT 90 DEG, 30U	D	createMarineAway
 function marineNearTo()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -6758,7 +7431,16 @@ function createMarineAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	marineCreation(nearx, neary, sox, soy)
 end
---   ***   Engineer point   ***
+-----------------------------------
+--	Drop Point > Engineer Point  --
+-----------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -FROM ENGINEER POINT		F	dropPoint
+-- DROP ENGINEERS*			*	setDropAction		asterisk = current selection
+-- EXTRACT ENGINEERS		*	setExtractAction
+-- ASSOCIATED				F	engineerAssociatedTo
+-- +NEAR TO					F	engineerNearTo
 function setEngineerPoint()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -6915,7 +7597,18 @@ function engineerPointPickupProcess(self,retriever)
 		end
 	end
 end
+---------------------------------------------
+--	Drop Point > Engineer Point > Near To  --
+---------------------------------------------
 --Create engineer point near to selected object(s)
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -DROP POINT				F	dropPoint
+-- -FROM ENG NEAR TO		F	setEngineerPoint
+-- Up to 3 buttons of nearby CpuShips for association
+-- +90 DEGREES				D	setCreateDirection
+-- +30 UNITS				D	setCreateDistance
+-- CREATE AT 90 DEG, 30U	D	createEngineerAway
 function engineerNearTo()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -6997,7 +7690,16 @@ function createEngineerAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	engineerCreation(nearx, neary, sox, soy)
 end
---   ***   Medical Team Point   ***
+---------------------------------------
+--	Drop Point > Medical Team Point  --
+---------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -FROM MEDIC POINT		F	dropPoint
+-- -DROP MEDICAL TEAM*		F	setDropAction		asterisk = current selection
+-- -EXTRACT MEDICAL TEAM	F	setExtractAction
+-- ASSOCIATED				F	medicAssociatedTo
+-- +NEAR TO					F	medicNearTo
 function setMedicPoint()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7154,7 +7856,18 @@ function medicPointPickupProcess(self,retriever)
 		end
 	end
 end
+-------------------------------------------------
+--	Drop Point > Medical Team Point > Near To  --
+-------------------------------------------------
 --Create medical team point near to selected object(s)
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -DROP POINT				F	dropPoint
+-- -FROM ENG NEAR TO		F	setMedicPoint
+-- Up to 3 buttons of nearby CpuShips for association
+-- +90 DEGREES				D	setCreateDirection
+-- +30 UNITS				D	setCreateDistance
+-- CREATE AT 90 DEG, 30U	D	createMedicAway
 function medicNearTo()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7237,8 +7950,27 @@ function createMedicAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	medicCreation(nearx, neary, sox, soy)
 end
---   ***   Custom supply point
+----------------------------------------
+--	Drop Point > Custom Supply Point  --
+----------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -FROM SUPPLY		F	dropPoint
+-- +ENERGY 500		D	setSupplyEnergy
+-- +NUKE 1			D	setSupplyNuke
+-- +EMP 1			D	setSupplyEMP
+-- +MINE 2			D	setSupplyMine
+-- +HOMING 4		D	setSupplyHoming
+-- +HVLI 0			D	setSupplyHVLI
+-- +REPAIR CREW 0	D	setSupplyRepairCrew
+-- +COOLANT 0		D	setSupplyCoolant
+-- +NEAR TO			F	supplyNearTo
 function setCustomSupply()
+	--Default supply drop gives:
+	--500 energy
+	--4 Homing
+	--1 Nuke
+	--2 Mines
+	--1 EMP
 	clearGMFunctions()
 	addGMFunction("-From Supply",dropPoint)
 	local GMSetSupplyEnergy = "+Energy " .. supplyEnergy
@@ -7259,7 +7991,15 @@ function setCustomSupply()
 	addGMFunction(GMSetSupplyCoolant,setSupplyCoolant)
 	addGMFunction("+Near to",supplyNearTo)	
 end
---Set supply drop energy
+-------------------------------------------------
+--	Drop Point > Custom Supply Point > Energy  --
+-------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -DROP POINT		F	dropPoint
+-- -FROM ENERGY		F	setCustomSupply
+-- 500-100=400		D	subtract100Energy
+-- 500+100=600		D	add100Energy
 function setSupplyEnergy()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7282,7 +8022,15 @@ function add100Energy()
 	supplyEnergy = supplyEnergy + 100
 	setSupplyEnergy()
 end
---Set supply drop nukes
+-----------------------------------------------
+--	Drop Point > Custom Supply Point > Nuke  --
+-----------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -DROP POINT		F	dropPoint
+-- -FROM NUKE		F	setCustomSupply
+-- 1-1=0			D	subtractANuke
+-- 1+1=2			D	addANuke
 function setSupplyNuke()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7305,7 +8053,15 @@ function addANuke()
 	supplyNuke = supplyNuke + 1
 	setSupplyNuke()
 end
---Set supply drop EMPs
+----------------------------------------------
+--	Drop Point > Custom Supply Point > EMP  --
+----------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -DROP POINT		F	dropPoint
+-- -FROM EMP		F	setCustomSupply
+-- 1-1=0			D	subtractAnEMP
+-- 1+1=2			D	addAnEMP
 function setSupplyEMP()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7328,7 +8084,15 @@ function addAnEMP()
 	supplyEMP = supplyEMP + 1
 	setSupplyEMP()
 end
---Set supply drop Mines
+-----------------------------------------------
+--	Drop Point > Custom Supply Point > Mine  --
+-----------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -DROP POINT		F	dropPoint
+-- -FROM MINE		F	setCustomSupply
+-- 2-1=1			D	subtractAMine
+-- 2+1=3			D	addAMine
 function setSupplyMine()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7351,7 +8115,15 @@ function addAMine()
 	supplyMine = supplyMine + 1
 	setSupplyMine()
 end
---set supply drop Homings
+-------------------------------------------------
+--	Drop Point > Custom Supply Point > Homing  --
+-------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -DROP POINT		F	dropPoint
+-- -FROM HOMING		F	setCustomSupply
+-- 4-1=3			D	subtractAHoming
+-- 4+1=5			D	addAHoming
 function setSupplyHoming()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7374,7 +8146,14 @@ function addAHoming()
 	supplyHoming = supplyHoming + 1
 	setSupplyHoming()
 end
---Set supply drop HVLIs
+-----------------------------------------------
+--	Drop Point > Custom Supply Point > HVLI  --
+-----------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -DROP POINT		F	dropPoint
+-- -FROM HVLI		F	setCustomSupply
+-- 0+1=1			D	addAnHVLI
 function setSupplyHVLI()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7397,7 +8176,14 @@ function addAnHVLI()
 	supplyHVLI = supplyHVLI + 1
 	setSupplyHVLI()
 end
---Set supply drop repair crew
+------------------------------------------------------
+--	Drop Point > Custom Supply Point > Repair Crew  --
+------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -DROP POINT			F	dropPoint
+-- -FROM REPAIR CREW	F	setCustomSupply
+-- 0+1=1				D	addARepairCrew
 function setSupplyRepairCrew()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7420,7 +8206,14 @@ function addARepairCrew()
 	supplyRepairCrew = supplyRepairCrew + 1
 	setSupplyRepairCrew()
 end
---Set supply drop coolant
+--------------------------------------------------
+--	Drop Point > Custom Supply Point > Coolant  --
+--------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -DROP POINT		F	dropPoint
+-- -FROM COOLANT	F	setCustomSupply
+-- 0+1=1			D	addCoolant
 function setSupplyCoolant()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7443,7 +8236,16 @@ function addCoolant()
 	supplyCoolant = supplyCoolant + 1
 	setSupplyCoolant()
 end
---Create supply drop near to selected object(s)
+--------------------------------------------------
+--	Drop Point > Custom Supply Point > Near To  --
+--------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -DROP POINT				F	dropPoint
+-- -FROM SUPPLY NEAR TO		F	setCustomSupply
+-- +90 DEGREES				D	setCreateDirection
+-- +30 UNITS				D	setCreateDistance
+-- CREATE AT 90 DEG, 30U	D	createSupplyAway
 function supplyNearTo()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7528,31 +8330,13 @@ function supplyPickupProcess(self, player)
 		player:setMaxCoolant(player:getMaxCoolant() + self.coolant)
 	end
 end
------------------
---	Scan Clue  --
------------------
-function scanClue()
-	clearGMFunctions()
-	addGMFunction("-Main from Scan Clue",initialGMFunctions)
-	addGMFunction("+Unscanned Desc",setUnscannedDescription)
-	addGMFunction("+Scanned Desc",setScannedDescription)
-	local GMSetScanComplexity = "+Scan Complex: " .. scanComplexity
-	addGMFunction(GMSetScanComplexity,setScanComplexity)
-	local GMSetScanDepth = "+Scan Depth: " .. scanDepth
-	addGMFunction(GMSetScanDepth,setScanDepth)
-	if scan_clue_retrievable then
-		addGMFunction("Retrievable",function()
-			scan_clue_retrievable = false
-			scanClue()
-		end)
-	else
-		addGMFunction("Unretrievable",function()
-			scan_clue_retrievable = true
-			scanClue()
-		end)
-	end
-	addGMFunction("+Near To",scanClueNearTo)
-end
+-----------------------------------------
+--  Scan Clue > Unscanned Description  --
+-----------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -FROM UNSCAN DESC	F	scanClue
+-- Buttons listing unscanned choices in table unscannedClues defined in constants
 function setUnscannedDescription()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7568,16 +8352,84 @@ function setUnscannedDescription()
 		end)
 	end
 end
+---------------------------------------
+--	Scan Clue > Scanned Description  --
+---------------------------------------
+-- -MAIN			F	initialGMFunctions
+-- -FROM SCAN DESC	F	scanClue
+-- +NONE			D	scannedClue1
+-- +NONE			D	scannedClue2
+-- +NONE			D	scannedClue3
+-- +NONE			D	scannedClue4
+-- +NONE			D	scannedClue5
 function setScannedDescription()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-From Scan Desc",scanClue)
-	addGMFunction(scannedClueKey1,scannedClue1)
-	addGMFunction(scannedClueKey2,scannedClue2)
-	addGMFunction(scannedClueKey3,scannedClue3)
-	addGMFunction(scannedClueKey4,scannedClue4)
-	addGMFunction(scannedClueKey5,scannedClue5)
+	addGMFunction(string.format("+%s",scannedClueKey1),scannedClue1)
+	addGMFunction(string.format("+%s",scannedClueKey2),scannedClue2)
+	addGMFunction(string.format("+%s",scannedClueKey3),scannedClue3)
+	addGMFunction(string.format("+%s",scannedClueKey4),scannedClue4)
+	addGMFunction(string.format("+%s",scannedClueKey5),scannedClue5)
 end
+------------------------------------------------------------
+--	Scan Clue > Scan Complexity (Set How Many Scan Bars)  --
+------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- COMPLEXITY: 1*	*	inline		asterisk = current selection
+-- COMPLEXITY: 2	*	inline
+-- COMPLEXITY: 3	*	inline
+-- COMPLEXITY: 4	*	inline
+function setScanComplexity()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Scan",scanClue)
+	for i=1,4 do
+		local GMSetScanComplexityIndex = "Complexity: " .. i
+		if scanComplexity == i then
+			GMSetScanComplexityIndex = "Complexity: " .. i .. "*"
+		end
+		addGMFunction(GMSetScanComplexityIndex, function()
+			scanComplexity = i
+			setScanComplexity()
+		end)
+	end
+end
+------------------------------------------------------------
+--	Scan Clue > Scan Depth (Set How Many Scan Screens)  --
+------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- DEPTH: 1*		*	inline		asterisk = current selection
+-- DEPTH: 2			*	inline
+-- DEPTH: 3			*	inline
+-- DEPTH: 4			*	inline
+function setScanDepth()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Scan",scanClue)
+	for i=1,8 do
+		local GMSetScanDepthIndex = "Depth: " .. i
+		if scanDepth == i then
+			GMSetScanDepthIndex = "Depth: " .. i .. "*"
+		end
+		addGMFunction(GMSetScanDepthIndex, function()
+			scanDepth = i
+			setScanDepth()
+		end)
+	end
+end
+-------------------------------------------------------
+--	Scan Clue > Scanned Descriptions > None (first)  --
+-------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 1		F	setScannedDescription
+-- Button for each item in table scannedClues1 defined in constants
 function scannedClue1()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7594,6 +8446,14 @@ function scannedClue1()
 		end)
 	end
 end
+--------------------------------------------------------
+--	Scan Clue > Scanned Descriptions > None (second)  --
+--------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 2		F	setScannedDescription
+-- Button for each item in table scannedClues2 defined in constants
 function scannedClue2()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7610,6 +8470,14 @@ function scannedClue2()
 		end)
 	end
 end
+-------------------------------------------------------
+--	Scan Clue > Scanned Descriptions > None (third)  --
+-------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 3		F	setScannedDescription
+-- Button for each item in table scannedClues3 defined in constants
 function scannedClue3()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7626,6 +8494,14 @@ function scannedClue3()
 		end)
 	end
 end
+--------------------------------------------------------
+--	Scan Clue > Scanned Descriptions > None (fourth)  --
+--------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 4		F	setScannedDescription
+-- Button for each item in table scannedClues4 defined in constants
 function scannedClue4()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7642,6 +8518,14 @@ function scannedClue4()
 		end)
 	end
 end
+-------------------------------------------------------
+--	Scan Clue > Scanned Descriptions > None (fifth)  --
+-------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 5		F	setScannedDescription
+-- Button for each item in table scannedClues5 defined in constants
 function scannedClue5()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7658,36 +8542,15 @@ function scannedClue5()
 		end)
 	end
 end
-function setScanComplexity()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Scan",scanClue)
-	for i=1,4 do
-		local GMSetScanComplexityIndex = "Complexity: " .. i
-		if scanComplexity == i then
-			GMSetScanComplexityIndex = "Complexity: " .. i .. "*"
-		end
-		addGMFunction(GMSetScanComplexityIndex, function()
-			scanComplexity = i
-			setScanComplexity()
-		end)
-	end
-end
-function setScanDepth()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Scan",scanClue)
-	for i=1,8 do
-		local GMSetScanDepthIndex = "Depth: " .. i
-		if scanDepth == i then
-			GMSetScanDepthIndex = "Depth: " .. i .. "*"
-		end
-		addGMFunction(GMSetScanDepthIndex, function()
-			scanDepth = i
-			setScanDepth()
-		end)
-	end
-end
+----------------------------
+--	Scan Clue >  Near To  --
+----------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -FROM SCAN NEAR TO		F	scanClue
+-- +90 DEGREES				D	setCreateDirection
+-- +30 UNITS				D	setCreateDistance
+-- CREATE AT 90 DEG, 30U	D	createScanClueAway
 function scanClueNearTo()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7751,239 +8614,96 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 	end
 	table.insert(scanClueList,scanCluePoint)
 end
----------------------
---	Tweak Terrain  --
----------------------
-function tweakTerrain()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("Explode Sel Art",explodeSelectedArtifact)
-	addGMFunction("Pulse Asteroid",pulseAsteroid)
-end
-function explodeSelectedArtifact()
-	local objectList = getGMSelection()
-	if #objectList ~= 1 then
-		addGMMessage("You need to select an object. No action taken.")
-		return
-	end
-	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	if tempType ~= "Artifact" then
-		addGMMessage("Only select an artifact since only artifacts explode. No action taken.")
-		return
-	end
-	tempObject:explode()
-end
-function pulseAsteroid()
-	local objectList = getGMSelection()
-	if #objectList ~= 1 then
-		addGMMessage("You need to select an object. No action taken.")
-		return
-	end
-	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	if tempType ~= "Asteroid" then
-		addGMMessage("Only select an asteroid. No action taken.")
-		return
-	end
-	local selected_in_list = false
-	for i=1,#J4_to_L8_asteroids do
-		if tempObject == J4_to_L8_asteroids[i] then
-			selected_in_list = true
-			break
-		end
-	end
-	if selected_in_list then
-		if tempObject.original_size == nil then
-			addGMMessage("selected has a nil value where it should have an original_size. No action taken")
-			return
-		end
-		if tempObject.original_size < 120 then
-			tempObject.grow = true
-			tempObject.max_size = 300
-			tempObject.increment = (300 - tempObject.original_size)/10
-			plotPulse = growAsteroid
-		else
-			tempObject.shrink = true
-			tempObject.min_size = tempObject.original_size/2
-			tempObject.increment = (tempObject.original_size - (tempObject.original_size/2))/10
-			plotPulse = shrinkAsteroid
-		end
-		if pulse_asteroid_list == nil then
-			pulse_asteroid_list = {}
-		end
-		table.insert(pulse_asteroid_list,tempObject)
-	else
-		addGMMessage("Only asteroids in J4 to L8 can pulse. No action taken")
-		return
-	end
-end
-function growAsteroid(delta)
-	if pulse_asteroid_list ~= nil then
-		if #pulse_asteroid_list > 0 then
-			for i=1,#pulse_asteroid_list do
-				local ta = pulse_asteroid_list[i]
-				if ta ~= nil and ta:isValid() then
-					if ta.grow_size == nil then
-						ta.grow_size = ta.original_size
-					end
-					ta.grow_size = ta.grow_size + ta.increment
-					ta:setSize(ta.grow_size)
-					print(string.format("grow_size: %.1f, max_size: %.1f",ta.grow_size,ta.max_size))
-					if ta.grow_size >= ta.max_size then
-						--end of growth
-						print("end of growth")
-						resetPulsingAsteroid(ta)
-					end
-				end
-			end
-		end
-	end
-end
-function resetPulsingAsteroid(ta)
-	ta.grow = nil
-	ta.shrink = nil
-	ta.max_size = nil
-	ta.min_size = nil
-	ta.grow_size = nil
-	ta.shrink_size = nil
-	ta:setSize(ta.original_size)
-	for i=1,#pulse_asteroid_list do
-		if ta == pulse_asteroid_list[i] then
-			table.remove(pulse_asteroid_list,i)
-			break
-		end
-	end
-	print("done resetting")
-end
-function shrinkAsteroid(delta)
-	if pulse_asteroid_list ~= nil then
-		if #pulse_asteroid_list > 0 then
-			for i=1,#pulse_asteroid_list do
-				local ta = pulse_asteroid_list[i]
-				if ta ~= nil and ta:isValid() then
-					if ta.shrink_size == nil then
-						ta.shrink_size = ta.original_size
-					end
-					ta.shrink_size = ta.shrink_size - ta.increment
-					ta:setSize(ta.shrink_size)
-					print(string.format("shrink_size: %.1f, min_size: %.1f",ta.shrink_size,ta.min_size))
-					if ta.shrink_size <= ta.min_size then
-						--end of shrink
-						print("end of shrink")
-						resetPulsingAsteroid(ta)
-					end
-				end
-			end
-		end
-	end
-end
------------------------
---	Countdown Timer  --
------------------------
-function countdownTimer()
+---------------------------------
+--	Countdown Timer > Display  --
+---------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM TIMER		F	initialGMFunctions
+-- -FROM DISPLAY		F	countdownTimer
+-- HELM					*	inline	(choices are not mutually exclusive)
+-- WEAPONS				*	inline
+-- ENGINEER				*	inline
+-- SCIENCE				*	inline
+-- RELAY				*	inline
+function GMTimerDisplay()
 	clearGMFunctions()
 	addGMFunction("-Main from Timer",initialGMFunctions)
-	local timer_display = "+Display: GM"
+	addGMFunction("-From Display",countdownTimer)
+	local timer_label = "Helm"
 	if timer_display_helm then
-		timer_display = timer_display .. ",H"
+		timer_label = timer_label .. "*"
 	end
+	addGMFunction(timer_label, function()
+		if timer_display_helm then
+			timer_display_helm = false
+		else
+			timer_display_helm = true
+		end
+		GMTimerDisplay()
+	end)
+	timer_label = "Weapons"
 	if timer_display_weapons then
-		timer_display = timer_display .. ",W"
+		timer_label = timer_label .. "*"
 	end
+	addGMFunction(timer_label, function()
+		if timer_display_weapons then
+			timer_display_weapons = false
+		else
+			timer_display_weapons = true
+		end
+		GMTimerDisplay()
+	end)
+	timer_label = "Engineer"
 	if timer_display_engineer then
-		timer_display = timer_display .. ",E"
+		timer_label = timer_label .. "*"
 	end
+	addGMFunction(timer_label, function()
+		if timer_display_engineer then
+			timer_display_engineer = false
+		else
+			timer_display_engineer = true
+		end
+		GMTimerDisplay()
+	end)
+	timer_label = "Science"
 	if timer_display_science then
-		timer_display = timer_display .. ",S"
+		timer_label = timer_label .. "*"
 	end
+	addGMFunction(timer_label, function()
+		if timer_display_science then
+			timer_display_science = false
+		else
+			timer_display_science = true
+		end
+		GMTimerDisplay()
+	end)
+	timer_label = "Relay"
 	if timer_display_relay then
-		timer_display = timer_display .. ",R"
+		timer_label = timer_label .. "*"
 	end
-	addGMFunction(timer_display,GMTimerDisplay)
-	addGMFunction(string.format("+Length: %i",timer_start_length),GMTimerLength)
-	addGMFunction(string.format("+Purpose: %s",timer_purpose),GMTimerPurpose)
-	if timer_started then
-		addGMFunction("Stop Timer", function()
-			timer_started = false
-			countdownTimer()
-		end)
-	else
-		addGMFunction("Start Timer", function()
-			timer_started = true
-			countdownTimer()
-		end)
-	end
-end
-function GMTimerPurpose()
-	clearGMFunctions()
-	addGMFunction("-Main from Timer",initialGMFunctions)
-	addGMFunction("-From Purpose",countdownTimer)
-	local purpose_label = ""
-	if timer_purpose == "Timer" then
-		purpose_label = "Timer*"
-	else
-		purpose_label = "Timer"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Timer"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Death" then
-		purpose_label = "Death*"
-	else
-		purpose_label = "Death"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Death"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Breakdown" then
-		purpose_label = "Breakdown*"
-	else
-		purpose_label = "Breakdown"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Breakdown"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Mission" then
-		purpose_label = "Mission*"
-	else
-		purpose_label = "Mission"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Mission"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Departure" then
-		purpose_label = "Departure*"
-	else
-		purpose_label = "Departure"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Departure"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Destruction" then
-		purpose_label = "Destruction*"
-	else
-		purpose_label = "Destruction"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Destruction"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Discovery" then
-		purpose_label = "Discovery*"
-	else
-		purpose_label = "Discovery"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Discovery"
-		GMTimerPurpose()
+	addGMFunction(timer_label, function()
+		if timer_display_relay then
+			timer_display_relay = false
+		else
+			timer_display_relay = true
+		end
+		GMTimerDisplay()
 	end)
 end
+--------------------------------
+--	Countdown Timer > Length  --
+--------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM TIMER		F	initialGMFunctions
+-- -FROM LENGTH			F	countdownTimer
+-- 1 MINUTE				*	inline
+-- 3 MINUTES			*	inline
+-- 5 MINUTES*			*	inline		asterisk = current selection
+-- 10 MINUTES			*	inline
+-- 15 MINUTES			*	inline
+-- 20 MINUTES			*	inline
+-- 30 MINUTES			*	inline
+-- 45 MINUTES			*	inline
 function GMTimerLength()
 	clearGMFunctions()
 	addGMFunction("-Main from Timer",initialGMFunctions)
@@ -8062,106 +8782,86 @@ function GMTimerLength()
 		GMTimerLength()
 	end)
 end
-function GMTimerDisplay()
+---------------------------------
+--	Countdown Timer > Purpose  --
+---------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM TIMER		F	initialGMFunctions
+-- -FROM PURPOSE		F	countdownTimer
+-- TIMER*				*	inline		asterisk = current selection
+-- DEATH				*	inline
+-- BREAKDOWN			*	inline
+-- MISSION				*	inline
+-- DEPARTURE			*	inline
+-- DESTRUCTION			*	inline
+-- DISCOVERY			*	inline
+function GMTimerPurpose()
 	clearGMFunctions()
 	addGMFunction("-Main from Timer",initialGMFunctions)
-	addGMFunction("-From Display",countdownTimer)
-	local timer_label = "Helm"
-	if timer_display_helm then
-		timer_label = timer_label .. "*"
+	addGMFunction("-From Purpose",countdownTimer)
+	local purpose_label = ""
+	if timer_purpose == "Timer" then
+		purpose_label = "Timer*"
+	else
+		purpose_label = "Timer"
 	end
-	addGMFunction(timer_label, function()
-		if timer_display_helm then
-			timer_display_helm = false
-		else
-			timer_display_helm = true
-		end
-		GMTimerDisplay()
+	addGMFunction(purpose_label, function()
+		timer_purpose = "Timer"
+		GMTimerPurpose()
 	end)
-	timer_label = "Weapons"
-	if timer_display_weapons then
-		timer_label = timer_label .. "*"
+	if timer_purpose == "Death" then
+		purpose_label = "Death*"
+	else
+		purpose_label = "Death"
 	end
-	addGMFunction(timer_label, function()
-		if timer_display_weapons then
-			timer_display_weapons = false
-		else
-			timer_display_weapons = true
-		end
-		GMTimerDisplay()
+	addGMFunction(purpose_label, function()
+		timer_purpose = "Death"
+		GMTimerPurpose()
 	end)
-	timer_label = "Engineer"
-	if timer_display_engineer then
-		timer_label = timer_label .. "*"
+	if timer_purpose == "Breakdown" then
+		purpose_label = "Breakdown*"
+	else
+		purpose_label = "Breakdown"
 	end
-	addGMFunction(timer_label, function()
-		if timer_display_engineer then
-			timer_display_engineer = false
-		else
-			timer_display_engineer = true
-		end
-		GMTimerDisplay()
+	addGMFunction(purpose_label, function()
+		timer_purpose = "Breakdown"
+		GMTimerPurpose()
 	end)
-	timer_label = "Science"
-	if timer_display_science then
-		timer_label = timer_label .. "*"
+	if timer_purpose == "Mission" then
+		purpose_label = "Mission*"
+	else
+		purpose_label = "Mission"
 	end
-	addGMFunction(timer_label, function()
-		if timer_display_science then
-			timer_display_science = false
-		else
-			timer_display_science = true
-		end
-		GMTimerDisplay()
+	addGMFunction(purpose_label, function()
+		timer_purpose = "Mission"
+		GMTimerPurpose()
 	end)
-	timer_label = "Relay"
-	if timer_display_relay then
-		timer_label = timer_label .. "*"
+	if timer_purpose == "Departure" then
+		purpose_label = "Departure*"
+	else
+		purpose_label = "Departure"
 	end
-	addGMFunction(timer_label, function()
-		if timer_display_relay then
-			timer_display_relay = false
-		else
-			timer_display_relay = true
-		end
-		GMTimerDisplay()
+	addGMFunction(purpose_label, function()
+		timer_purpose = "Departure"
+		GMTimerPurpose()
 	end)
-end
--------------------
---	End Mission  --
--------------------
-function endMission()
-	clearGMFunctions()
-	addGMFunction("-Main from End",initialGMFunctions)
-	addGMFunction("Human Victory",function()
-		victory("Human Navy")
+	if timer_purpose == "Destruction" then
+		purpose_label = "Destruction*"
+	else
+		purpose_label = "Destruction"
+	end
+	addGMFunction(purpose_label, function()
+		timer_purpose = "Destruction"
+		GMTimerPurpose()
 	end)
-	addGMFunction("Kraylor Victory",function()
-		victory("Kraylor")
-	end)
-	addGMFunction("Exuari Victory",function() 
-		victory("Exuari")
-	end)
-	addGMFunction("Ghost Victory",function() 
-		victory("Ghosts")
-	end)
-	addGMFunction("Arlenian Victory",function() 
-		victory("Arlenians")	
-	end)
-	addGMFunction("Independent Victory",function() 
-		victory("Independent")
-	end)
-	addGMFunction("Ktlitan Victory",function() 
-		victory("Ktlitans")
-	end)
-	addGMFunction("TSN Victory",function()
-		victory("TSN")
-	end)
-	addGMFunction("USN Victory",function()
-		victory("USN")
-	end)
-	addGMFunction("CUF Victory",function()
-		victory("CUF")
+	if timer_purpose == "Discovery" then
+		purpose_label = "Discovery*"
+	else
+		purpose_label = "Discovery"
+	end
+	addGMFunction(purpose_label, function()
+		timer_purpose = "Discovery"
+		GMTimerPurpose()
 	end)
 end
 --------------------------
