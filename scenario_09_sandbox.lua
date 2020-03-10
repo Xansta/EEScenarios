@@ -4516,7 +4516,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionRandom,function()
 		fleetComposition = "Random"
-		setFleetComposition()
+		spawnGMFleet()
 	end)
 	local GMSetFleetCompositionFighters = "Fighters"
 	if fleetComposition == "Fighters" then
@@ -4524,7 +4524,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionFighters,function()
 		fleetComposition = "Fighters"
-		setFleetComposition()
+		spawnGMFleet()
 	end)
 	local GMSetFleetCompositionChasers = "Chasers"
 	if fleetComposition == "Chasers" then
@@ -4532,7 +4532,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionChasers,function()
 		fleetComposition = "Chasers"
-		setFleetComposition()
+		spawnGMFleet()
 	end)
 	local GMSetFleetCompositionFrigates = "Frigates"
 	if fleetComposition == "Frigates" then
@@ -4540,7 +4540,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionFrigates,function()
 		fleetComposition = "Frigates"
-		setFleetComposition()
+		spawnGMFleet()
 	end)
 	local GMSetFleetCompositionBeamers = "Beamers"
 	if fleetComposition == "Beamers" then
@@ -4548,7 +4548,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionBeamers,function()
 		fleetComposition = "Beamers"
-		setFleetComposition()
+		spawnGMFleet()
 	end)
 	local GMSetFleetCompositionMissilers = "Missilers"
 	if fleetComposition == "Missilers" then
@@ -4556,7 +4556,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionMissilers,function()
 		fleetComposition = "Missilers"
-		setFleetComposition()
+		spawnGMFleet()
 	end)
 	local GMSetFleetCompositionAdders = "Adders"
 	if fleetComposition == "Adders" then
@@ -4564,7 +4564,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionAdders,function()
 		fleetComposition = "Adders"
-		setFleetComposition()
+		spawnGMFleet()
 	end)		
 	local GMSetFleetCompositionNonDB = "Non-DB"
 	if fleetComposition == "Non-DB" then
@@ -4572,7 +4572,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionNonDB,function()
 		fleetComposition = "Non-DB"
-		setFleetComposition()
+		spawnGMFleet()
 	end)		
 	local GMSetFleetCompositionDrone = "Drones"
 	if fleetComposition == "Drones" then
@@ -4580,7 +4580,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionDrone,function()
 		fleetComposition = "Drones"
-		setFleetComposition()
+		spawnGMFleet()
 	end)		
 end
 ------------------------------------------------------------------
