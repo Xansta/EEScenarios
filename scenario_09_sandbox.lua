@@ -5,6 +5,89 @@
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
 
+------------       Menu Map       ------------
+-- +INITIAL SET UP------------>	-MAIN FROM INITIAL				+----->	DEFAULT*					+->	+REMOVE CARGO---> List
+-- +SPAWN FLEET---------------+	+START REGION-------------------+		KENTAR (R17)				|	+ADD MINERAL----> List
+-- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+						|	+ADD COMPONENT--> List
+-- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER---+	
+-- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+DESCRIPTIONS----->	+DESCRIBE CURRENT---> List	
+-- +SCAN CLUE---------+	| |	| |	AUTO STATION WARN OFF					  | | 		+CURRENT-->List		+DESCRIBE SCRAPPED--> List
+-- +TWEAK TERRAIN---+ | | |	| V											  | | 		+SCRAPPED-->List	+DESCRIBE STOCK-----> List	
+-- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN		+--------->	.5	  | V
+-- +END MISSION-+ | | | | |	| +EXUARI--->Faction List	|			1*	  | +ICARUS TO DEFAULT---->	DEFAULT*
+--				| | | | | |	| +1 PLAYER STRENGTH: n*----+			2	  V							KENTAR
+--				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+
+--				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|
+--				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V
+--				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR			
+--				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE
+--				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 250			180	
+--				| | | | | |	V							  | | +---+ V							225	
+--				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270	
+--				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315	
+--				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|
+--				| | | | | V									  | | | FRIGATES		|	[Near To]
+--				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible
+--				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES				
+--				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS				
+--				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U	
+--				| | | | V									  | | | DRONES			|
+--				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U	
+--				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U	
+--				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U	
+--				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U	
+--				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U	
+--				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U	
+--				| | | V								| | | |	| | | SET TO 10					20U	
+--				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*
+--				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							
+--				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING				
+--				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*				
+--				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND		
+--				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| V						
+--				| | | UNRETRIEVABLE					| | | |	| AT SELECTION			
+--				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE				
+--				| | V								| | | |	| BEYOND SENSORS			
+--				| | -MAIN							| | | |	| +RANDOM DIRECTION		
+--				| | EXPLODE SEL ART					| | | |	| +AWAY*						
+--				| | PULSE ASTEROID					| | | |	| +AMBUSH 5				
+--				| V									| | | |	V				
+--				| -MAIN FROM TIMER					| | | |	(+)ASSOCIATED
+--				| +DISPLAY: GM----------+			| | | |	+NEAR TO--> [Near To]						
+--				| +LENGTH: 5----------+	|			| | | |	NEAR RADIUS BUT SAFE			
+--				| +PURPOSE: TIMER---+ |	|			| | | |	EDGE BUT IN DANGER						
+--				| START TIMER		| |	|			| | | |	NEAR RADIUS BUT OUTSIDE			
+--				V					| |	V			| | | |	EDGE BUT INSIDE			
+--		-MAIN FROM END				| |	HELM		| | | V
+--		HUMAN VICTORY				| |	WEAPONS		| | | DROP MARINES*	
+--		KRAYLOR VICTORY				| |	ENGINEER	| | | EXTRACT MARINES	
+--		EXUARI VICTORY				| |	SCIENCE		| | | ASSOCIATED		
+--		GHOST VICTORY				| |	RELAY		| | | +NEAR TO--> [Near To]		
+--		ARLENIAN VICTORY			| V				| | V
+--		INDEPENDENT VICTORY			| 1 MINUTE		| | DROP ENGINEERS*		
+--		KTLITAN VICTORY				| 3 MINUTES		| | EXTRACT ENGINEERS	
+--		TSN VICTORY					| 5 MINUTES*	| | ASSOCIATED			
+--		USN VICTORY					| 10 MINUTES	| | +NEAR TO--> [Near To]
+--		CUF VICTORY					| 15 MINUTES	| V
+--									| 20 MINUTES	| DROP MEDICAL TEAM*	
+--									| 30 MINUTES	| EXTRACT MEDICAL TEAM	
+--									| 45 MINUTES	| ASSOCIATED			
+--									V				| +NEAR TO--> [Near To]		
+--									TIMER*			V
+--									DEATH			+ENERGY 500		
+--									BREAKDOWN		+NUKE 1			
+--									MISSION			+EMP 1			
+--									DEPARTURE		+MINE 2			
+--									DESTRUCTION		+HOMING 4		
+--									DISCOVERY		+HVLI 0			
+--													+REPAIR CREW 0	
+--													+COOLANT 0		
+--													+NEAR TO			
+--						
+--						
+
+		
+
 require("utils.lua")
 
 function init()
@@ -3025,6 +3108,15 @@ function changeZones()
 		addGMFunction("+Delete Zone",deleteZone)
 	end
 end
+-----------------------------------------
+--	Initial Set Up > Zones > Add Zone  --
+-----------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -ZONES FROM ADD	F	changeZones
+-- SECTOR			F	inline
+-- SMALL SQUARE		F	inline
 function addZone()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -3071,6 +3163,14 @@ function addZone()
 		end
 	end)
 end
+--------------------------------------------
+--	Initial Set Up > Zones > Delete Zone  --
+--------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -ZONES FROM DELETE	F	changeZones
+-- Button for each existing zone
 function deleteZone()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -7696,8 +7796,8 @@ end
 -- Button Text			   DF*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
 -- -FROM MEDIC POINT		F	dropPoint
--- -DROP MEDICAL TEAM*		F	setDropAction		asterisk = current selection
--- -EXTRACT MEDICAL TEAM	F	setExtractAction
+-- DROP MEDICAL TEAM*		F	setDropAction		asterisk = current selection
+-- EXTRACT MEDICAL TEAM		F	setExtractAction
 -- ASSOCIATED				F	medicAssociatedTo
 -- +NEAR TO					F	medicNearTo
 function setMedicPoint()
