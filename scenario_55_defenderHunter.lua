@@ -49,9 +49,9 @@
 
 require("utils.lua")
 
---[[-------------------------------------------------------------------
-	Initialization routines
---]]-------------------------------------------------------------------
+-------------------------------
+--	Initialization routines  --
+-------------------------------
 function init()
 	wfv = "nowhere"		--wolf fence value - used for debugging
 	setVariations()
@@ -770,8 +770,8 @@ function buildStations()
 	startingEnemyStations = #enemyStationList
 	originalStationList = stationList	--save for statistics
 end
---adjacent empty grid locations around the grid locations of the currently building faction
 function getFactionAdjacentGridLocations(lx,ly)
+--adjacent empty grid locations around the grid locations of the currently building faction
 	tempGrid = {}
 	for i=gbLow,gbHigh do
 		tempGrid[i] = {}
@@ -828,8 +828,8 @@ function getFactionAdjacentGridLocations(lx,ly)
 	end
 	return ol
 end
---adjacent empty grid locations around the grid locations of the currently building faction, skip check as requested
 function getFactionAdjacentGridLocationsSkip(dSkip,lx,ly)
+--adjacent empty grid locations around the grid locations of the currently building faction, skip check as requested
 	tempGrid[lx][ly] = 1
 	if dSkip ~= 3 then
 		--check left
@@ -888,8 +888,8 @@ function getFactionAdjacentGridLocationsSkip(dSkip,lx,ly)
 		end
 	end
 end
---adjacent empty grid locations around all occupied locations
 function getAllAdjacentGridLocations(lx,ly)
+--adjacent empty grid locations around all occupied locations
 	tempGrid = {}
 	for i=gbLow,gbHigh do
 		tempGrid[i] = {}
@@ -946,8 +946,8 @@ function getAllAdjacentGridLocations(lx,ly)
 	end
 	return ol
 end
---adjacent empty grid locations around all occupied locations, skip as requested
 function getAllAdjacentGridLocationsSkip(dSkip,lx,ly)
+--adjacent empty grid locations around all occupied locations, skip as requested
 	tempGrid[lx][ly] = 1
 	if dSkip ~= 3 then
 		--check left
@@ -1006,8 +1006,8 @@ function getAllAdjacentGridLocationsSkip(dSkip,lx,ly)
 		end
 	end
 end
---adjacent empty grid locations around the most recently placed item
 function getAdjacentGridLocations(lx,ly)
+--adjacent empty grid locations around the most recently placed item
 	tempGrid = {}
 	for i=gbLow,gbHigh do
 		tempGrid[i] = {}
@@ -1064,8 +1064,8 @@ function getAdjacentGridLocations(lx,ly)
 	end
 	return ol
 end
---adjacent empty grid locations around the most recently placed item, skip as requested
 function getAdjacentGridLocationsSkip(dSkip,lx,ly)
+--adjacent empty grid locations around the most recently placed item, skip as requested
 	tempGrid[lx][ly] = 1
 	if dSkip ~= 3 then
 		--check left
@@ -1124,8 +1124,8 @@ function getAdjacentGridLocationsSkip(dSkip,lx,ly)
 		end
 	end
 end
---Randomly choose station size template
 function szt()
+--Randomly choose station size template
 	stationSizeRandom = random(1,100)
 	if stationSizeRandom <= 8 then
 		sizeTemplate = "Huge Station"		-- 8 percent huge
@@ -1138,9 +1138,9 @@ function szt()
 	end
 	return sizeTemplate
 end
---[[-------------------------------------------------------------------
-	Human and neutral stations to be placed (all need some kind of goods)
---]]-------------------------------------------------------------------
+-----------------------------------------------------------------------------
+--	Human and neutral stations to be placed (all need some kind of goods)  --
+-----------------------------------------------------------------------------
 function placeAlcaleica()
 	--Alcaleica
 	stationAlcaleica = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -2441,9 +2441,9 @@ function placeZefram()
 	stationZefram.stationHistory = "Zefram Cochrane constructed the first warp drive in human history. We named our station after him because of the specialized warp systems work we do"
 	return stationZefram
 end
---[[-------------------------------------------------------------------
-	Generic stations to be placed
---]]-------------------------------------------------------------------
+-------------------------------------
+--	Generic stations to be placed  --
+-------------------------------------
 function placeJabba()
 	--Jabba
 	stationJabba = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -2642,9 +2642,9 @@ function placeValero()
 	goods[stationValero] = {{"luxury",5,77}}
 	return stationValero
 end
---[[-------------------------------------------------------------------
-	Enemy stations to be placed
---]]-------------------------------------------------------------------
+-----------------------------------
+--	Enemy stations to be placed  --
+-----------------------------------
 function placeAramanth()
 	--Aramanth
 	stationAramanth = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Aramanth"):setPosition(psx,psy)
@@ -2721,9 +2721,9 @@ function placeTic()
 	return stationTic
 end
 
---[[-----------------------------------------------------------------
-    Transport ship generation and handling 
------------------------------------------------------------------]]--
+----------------------------------------------
+--	Transport ship generation and handling  --
+----------------------------------------------
 function randomStation()
 	stationCount = 0
 	for sidx, obj in ipairs(stationList) do
@@ -2853,9 +2853,9 @@ function transportPlot(delta)
 		end
 	end
 end
---[[-----------------------------------------------------------------
-    Station communication 
------------------------------------------------------------------]]--
+-----------------------------
+--  Station communication  --
+-----------------------------
 function commsStation()
     if comms_target.comms_data == nil then
         comms_target.comms_data = {}
@@ -4128,9 +4128,9 @@ function handleUndockedState()
     end
 end
 
+function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for
 -- the current player.
-function getServiceCost(service)
     return math.ceil(comms_data.service_cost[service])
 end
 
@@ -4192,9 +4192,9 @@ function getFriendStatus()
         return "neutral"
     end
 end
---[[-----------------------------------------------------------------
-      Ship communication 
------------------------------------------------------------------]]--
+--------------------------
+--  Ship communication  --
+--------------------------
 function commsShip()
 	if comms_target.comms_data == nil then
 		comms_target.comms_data = {friendlyness = random(0.0, 100.0)}
@@ -4502,9 +4502,9 @@ function neutralComms(comms_data)
 	end
 	return true
 end
---[[-----------------------------------------------------------------
-      Cargo management 
------------------------------------------------------------------]]--
+------------------------
+--  Cargo management  --
+------------------------
 function incrementPlayerGoods(goodsType)
 	local gi = 1
 	repeat
@@ -4544,17 +4544,17 @@ function decrementShipGoods(goodsType)
 		gi = gi + 1
 	until(gi > #goods[comms_target])
 end
---[[-----------------------------------------------------------------
-      First plot line
------------------------------------------------------------------]]--
+-----------------------
+--  First plot line  --
+-----------------------
 function initialOrders(delta)
 	plot1name = "initialOrders"
 	initialOrderTimer = initialOrderTimer - delta
 	if initialOrderTimer < 0 then
 		if initialOrdersMsg == nil then
-			foundPlayer = false
+			local foundPlayer = false
 			for pidx=1,8 do
-				p = getPlayerShip(pidx)
+				local p = getPlayerShip(pidx)
 				if p ~= nil and p:isValid() then
 					foundPlayer = true
 					p:addToShipLog(string.format("You are to protect your home base, %s, against enemy attack. Respond to other requests as you see fit",homeStation:getCallSign()),"Magenta")
@@ -4760,9 +4760,9 @@ function pressureWaves(delta)
 		waveTimer = delta + interWave + dangerValue*10 + random(1,60)
 	end
 end
---[[-----------------------------------------------------------------
-    Plot 2 Easy delivery, improve maneuverability or get base intelligence
------------------------------------------------------------------]]--
+-----------------------------------------------------------------------------
+--  Plot 2 Easy delivery, improve maneuverability or get base intelligence --
+-----------------------------------------------------------------------------
 function destroyef2(delta)
 	plot2name = "destroyef2"
 	ef2Count = 0
@@ -5052,9 +5052,9 @@ function warpJamLineRelease(delta)
 	plot2name = nil
 	plot2 = nil
 end
---[[-----------------------------------------------------------------
-    Plot 3 Development of intelligence over time
------------------------------------------------------------------]]--
+----------------------------------------------------
+--  Plot 3 Development of intelligence over time  --
+----------------------------------------------------
 function destroyef3(delta)
 	plot3name = "destroyef3"
 	ef3Count = 0
@@ -5357,9 +5357,9 @@ function destroyef3v8(delta)
 		plot3 = nil
 	end
 end
---[[-----------------------------------------------------------------
-    Plot 4 station rotate upgrade or beam time upgrade or hull upgrade
------------------------------------------------------------------]]--
+--------------------------------------------------------------------------
+--  Plot 4 station rotate upgrade or beam time upgrade or hull upgrade  --
+--------------------------------------------------------------------------
 function destroyef4(delta)
 	plot4name = "destroyef4"
 	ef4Count = 0
@@ -6179,9 +6179,9 @@ function returnHomeForShields(delta)
 		end
 	end
 end
---[[-----------------------------------------------------------------
-    Plot 5 Helpful warnings
------------------------------------------------------------------]]--
+-------------------------------
+--  Plot 5 Helpful warnings  --
+-------------------------------
 function helpfulWarning(delta)
 	plot5name = "helpfulWarning"
 	helpfulWarningTimer = helpfulWarningTimer - delta
@@ -6281,9 +6281,9 @@ function helpfulWarning(delta)
 		helpfulWarningTimer = delta + random(90,200)
 	end
 end
---[[-----------------------------------------------------------------
-    Plot 6 Timed Game
------------------------------------------------------------------]]--
+-------------------------
+--  Plot 6 Timed Game  --
+-------------------------
 function timedGame(delta)
 	gameTimeLimit = gameTimeLimit - delta
 	if gameTimeLimit < 0 then
@@ -6298,9 +6298,9 @@ function timedGame(delta)
 		end
 	end
 end
---[[-----------------------------------------------------------------
-      Plot W - wormhole starts as an artifact in unusual motion
------------------------------------------------------------------]]--
+-----------------------------------------------------------------
+--  Plot W - wormhole starts as an artifact in unusual motion  --
+-----------------------------------------------------------------
 function setWormArt()
 	wormArt = Artifact():setPosition(random(-90000,90000),random(-90000,90000)):setModel("artifact4"):allowPickup(false):setScanningParameters(2,5)
 	wormArt:setDescriptions("sprightly unassuming object","Object shows rapidly building energy"):setRadarSignatureInfo(50,10,5)
