@@ -5,45 +5,45 @@
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
 
-------------       Menu Map       ------------
--- +INITIAL SET UP------------>	-MAIN FROM INITIAL				+----->	DEFAULT*					+->	+REMOVE CARGO---> List
--- +SPAWN FLEET---------------+	+START REGION-------------------+		KENTAR (R17)				|	+ADD MINERAL----> List
--- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+						|	+ADD COMPONENT--> List
--- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER---+	
--- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+DESCRIPTIONS----->	+DESCRIBE CURRENT---> List	
--- +SCAN CLUE---------+	| |	| |	AUTO STATION WARN OFF					  | | 		+CURRENT-->List		+DESCRIBE SCRAPPED--> List
--- +TWEAK TERRAIN---+ | | |	| V											  | | 		+SCRAPPED-->List	+DESCRIBE STOCK-----> List	
--- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN		+--------->	.5	  | V
--- +END MISSION-+ | | | | |	| +EXUARI--->Faction List	|			1*	  | +ICARUS TO DEFAULT---->	DEFAULT*
---				| | | | | |	| +1 PLAYER STRENGTH: n*----+			2	  V							KENTAR
---				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+
---				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|
---				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V
---				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR			
---				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE
---				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 250			180	
---				| | | | | |	V							  | | +---+ V							225	
---				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270	
---				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315	
---				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|
---				| | | | | V									  | | | FRIGATES		|	[Near To]
---				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible
---				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES				
---				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS				
---				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U	
---				| | | | V									  | | | DRONES			|
---				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U	
---				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U	
---				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U	
---				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U	
---				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U	
---				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U	
---				| | | V								| | | |	| | | SET TO 10					20U	
---				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*
---				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							
---				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING				
---				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*				
---				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND		
+--  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --
+-- +INITIAL SET UP------------>	-MAIN FROM INITIAL						DEFAULT*			  Toggle button per player ship <-------+AUTO COOL 	
+-- +SPAWN FLEET---------------+	+START REGION------------------------->	KENTAR (R17)												+COOLANT--------+
+-- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--+ |
+-- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO------+ |	|
+-- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+DESCRIPTIONS-----> +DESCRIBE CURRENT---> List	+REPUTATION	| | |
+-- +SCAN CLUE---------+	| |	| |	AUTO STATION WARN OFF					  | | 		+CURRENT--->List	+DESCRIBE SCRAPPED--> List			  |	| | |
+-- +TWEAK TERRAIN---+ | | |	| V											  | | 		+SCRAPPED-->List	+DESCRIBE STOCK-----> List			  |	| | |
+-- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 							  |	| | |
+-- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 			+-----------------+ | | |
+--				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR					|					| | |
+--				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+					V					| | |
+--				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|					ADD ONE REP n		| | |
+--				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V					ADD FIVE REP n		| | |
+--				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR				ADD TEN REP n		| | |
+--				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE		DEL ONE REP n		| | |
+--				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 250			180							FIVE REP n			| | |
+--				| | | | | |	V							  | | +---+ V							225							DEL TEN REP n		| | |
+--				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270												| | |
+--				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315						+-----------------------+ | |
+--				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|									|						  | |
+--				| | | | | V									  | | | FRIGATES		|	[Near To]						V					 	  | |
+--				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible		+REMOVE CARGO---> List	  | |
+--				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES						+ADD MINERAL----> List	  | |
+--				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS						+ADD COMPONENT--> List	  | |
+--				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U									  | |
+--				| | | | V									  | | | DRONES			|									+-------------------------+ |
+--				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U							|							|
+--				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U							V							|
+--				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U							ADD REPAIR CREW				|
+--				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U							REMOVE REPAIR CREW			|
+--				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U														|
+--				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U							+---------------------------+
+--				| | | V								| | | |	| | | SET TO 10					20U							|
+--				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*						V
+--				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							DEL 						ADD 1.0 COOLANT		
+--				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING													REMOVE 1.0 COOLANT	
+--				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*													1.0 - 0.5 = 0.5		
+--				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											1.0 + 0.5 = 1.5		
 --				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| V						
 --				| | | UNRETRIEVABLE					| | | |	| AT SELECTION			
 --				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE				
@@ -63,30 +63,27 @@
 --		KRAYLOR VICTORY				| |	ENGINEER	| | | EXTRACT MARINES	
 --		EXUARI VICTORY				| |	SCIENCE		| | | ASSOCIATED		
 --		GHOST VICTORY				| |	RELAY		| | | +NEAR TO--> [Near To]		
---		ARLENIAN VICTORY			| V				| | V
---		INDEPENDENT VICTORY			| 1 MINUTE		| | DROP ENGINEERS*		
---		KTLITAN VICTORY				| 3 MINUTES		| | EXTRACT ENGINEERS	
---		TSN VICTORY					| 5 MINUTES*	| | ASSOCIATED			
---		USN VICTORY					| 10 MINUTES	| | +NEAR TO--> [Near To]
---		CUF VICTORY					| 15 MINUTES	| V
---									| 20 MINUTES	| DROP MEDICAL TEAM*	
---									| 30 MINUTES	| EXTRACT MEDICAL TEAM	
---									| 45 MINUTES	| ASSOCIATED			
---									V				| +NEAR TO--> [Near To]		
---									TIMER*			V
---									DEATH			+ENERGY 500		
---									BREAKDOWN		+NUKE 1			
---									MISSION			+EMP 1			
---									DEPARTURE		+MINE 2			
---									DESTRUCTION		+HOMING 4		
---									DISCOVERY		+HVLI 0			
---													+REPAIR CREW 0	
---													+COOLANT 0		
---													+NEAR TO			
---						
---						
-
-		
+--		ARLENIAN VICTORY			| V				| | V					  +----------->	500-100=400
+--		INDEPENDENT VICTORY			| 1 MINUTE		| | DROP ENGINEERS*		  |				500+100=600
+--		KTLITAN VICTORY				| 3 MINUTES		| | EXTRACT ENGINEERS	  |			
+--		TSN VICTORY					| 5 MINUTES*	| | ASSOCIATED			  |	+--------->	1-1=0
+--		USN VICTORY					| 10 MINUTES	| | +NEAR TO--> [Near To] |	|			1+1=2
+--		CUF VICTORY					| 15 MINUTES	| V						  | |			
+--									| 20 MINUTES	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0
+--									| 30 MINUTES	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2
+--									| 45 MINUTES	| ASSOCIATED			  |	| |			
+--									V				| +NEAR TO--> [Near To]	  | | | +----->	2-1=1
+--									TIMER*			V						  | | | |		2+1=3
+--									DEATH			+ENERGY 500---------------+ | | |				
+--									BREAKDOWN		+NUKE 1---------------------+ | | +---> 4-1=3
+--									MISSION			+EMP 1------------------------+ | |		4+1=5
+--									DEPARTURE		+MINE 2-------------------------+ |			
+--									DESTRUCTION		+HOMING 4-------------------------+	+->	0+1=1
+--									DISCOVERY		+HVLI 0-----------------------------+			
+--													+REPAIR CREW 0------------------------> 0+1=1
+--													+COOLANT 0--------------------------+			
+--													+NEAR TO--> [Near To]				+->	0+1=1
+--	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 require("utils.lua")
 
