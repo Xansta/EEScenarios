@@ -4030,9 +4030,6 @@ function handleUndockedState()
 				oMsg = oMsg .. ""
 			else
 				oMsg = oMsg .. "\nplot2: " .. plot2name
-				if plot2name == "destroyef2" then
-					oMsg = oMsg .. string.format(" ef2count: %i",ef2Count)
-				end
 			end
 			if plot3name == nil or plot3 == nil then
 				oMsg = oMsg .. ""
@@ -4575,8 +4572,8 @@ function setEnemyDefenseFleet(delta)
 	if enemyDefenseFleets == nil then
 		enemyDefenseFleets = "set"
 		for i=1,#enemyStationList do
-			defx, defy = enemyStationList[i]:getPosition()
-			ntf = spawnEnemies(defx,defy,1.5,enemyStationList[i]:getFaction())
+			local defx, defy = enemyStationList[i]:getPosition()
+			local ntf = spawnEnemies(defx,defy,1.5,enemyStationList[i]:getFaction())
 			for _, enemy in ipairs(ntf) do
 				enemy:orderDefendTarget(enemyStationList[i])
 			end
@@ -4588,12 +4585,12 @@ end
 function threadedPursuit(delta)
 	plot1name = "threadedPursuit"
 	if ef2 == nil then
-		p = closestPlayerTo(targetEnemyStation)
+		local p = closestPlayerTo(targetEnemyStation)
 		if p == nil then
 			return
 		end
-		scx, scy = p:getPosition()
-		cpx, cpy = vectorFromAngle(random(0,360),random(20000,30000))
+		local scx, scy = p:getPosition()
+		local cpx, cpy = vectorFromAngle(random(0,360),random(20000,30000))
 		ef2 = spawnEnemies(scx+cpx,scy+cpy,.8)
 		for _, enemy in ipairs(ef2) do
 			if diagnostic then
@@ -4656,6 +4653,16 @@ function pressureWaves(delta)
 	end
 	waveTimer = waveTimer - delta
 	if waveTimer < 0 then
+		local esx = nil
+		local esy = nil
+		local ntf = nil
+		local p = nil
+		local px = nil
+		local py = nil
+		local spx = nil
+		local spy = nil
+		local hsx = nil
+		local hsy = nil
 		waveSpawned = false
 		dangerValue = dangerValue + dangerIncrement
 		for i=1,#enemyStationList do
@@ -4666,8 +4673,10 @@ function pressureWaves(delta)
 					waveSpawned = true
 					if random(1,5) <= 3 then
 						p = closestPlayerTo(enemyStationList[i])
-						for _, enemy in ipairs(ntf) do
-							enemy:orderAttack(p)
+						if p ~= nil then
+							for _, enemy in ipairs(ntf) do
+								enemy:orderAttack(p)
+							end
 						end
 					else
 						for _, enemy in ipairs(ntf) do
@@ -4722,15 +4731,15 @@ function pressureWaves(delta)
 		if random(1,5) <= 1 then
 			p = closestPlayerTo(targetEnemyStation)
 			px, py = p:getPosition()
-			nol = getObjectsInRadius(px, py, 30000)
-			nearbyNebulae = {}
+			local nol = getObjectsInRadius(px, py, 30000)
+			local nearbyNebulae = {}
 			for _, obj in ipairs(nol) do
 				if string.find(obj:getTypeName(),"Nebula") then
 					table.insert(nearbyNebulae,obj)
 				end
 			end
 			if #nearbyNebulae > 0 then
-				nx, ny = nearbyNebulae[math.random(1,#nearbyNebulae)]:getPosition()
+				local nx, ny = nearbyNebulae[math.random(1,#nearbyNebulae)]:getPosition()
 				ntf = spawnEnemies(nx,ny,dangerValue,targetEnemyStation:getFaction())
 				waveSpawned = true
 				for _, enemy in ipairs(ntf) do
@@ -4741,7 +4750,7 @@ function pressureWaves(delta)
 		if not waveSpawned then
 			p = closestPlayerTo(targetEnemyStation)
 			px, py = p:getPosition()
-			spawnAngle = random(0,360)
+			local spawnAngle = random(0,360)
 			spx, spy = vectorFromAngle(spawnAngle, random(15000,20000))
 			ntf = spawnEnemies(px+spx, py+spy, dangerValue, targetEnemyStation:getFaction())
 			spawnAngle = spawnAngle + random(60,180)
@@ -4765,7 +4774,7 @@ end
 -----------------------------------------------------------------------------
 function destroyef2(delta)
 	plot2name = "destroyef2"
-	ef2Count = 0
+	local ef2Count = 0
 	for _, enemy in ipairs(ef2) do
 		if enemy:isValid() then
 			ef2Count = ef2Count + 1
@@ -4775,7 +4784,7 @@ function destroyef2(delta)
 		easyDeliveryTimer = 15
 		plot2 = easyDelivery
 		homeDelivery = true
-		p = closestPlayerTo(targetEnemyStation)
+		local p = closestPlayerTo(targetEnemyStation)
 		p:addReputationPoints(20)
 	end
 end
@@ -4785,7 +4794,7 @@ function easyDelivery(delta)
 	easyDeliveryTimer = easyDeliveryTimer - delta
 	if easyDeliveryTimer < 0 then
 		if easyDeliveryMsg == nil then
-			p = closestPlayerTo(homeStation)
+			local p = closestPlayerTo(homeStation)
 			if #goods[homeStation] > 0 then
 				for i=2,#stationList do
 					easyStation = stationList[i]
@@ -6383,9 +6392,9 @@ function wormBirth3(delta)
 	end
 end
 
---[[-----------------------------------------------------------------
-      Generic or utility functions
------------------------------------------------------------------]]--
+------------------------------------
+--	Generic or utility functions  --
+------------------------------------
 function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
