@@ -56,29 +56,29 @@
 --				| +DISPLAY: GM----------+			| | | |	+NEAR TO--> [Near To]						
 --				| +LENGTH: 5----------+	|			| | | |	NEAR RADIUS BUT SAFE			
 --				| +PURPOSE: TIMER---+ |	|			| | | |	EDGE BUT IN DANGER						
---				| START TIMER		| |	|			| | | |	NEAR RADIUS BUT OUTSIDE			
---				V					| |	V			| | | |	EDGE BUT INSIDE			
---		-MAIN FROM END				| |	HELM		| | | V
---		HUMAN VICTORY				| |	WEAPONS		| | | DROP MARINES*	
---		KRAYLOR VICTORY				| |	ENGINEER	| | | EXTRACT MARINES	
---		EXUARI VICTORY				| |	SCIENCE		| | | ASSOCIATED		
---		GHOST VICTORY				| |	RELAY		| | | +NEAR TO--> [Near To]		
---		ARLENIAN VICTORY			| V				| | V					  +----------->	500-100=400
---		INDEPENDENT VICTORY			| 1 MINUTE		| | DROP ENGINEERS*		  |				500+100=600
---		KTLITAN VICTORY				| 3 MINUTES		| | EXTRACT ENGINEERS	  |			
---		TSN VICTORY					| 5 MINUTES*	| | ASSOCIATED			  |	+--------->	1-1=0
---		USN VICTORY					| 10 MINUTES	| | +NEAR TO--> [Near To] |	|			1+1=2
---		CUF VICTORY					| 15 MINUTES	| V						  | |			
---									| 20 MINUTES	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0
---									| 30 MINUTES	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2
---									| 45 MINUTES	| ASSOCIATED			  |	| |			
---									V				| +NEAR TO--> [Near To]	  | | | +----->	2-1=1
---									TIMER*			V						  | | | |		2+1=3
---									DEATH			+ENERGY 500---------------+ | | |				
---									BREAKDOWN		+NUKE 1---------------------+ | | +---> 4-1=3
---									MISSION			+EMP 1------------------------+ | |		4+1=5
---									DEPARTURE		+MINE 2-------------------------+ |			
---									DESTRUCTION		+HOMING 4-------------------------+	+->	0+1=1
+--				| +ADD SECONDS----+	| |	|			| | | |	NEAR RADIUS BUT OUTSIDE			
+--				| +DEL SECONDS--+ |	| |	V			| | | |	EDGE BUT INSIDE			
+--				| START TIMER	| |	| |	HELM		| | | V
+--				V				| |	| |	WEAPONS		| | | DROP MARINES*	
+--		-MAIN FROM END			| |	| |	ENGINEER	| | | EXTRACT MARINES	
+--		HUMAN VICTORY			| | | |	SCIENCE		| | | ASSOCIATED		
+--		KRAYLOR VICTORY			| | | |	RELAY		| | | +NEAR TO--> [Near To]		
+--		EXUARI VICTORY			| | | V				| | V					  +----------->	500-100=400
+--		GHOST VICTORY			| | | 1 MINUTE		| | DROP ENGINEERS*		  |				500+100=600
+--		ARLENIAN VICTORY		| | | 3 MINUTES		| | EXTRACT ENGINEERS	  |			
+--		INDEPENDENT VICTORY		| | | 5 MINUTES*	| | ASSOCIATED			  |	+--------->	1-1=0
+--		KTLITAN VICTORY			| | | 10 MINUTES	| | +NEAR TO--> [Near To] |	|			1+1=2
+--		TSN VICTORY				| | | 15 MINUTES	| V						  | |			
+--		USN VICTORY				| | | 20 MINUTES	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0
+--		CUF VICTORY				| | | 30 MINUTES	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2
+--								| | | 45 MINUTES	| ASSOCIATED			  |	| |			
+--	+---------------------------+ |	V				| +NEAR TO--> [Near To]	  | | | +----->	2-1=1
+--	|				+-------------+	TIMER*			V						  | | | |		2+1=3
+--	V				V				DEATH			+ENERGY 500---------------+ | | |				
+--	DEL 1 SECOND	ADD 1 SECOND	BREAKDOWN		+NUKE 1---------------------+ | | +---> 4-1=3
+--	DEL 3 SECONDS	ADD 3 SECONDS	MISSION			+EMP 1------------------------+ | |		4+1=5
+--	DEL 5 SECONDS	ADD 5 SECONDS	DEPARTURE		+MINE 2-------------------------+ |			
+--	DEL 10 SECONDS	ADD 10 SECONDS	DESTRUCTION		+HOMING 4-------------------------+	+->	0+1=1
 --									DISCOVERY		+HVLI 0-----------------------------+			
 --													+REPAIR CREW 0------------------------> 0+1=1
 --													+COOLANT 0--------------------------+			
@@ -713,6 +713,7 @@ function setConstants()
 	timer_start_length = 5
 	timer_started = false
 	timer_purpose = "Timer"
+	timer_fudge = 0
 	coolant_amount = 1
 	jammer_range = 10000
 	automated_station_danger_warning = true
@@ -1456,6 +1457,10 @@ end
 -- +DISPLAY: GM			D	GMTimerDisplay
 -- +LENGTH: 5			D	GMTimerLength
 -- +PURPOSE: TIMER		D	GMTimerPurpose
+-- +ADD SECONDS			F	addSecondsToTimer		(only present after timer starts)
+-- +DELETE SECONDS		F	deleteSecondsFromTimer	(only present after timer starts)
+-- +CHANGE SPEED		F	changeTimerSpeed		(only present after timer starts)
+-- SHOW CURRENT			F	inline					(only present after timer starts)
 -- START TIMER			F	inline: toggles between START and STOP (related code in update)
 function countdownTimer()
 	clearGMFunctions()
@@ -1480,6 +1485,25 @@ function countdownTimer()
 	addGMFunction(string.format("+Length: %i",timer_start_length),GMTimerLength)
 	addGMFunction(string.format("+Purpose: %s",timer_purpose),GMTimerPurpose)
 	if timer_started then
+		addGMFunction("+Add Seconds",addSecondsToTimer)
+		addGMFunction("+Delete Seconds",deleteSecondsFromTimer)
+		addGMFunction("+Change Speed",changeTimerSpeed)
+		addGMFunction("Show Current",function()
+			local timer_status = timer_purpose
+			local timer_minutes = math.floor(timer_value / 60)
+			local timer_seconds = math.floor(timer_value % 60)
+			if timer_minutes <= 0 then
+				timer_status = string.format("%s %i",timer_status,timer_seconds)
+			else
+				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
+			end
+			if timer_fudge > 0 then
+				timer_status = string.format("%s\n(slowed: %.3f)",timer_status,timer_fudge)
+			elseif timer_fudge < 0 then
+				timer_status = string.format("%s\n(sped up: %.3f)",timer_status,-timer_fudge)
+			end
+			addGMMessage(timer_status)
+		end)
 		addGMFunction("Stop Timer", function()
 			timer_started = false
 			countdownTimer()
@@ -9232,6 +9256,110 @@ function GMTimerPurpose()
 		end)
 	end
 end
+-------------------------------------
+--	Countdown Timer > Add Seconds  --
+-------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -FROM ADD SECONDS	F	countdownTimer
+-- ADD 1 SECONDS		F	inline
+-- ADD 3 SECONDS		F	inline
+-- ADD 5 SECONDS		F	inline
+-- ADD 10 SECONDS		F	inline
+function addSecondsToTimer()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-From Add Seconds",countdownTimer)
+	addGMFunction("Add 1 second",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value + 1
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+	addGMFunction("Add 3 seconds",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value + 3
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+	addGMFunction("Add 5 seconds",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value + 5
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+	addGMFunction("Add 10 seconds",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value + 10
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+end
+----------------------------------------
+--	Countdown Timer > Delete Seconds  --
+----------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -FROM DEL SECONDS	F	countdownTimer
+-- DEL 1 SECONDS		F	inline
+-- DEL 3 SECONDS		F	inline
+-- DEL 5 SECONDS		F	inline
+-- DEL 10 SECONDS		F	inline
+function deleteSecondsFromTimer()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-From Del Seconds",countdownTimer)
+	addGMFunction("Del 1 second",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value - 1
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+	addGMFunction("Del 3 seconds",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value - 3
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+	addGMFunction("Del 5 seconds",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value - 5
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+	addGMFunction("Del 10 seconds",function()
+		local prev_timer_value = timer_value
+		timer_value = timer_value - 10
+		addGMMessage(string.format("Timer changed from %.1f to %.1f",prev_timer_value,timer_value))
+	end)
+end
+--------------------------------------
+--	Countdown Timer > Change Speed  --
+--------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -FROM CHANGE SPEED	F	countdownTimer
+-- SLOW DOWN			D	inline
+-- NORMALIZE			F	inline
+-- SPEED UP				D	inline
+function changeTimerSpeed()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-From Change Speed",countdownTimer)
+	local button_label = "Slow Down"
+	if timer_fudge > 0 then
+		button_label = string.format("%s %.3f",button_label,timer_fudge)
+	end
+	addGMFunction(button_label,function()
+		timer_fudge = timer_fudge + .005
+		changeTimerSpeed()
+	end)
+	addGMFunction("Normalize",function()
+		timer_fudge = 0
+		changeTimerSpeed()
+	end)
+	button_label = "Spped Up"
+	if timer_fudge < 0 then
+		button_label = string.format("%s %.3f",button_label,-timer_fudge)
+	end
+	addGMFunction(button_label,function()
+		timer_fudge = timer_fudge - .005
+		changeTimerSpeed()
+	end)
+end
 --------------------------
 --	Ship communication  --
 --------------------------
@@ -11225,7 +11353,7 @@ function update(delta)
 		if timer_value == nil then
 			timer_value = delta + timer_start_length*60
 		end
-		timer_value = timer_value - delta
+		timer_value = timer_value - delta + timer_fudge
 	end
 	healthCheckTimer = healthCheckTimer - delta
 	local warning_message = nil
