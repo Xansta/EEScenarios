@@ -2835,6 +2835,7 @@ function createKentarColor()
 	kentar_planets = createKentarPlanets()
 	kentar_asteroids = createKentarAsteroids()
 	kentar_nebula = createKentarNebula()
+	kentar_mines = createKentarMines()
 	kentar_stations = createKentarStations()
 	regionStations = kentar_stations
 end
@@ -2872,6 +2873,26 @@ function createKentarStations()
     	history = "Based on the scans showing cobalt in many of these asteroids, we named this station after an ancient earth mining operation that was part of the Glencore Public Limited Comany"
 	}
 	table.insert(stations,stationKatanga)
+	--Keyhole-23
+	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKeyhole23.total_time = 0
+    if random(1,100) <= 67 then tradeLuxury = true else tradeLuxury = false end
+    stationKeyhole23.comms_data = {
+    	friendlyness = 25,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(32,58),	EMP = 20 },
+        weapon_available = 	{Homing = false,	HVLI = false,			Mine = false,			Nuke = true,				EMP = true},
+        service_cost = 		{supplydrop = math.random(180,320), reinforcements = math.random(225,375)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	dilithium = 	{quantity = math.random(5,10),	cost = math.random(20,30)},
+        			tritanium =		{quantity = math.random(5,10),	cost = math.random(25,40)}	},
+        trade = {	food = true, medicine = false, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "Work here is classified, however, it involves research on this black hole",
+    	history = "Reference classified archives at headquarters. Public access redacted"
+	}
+	table.insert(stations,stationKeyhole23)
 	return stations
 end
 function createKentarPlanets()
@@ -2893,44 +2914,215 @@ function createKentarPlanets()
 	table.insert(planet_list,black_hole_k2)
 	return planet_list
 end
+function createKentarMines()
+	local mine_list = {}
+	local mine_coordinates = {
+		{82955, 295158},
+		{86968, 293163},
+		{86740, 294663},
+		{83024, 294199},
+		{84715, 295869},
+		{85475, 292120},
+		{83908, 294447},
+		{83179, 292457},
+		{83737, 291864},
+		{84700, 291781},
+		{82666, 292940}
+	}
+	for i=1,#mine_coordinates do
+    	local static_mine = Mine():setPosition(mine_coordinates[i][1],mine_coordinates[i][2])
+    	table.insert(mine_list,static_mine)
+	end
+	return mine_list
+end
 function createKentarAsteroids()
 	local asteroid_list = {}
 	local asteroid_coordinates = {
-    {223576, 220378, 20},
-    {228043, 213831, 120},
-    {231509, 219223, 220},
-    {229352, 216758, 320},
-    {222882, 239095, 180},
-    {236054, 227079, 160},
-    {232741, 219300, 190},
-    {233897, 219300, 12},
-    {227427, 220995, 20},
-    {231432, 220840, 220},
-    {225501, 231239, 320},
-    {227966, 227465, 420},
-    {230200, 227542, 520},
-    {226425, 224461, 620},
-    {221881, 227002, 320},
-    {216720, 230854, 220},
-    {224423, 216527, 170},
-    {236439, 224615, 180},
-    {238518, 222689, 20},
-    {228813, 232317, 12},
-    {224962, 234474, 50},
-    {232664, 230931, 70},
-    {235514, 228928, 80},
-    {237594, 219146, 15},
-    {232048, 223690, 25},
-    {236747, 229698, 325},
-    {240059, 230391, 725},
-    {234051, 226925, 225},
-    {234282, 232471, 225},
-    {237671, 227465, 165},
-    {240521, 226232, 165},
-    {238826, 231470, 175},
-    {239366, 228312, 195},
-    {240752, 228389, 325},
-    {241907, 228235, 425} }
+		{78851, 290391, 34},
+		{80538, 292640, 23},
+		{83249, 289135, 334},
+		{83216, 290490, 24},
+		{75710, 296906, 134},
+		{78256, 295748, 274},
+		{73395, 295451, 214},
+		{127099, 315622, 134},
+		{77727, 300014, 64},
+		{78653, 298030, 134},
+		{173839, 324127, 34},
+		{73263, 292508, 34},
+		{75611, 287217, 34},
+		{150434, 325181, 24},
+		{72304, 294426, 24},
+		{201040, 304939, 534},
+		{82786, 294988, 294},
+		{173980, 318785, 334},
+		{82423, 291582, 134},
+		{195698, 306063, 244},
+		{84010, 293599, 237},
+		{127591, 318926, 94},
+		{81067, 293367, 434},
+		{79612, 297269, 134},
+		{79050, 293863, 234},
+		{74817, 293731, 234},
+		{74189, 290722, 214},
+		{121124, 314076, 254},
+		{122038, 319207, 54},
+		{81166, 296112, 4},
+		{84804, 294822, 34},
+		{76735, 289267, 534},
+		{79876, 288506, 434},
+		{77826, 287349, 134},
+		{81993, 286688, 174},
+		{79215, 285894, 84},
+		{80207, 283745, 634},
+		{77727, 285299, 34},
+		{89202, 294855, 34},
+		{86622, 289895, 24},
+		{87482, 292508, 24},
+		{90921, 293169, 44},
+		{89764, 292078, 64},
+		{91351, 291020, 54},
+		{92773, 294558, 64},
+		{86755, 287713, 34},
+		{87052, 296343, 24},
+		{90061, 299121, 84},
+		{87118, 299121, 134},
+		{85663, 300047, 164},
+		{85366, 284836, 194},
+		{85465, 286886, 234},
+		{87879, 285001, 234},
+		{90326, 287283, 44},
+		{93401, 290490, 334},
+		{93269, 292045, 434},
+		{97634, 298559, 74},
+		{95253, 295252, 84},
+		{83316, 301502, 214},
+		{81960, 300444, 204},
+		{95749, 300279, 354},
+		{94856, 301932, 394},
+		{93699, 295847, 234},
+		{94559, 297071, 234},
+		{97270, 296509, 254},
+		{92112, 300510, 274},
+		{84043, 304379, 284},
+		{80604, 301833, 234},
+		{88540, 304048, 224},
+		{92211, 304048, 214},
+		{86325, 302527, 334},
+		{86457, 304941, 334},
+	--
+		{169727, 259094, 334},
+		{177727, 267520, 434},
+		{166243, 250230, 534},
+		{148395, 259612, 134},
+		{149949, 254021, 24},
+		{152708, 246528, 24},
+		{143186, 262425, 34},
+		{140056, 268814, 634},
+		{144204, 271605, 434},
+		{132887, 270315, 134},
+		{137324, 255011, 264},
+		{164706, 279692, 239},
+		{165361, 284918, 254},
+		{142007, 276720, 284},
+		{127403, 256736, 294},
+		{140631, 246240, 164},
+		{148207, 286302, 184},
+		{153997, 282920, 194},
+		{168402, 266420, 164},
+		{170658, 266600, 234},
+		{167680, 271157, 234},
+		{171786, 269217, 234},
+		{164748, 274406, 334},
+		{167184, 274677, 534},
+		{169576, 276797, 634},
+		{164703, 277925, 134},
+		{137088, 280666, 264},
+		{141341, 284662, 274},
+		{173681, 275545, 284},
+		{175121, 274484, 34},
+		{176636, 275166, 34},
+		{174969, 276379, 23},
+		{177091, 277819, 23},
+		{174060, 271075, 23},
+		{172469, 272211, 14},
+		{171256, 274636, 34},
+		{170574, 274788, 134},
+		{177697, 274181, 334},
+		{175954, 273045, 334},
+		{179137, 272439, 334},
+		{173075, 267665, 434},
+		{169437, 264482, 434},
+		{162412, 271558, 434},
+		{165203, 268814, 534},
+		{164738, 264490, 534},
+		{158753, 262663, 534},
+		{155040, 266452, 734},
+		{152994, 262057, 264},
+		{148675, 266755, 264},
+		{147538, 274484, 274},
+		{154964, 269104, 274},
+		{159208, 270393, 284},
+		{161405, 267816, 294},
+		{145038, 277212, 134},
+		{147084, 278425, 134},
+		{151251, 274257, 134},
+		{151782, 278273, 154},
+		{155116, 274181, 154},
+		{155874, 277970, 164},
+		{165800, 270393, 154},
+		{162314, 277970, 174},
+		{168452, 277970, 184},
+		{172847, 278198, 254},
+		{158980, 274257, 284},
+		{162314, 274257, 284},
+		{165952, 275015, 284},
+		{169437, 274106, 284},
+		{169589, 271984, 234},
+		{169134, 269332, 234},
+		{165270, 261527, 234},
+		{160227, 260305, 234},
+		{162845, 258723, 214},
+		{156460, 254771, 214},
+		{160875, 255237, 214},
+		{155116, 257359, 234},
+		{160117, 252358, 234},
+		{223576, 220378, 20},
+		{228043, 213831, 120},
+		{231509, 219223, 220},
+		{229352, 216758, 320},
+		{222882, 239095, 180},
+		{236054, 227079, 160},
+		{232741, 219300, 190},
+		{233897, 219300, 12},
+		{227427, 220995, 20},
+		{231432, 220840, 220},
+		{225501, 231239, 320},
+		{227966, 227465, 420},
+		{230200, 227542, 520},
+		{226425, 224461, 620},
+		{221881, 227002, 320},
+		{216720, 230854, 220},
+		{224423, 216527, 170},
+		{236439, 224615, 180},
+		{238518, 222689, 20},
+		{228813, 232317, 12},
+		{224962, 234474, 50},
+		{232664, 230931, 70},
+		{235514, 228928, 80},
+		{237594, 219146, 15},
+		{232048, 223690, 25},
+		{236747, 229698, 325},
+		{240059, 230391, 725},
+		{234051, 226925, 225},
+		{234282, 232471, 225},
+		{237671, 227465, 165},
+		{240521, 226232, 165},
+		{238826, 231470, 175},
+		{239366, 228312, 195},
+		{240752, 228389, 325},
+		{241907, 228235, 425} 
+	}
     for i=1,#asteroid_coordinates do
     	local static_asteroid = Asteroid():setPosition(asteroid_coordinates[i][1],asteroid_coordinates[i][2]):setSize(asteroid_coordinates[i][3])
     	table.insert(asteroid_list,static_asteroid)
@@ -2940,6 +3132,44 @@ end
 function createKentarNebula()
 	local nebula_list = {}
 	local nebula_coordinates = {
+		{120064, 312382},
+		{120643, 319370},
+		{115342, 316108},
+		{114325, 308421},
+		{126696, 314745},
+		{131154, 317849},
+		{92475, 300295},
+		{125060, 321237},
+		{136554, 319815},
+		{192982, 308249},
+		{87185, 295651},
+		{198593, 301982},
+		{182353, 316287},
+		{198580, 308113},
+		{187791, 312512},
+		{131449, 322751},
+		{150626, 322953},
+		{97651, 297388},
+		{85424, 302134},
+		{93237, 293237},
+		{143416, 321745},
+		{176997, 318076},
+		{176536, 323162},
+		{101116, 306820},
+		{104202, 300923},
+		{108819, 305042},
+		{173097, 326215},
+		{87144, 287426},
+		{164896, 322006},
+		{170688, 319822},
+		{78704, 287201},
+		{150965, 326807},
+		{80073, 298276},
+		{82811, 291992},
+		{156892, 322419},
+		{205808, 295642},
+		{75531, 293547},
+		{203577, 305468},
 		{214130, 197543},
 		{225472, 200000},
 		{228118, 191115},
@@ -3000,6 +3230,13 @@ function removeKentarColor()
 		end
 	end
 	kentar_stations = nil
+	
+	if kentar_mines ~= nil then
+		for _,km in pairs(kentar_mines) do
+			km:destroy()
+		end
+	end
+	kentar_mines = nil
 end
 -------------------------------------
 --	Initial Set Up > Player Ships  --
@@ -8896,70 +9133,38 @@ function GMTimerPurpose()
 	clearGMFunctions()
 	addGMFunction("-Main from Timer",initialGMFunctions)
 	addGMFunction("-From Purpose",countdownTimer)
-	local purpose_label = ""
-	if timer_purpose == "Timer" then
-		purpose_label = "Timer*"
-	else
-		purpose_label = "Timer"
+	if purpose_label == nil then
+		purpose_label = {
+			"Timer"				,
+			"Death"				,
+			"Breakdown"			,
+			"Mission"			,
+			"Departure"			,
+			"Destruction"		,
+			"Discovery"			,
+			"Unknown Acid"		,
+			"Bulkheads Melting"	,
+			"Exploring Room"	,
+			"Finding Nest"		,
+			"Amassing Security"	,
+			"Security Overrun"	,
+			"Metal Fatigue"		,
+			"Decompression"		
+		}
 	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Timer"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Death" then
-		purpose_label = "Death*"
-	else
-		purpose_label = "Death"
+	local button_label = nil
+	for i=1,#purpose_label do
+		local current_purpose = purpose_label[i]
+		if timer_purpose == current_purpose then
+			button_label = string.format("%s*",current_purpose)
+		else
+			button_label = current_purpose
+		end
+		addGMFunction(button_label,function()
+			timer_purpose = current_purpose
+			GMTimerPurpose()
+		end)
 	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Death"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Breakdown" then
-		purpose_label = "Breakdown*"
-	else
-		purpose_label = "Breakdown"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Breakdown"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Mission" then
-		purpose_label = "Mission*"
-	else
-		purpose_label = "Mission"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Mission"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Departure" then
-		purpose_label = "Departure*"
-	else
-		purpose_label = "Departure"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Departure"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Destruction" then
-		purpose_label = "Destruction*"
-	else
-		purpose_label = "Destruction"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Destruction"
-		GMTimerPurpose()
-	end)
-	if timer_purpose == "Discovery" then
-		purpose_label = "Discovery*"
-	else
-		purpose_label = "Discovery"
-	end
-	addGMFunction(purpose_label, function()
-		timer_purpose = "Discovery"
-		GMTimerPurpose()
-	end)
 end
 --------------------------
 --	Ship communication  --
@@ -11666,6 +11871,15 @@ function movingObjects(delta)
 		end
 		local px,py = vectorFromAngle(kentar_mobile_nebula_1.angle,kentar_mobile_nebula_1.mobile_neb_dist)
 		kentar_mobile_nebula_1:setPosition(kentar_mobile_nebula_1.center_x+px,kentar_mobile_nebula_1.center_y+py)
+	end
+	if stationKeyhole23 ~= nil and stationKeyhole23:isValid() then
+		stationKeyhole23.total_time = stationKeyhole23.total_time + delta
+		local orbit_distance
+		local center_x=210000
+		local center_y=290000
+		local dist=3600
+		local orbit_pos=stationKeyhole23.total_time/15 --math.fmod(total_time/1,
+		stationKeyhole23:setPosition(center_x+(math.cos(orbit_pos)*dist),center_y+(math.sin(orbit_pos)*dist))
 	end
 end
 function crewFate(p, fatalityChance)
