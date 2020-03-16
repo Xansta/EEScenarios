@@ -6,8 +6,8 @@
 -- Variation[Hard]: Hard goals and/or enemies
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --
--- +INITIAL SET UP------------>	-MAIN FROM INITIAL						DEFAULT*			  Toggle button per player ship <-------+AUTO COOL 	
--- +SPAWN FLEET---------------+	+START REGION------------------------->	KENTAR (R17)												+COOLANT--------+
+-- +INITIAL SET UP------------>	-MAIN FROM INITIAL											  Toggle button per player ship <-------+AUTO COOL 	
+-- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT--------+
 -- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--+ |
 -- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO------+ |	|
 -- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+DESCRIPTIONS-----> +DESCRIBE CURRENT---> List	+REPUTATION	| | |
@@ -46,13 +46,13 @@
 --				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											1.0 + 0.5 = 1.5		
 --				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| V						
 --				| | | UNRETRIEVABLE					| | | |	| AT SELECTION			
---				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE				
---				| | V								| | | |	| BEYOND SENSORS			
---				| | -MAIN							| | | |	| +RANDOM DIRECTION		
---				| | EXPLODE SEL ART					| | | |	| +AWAY*						
---				| | PULSE ASTEROID					| | | |	| +AMBUSH 5				
---				| V									| | | |	V				
---				| -MAIN FROM TIMER					| | | |	(+)ASSOCIATED
+--				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE									+->	DEFAULT*
+--				| | V								| | | |	| BEYOND SENSORS			[Region]			|	KENTAR (R17)
+--				| | -MAIN							| | | |	| +RANDOM DIRECTION			-MAIN FROM REGION	|
+--				| | EXPLODE SEL ART					| | | |	| +AWAY*					-SETUP				|	
+--				| | PULSE ASTEROID					| | | |	| +AMBUSH 5					+PLAYER SPAWN POINT-+
+--				| V									| | | |	V							+TERRAIN-------------->	DEFAULT
+--				| -MAIN FROM TIMER					| | | |	(+)ASSOCIATED										KENTAR (R17)
 --				| +DISPLAY: GM----------+			| | | |	+NEAR TO--> [Near To]						
 --				| +LENGTH: 5----------+	|			| | | |	NEAR RADIUS BUT SAFE			
 --				| +PURPOSE: TIMER---+ |	|			| | | |	EDGE BUT IN DANGER						
@@ -175,6 +175,8 @@ function setConstants()
 	playerSpawnX = 0
 	playerSpawnY = 0
 	startRegion = "Default"
+	icarus_color = false
+	kentar_color = false
 	fleetSpawnFaction = "Exuari"
 	fleetStrengthFixed = false
 	fleetStrengthFixedValue = 250
@@ -1544,32 +1546,206 @@ end
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM REGION	F	initialGMFunctions
 -- -SETUP				F	initialSetUp
--- DEFAULT*				*	setDefaultRegion
--- KENTAR (R17)			*	setKentarRegion
+-- +PLAYER SPAWN POINT	F	setDefaultPlayerSpawnPoint
+-- +TERRAIN				F	changeTerrain
 function setStartRegion()
 	clearGMFunctions()
 	addGMFunction("-Main From Region",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
-	local GMSetDefaultRegion = "Default"
-	if startRegion == "Default" then
-		GMSetDefaultRegion = "Default*"
+	addGMFunction("+Player Spawn Point",setDefaultPlayerSpawnPoint)
+	addGMFunction("+Terrain",changeTerrain)
+end
+-------------------------------------
+--	Initial Set Up > Player Ships  --
+-------------------------------------
+-- Button text	   FD*	Related function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- +TWEAK PLAYER	F	tweakPlayerShip
+-- +DESCRIPTIONS	F	describePlayerShips
+-- +CURRENT			F	activePlayerShip
+-- +SCRAPPED		F	inactivePlayerShip
+function playerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Tweak player",tweakPlayerShip)
+	addGMFunction("+Descriptions",describePlayerShips)
+	addGMFunction("+Current",activePlayerShip)
+	addGMFunction("+Scrapped",inactivePlayerShip)
+	if playerShipInfo == nil then
+		playerShipInfo={
+			{"Ambition"   ,"inactive",createPlayerShipAmbition   ,"Phobos T2(Ambition): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
+			{"Arwine"     ,"inactive",createPlayerShipArwine     ,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
+			{"Barracuda"  ,"inactive",createPlayerShipBarracuda  },
+			{"Blazon"     ,"inactive",createPlayerShipBlazon     },
+			{"Cobra"      ,"active"  ,createPlayerShipCobra      ,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
+			{"Halberd"    ,"inactive",createPlayerShipHalberd    },
+			{"Headhunter" ,"inactive",createPlayerShipHeadhunter },
+			{"Holmes"     ,"active"  ,createPlayerShipHolmes     ,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nDefault advanced engine:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
+			{"Magnum"     ,"inactive",createPlayerShipMagnum     },
+			{"Narsil"     ,"inactive",createPlayerShipNarsil     },
+			{"Osprey"     ,"inactive",createPlayerShipOsprey     },
+			{"Rattler"    ,"active"  ,createPlayerShipRattler    ,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nDefault advanced engine:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
+			{"Rogue"      ,"active"  ,createPlayerShipRogue      ,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
+			{"Simian"     ,"active"  ,createPlayerShipSimian     ,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
+			{"Spike"      ,"inactive",createPlayerShipSpike      },
+			{"Spyder"     ,"inactive",createPlayerShipSpyder     },
+			{"Sting"      ,"inactive",createPlayerShipSting      },
+			{"Thunderbird","inactive",createPlayerShipThunderbird},
+			{"Wombat"     ,"inactive",createPlayerShipWombat     }
+		}
 	end
-	addGMFunction(GMSetDefaultRegion,setDefaultRegion)
-	local GMSetKentarRegion = "Kentar (R17)"
+end
+----------------------------------
+--	Initial Set Up > Wormholes  --
+----------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM WORMHOLE		F	initialGMFunctions
+-- -SETUP					F	initialSetUp
+-- +ICARUS TO DEFAULT		D	setIcarusWormholeExit
+function setWormholes()
+	clearGMFunctions()
+	addGMFunction("-Main From Wormhole",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Icarus to " .. wormholeIcarus.exit,setIcarusWormholeExit)
+end
+function setIcarusWormholeExit()
+	clearGMFunctions()
+	addGMFunction("-Wormhole",setWormholes)
+	local icarus_label = "Default"
+	if wormholeIcarus.exit == "default" then
+		icarus_label = "Default*"
+	end
+	addGMFunction(icarus_label, function()
+		wormholeIcarus.exit = "default"
+		wormholeIcarus:setTargetPosition(wormholeIcarus.default_exit_point_x,wormholeIcarus.default_exit_point_y)
+		setIcarusWormholeExit()
+	end)
+	icarus_label = "Kentar"
+	if wormholeIcarus.exit == "kentar" then
+		icarus_label = "Kentar*"
+	end
+	addGMFunction(icarus_label, function()
+		wormholeIcarus.exit = "kentar"
+		wormholeIcarus:setTargetPosition(wormholeIcarus.kentar_exit_point_x,wormholeIcarus.kentar_exit_point_y)
+		setIcarusWormholeExit()
+	end)
+end
+function throughWormhole(worm_hole,transportee)
+	if worm_hole == wormholeIcarus then
+		if worm_hole.exit == "default" then
+			--exited near Icarus, near station Macassa
+		end
+		if worm_hole.exit == "kentar" then
+			--exited near station Kentar
+		end
+	end
+end
+------------------------------
+--	Initial Set Up > Zones  --
+------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM ZONES		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- +ADD ZONE			F	addZone
+-- +DELETE ZONE			F	deleteZone (button only present if zones available to delete)
+function changeZones()
+	clearGMFunctions()
+	addGMFunction("-Main From Zones",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Add Zone",addZone)
+	if zone_list ~= nil and #zone_list > 0 then
+		addGMFunction("+Delete Zone",deleteZone)
+	end
+end
+----------------------------------------------------------
+--	Initial Set Up > Start Region > Player Spawn Point  --
+----------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -FROM PLYR SPWN PT	F	setStartRegion
+-- DEFAULT*				*	inline, createIcarusColor
+-- KENTAR(R17)			*	inline, createKentarColor
+function setDefaultPlayerSpawnPoint()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-From Plyr Spwn Pt",setStartRegion)
+	local button_label = "Default"
+	if startRegion == "Default" then
+		button_label = "Default*"
+	end
+	addGMFunction(button_label,function()
+		playerSpawnX = 0
+		playerSpawnY = 0
+		startRegion = "Default"
+		if not icarus_color then
+			createIcarusColor()
+		end
+		setDefaultPlayerSpawnPoint()
+	end)
+	button_label = "Kentar (R17)"
 	if startRegion == "Kentar" then
-		GMSetKentarRegion = "Kentar* (R17)"
-	end	
-	addGMFunction(GMSetKentarRegion,setKentarRegion)
+		button_label = "Kentar* (R17)"
+	end
+	addGMFunction(button_label,function()
+		playerSpawnX = 250000
+		playerSpawnY = 250000
+		startRegion = "Kentar"
+		if not kentar_color then
+			createKentarColor()
+		end
+		setDefaultPlayerSpawnPoint()
+	end)
+end
+-----------------------------------------------
+--	Initial Set Up > Start Region > Terrain  --
+-----------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -FROM TERRAIN	F	setStartRegion
+-- DEFAULT*			*	inline, createIcarusColor, removeIcarusColor
+-- KENTAR(R17)		*	inline, createKentarColor, removeKentarColor
+function changeTerrain()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-From Terrain",setStartRegion)
+	local button_label = "Default"
+	if icarus_color then
+		button_label = "Default*"
+	end
+	addGMFunction(button_label,function()
+		if icarus_color then
+			removeIcarusColor()
+			addGMMessage("Icarus (default) terrain removed")
+		else
+			createIcarusColor()
+			addGMMessage("Icarus (default) terrain created")
+		end
+		changeTerrain()
+	end)
+	button_label = "Kentar (R17)"
+	if kentar_color then
+		button_label = "Kentar* (R17)"
+	end
+	addGMFunction(button_label,function()
+		if kentar_color then
+			removeKentarColor()
+			addGMMessage("Kentar terrain removed")
+		else
+			createKentarColor()
+			addGMMessage("Kentar terrain created")
+		end
+		changeTerrain()
+	end)
 end
 -- Icarus area stations, asteroids, mines, etc. 
-function setDefaultRegion()	
-	playerSpawnX = 0
-	playerSpawnY = 0
-	startRegion = "Default"
-	createIcarusColor()
-	setStartRegion()
-end
 function createIcarusColor()
+	icarus_color = true
 	icarusDefensePlatforms = {}
 	icarusMines = {}
 	macassaAsteroids = createMacassaAsteroids()
@@ -1601,6 +1777,7 @@ function createIcarusColor()
 	--planetBespin:setPlanetSurfaceTexture("planets/gas-1.png"):setAxialRotationTime(300):setDescription("Mining and Gambling")
 end
 function removeIcarusColor()
+	icarus_color = false
 	if icarusDefensePlatforms ~= nil then
 		for _,dp in pairs(icarusDefensePlatforms) do
 			dp:destroy()
@@ -2823,15 +3000,8 @@ function createFinneganFeatures()
     return feature_list
 end
 -- Kentar area stations, asteroids, mines, etc. 
-function setKentarRegion()
-	playerSpawnX = 250000
-	playerSpawnY = 250000
-	startRegion = "Kentar"
-	removeIcarusColor()
-	createKentarColor()
-	setStartRegion()
-end
 function createKentarColor()
+	kentar_color = true
 	kentar_planets = createKentarPlanets()
 	kentar_asteroids = createKentarAsteroids()
 	kentar_nebula = createKentarNebula()
@@ -3203,6 +3373,7 @@ function createKentarNebula()
     return nebula_list
 end
 function removeKentarColor()
+	kentar_color = false
 	if kentar_planets ~= nil then
 		for _,kp in pairs(kentar_planets) do
 			kp:destroy()
@@ -3238,205 +3409,6 @@ function removeKentarColor()
 	end
 	kentar_mines = nil
 end
--------------------------------------
---	Initial Set Up > Player Ships  --
--------------------------------------
--- Button text	   FD*	Related function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- +TWEAK PLAYER	F	tweakPlayerShip
--- +DESCRIPTIONS	F	describePlayerShips
--- +CURRENT			F	activePlayerShip
--- +SCRAPPED		F	inactivePlayerShip
-function playerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Tweak player",tweakPlayerShip)
-	addGMFunction("+Descriptions",describePlayerShips)
-	addGMFunction("+Current",activePlayerShip)
-	addGMFunction("+Scrapped",inactivePlayerShip)
-	if playerShipInfo == nil then
-		playerShipInfo={
-			{"Ambition"   ,"inactive",createPlayerShipAmbition   ,"Phobos T2(Ambition): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
-			{"Arwine"     ,"inactive",createPlayerShipArwine     ,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nDefault Advanced Engine:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
-			{"Barracuda"  ,"inactive",createPlayerShipBarracuda  },
-			{"Blazon"     ,"inactive",createPlayerShipBlazon     },
-			{"Cobra"      ,"active"  ,createPlayerShipCobra      ,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
-			{"Halberd"    ,"inactive",createPlayerShipHalberd    },
-			{"Headhunter" ,"inactive",createPlayerShipHeadhunter },
-			{"Holmes"     ,"active"  ,createPlayerShipHolmes     ,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nDefault advanced engine:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
-			{"Magnum"     ,"inactive",createPlayerShipMagnum     },
-			{"Narsil"     ,"inactive",createPlayerShipNarsil     },
-			{"Osprey"     ,"inactive",createPlayerShipOsprey     },
-			{"Rattler"    ,"active"  ,createPlayerShipRattler    ,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nDefault advanced engine:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
-			{"Rogue"      ,"active"  ,createPlayerShipRogue      ,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
-			{"Simian"     ,"active"  ,createPlayerShipSimian     ,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nDefault advanced engine:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
-			{"Spike"      ,"inactive",createPlayerShipSpike      },
-			{"Spyder"     ,"inactive",createPlayerShipSpyder     },
-			{"Sting"      ,"inactive",createPlayerShipSting      },
-			{"Thunderbird","inactive",createPlayerShipThunderbird},
-			{"Wombat"     ,"inactive",createPlayerShipWombat     }
-		}
-	end
-end
-----------------------------------
---	Initial Set Up > Wormholes  --
-----------------------------------
--- Button Text			   FD*	Related Function(s)
--- -MAIN FROM WORMHOLE		F	initialGMFunctions
--- -SETUP					F	initialSetUp
--- +ICARUS TO DEFAULT		D	setIcarusWormholeExit
-function setWormholes()
-	clearGMFunctions()
-	addGMFunction("-Main From Wormhole",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Icarus to " .. wormholeIcarus.exit,setIcarusWormholeExit)
-end
-function setIcarusWormholeExit()
-	clearGMFunctions()
-	addGMFunction("-Wormhole",setWormholes)
-	local icarus_label = "Default"
-	if wormholeIcarus.exit == "default" then
-		icarus_label = "Default*"
-	end
-	addGMFunction(icarus_label, function()
-		wormholeIcarus.exit = "default"
-		wormholeIcarus:setTargetPosition(wormholeIcarus.default_exit_point_x,wormholeIcarus.default_exit_point_y)
-		setIcarusWormholeExit()
-	end)
-	icarus_label = "Kentar"
-	if wormholeIcarus.exit == "kentar" then
-		icarus_label = "Kentar*"
-	end
-	addGMFunction(icarus_label, function()
-		wormholeIcarus.exit = "kentar"
-		wormholeIcarus:setTargetPosition(wormholeIcarus.kentar_exit_point_x,wormholeIcarus.kentar_exit_point_y)
-		setIcarusWormholeExit()
-	end)
-end
-function throughWormhole(worm_hole,transportee)
-	if worm_hole == wormholeIcarus then
-		if worm_hole.exit == "default" then
-			--exited near Icarus, near station Macassa
-		end
-		if worm_hole.exit == "kentar" then
-			--exited near station Kentar
-		end
-	end
-end
-------------------------------
---	Initial Set Up > Zones  --
-------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM ZONES		F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- +ADD ZONE			F	addZone
--- +DELETE ZONE			F	deleteZone (button only present if zones available to delete)
-function changeZones()
-	clearGMFunctions()
-	addGMFunction("-Main From Zones",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Add Zone",addZone)
-	if zone_list ~= nil and #zone_list > 0 then
-		addGMFunction("+Delete Zone",deleteZone)
-	end
-end
------------------------------------------
---	Initial Set Up > Zones > Add Zone  --
------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -ZONES FROM ADD	F	changeZones
--- SECTOR			F	inline
--- SMALL SQUARE		F	inline
-function addZone()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Zones from add",changeZones)
-	addGMFunction("Sector", function()
-		local object_list = getGMSelection()
-		if #object_list ~= nil and #object_list == 1 then
-			local ox, oy = object_list[1]:getPosition()
-			ox = math.floor(ox / 20000)
-			ox = ox * 20000
-			oy = math.floor(oy / 20000)
-			oy = oy * 20000
-			local zone = Zone():setPoints(ox,oy,ox+20000,oy,ox+20000,oy+20000,ox,oy+20000)
-			zone:setColor(64,64,64)
-			zone.name = object_list[1]:getSectorName()
-			if zone_list == nil then
-				zone_list = {}
-			end
-			table.insert(zone_list,zone)
-		else
-			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
-		end
-	end)
-	addGMFunction("Small Square",function()
-		local object_list = getGMSelection()
-		if #object_list ~= nil and #object_list == 1 then
-			local ox, oy = object_list[1]:getPosition()
-			local zone = Zone():setPoints(ox+500,oy+500,ox-500,oy+500,ox-500,oy-500,ox+500,oy-500)
-			zone:setColor(255,255,128)
-			if square_zone_char_val == nil then
-				square_zone_char_val = 65
-			end
-			zone.name = string.char(square_zone_char_val)
-			square_zone_char_val = square_zone_char_val + 1
-			zone.sector_name = object_list[1]:getSectorName()
-			if zone_list == nil then
-				zone_list = {}
-			end
-			table.insert(zone_list,zone)
-			addGMMessage(string.format("Added small square zone %s in %s",zone.name,zone.sector_name))
-		else
-			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
-		end
-	end)
-end
---------------------------------------------
---	Initial Set Up > Zones > Delete Zone  --
---------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -ZONES FROM DELETE	F	changeZones
--- Button for each existing zone
-function deleteZone()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Zones from delete",changeZones)
-	if selected_zone_index == nil then
-		selected_zone_index = 1
-	end
-	if #zone_list > 0 then
-		local zone_delete_label = string.format("Del %s",zone_list[selected_zone_index].name)
-		if zone_list[selected_zone_index].sector_name ~= nil then
-			zone_delete_label = string.format("%s in %s",zone_delete_label,zone_list[selected_zone_index].sector_name)
-		end
-		addGMFunction(zone_delete_label,function()
-			local zone_to_delete = zone_list[selected_zone_index]
-			table.remove(zone_list,selected_zone_index)
-			zone_to_delete:destroy()
-			selected_zone_index = nil
-			deleteZone()
-		end)
-		addGMFunction("Select Next Zone",function()
-			selected_zone_index = selected_zone_index + 1
-			if selected_zone_index > #zone_list then
-				selected_zone_index = 1
-			end
-			deleteZone()
-		end)
-	else
-		changeZones()
-	end
-end
-
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
 ----------------------------------------------------
@@ -4642,6 +4614,100 @@ function playerShipSpawned(shipName)
 				return
 			end
 		end
+	end
+end
+-----------------------------------------
+--	Initial Set Up > Zones > Add Zone  --
+-----------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -ZONES FROM ADD	F	changeZones
+-- SECTOR			F	inline
+-- SMALL SQUARE		F	inline
+function addZone()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones from add",changeZones)
+	addGMFunction("Sector", function()
+		local object_list = getGMSelection()
+		if #object_list ~= nil and #object_list == 1 then
+			local ox, oy = object_list[1]:getPosition()
+			ox = math.floor(ox / 20000)
+			ox = ox * 20000
+			oy = math.floor(oy / 20000)
+			oy = oy * 20000
+			local zone = Zone():setPoints(ox,oy,ox+20000,oy,ox+20000,oy+20000,ox,oy+20000)
+			zone:setColor(64,64,64)
+			zone.name = object_list[1]:getSectorName()
+			if zone_list == nil then
+				zone_list = {}
+			end
+			table.insert(zone_list,zone)
+		else
+			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
+		end
+	end)
+	addGMFunction("Small Square",function()
+		local object_list = getGMSelection()
+		if #object_list ~= nil and #object_list == 1 then
+			local ox, oy = object_list[1]:getPosition()
+			local zone = Zone():setPoints(ox+500,oy+500,ox-500,oy+500,ox-500,oy-500,ox+500,oy-500)
+			zone:setColor(255,255,128)
+			if square_zone_char_val == nil then
+				square_zone_char_val = 65
+			end
+			zone.name = string.char(square_zone_char_val)
+			square_zone_char_val = square_zone_char_val + 1
+			zone.sector_name = object_list[1]:getSectorName()
+			if zone_list == nil then
+				zone_list = {}
+			end
+			table.insert(zone_list,zone)
+			addGMMessage(string.format("Added small square zone %s in %s",zone.name,zone.sector_name))
+		else
+			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
+		end
+	end)
+end
+--------------------------------------------
+--	Initial Set Up > Zones > Delete Zone  --
+--------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -ZONES FROM DELETE	F	changeZones
+-- Button for each existing zone
+function deleteZone()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones from delete",changeZones)
+	if selected_zone_index == nil then
+		selected_zone_index = 1
+	end
+	if #zone_list > 0 then
+		local zone_delete_label = string.format("Del %s",zone_list[selected_zone_index].name)
+		if zone_list[selected_zone_index].sector_name ~= nil then
+			zone_delete_label = string.format("%s in %s",zone_delete_label,zone_list[selected_zone_index].sector_name)
+		end
+		addGMFunction(zone_delete_label,function()
+			local zone_to_delete = zone_list[selected_zone_index]
+			table.remove(zone_list,selected_zone_index)
+			zone_to_delete:destroy()
+			selected_zone_index = nil
+			deleteZone()
+		end)
+		addGMFunction("Select Next Zone",function()
+			selected_zone_index = selected_zone_index + 1
+			if selected_zone_index > #zone_list then
+				selected_zone_index = 1
+			end
+			deleteZone()
+		end)
+	else
+		changeZones()
 	end
 end
 ----------------------------
