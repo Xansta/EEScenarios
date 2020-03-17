@@ -3228,6 +3228,33 @@ function createKentarStations()
     	history = "It looked like a good location for resupply and mining and it's served us well"
 	}
 	table.insert(stations,stationLocarno)
+	--Kolar
+    stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationKolar.comms_data = {
+    	friendlyness = 85,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(1,4),Mine = math.random(1,4),Nuke = math.random(12,18),	EMP = math.random(13,17) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	circuit = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			autodoc =	{quantity = math.random(5,9),	cost = math.random(63,70)},
+        			gold =		{quantity = math.random(5,9),	cost = math.random(33,50)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine gold, we make and sell autodoc and circuit",
+    	history = "We said, 'thar's gold in them there rocks' and we just had to get some"
+	}
+	table.insert(stations,stationKolar)
 	return stations
 end
 function createKentarPlanets()
