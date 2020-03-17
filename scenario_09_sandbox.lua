@@ -1788,8 +1788,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
-		table.insert(icarusDefensePlatforms,dp)
+		if i == 5 then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
+			dp5Zone:setColor(0,128,0)
+		else		
+			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
+			table.insert(icarusDefensePlatforms,dp)
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -1947,7 +1952,10 @@ function createIcarusStations()
     	history = "The station naming continued in the vein of the nebula which we study"
 	}
 	table.insert(stations,stationPistil)
+	local macassaZone = squareZone(16335, -18034, "Macassa 5")
+	macassaZone:setColor(0,128,0)
 	--Macassa
+	--[[	destroyed 14Mar2020
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 4"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -1971,6 +1979,7 @@ function createIcarusStations()
     	history = "The station was named in the hopes that the asteroids will be as productive as the Macassa mine was on Earth in the mid to late 1900s"
 	}
 	table.insert(stations,stationMacassa)
+	--]]
 	--Maximilian
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2157,9 +2166,10 @@ function createIcarusStations()
     	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich"
 	}
 	table.insert(stations,stationBorlan)
-	--local slurryZone = squareZone(100342, 27871, "Slurry")
-	--slurryZone:setColor(51,153,255)
+	local slurryZone = squareZone(100342, 27871, "Slurry")
+	slurryZone:setColor(51,153,255)
 	--Slurry
+	--[[	Destroyed 14Mar2020
     stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry 3"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -2183,6 +2193,7 @@ function createIcarusStations()
     	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research"
 	}
 	table.insert(stations,stationSlurry)
+	--]]
 	--local relay13Zone = squareZone(77918, 23876, "Relay13")
 	--relay13Zone:setColor(0,255,0)
 	--Relay-13
@@ -3087,6 +3098,136 @@ function createKentarStations()
     	history = "Reference classified archives at headquarters. Public access redacted"
 	}
 	table.insert(stations,stationKeyhole23)
+	--Gamma-3
+    stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationGamma3.comms_data = {
+    	friendlyness = 68,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	tractor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
+        			repulsor = 	{quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We watch and report on enemy vessel movement. We also run a small tractor and repulsor component machine shop",
+    	history = "The Human Navy set this station up as a strategic observation post"
+	}
+	table.insert(stations,stationGamma3)
+	--Nereus
+    stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationNereus.comms_data = {
+    	friendlyness = 58,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	nickel = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
+        			lifter = 	{quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine primarily for nickel, watch for enemy vessels and manufacture lifter components",
+    	history = "These asteroids provide a good nearby source for nickel, so a station was placed to facilitate mining. One of the original station members had lifter experience and over time built up a lifter manufacturing facility"
+	}
+	table.insert(stations,stationNereus)
+	--Talos
+	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationTalos.comms_data = {
+    	friendlyness = 35,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,7), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(14,18),	EMP = math.random(8,12) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	platinum = 	{quantity = math.random(2,5),	cost = math.random(50,80)},
+        			gold =	 	{quantity = math.random(2,5),	cost = math.random(43,70)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine primarily for platinum and gold and watch for enemy vessels",
+    	history = "These asteroids provide a good nearby source for gold and platinum, so a station was placed to facilitate mining. It also serves as a good early warning post for enemy vessels"
+	}
+	table.insert(stations,stationTalos)
+	--Sutter
+    stationSutter = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Sutter"):setPosition(84609, 293172):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationSutter.comms_data = {
+    	friendlyness = 45,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			dilithium =	{quantity = math.random(5,9),	cost = math.random(43,70)},
+        			cobalt =	{quantity = math.random(5,9),	cost = math.random(63,70)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine for nickel, dilithium and cobalt. A science team researches some extraordinarily rare minerals found here",
+    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. A scientific research team is also based herer to investigate unusual readings on some of the asteroids"
+	}
+	table.insert(stations,stationSutter)
+	--Locarno
+    stationLocarno = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Locarno"):setPosition(246819, 331779):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationLocarno.comms_data = {
+    	friendlyness = 85,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "neutral", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	nanites = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			android =	{quantity = math.random(5,9),	cost = math.random(63,70)},
+        			cobalt =	{quantity = math.random(5,9),	cost = math.random(33,50)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine, we trade, we sell nanites and android components",
+    	history = "It looked like a good location for resupply and mining and it's served us well"
+	}
+	table.insert(stations,stationLocarno)
 	return stations
 end
 function createKentarPlanets()
@@ -3132,6 +3273,17 @@ end
 function createKentarAsteroids()
 	local asteroid_list = {}
 	local asteroid_coordinates = {
+		{237355, 341175, 355},
+		{242045, 341317, 255},
+		{243466, 338901, 155},
+		{244177, 336556, 455},
+		{245669, 335774, 555},
+		{246806, 334495, 655},
+		{247588, 332079, 755},
+		{246593, 332932, 55},
+		{247588, 333571, 55},
+		{247375, 330871, 35},
+		{248663, 329973, 15},
 		{78851, 290391, 34},
 		{80538, 292640, 23},
 		{83249, 289135, 334},
@@ -4226,11 +4378,13 @@ function createPlayerShipCobra()
 	playerCobra:setTypeName("Striker LX")
 	playerCobra:setShieldsMax(100,100)						--stronger shields (vs 50, 30)
 	playerCobra:setShields(100,100)
+	playerCobra:setHullMax(100)								--weaker hull (vs 120)
+	playerCobra:setHull(100)
 	playerCobra:setMaxEnergy(800)							--more maximum energy (vs 500)
 	playerCobra:setEnergy(800)
 	playerCobra:setJumpDrive(true)
 	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
-	playerCobra:setImpulseMaxSpeed(65)						--faster impulse max (vs 45)
+	playerCobra:setImpulseMaxSpeed(70)						--faster impulse max (vs 45)
 --									   Arc, Dir, Rotate speed
 	playerCobra:setBeamWeaponTurret(0, 100, -15, .1)		--slower turret speed (vs 6)
 	playerCobra:setBeamWeaponTurret(1, 100,  15, .1)
@@ -4466,9 +4620,9 @@ function createPlayerShipSimian()
 	playerSimian:setHullMax(100)									--weaker hull (vs 200)
 	playerSimian:setHull(100)
 --                 				 Arc, Dir, Range, CycleTime, Damage
-	playerSimian:setBeamWeapon(0,  8,   0, 800.0,         5, 6)		--turreted beam (vs none)
+	playerSimian:setBeamWeapon(0,  8,   0, 900.0,         5, 6)		--turreted beam (vs none)
 --									    Arc, Dir, Rotate speed
-	playerSimian:setBeamWeaponTurret(0, 270,   0, .2)				--slow turret
+	playerSimian:setBeamWeaponTurret(0, 270,   0, .4)				--slow turret
 	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
 	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
 	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
