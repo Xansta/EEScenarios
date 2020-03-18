@@ -47,11 +47,12 @@
 --				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| |		
 --				| | | UNRETRIEVABLE					| | | |	| V							
 --				| | | EXPIRING						| | | | | AT SELECTION
---				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE									+->	DEFAULT*
---				| | V								| | | |	| BEYOND SENSORS			[Region]			|	KENTAR (R17)
---				| | -MAIN							| | | |	| +RANDOM DIRECTION			-MAIN FROM REGION	|
---				| | EXPLODE SEL ART					| | | |	| +AWAY*					-SETUP				|	
---				| | PULSE ASTEROID					| | | |	| +AMBUSH 5					+PLAYER SPAWN POINT-+
+--				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE				
+--				| | V								| | | |	| BEYOND SENSORS								+->	DEFAULT*
+--				| | -MAIN							| | | |	| +RANDOM DIRECTION			[Region]			|	KENTAR (R17)
+--				| | EXPLODE SEL ART					| | | |	| +AWAY*					-MAIN FROM REGION	|
+--				| | PULSE ASTEROID					| | | |	| +AMBUSH 5					-SETUP				|	
+--				| | JUMP CORRIDOR OFF				| | | | |							+PLAYER SPAWN POINT-+
 --				| | SANDBOX COMMS					| | | | |							+TERRAIN-------------->	DEFAULT
 --				| V									| | | |	V													KENTAR (R17)
 --				| -MAIN FROM TIMER					| | | |	(+)ASSOCIATED				
@@ -720,6 +721,7 @@ function setConstants()
 	coolant_amount = 1
 	jammer_range = 10000
 	automated_station_danger_warning = true
+	jump_corridor = false
 end
 ----------------------------
 --  Main Menu of Buttons  --
@@ -1340,12 +1342,24 @@ end
 -- -MAIN				F	initialGMFunctions
 -- EXPLODE SEL ART		F	explodeSelectedArtifact
 -- PULSE ASTEROID		F	pulseAsteroid
+-- JUMP CORRIDOR OFF	F	inline (toggles between ON and OFF)
 -- SANDBOX COMMS		F	inline
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("Explode Sel Art",explodeSelectedArtifact)
 	addGMFunction("Pulse Asteroid",pulseAsteroid)
+	if jump_corridor then
+		addGMFunction("Jump Corridor On",function()
+			jump_corridor = false
+			tweakTerrain()
+		end)
+	else
+		addGMFunction("Jump Corridor Off",function()
+			jump_corridor = true
+			tweakTerrain()
+		end)
+	end
 	local objectList = getGMSelection()
 	if #objectList == 1 then
 		local tempObject = objectList[1]
@@ -9469,13 +9483,6 @@ function GMTimerPurpose()
 			"Departure"			,
 			"Destruction"		,
 			"Discovery"			,
-			"Unknown Acid"		,
-			"Bulkheads Melting"	,
-			"Exploring Room"	,
-			"Finding Nest"		,
-			"Amassing Security"	,
-			"Security Overrun"	,
-			"Metal Fatigue"		,
 			"Decompression"		
 		}
 	end
@@ -10929,6 +10936,59 @@ function handleDockedState()
 			end
 			addCommsReply("Back", commsStation)
 		end)
+	end
+	if jump_corridor then
+		if comms_target == stationIcarus or comms_target == stationKentar then
+			local all_docked = true
+			for pidx=1,8 do
+				local p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					if not p:isDocked(comms_target) then
+						all_docked = false
+						break
+					end
+				end
+			end
+			if all_docked then
+				if comms_target == stationIcarus then
+					addCommsReply("Take jump corridor to Kentar",function()
+						playerSpawnX = 250000
+						playerSpawnY = 250000
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = "Kentar"
+						if not kentar_color then
+							createKentarColor()
+						end
+						removeIcarusColor()
+						setCommsMessage("Transferred to Kentar")
+					end)
+				elseif comms_target == stationKentar then
+					addCommsReply("Take jump corridor to Icarus", function()
+						playerSpawnX = 0
+						playerSpawnY = 0
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = "Default"
+						if not icarus_color then
+							createIcarusColor()
+						end
+						removeKentarColor()
+						setCommsMessage("Transferred to Icarus")
+					end)
+				end
+			end
+		end
 	end
 end	--end of handleDockedState function
 function isAllowedTo(state)
