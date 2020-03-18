@@ -3358,7 +3358,6 @@ function createKentarAsteroids()
 		{244177, 336556, 455},
 		{245669, 335774, 555},
 		{246806, 334495, 655},
-		{247588, 332079, 755},
 		{246593, 332932, 55},
 		{247588, 333571, 55},
 		{247375, 330871, 35},
@@ -10725,7 +10724,7 @@ function handleDockedState()
 					setCommsMessage("Insufficient reputation")
 				else
 					comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
-					resetPreviousSystemHealth()
+					resetPreviousSystemHealth(comms_source)
 					setCommsMessage("Repair crew member hired")
 				end
 				addCommsReply("Back", commsStation)
@@ -10760,7 +10759,7 @@ function handleDockedState()
 					setCommsMessage("Insufficient reputation")
 				else
 					comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
-					resetPreviousSystemHealth()
+					resetPreviousSystemHealth(comms_source)
 					setCommsMessage("Repair crew member hired")
 				end
 				addCommsReply("Back", commsStation)
@@ -11859,7 +11858,12 @@ function update(delta)
 										p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
 									end
 								else
-									p:setMaxCoolant(p:getMaxCoolant()*.5)
+									local current_coolant = p:getMaxCoolant()
+									if current_coolant >= 10 then
+										p:setMaxCoolant(current_coolant*.5)
+									else
+										p:setMaxCoolant(current_coolant*.8)
+									end
 									if p:hasPlayerAtPosition("Engineering") then
 										local coolantLoss = "coolantLoss"
 										p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
@@ -11886,6 +11890,23 @@ function update(delta)
 						resetPreviousSystemHealth(p)
 					end	--medical science triumph branch
 				end	--no repair crew left
+				if p.initialCoolant ~= nil then
+					current_coolant = p:getMaxCoolant()
+					if current_coolant < 10 then
+						if random(1,100) <= 4 then
+							p:setMaxCoolant(current_coolant + ((current_coolant + 10)/2))
+							if p:hasPlayerAtPosition("Engineering") then
+								local coolant_recovery = "coolant_recovery"
+								p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								local coolant_recovery_plus = "coolant_recovery_plus"
+								p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
+							end
+							resetPreviousSystemHealth(p)
+						end
+					end
+				end
 			end	--health check branch
 			if p.expedite_dock then
 				if p.expedite_dock_timer == nil then
@@ -11966,7 +11987,7 @@ function update(delta)
 						end
 						if p.preorder_repair_crew ~= nil then
 							p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-							resetPreviousSystemHealth()
+							resetPreviousSystemHealth(p)
 						end
 						if p.preorder_coolant ~= nil then
 							p:setMaxCoolant(p:getMaxCoolant() + 2)
