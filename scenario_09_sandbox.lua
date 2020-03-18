@@ -5,7 +5,7 @@
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
 
---  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --
+--  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- +INITIAL SET UP------------>	-MAIN FROM INITIAL											  Toggle button per player ship <-------+AUTO COOL 	
 -- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT--------+
 -- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--+ |
@@ -44,8 +44,9 @@
 --				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING													REMOVE 1.0 COOLANT	
 --				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*													1.0 - 0.5 = 0.5		
 --				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											1.0 + 0.5 = 1.5		
---				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| V						
---				| | | UNRETRIEVABLE					| | | |	| AT SELECTION			
+--				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| |		
+--				| | | UNRETRIEVABLE					| | | |	| V							
+--				| | | EXPIRING						| | | | | AT SELECTION
 --				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE									+->	DEFAULT*
 --				| | V								| | | |	| BEYOND SENSORS			[Region]			|	KENTAR (R17)
 --				| | -MAIN							| | | |	| +RANDOM DIRECTION			-MAIN FROM REGION	|
@@ -84,7 +85,7 @@
 --													+REPAIR CREW 0------------------------> 0+1=1
 --													+COOLANT 0--------------------------+			
 --													+NEAR TO--> [Near To]				+->	0+1=1
---	--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+--  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 require("utils.lua")
 
@@ -706,6 +707,7 @@ function setConstants()
 	scannedClueKey5 = "None"
 	scannedClueValue5 = scannedClues5[scannedClueKey5]
 	scan_clue_retrievable = false
+	scan_clue_expire = true
 	timer_display_helm = false
 	timer_display_weapons = false
 	timer_display_engineer = false
@@ -1276,6 +1278,7 @@ end
 -- +SCAN COMPLEX: 1			D	setScanComplexity
 -- +SCAN DEPTH: 1			D	setScanDepth
 -- UNRETRIEVABLE			D	inline (toggles between retrievable and unretrievable)
+-- EXPIRING					F	inline (toggles between expiring and non-expiring)
 -- +NEAR TO					F	scanClueNearTo
 function scanClue()
 	clearGMFunctions()
@@ -1314,6 +1317,17 @@ function scanClue()
 	else
 		addGMFunction("Unretrievable",function()
 			scan_clue_retrievable = true
+			scanClue()
+		end)
+	end
+	if scan_clue_expire then
+		addGMFunction("Expiring",function()
+			scan_clue_expire = false
+			scanClue()
+		end)
+	else
+		addGMFunction("Non-Expiring",function()
+			scan_clue_expire = true
 			scanClue()
 		end)
 	end
@@ -9255,6 +9269,11 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 	else
 		scanCluePoint:allowPickup(false)
 	end
+	if scan_clue_expire then
+		scanCluePoint.scan_clue_expire = true
+	else
+		scanCluePoint.scan_clue_expire = false
+	end
 	table.insert(scanClueList,scanCluePoint)
 end
 ---------------------------------
@@ -11680,6 +11699,27 @@ function update(delta)
 			end
 		end
 	end
+	if updateDiagnostic then print("update: scan clues") end
+	if #scanClueList > 0 then	--decrement scan clue timer(s) and delete when applicable
+		for sci,sc in pairs(scanClueList) do
+			if sc:isValid() then
+				if sc.scan_clue_expire then
+					if sc.timeToLive == nil then
+						sc.timeToLive = delta + 300
+					else
+						sc.timeToLive = sc.timeToLive - delta
+						if sc.timeToLive < 0 then
+							table.remove(scanClueList,sci)
+							sc:destroy()
+						end
+					end
+				end
+			else
+				table.remove(scanClueList,sci)
+				sc:destroy()						
+			end
+		end
+	end
 	for pidx=1,8 do
 		if updateDiagnostic then print("update: pidx: " .. pidx) end
 		local p = getPlayerShip(pidx)
@@ -11732,25 +11772,6 @@ function update(delta)
 							p:addToShipLog(string.format("Coordinates for %s saved and ready for Engineering and Helm to transport",rpCallSign),"Green")
 							p.rpMessage[rpCallSign] = "sent"
 						end
-					end
-				end
-			end
-			if updateDiagnostic then print("update: valid player: scan clues") end
-			if #scanClueList > 0 then	--decrement scan clue timer(s) and delete when applicable
-				for sci,sc in pairs(scanClueList) do
-					if sc:isValid() then
-						if sc.timeToLive == nil then
-							sc.timeToLive = delta + 300
-						else
-							sc.timeToLive = sc.timeToLive - delta
-							if sc.timeToLive < 0 then
-								table.remove(scanClueList,sci)
-								sc:destroy()
-							end
-						end
-					else
-						table.remove(scanClueList,sci)
-						sc:destroy()						
 					end
 				end
 			end
