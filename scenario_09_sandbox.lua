@@ -51,8 +51,9 @@
 --				| | -MAIN							| | | |	| +RANDOM DIRECTION			-MAIN FROM REGION	|
 --				| | EXPLODE SEL ART					| | | |	| +AWAY*					-SETUP				|	
 --				| | PULSE ASTEROID					| | | |	| +AMBUSH 5					+PLAYER SPAWN POINT-+
---				| V									| | | |	V							+TERRAIN-------------->	DEFAULT
---				| -MAIN FROM TIMER					| | | |	(+)ASSOCIATED										KENTAR (R17)
+--				| | SANDBOX COMMS					| | | | |							+TERRAIN-------------->	DEFAULT
+--				| V									| | | |	V													KENTAR (R17)
+--				| -MAIN FROM TIMER					| | | |	(+)ASSOCIATED				
 --				| +DISPLAY: GM----------+			| | | |	+NEAR TO--> [Near To]						
 --				| +LENGTH: 5----------+	|			| | | |	NEAR RADIUS BUT SAFE			
 --				| +PURPOSE: TIMER---+ |	|			| | | |	EDGE BUT IN DANGER						
@@ -709,7 +710,7 @@ function setConstants()
 	timer_display_weapons = false
 	timer_display_engineer = false
 	timer_display_science = false
-	timer_display_relay = false
+	timer_display_relay = true
 	timer_start_length = 5
 	timer_started = false
 	timer_purpose = "Timer"
@@ -1325,11 +1326,48 @@ end
 -- -MAIN				F	initialGMFunctions
 -- EXPLODE SEL ART		F	explodeSelectedArtifact
 -- PULSE ASTEROID		F	pulseAsteroid
+-- SANDBOX COMMS		F	inline
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("Explode Sel Art",explodeSelectedArtifact)
 	addGMFunction("Pulse Asteroid",pulseAsteroid)
+	local objectList = getGMSelection()
+	if #objectList == 1 then
+		local tempObject = objectList[1]
+		local tempType = tempObject.typeName
+		if tempType == "SpaceStation" or tempType == "CpuShip" then
+			addGMFunction("Sandbox Comms",function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local tempObject = objectList[1]
+					local tempType = tempObject.typeName
+					if tempType == "SpaceStation" then
+						tempObject:setCommsScript(""):setCommsFunction(commsStation)
+						tempObject.comms_data = {
+							friendlyness = random(50,100),
+							weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+					        weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
+							weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
+							service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+							reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
+							max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+							goods = {	[componentGoods[math.random(1,#componentGoods)]]	=	{quantity = math.random(1,5),	cost = math.random(60,95)},
+										[mineralGoods[math.random(1,#mineralGoods)]]		=	{quantity = math.random(1,5),	cost = math.random(30,60)} },
+							trade = {	food = false, medicine = false, luxury = true },
+							public_relations = false
+						}
+					elseif tempType == "CpuShip" then
+						tempObject:setCommsScript(""):setCommsFunction(commsShip)
+					else
+						addGMMessage("You can only add sandbox comms to stations or ships. No action taken")
+					end
+				else
+					addGMMessage("Selecet a station or ship. No action taken")
+				end
+			end)
+		end
+	end
 end
 function explodeSelectedArtifact()
 	local objectList = getGMSelection()
