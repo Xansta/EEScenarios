@@ -11,7 +11,7 @@
 -- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--+ |
 -- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO------+ |	|
 -- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+DESCRIPTIONS-----> +DESCRIBE CURRENT---> List	+REPUTATION	| | |
--- +SCAN CLUE---------+	| |	| |	AUTO STATION WARN OFF					  | | 		+CURRENT--->List	+DESCRIBE SCRAPPED--> List			  |	| | |
+-- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+CURRENT--->List	+DESCRIBE SCRAPPED--> List			  |	| | |
 -- +TWEAK TERRAIN---+ | | |	| V											  | | 		+SCRAPPED-->List	+DESCRIBE STOCK-----> List			  |	| | |
 -- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 							  |	| | |
 -- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 			+-----------------+ | | |
@@ -721,6 +721,9 @@ function setConstants()
 	coolant_amount = 1
 	jammer_range = 10000
 	automated_station_danger_warning = true
+	server_sensor = true
+	station_sensor_range = getLongRangeRadarRange()
+	warning_includes_ship_type = true
 	jump_corridor = false
 end
 ----------------------------
@@ -758,7 +761,7 @@ end
 -- +PLAYER SHIPS 0/0		D	playerShip (inline calculation of values "current ships"/"total ships")
 -- +WORMHOLES				F	setWormholes
 -- +ZONES					F	changeZones
--- AUTO STATION WARN OFF	F	inline (alternates between ON and OFF)
+-- +WARN Y SHIP 30U S		D	autoStationWarn
 function initialSetUp()
 	clearGMFunctions()
 	addGMFunction("-Main from Initial",initialGMFunctions)
@@ -777,17 +780,23 @@ function initialSetUp()
 	addGMFunction(string.format("+Player ships %i/%i",playerShipCount,highestPlayerIndex),playerShip)
 	addGMFunction("+Wormholes",setWormholes)
 	addGMFunction("+Zones",changeZones)
+	local button_label = "+Warn"
 	if automated_station_danger_warning then
-		addGMFunction("Auto Station Warn Off",function()
-			automated_station_danger_warning = false
-			initialSetUp()
-		end)
+		button_label = button_label .. " Y"
 	else
-		addGMFunction("Auto Station Warn On",function()
-			automated_station_danger_warning = true
-			initialSetUp()
-		end)
+		button_label = button_label .. " N"
 	end
+	if warning_includes_ship_type then
+		button_label = button_label .. " Ship"
+	else
+		button_label = button_label .. " NoShip"
+	end
+	if server_sensor then
+		button_label = string.format("%s %iU S",button_label,station_sensor_range/1000)
+	else
+		button_label = string.format("%s %iU",button_label,station_sensor_range/1000)
+	end
+	addGMFunction(button_label,autoStationWarn)
 end
 -------------------
 --	Spawn fleet  --
@@ -1748,6 +1757,62 @@ function changeZones()
 	if zone_list ~= nil and #zone_list > 0 then
 		addGMFunction("+Delete Zone",deleteZone)
 	end
+end
+--------------------------------------------------
+--	Initial Set Up > Automated Station Warning  --
+--------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -INITIAL				F	initialSetUp
+-- WARNING ON*			*	inline
+-- WARNING OFF			*	inline
+-- SHIP TYPE ON*		*	inline
+-- SHIP TYPE OFF		*	inline
+-- +PROXIMITY 30U SRV	D	setStationSensorRange
+function autoStationWarn()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Initial",initialSetUp)
+	local button_label = "Warning On"
+	if automated_station_danger_warning then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		automated_station_danger_warning = true
+		autoStationWarn()
+	end)
+	button_label = "Warning Off"
+	if not automated_station_danger_warning then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		automated_station_danger_warning = false
+		autoStationWarn()
+	end)
+	button_label = "Ship Type On"
+	if warning_includes_ship_type then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		warning_includes_ship_type = true
+		autoStationWarn()
+	end)
+	button_label = "Ship Type Off"
+	if not warning_includes_ship_type then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		warning_includes_ship_type = false
+		autoStationWarn()
+	end)
+	button_label = "+Proximity"
+	if server_sensor then
+		local long_range_server = getLongRangeRadarRange()
+		button_label = string.format("%s %iU SRV",button_label,long_range_server/1000)
+	else
+		button_label = string.format("%s %iU",button_label,station_sensor_range/1000)
+	end
+	addGMFunction(button_label,setStationSensorRange)
 end
 ----------------------------------------------------------
 --	Initial Set Up > Start Region > Player Spawn Point  --
@@ -4980,6 +5045,50 @@ function deleteZone()
 		changeZones()
 	end
 end
+-----------------------------------------------------------------------------------
+--	Initial Set Up > Automated Station Warning > Set Warning Proximity Distance  --
+-----------------------------------------------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- SERVER 30U	D	inline	
+-- ZERO			F	inline
+-- 5U			F	inline
+-- 10U			F	inline
+-- 20U			F	inline
+-- 30U			F	inline
+function setStationSensorRange()
+	clearGMFunctions()
+	local long_range_server = getLongRangeRadarRange()
+	addGMFunction(string.format("Server %iU",long_range_server/1000),function()
+		station_sensor_range = long_range_server
+		server_sensor = true
+		autoStationWarn()
+	end)
+	addGMFunction("Zero",function()
+		station_sensor_range = 0
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("5U",function()
+		station_sensor_range = 5000
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("10U",function()
+		station_sensor_range = 10000
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("20U",function()
+		station_sensor_range = 20000
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("30U",function()
+		station_sensor_range = 30000
+		server_sensor = false
+		autoStationWarn()
+	end)
+end
 ----------------------------
 --	Spawn Fleet > Exuari  --
 ----------------------------
@@ -5974,6 +6083,11 @@ function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_a
 			end
 			if nsfl_index > 0 then
 				ship = nsfl[nsfl_index](fleetSpawnFaction)
+				if ship == nil then
+					print(string.format("you forgot to return the ship spawned in your ship creation function for %s",shipName))
+				end
+			else
+				print(string.format("nsfl index is zero. You forgot to add %s to the ship template name list (stnl)",shipName))
 			end
 			--ship = nsfl[shipTemplateType](fleetSpawnFaction)
 		end
@@ -6279,6 +6393,7 @@ function stalkerQ5(enemyFaction)
 	ship:setHullMax(45)				--weaker hull (vs 50)
 	ship:setHull(45)
 	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	return ship
 end
 function stalkerR5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming()
@@ -6288,6 +6403,7 @@ function stalkerR5(enemyFaction)
 	ship:setHullMax(45)				--weaker hull (vs 50)
 	ship:setHull(45)
 	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	return ship
 end
 function waddle5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
@@ -11660,7 +11776,7 @@ function update(delta)
 			local current_station = regionStations[station_index]
 			if current_station ~= nil and current_station:isValid() then
 				if current_station.proximity_warning == nil then
-					for _, obj in ipairs(current_station:getObjectsInRange(30000)) do
+					for _, obj in ipairs(current_station:getObjectsInRange(station_sensor_range)) do
 						if obj ~= nil and obj:isValid() then
 							if obj:isEnemy(current_station) then
 								local detected_enemy_ship = false
@@ -11672,7 +11788,10 @@ function update(delta)
 								end
 								if detected_enemy_ship then
 									warning_station = current_station
-									warning_message = string.format("[%s in %s] We detect one or more enemies nearby. At least one is of type %s",current_station:getCallSign(),current_station:getSectorName(),obj:getTypeName())
+									warning_message = string.format("[%s in %s] We detect one or more enemies nearby",current_station:getCallSign(),current_station:getSectorName())
+									if warning_includes_ship_type then
+										warning_message = string.format("%s. At least one is of type %s",warning_message,obj:getTypeName())
+									end
 									current_station.proximity_warning = warning_message
 									current_station.proximity_warning_timer = delta + 300
 									break
