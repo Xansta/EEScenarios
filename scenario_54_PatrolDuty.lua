@@ -1,7 +1,7 @@
 -- Name: Delta quadrant patrol duty
 -- Description: Patrol between three stations in the Delta quadrant to protect from enemies
 ---
---- Version 4
+--- Version 5
 -- Type: Mission
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
@@ -29,6 +29,7 @@
 
 require("utils.lua")
 
+function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 -- Create amount of objects of type object_type along arc
 -- Center defined by x and y
 -- Radius defined by distance
@@ -36,7 +37,6 @@ require("utils.lua")
 -- Use randomize to vary the distance from the center point. Omit to keep distance constant
 -- Example:
 --   createRandomAlongArc(Asteroid, 100, 500, 3000, 65, 120, 450)
-function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 	if randomize == nil then randomize = 0 end
 	if amount == nil then amount = 1 end
 	arcLen = endArcClockwise - startArc
@@ -63,11 +63,10 @@ function createRandomAlongArc(object_type, amount, x, y, distance, startArc, end
 		end
 	end
 end
-
+function closestPlayerTo(obj)
 -- Return the player ship closest to passed object parameter
 -- Return nil if no valid result
 -- Assumes a maximum of 8 player ships
-function closestPlayerTo(obj)
 	if obj ~= nil and obj:isValid() then
 		local closestDistance = 9999999
 		closestPlayer = nil
@@ -86,9 +85,9 @@ function closestPlayerTo(obj)
 		return nil
 	end
 end
---[[-----------------------------------------------------------------
-      Initialization 
------------------------------------------------------------------]]--
+----------------------
+--	Initialization  --
+----------------------
 function init()
 	-- Difficulty setting: 1 = normal, .5 is easy, 2 is hard, 5 is ridiculously hard
 	difficultyList = {.5, 1, 2, 5}
@@ -97,27 +96,10 @@ function init()
 	difficulty = difficultyList[difficultyIndex]
 	setVariations()
 	playerCount = 0
-	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	--Ship Template Name List
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
 	--Ship Template Score List
 	stsl = {5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,25       ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,18       ,14               ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	--Player Ship Beams
-	psb = {}
-	psb["MP52 Hornet"] = 2
-	psb["Phobos M3P"] = 2
-	psb["Flavia P.Falcon"] = 2
-	psb["Atlantis"] = 2
-	psb["Player Cruiser"] = 2
-	psb["Player Fighter"] = 2
-	psb["Striker"] = 2
-	psb["ZX-Lindworm"] = 1
-	psb["Ender"] = 12
-	psb["Repulse"] = 2
-	psb["Benedict"] = 2
-	psb["Kiriya"] = 2
-	psb["Nautilus"] = 2
-	psb["Hathcock"] = 4
 	-- square grid deployment
 	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1}
 	fleetPosDelta1y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2}
@@ -173,6 +155,8 @@ function init()
 	playerShipNamesForEnder = {"Mongo","Godzilla","Leviathan","Kraken","Jupiter","Saturn"}
 	playerShipNamesForNautilus = {"October", "Abdiel", "Manxman", "Newcon", "Nusret", "Pluton", "Amiral", "Amur", "Heinkel", "Dornier"}
 	playerShipNamesForHathcock = {"Hayha", "Waldron", "Plunkett", "Mawhinney", "Furlong", "Zaytsev", "Pavlichenko", "Pegahmagabow", "Fett", "Hawkeye", "Hanzo"}
+	playerShipNamesForCrucible = {"Sling", "Stark", "Torrid", "Kicker", "Flummox"}
+	playerShipNamesForMaverick = {"Angel", "Thunderbird", "Roaster", "Magnifier", "Hedge"}
 	playerShipNamesForLeftovers = {"Foregone","Righteous","Masher"}
 	posseShipNames = {"Bubba","George","Winifred","Daniel","Darla","Stephen","Bob","Porky","Sally","Tommy","Jenny","Johnny","Lizzy","Billy"}
 	goods = {}
@@ -214,7 +198,6 @@ function init()
 	addGMFunction(GMSkipToDefend,skipToDefendUP)
 	addGMFunction(GMSkipToDestroy,skipToDestroySC)
 end
-
 function setVariations()
 	if string.find(getScenarioVariation(),"Short") or string.find(getScenarioVariation(),"Timed") then
 		patrolGoal = 6			--short and timed missions get a patrol goal of 6
@@ -253,7 +236,6 @@ function setVariations()
 		plot7 = beforeAmbush				--use time limit plot
 	end
 end
-
 function setPlayers()
 	concurrentPlayerCount = 0
 	for p1idx=1,8 do
@@ -430,7 +412,7 @@ function setPlayers()
 					pobj.prevManeuver = 1.0
 					pobj.healthyImpulse = 1.0
 					pobj.prevImpulse = 1.0
-					if psb[pobj:getTypeName()] ~= nil then
+					if pobj:getBeamWeaponRange(0) > 0 then
 						pobj.healthyBeam = 1.0
 						pobj.prevBeam = 1.0
 					end
@@ -1554,7 +1536,7 @@ function nearStations(station, compareStationList)
 		end
 	end
 	for ri, obj in ipairs(compareStationList) do
-		if obj:isValid() then
+		if obj ~= nil and obj:isValid() then
 			if station:getCallSign() ~= obj:getCallSign() then
 				table.insert(remainingStations,obj)
 				if distance(station,obj) < distance(station,closest) then
@@ -1781,6 +1763,7 @@ function handleDockedState()
 	end
 	setCommsMessage(oMsg)
 	missilePresence = 0
+	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	for _, missile_type in ipairs(missile_types) do
 		missilePresence = missilePresence + player:getWeaponStorageMax(missile_type)
 	end
@@ -2162,8 +2145,7 @@ function handleDockedState()
 				if player.kojakUpgrade then
 					setCommsMessage("You already have the upgrade.")
 				else
-					tempBeam = psb[player:getTypeName()]
-					if tempBeam == nil then
+					if player:getBeamWeaponRange(0) < 1 then
 						setCommsMessage("Your ship type does not support a beam weapon upgrade.")
 					else
 						if missionLength >= 3 then
@@ -2265,8 +2247,7 @@ function handleDockedState()
 				if player.lisbonUpgrade then
 					setCommsMessage("You already have the upgrade.")
 				else
-					tempBeam = psb[player:getTypeName()]
-					if tempBeam == nil then
+					if player:getBeamWeaponRange(0) < 1 then
 						setCommsMessage("Your ship type does not support a beam weapon upgrade.")
 					else
 						if missionLength >= 3 then
@@ -3312,7 +3293,7 @@ function friendlyComms(comms_data)
 			end
 		end
 
-		missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
+		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 		for i, missile_type in ipairs(missile_types) do
 			if comms_target:getWeaponStorageMax(missile_type) > 0 then
 					msg = msg .. missile_type .. " Missiles: " .. math.floor(comms_target:getWeaponStorage(missile_type)) .. "/" .. math.floor(comms_target:getWeaponStorageMax(missile_type)) .. "\n"
@@ -3815,7 +3796,7 @@ function afterPatrol(delta)
 		end
 	end
 	attack2count = 0
-	for _, enemy in ipairs(attack2list) do
+	for _, enemy in pairs(attack2list) do
 		if enemy:isValid() then
 			attack2count = attack2count + 1
 		end
@@ -5290,7 +5271,7 @@ function healthCheck(delta)
 					p.prevManeuver = p:getSystemHealth("maneuver")
 					fatalityChance = fatalityChance + (p.prevImpulse - p:getSystemHealth("impulse"))
 					p.prevImpulse = p:getSystemHealth("impulse")
-					if psb[p:getTypeName()] ~= nil then
+					if p:getBeamWeaponRange(0) > 0 then
 						if p.healthyBeam == nil then
 							p.healthyBeam = 1.0
 							p.prevBeam = 1.0
