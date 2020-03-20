@@ -345,6 +345,20 @@ function setPlayers()
 						pobj:setCallSign(playerShipNamesForStriker[ni])
 						table.remove(playerShipNamesForStriker,ni)
 					end
+					if pobj:getImpulseMaxSpeed() == 45 then
+						pobj:setImpulseMaxSpeed(90)
+					end
+					if pobj:getBeamWeaponCycleTime(0) == 6 then
+						local bi = 0
+						repeat
+							local tempArc = pobj:getBeamWeaponArc(bi)
+							local tempDir = pobj:getBeamWeaponDirection(bi)
+							local tempRng = pobj:getBeamWeaponRange(bi)
+							local tempDmg = pobj:getBeamWeaponDamage(bi)
+							pobj:setBeamWeapon(bi,tempArc,tempDir,tempRng,5,tempDmg)
+							bi = bi + 1
+						until(pobj:getBeamWeaponRange(bi) < 1)
+					end
 					pobj.shipScore = 8
 					pobj.maxCargo = 4
 					pobj:setJumpDrive(true)
@@ -391,6 +405,22 @@ function setPlayers()
 					end
 					pobj.shipScore = 30
 					pobj.maxCargo = 6
+				elseif tempPlayerType == "Maverick" then
+					if #playerShipNamesForMaverick > 0 then
+						ni = math.random(1,#playerShipNamesForMaverick)
+						pobj:setCallSign(playerShipNamesForMaverick[ni])
+						table.remove(playerShipNamesForMaverick,ni)
+					end
+					pobj.shipScore = 45
+					pobj.maxCargo = 5
+				elseif tempPlayerType == "Crucible" then
+					if #playerShipNamesForCrucible > 0 then
+						ni = math.random(1,#playerShipNamesForCrucible)
+						pobj:setCallSign(playerShipNamesForCrucible[ni])
+						table.remove(playerShipNamesForCrucible,ni)
+					end
+					pobj.shipScore = 45
+					pobj.maxCargo = 5
 				else
 					if #playerShipNamesForLeftovers > 0 then
 						ni = math.random(1,#playerShipNamesForLeftovers)
