@@ -39,7 +39,9 @@ function createRandomAlongArc(object_type, amount, x, y, distance, startArc, end
 --   createRandomAlongArc(Asteroid, 100, 500, 3000, 65, 120, 450)
 	if randomize == nil then randomize = 0 end
 	if amount == nil then amount = 1 end
-	arcLen = endArcClockwise - startArc
+	local arcLen = endArcClockwise - startArc
+	local radialPoint = nil
+	local pointDist = nil
 	if startArc > endArcClockwise then
 		endArcClockwise = endArcClockwise + 360
 		arcLen = arcLen + 360
@@ -63,6 +65,56 @@ function createRandomAlongArc(object_type, amount, x, y, distance, startArc, end
 		end
 	end
 end
+function createRandomAsteroidAlongArc(amount, x, y, distance, startArc, endArcClockwise, randomize)
+-- Create amount of asteroids along arc
+-- Center defined by x and y
+-- Radius defined by distance
+-- Start of arc between 0 and 360 (startArc), end arc: endArcClockwise
+-- Use randomize to vary the distance from the center point. Omit to keep distance constant
+-- Example:
+--   createRandomAsteroidAlongArc(100, 500, 3000, 65, 120, 450)
+	if randomize == nil then randomize = 0 end
+	if amount == nil then amount = 1 end
+	local arcLen = endArcClockwise - startArc
+	if startArc > endArcClockwise then
+		endArcClockwise = endArcClockwise + 360
+		arcLen = arcLen + 360
+	end
+    local asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
+	if amount > arcLen then
+		for ndex=1,arcLen do
+			local radialPoint = startArc+ndex
+			local pointDist = distance + random(-randomize,randomize)
+		    asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
+			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroid_size)
+		end
+		for ndex=1,amount-arcLen do
+			radialPoint = random(startArc,endArcClockwise)
+			pointDist = distance + random(-randomize,randomize)
+		    asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
+			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroid_size)
+		end
+	else
+		for ndex=1,amount do
+			radialPoint = random(startArc,endArcClockwise)
+			pointDist = distance + random(-randomize,randomize)
+		    asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
+			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroid_size)
+		end
+	end
+end
+function placeRandomAsteroidsAroundPoint(amount, dist_min, dist_max, x0, y0)
+-- create amount of asteroid, at a distance between dist_min and dist_max around the point (x0, y0)
+    for n=1,amount do
+        local r = random(0, 360)
+        local distance = random(dist_min, dist_max)
+        x = x0 + math.cos(r / 180 * math.pi) * distance
+        y = y0 + math.sin(r / 180 * math.pi) * distance
+        local asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
+        Asteroid():setPosition(x, y):setSize(asteroid_size)
+    end
+end
+
 function closestPlayerTo(obj)
 -- Return the player ship closest to passed object parameter
 -- Return nil if no valid result
@@ -461,9 +513,9 @@ function setPlayers()
 					end
 				end
 			end
+			pobj.initialCoolant = pobj:getMaxCoolant()
 		end
 	end
-	setConcurrenetPlayerCount = concurrentPlayerCount
 end
 --Randomly choose station size template unless overridden
 function szt()
@@ -494,10 +546,10 @@ function generateStaticWorld()
 	friendlyStations = 0
 	neutralStations = 0
 	
-	createRandomAlongArc(Asteroid,30,70000,160000,100000,180,225,3000)
-	createRandomAlongArc(Asteroid,30,-70000,20000,100000,0,45,3000)
-	createRandomAlongArc(Asteroid,40,160000,20000,130000,180,225,3000)
-	placeRandomAroundPoint(Asteroid,25,1,15000,150000,-30000)
+	createRandomAsteroidAlongArc(30,70000,160000,100000,180,225,3000)
+	createRandomAsteroidAlongArc(30,-70000,20000,100000,0,45,3000)
+	createRandomAsteroidAlongArc(40,160000,20000,130000,180,225,3000)
+	placeRandomAsteroidsAroundPoint(25,1,15000,150000,-30000)
 	
 	createRandomAlongArc(Nebula,30,150000,0,150000,110,220,30000)
 	createRandomAlongArc(Nebula,30,50000,200000,200000,200,300,40000)
@@ -1135,7 +1187,7 @@ function placeFeynman()
 end
 function placeGrasberg()
 	--Grasberg
-	placeRandomAroundPoint(Asteroid,15,1,15000,psx,psy)
+	placeRandomAsteroidsAroundPoint(15,1,15000,psx,psy)
 	stationGrasberg = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
 	stationGrasberg:setPosition(psx,psy):setCallSign("Grasberg"):setDescription("Mining")
 	stationGrasberg.publicRelations = true
@@ -1179,7 +1231,7 @@ function placeHossam()
 end
 function placeImpala()
 	--Impala
-	placeRandomAroundPoint(Asteroid,15,1,15000,psx,psy)
+	placeRandomAsteroidsAroundPoint(15,1,15000,psx,psy)
 	stationImpala = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
 	stationImpala:setPosition(psx,psy):setCallSign("Impala"):setDescription("Mining")
 	tradeFood[stationImpala] = true
@@ -1208,10 +1260,10 @@ function placeKrak()
 	negAxisKrak = posAxisKrak + 180
 	xPosAngleKrak, yPosAngleKrak = vectorFromAngle(posAxisKrak, posKrak)
 	posKrakEnd = random(30,70)
-	createRandomAlongArc(Asteroid, 30+posKrakEnd, psx+xPosAngleKrak, psy+yPosAngleKrak, posKrak, negAxisKrak, negAxisKrak+posKrakEnd, spreadKrak)
+	createRandomAsteroidAlongArc(30+posKrakEnd, psx+xPosAngleKrak, psy+yPosAngleKrak, posKrak, negAxisKrak, negAxisKrak+posKrakEnd, spreadKrak)
 	xNegAngleKrak, yNegAngleKrak = vectorFromAngle(negAxisKrak, negKrak)
 	negKrakEnd = random(40,80)
-	createRandomAlongArc(Asteroid, 30+negKrakEnd, psx+xNegAngleKrak, psy+yNegAngleKrak, negKrak, posAxisKrak, posAxisKrak+negKrakEnd, spreadKrak)
+	createRandomAsteroidAlongArc(30+negKrakEnd, psx+xNegAngleKrak, psy+yNegAngleKrak, negKrak, posAxisKrak, posAxisKrak+negKrakEnd, spreadKrak)
 	if random(1,100) < 50 then tradeFood[stationKrak] = true end
 	if random(1,100) < 50 then tradeLuxury[stationKrak] = true end
 	tradeMedicine[stationKrak] = true
@@ -1228,10 +1280,10 @@ function placeKrik()
 	negAxisKrik = posAxisKrik + 180
 	xPosAngleKrik, yPosAngleKrik = vectorFromAngle(posAxisKrik, posKrik)
 	posKrikEnd = random(40,90)
-	createRandomAlongArc(Asteroid, 30+posKrikEnd, psx+xPosAngleKrik, psy+yPosAngleKrik, posKrik, negAxisKrik, negAxisKrik+posKrikEnd, spreadKrik)
+	createRandomAsteroidAlongArc(30+posKrikEnd, psx+xPosAngleKrik, psy+yPosAngleKrik, posKrik, negAxisKrik, negAxisKrik+posKrikEnd, spreadKrik)
 	xNegAngleKrik, yNegAngleKrik = vectorFromAngle(negAxisKrik, negKrik)
 	negKrikEnd = random(30,60)
-	createRandomAlongArc(Asteroid, 30+negKrikEnd, psx+xNegAngleKrik, psy+yNegAngleKrik, negKrik, posAxisKrik, posAxisKrik+negKrikEnd, spreadKrik)
+	createRandomAsteroidAlongArc(30+negKrikEnd, psx+xNegAngleKrik, psy+yNegAngleKrik, negKrik, posAxisKrik, posAxisKrik+negKrikEnd, spreadKrik)
 	tradeFood[stationKrik] = true
 	if random(1,100) < 50 then tradeLuxury[stationKrik] = true end
 	tradeMedicine[stationKrik] = true
@@ -1248,10 +1300,10 @@ function placeKruk()
 	negAxisKruk = posAxisKruk + 180
 	xPosAngleKruk, yPosAngleKruk = vectorFromAngle(posAxisKruk, posKruk)
 	posKrukEnd = random(30,70)
-	createRandomAlongArc(Asteroid, 30+posKrukEnd, psx+xPosAngleKruk, psy+yPosAngleKruk, posKruk, negAxisKruk, negAxisKruk+posKrukEnd, spreadKruk)
+	createRandomAsteroidAlongArc(30+posKrukEnd, psx+xPosAngleKruk, psy+yPosAngleKruk, posKruk, negAxisKruk, negAxisKruk+posKrukEnd, spreadKruk)
 	xNegAngleKruk, yNegAngleKruk = vectorFromAngle(negAxisKruk, negKruk)
 	negKrukEnd = random(40,80)
-	createRandomAlongArc(Asteroid, 30+negKrukEnd, psx+xNegAngleKruk, psy+yNegAngleKruk, negKruk, posAxisKruk, posAxisKruk+negKrukEnd, spreadKruk)
+	createRandomAsteroidAlongArc(30+negKrukEnd, psx+xNegAngleKruk, psy+yNegAngleKruk, negKruk, posAxisKruk, posAxisKruk+negKrukEnd, spreadKruk)
 	tradeLuxury[stationKruk] = true
 	if random(1,100) < 50 then tradeFood[stationKruk] = true end
 	if random(1,100) < 50 then tradeMedicine[stationKruk] = true end
@@ -1552,9 +1604,9 @@ function placeZefram()
 	stationZefram.stationHistory = "Zefram Cochrane constructed the first warp drive in human history. We named our station after him because of the specialized warp systems work we do"
 	return stationZefram
 end
---[[-----------------------------------------------------------------
-      Transport ship generation and handling 
------------------------------------------------------------------]]--
+----------------------------------------------
+--	Transport ship generation and handling  --
+----------------------------------------------
 function nearStations(station, compareStationList)
 	remainingStations = {}
 	if compareStationList[1]:isValid() then
@@ -1677,9 +1729,9 @@ function transportPlot(delta)
 		end
 	end
 end
---[[-----------------------------------------------------------------
-      Station communication 
------------------------------------------------------------------]]--
+-----------------------------
+--	Station communication  --
+-----------------------------
 function commsStation()
     if comms_target.comms_data == nil then
         comms_target.comms_data = {}
@@ -3194,9 +3246,9 @@ function handleUndockedState()
     end
 end
 
+function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for
 -- the current player.
-function getServiceCost(service)
     return math.ceil(comms_data.service_cost[service])
 end
 
@@ -3253,9 +3305,9 @@ function getFriendStatus()
         return "neutral"
     end
 end
---[[-----------------------------------------------------------------
-      Ship communication 
------------------------------------------------------------------]]--
+--------------------------
+--	Ship communication  --
+--------------------------
 function commsShip()
 	if comms_target.comms_data == nil then
 		comms_target.comms_data = {friendlyness = random(0.0, 100.0)}
@@ -3564,9 +3616,9 @@ function neutralComms(comms_data)
 	end
 	return true
 end
---[[-----------------------------------------------------------------
-      Cargo management 
------------------------------------------------------------------]]--
+------------------------
+--	Cargo management  --
+------------------------
 function incrementPlayerGoods(goodsType)
 	local gi = 1
 	repeat
@@ -3606,9 +3658,9 @@ function decrementShipGoods(goodsType)
 		gi = gi + 1
 	until(gi > #goods[comms_target])
 end
---[[-----------------------------------------------------------------
-      First plot line - patrol between stations then defend 
------------------------------------------------------------------]]--
+-------------------------------------------------------------
+--	First plot line - patrol between stations then defend  --
+-------------------------------------------------------------
 function initialOrderMessage(delta)
 	plot1name = "initialOrderMessage"
 	plot1 = patrolAsimovUtopiaPlanitiaArmstrong
@@ -3706,7 +3758,7 @@ function patrolAsimovUtopiaPlanitiaArmstrong(delta)
 				removeGMFunction(GMInitiatePlot2)
 			end
 		end
-		if highestPatrolLeg == 3 and missionLength > 1then
+		if highestPatrolLeg == 3 and missionLength > 1 then
 			if attack3spawned == nil then
 				attack3spawned = "ready"
 				attack3Timer = random(15,40)
@@ -4084,9 +4136,9 @@ function destroyEnemyStronghold(delta)
 		victory("Human Navy")
 	end
 end
---[[-----------------------------------------------------------------
-      Second plot line: small enemy fleet followed by sick miner 
------------------------------------------------------------------]]--
+------------------------------------------------------------------
+--	Second plot line: small enemy fleet followed by sick miner  --
+------------------------------------------------------------------
 function playAsimovSensorTechMessage()
 	playSoundFile("sa_54_TorrinSensorTech.wav")
 	closestPlayer:removeCustom(playMsgFromAsimovButton)
@@ -4383,9 +4435,9 @@ function insightToBase()
 		closestBethesdaPlayer:removeCustom(tacticalSendButton)
 	end
 end
---[[-----------------------------------------------------------------
-      Third plot line: comparable fleet and Nabbit upgrade
------------------------------------------------------------------]]--
+------------------------------------------------------------
+--	Third plot line: comparable fleet and Nabbit upgrade  --
+------------------------------------------------------------
 function playUtopiaPlanitiaSensorTechMessage()
 	playSoundFile("sa_54_DuncanSensorTech.wav")
 	closestIncursionPlayer:removeCustom(playUtopiaPlanitiaSensorMsgButton)
@@ -4512,9 +4564,9 @@ function dropNabbit(delta)
 		end
 	end
 end
---[[-----------------------------------------------------------------
-      Fourth plot line: better than comparable fleet, return stowaway
------------------------------------------------------------------]]--
+-----------------------------------------------------------------------
+--	Fourth plot line: better than comparable fleet, return stowaway  --
+-----------------------------------------------------------------------
 function attack1(delta)
 	if lisbonUpgrade then
 		plot4 = nil
@@ -4632,9 +4684,9 @@ function deliverAlgorithm(delta)
 		end
 	end
 end
---[[-----------------------------------------------------------------
-      Fifth plot line: better than comparable fleet 
------------------------------------------------------------------]]--
+-----------------------------------------------------
+--	Fifth plot line: better than comparable fleet  --
+-----------------------------------------------------
 function attack2(delta)
 	plot5name = "atack2"
 	if attack2spawned == "ready" then
@@ -4654,9 +4706,9 @@ function attack2(delta)
 		plot5 = nil
 	end
 end
---[[-----------------------------------------------------------------
-      Eleventh plot line: Jump start
------------------------------------------------------------------]]--
+--------------------------------------
+--	Eleventh plot line: Jump start  --
+--------------------------------------
 function jumpStart(delta)
 	plot11name = "jumpStart"
 	jumpStartTimer = jumpStartTimer - delta
@@ -4703,9 +4755,9 @@ function jumpStart(delta)
 		plot11name = nil
 	end
 end
---[[-----------------------------------------------------------------
-      Tenth plot line: ambush from nebula 2
------------------------------------------------------------------]]--
+---------------------------------------------
+--	Tenth plot line: ambush from nebula 2  --
+---------------------------------------------
 function attack5(delta)
 	plot10name = "atack5"
 	if attack5Timer == nil then
@@ -4761,9 +4813,9 @@ function pursue5()
 		plot10 = nil
 	end
 end
---[[-----------------------------------------------------------------
-      Ninth plot line: ambush from nebula 1 
------------------------------------------------------------------]]--
+---------------------------------------------
+--	Ninth plot line: ambush from nebula 1  --
+---------------------------------------------
 function attack4(delta)
 	plot9name = "atack4"
 	if attack4Timer == nil then
@@ -4820,9 +4872,9 @@ function pursue4()
 		plot9 = nil
 	end
 end
---[[-----------------------------------------------------------------
-      Eighth plot line: geometric fleet pincers, strap on tube
------------------------------------------------------------------]]--
+----------------------------------------------------------------
+--	Eighth plot line: geometric fleet pincers, strap on tube  --
+----------------------------------------------------------------
 function attack3(delta)
 	plot8name = "atack3"
 	if attack3spawned == "ready" then
@@ -5013,9 +5065,9 @@ function redeployTube()
 	fixedTubeButton = nil
 	flakyTubeVictim = nil
 end
---[[-----------------------------------------------------------------
-      Seventh plot line - ambush for time constrained short game
------------------------------------------------------------------]]--
+------------------------------------------------------------------
+--	Seventh plot line - ambush for time constrained short game  --
+------------------------------------------------------------------
 function beforeAmbush(delta)
 	plot7name = "before ambush"
 	gameTimeLimit = gameTimeLimit - delta
@@ -5045,9 +5097,9 @@ function afterAmbush(delta)
 		victory("Human Navy")	
 	end
 end
---[[-----------------------------------------------------------------
-      Anchor artifacts (plotArt): find, scan, retrieve anchor artifacts
------------------------------------------------------------------]]--
+-------------------------------------------------------------------------
+--	Anchor artifacts (plotArt): find, scan, retrieve anchor artifacts  --
+-------------------------------------------------------------------------
 function unscannedAnchors(delta)
 	plotArtName = "unscannedAnchors"
 	if artAnchor1:isScannedByFaction("Human Navy") and artAnchor2:isScannedByFaction("Human Navy") then
@@ -5171,9 +5223,9 @@ function trackArtAnchors()
 	end
 end
 
---[[-----------------------------------------------------------------
-      Game master (GM) functions
------------------------------------------------------------------]]--
+----------------------------------
+--	Game master (GM) functions  --
+----------------------------------
 function initiatePlot2()
 	nuisanceSpawned = "ready"
 	nuisanceTimer = random(30,90)
@@ -5232,9 +5284,9 @@ function skipToDestroySC()
 	plot1 = destroyEnemyStronghold	
 	removeGMFunction(GMSkipToDestroy)
 end
---[[-----------------------------------------------------------------
-      Generic or utility functions
------------------------------------------------------------------]]--
+------------------------------------
+--	Generic or utility functions  --
+------------------------------------
 function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
@@ -5339,6 +5391,19 @@ function healthCheck(delta)
 					end
 					if fatalityChance > 0 then
 						crewFate(p,fatalityChance)
+					end
+				else
+					if random(1,100) <= (4 - difficulty) then
+						p:setRepairCrewCount(1)
+						if p:hasPlayerAtPosition("Engineering") then
+							local repairCrewRecovery = "repairCrewRecovery"
+							p:addCustomMessage("Engineering",repairCrewRecovery,"Medical team has revived one of your repair crew")
+						end
+						if p:hasPlayerAtPosition("Engineering+") then
+							local repairCrewRecoveryPlus = "repairCrewRecoveryPlus"
+							p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,"Medical team has revived one of your repair crew")
+						end
+						resetPreviousSystemHealth(p)
 					end
 				end
 			end
