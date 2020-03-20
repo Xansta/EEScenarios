@@ -173,6 +173,7 @@ function init()
 	plotTname = "transportPlot"
 	plotArt = unscannedAnchors
 	plotH = healthCheck
+	plotRS = relayStatus
 	healthCheckTimer = 5
 	healthCheckTimerInterval = 5
 	jumpStartTimer = random(30,90)
@@ -5359,7 +5360,79 @@ function crewFate(p, fatalityChance)
 		end
 	end
 end
-
+function relayStatus(delta)
+	local limit_minutes = nil
+	local limit_seconds = nil
+	local limit_status = "Game Timer"
+	local leg_average = 0
+	local mission_status = nil
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if playWithTimeLimit then
+				limit_minutes = math.floor(gameTimeLimit/60)
+				limit_seconds = math.floor(gameTimeLimit%60)
+				limit_status = "Game Timer"
+				if limit_minutes <= 0 then
+					limit_status = string.format("%s %i",limit_status,limit_seconds)
+				else
+					limit_status = string.format("%s %i:%.2i",limit_status,limit_minutes,limit_seconds)
+				end
+				if p:hasPlayerAtPosition("Relay") then
+					p.limit_status = "limit_status"
+					p:addCustomInfo("Relay",p.limit_status,limit_status)
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p.limit_status_ops = "limit_status_ops"
+					p:addCustomInfo("Operations",p.limit_status_ops,limit_status)
+				end
+			else
+				if patrolComplete then
+					if p.mission_status ~= nil then
+						p:removeCustom(p.mission_status)
+						p.mission_status = nil
+					end
+					if p.mission_status_ops ~= nil then
+						p:removeCustom(p.mission_status_ops)
+						p.mission_status_ops = nil
+					end
+				else
+					leg_average = (p.patrolLegAsimov + p.patrolLegUtopiaPlanitia + p.patrolLegArmstrong)/3
+					mission_status = string.format("%i%% Complete",math.floor(leg_average/patrolGoal*100))
+					if p.patrolLegArmstrong ~= p.patrolLegAsimov or p.patrolLegUtopiaPlanitia ~= p.patrolLegArmstrong then
+						if p.patrolLegArmstrong == p.patrolLegAsimov then
+							if p.patrolLegArmstrong > p.patrolLegUtopiaPlanitia then
+								mission_status = string.format("%s -Utopia Planitia",mission_status)
+							else
+								mission_status = string.format("%s +Utopia Planitia",mission_status)
+							end
+						elseif p.patrolLegArmstrong == p.patrolLegUtopiaPlanitia then
+							if p.patrolLegArmstrong > p.patrolLegAsimov then
+								mission_status = string.format("%s -Asimov",mission_status)
+							else
+								mission_status = string.format("%s +Asimov",mission_status)
+							end
+						else
+							if p.patrolLegAsimov > p.patrolLegArmstrong then
+								mission_status = string.format("%s -Armstrong",mission_status)
+							else
+								mission_status = string.format("%s +Armstrong",mission_status)
+							end
+						end
+					end
+					if p:hasPlayerAtPosition("Relay") then
+						p.mission_status = "mission_status"
+						p:addCustomInfo("Relay",p.mission_status,mission_status)
+					end
+					if p:hasPlayerAtPosition("Operations") then
+						p.mission_status_ops = "mission_status_ops"
+						p:addCustomInfo("Operations",p.mission_status_ops,mission_status)
+					end
+				end
+			end
+		end
+	end
+end
 function update(delta)
 	concurrentPlayerCount = 0
 	for pidx=1,8 do
@@ -5419,5 +5492,8 @@ function update(delta)
 		if plot11 ~= nil then		--jump start (not easy)
 			plot11(delta)
 		end
+	end
+	if plotRS ~= nil then
+		plotRS(delta)
 	end
 end
