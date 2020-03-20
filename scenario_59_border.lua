@@ -8510,6 +8510,23 @@ function healthCheck(delta)
 						resetPreviousSystemHealth(p)
 					end
 				end
+				if p.initialCoolant ~= nil then
+					local current_coolant = p:getMaxCoolant()
+					if current_coolant < 10 then
+						if random(1,100) <= 4 then
+							p:setMaxCoolant(current_coolant + ((current_coolant + 10)/2))
+							if p:hasPlayerAtPosition("Engineering") then
+								local coolant_recovery = "coolant_recovery"
+								p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								local coolant_recovery_plus = "coolant_recovery_plus"
+								p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
+							end
+							resetPreviousSystemHealth(p)
+						end
+					end
+				end
 			end
 		end
 		healthCheckTimer = delta + healthCheckTimerInterval
@@ -8819,6 +8836,20 @@ function coolantNebulae(delta)
 				if distance(p,coolant_nebula[i]) < 5000 then
 					if coolant_nebula[i].lose then
 						p:setMaxCoolant(p:getMaxCoolant()*coolant_loss)
+						if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
+							local engine_choice = math.random(1,3)
+							if engine_choice == 1 then
+								p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
+							elseif engine_choice == 2 then
+								if p:hasWarpDrive() then
+									p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
+								end
+							else
+								if p:hasJumpDrive() then
+									p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
+								end
+							end
+						end
 					end
 					if coolant_nebula[i].gain then
 						inside_gain_coolant_nebula = true
@@ -8884,6 +8915,20 @@ function updateCoolantGivenPlayer(p, delta)
 		if p.deploy_coolant_timer < 0 then
 			gather_coolant_status = "Gathering Coolant"
 			p:setMaxCoolant(p:getMaxCoolant() + coolant_gain)
+			if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
+				local engine_choice = math.random(1,3)
+				if engine_choice == 1 then
+					p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
+				elseif engine_choice == 2 then
+					if p:hasWarpDrive() then
+						p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
+					end
+				else
+					if p:hasJumpDrive() then
+						p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
+					end
+				end
+			end
 		else
 			gather_coolant_status = string.format("Deploying Collectors %i",math.ceil(p.deploy_coolant_timer - delta))
 		end
