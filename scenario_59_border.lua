@@ -135,6 +135,7 @@ function init()
 	plotCN = coolantNebulae
 	plotSS = spinalShip
 	plotExDk = expediteDockCheck
+	plotShowPlayerInfo = showPlayerInfoOnConsole
 	enemyVesselDestroyedNameList = {}
 	enemyVesselDestroyedType = {}
 	enemyVesselDestroyedValue = {}
@@ -403,6 +404,10 @@ function setConstants()
 	table.insert(get_coolant_function,getCoolant6)
 	table.insert(get_coolant_function,getCoolant7)
 	table.insert(get_coolant_function,getCoolant8)
+	show_player_info = true
+	show_only_player_name = true
+	info_choice = 0
+	info_choice_max = 5
 end
 function setGossipSnippets()
 	gossipSnippets = {}
@@ -1556,14 +1561,284 @@ function mainGMButtons()
 		end
 	end
 	addGMFunction(string.format("+Player ships %i/%i",playerShipCount,highestPlayerIndex),playerShip)
-	addGMFunction("Set Time Limit",setGameTimeLimit)
+	addGMFunction("+Set Time Limit",setGameTimeLimit)
+	addGMFunction("+Show Player Info",setShowPlayerInfo)
 	GMBelligerentKraylors = nil
 	GMLimitedWar = nil
 	GMFullWar = nil
 end
+function setShowPlayerInfo()
+	clearGMFunctions()
+	addGMFunction("-From Player Info",mainGMButtons)
+	local button_label = "Show Info"
+	if show_player_info then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		show_player_info = true
+		setShowPlayerInfo()
+	end)
+	button_label = "Omit Info"
+	if not show_player_info then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		show_player_info = false
+		setShowPlayerInfo()
+	end)
+	button_label = "Only Name"
+	if show_only_player_name then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		show_only_player_name = true
+		setShowPlayerInfo()
+	end)
+	button_label = "More than Name"
+	if not show_only_player_name then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		show_only_player_name = false
+		setShowPlayerInfo()
+	end)
+	if show_player_info then
+		for pidx=1,8 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				local player_name = p:getCallSign()
+				if p.show_name_helm == nil then
+					p.show_name_helm = true
+				end
+				if p.show_name_helm then
+					button_label = string.format("%s Helm*",player_name)
+				else
+					button_label = string.format("%s Helm",player_name)
+				end
+				addGMFunction(button_label,function()
+					if p.show_name_helm then
+						p.show_name_helm = false
+					else
+						p.show_name_helm = true
+					end
+					setShowPlayerInfo()
+				end)
+				if p.show_name_weapons then
+					button_label = string.format("%s Weapons*",player_name)
+				else
+					button_label = string.format("%s Weapons",player_name)
+				end
+				addGMFunction(button_label,function()
+					if p.show_name_weapons then
+						p.show_name_weapons = false
+					else
+						p.show_name_weapons = true
+					end
+					setShowPlayerInfo()
+				end)
+				if p.show_name_engineer then
+					button_label = string.format("%s Engineer*",player_name)
+				else
+					button_label = string.format("%s Engineer",player_name)
+				end
+				addGMFunction(button_label,function()
+					if p.show_name_engineer then
+						p.show_name_engineer = false
+					else
+						p.show_name_engineer = true
+					end
+					setShowPlayerInfo()
+				end)
+			end
+		end
+	end
+end
+function showPlayerInfoOnConsole(delta)
+	if show_player_info then
+		for pidx=1,8 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				local player_name = p:getCallSign()
+				if p.player_info_timer == nil then
+					p.player_info_timer = delta + 5
+				end
+				p.player_info_timer = p.player_info_timer - delta
+				if p.player_info_timer < 0 then
+					if show_only_player_name then
+						if p.show_name_helm then
+							if p:hasPlayerAtPosition("Helms") then
+								p.name_helm = "name_helm"
+								p:addCustomInfo("Helms",p.name_helm,player_name)
+							end
+						else
+							if p.name_helm ~= nil then
+								p:removeCustom(p.name_helm)
+								p.name_helm = nil
+							end
+						end
+						if p.show_name_weapons then
+							if p:hasPlayerAtPosition("Weapons") then
+								p.name_weapons = "name_weapons"
+								p:addCustomInfo("Weapons",p.name_weapons,player_name)
+							end
+						else
+							if p.name_weapons ~= nil then
+								p:removeCustom(p.name_weapons)
+								p.name_weapons = nil
+							end
+						end
+						if p.show_name_engineer then
+							if p:hasPlayerAtPosition("Engineering") then
+								p.name_engineer = "name_engineer"
+								p:addCustomInfo("Engineering",p.name_engineer,player_name)
+							end
+						else
+							if p.name_engineer ~= nil then
+								p:removeCustom(p.name_engineer)
+								p.name_engineer = nil
+							end
+						end
+						p.player_info_timer = delta + 5
+					else	--show player name and other info
+						if p.name_toggle == nil then
+							p.name_toggle = true
+						end
+						if p.name_toggle then	--show player name
+							if p.show_name_helm then
+								if p:hasPlayerAtPosition("Helms") then
+									p.name_helm = "name_helm"
+									p:addCustomInfo("Helms",p.name_helm,player_name)
+								end
+							else
+								if p.name_helm ~= nil then
+									p:removeCustom(p.name_helm)
+									p.name_helm = nil
+								end
+							end
+							if p.show_name_weapons then
+								if p:hasPlayerAtPosition("Weapons") then
+									p.name_weapons = "name_weapons"
+									p:addCustomInfo("Weapons",p.name_weapons,player_name)
+								end
+							else
+								if p.name_weapons ~= nil then
+									p:removeCustom(p.name_weapons)
+									p.name_weapons = nil
+								end
+							end
+							if p.show_name_engineer then
+								if p:hasPlayerAtPosition("Engineering") then
+									p.name_engineer = "name_engineer"
+									p:addCustomInfo("Engineering",p.name_engineer,player_name)
+								end
+							else
+								if p.name_engineer ~= nil then
+									p:removeCustom(p.name_engineer)
+									p.name_engineer = nil
+								end
+							end
+							p.name_toggle = false
+							p.player_info_timer = delta + 5
+						else	--show other info
+							local ship_info = ""
+							info_choice = info_choice + 1
+							if info_choice > info_choice_max then
+								info_choice = 1
+							end
+							if info_choice == 1 then
+								ship_info = string.format("Repair Crew: %i",p:getRepairCrewCount())
+								if p.maxRepairCrew ~= nil then
+									ship_info = string.format("%s/%i",ship_info,p.maxRepairCrew)
+								end
+							elseif info_choice == 2 then
+								ship_info = string.format("Hull: %i/%i",math.floor(p:getHull()),math.floor(p:getHullMax()))
+							elseif info_choice == 3 then
+								ship_info = "Shield: "
+								if p:getShieldCount() == 1 then
+									ship_info = string.format("%s%i/%i",ship_info,math.floor(p:getShieldLevel(0)),math.floor(p:getShieldMax(0)))
+								else
+									ship_info = string.format("%sF:%i/%i R:%i/%i",ship_info,math.floor(p:getShieldLevel(0)),math.floor(p:getShieldMax(0)),math.floor(p:getShieldLevel(1)),math.floor(p:getShieldMax(1)))
+								end
+							elseif info_choice == 4 then
+								local beam_count = 0
+								for i=0,15 do
+									if p:getBeamWeaponRange(i) > 0 then
+										beam_count = beam_count + 1
+									end
+								end
+								ship_info = string.format("Beams: %i, Tubes: %i",beam_count,p:getWeaponTubeCount())
+							else
+								ship_info = p:getTypeName()
+								print(ship_info)
+								if ship_info == nil then
+									ship_info = string.format("Repair Crew: %i",p:getRepairCrewCount())
+								else
+									ship_info = string.format("Type: %s",ship_info)
+								end
+							end
+							if p.show_name_helm then
+								if p:hasPlayerAtPosition("Helms") then
+									p.name_helm = "name_helm"
+									p:addCustomInfo("Helms",p.name_helm,ship_info)
+								end
+							else
+								if p.name_helm ~= nil then
+									p:removeCustom(p.name_helm)
+									p.name_helm = nil
+								end
+							end
+							if p.show_name_weapons then
+								if p:hasPlayerAtPosition("Weapons") then
+									p.name_weapons = "name_weapons"
+									p:addCustomInfo("Weapons",p.name_weapons,ship_info)
+								end
+							else
+								if p.name_weapons ~= nil then
+									p:removeCustom(p.name_weapons)
+									p.name_weapons = nil
+								end
+							end
+							if p.show_name_engineer then
+								if p:hasPlayerAtPosition("Engineering") then
+									p.name_engineer = "name_engineer"
+									p:addCustomInfo("Engineering",p.name_engineer,ship_info)
+								end
+							else
+								if p.name_engineer ~= nil then
+									p:removeCustom(p.name_engineer)
+									p.name_engineer = nil
+								end
+							end
+							p.name_toggle = true
+							p.player_info_timer = delta + 3
+						end
+					end
+				end
+			end
+		end
+	else	--not show player info
+		for pidx=1,8 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				if p.name_helm ~= nil then
+					p:removeCustom(p.name_helm)
+					p.name_helm = nil
+				end
+				if p.name_weapons ~= nil then
+					p:removeCustom(p.name_weapons)
+					p.name_weapons = nil
+				end
+				if p.name_engineer ~= nil then
+					p:removeCustom(p.name_engineer)
+					p.name_engineer = nil
+				end
+			end
+		end
+	end
+end
 function playerShip()
 	clearGMFunctions()
-	addGMFunction("-Back",mainGMButtons)
+	addGMFunction("-From Player ships",mainGMButtons)
 	addGMFunction("+Describe stock",describeStockPlayerShips)
 	addGMFunction("+Describe special",describeSpecialPlayerShips)
 	if playerNarsil == nil then
@@ -1669,7 +1944,7 @@ function describeStockPlayerShips()
 end
 function setGameTimeLimit()
 	clearGMFunctions()
-	addGMFunction("Back from time limit",mainGMButtons)
+	addGMFunction("-From time limit",mainGMButtons)
 	addGMFunction("15 minutes", function()
 		gameTimeLimit = 15*60
 		plot2 = timedGame
@@ -11038,5 +11313,8 @@ function update(delta)
 	end
 	if plotExDk ~= nil then	--expedite dock
 		plotExDk(delta)
+	end
+	if plotShowPlayerInfo ~= nil then
+		plotShowPlayerInfo(delta)
 	end
 end
