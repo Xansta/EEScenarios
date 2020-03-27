@@ -722,7 +722,7 @@ function setConstants()
 	jammer_range = 10000
 	automated_station_danger_warning = true
 	server_sensor = true
-	station_sensor_range = getLongRangeRadarRange()
+	station_sensor_range = 30000
 	warning_includes_ship_type = true
 	jump_corridor = false
 end
@@ -1919,13 +1919,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 5 then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
-			dp5Zone:setColor(0,128,0)
-		else		
+	--	if i == 5 then
+	--		dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
+	--		dp5Zone:setColor(0,128,0)
+	--	else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			table.insert(icarusDefensePlatforms,dp)
-		end
+	--	end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -2083,11 +2083,10 @@ function createIcarusStations()
     	history = "The station naming continued in the vein of the nebula which we study"
 	}
 	table.insert(stations,stationPistil)
-	local macassaZone = squareZone(16335, -18034, "Macassa 5")
-	macassaZone:setColor(0,128,0)
+	--local macassaZone = squareZone(16335, -18034, "Macassa 5")
+	--macassaZone:setColor(0,128,0)
 	--Macassa
-	--[[	destroyed 14Mar2020
-    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 4"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 17"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2106,11 +2105,10 @@ function createIcarusStations()
         			dilithium = {quantity = math.random(2,11),	cost = math.random(55,85)}	},
         trade = {	food = tradeFood, medicine = false, luxury = tradeLuxury },
         public_relations = true,
-        general_information = "Station location facilitates mining the nearby asteroids",
+        general_information = "Station location facilitates mining the nearby asteroids. This is the 5th time the staion has been rebuilt: 5 iterations, 9 plans, 3 years hence the name Macassa 17",
     	history = "The station was named in the hopes that the asteroids will be as productive as the Macassa mine was on Earth in the mid to late 1900s"
 	}
 	table.insert(stations,stationMacassa)
-	--]]
 	--Maximilian
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2297,11 +2295,10 @@ function createIcarusStations()
     	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich"
 	}
 	table.insert(stations,stationBorlan)
-	local slurryZone = squareZone(100342, 27871, "Slurry")
-	slurryZone:setColor(51,153,255)
+	--local slurryZone = squareZone(100342, 27871, "Slurry")
+	--slurryZone:setColor(51,153,255)
 	--Slurry
-	--[[	Destroyed 14Mar2020
-    stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry 3"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry IV"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -2324,7 +2321,6 @@ function createIcarusStations()
     	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research"
 	}
 	table.insert(stations,stationSlurry)
-	--]]
 	--local relay13Zone = squareZone(77918, 23876, "Relay13")
 	--relay13Zone:setColor(0,255,0)
 	--Relay-13
@@ -4537,14 +4533,14 @@ function createPlayerShipCobra()
 	playerCobra:setShields(100,100)
 	playerCobra:setHullMax(100)								--weaker hull (vs 120)
 	playerCobra:setHull(100)
-	playerCobra:setMaxEnergy(800)							--more maximum energy (vs 500)
-	playerCobra:setEnergy(800)
+	playerCobra:setMaxEnergy(600)							--more maximum energy (vs 500)
+	playerCobra:setEnergy(600)
 	playerCobra:setJumpDrive(true)
 	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
 	playerCobra:setImpulseMaxSpeed(70)						--faster impulse max (vs 45)
 --									   Arc, Dir, Rotate speed
-	playerCobra:setBeamWeaponTurret(0, 100, -15, .1)		--slower turret speed (vs 6)
-	playerCobra:setBeamWeaponTurret(1, 100,  15, .1)
+	playerCobra:setBeamWeaponTurret(0, 100, -15, .2)		--slower turret speed (vs 6)
+	playerCobra:setBeamWeaponTurret(1, 100,  15, .2)
 	playerCobra:setWeaponTubeCount(2)						--more tubes (vs 0)
 	playerCobra:setWeaponTubeDirection(0,180)				
 	playerCobra:setWeaponTubeDirection(1,180)
@@ -4558,6 +4554,8 @@ function createPlayerShipCobra()
 	playerCobra:setWeaponStorage("Mine", 3)	
 	playerCobra:setWeaponStorageMax("HVLI",6)	
 	playerCobra:setWeaponStorage("HVLI", 6)	
+	playerCobra:setLongRangeRadarRange(20000)				--shorter longer range sensors (vs 30000)
+	playerCobra:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerCobra:addReputationPoints(50)
 	playerShipSpawned("Cobra")
 end
@@ -4632,24 +4630,26 @@ function createPlayerShipHolmes()
 	playerHolmes:setTypeName("Holmes")
 	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
 --                  			 Arc, Dir,  Range, CycleTime, Dmg
-	playerHolmes:setBeamWeapon(0, 60, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
-	playerHolmes:setBeamWeapon(1, 60, -95, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(2, 60,  85, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(3, 60,  95, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(0, 50, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
+	playerHolmes:setBeamWeapon(1, 50, -95, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(2, 50,  85, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(3, 50,  95, 1000.0, 6.0, 5)	
 	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
 	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
 	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
 	playerHolmes:setWeaponTubeExclusiveFor(2,"Homing")
 	playerHolmes:setWeaponTubeExclusiveFor(3,"Mine")
 	playerHolmes:setWeaponTubeDirection(3, 180)
-	playerHolmes:setWeaponStorageMax("Homing",12)			--more (vs 8)
-	playerHolmes:setWeaponStorage("Homing", 12)				
+	playerHolmes:setWeaponStorageMax("Homing",10)			--more (vs 8)
+	playerHolmes:setWeaponStorage("Homing", 10)				
 	playerHolmes:setWeaponStorageMax("HVLI",0)				--fewer
 	playerHolmes:setWeaponStorage("HVLI", 0)				
 	playerHolmes:setWeaponStorageMax("EMP",0)				--fewer
 	playerHolmes:setWeaponStorage("EMP", 0)				
 	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
 	playerHolmes:setWeaponStorage("Nuke", 0)	
+	playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
+	playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerHolmes:addReputationPoints(50)
 	playerShipSpawned("Holmes")
 end
@@ -4755,16 +4755,18 @@ function createPlayerShipRogue()
 	playerRogue:setJumpDrive(true)
 	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
 --                  		    Arc, Dir,  Range, CycleTime, Dmg
-	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 18)
+	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 20)
 --									   Arc, Dir, Rotate speed
 	playerRogue:setBeamWeaponTurret(0, 270,   0, .1)
-	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*5)
+	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*6)
 	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
 	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
 	playerRogue:setBeamWeapon(2, 0, 0, 0, 0, 0)				
 	playerRogue:setBeamWeapon(3, 0, 0, 0, 0, 0)				
 	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
 	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
+	playerRogue:setLongRangeRadarRange(25000)				--shorter longer range sensors (vs 30000)
+	playerRogue:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
 	playerRogue:addReputationPoints(50)
 	playerShipSpawned("Rogue")
 end
