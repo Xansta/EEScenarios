@@ -6226,6 +6226,284 @@ function handleDockedState()
 			end
 		end
 	end
+	addCommsReply("Visit cartography office", function()
+		if comms_target.cartographer_description == nil then
+			local clerk_choice = math.random(1,3)
+			if clerk_choice == 1 then
+				comms_target.cartographer_description = "The clerk behind the desk looks up briefly at you then goes back to filing her nails."
+			elseif clerk_choice == 2 then
+				comms_target.cartographer_description = "The clerk behind the desk examines you then returns to grooming her tentacles."
+			else
+				comms_target.cartographer_description = "The clerk behind the desk glances at you then returns to preening her feathers."
+			end
+		end
+		setCommsMessage(string.format("%s\n\nYou can examine the brochure on the coffee table, talk to the apprentice cartographer or talk to the master cartographer",comms_target.cartographer_description))
+		addCommsReply("What's the difference between the apprentice and the master?", function()
+			setCommsMessage("The clerk responds in a bored voice, 'The apprentice knows the local area and is learning the broader area. The master knows the local and the broader area but can't be bothered with the local area'")
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply(string.format("Examine brochure (%i rep)",getCartographerCost()),function()
+			if comms_source:takeReputationPoints(getCartographerCost()) then
+				setCommsMessage("The brochure has a list of nearby stations and has a list of goods nearby")
+				addCommsReply(string.format("Examine station list (%i rep)",getCartographerCost()), function()
+					if comms_source:takeReputationPoints(getCartographerCost()) then
+						local brochure_stations = ""
+						local sx, sy = comms_target:getPosition()
+						local nearby_objects = getObjectsInRadius(sx,sy,30000)
+						for _, obj in ipairs(nearby_objects) do
+							if obj.typeName == "SpaceStation" then
+								if not obj:isEnemy(comms_target) then
+									if brochure_stations == "" then
+										brochure_stations = string.format("%s %s %s",obj:getSectorName(),obj:getFaction(),obj:getCallSign())
+									else
+										brochure_stations = string.format("%s\n%s %s %s",brochure_stations,obj:getSectorName(),obj:getFaction(),obj:getCallSign())
+									end
+								end
+							end
+						end
+						setCommsMessage(brochure_stations)
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back",commsStation)
+				end)
+				addCommsReply(string.format("Examine goods list (%i rep)",getCartographerCost()), function()
+					if comms_source:takeReputationPoints(getCartographerCost()) then
+						local brochure_goods = ""
+						local sx, sy = comms_target:getPosition()
+						local nearby_objects = getObjectsInRadius(sx,sy,30000)
+						for _, obj in ipairs(nearby_objects) do
+							if obj.typeName == "SpaceStation" then
+								if not obj:isEnemy(comms_target) then
+									if obj.comms_data.goods ~= nil then
+										for good, good_data in pairs(obj.comms_data.goods) do
+											if brochure_goods == "" then
+												brochure_goods = string.format("Good, quantity, cost, station:\n%s, %i, %i, %s",good,good_data["quantity"],good_data["cost"],obj:getCallSign())
+											else
+												brochure_goods = string.format("%s\n%s, %i, %i, %s",brochure_goods,good,good_data["quantity"],good_data["cost"],obj:getCallSign())
+											end
+										end
+									end
+								end
+							end
+						end
+						setCommsMessage(brochure_goods)
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back",commsStation)
+				end)
+				if ctd.character_brochure == nil then
+					local upgrade_stations = {}
+					local sx, sy = comms_target:getPosition()
+					local nearby_objects = getObjectsInRadius(sx,sy,30000)
+					for _, obj in ipairs(nearby_objects) do
+						if obj.typeName == "SpaceStation" then
+							if not obj:isEnemy(comms_target) then
+								if obj.comms_data.characterDescription ~= nil then
+									local sd = distance(obj,sx, sy)
+									if random(0,1) < (1 - (sd/30000)) then
+										table.insert(upgrade_stations,obj)
+									end
+								end
+							end
+						end
+					end
+					ctd.character_brochure = upgrade_stations
+				end
+				if #ctd.character_brochure > 0 then
+					addCommsReply(string.format("Examine upgrades list (%i rep)",getCartographerCost()), function()
+						if comms_source:takeReputationPoints(getCartographerCost()) then
+							local brochure_upgrades = ""
+							for i=1,#ctd.character_brochure do
+								local upgrade_station = ctd.character_brochure[i]
+								if brochure_upgrades == "" then
+									brochure_upgrades = string.format("%s: %s: %s",upgrade_station:getCallSign(),upgrade_station.comms_data.character,upgrade_station.comms_data.characterDescription)
+								else
+									brochure_upgrades = string.format("%s\n%s: %s: %s",brochure_upgrades,upgrade_station:getCallSign(),upgrade_station.comms_data.character,upgrade_station.comms_data.characterDescription)
+								end
+							end
+							setCommsMessage(brochure_upgrades)
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back",commsStation)
+					end)
+				end
+			else
+				setCommsMessage("Insufficient reputation")
+			end
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply(string.format("Talk to apprentice cartographer (%i rep)",getCartographerCost("apprentice")), function()
+			if comms_source:takeReputationPoints(1) then
+				if ctd.character_apprentice == nil then
+					local upgrade_stations = {}
+					local sx, sy = comms_target:getPosition()
+					local nearby_objects = getObjectsInRadius(sx,sy,30000)
+					for _, obj in ipairs(nearby_objects) do
+						if obj.typeName == "SpaceStation" then
+							if not obj:isEnemy(comms_target) then
+								if obj.comms_data.characterDescription ~= nil then
+									table.insert(upgrade_stations,obj)
+								end
+							end
+						end
+					end
+					ctd.character_apprentice = upgrade_stations
+				end
+				if #ctd.character_apprentice > 0 then
+					setCommsMessage("Hi, would you like for me to locate a station, some goods or some upgrades for you?")
+				else
+					setCommsMessage("Hi, would you like for me to locate a station or some goods for you?")
+				end
+				addCommsReply("Locate station", function()
+					setCommsMessage("These are stations I have learned")
+					local sx, sy = comms_target:getPosition()
+					local nearby_objects = getObjectsInRadius(sx,sy,50000)
+					local stations_known = 0
+					for _, obj in ipairs(nearby_objects) do
+						if obj.typeName == "SpaceStation" then
+							if not obj:isEnemy(comms_target) then
+								stations_known = stations_known + 1
+								addCommsReply(obj:getCallSign(),function()
+									local station_details = string.format("%s %s %s",obj:getSectorName(),obj:getFaction(),obj:getCallSign())
+									if obj.comms_data.goods ~= nil then
+										station_details = string.format("%s\nGood, quantity, cost",station_details)
+										for good, good_data in pairs(obj.comms_data.goods) do
+											station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
+										end
+									end
+									if obj.comms_data.general_information ~= nil then
+										station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+									end
+									if obj.comms_data.history ~= nil then
+										station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
+									end
+									if obj.comms_data.gossip ~= nil then
+										station_details = string.format("%s\nGossip:\n   %s",station_details,obj.comms_data.gossip)
+									end
+									if obj.comms_data.characterDescription ~= nil then
+										station_details = string.format("%s\n%s:\n   %s",station_details,obj.comms_data.character,obj.comms_data.characterDescription)
+									end
+									setCommsMessage(station_details)
+									addCommsReply("Back",commsStation)
+								end)
+							end
+						end
+					end
+					if stations_known == 0 then
+						setCommsMessage("I have learned of no stations yet")
+					end
+					addCommsReply("Back",commsStation)
+				end)
+				addCommsReply("Locate goods", function()
+					setCommsMessage("These are the goods I know about")
+					local sx, sy = comms_target:getPosition()
+					local nearby_objects = getObjectsInRadius(sx,sy,50000)
+					local button_count = 0
+					local by_goods = {}
+					for _, obj in ipairs(nearby_objects) do
+						if obj.typeName == "SpaceStation" then
+							if not obj:isEnemy(comms_target) then
+								if obj.comms_data.goods ~= nil then
+									for good, good_data in pairs(obj.comms_data.goods) do
+										by_goods[good] = obj
+									end
+								end
+							end
+						end
+					end
+					for good, obj in pairs(by_goods) do
+						addCommsReply(good, function()
+							local station_details = string.format("%s %s %s",obj:getSectorName(),obj:getFaction(),obj:getCallSign())
+							if obj.comms_data.goods ~= nil then
+								station_details = string.format("%s\nGood, quantity, cost",station_details)
+								for good, good_data in pairs(obj.comms_data.goods) do
+									station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
+								end
+							end
+							if obj.comms_data.general_information ~= nil then
+								station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+							end
+							if obj.comms_data.history ~= nil then
+								station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
+							end
+							if obj.comms_data.gossip ~= nil then
+								station_details = string.format("%s\nGossip:\n   %s",station_details,obj.comms_data.gossip)
+							end
+							if obj.comms_data.characterDescription ~= nil then
+								station_details = string.format("%s\n%s:\n   %s",station_details,obj.comms_data.character,obj.comms_data.characterDescription)
+							end
+							setCommsMessage(station_details)
+							addCommsReply("Back",commsStation)
+						end)
+						button_count = button_count + 1
+						if button_count >= 20 then
+							break
+						end
+					end
+					addCommsReply("Back",commsStation)
+				end)
+				if #ctd.character_apprentice > 0 then
+					addCommsReply("Locate upgrade station", function()
+						setCommsMessage("These are stations I have learned that have upgrades")
+						local sx, sy = comms_target:getPosition()
+						local nearby_objects = getObjectsInRadius(sx,sy,50000)
+						local stations_known = 0
+						for _, obj in ipairs(nearby_objects) do
+							if obj.typeName == "SpaceStation" then
+								if not obj:isEnemy(comms_target) then
+									if obj.comms_data.characterDescription ~= nil then
+										stations_known = stations_known + 1
+										addCommsReply(obj:getCallSign(), function()
+											local station_details = string.format("%s %s %s",obj:getSectorName(),obj:getFaction(),obj:getCallSign())
+											if obj.comms_data.goods ~= nil then
+												station_details = string.format("%s\nGood, quantity, cost",station_details)
+												for good, good_data in pairs(obj.comms_data.goods) do
+													station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
+												end
+											end
+											if obj.comms_data.general_information ~= nil then
+												station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+											end
+											if obj.comms_data.history ~= nil then
+												station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
+											end
+											if obj.comms_data.gossip ~= nil then
+												station_details = string.format("%s\nGossip:\n   %s",station_details,obj.comms_data.gossip)
+											end
+											if obj.comms_data.characterDescription ~= nil then
+												station_details = string.format("%s\n%s:\n   %s",station_details,obj.comms_data.character,obj.comms_data.characterDescription)
+											end
+											setCommsMessage(station_details)
+											addCommsReply("Back",commsStation)
+										end)
+									end
+								end
+							end
+						end
+						if stations_known == 0 then
+							setCommsMessage("I have learned of no upgrade stations yet")
+						end
+					end)
+				end
+			else
+				setCommsMessage("Insufficient reputation")
+			end
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply(string.format("Talk to master cartographer (%i rep)",getCartographerCost("master")), function()
+			if comms_source:getWaypointCount() >= 9 then
+				setCommsMessage("The clerk clears her throat:\n\nMy indicators show you have zero available waypoints. To get the most from the master cartographer, you should delete one or more so that he can update your systems appropriately.\n\nI just want you to get the maximum benefit for the time you spend with him")
+				addCommsReply("Continue to Master Cartographer", masterCartographer)
+			else
+				masterCartographer()
+			end
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply("Back",commsStation)
+	end)
 	local goodCount = 0
 	for good, goodData in pairs(ctd.goods) do
 		goodCount = goodCount + 1
@@ -6400,6 +6678,175 @@ function handleDockedState()
 		end)
 	end
 end	--end of handleDockedState function
+function masterCartographer()
+	local ctd = comms_target.comms_data
+	if comms_source:takeReputationPoints(getCartographerCost("master")) then
+		if ctd.character_master == nil then
+			local upgrade_stations = {}
+			local nearby_objects = getAllObjects()
+			local station_distance = 0
+			for _, obj in ipairs(nearby_objects) do
+				if obj.typeName == "SpaceStation" then
+					if not obj:isEnemy(comms_target) then
+						station_distance = distance(comms_target,obj)
+						if station_distance > 50000 then
+							if obj.comms_data.characterDescription ~= nil then
+								table.insert(upgrade_stations,obj)
+							end
+						end
+					end
+				end
+			end
+			ctd.character_master = upgrade_stations
+		end
+		if #ctd.character_master > 0 then
+			setCommsMessage("Greetings,\nMay I help you find a station, goods or an upgrade?")
+		else
+			setCommsMessage("Greetings,\nMay I help you find a station or goods?")
+		end
+		addCommsReply("Find station",function()
+			setCommsMessage("What station?")
+			local nearby_objects = getAllObjects()
+			local stations_known = 0
+			local station_distance = 0
+			for _, obj in ipairs(nearby_objects) do
+				if obj.typeName == "SpaceStation" then
+					if not obj:isEnemy(comms_target) then
+						station_distance = distance(comms_target,obj)
+						if station_distance > 50000 then
+							stations_known = stations_known + 1
+							addCommsReply(obj:getCallSign(),function()
+								local station_details = string.format("%s %s %s Distance:%.1fU",obj:getSectorName(),obj:getFaction(),obj:getCallSign(),station_distance/1000)
+								if obj.comms_data.goods ~= nil then
+									station_details = string.format("%s\nGood, quantity, cost",station_details)
+									for good, good_data in pairs(obj.comms_data.goods) do
+										station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
+									end
+								end
+								if obj.comms_data.general_information ~= nil then
+									station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+								end
+								if obj.comms_data.history ~= nil then
+									station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
+								end
+								if obj.comms_data.gossip ~= nil then
+									station_details = string.format("%s\nGossip:\n   %s",station_details,obj.comms_data.gossip)
+								end
+								if obj.comms_data.characterDescription ~= nil then
+									station_details = string.format("%s\n%s:\n   %s",station_details,obj.comms_data.character,obj.comms_data.characterDescription)
+								end
+								local dsx, dsy = obj:getPosition()
+								comms_source:commandAddWaypoint(dsx,dsy)
+								station_details = string.format("%s\nAdded waypoint %i to your navigation system for %s",station_details,comms_source:getWaypointCount(),obj:getCallSign())
+								setCommsMessage(station_details)
+								addCommsReply("Back",commsStation)
+							end)
+						end
+					end
+				end
+			end
+			if stations_known == 0 then
+				setCommsMessage("Try the apprentice, I'm tired")
+			end
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply("Find Goods", function()
+			setCommsMessage("What goods are you looking for?")
+			local nearby_objects = getAllObjects()
+			local by_goods = {}
+			for _, obj in ipairs(nearby_objects) do
+				if obj.typeName == "SpaceStation" then
+					if not obj:isEnemy(comms_target) then
+						local station_distance = distance(comms_target,obj)
+						if station_distance > 50000 then
+							if obj.comms_data.goods ~= nil then
+								for good, good_data in pairs(obj.comms_data.goods) do
+									by_goods[good] = obj
+								end
+							end
+						end
+					end
+				end
+			end
+			for good, obj in pairs(by_goods) do
+				addCommsReply(good, function()
+					local station_distance = distance(comms_target,obj)
+					local station_details = string.format("%s %s %s Distance:%.1fU",obj:getSectorName(),obj:getFaction(),obj:getCallSign(),station_distance/1000)
+					if obj.comms_data.goods ~= nil then
+						station_details = string.format("%s\nGood, quantity, cost",station_details)
+						for good, good_data in pairs(obj.comms_data.goods) do
+							station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
+						end
+					end
+					if obj.comms_data.general_information ~= nil then
+						station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+					end
+					if obj.comms_data.history ~= nil then
+						station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
+					end
+					if obj.comms_data.gossip ~= nil then
+						station_details = string.format("%s\nGossip:\n   %s",station_details,obj.comms_data.gossip)
+					end
+					if obj.comms_data.characterDescription ~= nil then
+						station_details = string.format("%s\n%s:\n   %s",station_details,obj.comms_data.character,obj.comms_data.characterDescription)
+					end
+					local dsx, dsy = obj:getPosition()
+					comms_source:commandAddWaypoint(dsx,dsy)
+					station_details = string.format("%s\nAdded waypoint %i to your navigation system for %s",station_details,comms_source:getWaypointCount(),obj:getCallSign())
+					setCommsMessage(station_details)
+					addCommsReply("Back",commsStation)
+				end)
+			end
+			addCommsReply("Back",commsStation)
+		end)
+		if #ctd.character_master > 0 then
+			addCommsReply("Find Upgrade Station", function()
+				setCommsMessage("What station?")
+				for i=1,#ctd.character_master do
+					local obj = ctd.character_master[i]
+					station_distance = distance(comms_target,obj)
+					addCommsReply(obj:getCallSign(), function()
+						local station_details = string.format("%s %s %s Distance:%.1fU",obj:getSectorName(),obj:getFaction(),obj:getCallSign(),station_distance/1000)
+						if obj.comms_data.goods ~= nil then
+							station_details = string.format("%s\nGood, quantity, cost",station_details)
+							for good, good_data in pairs(obj.comms_data.goods) do
+								station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
+							end
+						end
+						if obj.comms_data.general_information ~= nil then
+							station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+						end
+						if obj.comms_data.history ~= nil then
+							station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
+						end
+						if obj.comms_data.gossip ~= nil then
+							station_details = string.format("%s\nGossip:\n   %s",station_details,obj.comms_data.gossip)
+						end
+						if obj.comms_data.characterDescription ~= nil then
+							station_details = string.format("%s\n%s:\n   %s",station_details,obj.comms_data.character,obj.comms_data.characterDescription)
+						end
+						local dsx, dsy = obj:getPosition()
+						comms_source:commandAddWaypoint(dsx,dsy)
+						station_details = string.format("%s\nAdded waypoint %i to your navigation system for %s",station_details,comms_source:getWaypointCount(),obj:getCallSign())
+						setCommsMessage(station_details)
+						addCommsReply("Back",commsStation)
+					end)
+				end
+			end)
+		end
+	else
+		setCommsMessage("Insufficient Reputation")
+	end
+end
+function getCartographerCost(service)
+	local base_cost = 1
+	if service == "apprentice" then
+		base_cost = 5
+	elseif service == "master" then
+		base_cost = 10
+	end
+	return math.ceil(base_cost * comms_data.reputation_cost_multipliers[getFriendStatus()])
+end
 function setOptionalOrders()
 	optionalOrders = ""
 end
@@ -7556,7 +8003,7 @@ function enemyComms(comms_data)
 		local amenable_chance = comms_data.friendlyness/3 + (1 - enemy_health)*30
 		if change_enemy_order_diagnostic then print(string.format("   amenability:     %.1f",amenable_chance)) end
 		addCommsReply("Stop your actions",function()
-			local amenable_roll = random(0,100)
+			local amenable_roll = random(1,100)
 			if change_enemy_order_diagnostic then print(string.format("   amenable roll:   %.1f",amenable_roll)) end
 			if amenable_roll < amenable_chance then
 				local current_order = comms_target:getOrder()
@@ -7576,7 +8023,7 @@ function enemyComms(comms_data)
 					end
 					table.insert(enemy_reverts,comms_target)
 				end
-				comms_target.amenability_may_expire = true
+				comms_target.amenability_may_expire = true		--set up conditional in future refactoring
 				comms_target:orderIdle()
 				comms_target:setFaction("Independent")
 				setCommsMessage("Just this once, we'll take your advice")
