@@ -1930,13 +1930,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-	--	if i == 5 then
-	--		dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
-	--		dp5Zone:setColor(0,128,0)
-	--	else		
+		if i == 4 then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
+			dp4Zone:setColor(0,128,0)
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			table.insert(icarusDefensePlatforms,dp)
-	--	end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -2094,8 +2094,9 @@ function createIcarusStations()
     	history = "The station naming continued in the vein of the nebula which we study"
 	}
 	table.insert(stations,stationPistil)
-	--local macassaZone = squareZone(16335, -18034, "Macassa 5")
-	--macassaZone:setColor(0,128,0)
+	local macassaZone = squareZone(16335, -18034, "Macassa 6")
+	macassaZone:setColor(0,128,0)
+	--[[	Destroyed 28Mar2020
 	--Macassa
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 17"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2120,6 +2121,7 @@ function createIcarusStations()
     	history = "The station was named in the hopes that the asteroids will be as productive as the Macassa mine was on Earth in the mid to late 1900s"
 	}
 	table.insert(stations,stationMacassa)
+	--]]
 	--Maximilian
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2166,6 +2168,9 @@ function createIcarusStations()
     	history = "Station named after the platinum mine on ancient Earth on the African continent"
 	}
 	table.insert(stations,stationAquarius)
+	local wookieZone = squareZone(-11280, 7425, "Tri-Wookie")
+	wookieZone:setColor(51,153,255)
+	--[[	Destroyed 28Mar2020
 	--Wookie F4m5 (ookie suffix indicates that this is the second version of this station)
     stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-ookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2188,6 +2193,7 @@ function createIcarusStations()
     	history = "The first language studied when the station was founded was Wookie. Wookie language and culture is still a major focus of study"
 	}
 	table.insert(stations,stationWookie)
+	--]]
 	--Elysium F4m2.5
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4549,6 +4555,9 @@ function createPlayerShipCobra()
 	playerCobra:setJumpDrive(true)
 	playerCobra:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
 	playerCobra:setImpulseMaxSpeed(70)						--faster impulse max (vs 45)
+--                 				 Arc, Dir, Range, CycleTime, Damage
+	playerCobra:setBeamWeapon(0,  10, -15,	1100, 		6.0, 	6.5)	--shorter (vs 1200) more damage (vs 6.0)
+	playerCobra:setBeamWeapon(1,  10,  15,	1100, 		6.0,	6.5)
 --									   Arc, Dir, Rotate speed
 	playerCobra:setBeamWeaponTurret(0, 100, -15, .2)		--slower turret speed (vs 6)
 	playerCobra:setBeamWeaponTurret(1, 100,  15, .2)
@@ -4596,6 +4605,8 @@ function createPlayerShipGabble()
 	playerGabble:setWeaponTubeDirection(3,0)					--forward facing (vs right)
 	playerGabble:setWeaponTubeExclusiveFor(2,"Homing")			--homing only (vs HVLI)
 	playerGabble:setWeaponTubeExclusiveFor(5,"Homing")			--homing only (vs HVLI)
+	playerGabble:setWeaponTubeExclusiveFor(0,"HVLI")			--HVLI only (vs Homing + HVLI)
+	playerGabble:setWeaponTubeExclusiveFor(3,"HVLI")			--HVLI only (vs Homing + HVLI)
 	playerGabble:weaponTubeDisallowMissle(1,"Mine")				--no sideways mines
 	playerGabble:weaponTubeDisallowMissle(4,"Mine")				--no sideways mines
 	playerGabble:setWeaponStorageMax("HVLI",8)					--fewer HVLI (vs 20)
@@ -4608,6 +4619,7 @@ function createPlayerShipGabble()
 	playerGabble:setWeaponStorage("EMP", 4)					
 	playerGabble:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
 	playerGabble:setWeaponStorage("Nuke", 4)				
+	playerGabble:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
 	playerGabble:addReputationPoints(50)
 	playerShipSpawned("Gabble")
 end
@@ -4808,9 +4820,9 @@ function createPlayerShipRogue()
 	playerRogue:setJumpDrive(true)
 	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
 --                  		    Arc, Dir,  Range, CycleTime, Dmg
-	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      18.0, 20)
+	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      20.0, 20)
 --									   Arc, Dir, Rotate speed
-	playerRogue:setBeamWeaponTurret(0, 270,   0, .1)
+	playerRogue:setBeamWeaponTurret(0, 270,   0, .15)
 	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*6)
 	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
 	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
