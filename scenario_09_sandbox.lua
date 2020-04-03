@@ -2,7 +2,7 @@
 -- Description: GM controlled missions
 --- Version 1
 -- Type: GM Controlled missions
--- Variation[Easy]: Easy goals and/or enemies
+-- Variation[Easy]: Easy goals and/or enemies	
 -- Variation[Hard]: Hard goals and/or enemies
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -10,9 +10,9 @@
 -- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT--------+
 -- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--+ |
 -- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO------+ |	|
--- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+DESCRIPTIONS-----> +DESCRIBE CURRENT---> List	+REPUTATION	| | |
--- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+CURRENT--->List	+DESCRIBE SCRAPPED--> List			  |	| | |
--- +TWEAK TERRAIN---+ | | |	| V											  | | 		+SCRAPPED-->List	+DESCRIBE STOCK-----> List			  |	| | |
+-- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+CURRENT--->List	+DESCRIBE CURRENT---> List	+REPUTATION	| | |
+-- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+SCRAPPED-->List	+DESCRIBE SCRAPPED--> List			  |	| | |
+-- +TWEAK TERRAIN---+ | | |	| V											  | | 		+DESCRIPTIONS----->	+DESCRIBE STOCK-----> List			  |	| | |
 -- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 							  |	| | |
 -- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 			+-----------------+ | | |
 --				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR					|					| | |
@@ -21,7 +21,7 @@
 --				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V					ADD FIVE REP n		| | |
 --				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR				ADD TEN REP n		| | |
 --				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE		DEL ONE REP n		| | |
---				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 250			180							FIVE REP n			| | |
+--				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 300			180							FIVE REP n			| | |
 --				| | | | | |	V							  | | +---+ V							225							DEL TEN REP n		| | |
 --				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270												| | |
 --				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315						+-----------------------+ | |
@@ -54,38 +54,52 @@
 --				| | PULSE ASTEROID					| | | |	| +AMBUSH 5					-SETUP				|	
 --				| | JUMP CORRIDOR OFF				| | | | |							+PLAYER SPAWN POINT-+
 --				| | SANDBOX COMMS					| | | | |							+TERRAIN-------------->	DEFAULT
---				| V									| | | |	V													KENTAR (R17)
---				| -MAIN FROM TIMER					| | | |	(+)ASSOCIATED				
---				| +DISPLAY: GM----------+			| | | |	+NEAR TO--> [Near To]						
---				| +LENGTH: 5----------+	|			| | | |	NEAR RADIUS BUT SAFE			
---				| +PURPOSE: TIMER---+ |	|			| | | |	EDGE BUT IN DANGER						
---				| +ADD SECONDS----+	| |	|			| | | |	NEAR RADIUS BUT OUTSIDE			
---				| +DEL SECONDS--+ |	| |	V			| | | |	EDGE BUT INSIDE			
---				| START TIMER	| |	| |	HELM		| | | V
---				V				| |	| |	WEAPONS		| | | DROP MARINES*	
---		-MAIN FROM END			| |	| |	ENGINEER	| | | EXTRACT MARINES	
---		HUMAN VICTORY			| | | |	SCIENCE		| | | ASSOCIATED		
---		KRAYLOR VICTORY			| | | |	RELAY		| | | +NEAR TO--> [Near To]		
---		EXUARI VICTORY			| | | V				| | V					  +----------->	500-100=400
---		GHOST VICTORY			| | | 1 MINUTE		| | DROP ENGINEERS*		  |				500+100=600
---		ARLENIAN VICTORY		| | | 3 MINUTES		| | EXTRACT ENGINEERS	  |			
---		INDEPENDENT VICTORY		| | | 5 MINUTES*	| | ASSOCIATED			  |	+--------->	1-1=0
---		KTLITAN VICTORY			| | | 10 MINUTES	| | +NEAR TO--> [Near To] |	|			1+1=2
---		TSN VICTORY				| | | 15 MINUTES	| V						  | |			
---		USN VICTORY				| | | 20 MINUTES	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0
---		CUF VICTORY				| | | 30 MINUTES	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2
---								| | | 45 MINUTES	| ASSOCIATED			  |	| |			
---	+---------------------------+ |	V				| +NEAR TO--> [Near To]	  | | | +----->	2-1=1
---	|				+-------------+	TIMER*			V						  | | | |		2+1=3
---	V				V				DEATH			+ENERGY 500---------------+ | | |				
---	DEL 1 SECOND	ADD 1 SECOND	BREAKDOWN		+NUKE 1---------------------+ | | +---> 4-1=3
---	DEL 3 SECONDS	ADD 3 SECONDS	MISSION			+EMP 1------------------------+ | |		4+1=5
---	DEL 5 SECONDS	ADD 5 SECONDS	DEPARTURE		+MINE 2-------------------------+ |			
---	DEL 10 SECONDS	ADD 10 SECONDS	DESTRUCTION		+HOMING 4-------------------------+	+->	0+1=1
---									DISCOVERY		+HVLI 0-----------------------------+			
---													+REPAIR CREW 0------------------------> 0+1=1
---													+COOLANT 0--------------------------+			
---													+NEAR TO--> [Near To]				+->	0+1=1
+--				| | +STATION DEFENSE--------------+	| | | | |													KENTAR (R17)
+--				| V								  |	| | | |	V													
+--				| -MAIN FROM TIMER				  |	| | | |	(+)ASSOCIATED				
+--				| +DISPLAY: GM----------+		  |	| | | |	+NEAR TO--> [Near To]						
+--				| +LENGTH: 5----------+	|		  |	| | | |	NEAR RADIUS BUT SAFE			
+--				| +PURPOSE: TIMER---+ |	|		  |	| | | |	EDGE BUT IN DANGER						
+--				| +ADD SECONDS----+	| |	|		  |	| | | |	NEAR RADIUS BUT OUTSIDE			
+--				| +DEL SECONDS--+ |	| |	V		  |	| | | |	EDGE BUT INSIDE			
+--				| START TIMER	| |	| |	HELM	  |	| | | V
+--				V				| |	| |	WEAPONS	  |	| | | DROP MARINES*	
+--		-MAIN FROM END			| |	| |	ENGINEER  |	| | | EXTRACT MARINES	
+--		HUMAN VICTORY			| | | |	SCIENCE	  |	| | | ASSOCIATED		
+--		KRAYLOR VICTORY			| | | |	RELAY	  |	| | | +NEAR TO--> [Near To]		
+--		EXUARI VICTORY			| | | V			  |	| | V					  +----------->	500-100=400
+--		GHOST VICTORY			| | | 1 MINUTE	  |	| | DROP ENGINEERS*		  |				500+100=600
+--		ARLENIAN VICTORY		| | | 3 MINUTES	  |	| | EXTRACT ENGINEERS	  |			
+--		INDEPENDENT VICTORY		| | | 5 MINUTES*  |	| | ASSOCIATED			  |	+--------->	1-1=0
+--		KTLITAN VICTORY			| | | 10 MINUTES  |	| | +NEAR TO--> [Near To] |	|			1+1=2
+--		TSN VICTORY				| | | 15 MINUTES  |	| V						  | |			
+--		USN VICTORY				| | | 20 MINUTES  |	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0
+--		CUF VICTORY				| | | 30 MINUTES  |	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2
+--								| | | 45 MINUTES  |	| ASSOCIATED			  |	| |			
+--	+---------------------------+ |	V			  |	| +NEAR TO--> [Near To]	  | | | +----->	2-1=1
+--	|				+-------------+	TIMER*		  |	V						  | | | |		2+1=3
+--	V				V				DEATH		  |	+ENERGY 500---------------+ | | |				
+--	DEL 1 SECOND	ADD 1 SECOND	BREAKDOWN	  |	+NUKE 1---------------------+ | | +---> 4-1=3			
+--	DEL 3 SECONDS	ADD 3 SECONDS	MISSION		  |	+EMP 1------------------------+ | |		4+1=5			
+--	DEL 5 SECONDS	ADD 5 SECONDS	DEPARTURE	  |	+MINE 2-------------------------+ |					
+--	DEL 10 SECONDS	ADD 10 SECONDS	DESTRUCTION	  |	+HOMING 4-------------------------+	+->	0+1=1
+--									DISCOVERY	  |	+HVLI 0-----------------------------+			
+--			.5<-----+							  |	+REPAIR CREW 0------------------------> 0+1=1		+-->+PLATFORMS: 3---------->V FROM 3 TO 2
+--			1*		|	AVG SPEED OFF			  |	+COOLANT 0--------------------------+				|	+ORBIT:NO-->[Orbit]		^ FROM 3 TO 4
+--			2		+---+1 PLAYER STRENGTH: 16*	  |	+NEAR TO--> [Near To]				+->	0+1=1		|	SPAWN DEF PLATFORMS
+--			3	 +------+SET FIXED STRENGTH		  V														|
+--			4	 |	  +-+RANDOM					  -MAIN				+-----------------------------------+
+--			5	 |	  |	SPAWN DEF FLEET<----+	  -TWEAK TERRAIN	|							V FROM 3 TO 2				+-->^ FROM 0 TO 1
+--				 V	  V						+-----+DEFENSIVE FLEET	|	+PLATFORMS: 3---------->^ FROM 3 TO 4				|	+ORBIT: NO-->[Orbit]
+--	250 - 50 = 200	  RANDOM*					  +INNER RING-------+	+MINES: NO----------------------------->+INLINE: 0-+									
+--	250 + 50 = 300	  FIGHTERS					  +OUTER RING---------->+DP ORBIT: NO---------->ORBIT > FAST	+INSIDE: 0----->^ FROM 0 TO 1
+--					  CHASERS					  AUTOROTATE NO			SPAWN OUTER DEFENSE		ORBIT > NORMAL	+OUTSIDE: 0---->+ORBIT: NO-->[Orbit]
+--					  FRIGATES																	ORBIT > SLOW					V GAPS FROM 3 TO 2
+--					  BEAMERS																	NO								^ GAPS FROM 3 TO 4
+--					  MISSILERS																	ORBIT < FAST	
+--					  ADDERS																	ORBIT < NORMAL
+--					  NON-DB														[Orbit]---->ORBIT < SLOW
+--					  DRONES																		
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 require("utils.lua")
@@ -271,80 +285,42 @@ function setConstants()
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
 
-	playerShipStats = {	["MP52 Hornet"] = { strength = 7, 	cargo = 3,	distance = 100, long_range_radar = 18000, short_range_radar = 4000},
-						["Piranha"]		= { strength = 16,	cargo = 8,	distance = 200, long_range_radar = 25000, short_range_radar = 6000},
+	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000},
+						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000},
+						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000},
+						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
+						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500},
+						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000},
+						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000},
+						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500},
+						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000},
+						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000},
+						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000},
+						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000},
+						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
+						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500},
+						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
+						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
+						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
+						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000},
+						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000},
+						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000},
+						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000},
+						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000},
+						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000},
+						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000},
+						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000},
+						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000},
+						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
+						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
 					}	
-	--						Template, 		strength
-	playerShipStrength = {	["MP52 Hornet"] =			7,
-							["Piranha"] = 				16,
-							["Flavia P.Falcon"] =		13,
-							["Phobos M3P"] =			19,
-							["Atlantis"] =				52,
-							["Player Cruiser"] =		40,
-							["Player Missile Cr."] =	45,
-							["Player Fighter"] =		7,
-							["Benedict"] =				10,
-							["Kiriya"] =				10,
-							["Striker"] =				8,
-							["ZX-Lindworm"] =			8,
-							["Repulse"] =				14,
-							["Ender"] =					100,
-							["Nautilus"] =				12,
-							["Hathcock"] =				30,
-							["Maverick"] =				45,
-							["Crucible"] =				45,
-							["Proto-Atlantis"] =		40,
-							["Surkov"] =				35,
-							["Redhook"] =				11,
-							["Pacu"] =					18,
-							["Phobos T2"] =				19,
-							["Wombat"] =				13,
-							["Holmes"] =				35,
-							["Focus"] =					35,
-							["Flavia 2C"] = 			25,
-							["Destroyer IV"] = 			25,
-							["Destroyer III"] = 		25,
-							["MX-Lindworm"] =			10,
-							["Striker LX"] =			15,
-							["Maverick XP"] =			23,
-							["Era"] =					14,
-							["Squid"] =					14,
-							["Atlantis II"] =			60	}
-	playerShipCargo = 	{	["MP52 Hornet"] =			3,
-							["Piranha"] = 				8,
-							["Flavia P.Falcon"] =		15,
-							["Phobos M3P"] =			10,
-							["Atlantis"] =				6,
-							["Player Cruiser"] =		6,
-							["Player Missile Cr."] =	8,
-							["Player Fighter"] =		3,
-							["Benedict"] =				9,
-							["Kiriya"] =				9,
-							["Striker"] =				4,
-							["ZX-Lindworm"] =			3,
-							["Repulse"] =				12,
-							["Ender"] =					20,
-							["Nautilus"] =				7,
-							["Hathcock"] =				6,
-							["Maverick"] =				5,
-							["Crucible"] =				5,
-							["Proto-Atlantis"] =		4,
-							["Surkov"] =				6,
-							["Redhook"] =				8,
-							["Pacu"] =					7,
-							["Phobos T2"] =				9,
-							["Wombat"] =				3,
-							["Holmes"] =				6,
-							["Focus"] =					4,
-							["Flavia 2C"] = 			12,
-							["Destroyer IV"] = 			5,
-							["Destroyer III"] = 		7,
-							["MX-Lindworm"] =			3,
-							["Striker LX"] =			4,
-							["Maverick XP"] =			5,
-							["Era"] =					14,
-							["Squid"] =					8,
-							["Atlantis II"] =			6	}
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
 	roamingFleetFunction = {orderFleetRoaming1,orderFleetRoaming2,orderFleetRoaming3,orderFleetRoaming4,orderFleetRoaming5,orderFleetRoaming6,orderFleetRoaming7,orderFleetRoaming8}
@@ -367,41 +343,6 @@ function setConstants()
 								["VisualAsteroid"] = 200, 
 								["WormHole"] = 2625,
 								["CpuShip"] = 2000}
-	playerShipDistance = {	["MP52 Hornet"] =			100,
-							["Piranha"] = 				200,
-							["Flavia P.Falcon"] =		200,
-							["Phobos M3P"] =			200,
-							["Atlantis"] =				400,
-							["Player Cruiser"] =		400,
-							["Player Missile Cr."] =	200,
-							["Player Fighter"] =		100,
-							["Benedict"] =				400,
-							["Kiriya"] =				400,
-							["Striker"] =				200,
-							["ZX-Lindworm"] =			100,
-							["Repulse"] =				200,
-							["Ender"] =					2000,
-							["Nautilus"] =				200,
-							["Hathcock"] =				200,
-							["Maverick"] =				200,
-							["Crucible"] =				200,
-							["Proto-Atlantis"] =		400,
-							["Surkov"] =				200,
-							["Redhook"] =				200,
-							["Pacu"] =					200,
-							["Phobos T2"] =				200,
-							["Wombat"] =				100,
-							["Holmes"] =				200,
-							["Focus"] =					200,
-							["Flavia 2C"] = 			200,
-							["Destroyer IV"] = 			400,
-							["Destroyer III"] = 		200,
-							["MX-Lindworm"] =			100,
-							["Striker LX"] =			200,
-							["Maverick XP"] =			200,
-							["Era"] =					200,
-							["Squid"] =					200,
-							["Atlantis II"] =			400	}
 	spaceStationDistance = {["Small Station"] = 400, ["Medium Station"] = 1200, ["Large Station"] = 1400, ["Huge Station"] = 2000}
 	commonGoods = {"food","medicine","nickel","platinum","gold","dilithium","tritanium","luxury","cobalt","impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	componentGoods = {"impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
@@ -734,6 +675,28 @@ function setConstants()
 	station_sensor_range = 30000
 	warning_includes_ship_type = true
 	jump_corridor = false
+	station_defensive_fleet_speed_average = false
+	inner_defense_platform_count = 3
+	inner_defense_platform_orbit = "No"
+	outer_defense_platform_count = 3
+	outer_defense_platform_orbit = "No"
+	orbit_increment = {
+		["Orbit > Fast"] 	= .1,
+		["Orbit > Normal"] 	= .05,
+		["Orbit > Slow"]	= .01,
+		["Orbit < Fast"]	= -.1,
+		["Orbit < Normal"]	= -.05,
+		["Orbit < Slow"]	= -.01,
+	} 
+	outer_mines = "No"
+	inline_mines = 0
+	inside_mines = 0
+	outside_mines = 0
+	inline_mine_gap_count = 3
+	inside_mine_gap_count = 3
+	outside_mine_gap_count = 3
+	inside_mine_orbit = "No"
+	outside_mine_orbit = "No"
 end
 ----------------------------
 --  Main Menu of Buttons  --
@@ -833,7 +796,9 @@ function spawnGMFleet()
 		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
 		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
 	end
-	addGMFunction(string.format("+%s",fleetComposition),setFleetComposition)
+	addGMFunction(string.format("+%s",fleetComposition),function()
+		stationDefensiveFleet(spawnGMFleet)
+	end)
 	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
 	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
 	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
@@ -856,11 +821,13 @@ end
 function assignPlayerShipScore(p)
 	local tempTypeName = p:getTypeName()
 	if tempTypeName ~= nil then
-		local shipScore = playerShipStrength[tempTypeName]
+		local shipScore = playerShipStats[tempTypeName].strength
 		if shipScore ~= nil and shipScore > 0 then
 			p.shipScore = shipScore
-			p.maxCargo = playerShipCargo[tempTypeName]
+			p.maxCargo = playerShipStats[tempTypeName].cargo
 			p.cargo = p.maxCargo
+			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
+			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
 		else
 			p.shipScore = 24
 			p.maxCargo = 5
@@ -1362,6 +1329,7 @@ end
 -- PULSE ASTEROID		F	pulseAsteroid
 -- JUMP CORRIDOR OFF	F	inline (toggles between ON and OFF)
 -- SANDBOX COMMS		F	inline
+-- +STATION DEFENSE		F	stationDefense
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -1414,6 +1382,7 @@ function tweakTerrain()
 			end)
 		end
 	end
+	addGMFunction("+Station defense",stationDefense)
 end
 function explodeSelectedArtifact()
 	local objectList = getGMSelection()
@@ -1670,40 +1639,40 @@ end
 -- -MAIN			F	initialGMFunctions
 -- -SETUP			F	initialSetUp
 -- +TWEAK PLAYER	F	tweakPlayerShip
--- +DESCRIPTIONS	F	describePlayerShips
 -- +CURRENT			F	activePlayerShip
 -- +SCRAPPED		F	inactivePlayerShip
+-- +DESCRIPTIONS	F	describePlayerShips
 function playerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Tweak player",tweakPlayerShip)
-	addGMFunction("+Descriptions",describePlayerShips)
 	addGMFunction("+Current",activePlayerShip)
 	addGMFunction("+Scrapped",inactivePlayerShip)
+	addGMFunction("+Descriptions",describePlayerShips)
 	if playerShipInfo == nil then
 		playerShipInfo={
-			{"Ambition"   ,"inactive",createPlayerShipAmbition   ,"Phobos T2(Ambition): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
-			{"Arwine"     ,"inactive",createPlayerShipArwine     ,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
-			{"Barracuda"  ,"inactive",createPlayerShipBarracuda  },
-			{"Blazon"     ,"inactive",createPlayerShipBlazon     },
-			{"Cobra"      ,"active"  ,createPlayerShipCobra      ,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
-			{"Eagle"	  ,"active"  ,createPlayerShipEagle		 ,"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
-			{"Gabble"     ,"active"  ,createPlayerShipGabble    },
-			{"Halberd"    ,"inactive",createPlayerShipHalberd    },
-			{"Headhunter" ,"inactive",createPlayerShipHeadhunter },
-			{"Holmes"     ,"active"  ,createPlayerShipHolmes     ,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
-			{"Magnum"     ,"inactive",createPlayerShipMagnum     },
-			{"Narsil"     ,"inactive",createPlayerShipNarsil     },
-			{"Osprey"     ,"inactive",createPlayerShipOsprey     },
-			{"Rattler"    ,"active"  ,createPlayerShipRattler    ,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
-			{"Rogue"      ,"active"  ,createPlayerShipRogue      ,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
-			{"Simian"     ,"inactive",createPlayerShipSimian     ,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
-			{"Spike"      ,"inactive",createPlayerShipSpike      },
-			{"Spyder"     ,"inactive",createPlayerShipSpyder     },
-			{"Sting"      ,"inactive",createPlayerShipSting      },
-			{"Thunderbird","inactive",createPlayerShipThunderbird},
-			{"Wombat"     ,"inactive",createPlayerShipWombat     }
+			{"Ambition"		,"inactive"	,createPlayerShipAmbition	,"Phobos T2(Ambition): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
+			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
+			{"Barracuda"	,"inactive"	,createPlayerShipBarracuda	},
+			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
+			{"Cobra"		,"active"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
+			{"Eagle"		,"active"	,createPlayerShipEagle		,"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
+			{"Gabble"		,"active"	,createPlayerShipGabble		,"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:4   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
+			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
+			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	},
+			{"Holmes"		,"active"	,createPlayerShipHolmes		,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
+			{"Magnum"		,"inactive"	,createPlayerShipMagnum		},
+			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
+			{"Osprey"		,"inactive"	,createPlayerShipOsprey		},
+			{"Rattler"		,"active"	,createPlayerShipRattler	,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
+			{"Rogue"		,"active"	,createPlayerShipRogue		,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
+			{"Simian"		,"inactive"	,createPlayerShipSimian		,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
+			{"Spike"		,"inactive"	,createPlayerShipSpike		},
+			{"Spyder"		,"inactive"	,createPlayerShipSpyder		},
+			{"Sting"		,"inactive"	,createPlayerShipSting		},
+			{"Thunderbird"	,"inactive"	,createPlayerShipThunderbird},
+			{"Wombat"		,"inactive"	,createPlayerShipWombat		}
 		}
 	end
 end
@@ -4712,8 +4681,8 @@ function createPlayerShipHolmes()
 	playerHolmes:setWeaponStorage("EMP", 0)				
 	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
 	playerHolmes:setWeaponStorage("Nuke", 0)	
-	playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
-	playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
+	--playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
+	--playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerHolmes:addReputationPoints(50)
 	playerShipSpawned("Holmes")
 end
@@ -5004,7 +4973,6 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponStorage("Homing", 8)				
 	playerShipSpawned("Devon")
 end
-
 function playerShipSpawned(shipName)
 	for shipNum = 1, #playerShipInfo do
 		if playerShipInfo[shipNum][1] == shipName then
@@ -5262,13 +5230,16 @@ function setGMFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Rel Str",initialGMFunctions)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	setFleetStrength(setGMFleetStrength)
+end
+function setFleetStrength(caller)
 	local GMSetFleetStrengthByPlayerStrengthHalf = ".5"
 	if fleetStrengthByPlayerStrength == .5 then
 		GMSetFleetStrengthByPlayerStrengthHalf = ".5*"
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrengthHalf,function()
 		fleetStrengthByPlayerStrength = .5
-		setGMFleetStrength()
+		caller()
 	end)
 	local GMSetFleetStrengthByPlayerStrength1 = "1"
 	if fleetStrengthByPlayerStrength == 1 then
@@ -5276,7 +5247,7 @@ function setGMFleetStrength()
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrength1,function()
 		fleetStrengthByPlayerStrength = 1
-		setGMFleetStrength()
+		caller()
 	end)
 	local GMSetFleetStrengthByPlayerStrength2 = "2"
 	if fleetStrengthByPlayerStrength == 2 then
@@ -5284,7 +5255,7 @@ function setGMFleetStrength()
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrength2,function()
 		fleetStrengthByPlayerStrength = 2
-		setGMFleetStrength()
+		caller()
 	end)
 	local GMSetFleetStrengthByPlayerStrength3 = "3"
 	if fleetStrengthByPlayerStrength == 3 then
@@ -5292,7 +5263,7 @@ function setGMFleetStrength()
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrength3,function()
 		fleetStrengthByPlayerStrength = 3
-		setGMFleetStrength()
+		caller()
 	end)
 	local GMSetFleetStrengthByPlayerStrength4 = "4"
 	if fleetStrengthByPlayerStrength == 4 then
@@ -5300,7 +5271,7 @@ function setGMFleetStrength()
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrength4,function()
 		fleetStrengthByPlayerStrength = 4
-		setGMFleetStrength()
+		caller()
 	end)
 	local GMSetFleetStrengthByPlayerStrength5 = "5"
 	if fleetStrengthByPlayerStrength == 5 then
@@ -5308,7 +5279,7 @@ function setGMFleetStrength()
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrength5,function()
 		fleetStrengthByPlayerStrength = 5
-		setGMFleetStrength()
+		caller()
 	end)
 	fleetStrengthFixed = false
 end
@@ -5326,16 +5297,19 @@ function setFixedFleetStrength()
 	addGMFunction("-Main from Fix Str",initialGMFunctions)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
 	addGMFunction("-Fixed Strength " .. fleetStrengthFixedValue,spawnGMFleet)
+	fixFleetStrength(setFixedFleetStrength)
+end
+function fixFleetStrength(caller)
 	if fleetStrengthFixedValue > 50 then
 		addGMFunction(string.format("%i - %i = %i",fleetStrengthFixedValue,50,fleetStrengthFixedValue-50),function()
 			fleetStrengthFixedValue = fleetStrengthFixedValue - 50
-			setFixedFleetStrength()
+			caller()
 		end)
 	end
 	if fleetStrengthFixedValue < 2000 then
 		addGMFunction(string.format("%i + %i = %i",fleetStrengthFixedValue,50,fleetStrengthFixedValue+50),function()
 			fleetStrengthFixedValue = fleetStrengthFixedValue + 50
-			setFixedFleetStrength()
+			caller()
 		end)
 	end	
 	fleetStrengthFixed = true
@@ -5354,7 +5328,7 @@ end
 -- ADDERS				*	inline
 -- NON-DB				*	inline
 -- DRONES				*	inline
-function setFleetComposition()
+function setFleetComposition(caller)
 	clearGMFunctions()
 	addGMFunction("-From composition",spawnGMFleet)
 	local GMSetFleetCompositionRandom = "Random"
@@ -5363,7 +5337,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionRandom,function()
 		fleetComposition = "Random"
-		spawnGMFleet()
+		caller()
 	end)
 	local GMSetFleetCompositionFighters = "Fighters"
 	if fleetComposition == "Fighters" then
@@ -5371,7 +5345,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionFighters,function()
 		fleetComposition = "Fighters"
-		spawnGMFleet()
+		caller()
 	end)
 	local GMSetFleetCompositionChasers = "Chasers"
 	if fleetComposition == "Chasers" then
@@ -5379,7 +5353,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionChasers,function()
 		fleetComposition = "Chasers"
-		spawnGMFleet()
+		caller()
 	end)
 	local GMSetFleetCompositionFrigates = "Frigates"
 	if fleetComposition == "Frigates" then
@@ -5387,7 +5361,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionFrigates,function()
 		fleetComposition = "Frigates"
-		spawnGMFleet()
+		caller()
 	end)
 	local GMSetFleetCompositionBeamers = "Beamers"
 	if fleetComposition == "Beamers" then
@@ -5395,7 +5369,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionBeamers,function()
 		fleetComposition = "Beamers"
-		spawnGMFleet()
+		caller()
 	end)
 	local GMSetFleetCompositionMissilers = "Missilers"
 	if fleetComposition == "Missilers" then
@@ -5403,7 +5377,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionMissilers,function()
 		fleetComposition = "Missilers"
-		spawnGMFleet()
+		caller()
 	end)
 	local GMSetFleetCompositionAdders = "Adders"
 	if fleetComposition == "Adders" then
@@ -5411,7 +5385,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionAdders,function()
 		fleetComposition = "Adders"
-		spawnGMFleet()
+		caller()
 	end)		
 	local GMSetFleetCompositionNonDB = "Non-DB"
 	if fleetComposition == "Non-DB" then
@@ -5419,7 +5393,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionNonDB,function()
 		fleetComposition = "Non-DB"
-		spawnGMFleet()
+		caller()
 	end)		
 	local GMSetFleetCompositionDrone = "Drones"
 	if fleetComposition == "Drones" then
@@ -5427,7 +5401,7 @@ function setFleetComposition()
 	end
 	addGMFunction(GMSetFleetCompositionDrone,function()
 		fleetComposition = "Drones"
-		spawnGMFleet()
+		caller()
 	end)		
 end
 ------------------------------------------------------------------
@@ -6106,7 +6080,7 @@ end
 function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_angle)
 --x and y are central spawn coordinates
 --fleetIndex is the number of the fleet to be spawned
---sl is the score list, nl is the name list
+--sl is the score list, nl is the name list, bl is the boolean list
 --ambush_distance optional - used for ambush
 --spawn_angle optional - used for ambush
 	local weakestEnemy = 500
@@ -7600,7 +7574,8 @@ function podAssociatedTo()
 	--size of player spaceships vary, so use the values set in setConstants to determine
 	if tempType == "PlayerSpaceship" then
 		local tempShipType = tempObject:getTypeName()
-		local psd = playerShipDistance[tempShipType]
+		--local psd = playerShipDistance[tempShipType]
+		local psd = playerShipStats[tempShipType].distance
 		if psd ~= nil then
 			podDistance = psd
 		end
@@ -7792,97 +7767,81 @@ end
 ----------------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -FROM CREATE DIST	F	callingNearTo (set prior to invocation)
--- .5U					*	inline, setCreateDistanceHalf
--- 1U					*	inline, setCreateDistance1
--- 2U					*	inline, setCreateDistance2
--- 3U					*	inline, setCreateDistance3
--- 5U					*	inline, setCreateDistance5
--- 10U					*	inline, setCreateDistance10
--- 20U					*	inline, setCreateDistance20
--- 30U*					*	inline, setCreateDistance30		asterisk = current selection		
+-- .5U					*	inline
+-- 1U					*	inline
+-- 2U					*	inline
+-- 3U					*	inline
+-- 5U					*	inline
+-- 10U					*	inline
+-- 20U					*	inline
+-- 30U*					*	inline	asterisk = current selection		
 function setCreateDistance()
 	clearGMFunctions()
 	addGMFunction("-From Create Dist",callingNearTo)
+	local button_label = ".5U"
 	if createDistance == .5 then
-		GMSetCreateDistanceHalf = ".5U*"
-	else
-		GMSetCreateDistanceHalf = ".5U"
+		button_label = ".5U*"
 	end
-	addGMFunction(GMSetCreateDistanceHalf,setCreateDistanceHalf)
+	addGMFunction(button_label,function()
+		createDistance = .5
+		setCreateDistance()
+	end)
+	button_label = "1U"
 	if createDistance == 1 then
-		GMSetCreateDistance1 = "1U*"
-	else
-		GMSetCreateDistance1 = "1U"
+		button_label = "1U*"
 	end
-	addGMFunction(GMSetCreateDistance1,setCreateDistance1)
+	addGMFunction(button_label,function()
+		createDistance = 1
+		setCreateDistance()
+	end)
+	button_label = "2U"
 	if createDistance == 2 then
-		GMSetCreateDistance2 = "2U*"
-	else
-		GMSetCreateDistance2 = "2U"
+		button_label = "2U*"
 	end
-	addGMFunction(GMSetCreateDistance2,setCreateDistance2)
+	addGMFunction(button_label,function()
+		createDistance = 2
+		setCreateDistance()
+	end)
+	button_label = "3U"
 	if createDistance == 3 then
-		GMSetCreateDistance3 = "3U*"
-	else
-		GMSetCreateDistance3 = "3U"
+		button_label = "3U*"
 	end
-	addGMFunction(GMSetCreateDistance3,setCreateDistance3)
+	addGMFunction(button_label,function()
+		createDistance = 3
+		setCreateDistance()
+	end)
+	button_label = "5U"
 	if createDistance == 5 then
-		GMSetCreateDistance5 = "5U*"
-	else
-		GMSetCreateDistance5 = "5U"
+		button_label = "5U*"
 	end
-	addGMFunction(GMSetCreateDistance5,setCreateDistance5)
+	addGMFunction(button_label,function()
+		createDistance = 5
+		setCreateDistance()
+	end)
+	button_label = "10U"
 	if createDistance == 10 then
-		GMSetCreateDistance10 = "10U*"
-	else
-		GMSetCreateDistance10 = "10U"
+		button_label = "10U*"
 	end
-	addGMFunction(GMSetCreateDistance10,setCreateDistance10)
+	addGMFunction(button_label,function()
+		createDistance = 10
+		setCreateDistance()
+	end)
+	button_label = "20U"
 	if createDistance == 20 then
-		GMSetCreateDistance20 = "20U*"
-	else
-		GMSetCreateDistance20 = "20U"
+		button_label = "20U*"
 	end
-	addGMFunction(GMSetCreateDistance20,setCreateDistance20)
+	addGMFunction(button_label,function()
+		createDistance = 20
+		setCreateDistance()
+	end)
+	button_label = "30U"
 	if createDistance == 30 then
-		GMSetCreateDistance30 = "30U*"
-	else
-		GMSetCreateDistance30 = "30U"
+		button_label = "30U*"
 	end
-	addGMFunction(GMSetCreateDistance30,setCreateDistance30)
-end
-function setCreateDistanceHalf()
-	createDistance = .5
-	setCreateDistance()
-end
-function setCreateDistance1()
-	createDistance = 1
-	setCreateDistance()
-end
-function setCreateDistance2()
-	createDistance = 2
-	setCreateDistance()
-end
-function setCreateDistance3()
-	createDistance = 3
-	setCreateDistance()
-end
-function setCreateDistance5()
-	createDistance = 5
-	setCreateDistance()
-end
-function setCreateDistance10()
-	createDistance = 10
-	setCreateDistance()
-end
-function setCreateDistance20()
-	createDistance = 20
-	setCreateDistance()
-end
-function setCreateDistance30()
-	createDistance = 30
-	setCreateDistance()
+	addGMFunction(button_label,function()
+		createDistance = 30
+		setCreateDistance()
+	end)
 end
 -------------------------------------------------------------------------------------------------------------
 --	Drop Point > Escape Pod (or other drop point type) > Near To > +90 Degrees (Set Pod Create Direction)  --
@@ -8071,7 +8030,8 @@ function marineAssociatedTo()
 	--size of player spaceships vary, so use the values set in setConstants to determine
 	if tempType == "PlayerSpaceship" then
 		local tempShipType = tempObject:getTypeName()
-		local psd = playerShipDistance[tempShipType]
+		--local psd = playerShipDistance[tempShipType]
+		local psd = playerShipStats[tempShipType].distance
 		if psd ~= nil then
 			marineDistance = psd
 		end
@@ -8332,7 +8292,8 @@ function engineerAssociatedTo()
 	--size of player spaceships vary, so use the values set in setConstants to determine
 	if tempType == "PlayerSpaceship" then
 		local tempShipType = tempObject:getTypeName()
-		local psd = playerShipDistance[tempShipType]
+		--local psd = playerShipDistance[tempShipType]
+		local psd = playerShipStats[tempShipType].distance
 		if psd ~= nil then
 			engineerDistance = psd
 		end
@@ -8591,7 +8552,8 @@ function medicAssociatedTo()
 	--size of player spaceships vary, so use the values set in setConstants to determine
 	if tempType == "PlayerSpaceship" then
 		local tempShipType = tempObject:getTypeName()
-		local psd = playerShipDistance[tempShipType]
+		--local psd = playerShipDistance[tempShipType]
+		local psd = playerShipStats[tempShipType].distance
 		if psd ~= nil then
 			medicDistance = psd
 		end
@@ -9473,6 +9435,1051 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 	end
 	table.insert(scanClueList,scanCluePoint)
 end
+---------------------------------------
+--	Tweak Terrain > Station Defense  --
+---------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- +DEFENSIVE FLEET		F	stationDefensiveFleet
+-- +INNER RING			F	stationDefensiveInnerRing
+-- +OUTER RING			F	stationDefensiveOuterRing
+-- AUTOROTATE NO		D	inline
+function stationDefense()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMFunction("+Select Station",stationDefense)
+	else
+		local first_object = objectList[1]
+		local object_type = first_object.typeName
+		if object_type ~= "SpaceStation" then
+			addGMFunction("+Select Station",stationDefense)
+		else
+			addGMFunction("+Defensive Fleet",stationDefensiveFleet)
+			addGMFunction("+Inner Ring",stationDefensiveInnerRing)
+			addGMFunction("+Outer Ring",stationDefensiveOuterRing)
+			if rotate_station == nil then
+				rotate_station = {}
+			end
+			local found_rotate_station = false
+			for i=1,#rotate_station do
+				if rotate_station[i] == first_object then
+					found_rotate_station = true
+					break
+				end
+			end
+			local button_label = "Autorotate No"
+			if found_rotate_station then
+				button_label = "Autorotate Yes"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						local found_rotate_station = false
+						local found_station_index = 0
+						for i=1,#rotate_station do
+							if rotate_station[i] == first_object then
+								found_rotate_station = true
+								found_station_index = i
+								break
+							end
+						end
+						if found_rotate_station then
+							table.remove(rotate_station,found_station_index)
+						else
+							table.insert(rotate_station,first_object)
+						end
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("No object selected. No action taken")
+				end
+				stationDefense()
+			end)
+		end
+	end
+end
+---------------------------------------------------------
+--	Tweak Terrain > Station Defense > Defensive Fleet  --
+---------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION DEFENSE			F	stationDefense
+-- AVG SPEED OFF			D	inline
+-- +1 PLAYER STRENGTH: n*	D	/Asterisk on selection between		setDefensiveFleetStrength
+-- +SET FIXED STRENGTH		D	\relative and fixed strength		setDefensiveFleetFixedStrength
+-- +RANDOM					D	(composition)						setFleetComposition
+-- SPAWN DEF FLEET			F	spawnDefensiveFleet
+function stationDefensiveFleet()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	local button_label = "off"
+	if station_defensive_fleet_speed_average then
+		button_label = "on"
+	end
+	addGMFunction(string.format("Avg Speed %s",button_label),function()
+		if station_defensive_fleet_speed_average then
+			station_defensive_fleet_speed_average = false
+			stationDefensiveFleet()
+		else
+			station_defensive_fleet_speed_average = true
+			stationDefensiveFleet()
+		end
+	end)
+	if fleetStrengthFixed then
+		addGMFunction("+Set Relative Strength",setDefensiveFleetStrength)
+		addGMFunction(string.format("+Strength %i*",fleetStrengthFixedValue),setDefensiveFleetFixedStrength)
+	else
+		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
+		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
+		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setDefensiveFleetStrength)
+		addGMFunction("+Set Fixed Strength",setDefensiveFleetFixedStrength)
+	end
+	addGMFunction(string.format("+%s",fleetComposition),function()
+		setFleetComposition(stationDefensiveFleet)
+	end)
+	addGMFunction("Spawn Def Fleet",spawnDefensiveFleet)
+end
+function spawnDefensiveFleet()
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMMessage("You need to select a station. No action taken")
+		return
+	end
+	local station = objectList[1]
+	local temp_type = station.typeName
+	if temp_type ~= "SpaceStation" then
+		addGMMessage("You need to select a station. No action taken")
+		return		
+	end
+	local fsx, fsy = station:getPosition()
+	local sl = stsl	--default to full lists (Random)
+	local nl = stnl	
+	local bl = stbl
+	if fleetComposition == "Frigates" then
+		sl = stslFrigate
+		nl = stnlFrigate
+		bl = stblFrigate
+	elseif fleetComposition == "Chasers" then
+		sl = stslChaser
+		nl = stnlChaser
+		bl = stblChaser
+	elseif fleetComposition == "Fighters" then
+		sl = stslFighter
+		nl = stnlFighter
+		bl = stblFighter
+	elseif fleetComposition == "Beamers" then
+		sl = stslBeamer
+		nl = stnlBeamer
+		bl = stblBeamer
+	elseif fleetComposition == "Missilers" then
+		sl = stslMissiler
+		nl = stnlMissiler
+		bl = stblMissiler
+	elseif fleetComposition == "Adders" then
+		sl = stslAdder
+		nl = stnlAdder
+		bl = stblAdder
+	elseif fleetComposition == "Non-DB" then
+		sl = stslNonDB
+		nl = stnlNonDB
+		bl = stblNonDB
+	elseif fleetComposition == "Drones" then
+		sl = stslDrone
+		nl = stnlDrone
+		bl = stblDrone
+	end
+	local fleet = nil
+	local fleet_distance = {
+		["Small Station"]	= 2,
+		["Medium Station"]	= 3,
+		["Large Station"]	= 4,
+		["Huge Station"]	= 4,
+	}
+	local station_type = station:getTypeName()
+	if station_type == nil then
+		station_type = "Small Station"
+	end
+	fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, sl, nl, bl, fleet_distance[station_type])
+	local total_speed = 0
+	local average_speed = 0
+	if station_defensive_fleet_speed_average then
+		for i=1,#fleet do
+			total_speed = total_speed + fleet[i]:getImpulseMaxSpeed()
+		end
+		average_speed = total_speed/#fleet
+	end
+	for i=1,#fleet do
+		local ship = fleet[i]
+		ship:orderDefendTarget(station)
+		if station_defensive_fleet_speed_average then
+			ship:setImpulseMaxSpeed(average_speed)
+		end
+	end
+	table.insert(fleetList,fleet)
+end
+----------------------------------------------------
+--	Tweak Terrain > Station Defense > Inner Ring  --
+----------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FRM IN RING		F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION DEFENSE			F	stationDefense
+-- +PLATFORMS: 3			D	setInnerPlatformCount
+-- +ORBIT: NO				D	setInnerPlatformOrbit
+-- SPAWN DEF PLATFORMS		D	inline
+function stationDefensiveInnerRing()
+	clearGMFunctions()
+	addGMFunction("-Main Frm In Ring",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	addGMFunction(string.format("+Platforms: %i",inner_defense_platform_count),setInnerPlatformCount)
+	addGMFunction(string.format("+Orbit: %s",inner_defense_platform_orbit),setInnerPlatformOrbit)
+	local button_label = "Spawn Def Platform"
+	if inner_defense_platform_count > 1 then
+		button_label = string.format("%ss",button_label)
+	end
+	addGMFunction(button_label,function()
+		local objectList = getGMSelection()
+		if #objectList ~= 1 then
+			addGMMessage("You need to select a station. No action taken")
+			return
+		end
+		local station = objectList[1]
+		local temp_type = station.typeName
+		if temp_type ~= "SpaceStation" then
+			addGMMessage("You need to select a station. No action taken")
+			return		
+		end
+		local fsx, fsy = station:getPosition()
+		local faction = station:getFaction()
+		local angle = random(0,360)
+		local increment = 360/inner_defense_platform_count
+		local station_type = station:getTypeName()
+		local platform_distance = spaceStationDistance[station_type] * 2
+		local fleet = {}
+		for i=1,inner_defense_platform_count do
+			local ax, ay = vectorFromAngle(angle,platform_distance)
+			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
+			if inner_defense_platform_orbit ~= "No" then
+				if mobile_defense_platform == nil then
+					mobile_defense_platform = {}
+				end
+				setObjectForOrbit(dp,angle,inner_defense_platform_orbit,fsx,fsy,platform_distance,mobile_defense_platform)
+			end
+			angle = angle + increment
+			if angle > 360 then
+				angle = angle - 360
+			end
+			table.insert(fleet,dp)
+		end
+		table.insert(fleetList,fleet)
+	end)
+end
+----------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring  --
+----------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FRM OUT RING		F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION DEFENSE			F	stationDefense
+-- +PLATFORMS: 3			D	setInnerPlatformCount
+-- +MINES: NO				D	setOuterMines
+-- +DP ORBIT: NO			D	setOuterPlatformOrbit
+-- SPAWN OUTER DEFENSE		F	inline
+function stationDefensiveOuterRing()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Out Ring",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	addGMFunction(string.format("+Platforms: %i",outer_defense_platform_count),setOuterPlatformCount)
+	addGMFunction(string.format("+Mines: %s",outer_mines,setOuterMines),setOuterMines)
+	addGMFunction(string.format("+DP Orbit: %s",outer_defense_platform_orbit),setOuterPlatformOrbit)
+	if outer_defense_platform_count > 0 or outer_mines ~= "No" then
+		addGMFunction("Spawn outer defense",function()
+			local objectList = getGMSelection()
+			if #objectList ~= 1 then
+				addGMMessage("You need to select a station. No action taken")
+				return
+			end
+			local station = objectList[1]
+			local temp_type = station.typeName
+			if temp_type ~= "SpaceStation" then
+				addGMMessage("You need to select a station. No action taken")
+				return		
+			end
+			local fsx, fsy = station:getPosition()
+			local faction = station:getFaction()
+			local angle = random(0,360)
+			local station_type = station:getTypeName()
+			local outer_platform_distance = {
+					["Small Station"] 	= 7500,
+					["Medium Station"]	= 9100,
+					["Large Station"]	= 9700,
+					["Huge Station"]	= 10100,
+				}
+			--local platform_distance = spaceStationDistance[station_type] * 4
+			local platform_distance = outer_platform_distance[station_type]
+			--print(string.format("outer defense platform count: %i, platform distance: %i",outer_defense_platform_count,platform_distance))
+			if outer_defense_platform_count > 0 then
+				local increment = 360/outer_defense_platform_count
+				local fleet = {}
+				for i=1,outer_defense_platform_count do
+					local ax, ay = vectorFromAngle(angle,platform_distance)
+					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
+					if outer_defense_platform_orbit ~= "No" then
+						if mobile_defense_platform == nil then
+							mobile_defense_platform = {}
+						end
+						setObjectForOrbit(dp,angle,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_defense_platform)
+					end
+					angle = angle + increment
+					if angle > 360 then
+						angle = angle - 360
+					end
+					table.insert(fleet,dp)
+				end
+				table.insert(fleetList,fleet)
+				--print(string.format("increment: %.1f, inline mines: %i",increment,inline_mines))
+				if inline_mines > 0 then
+					for i=1,outer_defense_platform_count do
+						for j=angle+10,angle+increment-10,3 do
+							local mx, my = vectorFromAngle(j,platform_distance)
+							local mine = Mine():setPosition(fsx+mx,fsy+my)
+							--print(string.format("i: %i, j: %.1f, mx: %.1f, my: %.1f, platform distance: %.1f",i,j,mx,my,platform_distance))
+							if outer_defense_platform_orbit ~= "No" then
+								if mobile_mine == nil then
+									mobile_mine = {}
+								end
+								setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_mine)
+							end
+							if inline_mines > 1 then
+								mx, my = vectorFromAngle(j,platform_distance + 500)
+								mine = Mine():setPosition(fsx+mx,fsy+my)
+								if outer_defense_platform_orbit ~= "No" then
+									setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance + 500,mobile_mine)
+								end
+								if inline_mines > 2 then
+									mx, my = vectorFromAngle(j,platform_distance - 500)
+									mine = Mine():setPosition(fsx+mx,fsy+my)
+									if outer_defense_platform_orbit ~= "No" then
+										setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance - 500,mobile_mine)
+									end
+								end
+							end
+						end
+						angle = angle + increment
+						if angle > 360 then
+							angle = angle - 360
+						end
+					end
+				end
+			elseif inline_mines > 0 then
+				increment = 360/inline_mine_gap_count
+				--print(string.format("increment: %.1f, inline mine gap count: %i",increment,inline_mine_gap_count))
+				for i=1,inline_mine_gap_count do
+					for j=angle+10,angle+increment-10,3 do
+						mx, my = vectorFromAngle(j,platform_distance)
+						mine = Mine():setPosition(fsx+mx,fsy+my)
+						--print(string.format("i: %i, j: %.1f, mx: %.1f, my: %.1f, platform distance: %.1f",i,j,mx,my,platform_distance))
+						if outer_defense_platform_orbit ~= "No" then
+							if mobile_mine == nil then
+								mobile_mine = {}
+							end
+							setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_mine)
+						end
+						if inline_mines > 1 then
+							mx, my = vectorFromAngle(j,platform_distance + 500)
+							mine = Mine():setPosition(fsx+mx,fsy+my)
+							--print(string.format("outside line: mx: %.1f, my: %.1f, platform distance + 500: %.1f",mx,my,platform_distance + 500))
+							if outer_defense_platform_orbit ~= "No" then
+								setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance + 500,mobile_mine)
+							end
+							if inline_mines > 2 then
+								mx, my = vectorFromAngle(j,platform_distance - 500)
+								mine = Mine():setPosition(fsx+mx,fsy+my)
+								--print(string.format("inside line: mx: %.1f, my: %.1f, platform distance - 500: %.1f",mx,my,platform_distance - 500))
+								if outer_defense_platform_orbit ~= "No" then
+									setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance - 500,mobile_mine)
+								end
+							end
+						end
+					end
+					angle = angle + increment
+					if angle > 360 then
+						angle = angle - 360
+					end
+				end
+			end
+			if inside_mines > 0 then
+				local outer_inside_mine_distance = {
+						["Small Station"] 	= 5500,
+						["Medium Station"]	= 7100,
+						["Large Station"]	= 7700,
+						["Huge Station"]	= 8100,
+					}
+				local mine_distance = outer_inside_mine_distance[station_type]
+				increment = 360/inside_mine_gap_count
+				for i=1,inside_mine_gap_count do
+					for j=angle+10,angle+increment-10,3 do
+						mx, my = vectorFromAngle(j,mine_distance)
+						mine = Mine():setPosition(fsx+mx,fsy+my)
+						if inside_mine_orbit ~= "No" then
+							if mobile_mine == nil then
+								mobile_mine = {}
+							end
+							setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance,mobile_mine)
+						end
+						if inside_mines > 1 then
+							mx, my = vectorFromAngle(j,mine_distance + 500)
+							mine = Mine():setPosition(fsx+mx,fsy+my)
+							if inside_mine_orbit ~= "No" then
+								setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance + 500,mobile_mine)
+							end
+							if inside_mines > 2 then
+								mx, my = vectorFromAngle(j,mine_distance - 500)
+								mine = Mine():setPosition(fsx+mx,fsy+my)
+								if inside_mine_orbit ~= "No" then
+									setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance - 500,mobile_mine)
+								end
+							end
+						end
+					end
+					angle = angle + increment
+					if angle > 360 then
+						angle = angle - 360
+					end
+				end
+			end
+			if outside_mines > 0 then
+				local outer_outside_mine_distance = {
+						["Small Station"] 	= 10500,
+						["Medium Station"]	= 12100,
+						["Large Station"]	= 12700,
+						["Huge Station"]	= 13100,
+					}
+				mine_distance = outer_outside_mine_distance[station_type]
+				increment = 360/outside_mine_gap_count
+				for i=1,outside_mine_gap_count do
+					for j=angle+10,angle+increment-10,3 do
+						mx, my = vectorFromAngle(j,mine_distance)
+						mine = Mine():setPosition(fsx+mx,fsy+my)
+						if outside_mine_orbit ~= "No" then
+							if mobile_mine == nil then
+								mobile_mine = {}
+							end
+							setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance,mobile_mine)
+						end
+						if outside_mines > 1 then
+							mx, my = vectorFromAngle(j,mine_distance + 500)
+							mine = Mine():setPosition(fsx+mx,fsy+my)
+							if outside_mine_orbit ~= "No" then
+								setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance + 500,mobile_mine)
+							end
+							if outside_mines > 2 then
+								mx, my = vectorFromAngle(j,mine_distance - 500)
+								mine = Mine():setPosition(fsx+mx,fsy+my)
+								if outside_mine_orbit ~= "No" then
+									setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance - 500,mobile_mine)
+								end
+							end
+						end
+					end
+					angle = angle + increment
+					if angle > 360 then
+						angle = angle - 360
+					end
+				end
+			end
+		end)
+	end
+end
+function setObjectForOrbit(obj,travel_angle,orbit_type,origin_x,origin_y,distance,mobile_table)
+	obj.travel_angle = travel_angle
+	obj.orbit_increment = orbit_increment[orbit_type]
+	obj.origin_x = origin_x
+	obj.origin_y = origin_y
+	obj.distance = distance
+	table.insert(mobile_table,obj)
+end
+-----------------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Defensive Fleet > Relative Strength  --
+-----------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM REL STR	F	initialGMFunctions
+-- -STATION DEF FLT		F	stationDefensiveFleet
+-- .5					*	inline
+-- 1*					*	inline		asterisk = current selection
+-- 2					*	inline
+-- 3					*	inline
+-- 4					*	inline
+-- 5					*	inline
+function setDefensiveFleetStrength()
+	clearGMFunctions()
+	addGMFunction("-Main from Rel Str",initialGMFunctions)
+	addGMFunction("-Station Def Flt",stationDefensiveFleet)
+	setFleetStrength(setDefensiveFleetStrength)
+end
+--------------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Defensive Fleet > Fixed Strength  --
+--------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM REL STR	F	initialGMFunctions
+-- -STATION DEF FLT		F	stationDefensiveFleet
+-- -FIXED STRENGTH 250	D	spawnGMFleet
+-- 250 - 50 = 200		D	inline
+-- 250 + 50 = 250		D	inline
+function setDefensiveFleetFixedStrength()
+	clearGMFunctions()
+	addGMFunction("-Main from Fix Str",initialGMFunctions)
+	addGMFunction("-Station Def Flt",stationDefensiveFleet)
+	addGMFunction("-Fixed Strength " .. fleetStrengthFixedValue,stationDefensiveFleet)
+	fixFleetStrength(setDefensiveFleetFixedStrength)
+end
+---------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Inner Ring > Platform Count  --
+---------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FRM DP NO.			F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION DEFENSE			F	stationDefense
+-- -INNER RING				F	stationDefensiveInnerRing
+-- V FROM 3 TO 2			D	inline
+-- ^ FROM 3 TO 4			D	inline 
+function setInnerPlatformCount()
+	clearGMFunctions()
+	addGMFunction("-Main Frm DP No.",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	addGMFunction("-Inner Ring",stationDefensiveInnerRing)
+	if inner_defense_platform_count > 1 then
+		addGMFunction(string.format("v from %i to %i",inner_defense_platform_count,inner_defense_platform_count - 1), function()
+			inner_defense_platform_count = inner_defense_platform_count - 1
+			setInnerPlatformCount()
+		end)
+	end
+	if inner_defense_platform_count < 6 then
+		addGMFunction(string.format("^ from %i to %i",inner_defense_platform_count,inner_defense_platform_count + 1), function()
+			inner_defense_platform_count = inner_defense_platform_count + 1
+			setInnerPlatformCount()
+		end)
+	end
+end
+------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Inner Ring > Orbit  --
+------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -INNER RING		F	stationDefensiveInnerRing
+-- ORBIT > FAST		*	inline
+-- ORBIT > NORMAL	*	inline
+-- ORBIT > SLOW		*	inline
+-- NO				*	inline
+-- ORBIT < FAST		*	inline
+-- ORBIT < NORMAL	*	inline
+-- ORBIT < SLOW		*	inline
+function setInnerPlatformOrbit()
+	clearGMFunctions()
+	addGMFunction("-Inner Ring",stationDefensiveInnerRing)
+	local button_label = "Orbit > Fast"
+	if inner_defense_platform_orbit == "Orbit > Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inner_defense_platform_orbit = "Orbit > Fast"
+		setInnerPlatformOrbit()
+	end)
+	button_label = "Orbit > Normal"
+	if inner_defense_platform_orbit == "Orbit > Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inner_defense_platform_orbit = "Orbit > Normal"
+		setInnerPlatformOrbit()
+	end)
+	button_label = "Orbit > Slow"
+	if inner_defense_platform_orbit == "Orbit > Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inner_defense_platform_orbit = "Orbit > Slow"
+		setInnerPlatformOrbit()
+	end)
+	button_label = "No"
+	if inner_defense_platform_orbit == "No" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inner_defense_platform_orbit = "No"
+		setInnerPlatformOrbit()
+	end)
+	button_label = "Orbit < Fast"
+	if inner_defense_platform_orbit == "Orbit < Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inner_defense_platform_orbit = "Orbit < Fast"
+		setInnerPlatformOrbit()
+	end)
+	button_label = "Orbit < Normal"
+	if inner_defense_platform_orbit == "Orbit < Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inner_defense_platform_orbit = "Orbit < Normal"
+		setInnerPlatformOrbit()
+	end)
+	button_label = "Orbit < Slow"
+	if inner_defense_platform_orbit == "Orbit < Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inner_defense_platform_orbit = "Orbit < Slow"
+		setInnerPlatformOrbit()
+	end)
+end
+---------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Platform Count  --
+---------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FRM OUT RING		F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION DEFENSE			F	stationDefense
+-- -OUTER RING				F	stationDefensiveOuterRing
+-- V FROM 3 TO 2			D	inline
+-- A FROM 3 TO 4			D	inline 
+function setOuterPlatformCount()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Out Ring",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	addGMFunction("-Outer Ring",stationDefensiveOuterRing)
+	if outer_defense_platform_count > 0 then
+		addGMFunction(string.format("v from %i to %i",outer_defense_platform_count,outer_defense_platform_count - 1), function()
+			outer_defense_platform_count = outer_defense_platform_count - 1
+			setOuterPlatformCount()
+		end)
+	end
+	if outer_defense_platform_count < 6 then
+		addGMFunction(string.format("^ from %i to %i",outer_defense_platform_count,outer_defense_platform_count + 1), function()
+			outer_defense_platform_count = outer_defense_platform_count + 1
+			setOuterPlatformCount()
+		end)
+	end
+end
+------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Mines  --
+------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM MINES		F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -STATION DEFENSE		F	stationDefense
+-- -OUTER RING			F	stationDefensiveOuterRing
+-- +INLINE 0			D	setInlineMines
+-- +INSIDE: 0			D	setInsideMines
+-- +OUTSIDE: 0			D	setOutsideMines
+function setOuterMines()
+	clearGMFunctions()
+	addGMFunction("-Main From Mines",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	addGMFunction("-Outer Ring",stationDefensiveOuterRing)
+	addGMFunction(string.format("+Inline: %i",inline_mines),setInlineMines)
+	addGMFunction(string.format("+Inside: %i",inside_mines),setInsideMines)
+	addGMFunction(string.format("+Outside: %i",outside_mines),setOutsideMines)
+end
+---------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Platform Orbit  --
+---------------------------------------------------------------------
+-- -OUTER FRM DP ORBIT
+-- ORBIT > FAST		*	inline
+-- ORBIT > NORMAL	*	inline
+-- ORBIT > SLOW		*	inline
+-- NO				*	inline
+-- ORBIT < FAST		*	inline
+-- ORBIT < NORMAL	*	inline
+-- ORBIT < SLOW		*	inline
+function setOuterPlatformOrbit()
+	clearGMFunctions()
+	addGMFunction("-Outer Frm DP Orbit",stationDefensiveOuterRing)
+	setCommonOuterOrbit(setOuterPlatformOrbit)
+end
+---------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Mines > Inline  --
+---------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM INLINE MINE	F	setOuterMines
+-- ^ FROM 0 TO 1		D	inline
+-- +ORBIT: NO			D	setOuterMineOrbit
+-- V GAPS FROM 3 TO 2	D	inline
+-- ^ GAPS FROM 3 TO 4	D	inline
+function setInlineMines()
+	clearGMFunctions()
+	addGMFunction("-From Inline Mine",setOuterMines)
+	if inline_mines > 0 then
+		addGMFunction(string.format("V From %i to %i",inline_mines,inline_mines - 1),function()
+			inline_mines = inline_mines - 1
+			setInlineMines()
+		end)
+	end
+	if inline_mines < 3 then
+		addGMFunction(string.format("^ From %i to %i",inline_mines,inline_mines + 1),function()
+			inline_mines = inline_mines + 1
+			setInlineMines()
+		end)
+	end
+	if inline_mines == 0 and inside_mines == 0 and outside_mines == 0 then
+		outer_mines = "No"
+	else
+		outer_mines = "Yes"
+	end
+	addGMFunction(string.format("+Orbit: %s",outer_defense_platform_orbit),setOuterMineOrbit)
+	if outer_defense_platform_count == 0 then
+		if inline_mine_gap_count > 1 then
+			addGMFunction(string.format("V Gaps from %i to %i",inline_mine_gap_count,inline_mine_gap_count - 1),function()
+				inline_mine_gap_count = inline_mine_gap_count - 1
+				setInlineMines()
+			end)
+		end
+		if inline_mine_gap_count < 6 then
+			addGMFunction(string.format("^ Gaps from %i to %i",inline_mine_gap_count,inline_mine_gap_count + 1),function()
+				inline_mine_gap_count = inline_mine_gap_count + 1
+				setInlineMines()
+			end)
+		end
+	end
+end
+---------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Mines > Inside  --
+---------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM INSIDE	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -STATION DEFENSE		F	stationDefense
+-- -OUTER RING			F	stationDefensiveOuterRing
+-- -MINES				F	setOuterMines
+-- ^ FROM 0 TO 1		D	inline
+-- +ORBIT: NO			D	setOuterInnerMineOrbit
+-- V GAPS FROM 3 TO 2	D	inline
+-- ^ GAPS FROM 3 TO 4	D	inline
+function setInsideMines()
+	clearGMFunctions()
+	addGMFunction("-Main From Inside",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	addGMFunction("-Outer Ring",stationDefensiveOuterRing)
+	addGMFunction("-Mines",setOuterMines)
+	if inside_mines > 0 then
+		addGMFunction(string.format("V From %i to %i",inside_mines,inside_mines - 1),function()
+			inside_mines = inside_mines - 1
+			setInsideMines()
+		end)
+	end
+	if inside_mines < 3 then
+		addGMFunction(string.format("^ From %i to %i",inside_mines,inside_mines + 1),function()
+			inside_mines = inside_mines + 1
+			setInsideMines()
+		end)
+	end
+	if inline_mines == 0 and inside_mines == 0 and outside_mines == 0 then
+		outer_mines = "No"
+	else
+		outer_mines = "Yes"
+	end
+	addGMFunction(string.format("+Orbit: %s",inside_mine_orbit),setOuterInnerMineOrbit)
+	if inside_mine_gap_count > 1 then
+		addGMFunction(string.format("V Gaps from %i to %i",inside_mine_gap_count,inside_mine_gap_count - 1),function()
+			inside_mine_gap_count = inside_mine_gap_count - 1
+			setInsideMines()
+		end)
+	end
+	if inside_mine_gap_count < 6 then
+		addGMFunction(string.format("^ Gaps from %i to %i",inside_mine_gap_count,inside_mine_gap_count + 1),function()
+			inside_mine_gap_count = inside_mine_gap_count + 1
+			setInsideMines()
+		end)
+	end
+end
+----------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Mines > Outside  --
+----------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM OUTSIDE	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -STATION DEFENSE		F	stationDefense
+-- -OUTER RING			F	stationDefensiveOuterRing
+-- -MINES				F	setOuterMines
+-- ^ FROM 0 TO 1		D	inline
+-- +ORBIT: NO			D	setOuterInnerMineOrbit
+-- V GAPS FROM 3 TO 2	D	inline
+-- ^ GAPS FROM 3 TO 4	D	inline
+function setOutsideMines()
+	clearGMFunctions()
+	addGMFunction("-Main From Outside",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Defense",stationDefense)
+	addGMFunction("-Outer Ring",stationDefensiveOuterRing)
+	addGMFunction("-Mines",setOuterMines)
+	if outside_mines > 0 then
+		addGMFunction(string.format("V From %i to %i",outside_mines,outside_mines - 1),function()
+			outside_mines = outside_mines - 1
+			setOutsideMines()
+		end)
+	end
+	if outside_mines < 3 then
+		addGMFunction(string.format("^ From %i to %i",outside_mines,outside_mines + 1),function()
+			outside_mines = outside_mines + 1
+			setOutsideMines()
+		end)
+	end
+	if inline_mines == 0 and inside_mines == 0 and outside_mines == 0 then
+		outer_mines = "No"
+	else
+		outer_mines = "Yes"
+	end
+	addGMFunction(string.format("+Orbit: %s",outside_mine_orbit),setOuterOuterMineOrbit)
+	if outside_mine_gap_count > 1 then
+		addGMFunction(string.format("V Gaps from %i to %i",outside_mine_gap_count,outside_mine_gap_count - 1),function()
+			outside_mine_gap_count = outside_mine_gap_count - 1
+			setOutsideMines()
+		end)
+	end
+	if outside_mine_gap_count < 6 then
+		addGMFunction(string.format("^ Gaps from %i to %i",outside_mine_gap_count,outside_mine_gap_count + 1),function()
+			outside_mine_gap_count = outside_mine_gap_count + 1
+			setOutsideMines()
+		end)
+	end
+end
+-----------------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Mines > Inline > Orbit  --
+-----------------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -Outer RING		F	stationDefensiveOuterRing
+-- ORBIT > FAST		*	inline
+-- ORBIT > NORMAL	*	inline
+-- ORBIT > SLOW		*	inline
+-- NO				*	inline
+-- ORBIT < FAST		*	inline
+-- ORBIT < NORMAL	*	inline
+-- ORBIT < SLOW		*	inline
+function setOuterMineOrbit()
+	clearGMFunctions()
+	addGMFunction("-Inline Mine",setInlineMines)
+	setCommonOuterOrbit(setOuterMineOrbit)
+end
+function setCommonOuterOrbit(caller)
+	local button_label = "Orbit > Fast"
+	if outer_defense_platform_orbit == "Orbit > Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outer_defense_platform_orbit = "Orbit > Fast"
+		caller()
+	end)
+	button_label = "Orbit > Normal"
+	if outer_defense_platform_orbit == "Orbit > Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outer_defense_platform_orbit = "Orbit > Normal"
+		caller()
+	end)
+	button_label = "Orbit > Slow"
+	if outer_defense_platform_orbit == "Orbit > Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outer_defense_platform_orbit = "Orbit > Slow"
+		caller()
+	end)
+	button_label = "No"
+	if outer_defense_platform_orbit == "No" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outer_defense_platform_orbit = "No"
+		caller()
+	end)
+	button_label = "Orbit < Fast"
+	if outer_defense_platform_orbit == "Orbit < Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outer_defense_platform_orbit = "Orbit < Fast"
+		caller()
+	end)
+	button_label = "Orbit < Normal"
+	if outer_defense_platform_orbit == "Orbit < Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outer_defense_platform_orbit = "Orbit < Normal"
+		caller()
+	end)
+	button_label = "Orbit < Slow"
+	if outer_defense_platform_orbit == "Orbit < Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outer_defense_platform_orbit = "Orbit < Slow"
+		caller()
+	end)
+end
+-----------------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Mines > Inside > Orbit  --
+-----------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -OUTER MINES INSIDE	F	setInsideMines
+-- ORBIT > FAST			*	inline
+-- ORBIT > NORMAL		*	inline
+-- ORBIT > SLOW			*	inline
+-- NO					*	inline
+-- ORBIT < FAST			*	inline
+-- ORBIT < NORMAL		*	inline
+-- ORBIT < SLOW			*	inline
+function setOuterInnerMineOrbit()
+	clearGMFunctions()
+	addGMFunction("-Outer Mines Inside",setInsideMines)
+	local button_label = "Orbit > Fast"
+	if inside_mine_orbit == "Orbit > Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inside_mine_orbit = "Orbit > Fast"
+		setOuterInnerMineOrbit()
+	end)
+	button_label = "Orbit > Normal"
+	if inside_mine_orbit == "Orbit > Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inside_mine_orbit = "Orbit > Normal"
+		setOuterInnerMineOrbit()
+	end)
+	button_label = "Orbit > Slow"
+	if inside_mine_orbit == "Orbit > Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inside_mine_orbit = "Orbit > Slow"
+		setOuterInnerMineOrbit()
+	end)
+	button_label = "No"
+	if inside_mine_orbit == "No" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inside_mine_orbit = "No"
+		setOuterInnerMineOrbit()
+	end)
+	button_label = "Orbit < Fast"
+	if inside_mine_orbit == "Orbit < Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inside_mine_orbit = "Orbit < Fast"
+		setOuterInnerMineOrbit()
+	end)
+	button_label = "Orbit < Normal"
+	if inside_mine_orbit == "Orbit < Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inside_mine_orbit = "Orbit < Normal"
+		setOuterInnerMineOrbit()
+	end)
+	button_label = "Orbit < Slow"
+	if inside_mine_orbit == "Orbit < Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		inside_mine_orbit = "Orbit < Slow"
+		setOuterInnerMineOrbit()
+	end)
+end
+------------------------------------------------------------------------------
+--	Tweak Terrain > Station Defense > Outer Ring > Mines > Outside > Orbit  --
+------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -OUTER MINES OUTSIDE	F	setOutsideMines
+-- ORBIT > FAST			*	inline
+-- ORBIT > NORMAL		*	inline
+-- ORBIT > SLOW			*	inline
+-- NO					*	inline
+-- ORBIT < FAST			*	inline
+-- ORBIT < NORMAL		*	inline
+-- ORBIT < SLOW			*	inline
+function setOuterOuterMineOrbit()
+	clearGMFunctions()
+	addGMFunction("-Outer Mines Outside",setOutsideMines)
+	local button_label = "Orbit > Fast"
+	if outside_mine_orbit == "Orbit > Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outside_mine_orbit = "Orbit > Fast"
+		setOuterOuterMineOrbit()
+	end)
+	button_label = "Orbit > Normal"
+	if outside_mine_orbit == "Orbit > Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outside_mine_orbit = "Orbit > Normal"
+		setOuterOuterMineOrbit()
+	end)
+	button_label = "Orbit > Slow"
+	if outside_mine_orbit == "Orbit > Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outside_mine_orbit = "Orbit > Slow"
+		setOuterOuterMineOrbit()
+	end)
+	button_label = "No"
+	if outside_mine_orbit == "No" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outside_mine_orbit = "No"
+		setOuterOuterMineOrbit()
+	end)
+	button_label = "Orbit < Fast"
+	if outside_mine_orbit == "Orbit < Fast" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outside_mine_orbit = "Orbit < Fast"
+		setOuterOuterMineOrbit()
+	end)
+	button_label = "Orbit < Normal"
+	if outside_mine_orbit == "Orbit < Normal" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outside_mine_orbit = "Orbit < Normal"
+		setOuterOuterMineOrbit()
+	end)
+	button_label = "Orbit < Slow"
+	if outside_mine_orbit == "Orbit < Slow" then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		outside_mine_orbit = "Orbit < Slow"
+		setOuterOuterMineOrbit()
+	end)
+end
+
 ---------------------------------
 --	Countdown Timer > Display  --
 ---------------------------------
@@ -12469,6 +13476,7 @@ function update(delta)
 	end
 	if updateDiagnostic then print("update: end of update function") end
 end
+
 function movingObjects(delta)
 	if icarus_mobile_nebula_1 ~= nil and icarus_mobile_nebula_1:isValid() then
 		local neb_x, neb_y = icarus_mobile_nebula_1:getPosition()
@@ -12582,6 +13590,55 @@ function movingObjects(delta)
 		local dist=3600
 		local orbit_pos=stationKeyhole23.total_time/15 --math.fmod(total_time/1,
 		stationKeyhole23:setPosition(center_x+(math.cos(orbit_pos)*dist),center_y+(math.sin(orbit_pos)*dist))
+	end
+	if mobile_defense_platform ~= nil and #mobile_defense_platform > 0 then
+		for i=1,#mobile_defense_platform do
+			local current_platform = mobile_defense_platform[i]
+			if current_platform ~= nil and current_platform:isValid() then
+				current_platform.travel_angle = current_platform.travel_angle + current_platform.orbit_increment
+				if current_platform.orbit_increment > 0 then
+					if current_platform.travel_angle > 360 then
+						current_platform.travel_angle = current_platform.travel_angle - 360
+					end
+				else
+					if current_platform.travel_angle < 0 then
+						current_platform.travel_angle = current_platform.travel_angle + 360
+					end
+				end
+				local new_x, new_y = vectorFromAngle(current_platform.travel_angle,current_platform.distance)
+				current_platform:setPosition(current_platform.origin_x+new_x,current_platform.origin_y+new_y)
+			end
+		end
+	end
+	if mobile_mine ~= nil and #mobile_mine > 0 then
+		for i=1,#mobile_mine do
+			local current_mine = mobile_mine[i]
+			if current_mine ~= nil and current_mine:isValid() then
+				current_mine.travel_angle = current_mine.travel_angle + current_mine.orbit_increment
+				if current_mine.orbit_increment > 0 then
+					if current_mine.travel_angle > 360 then
+						current_mine.travel_angle = current_mine.travel_angle - 360
+					end
+				else
+					if current_mine.travel_angle < 0 then
+						current_mine.travel_angle = current_mine.travel_angle + 360
+					end
+				end
+				local new_x, new_y = vectorFromAngle(current_mine.travel_angle,current_mine.distance)
+				current_mine:setPosition(current_mine.origin_x+new_x,current_mine.origin_y+new_y)
+			end
+		end
+	end
+	if rotate_station ~= nil and #rotate_station > 0 then
+		for i=1,#rotate_station do
+			local current_station = rotate_station[i]
+			if current_station ~= nil and current_station:isValid() then
+				current_station:setRotation(current_station:getRotation()+.1)
+				if current_station:getRotation() >= 360 then
+					current_station:setRotation(0)
+				end
+			end
+		end
 	end
 end
 function crewFate(p, fatalityChance)
