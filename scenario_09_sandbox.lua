@@ -220,10 +220,11 @@ function setConstants()
 	--stsl: Ship Template Score List
 	--stbl: Ship Template Boolean List
 	--nsfl: Non Standard Function List
-	stnl = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	stsl = {4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	stbl = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
+	stnl = {"Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
+	stsl = {28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
+	stbl = {false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
 	nsfl = {}
+	table.insert(nsfl,elaraP2)
 	table.insert(nsfl,droneJacket)
 	table.insert(nsfl,droneHeavy)
 	table.insert(nsfl,droneLite)
@@ -258,21 +259,21 @@ function setConstants()
 	stslBeamer = {22          ,22          ,7           ,8           ,12          ,6            ,5            ,5            ,19          ,20           ,25          ,25          ,6        ,18       ,30          ,27            ,80           ,100            ,65               ,6                ,40              ,4              ,48              ,8              }
 	stblBeamer = {false       ,false       ,false       ,false       ,false       ,false        ,true         ,true         ,true        ,true         ,true        ,true        ,true     ,true     ,true        ,true          ,true         ,true           ,true             ,true             ,true            ,true           ,true            ,true           }
 	--Frigates Ship Template Name List, Score List and Boolean List
-	stnlFrigate = {"Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Phobos R2","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Storm"}
-	stslFrigate = {22          ,22          ,33        ,35        ,37        ,39        ,13         ,15         ,16         ,15          ,15           ,16             ,25       ,20           ,25          ,25          ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,22     }
-	stblFrigate = {false       ,false       ,false     ,false     ,false     ,false     ,false      ,true       ,true       ,true        ,true         ,true           ,true     ,true         ,true        ,true        ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true   }
+	stnlFrigate = {"Elara P2","Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Phobos R2","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Storm"}
+	stslFrigate = {28        ,22          ,22          ,33        ,35        ,37        ,39        ,13         ,15         ,16         ,15          ,15           ,16             ,25       ,20           ,25          ,25          ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,22     }
+	stblFrigate = {false     ,false       ,false       ,false     ,false     ,false     ,false     ,false      ,true       ,true       ,true        ,true         ,true           ,true     ,true         ,true        ,true        ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true   }
 	--Chaser Ship Template Name List, Score List and Boolean List
-	stnlChaser = {"Jade 5","Waddle 5","Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Strikeship","Adv. Striker","Battlestation"}
-	stslChaser = {15      ,15        ,22          ,22          ,33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
-	stblChaser = {false   ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
+	stnlChaser = {"Elara P2","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Strikeship","Adv. Striker","Battlestation"}
+	stslChaser = {28        ,15      ,15        ,22          ,22          ,33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
+	stblChaser = {false     ,false   ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
 	--Fighter Ship Template Name List, Score List and Boolean List
 	stnlFighter = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
 	stslFighter = {4             ,5            ,3           ,15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
 	stblFighter = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
 	--Non database Ship Template Name List, Score List and Boolean List
-	stnlNonDB = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
-	stslNonDB = {4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
-	stblNonDB = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
+	stnlNonDB = {"Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
+	stslNonDB = {28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
+	stblNonDB = {false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
 	--Drone Ship Template Name List, Score List and Boolean List
 	stnlDrone = {"Jacket Drone","Heavy Drone","Lite Drone","Ktlitan Drone"}
 	stslDrone = {4             ,5            ,3           ,4}
@@ -797,7 +798,7 @@ function spawnGMFleet()
 		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
 	end
 	addGMFunction(string.format("+%s",fleetComposition),function()
-		stationDefensiveFleet(spawnGMFleet)
+		setFleetComposition(spawnGMFleet)
 	end)
 	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
 	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
@@ -1656,7 +1657,7 @@ function playerShip()
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
 			{"Barracuda"	,"inactive"	,createPlayerShipBarracuda	},
 			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
-			{"Cobra"		,"active"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
+			{"Cobra"		,"inactive"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
 			{"Eagle"		,"active"	,createPlayerShipEagle		,"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Gabble"		,"active"	,createPlayerShipGabble		,"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:4   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
@@ -4789,9 +4790,9 @@ function createPlayerShipRogue()
 	playerRogue:setJumpDrive(true)
 	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
 --                  		    Arc, Dir,  Range, CycleTime, Dmg
-	playerRogue:setBeamWeapon(0, 10,   0, 1800.0,      20.0, 20)
+	playerRogue:setBeamWeapon(0, 10,   0, 1200.0,      20.0, 20)
 --									   Arc, Dir, Rotate speed
-	playerRogue:setBeamWeaponTurret(0, 270,   0, .15)
+	playerRogue:setBeamWeaponTurret(0, 270,   0, .2)
 	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*6)
 	playerRogue:setBeamWeaponHeatPerFire(0,playerRogue:getBeamWeaponHeatPerFire(0)*5)
 	playerRogue:setBeamWeapon(1, 0, 0, 0, 0, 0)				--eliminate 5 beams
@@ -6486,6 +6487,14 @@ function droneJacket(enemyFaction)
 	ship:setShields(20)
 	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
 	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	return ship
+end
+function elaraP2(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:setTypeName("Elara P2")
+	ship:setWarpDrive(true)			--warp drive (vs none)
+	ship:setShieldsMax(70,40)		--stronger front shield (vs 50,40)
+	ship:setShields(70,40)
 	return ship
 end
 ------------------------------------------------------------------
@@ -9822,6 +9831,7 @@ function stationDefensiveOuterRing()
 				end
 			end
 			if inside_mines > 0 then
+				angle = random(0,360)
 				local outer_inside_mine_distance = {
 						["Small Station"] 	= 5500,
 						["Medium Station"]	= 7100,
@@ -9862,6 +9872,7 @@ function stationDefensiveOuterRing()
 				end
 			end
 			if outside_mines > 0 then
+				angle = random(0,360)
 				local outer_outside_mine_distance = {
 						["Small Station"] 	= 10500,
 						["Medium Station"]	= 12100,
