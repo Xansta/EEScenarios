@@ -7,44 +7,44 @@
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- +INITIAL SET UP------------>	-MAIN FROM INITIAL											  Toggle button per player ship <-------+AUTO COOL 	
--- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT----------+
--- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW----+ |
--- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO--------+ | |
--- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+CURRENT--->List	+DESCRIBE CURRENT---> List	+REPUTATION-+ | | |
--- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+SCRAPPED-->List	+DESCRIBE SCRAPPED--> List	+MAX SYSTEM	| | | |
--- +TWEAK TERRAIN---+ | | |	| V											  | | 		+DESCRIPTIONS----->	+DESCRIBE STOCK-----> List			  |	| | | |
--- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 							  | | | | |
--- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 		+---+REACTOR 1.00 <---+ | | | |
---				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR				+---+BEAM 1.00			| | | |
---				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+				+---+MISSILE 1.00		| | | |
---				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|				+---+MANEUVER 1.00		| | | |
---				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V				+---+IMPULSE 1.00		| | | |
---				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR			+---+WARP 1.00			| | | |
---				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE	+---+JUMP 1.00			| | | |
---				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 300			180						+---+FRONT SHIELD 1.00	| | | |
---				| | | | | |	V							  | | +---+ V							225						+---+REAR SHIELD 1.00	| | | |
---				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270						|						| | | |
---				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315						+->	V FROM 1.00 TO 0.95	| | | |
---				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|															| | | |
---				| | | | | V									  | | | FRIGATES		|	[Near To]												| | | |
---				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible		ADD ONE REP n  <--------+ | | |
---				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES						ADD FIVE REP n			  | | |
---				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS						ADD TEN REP n			  | | |
---				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U			DEL ONE REP n			  | | |
---				| | | | V									  | | | DRONES			|									FIVE REP n				  | | |
---				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U							DEL TEN REP n			  | | |
---				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U													  | | |
---				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U				List  <-----+REMOVE CARGO	<---------+	| |
---				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U				List  <-----+ADD MINERAL			  	| |
---				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U				List  <-----+ADD COMPONENT				| |
---				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U														| |
---				| | | V								| | | |	| | | SET TO 10					20U							ADD REPAIR CREW		<-------+ |
---				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*						REMOVE REPAIR CREW			  |
---				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							DEL 													  |
---				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING													ADD 1.0 COOLANT		<---------+
---				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*													REMOVE 1.0 COOLANT	
---				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											1.0 - 0.5 = 0.5		
---				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| |															1.0 + 0.5 = 1.5		
+-- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT------------------>	ADD 1.0 COOLANT		
+-- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--------------+	REMOVE 1.0 COOLANT	
+-- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO------------------+ |	1.0 - 0.5 = 0.5		
+-- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+CURRENT--->List	+DESCRIBE CURRENT---> List	+REPUTATION-----------+ | |	1.0 + 0.5 = 1.5		
+-- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+SCRAPPED-->List	+DESCRIBE SCRAPPED--> List	+MAX SYSTEM------+	  | | V
+-- +TWEAK TERRAIN---+ | | |	| V											  | | 		+DESCRIPTIONS----->	+DESCRIBE STOCK-----> List	+CONSOLE MESSAGE |	  | | ADD REPAIR CREW		
+-- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 								   | |	  | | REMOVE REPAIR CREW	
+-- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 		+SELECT|CHANGE MSG OBJ <---+ |	  | V	
+--				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR				+SELECT PLAYER				 |	  |	+REMOVE CARGO--> List
+--				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+				+SEND TO CONSOLE----+		 |	  |	+ADD MINERAL---> List
+--				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|									|		 |	  |	+ADD COMPONENT-> List
+--				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V				HELM		<-------+		 |	  V
+--				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR			WEAPONS						 |	  ADD ONE REP n  
+--				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE	ENGINEERING					 |	  ADD FIVE REP n
+--				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 300			180						SCIENCE						 |	  ADD TEN REP n	
+--				| | | | | |	V							  | | +---+ V							225						RELAY						 |	  DEL ONE REP n	
+--				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270						 							 |	  FIVE REP n		
+--				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315						+----------------------------+	  DEL TEN REP n	
+--				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|									|						
+--				| | | | | V									  | | | FRIGATES		|	[Near To]						V
+--				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible		+REACTOR 1.00	--------+
+--				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES						+BEAM 1.00	------------+		
+--				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS						+MISSILE 1.00  ---------+		
+--				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U			+MANEUVER 1.00	--------+	
+--				| | | | V									  | | | DRONES			|									+IMPULSE 1.00	--------+	
+--				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U							+WARP 1.00	------------+		
+--				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U							+JUMP 1.00	------------+		
+--				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U							+FRONT SHIELD 1.00	----+
+--				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U							+REAR SHIELD 1.00  -----+	
+--				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U													|
+--				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U							V FROM 1.00 TO 0.95 <---+
+--				| | | V								| | | |	| | | SET TO 10					20U							
+--				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*						
+--				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							DEL 						
+--				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING													
+--				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*													
+--				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											
+--				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| |															
 --				| | | UNRETRIEVABLE					| | | |	| V							
 --				| | | EXPIRING						| | | | | AT SELECTION
 --				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE				
@@ -3758,6 +3758,7 @@ function tweakPlayerShip()
 	addGMFunction("+Cargo",changePlayerCargo)
 	addGMFunction("+Reputation",changePlayerReputation)
 	addGMFunction("+Max System",changePlayerMaxSystem)
+	addGMFunction("+Console Message",playerConsoleMessage)
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Descriptions  --
@@ -4218,6 +4219,120 @@ function changePlayerMaxSystem()
 	else
 		addGMFunction("+Select Player",changePlayerMaxSystem)
 	end
+end
+----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Console Message  --
+----------------------------------------------------------------------
+-- Button text	   FD*	Related Function(s)
+-- -MAIN FROM MSG	F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -TWEAK PLAYER	F	tweakPlayerShip
+-- +SELECT MSG OBJ	F	changeMessageObject
+function playerConsoleMessage()
+	clearGMFunctions()
+	addGMFunction("-Main From Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+		local p = playerShipSelected()
+		if p ~= nil then
+			addGMFunction("+Send to console",sendPlayerConsoleMessage)
+		else
+			addGMFunction("+Select Player",playerConsoleMessage)
+		end
+	end
+end
+function changeMessageObject()
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			message_object = object_list[1]
+			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nplace message in description field",message_object:getSectorName()))
+		else
+			addGMMessage("Select only one object to use to pass messages via its description field. No action taken")
+		end
+	else
+		addGMMessage("Select an object to use to pass messages via its description field. No action taken")
+	end 
+	playerConsoleMessage()
+end
+----------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Console Message > Send to console  --
+----------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM CONSOLE	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MESSAGE				F	playerConsoleMessage
+-- HELM					F	inline
+-- WEAPONS				F	inline
+-- ENGINEERING			F	inline
+-- SCIENCE				F	inline
+-- RELAY				F	inline
+function sendPlayerConsoleMessage()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Console",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Message",playerConsoleMessage)
+	addGMFunction("Helm",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Helms",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to helm console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Weapons",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Weapons",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to weapons console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Engineering",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Engineering",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to engineering console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Science",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Science",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to science console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Relay",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Relay",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Relay console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
 end
 ----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Max System  > Reactor  --
