@@ -7,44 +7,44 @@
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- +INITIAL SET UP------------>	-MAIN FROM INITIAL											  Toggle button per player ship <-------+AUTO COOL 	
--- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT--------+
--- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--+ |
--- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO------+ |	|
--- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+CURRENT--->List	+DESCRIBE CURRENT---> List	+REPUTATION	| | |
--- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+SCRAPPED-->List	+DESCRIBE SCRAPPED--> List			  |	| | |
--- +TWEAK TERRAIN---+ | | |	| V											  | | 		+DESCRIPTIONS----->	+DESCRIBE STOCK-----> List			  |	| | |
--- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 							  |	| | |
--- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 			+-----------------+ | | |
---				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR					|					| | |
---				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+					V					| | |
---				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|					ADD ONE REP n		| | |
---				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V					ADD FIVE REP n		| | |
---				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR				ADD TEN REP n		| | |
---				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE		DEL ONE REP n		| | |
---				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 300			180							FIVE REP n			| | |
---				| | | | | |	V							  | | +---+ V							225							DEL TEN REP n		| | |
---				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270												| | |
---				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315						+-----------------------+ | |
---				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|									|						  | |
---				| | | | | V									  | | | FRIGATES		|	[Near To]						V					 	  | |
---				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible		+REMOVE CARGO---> List	  | |
---				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES						+ADD MINERAL----> List	  | |
---				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS						+ADD COMPONENT--> List	  | |
---				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U									  | |
---				| | | | V									  | | | DRONES			|									+-------------------------+ |
---				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U							|							|
---				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U							V							|
---				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U							ADD REPAIR CREW				|
---				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U							REMOVE REPAIR CREW			|
---				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U														|
---				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U							+---------------------------+
---				| | | V								| | | |	| | | SET TO 10					20U							|
---				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*						V
---				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							DEL 						ADD 1.0 COOLANT		
---				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING													REMOVE 1.0 COOLANT	
---				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*													1.0 - 0.5 = 0.5		
---				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											1.0 + 0.5 = 1.5		
---				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| |		
+-- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT----------+
+-- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW----+ |
+-- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO--------+ | |
+-- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+CURRENT--->List	+DESCRIBE CURRENT---> List	+REPUTATION-+ | | |
+-- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+SCRAPPED-->List	+DESCRIBE SCRAPPED--> List	+MAX SYSTEM	| | | |
+-- +TWEAK TERRAIN---+ | | |	| V											  | | 		+DESCRIPTIONS----->	+DESCRIBE STOCK-----> List			  |	| | | |
+-- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 							  | | | | |
+-- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 		+---+REACTOR 1.00 <---+ | | | |
+--				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR				+---+BEAM 1.00			| | | |
+--				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+				+---+MISSILE 1.00		| | | |
+--				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|				+---+MANEUVER 1.00		| | | |
+--				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V				+---+IMPULSE 1.00		| | | |
+--				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR			+---+WARP 1.00			| | | |
+--				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE	+---+JUMP 1.00			| | | |
+--				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 300			180						+---+FRONT SHIELD 1.00	| | | |
+--				| | | | | |	V							  | | +---+ V							225						+---+REAR SHIELD 1.00	| | | |
+--				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270						|						| | | |
+--				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315						+->	V FROM 1.00 TO 0.95	| | | |
+--				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|															| | | |
+--				| | | | | V									  | | | FRIGATES		|	[Near To]												| | | |
+--				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible		ADD ONE REP n  <--------+ | | |
+--				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES						ADD FIVE REP n			  | | |
+--				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS						ADD TEN REP n			  | | |
+--				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U			DEL ONE REP n			  | | |
+--				| | | | V									  | | | DRONES			|									FIVE REP n				  | | |
+--				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U							DEL TEN REP n			  | | |
+--				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U													  | | |
+--				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U				List  <-----+REMOVE CARGO	<---------+	| |
+--				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U				List  <-----+ADD MINERAL			  	| |
+--				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U				List  <-----+ADD COMPONENT				| |
+--				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U														| |
+--				| | | V								| | | |	| | | SET TO 10					20U							ADD REPAIR CREW		<-------+ |
+--				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*						REMOVE REPAIR CREW			  |
+--				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							DEL 													  |
+--				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING													ADD 1.0 COOLANT		<---------+
+--				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*													REMOVE 1.0 COOLANT	
+--				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											1.0 - 0.5 = 0.5		
+--				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| |															1.0 + 0.5 = 1.5		
 --				| | | UNRETRIEVABLE					| | | |	| V							
 --				| | | EXPIRING						| | | | | AT SELECTION
 --				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE				
@@ -829,6 +829,15 @@ function assignPlayerShipScore(p)
 			p.cargo = p.maxCargo
 			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
 			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
+			p.max_reactor = 1
+			p.max_beam = 1
+			p.max_missile = 1
+			p.max_maneuver = 1
+			p.max_impulse = 1
+			p.max_warp = 1
+			p.max_jump = 1
+			p.max_front_shield = 1
+			p.max_rear_shield = 1
 		else
 			p.shipScore = 24
 			p.maxCargo = 5
@@ -3737,6 +3746,7 @@ end
 -- +REPAIR CREW		F	changePlayerRepairCrew
 -- +CARGO			F	changePlayerCargo
 -- +REPUTATION		F	changePlayerReputation
+-- +MAX SYSTEM		F	changePlayerMaxSystem
 function tweakPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -3747,6 +3757,7 @@ function tweakPlayerShip()
 	addGMFunction("+Repair Crew",changePlayerRepairCrew)
 	addGMFunction("+Cargo",changePlayerCargo)
 	addGMFunction("+Reputation",changePlayerReputation)
+	addGMFunction("+Max System",changePlayerMaxSystem)
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Descriptions  --
@@ -3859,25 +3870,8 @@ function changePlayerCoolant()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
 	addGMFunction(string.format("Add %.1f coolant",coolant_amount), function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
+		local p = playerShipSelected()
+		if p ~= nil then
 			local coolant_reason_given = false
 			p:setMaxCoolant(p:getMaxCoolant() + coolant_amount)
 			addGMMessage(string.format("%.1f coolant added to %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
@@ -3901,25 +3895,8 @@ function changePlayerCoolant()
 		changePlayerCoolant()
 	end)
 	addGMFunction(string.format("Remove %.1f coolant",coolant_amount), function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
+		local p = playerShipSelected()
+		if p ~= nil then
 			local coolant_reason_given = false
 			p:setMaxCoolant(p:getMaxCoolant() - coolant_amount)
 			addGMMessage(string.format("%.1f coolant removed from %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
@@ -3970,25 +3947,8 @@ function changePlayerRepairCrew()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
 	addGMFunction("Add repair crew", function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
+		local p = playerShipSelected()
+		if p ~= nil then
 			local crew_reason_given = false
 			p:setRepairCrewCount(p:getRepairCrewCount()+1)
 			addGMMessage(string.format("1 repair crew added to %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
@@ -4012,25 +3972,8 @@ function changePlayerRepairCrew()
 		changePlayerRepairCrew()
 	end)
 	addGMFunction("Remove repair crew", function()
-		local p = getPlayerShip(-1)
-		local object_list = getGMSelection()
-		local selected_matches_player = false
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			for pidx=1,8 do
-				p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == current_selected_object then
-						selected_matches_player = true
-						break
-					end
-				end
-			end
-			if selected_matches_player then
-				break
-			end
-		end
-		if selected_matches_player then
+		local p = playerShipSelected()
+		if p ~= nil then
 			local crew_reason_given = false
 			if p:getRepairCrewCount() > 0 then
 				p:setRepairCrewCount(p:getRepairCrewCount()-1)
@@ -4075,9 +4018,7 @@ function changePlayerCargo()
 	addGMFunction("+Add Mineral",addMineralCargo)
 	addGMFunction("+Add Component",addComponentCargo)
 end
-function removeCargo()
-	clearGMFunctions()
-	addGMFunction("-Cargo From Del",changePlayerCargo)
+function playerShipSelected()
 	local p = getPlayerShip(-1)
 	local object_list = getGMSelection()
 	local selected_matches_player = false
@@ -4097,6 +4038,15 @@ function removeCargo()
 		end
 	end
 	if selected_matches_player then
+		return p
+	end
+	return nil
+end
+function removeCargo()
+	clearGMFunctions()
+	addGMFunction("-Cargo From Del",changePlayerCargo)
+	local p = playerShipSelected()
+	if p ~= nil then
 		if p.goods ~= nil then
 			local cargo_found = false
 			for good, good_quantity in pairs(p.goods) do
@@ -4126,25 +4076,8 @@ end
 function addMineralCargo()
 	clearGMFunctions()
 	addGMFunction("-Cargo From Add",changePlayerCargo)
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
-				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
+	local p = playerShipSelected()
+	if p ~= nil then
 		for _, good in pairs(mineralGoods) do
 			addGMFunction(good,function()
 				if p.cargo > 0 then
@@ -4173,25 +4106,8 @@ end
 function addComponentCargo()
 	clearGMFunctions()
 	addGMFunction("-Cargo From Add",changePlayerCargo)
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
-				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
+	local p = playerShipSelected()
+	if p ~= nil then
 		for _, good in pairs(componentGoods) do
 			addGMFunction(good,function()
 				if p.cargo > 0 then
@@ -4232,25 +4148,8 @@ function changePlayerReputation()
 	addGMFunction("-Main From Rep",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
-				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
+	local p = playerShipSelected()
+	if p ~= nil then
 		local current_rep = math.floor(p:getReputationPoints())
 		addGMFunction(string.format("Add one rep %i",current_rep),function()
 			p:addReputationPoints(1)
@@ -4285,6 +4184,336 @@ function changePlayerReputation()
 	else
 		addGMMessage("No player selected. No action taken. No reputation options presented")
 		tweakPlayerShip()
+	end
+end
+-----------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  --
+-----------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -FROM MAX SYSTEM		F	tweakPlayerShip
+-- +REACTOR 1.00		D	changePlayerMaxReactor
+-- +BEAM 1.00			D	changePlayerMaxBeam
+-- +MISSILE 1.00		D	changePlayerMaxMissile
+-- +MANEUVER 1.00		D	changePlayerMaxManeuver
+-- +IMPULSE 1.00		D	changePlayerMaxImpulse
+-- +WARP 1.00			D	changePlayerMaxWarp
+-- +JUMP 1.00			D	changePlayerMaxJump
+-- +FRONT SHIELD 1.00	D	changePlayerMaxFrontShield
+-- +REAR SHIELD 1.00	D	changePlayerMaxRearShield
+function changePlayerMaxSystem()
+	clearGMFunctions()
+	addGMFunction("-From Max System",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		string.format("")	--necessary to have global reference for Serious Proton engine
+		addGMFunction(string.format("+Reactor %.2f",p.max_reactor),changePlayerMaxReactor)
+		addGMFunction(string.format("+Beam %.2f",p.max_beam),changePlayerMaxBeam)
+		addGMFunction(string.format("+Missile %.2f",p.max_missile),changePlayerMaxMissile)
+		addGMFunction(string.format("+Maneuver %.2f",p.max_maneuver),changePlayerMaxManeuver)
+		addGMFunction(string.format("+Impulse %.2f",p.max_impulse),changePlayerMaxImpulse)
+		addGMFunction(string.format("+Warp %.2f",p.max_warp),changePlayerMaxWarp)
+		addGMFunction(string.format("+Jump %.2f",p.max_jump),changePlayerMaxJump)
+		addGMFunction(string.format("+Front Shield %.2f",p.max_front_shield),changePlayerMaxFrontShield)
+		addGMFunction(string.format("+Rear Shield %.2f",p.max_rear_shield),changePlayerMaxRearShield)
+	else
+		addGMFunction("+Select Player",changePlayerMaxSystem)
+	end
+end
+----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Reactor  --
+----------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM REACTOR	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxReactor()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Reactor",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_reactor < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_reactor,p.max_reactor + .05),function()
+				p.max_reactor = p.max_reactor + .05
+				changePlayerMaxReactor()
+			end)
+		end
+		if p.max_reactor > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_reactor,p.max_reactor - .05),function()
+				p.max_reactor = p.max_reactor - .05
+				changePlayerMaxReactor()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxReactor)
+	end
+end
+-------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Beam  --
+-------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM BEAM		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxBeam()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Beam",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_beam < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_beam,p.max_beam + .05),function()
+				p.max_beam = p.max_beam + .05
+				changePlayerMaxBeam()
+			end)
+		end
+		if p.max_beam > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_beam,p.max_beam - .05),function()
+				p.max_beam = p.max_beam - .05
+				changePlayerMaxBeam()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxBeam)
+	end
+end
+----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Missile  --
+----------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM MISSILE	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxMissile()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Missile",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_missile < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_missile,p.max_missile + .05),function()
+				p.max_missile = p.max_missile + .05
+				changePlayerMaxMissile()
+			end)
+		end
+		if p.max_missile > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_missile,p.max_missile - .05),function()
+				p.max_missile = p.max_missile - .05
+				changePlayerMaxMissile()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxMissile)
+	end
+end
+------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Maneuver  --
+------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM MANEUVER	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxManeuver()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Maneuver",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_maneuver < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_maneuver,p.max_maneuver + .05),function()
+				p.max_maneuver = p.max_maneuver + .05
+				changePlayerMaxManeuver()
+			end)
+		end
+		if p.max_maneuver > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_maneuver,p.max_maneuver - .05),function()
+				p.max_maneuver = p.max_maneuver - .05
+				changePlayerMaxManeuver()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxManeuver)
+	end
+end
+----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Impulse  --
+----------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM IMPULSE	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxImpulse()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Impulse",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_impulse < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_impulse,p.max_impulse + .05),function()
+				p.max_impulse = p.max_impulse + .05
+				changePlayerMaxImpulse()
+			end)
+		end
+		if p.max_impulse > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_impulse,p.max_impulse - .05),function()
+				p.max_impulse = p.max_impulse - .05
+				changePlayerMaxImpulse()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxImpulse)
+	end
+end
+-------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Warp  --
+-------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM WARP		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxWarp()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Warp",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_warp < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_warp,p.max_warp + .05),function()
+				p.max_warp = p.max_warp + .05
+				changePlayerMaxWarp()
+			end)
+		end
+		if p.max_warp > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_warp,p.max_warp - .05),function()
+				p.max_warp = p.max_warp - .05
+				changePlayerMaxWarp()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxWarp)
+	end
+end
+-------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Jump  --
+-------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM JUMP		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxJump()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Jump",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_jump < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_jump,p.max_jump + .05),function()
+				p.max_jump = p.max_jump + .05
+				changePlayerMaxJump()
+			end)
+		end
+		if p.max_jump > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_jump,p.max_jump - .05),function()
+				p.max_jump = p.max_jump - .05
+				changePlayerMaxJump()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxJump)
+	end
+end
+---------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Front Shield  --
+---------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM F.SHIELD	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxFrontShield()
+	clearGMFunctions()
+	addGMFunction("-Main Frm F.Shield",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_front_shield < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_front_shield,p.max_front_shield + .05),function()
+				p.max_front_shield = p.max_front_shield + .05
+				changePlayerMaxFrontShield()
+			end)
+		end
+		if p.max_front_shield > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_front_shield,p.max_front_shield - .05),function()
+				p.max_front_shield = p.max_front_shield - .05
+				changePlayerMaxFrontShield()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxFrontShield)
+	end
+end
+--------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Max System  > Rear Shield  --
+--------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FRM R.SHIELD	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -MAX SYSTEM			F	changePlayerMaxSystem
+-- V FROM 1.00 TO 0.95	D	inline
+function changePlayerMaxRearShield()
+	clearGMFunctions()
+	addGMFunction("-Main Frm R.Shield",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Max System",changePlayerMaxSystem)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.max_rear_shield < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p.max_rear_shield,p.max_rear_shield + .05),function()
+				p.max_rear_shield = p.max_rear_shield + .05
+				changePlayerMaxRearShield()
+			end)
+		end
+		if p.max_rear_shield > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p.max_rear_shield,p.max_rear_shield - .05),function()
+				p.max_rear_shield = p.max_rear_shield - .05
+				changePlayerMaxRearShield()
+			end)
+		end
+	else
+		addGMFunction("+Select Player",changePlayerMaxRearShield)
 	end
 end
 -----------------------------------------------------------------------
@@ -13038,6 +13267,33 @@ function update(delta)
 						end
 					end
 				end
+			end
+			if p:getSystemHealth("reactor") > p.max_reactor then
+				p:setSystemHealth("reactor",p.max_reactor)
+			end
+			if p:getSystemHealth("beamweapons") > p.max_beam then
+				p:setSystemHealth("beamweapons",p.max_beam)
+			end
+			if p:getSystemHealth("missilesystem") > p.max_missile then
+				p:setSystemHealth("missilesystem",p.max_missile)
+			end
+			if p:getSystemHealth("maneuver") > p.max_maneuver then
+				p:setSystemHealth("maneuver",p.max_maneuver)
+			end
+			if p:getSystemHealth("impulse") > p.max_impulse then
+				p:setSystemHealth("impulse",p.max_impulse)
+			end
+			if p:getSystemHealth("warp") > p.max_warp then
+				p:setSystemHealth("warp",p.max_warp)
+			end
+			if p:getSystemHealth("jumpdrive") > p.max_jump then
+				p:setSystemHealth("jumpdrive",p.max_jump)
+			end
+			if p:getSystemHealth("frontshield") > p.max_front_shield then
+				p:setSystemHealth("frontshield",p.max_front_shield)
+			end
+			if p:getSystemHealth("rearshield") > p.max_rear_shield then
+				p:setSystemHealth("rearshield",p.max_rear_shield)
 			end
 			if updateDiagnostic then print("update: valid player: mortal repair crew") end
 			if healthCheckTimer < 0 then	--check to see if any crew perish due to excessive damage
