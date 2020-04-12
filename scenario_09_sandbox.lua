@@ -1909,13 +1909,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 4 then
-			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
-			dp4Zone:setColor(0,128,0)
-		else		
+	--	if i == 4 then
+	--		dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
+	--		dp4Zone:setColor(0,128,0)
+	--	else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			table.insert(icarusDefensePlatforms,dp)
-		end
+	--	end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -2050,6 +2050,9 @@ function createIcarusStations()
     	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop"
 	}
 	table.insert(stations,stationMermaid)
+	local pistilZone = squareZone(24834, 20416, "Pistil 2")
+	pistilZone:setColor(0,128,0)
+	--[[	Destroyed 10Apr2020
 	--Pistil
     stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2073,6 +2076,7 @@ function createIcarusStations()
     	history = "The station naming continued in the vein of the nebula which we study"
 	}
 	table.insert(stations,stationPistil)
+	--]]
 	local macassaZone = squareZone(16335, -18034, "Macassa 6")
 	macassaZone:setColor(0,128,0)
 	--[[	Destroyed 28Mar2020
@@ -5134,7 +5138,7 @@ function createPlayerShipRogue()
 	playerRogue:setJumpDrive(true)
 	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
 --                  		    Arc, Dir,  Range, CycleTime, Dmg
-	playerRogue:setBeamWeapon(0, 10,   0, 1200.0,      20.0, 20)
+	playerRogue:setBeamWeapon(0, 10,   0, 1000.0,      20.0, 20)
 --									   Arc, Dir, Rotate speed
 	playerRogue:setBeamWeaponTurret(0, 270,   0, .2)
 	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*6)
@@ -13495,11 +13499,17 @@ function update(delta)
 									end
 								else
 									local current_coolant = p:getMaxCoolant()
+									local lost_coolant = 0
 									if current_coolant >= 10 then
-										p:setMaxCoolant(current_coolant*.5)
+										lost_coolant = current_coolant*random(.25,.5)	--lose between 25 and 50 percent
 									else
-										p:setMaxCoolant(current_coolant*.8)
+										lost_coolant = current_coolant*random(.15,.35)	--lose between 15 and 35 percent
 									end
+									p:setMaxCoolant(current_coolant - lost_coolant)
+									if p.reclaimable_coolant == nil then
+										p.reclaimable_coolant = 0
+									end
+									p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
 									if p:hasPlayerAtPosition("Engineering") then
 										local coolantLoss = "coolantLoss"
 										p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
@@ -13528,9 +13538,13 @@ function update(delta)
 				end	--no repair crew left
 				if p.initialCoolant ~= nil then
 					current_coolant = p:getMaxCoolant()
-					if current_coolant < 10 then
+					if current_coolant < 20 then
 						if random(1,100) <= 4 then
-							p:setMaxCoolant(current_coolant + ((current_coolant + 10)/2))
+							if p.reclaimable_coolant ~= nil and p.reclaimable_coolant > 0 then
+								local reclaimed_coolant = p.reclaimable_coolant*random(.1,.5)	--get back 10 to 50 percent of reclaimable coolant
+								p:setMaxCoolant(math.min(20,current_coolant + reclaimed_coolant))
+								p.reclaimable_coolant = p.reclaimable_coolant - reclaimed_coolant
+							end
 							if p:hasPlayerAtPosition("Engineering") then
 								local coolant_recovery = "coolant_recovery"
 								p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
