@@ -133,6 +133,7 @@ function createSkeletonUniverse()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -149,6 +150,7 @@ function createSkeletonUniverse()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -2094,6 +2096,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(13,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	gold = 	{quantity = math.random(4,8),	cost = math.random(60,70)},
@@ -2119,6 +2122,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2,				HVLI = math.random(2,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	filament = 	{quantity = math.random(4,8),	cost = math.random(50,80)}	},
@@ -2141,6 +2145,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 5,				HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -2258,6 +2263,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 10000, cost = 20},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	nickel = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -2284,6 +2290,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(9,21) },
         weapon_available = 	{Homing = true,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -2332,6 +2339,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,5),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = false,	HVLI = true,		Mine = false,			Nuke = false,				EMP = false},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	communication = {quantity = math.random(5,10),	cost = math.random(40,70)}	},
@@ -2354,6 +2362,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	luxury = 	{quantity = math.random(5,10),	cost = math.random(60,70)}	},
@@ -2377,6 +2386,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,6),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -2399,6 +2409,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,6),	HVLI = math.random(1,4),Mine = math.random(5,9),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	circuit = 	{quantity = math.random(4,8),	cost = math.random(40,80)},
@@ -3195,6 +3206,7 @@ function createKentarStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	cobalt = 	{quantity = math.random(5,10),	cost = math.random(60,70)},
@@ -3240,6 +3252,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	tractor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
@@ -3344,6 +3357,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nanites = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -3371,6 +3385,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(1,4),Mine = math.random(1,4),Nuke = math.random(12,18),	EMP = math.random(13,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 5000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	circuit = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -4893,6 +4908,7 @@ function createPlayerShipCobra()
 	playerCobra:setWeaponStorageMax("HVLI",6)	
 	playerCobra:setWeaponStorage("HVLI", 6)	
 	playerCobra:setLongRangeRadarRange(20000)				--shorter longer range sensors (vs 30000)
+	playerCobra.normal_long_range_radar = 20000
 	playerCobra:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerCobra:addReputationPoints(50)
 	playerShipSpawned("Cobra")
@@ -4909,6 +4925,7 @@ function createPlayerShipEagle()
 	playerEagle:setShieldsMax(70, 100)									--stronger rear shields (vs 70, 70)
 	playerEagle:setShields(70, 100)
 	playerEagle:setLongRangeRadarRange(50000)							--longer long range sensors (vs 30000)
+	playerEagle.normal_long_range_radar = 50000
 	playerEagle:addReputationPoints(50)
 	playerShipSpawned("Eagle")
 end
@@ -4938,6 +4955,7 @@ function createPlayerShipGabble()
 	playerGabble:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
 	playerGabble:setWeaponStorage("Nuke", 4)				
 	playerGabble:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
+	playerGabble.normal_long_range_radar = 25000
 	playerGabble:addReputationPoints(50)
 	playerShipSpawned("Gabble")
 end
@@ -5011,11 +5029,11 @@ function createPlayerShipHolmes()
 	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
 	playerHolmes:setTypeName("Holmes")
 	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
---                  			 Arc, Dir,  Range, CycleTime, Dmg
-	playerHolmes:setBeamWeapon(0, 50, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
-	playerHolmes:setBeamWeapon(1, 50, -95, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(2, 50,  85, 1000.0, 6.0, 5)	
-	playerHolmes:setBeamWeapon(3, 50,  95, 1000.0, 6.0, 5)	
+--                  			 Arc, Dir, Range, CycleTime, Dmg
+	playerHolmes:setBeamWeapon(0, 50, -85, 900.0, 		6.0, 5)	--broadside beams, narrower (vs 70)
+	playerHolmes:setBeamWeapon(1, 50, -95, 900.0, 		6.0, 5)	
+	playerHolmes:setBeamWeapon(2, 50,  85, 900.0, 		6.0, 5)	
+	playerHolmes:setBeamWeapon(3, 50,  95, 900.0, 		6.0, 5)	
 	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
 	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
 	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
@@ -5030,8 +5048,9 @@ function createPlayerShipHolmes()
 	playerHolmes:setWeaponStorage("EMP", 0)				
 	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
 	playerHolmes:setWeaponStorage("Nuke", 0)	
-	--playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
-	--playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
+	playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
+	playerHolmes.normal_long_range_radar = 35000
+	playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerHolmes:addReputationPoints(50)
 	playerShipSpawned("Holmes")
 end
@@ -5149,6 +5168,7 @@ function createPlayerShipRogue()
 	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
 	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
 	playerRogue:setLongRangeRadarRange(25000)				--shorter longer range sensors (vs 30000)
+	playerRogue.normal_long_range_radar = 25000
 	playerRogue:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
 	playerRogue:addReputationPoints(50)
 	playerShipSpawned("Rogue")
@@ -12076,6 +12096,7 @@ function commsStation()
         services = {
             supplydrop = "friend",
             reinforcements = "friend",
+            sensor_boost = "neutral",
 			preorder = "friend"
         },
         service_cost = {
@@ -12220,6 +12241,22 @@ function handleDockedState()
 		addCommsReply("Back", commsStation)
 	end)
 	--]]
+	if ctd.sensor_boost ~= nil then
+		if ctd.sensor_boost.cost > 0 then
+			addCommsReply(string.format("Augment scan range with station sensors while docked (%i rep)",ctd.sensor_boost.cost),function()
+				if comms_source:takeReputationPoints(ctd.sensor_boost.cost) then
+					if comms_source.normal_long_range_radar == nil then
+						comms_source.normal_long_range_radar = comms_source:getLongRangeRadarRange()
+					end
+					comms_source:setLongRangeRadarRange(comms_source.normal_long_range_radar + ctd.sensor_boost.value)
+					setCommsMessage(string.format("sensors increased by %i units",ctd.sensor_boost.value/1000))
+				else
+					setCommsMessage("Insufficient reputation")
+				end
+				addCommsReply("Back", commsStation)
+			end)
+		end
+	end
 	if ctd.public_relations then
 		addCommsReply("Tell me more about your station", function()
 			setCommsMessage("What would you like to know?")
@@ -13854,6 +13891,56 @@ function update(delta)
 				timer_value = nil
 				timer_gm_message = nil
 			end	--end of timer started boolean checks
+			if p.normal_long_range_radar == nil then
+				p.normal_long_range_radar = p:getLongRangeRadarRange()
+			end
+			if regionStations ~= nil then
+				local free_sensor_boost = false
+				local sensor_boost_present = false
+				local sensor_boost_amount = 0
+				for i=1,#regionStations do
+					local sensor_station = regionStations[i]
+					if p:isDocked(sensor_station) then
+						if sensor_station.comms_data.sensor_boost ~= nil then
+							sensor_boost_present = true
+							if sensor_station.comms_data.sensor_boost.cost < 1 then
+								free_sensor_boost = true
+							end
+							sensor_boost_amount = sensor_station.comms_data.sensor_boost.value
+						end
+					end
+				end
+				if p:isDocked(stationIcarus) then
+					free_sensor_boost = true
+					sensor_boost_amount = stationIcarus.comms_data.sensor_boost.value
+				end
+				if p:isDocked(stationKentar) then
+					free_sensor_boost = true
+					sensor_boost_amount = stationKentar.comms_data.sensor_boost.value
+				end
+				local boosted_range = p.normal_long_range_radar + sensor_boost_amount
+				if sensor_boost_present or free_sensor_boost then
+					if free_sensor_boost then
+						if p:getLongRangeRadarRange() < boosted_range then
+							p:setLongRangeRadarRange(boosted_range)
+						end
+					end
+				else
+					if p:getLongRangeRadarRange() > p.normal_long_range_radar then
+						local temp_player = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy")
+						local science_swap = false
+						if p:hasPlayerAtPosition("Science") then
+							science_swap = true
+							p:transferPlayersAtPositionToShip("Science",temp_player)
+						end
+						p:setLongRangeRadarRange(p.normal_long_range_radar)
+						if science_swap then
+							temp_player:transferPlayersAtPositionToShip("Science",p)
+						end
+						temp_player:destroy()
+					end
+				end
+			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
