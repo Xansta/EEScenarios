@@ -288,41 +288,41 @@ function setConstants()
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
 
-	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000},
-						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000},
-						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000},
-						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
-						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
-						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
-						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
-						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500},
-						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
-						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000},
-						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000},
-						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500},
-						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000},
-						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000},
-						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000},
-						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
-						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000},
-						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
-						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500},
-						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
-						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
-						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
-						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
-						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000},
-						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000},
-						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000},
-						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000},
-						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
-						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000},
-						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000},
-						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000},
-						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000},
-						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000},
-						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
-						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false	},
+						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false	},
+						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true	},
+						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true	},
+						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
+						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
+						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
+						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false	},
+						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
+						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true	},
+						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false	},
+						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false	},
+						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true	},
+						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true	},
+						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false	},
+						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
+						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false	},
+						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
+						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false	},
+						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
+						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
+						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
+						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true	},
+						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false	},
+						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true	},
+						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false	},
+						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
+						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
+						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
+						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
+						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false	},
+						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true	},
+						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true	},
+						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false	},
+						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
 					}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
@@ -700,6 +700,11 @@ function setConstants()
 	outside_mine_gap_count = 3
 	inside_mine_orbit = "No"
 	outside_mine_orbit = "No"
+	tractor_beam_string = {
+		"beam_blue.png",
+		"shield_hit_effect.png",
+		"electric_sphere_texture.png"
+	}
 end
 ----------------------------
 --  Main Menu of Buttons  --
@@ -831,6 +836,8 @@ function assignPlayerShipScore(p)
 			p.cargo = p.maxCargo
 			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
 			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
+			p.tractor = playerShipStats[tempTypeName].tractor
+			p.tractor_target_lock = false
 			p.max_reactor = 1
 			p.max_beam = 1
 			p.max_missile = 1
@@ -844,6 +851,7 @@ function assignPlayerShipScore(p)
 			p.shipScore = 24
 			p.maxCargo = 5
 			p.cargo = p.maxCargo
+			p.tractor = false
 		end
 	else
 		p.shipScore = 24
@@ -13374,6 +13382,7 @@ function update(delta)
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
+			local player_name = p:getCallSign()
 			if p.spawnAdjust == nil then
 				p:setPosition(playerSpawnX,playerSpawnY)	--put player in the correct region when spawned
 				p.spawnAdjust = true
@@ -13393,14 +13402,14 @@ function update(delta)
 				if goodCount > 0 then		--add inventory button when cargo acquired
 					if p:hasPlayerAtPosition("Relay") then
 						if p.inventoryButton == nil then
-							local tbi = "inventory" .. p:getCallSign()
+							local tbi = "inventory" .. player_name
 							p:addCustomButton("Relay",tbi,"Inventory",cargoInventoryList[pidx])
 							p.inventoryButton = true
 						end
 					end
 					if p:hasPlayerAtPosition("Operations") then
 						if p.inventoryButton == nil then
-							local tbi = "inventoryOp" .. p:getCallSign()
+							local tbi = "inventoryOp" .. player_name
 							p:addCustomButton("Operations",tbi,"Inventory",cargoInventoryList[pidx])
 							p.inventoryButton = true
 						end
@@ -13577,18 +13586,21 @@ function update(delta)
 					current_coolant = p:getMaxCoolant()
 					if current_coolant < 20 then
 						if random(1,100) <= 4 then
+							local reclaimed_coolant = 0
 							if p.reclaimable_coolant ~= nil and p.reclaimable_coolant > 0 then
-								local reclaimed_coolant = p.reclaimable_coolant*random(.1,.5)	--get back 10 to 50 percent of reclaimable coolant
+								reclaimed_coolant = p.reclaimable_coolant*random(.1,.5)	--get back 10 to 50 percent of reclaimable coolant
 								p:setMaxCoolant(math.min(20,current_coolant + reclaimed_coolant))
 								p.reclaimable_coolant = p.reclaimable_coolant - reclaimed_coolant
 							end
-							if p:hasPlayerAtPosition("Engineering") then
-								local coolant_recovery = "coolant_recovery"
-								p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								local coolant_recovery_plus = "coolant_recovery_plus"
-								p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
+							if reclaimed_coolant > 0 then
+								if p:hasPlayerAtPosition("Engineering") then
+									local coolant_recovery = "coolant_recovery"
+									p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
+								end
+								if p:hasPlayerAtPosition("Engineering+") then
+									local coolant_recovery_plus = "coolant_recovery_plus"
+									p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
+								end
 							end
 							resetPreviousSystemHealth(p)
 						end
@@ -13941,6 +13953,106 @@ function update(delta)
 					end
 				end
 			end
+			if p.tractor then
+				local player_velocity = math.abs(p:getVelocity())
+				local cpx, cpy = p:getPosition()
+				if player_velocity < 1 then
+					--print(string.format("%s velocity: %.1f slow enough to establish tractor",player_name,player_velocity))
+					if p.tractor_target_lock then
+						if p.tractor_target ~= nil and p.tractor_target:isValid() then
+							p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
+							BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+							if p.disengage_tractor_button == nil then
+								p.disengage_tractor_button = "disengage_tractor_button"
+								p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
+									p.tractor_target_lock = false
+									p:removeCustom(p.disengage_tractor_button)
+									p.disengage_tractor_button = nil
+								end)
+							end
+						else
+							p.tractor_target_lock = false
+							p:removeCustom(p.disengage_tractor_button)
+							p.disengage_tractor_button = nil
+						end
+					else	--tractor not locked on target
+						local nearby_objects = p:getObjectsInRange(1000)
+						local tractor_objects = {}
+						if nearby_objects ~= nil and #nearby_objects > 1 then
+							for _, obj in ipairs(nearby_objects) do
+								if p ~= obj then
+									local object_type = obj.typeName
+									if object_type ~= nil then
+										if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+											table.insert(tractor_objects,obj)
+										end
+									end
+								end
+							end		--end of nearby object list loop
+							if #tractor_objects > 0 then
+								--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+								if p.tractor_target ~= nil and p.tractor_target:isValid() then
+									local target_in_list = false
+									for i=1,#tractor_objects do
+										if tractor_objects[i] == p.tractor_target then
+											target_in_list = true
+											break
+										end
+									end		--end of check for the current target in list loop
+									if not target_in_list then
+										p.tractor_target = tractor_objects[1]
+										removeTractorObjectButtons(p)
+									end
+									addTractorObjectButtons(p,tractor_objects)
+								else
+									p.tractor_target = tractor_objects[1]
+									addTractorObjectButtons(p,tractor_objects)
+								end
+							else	--no nearby tractorable objects
+								if p.tractor_target ~= nil then
+									removeTractorObjectButtons(p)
+									p.tractor_target = nil
+								end
+							end
+						else	--no nearby objects
+							if p.tractor_target ~= nil then
+								removeTractorObjectButtons(p)
+								p.tractor_target = nil
+							end
+						end
+					end
+				else	--not moving slowly enough to establish tractor
+					removeTractorObjectButtons(p)
+					--print(string.format("%s velocity: %.1f too fast to establish tractor",player_name,player_velocity))
+					if player_velocity > 50 then
+						--print(string.format("%s velocity: %.1f too fast to continue tractor",player_name,player_velocity))
+						p.tractor_target_lock = false
+						if p.disengage_tractor_button ~= nil then
+							p:removeCustom(p.disengage_tractor_button)
+							p.disengage_tractor_button = nil
+						end
+					else
+						if p.tractor_target_lock then
+							if p.tractor_target ~= nil and p.tractor_target:isValid() then
+								p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
+								BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+								if p.disengage_tractor_button == nil then
+									p.disengage_tractor_button = "disengage_tractor_button"
+									p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
+										p.tractor_target_lock = false
+										p:removeCustom(p.disengage_tractor_button)
+										p.disengage_tractor_button = nil
+									end)
+								end
+							else
+								p.tractor_target_lock = false
+								p:removeCustom(p.disengage_tractor_button)
+								p.disengage_tractor_button = nil
+							end
+						end						
+					end
+				end
+			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -13959,7 +14071,142 @@ function update(delta)
 	end
 	if updateDiagnostic then print("update: end of update function") end
 end
-
+function removeTractorObjectButtons(p)
+	if p.tractor_next_target_button ~= nil then
+		p:removeCustom(p.tractor_next_target_button)
+		p.tractor_next_target_button = nil
+	end
+	if p.tractor_target_button ~= nil then
+		p:removeCustom(p.tractor_target_button)
+		p.tractor_target_button = nil
+	end
+	if p.tractor_lock_button ~= nil then
+		p:removeCustom(p.tractor_lock_button)
+		p.tractor_lock_button = nil
+	end
+end
+function addTractorObjectButtons(p,tractor_objects)
+	local cpx, cpy = p:getPosition()
+	local tpx, tpy = p.tractor_target:getPosition()
+	if p.tractor_lock_button == nil then
+		if p:hasPlayerAtPosition("Engineering") then
+			p.tractor_lock_button = "tractor_lock_button"
+			p:addCustomButton("Engineering",p.tractor_lock_button,"Lock on Tractor",function()
+				p.tractor_target_lock = true
+				p.tractor_vector_x = tpx - cpx
+				p.tractor_vector_y = tpy - cpy
+				local locked_message = "locked_message"
+				p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
+				removeTractorObjectButtons(p)
+			end)
+		end
+	end
+	if p.tractor_target_button == nil then
+		if p:hasPlayerAtPosition("Engineering") then
+			p.tractor_target_button = "tractor_target_button"
+			local label_type = p.tractor_target.typeName
+			if label_type == "CpuShip" or label_type == "PlayerSpaceship" then
+				label_type = p.tractor_target:getCallSign()
+			elseif label_type == "VisualAsteroid" then
+				label_type = "Asteroid"
+			end
+			p:addCustomButton("Engineering",p.tractor_target_button,string.format("Target %s",label_type),function()
+				string.format("")	--necessary to have global reference for Serious Proton engine
+				tpx, tpy = p.tractor_target:getPosition()
+				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+				local theta = math.atan(tpy - cpy,tpx - cpx)
+				if theta < 0 then
+					theta = theta + 6.2831853071795865
+				end
+				local angle = theta * 57.2957795130823209
+				angle = angle + 90
+				if angle > 360 then
+					angle = angle - 360
+				end
+				local target_description = "target_description"
+				p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
+			end)
+		end
+	end
+	if #tractor_objects > 1 then
+		if p.tractor_next_target_button == nil then
+			if p:hasPlayerAtPosition("Engineering") then
+				p.tractor_next_target_button = "tractor_next_target_button"
+				p:addCustomButton("Engineering",p.tractor_next_target_button,"Other tractor target",function()
+					local nearby_objects = p:getObjectsInRange(1000)
+					local tractor_objects = {}
+					if nearby_objects ~= nil and #nearby_objects > 1 then
+						for _, obj in ipairs(nearby_objects) do
+							if p ~= obj then
+								local object_type = obj.typeName
+								if object_type ~= nil then
+									if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+										table.insert(tractor_objects,obj)
+									end
+								end
+							end
+						end		--end of nearby object list loop
+						if #tractor_objects > 0 then
+							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+							if p.tractor_target ~= nil and p.tractor_target:isValid() then
+								local target_in_list = false
+								local matching_index = 0
+								for i=1,#tractor_objects do
+									if tractor_objects[i] == p.tractor_target then
+										target_in_list = true
+										matching_index = i
+										break
+									end
+								end		--end of check for the current target in list loop
+								if target_in_list then
+									if #tractor_objects > 1 then
+										if #tractor_objects > 2 then
+											local new_index = matching_index
+											repeat
+												new_index = math.random(1,#tractor_objects)
+											until(new_index ~= matching_index)
+											p.tractor_target = tractor_objects[new_index]
+										else
+											if matching_index == 1 then
+												p.tractor_target = tractor_objects[2]
+											else
+												p.tractor_target = tractor_objects[1]
+											end
+										end
+										removeTractorObjectButtons(p)
+										addTractorObjectButtons(p,tractor_objects)
+									end
+								else
+									p.tractor_target = tractor_objects[1]
+									removeTractorObjectButtons(p)
+									addTractorObjectButtons(p,tractor_objects)
+								end
+							else
+								p.tractor_target = tractor_objects[1]
+								addTractorObjectButtons(p,tractor_objects)
+							end
+						else	--no nearby tractorable objects
+							if p.tractor_target ~= nil then
+								removeTractorObjectButtons(p)
+								p.tractor_target = nil
+							end
+						end
+					else	--no nearby objects
+						if p.tractor_target ~= nil then
+							removeTractorObjectButtons(p)
+							p.tractor_target = nil
+						end
+					end
+				end)
+			end
+		end
+	else
+		if p.tractor_next_target_button ~= nil then
+			p:removeCustom(p.tractor_next_target_button)
+			p.tractor_next_target_button = nil
+		end
+	end
+end
 function movingObjects(delta)
 	if icarus_mobile_nebula_1 ~= nil and icarus_mobile_nebula_1:isValid() then
 		local neb_x, neb_y = icarus_mobile_nebula_1:getPosition()
@@ -14124,42 +14371,3 @@ function movingObjects(delta)
 		end
 	end
 end
-function crewFate(p, fatalityChance)
-	if math.random() < (fatalityChance) then
-		if p.initialCoolant == nil then
-			p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-			if p:hasPlayerAtPosition("Engineering") then
-				local repairCrewFatality = "repairCrewFatality"
-				p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-			end
-			if p:hasPlayerAtPosition("Engineering+") then
-				local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-			end
-		else
-			if random(1,100) < 50 then
-				p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-				if p:hasPlayerAtPosition("Engineering") then
-					local repairCrewFatality = "repairCrewFatality"
-					p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-					p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-				end
-			else
-				p:setMaxCoolant(p:getMaxCoolant()*.5)
-				if p:hasPlayerAtPosition("Engineering") then
-					local coolantLoss = "coolantLoss"
-					p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					local coolantLossPlus = "coolantLossPlus"
-					p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
-				end
-			end
-		end
-	end
-end
-
-
