@@ -222,10 +222,11 @@ function setConstants()
 	--stsl: Ship Template Score List
 	--stbl: Ship Template Boolean List
 	--nsfl: Non Standard Function List
-	stnl = {"Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	stsl = {28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	stbl = {false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
+	stnl = {"WZ-Lindworm","Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
+	stsl = {9            ,28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
+	stbl = {false        ,false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
 	nsfl = {}
+	table.insert(nsfl,wzLindworm)
 	table.insert(nsfl,elaraP2)
 	table.insert(nsfl,droneJacket)
 	table.insert(nsfl,droneHeavy)
@@ -253,9 +254,9 @@ function setConstants()
 	stslAdder = {15      ,15        ,11         ,10         ,9          ,5          ,7          ,6          ,8          ,18       }
 	stblAdder = {false   ,false     ,false      ,false      ,false      ,false      ,true       ,true       ,true       ,true     }
 	--Missiler Ship Template Name List, Score List and Boolean List
-	stnlMissiler = {"WX-Lindworm","Piranha F8","Piranha F12","Ranus U","Missile Cruiser","Storm"}
-	stslMissiler = {7            ,15          ,15           ,25       ,14               ,22     }
-	stblMissiler = {true         ,true        ,true         ,true     ,true             ,true   }
+	stnlMissiler = {"WZ-Lindworm","WX-Lindworm","Piranha F8","Piranha F12","Ranus U","Missile Cruiser","Storm"}
+	stslMissiler = {9            ,7            ,15          ,15           ,25       ,14               ,22     }
+	stblMissiler = {false        ,true         ,true        ,true         ,true     ,true             ,true   }
 	--Beamer Ship Template Name List, Score List and Boolean List
 	stnlBeamer = {"Stalker R5","Stalker Q5","K2 Fighter","K3 Fighter","Nirvana R3","MV52 Hornet","MT52 Hornet","MU52 Hornet","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Fighter","Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout"}
 	stslBeamer = {22          ,22          ,7           ,8           ,12          ,6            ,5            ,5            ,19          ,20           ,25          ,25          ,6        ,18       ,30          ,27            ,80           ,100            ,65               ,6                ,40              ,4              ,48              ,8              }
@@ -269,13 +270,13 @@ function setConstants()
 	stslChaser = {28        ,15      ,15        ,22          ,22          ,33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
 	stblChaser = {false     ,false   ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
 	--Fighter Ship Template Name List, Score List and Boolean List
-	stnlFighter = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
-	stslFighter = {4             ,5            ,3           ,15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
-	stblFighter = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
+	stnlFighter = {"WZ-Lindworm","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
+	stslFighter = {9            ,4             ,5            ,3           ,15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
+	stblFighter = {false        ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
 	--Non database Ship Template Name List, Score List and Boolean List
-	stnlNonDB = {"Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
-	stslNonDB = {28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
-	stblNonDB = {false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
+	stnlNonDB = {"WZ-Lindworm","Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
+	stslNonDB = {9            ,28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
+	stblNonDB = {false        ,false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
 	--Drone Ship Template Name List, Score List and Boolean List
 	stnlDrone = {"Jacket Drone","Heavy Drone","Lite Drone","Ktlitan Drone"}
 	stslDrone = {4             ,5            ,3           ,4}
@@ -705,6 +706,7 @@ function setConstants()
 		"shield_hit_effect.png",
 		"electric_sphere_texture.png"
 	}
+	tractor_drain = .000005
 end
 ----------------------------
 --  Main Menu of Buttons  --
@@ -6871,6 +6873,20 @@ function elaraP2(enemyFaction)
 	ship:setWarpDrive(true)			--warp drive (vs none)
 	ship:setShieldsMax(70,40)		--stronger front shield (vs 50,40)
 	ship:setShields(70,40)
+	return ship
+end
+function wzLindworm(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming()
+	ship:setTypeName("WZ-Lindworm")
+	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
+	ship:setWeaponStorage("Nuke",2)
+	ship:setWeaponStorageMax("Homing",4)	--more homing (vs 1)
+	ship:setWeaponStorage("Homing",4)
+	ship:setWeaponStorageMax("HVLI",12)		--more homing (vs 6)
+	ship:setWeaponStorage("HVLI",12)
+	ship:setRotationMaxSpeed(12)			--slower maneuver (vs 15)
+	ship:setHullMax(45)						--weaker hull (vs 50)
+	ship:setHull(45)
 	return ship
 end
 ------------------------------------------------------------------
@@ -13954,14 +13970,18 @@ function update(delta)
 				end
 			end
 			if p.tractor then
-				local player_velocity = math.abs(p:getVelocity())
+				local vx, vy = p:getVelocity()
+				local player_velocity = math.abs(vx) + math.abs(vy)
 				local cpx, cpy = p:getPosition()
 				if player_velocity < 1 then
 					--print(string.format("%s velocity: %.1f slow enough to establish tractor",player_name,player_velocity))
 					if p.tractor_target_lock then
 						if p.tractor_target ~= nil and p.tractor_target:isValid() then
 							p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
-							BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+							p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
+							if random(1,100) < 27 then
+								BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+							end
 							if p.disengage_tractor_button == nil then
 								p.disengage_tractor_button = "disengage_tractor_button"
 								p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
@@ -14035,7 +14055,10 @@ function update(delta)
 						if p.tractor_target_lock then
 							if p.tractor_target ~= nil and p.tractor_target:isValid() then
 								p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
-								BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+								p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
+								if random(1,100) < 27 then
+									BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+								end
 								if p.disengage_tractor_button == nil then
 									p.disengage_tractor_button = "disengage_tractor_button"
 									p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
@@ -14092,11 +14115,20 @@ function addTractorObjectButtons(p,tractor_objects)
 		if p:hasPlayerAtPosition("Engineering") then
 			p.tractor_lock_button = "tractor_lock_button"
 			p:addCustomButton("Engineering",p.tractor_lock_button,"Lock on Tractor",function()
-				p.tractor_target_lock = true
-				p.tractor_vector_x = tpx - cpx
-				p.tractor_vector_y = tpy - cpy
-				local locked_message = "locked_message"
-				p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
+				local cpx, cpy = p:getPosition()
+				local tpx, tpy = p.tractor_target:getPosition()
+				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
+				if tractor_object_distance < 1000 then
+					p.tractor_target_lock = true
+					p.tractor_vector_x = tpx - cpx
+					p.tractor_vector_y = tpy - cpy
+					local locked_message = "locked_message"
+					p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
+				else
+					local lock_fail_message = "lock_fail_message"
+					p:addCustomMessage("Engineering",lock_fail_message,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
+					p.tractor_target = nil
+				end
 				removeTractorObjectButtons(p)
 			end)
 		end
