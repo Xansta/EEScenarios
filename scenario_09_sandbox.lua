@@ -2062,11 +2062,10 @@ function createIcarusStations()
     	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop"
 	}
 	table.insert(stations,stationMermaid)
-	local pistilZone = squareZone(24834, 20416, "Pistil 2")
-	pistilZone:setColor(0,128,0)
-	--[[	Destroyed 10Apr2020
+	--local pistilZone = squareZone(24834, 20416, "Pistil 2")
+	--pistilZone:setColor(0,128,0)
 	--Pistil
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 2"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2088,7 +2087,6 @@ function createIcarusStations()
     	history = "The station naming continued in the vein of the nebula which we study"
 	}
 	table.insert(stations,stationPistil)
-	--]]
 	local macassaZone = squareZone(16335, -18034, "Macassa 6")
 	macassaZone:setColor(0,128,0)
 	--[[	Destroyed 28Mar2020
