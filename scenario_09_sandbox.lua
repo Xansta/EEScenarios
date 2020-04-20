@@ -1,9 +1,8 @@
 -- Name: Sandbox
 -- Description: GM controlled missions
+--- Regions defined: Icarus and Kentar
 --- Version 1
 -- Type: GM Controlled missions
--- Variation[Easy]: Easy goals and/or enemies	
--- Variation[Hard]: Hard goals and/or enemies
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 -- +INITIAL SET UP------------>	-MAIN FROM INITIAL											  Toggle button per player ship <-------+AUTO COOL 	
@@ -1648,6 +1647,7 @@ function playerShip()
 			{"Cobra"		,"inactive"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
 			{"Eagle"		,"active"	,createPlayerShipEagle		,"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Gabble"		,"active"	,createPlayerShipGabble		,"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:4   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
+			{"Gorn"			,"active"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
 			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	},
 			{"Holmes"		,"active"	,createPlayerShipHolmes		,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
@@ -4919,10 +4919,10 @@ function createPlayerShipEagle()
 	playerEagle:setTypeName("Era")
 	playerEagle:setRotationMaxSpeed(15)									--faster spin (vs 10)
 --                 				 Arc, Dir, Range, CycleTime, Damage
-	playerEagle:setBeamWeapon(0,  10,	0,	1200, 		6.0, 	6.0)	--1 turret, 1 rear (vs 2 rear)
-	playerEagle:setBeamWeapon(1,  40,	0,	1200, 		6.0,	6.0)
+	playerEagle:setBeamWeapon(0,  10,   0,	1200, 		6.0, 	6.0)	--1 turret, 1 rear (vs 2 rear)
+	playerEagle:setBeamWeapon(1,  80, 180,	1200, 		6.0,	6.0)
 --										Arc,  Dir, Rotate speed
-	playerEagle:setBeamWeaponTurret(0,	270,	0,			 .5)		--slow turret
+	playerEagle:setBeamWeaponTurret(0,	300,    0,			 .5)		--slow turret
 	playerEagle:setShieldsMax(70, 100)									--stronger rear shields (vs 70, 70)
 	playerEagle:setShields(70, 100)
 	playerEagle:setLongRangeRadarRange(50000)							--longer long range sensors (vs 30000)
@@ -4959,6 +4959,28 @@ function createPlayerShipGabble()
 	playerGabble.normal_long_range_radar = 25000
 	playerGabble:addReputationPoints(50)
 	playerShipSpawned("Gabble")
+end
+function createPlayerShipGorn()
+	playerGorn = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Gorn")
+	playerGorn:setTypeName("Proto-Atlantis")
+	playerGorn:setRepairCrewCount(5)					--more repair crew (vs 3)
+	playerGorn:setJumpDriveRange(3000,30000)			--shorter jump drive range (vs 5-50)
+	playerGorn:setBeamWeaponEnergyPerFire(0,playerGorn:getBeamWeaponEnergyPerFire(0)*3)		--triple power use
+	playerGorn:setBeamWeaponHeatPerFire(0,playerGorn:getBeamWeaponHeatPerFire(0)*3)			--triple heat
+	playerGorn:setBeamWeaponEnergyPerFire(1,playerGorn:getBeamWeaponEnergyPerFire(1)*3)		--triple power use
+	playerGorn:setBeamWeaponHeatPerFire(1,playerGorn:getBeamWeaponHeatPerFire(1)*3)			--triple heat
+	playerGorn:setWeaponTubeExclusiveFor(0,"HVLI")		--HVLI only (vs all but Mine)
+	playerGorn:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs all but Mine)
+	playerGorn:setWeaponTubeExclusiveFor(2,"HVLI")		--HVLI only (vs all but Mine)
+	playerGorn:setWeaponTubeExclusiveFor(3,"Homing")	--Homing only (vs all but Mine)
+	playerGorn:setWeaponStorageMax("EMP",0)				--fewer (vs 6)
+	playerGorn:setWeaponStorage("EMP", 0)				
+	playerGorn:setWeaponStorageMax("Nuke",0)			--fewer (vs 4)
+	playerGorn:setWeaponStorage("Nuke", 0)	
+	playerGorn:setLongRangeRadarRange(28000)			--shorter longer range sensors (vs 30000)
+	playerGorn.normal_long_range_radar = 28000
+	playerGorn:addReputationPoints(50)
+	playerShipSpawned("Gorn")
 end
 function createPlayerShipHalberd()
 	--destroyed 29Feb2020
@@ -13346,6 +13368,316 @@ function resetPreviousSystemHealth(p)
 	end
 	if healthDiagnostic then print("end of reset previous system health function") end
 end
+
+function removeTractorObjectButtons(p)
+	if p.tractor_next_target_button ~= nil then
+		p:removeCustom(p.tractor_next_target_button)
+		p.tractor_next_target_button = nil
+	end
+	if p.tractor_target_button ~= nil then
+		p:removeCustom(p.tractor_target_button)
+		p.tractor_target_button = nil
+	end
+	if p.tractor_lock_button ~= nil then
+		p:removeCustom(p.tractor_lock_button)
+		p.tractor_lock_button = nil
+	end
+end
+function addTractorObjectButtons(p,tractor_objects)
+	local cpx, cpy = p:getPosition()
+	local tpx, tpy = p.tractor_target:getPosition()
+	if p.tractor_lock_button == nil then
+		if p:hasPlayerAtPosition("Engineering") then
+			p.tractor_lock_button = "tractor_lock_button"
+			p:addCustomButton("Engineering",p.tractor_lock_button,"Lock on Tractor",function()
+				local cpx, cpy = p:getPosition()
+				local tpx, tpy = p.tractor_target:getPosition()
+				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
+				if tractor_object_distance < 1000 then
+					p.tractor_target_lock = true
+					p.tractor_vector_x = tpx - cpx
+					p.tractor_vector_y = tpy - cpy
+					local locked_message = "locked_message"
+					p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
+				else
+					local lock_fail_message = "lock_fail_message"
+					p:addCustomMessage("Engineering",lock_fail_message,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
+					p.tractor_target = nil
+				end
+				removeTractorObjectButtons(p)
+			end)
+		end
+	end
+	if p.tractor_target_button == nil then
+		if p:hasPlayerAtPosition("Engineering") then
+			p.tractor_target_button = "tractor_target_button"
+			local label_type = p.tractor_target.typeName
+			if label_type == "CpuShip" or label_type == "PlayerSpaceship" then
+				label_type = p.tractor_target:getCallSign()
+			elseif label_type == "VisualAsteroid" then
+				label_type = "Asteroid"
+			end
+			p:addCustomButton("Engineering",p.tractor_target_button,string.format("Target %s",label_type),function()
+				string.format("")	--necessary to have global reference for Serious Proton engine
+				tpx, tpy = p.tractor_target:getPosition()
+				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+				local theta = math.atan(tpy - cpy,tpx - cpx)
+				if theta < 0 then
+					theta = theta + 6.2831853071795865
+				end
+				local angle = theta * 57.2957795130823209
+				angle = angle + 90
+				if angle > 360 then
+					angle = angle - 360
+				end
+				local target_description = "target_description"
+				p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
+			end)
+		end
+	end
+	if #tractor_objects > 1 then
+		if p.tractor_next_target_button == nil then
+			if p:hasPlayerAtPosition("Engineering") then
+				p.tractor_next_target_button = "tractor_next_target_button"
+				p:addCustomButton("Engineering",p.tractor_next_target_button,"Other tractor target",function()
+					local nearby_objects = p:getObjectsInRange(1000)
+					local tractor_objects = {}
+					if nearby_objects ~= nil and #nearby_objects > 1 then
+						for _, obj in ipairs(nearby_objects) do
+							if p ~= obj then
+								local object_type = obj.typeName
+								if object_type ~= nil then
+									if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+										table.insert(tractor_objects,obj)
+									end
+								end
+							end
+						end		--end of nearby object list loop
+						if #tractor_objects > 0 then
+							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+							if p.tractor_target ~= nil and p.tractor_target:isValid() then
+								local target_in_list = false
+								local matching_index = 0
+								for i=1,#tractor_objects do
+									if tractor_objects[i] == p.tractor_target then
+										target_in_list = true
+										matching_index = i
+										break
+									end
+								end		--end of check for the current target in list loop
+								if target_in_list then
+									if #tractor_objects > 1 then
+										if #tractor_objects > 2 then
+											local new_index = matching_index
+											repeat
+												new_index = math.random(1,#tractor_objects)
+											until(new_index ~= matching_index)
+											p.tractor_target = tractor_objects[new_index]
+										else
+											if matching_index == 1 then
+												p.tractor_target = tractor_objects[2]
+											else
+												p.tractor_target = tractor_objects[1]
+											end
+										end
+										removeTractorObjectButtons(p)
+										addTractorObjectButtons(p,tractor_objects)
+									end
+								else
+									p.tractor_target = tractor_objects[1]
+									removeTractorObjectButtons(p)
+									addTractorObjectButtons(p,tractor_objects)
+								end
+							else
+								p.tractor_target = tractor_objects[1]
+								addTractorObjectButtons(p,tractor_objects)
+							end
+						else	--no nearby tractorable objects
+							if p.tractor_target ~= nil then
+								removeTractorObjectButtons(p)
+								p.tractor_target = nil
+							end
+						end
+					else	--no nearby objects
+						if p.tractor_target ~= nil then
+							removeTractorObjectButtons(p)
+							p.tractor_target = nil
+						end
+					end
+				end)
+			end
+		end
+	else
+		if p.tractor_next_target_button ~= nil then
+			p:removeCustom(p.tractor_next_target_button)
+			p.tractor_next_target_button = nil
+		end
+	end
+end
+function movingObjects(delta)
+	if icarus_mobile_nebula_1 ~= nil and icarus_mobile_nebula_1:isValid() then
+		local neb_x, neb_y = icarus_mobile_nebula_1:getPosition()
+		if neb_x < -10000 then
+			neb_x = -10000
+		    icarus_mobile_nebula_1.increment = random(0,10)
+			if neb_y > 110000 then
+				--icarus_mobile_nebula_1.angle = random(1,89)
+				icarus_mobile_nebula_1.angle = random(271,359)
+			else
+				--icarus_mobile_nebula_1.angle = random(91,179)
+				icarus_mobile_nebula_1.angle = random(1,89)
+			end
+		end
+		if neb_x > 80000 then
+			neb_x = 80000
+		    icarus_mobile_nebula_1.increment = random(0,10)
+			if neb_y > 110000 then
+				--icarus_mobile_nebula_1.angle = random(271,359)
+				icarus_mobile_nebula_1.angle = random(181,269)
+			else
+				--icarus_mobile_nebula_1.angle = random(181,269)
+				icarus_mobile_nebula_1.angle = random(91,179)
+			end
+		end
+		if neb_y < 80000 then
+			neb_y = 80000
+		    icarus_mobile_nebula_1.increment = random(0,10)
+			if neb_x > 45000 then
+				--icarus_mobile_nebula_1.angle = random(181,269)
+				icarus_mobile_nebula_1.angle = random(91,179)
+			else
+				--icarus_mobile_nebula_1.angle = random(91,179)
+				icarus_mobile_nebula_1.angle = random(1,89)
+			end
+		end
+		if neb_y > 140000 then
+			neb_y = 140000
+		    icarus_mobile_nebula_1.increment = random(0,10)
+			if neb_x > 45000 then
+				--icarus_mobile_nebula_1.angle = random(271,359)
+				icarus_mobile_nebula_1.angle = random(181,269)
+			else
+				--icarus_mobile_nebula_1.angle = random(1,89)
+				icarus_mobile_nebula_1.angle = random(271,359)
+			end
+		end
+		local dx, dy = vectorFromAngle(icarus_mobile_nebula_1.angle,icarus_mobile_nebula_1.increment)
+		icarus_mobile_nebula_1:setPosition(neb_x+dx,neb_y+dy)
+		local nr = icarus_mobile_nebula_1:getRotation()
+		nr = nr + .01
+		if nr > 360 then 
+			nr = nr - 360
+		end
+		icarus_mobile_nebula_1:setRotation(nr)
+	end
+	if kentar_mobile_nebula_1 ~= nil and kentar_mobile_nebula_1:isValid() then
+		if kentar_mobile_nebula_1.lower_black_hole then
+			--print(string.format("Lower start angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
+			kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle + kentar_mobile_nebula_1.increment
+			if kentar_mobile_nebula_1.angle > 360 then
+				kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle - 360
+			end
+			--print(string.format("Lower mod 1 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
+			if kentar_mobile_nebula_1.ready then
+				if kentar_mobile_nebula_1.angle >= 315 then
+					--switch
+					kentar_mobile_nebula_1.lower_black_hole = false
+					kentar_mobile_nebula_1.angle = 135 - (kentar_mobile_nebula_1.angle - 315)
+					kentar_mobile_nebula_1.center_x = 290000
+					kentar_mobile_nebula_1.center_y = 210000
+					kentar_mobile_nebula_1.ready = false
+				end
+			else
+				if kentar_mobile_nebula_1.angle < 315 then
+					kentar_mobile_nebula_1.ready = true
+				end
+			end
+			--print(string.format("Lower mod 2 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
+		else
+			--print(string.format("Upper start angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
+			kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle - kentar_mobile_nebula_1.increment
+			if kentar_mobile_nebula_1.angle < 0 then
+				kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle + 360
+			end
+			--print(string.format("Upper mod 1 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
+			if kentar_mobile_nebula_1.ready then
+				if kentar_mobile_nebula_1.angle <= 135 then
+					--switch
+					kentar_mobile_nebula_1.lower_black_hole = true
+					kentar_mobile_nebula_1.angle = 315 + (135 - kentar_mobile_nebula_1.angle)
+					kentar_mobile_nebula_1.center_x = 210000
+					kentar_mobile_nebula_1.center_y = 290000
+					kentar_mobile_nebula_1.ready = false
+				end
+			else
+				if kentar_mobile_nebula_1.angle > 135 then
+					kentar_mobile_nebula_1.ready = true
+				end
+			end
+			--print(string.format("Upper mod 2 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
+		end
+		local px,py = vectorFromAngle(kentar_mobile_nebula_1.angle,kentar_mobile_nebula_1.mobile_neb_dist)
+		kentar_mobile_nebula_1:setPosition(kentar_mobile_nebula_1.center_x+px,kentar_mobile_nebula_1.center_y+py)
+	end
+	if stationKeyhole23 ~= nil and stationKeyhole23:isValid() then
+		stationKeyhole23.total_time = stationKeyhole23.total_time + delta
+		local orbit_distance
+		local center_x=210000
+		local center_y=290000
+		local dist=3600
+		local orbit_pos=stationKeyhole23.total_time/15 --math.fmod(total_time/1,
+		stationKeyhole23:setPosition(center_x+(math.cos(orbit_pos)*dist),center_y+(math.sin(orbit_pos)*dist))
+	end
+	if mobile_defense_platform ~= nil and #mobile_defense_platform > 0 then
+		for i=1,#mobile_defense_platform do
+			local current_platform = mobile_defense_platform[i]
+			if current_platform ~= nil and current_platform:isValid() then
+				current_platform.travel_angle = current_platform.travel_angle + current_platform.orbit_increment
+				if current_platform.orbit_increment > 0 then
+					if current_platform.travel_angle > 360 then
+						current_platform.travel_angle = current_platform.travel_angle - 360
+					end
+				else
+					if current_platform.travel_angle < 0 then
+						current_platform.travel_angle = current_platform.travel_angle + 360
+					end
+				end
+				local new_x, new_y = vectorFromAngle(current_platform.travel_angle,current_platform.distance)
+				current_platform:setPosition(current_platform.origin_x+new_x,current_platform.origin_y+new_y)
+			end
+		end
+	end
+	if mobile_mine ~= nil and #mobile_mine > 0 then
+		for i=1,#mobile_mine do
+			local current_mine = mobile_mine[i]
+			if current_mine ~= nil and current_mine:isValid() then
+				current_mine.travel_angle = current_mine.travel_angle + current_mine.orbit_increment
+				if current_mine.orbit_increment > 0 then
+					if current_mine.travel_angle > 360 then
+						current_mine.travel_angle = current_mine.travel_angle - 360
+					end
+				else
+					if current_mine.travel_angle < 0 then
+						current_mine.travel_angle = current_mine.travel_angle + 360
+					end
+				end
+				local new_x, new_y = vectorFromAngle(current_mine.travel_angle,current_mine.distance)
+				current_mine:setPosition(current_mine.origin_x+new_x,current_mine.origin_y+new_y)
+			end
+		end
+	end
+	if rotate_station ~= nil and #rotate_station > 0 then
+		for i=1,#rotate_station do
+			local current_station = rotate_station[i]
+			if current_station ~= nil and current_station:isValid() then
+				current_station:setRotation(current_station:getRotation()+.1)
+				if current_station:getRotation() >= 360 then
+					current_station:setRotation(0)
+				end
+			end
+		end
+	end
+end
 function update(delta)
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
@@ -14185,313 +14517,4 @@ function update(delta)
 		plotPulse(delta)
 	end
 	if updateDiagnostic then print("update: end of update function") end
-end
-function removeTractorObjectButtons(p)
-	if p.tractor_next_target_button ~= nil then
-		p:removeCustom(p.tractor_next_target_button)
-		p.tractor_next_target_button = nil
-	end
-	if p.tractor_target_button ~= nil then
-		p:removeCustom(p.tractor_target_button)
-		p.tractor_target_button = nil
-	end
-	if p.tractor_lock_button ~= nil then
-		p:removeCustom(p.tractor_lock_button)
-		p.tractor_lock_button = nil
-	end
-end
-function addTractorObjectButtons(p,tractor_objects)
-	local cpx, cpy = p:getPosition()
-	local tpx, tpy = p.tractor_target:getPosition()
-	if p.tractor_lock_button == nil then
-		if p:hasPlayerAtPosition("Engineering") then
-			p.tractor_lock_button = "tractor_lock_button"
-			p:addCustomButton("Engineering",p.tractor_lock_button,"Lock on Tractor",function()
-				local cpx, cpy = p:getPosition()
-				local tpx, tpy = p.tractor_target:getPosition()
-				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
-				if tractor_object_distance < 1000 then
-					p.tractor_target_lock = true
-					p.tractor_vector_x = tpx - cpx
-					p.tractor_vector_y = tpy - cpy
-					local locked_message = "locked_message"
-					p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
-				else
-					local lock_fail_message = "lock_fail_message"
-					p:addCustomMessage("Engineering",lock_fail_message,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
-					p.tractor_target = nil
-				end
-				removeTractorObjectButtons(p)
-			end)
-		end
-	end
-	if p.tractor_target_button == nil then
-		if p:hasPlayerAtPosition("Engineering") then
-			p.tractor_target_button = "tractor_target_button"
-			local label_type = p.tractor_target.typeName
-			if label_type == "CpuShip" or label_type == "PlayerSpaceship" then
-				label_type = p.tractor_target:getCallSign()
-			elseif label_type == "VisualAsteroid" then
-				label_type = "Asteroid"
-			end
-			p:addCustomButton("Engineering",p.tractor_target_button,string.format("Target %s",label_type),function()
-				string.format("")	--necessary to have global reference for Serious Proton engine
-				tpx, tpy = p.tractor_target:getPosition()
-				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
-				local theta = math.atan(tpy - cpy,tpx - cpx)
-				if theta < 0 then
-					theta = theta + 6.2831853071795865
-				end
-				local angle = theta * 57.2957795130823209
-				angle = angle + 90
-				if angle > 360 then
-					angle = angle - 360
-				end
-				local target_description = "target_description"
-				p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
-			end)
-		end
-	end
-	if #tractor_objects > 1 then
-		if p.tractor_next_target_button == nil then
-			if p:hasPlayerAtPosition("Engineering") then
-				p.tractor_next_target_button = "tractor_next_target_button"
-				p:addCustomButton("Engineering",p.tractor_next_target_button,"Other tractor target",function()
-					local nearby_objects = p:getObjectsInRange(1000)
-					local tractor_objects = {}
-					if nearby_objects ~= nil and #nearby_objects > 1 then
-						for _, obj in ipairs(nearby_objects) do
-							if p ~= obj then
-								local object_type = obj.typeName
-								if object_type ~= nil then
-									if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
-										table.insert(tractor_objects,obj)
-									end
-								end
-							end
-						end		--end of nearby object list loop
-						if #tractor_objects > 0 then
-							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
-							if p.tractor_target ~= nil and p.tractor_target:isValid() then
-								local target_in_list = false
-								local matching_index = 0
-								for i=1,#tractor_objects do
-									if tractor_objects[i] == p.tractor_target then
-										target_in_list = true
-										matching_index = i
-										break
-									end
-								end		--end of check for the current target in list loop
-								if target_in_list then
-									if #tractor_objects > 1 then
-										if #tractor_objects > 2 then
-											local new_index = matching_index
-											repeat
-												new_index = math.random(1,#tractor_objects)
-											until(new_index ~= matching_index)
-											p.tractor_target = tractor_objects[new_index]
-										else
-											if matching_index == 1 then
-												p.tractor_target = tractor_objects[2]
-											else
-												p.tractor_target = tractor_objects[1]
-											end
-										end
-										removeTractorObjectButtons(p)
-										addTractorObjectButtons(p,tractor_objects)
-									end
-								else
-									p.tractor_target = tractor_objects[1]
-									removeTractorObjectButtons(p)
-									addTractorObjectButtons(p,tractor_objects)
-								end
-							else
-								p.tractor_target = tractor_objects[1]
-								addTractorObjectButtons(p,tractor_objects)
-							end
-						else	--no nearby tractorable objects
-							if p.tractor_target ~= nil then
-								removeTractorObjectButtons(p)
-								p.tractor_target = nil
-							end
-						end
-					else	--no nearby objects
-						if p.tractor_target ~= nil then
-							removeTractorObjectButtons(p)
-							p.tractor_target = nil
-						end
-					end
-				end)
-			end
-		end
-	else
-		if p.tractor_next_target_button ~= nil then
-			p:removeCustom(p.tractor_next_target_button)
-			p.tractor_next_target_button = nil
-		end
-	end
-end
-function movingObjects(delta)
-	if icarus_mobile_nebula_1 ~= nil and icarus_mobile_nebula_1:isValid() then
-		local neb_x, neb_y = icarus_mobile_nebula_1:getPosition()
-		if neb_x < -10000 then
-			neb_x = -10000
-		    icarus_mobile_nebula_1.increment = random(0,10)
-			if neb_y > 110000 then
-				--icarus_mobile_nebula_1.angle = random(1,89)
-				icarus_mobile_nebula_1.angle = random(271,359)
-			else
-				--icarus_mobile_nebula_1.angle = random(91,179)
-				icarus_mobile_nebula_1.angle = random(1,89)
-			end
-		end
-		if neb_x > 80000 then
-			neb_x = 80000
-		    icarus_mobile_nebula_1.increment = random(0,10)
-			if neb_y > 110000 then
-				--icarus_mobile_nebula_1.angle = random(271,359)
-				icarus_mobile_nebula_1.angle = random(181,269)
-			else
-				--icarus_mobile_nebula_1.angle = random(181,269)
-				icarus_mobile_nebula_1.angle = random(91,179)
-			end
-		end
-		if neb_y < 80000 then
-			neb_y = 80000
-		    icarus_mobile_nebula_1.increment = random(0,10)
-			if neb_x > 45000 then
-				--icarus_mobile_nebula_1.angle = random(181,269)
-				icarus_mobile_nebula_1.angle = random(91,179)
-			else
-				--icarus_mobile_nebula_1.angle = random(91,179)
-				icarus_mobile_nebula_1.angle = random(1,89)
-			end
-		end
-		if neb_y > 140000 then
-			neb_y = 140000
-		    icarus_mobile_nebula_1.increment = random(0,10)
-			if neb_x > 45000 then
-				--icarus_mobile_nebula_1.angle = random(271,359)
-				icarus_mobile_nebula_1.angle = random(181,269)
-			else
-				--icarus_mobile_nebula_1.angle = random(1,89)
-				icarus_mobile_nebula_1.angle = random(271,359)
-			end
-		end
-		local dx, dy = vectorFromAngle(icarus_mobile_nebula_1.angle,icarus_mobile_nebula_1.increment)
-		icarus_mobile_nebula_1:setPosition(neb_x+dx,neb_y+dy)
-		local nr = icarus_mobile_nebula_1:getRotation()
-		nr = nr + .01
-		if nr > 360 then 
-			nr = nr - 360
-		end
-		icarus_mobile_nebula_1:setRotation(nr)
-	end
-	if kentar_mobile_nebula_1 ~= nil and kentar_mobile_nebula_1:isValid() then
-		if kentar_mobile_nebula_1.lower_black_hole then
-			--print(string.format("Lower start angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
-			kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle + kentar_mobile_nebula_1.increment
-			if kentar_mobile_nebula_1.angle > 360 then
-				kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle - 360
-			end
-			--print(string.format("Lower mod 1 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
-			if kentar_mobile_nebula_1.ready then
-				if kentar_mobile_nebula_1.angle >= 315 then
-					--switch
-					kentar_mobile_nebula_1.lower_black_hole = false
-					kentar_mobile_nebula_1.angle = 135 - (kentar_mobile_nebula_1.angle - 315)
-					kentar_mobile_nebula_1.center_x = 290000
-					kentar_mobile_nebula_1.center_y = 210000
-					kentar_mobile_nebula_1.ready = false
-				end
-			else
-				if kentar_mobile_nebula_1.angle < 315 then
-					kentar_mobile_nebula_1.ready = true
-				end
-			end
-			--print(string.format("Lower mod 2 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
-		else
-			--print(string.format("Upper start angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
-			kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle - kentar_mobile_nebula_1.increment
-			if kentar_mobile_nebula_1.angle < 0 then
-				kentar_mobile_nebula_1.angle = kentar_mobile_nebula_1.angle + 360
-			end
-			--print(string.format("Upper mod 1 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
-			if kentar_mobile_nebula_1.ready then
-				if kentar_mobile_nebula_1.angle <= 135 then
-					--switch
-					kentar_mobile_nebula_1.lower_black_hole = true
-					kentar_mobile_nebula_1.angle = 315 + (135 - kentar_mobile_nebula_1.angle)
-					kentar_mobile_nebula_1.center_x = 210000
-					kentar_mobile_nebula_1.center_y = 290000
-					kentar_mobile_nebula_1.ready = false
-				end
-			else
-				if kentar_mobile_nebula_1.angle > 135 then
-					kentar_mobile_nebula_1.ready = true
-				end
-			end
-			--print(string.format("Upper mod 2 angle: %f, ready: %s",kentar_mobile_nebula_1.angle,tostring(kentar_mobile_nebula_1.ready)))
-		end
-		local px,py = vectorFromAngle(kentar_mobile_nebula_1.angle,kentar_mobile_nebula_1.mobile_neb_dist)
-		kentar_mobile_nebula_1:setPosition(kentar_mobile_nebula_1.center_x+px,kentar_mobile_nebula_1.center_y+py)
-	end
-	if stationKeyhole23 ~= nil and stationKeyhole23:isValid() then
-		stationKeyhole23.total_time = stationKeyhole23.total_time + delta
-		local orbit_distance
-		local center_x=210000
-		local center_y=290000
-		local dist=3600
-		local orbit_pos=stationKeyhole23.total_time/15 --math.fmod(total_time/1,
-		stationKeyhole23:setPosition(center_x+(math.cos(orbit_pos)*dist),center_y+(math.sin(orbit_pos)*dist))
-	end
-	if mobile_defense_platform ~= nil and #mobile_defense_platform > 0 then
-		for i=1,#mobile_defense_platform do
-			local current_platform = mobile_defense_platform[i]
-			if current_platform ~= nil and current_platform:isValid() then
-				current_platform.travel_angle = current_platform.travel_angle + current_platform.orbit_increment
-				if current_platform.orbit_increment > 0 then
-					if current_platform.travel_angle > 360 then
-						current_platform.travel_angle = current_platform.travel_angle - 360
-					end
-				else
-					if current_platform.travel_angle < 0 then
-						current_platform.travel_angle = current_platform.travel_angle + 360
-					end
-				end
-				local new_x, new_y = vectorFromAngle(current_platform.travel_angle,current_platform.distance)
-				current_platform:setPosition(current_platform.origin_x+new_x,current_platform.origin_y+new_y)
-			end
-		end
-	end
-	if mobile_mine ~= nil and #mobile_mine > 0 then
-		for i=1,#mobile_mine do
-			local current_mine = mobile_mine[i]
-			if current_mine ~= nil and current_mine:isValid() then
-				current_mine.travel_angle = current_mine.travel_angle + current_mine.orbit_increment
-				if current_mine.orbit_increment > 0 then
-					if current_mine.travel_angle > 360 then
-						current_mine.travel_angle = current_mine.travel_angle - 360
-					end
-				else
-					if current_mine.travel_angle < 0 then
-						current_mine.travel_angle = current_mine.travel_angle + 360
-					end
-				end
-				local new_x, new_y = vectorFromAngle(current_mine.travel_angle,current_mine.distance)
-				current_mine:setPosition(current_mine.origin_x+new_x,current_mine.origin_y+new_y)
-			end
-		end
-	end
-	if rotate_station ~= nil and #rotate_station > 0 then
-		for i=1,#rotate_station do
-			local current_station = rotate_station[i]
-			if current_station ~= nil and current_station:isValid() then
-				current_station:setRotation(current_station:getRotation()+.1)
-				if current_station:getRotation() >= 360 then
-					current_station:setRotation(0)
-				end
-			end
-		end
-	end
 end
