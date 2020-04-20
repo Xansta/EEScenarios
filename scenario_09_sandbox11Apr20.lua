@@ -14,7 +14,7 @@
 -- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+SCRAPPED-->List	+DESCRIBE SCRAPPED--> List	+MAX SYSTEM------+	  | | V
 -- +TWEAK TERRAIN---+ | | |	| V											  | | 		+DESCRIPTIONS----->	+DESCRIBE STOCK-----> List	+CONSOLE MESSAGE |	  | | ADD REPAIR CREW		
 -- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 								   | |	  | | REMOVE REPAIR CREW	
--- +END SESSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 		+SELECT|CHANGE MSG OBJ <---+ |	  | V	
+-- +END MISSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 		+SELECT|CHANGE MSG OBJ <---+ |	  | V	
 --				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR				+SELECT PLAYER				 |	  |	+REMOVE CARGO--> List
 --				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+				+SEND TO CONSOLE----+		 |	  |	+ADD MINERAL---> List
 --				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|									|		 |	  |	+ADD COMPONENT-> List
@@ -65,22 +65,22 @@
 --				| START TIMER	| |	| |	HELM	  |	| | | V
 --				V				| |	| |	WEAPONS	  |	| | | DROP MARINES*	
 --		-MAIN FROM END			| |	| |	ENGINEER  |	| | | EXTRACT MARINES	
---	+---+REGION REPORT			| | | |	SCIENCE	  |	| | | ASSOCIATED		
---	|	+FACTION VICTORY----+	| | | |	RELAY	  |	| | | +NEAR TO--> [Near To]		
---	|						|	| | | V			  |	| | V					  +----------->	500-100=400		
---	|						V	| | | 1 MINUTE	  |	| | DROP ENGINEERS*		  |				500+100=600		
---	|			[Victory List]	| | | 3 MINUTES	  |	| | EXTRACT ENGINEERS	  |								[Victory List]
---	V							| | | 5 MINUTES*  |	| | ASSOCIATED			  |	+--------->	1-1=0			-FROM VICTORY		
---	-MAIN FROM REGION			| | | 10 MINUTES  |	| | +NEAR TO--> [Near To] |	|			1+1=2			HUMAN VICTORY		
---	-END SESSION				| | | 15 MINUTES  |	| V						  | |							KRAYLOR VICTORY		
---	ICARUS REPORT				| | | 20 MINUTES  |	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0			EXUARI VICTORY		
---								| | | 30 MINUTES  |	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2			GHOST VICTORY		
---								| | | 45 MINUTES  |	| ASSOCIATED			  |	| |							ARLENIAN VICTORY	
---	+---------------------------+ |	V			  |	| +NEAR TO--> [Near To]	  | | | +----->	2-1=1			INDEPENDENT VICTORY	
---	|				+-------------+	TIMER*		  |	V						  | | | |		2+1=3			KTLITAN VICTORY		
---	V				V				DEATH		  |	+ENERGY 500---------------+ | | |						TSN VICTORY			
---	DEL 1 SECOND	ADD 1 SECOND	BREAKDOWN	  |	+NUKE 1---------------------+ | | +---> 4-1=3			USN VICTORY			
---	DEL 3 SECONDS	ADD 3 SECONDS	MISSION		  |	+EMP 1------------------------+ | |		4+1=5			CUF VICTORY			
+--		HUMAN VICTORY			| | | |	SCIENCE	  |	| | | ASSOCIATED		
+--		KRAYLOR VICTORY			| | | |	RELAY	  |	| | | +NEAR TO--> [Near To]		
+--		EXUARI VICTORY			| | | V			  |	| | V					  +----------->	500-100=400
+--		GHOST VICTORY			| | | 1 MINUTE	  |	| | DROP ENGINEERS*		  |				500+100=600
+--		ARLENIAN VICTORY		| | | 3 MINUTES	  |	| | EXTRACT ENGINEERS	  |			
+--		INDEPENDENT VICTORY		| | | 5 MINUTES*  |	| | ASSOCIATED			  |	+--------->	1-1=0
+--		KTLITAN VICTORY			| | | 10 MINUTES  |	| | +NEAR TO--> [Near To] |	|			1+1=2
+--		TSN VICTORY				| | | 15 MINUTES  |	| V						  | |			
+--		USN VICTORY				| | | 20 MINUTES  |	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0
+--		CUF VICTORY				| | | 30 MINUTES  |	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2
+--								| | | 45 MINUTES  |	| ASSOCIATED			  |	| |			
+--	+---------------------------+ |	V			  |	| +NEAR TO--> [Near To]	  | | | +----->	2-1=1
+--	|				+-------------+	TIMER*		  |	V						  | | | |		2+1=3
+--	V				V				DEATH		  |	+ENERGY 500---------------+ | | |				
+--	DEL 1 SECOND	ADD 1 SECOND	BREAKDOWN	  |	+NUKE 1---------------------+ | | +---> 4-1=3			
+--	DEL 3 SECONDS	ADD 3 SECONDS	MISSION		  |	+EMP 1------------------------+ | |		4+1=5			
 --	DEL 5 SECONDS	ADD 5 SECONDS	DEPARTURE	  |	+MINE 2-------------------------+ |					
 --	DEL 10 SECONDS	ADD 10 SECONDS	DESTRUCTION	  |	+HOMING 4-------------------------+	+->	0+1=1
 --									DISCOVERY	  |	+HVLI 0-----------------------------+			
@@ -126,7 +126,6 @@ function createSkeletonUniverse()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
-	station_names = {}
 	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationIcarus.comms_data = {
     	friendlyness = 75,
@@ -134,7 +133,6 @@ function createSkeletonUniverse()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
-        sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -144,7 +142,6 @@ function createSkeletonUniverse()
         general_information = "Shipyard for human navy ships. Regional headquarters. Development site for the Atlantis model ship",
     	history = "As humans ran up against more and more unfriendly races, this station became the nexus for research and development of new space ship building technologies. After a few experimental accidents involving militarily driven scientists and fabrication specialists, the station was renamed from Research-37 to Icarus referencing the mythical figure that flew too close to the sun"
 	}
-	station_names[stationIcarus:getCallSign()] = {stationIcarus:getSectorName(), stationIcarus}
 	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(246000,247000):setCallSign("Kentar"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationKentar.comms_data = {
     	friendlyness = 68,
@@ -152,7 +149,6 @@ function createSkeletonUniverse()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
-        sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -163,7 +159,6 @@ function createSkeletonUniverse()
         general_information = "Regional headquarters. Jumping off point for actions against Kraylor activity",
     	history = "This used to be a scientific observation and research station. As the Kraylors have grown more agressive, it's been built up and serves as a strategic cornerstone for actions against the Kraylors. The name Kentar derives from Kentauros or Centaurus, after the nearby star's prominent position in the constellation Centaurus"
 	}
-	station_names[stationKentar:getCallSign()] = {stationKentar:getSectorName(), stationKentar}
 	createFleurNebula()
 	BlackHole():setPosition(-12443,-23245)
     BlackHole():setPosition(87747, -3384)
@@ -225,11 +220,10 @@ function setConstants()
 	--stsl: Ship Template Score List
 	--stbl: Ship Template Boolean List
 	--nsfl: Non Standard Function List
-	stnl = {"WZ-Lindworm","Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	stsl = {9            ,28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	stbl = {false        ,false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
+	stnl = {"Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
+	stsl = {28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
+	stbl = {false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
 	nsfl = {}
-	table.insert(nsfl,wzLindworm)
 	table.insert(nsfl,elaraP2)
 	table.insert(nsfl,droneJacket)
 	table.insert(nsfl,droneHeavy)
@@ -257,9 +251,9 @@ function setConstants()
 	stslAdder = {15      ,15        ,11         ,10         ,9          ,5          ,7          ,6          ,8          ,18       }
 	stblAdder = {false   ,false     ,false      ,false      ,false      ,false      ,true       ,true       ,true       ,true     }
 	--Missiler Ship Template Name List, Score List and Boolean List
-	stnlMissiler = {"WZ-Lindworm","WX-Lindworm","Piranha F8","Piranha F12","Ranus U","Missile Cruiser","Storm"}
-	stslMissiler = {9            ,7            ,15          ,15           ,25       ,14               ,22     }
-	stblMissiler = {false        ,true         ,true        ,true         ,true     ,true             ,true   }
+	stnlMissiler = {"WX-Lindworm","Piranha F8","Piranha F12","Ranus U","Missile Cruiser","Storm"}
+	stslMissiler = {7            ,15          ,15           ,25       ,14               ,22     }
+	stblMissiler = {true         ,true        ,true         ,true     ,true             ,true   }
 	--Beamer Ship Template Name List, Score List and Boolean List
 	stnlBeamer = {"Stalker R5","Stalker Q5","K2 Fighter","K3 Fighter","Nirvana R3","MV52 Hornet","MT52 Hornet","MU52 Hornet","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Fighter","Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout"}
 	stslBeamer = {22          ,22          ,7           ,8           ,12          ,6            ,5            ,5            ,19          ,20           ,25          ,25          ,6        ,18       ,30          ,27            ,80           ,100            ,65               ,6                ,40              ,4              ,48              ,8              }
@@ -273,13 +267,13 @@ function setConstants()
 	stslChaser = {28        ,15      ,15        ,22          ,22          ,33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
 	stblChaser = {false     ,false   ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
 	--Fighter Ship Template Name List, Score List and Boolean List
-	stnlFighter = {"WZ-Lindworm","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
-	stslFighter = {9            ,4             ,5            ,3           ,15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
-	stblFighter = {false        ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
+	stnlFighter = {"Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
+	stslFighter = {4             ,5            ,3           ,15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
+	stblFighter = {false         ,false        ,false       ,false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
 	--Non database Ship Template Name List, Score List and Boolean List
-	stnlNonDB = {"WZ-Lindworm","Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
-	stslNonDB = {9            ,28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
-	stblNonDB = {false        ,false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
+	stnlNonDB = {"Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
+	stslNonDB = {28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
+	stblNonDB = {false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
 	--Drone Ship Template Name List, Score List and Boolean List
 	stnlDrone = {"Jacket Drone","Heavy Drone","Lite Drone","Ktlitan Drone"}
 	stslDrone = {4             ,5            ,3           ,4}
@@ -292,41 +286,41 @@ function setConstants()
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
 
-	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false	},
-						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false	},
-						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true	},
-						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true	},
-						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
-						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
-						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false	},
-						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
-						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true	},
-						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false	},
-						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false	},
-						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true	},
-						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true	},
-						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false	},
-						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
-						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false	},
-						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
-						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false	},
-						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
-						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
-						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
-						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true	},
-						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false	},
-						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true	},
-						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false	},
-						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false	},
-						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true	},
-						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true	},
-						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false	},
-						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
+	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000},
+						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000},
+						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000},
+						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
+						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500},
+						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000},
+						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000},
+						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500},
+						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000},
+						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000},
+						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000},
+						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000},
+						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
+						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500},
+						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
+						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
+						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
+						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000},
+						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000},
+						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000},
+						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000},
+						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000},
+						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000},
+						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000},
+						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000},
+						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000},
+						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
+						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
 					}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
@@ -704,12 +698,6 @@ function setConstants()
 	outside_mine_gap_count = 3
 	inside_mine_orbit = "No"
 	outside_mine_orbit = "No"
-	tractor_beam_string = {
-		"beam_blue.png",
-		"shield_hit_effect.png",
-		"electric_sphere_texture.png"
-	}
-	tractor_drain = .000005
 end
 ----------------------------
 --  Main Menu of Buttons  --
@@ -724,7 +712,7 @@ end
 -- +SCAN CLUE			F	scanClue
 -- +TWEAK TERRAIN		F	tweakTerrain
 -- +COUNTDOWN TIMER		F	countdownTimer
--- +END SESSION			F	endSession
+-- +END MISSION			F	endMission
 function initialGMFunctions()
 	clearGMFunctions()
 	addGMFunction("+Initial Set Up",initialSetUp)
@@ -735,7 +723,7 @@ function initialGMFunctions()
 	addGMFunction("+Scan Clue",scanClue)
 	addGMFunction("+Tweak Terrain",tweakTerrain)
 	addGMFunction("+Countdown Timer",countdownTimer)
-	addGMFunction("+End Session",endSession)
+	addGMFunction("+End Mission",endMission)
 end
 ----------------------
 --  Initial set up  --
@@ -841,8 +829,6 @@ function assignPlayerShipScore(p)
 			p.cargo = p.maxCargo
 			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
 			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
-			p.tractor = playerShipStats[tempTypeName].tractor
-			p.tractor_target_lock = false
 			p.max_reactor = 1
 			p.max_beam = 1
 			p.max_missile = 1
@@ -856,7 +842,6 @@ function assignPlayerShipScore(p)
 			p.shipScore = 24
 			p.maxCargo = 5
 			p.cargo = p.maxCargo
-			p.tractor = false
 		end
 	else
 		p.shipScore = 24
@@ -1594,17 +1579,53 @@ function countdownTimer()
 	end
 end
 -------------------
---	End Session  --
+--	End Mission  --
 -------------------
 -- Button Text		   FD*	Related Function(s)
--- -MAIN FROM END		F	initialGMFunctions
--- +REGION REPORT		F	regionReport
--- +FACTION VICTORY		F	endMission
-function endSession()
+-- -MAIN FROM END		F	inline
+-- HUMAN VICTORY		F	inline
+-- KRAYLOR VICTORY		F	inline
+-- EXUARI VICTORY		F	inline
+-- GHOST VICTORY		F	inline
+-- ARLENIAN VICTORY		F	inline
+-- INDEPENDENT VICTORY	F	inline
+-- KTLITAN VICTORY		F	inline
+-- TSN VICTORY			F	inline
+-- USN VICTORY			F	inline
+-- CUF VICTORY			F	inline
+function endMission()
 	clearGMFunctions()
-	addGMFunction("-Main From End",initialGMFunctions)
-	addGMFunction("+Region Report",regionReport)
-	addGMFunction("+Faction Victory",endMission)
+	addGMFunction("-Main from End",initialGMFunctions)
+	addGMFunction("Human Victory",function()
+		victory("Human Navy")
+	end)
+	addGMFunction("Kraylor Victory",function()
+		victory("Kraylor")
+	end)
+	addGMFunction("Exuari Victory",function() 
+		victory("Exuari")
+	end)
+	addGMFunction("Ghost Victory",function() 
+		victory("Ghosts")
+	end)
+	addGMFunction("Arlenian Victory",function() 
+		victory("Arlenians")	
+	end)
+	addGMFunction("Independent Victory",function() 
+		victory("Independent")
+	end)
+	addGMFunction("Ktlitan Victory",function() 
+		victory("Ktlitans")
+	end)
+	addGMFunction("TSN Victory",function()
+		victory("TSN")
+	end)
+	addGMFunction("USN Victory",function()
+		victory("USN")
+	end)
+	addGMFunction("CUF Victory",function()
+		victory("CUF")
+	end)
 end
 -------------------------------------
 --	Initial Set Up > Start Region  --
@@ -1888,14 +1909,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-	--	if i == 4 then
-	--		dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
-	--		dp4Zone:setColor(0,128,0)
-	--	else		
+		if i == 4 then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
+			dp4Zone:setColor(0,128,0)
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
-			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(icarusDefensePlatforms,dp)
-	--	end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -2027,14 +2047,11 @@ function createIcarusStations()
         trade = {	food = true, medicine = false, luxury = tradeLuxury },
         public_relations = true,
         general_information = "Rest stop, refueling and convenience shopping",
-    	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop\n\nFree drinks for the crew of the freighter Gamma Hydra"
+    	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop"
 	}
-	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
-	--local pistilZone = squareZone(24834, 20416, "Pistil 2")
-	--pistilZone:setColor(0,128,0)
 	--Pistil
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 2"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2053,9 +2070,8 @@ function createIcarusStations()
         			dilithium = math.random(40,200)	},
         public_relations = true,
         general_information = "Studying, observing, measuring the Fleur nebula",
-    	history = "The station naming continued in the vein of the nebula which we study. Station personnel have started paying closer attention to readings indicating enemy vessels in the area after some stray Exuari got past the defensive patrols and destroyed the station."
+    	history = "The station naming continued in the vein of the nebula which we study"
 	}
-	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
 	local macassaZone = squareZone(16335, -18034, "Macassa 6")
 	macassaZone:setColor(0,128,0)
@@ -2074,7 +2090,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(13,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
-        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	gold = 	{quantity = math.random(4,8),	cost = math.random(60,70)},
@@ -2084,7 +2099,6 @@ function createIcarusStations()
         general_information = "Station location facilitates mining the nearby asteroids. This is the 5th time the staion has been rebuilt: 5 iterations, 9 plans, 3 years hence the name Macassa 17",
     	history = "The station was named in the hopes that the asteroids will be as productive as the Macassa mine was on Earth in the mid to late 1900s"
 	}
-	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--]]
 	--Maximilian
@@ -2101,7 +2115,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2,				HVLI = math.random(2,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
-        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	filament = 	{quantity = math.random(4,8),	cost = math.random(50,80)}	},
@@ -2110,7 +2123,6 @@ function createIcarusStations()
         general_information = "Observe and measure black hole for scientific understanding purposes",
     	history = "One of the researchers also develops software and watches ancient films. He was put in charge of naming the station so he named it after a mute evil robot depicted in an old movie about a black hole from the late 1970s"
 	}
-	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
 	--Aquarius F4m9
     stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius III"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2125,7 +2137,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = 5,				HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
-        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -2135,7 +2146,6 @@ function createIcarusStations()
         general_information = "Facilitate mining the nearby asteroids",
     	history = "Station named after the platinum mine on ancient Earth on the African continent"
 	}
-	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
 	local wookieZone = squareZone(-11280, 7425, "Tri-Wookie")
 	wookieZone:setColor(51,153,255)
@@ -2161,7 +2171,6 @@ function createIcarusStations()
         general_information = "Researchers here study the Wookie language as well as several other languages of intelligent species",
     	history = "The first language studied when the station was founded was Wookie. Wookie language and culture is still a major focus of study"
 	}
-	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
 	--]]
 	--Elysium F4m2.5
@@ -2184,7 +2193,6 @@ function createIcarusStations()
         general_information = "This is where all the wealthy species shop and stay when traveling",
     	history = "Named after a fictional station from early 21st century literature as a reminder of what can happen if people don't pay attention to what goes on in all levels of the society in which they live"
 	}
-	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
 	--Nerva E4m8
     stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2209,7 +2217,6 @@ function createIcarusStations()
         general_information = "Observatory of stellar phenomena and space ship traffic",
     	history = "A combination of science and military staff share the various delicate instruments on this station. Originally designed to watch for incoming Kraylor and Exuari ships, other stations now share the early warning military purpose and these sensors double as research resources"
 	}
-	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Cindy's Folly
     stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 2"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2234,7 +2241,6 @@ function createIcarusStations()
         general_information = "Mine nearby asteroids",
     	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes"
 	}
-	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
 	--Speculator
     stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2248,7 +2254,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 10000, cost = 20},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	nickel = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -2259,7 +2264,6 @@ function createIcarusStations()
         general_information = "Mining operations are the primary purpose, but there are scientists here conducting research on the mobile nebula in the area",
     	history = "A consorium of mining interests and scientists banded together to create this station. It was considered a risk for both groups, but they undertook it anyway."
 	}
-	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
 	--local speculatorZone = squareZone(55000,108000, "Speculator")
 	--speculatorZone:setColor(51,153,255)
@@ -2276,7 +2280,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(9,21) },
         weapon_available = 	{Homing = true,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -2287,7 +2290,6 @@ function createIcarusStations()
         general_information = "Mining and resupply, New and improved",
     	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich"
 	}
-	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
 	--local slurryZone = squareZone(100342, 27871, "Slurry")
 	--slurryZone:setColor(51,153,255)
@@ -2314,7 +2316,6 @@ function createIcarusStations()
         general_information = "Mining and research of neaby stellar phenomena",
     	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research"
 	}
-	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
 	--local relay13Zone = squareZone(77918, 23876, "Relay13")
 	--relay13Zone:setColor(0,255,0)
@@ -2327,7 +2328,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,5),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = false,	HVLI = true,		Mine = false,			Nuke = false,				EMP = false},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	communication = {quantity = math.random(5,10),	cost = math.random(40,70)}	},
@@ -2335,7 +2335,6 @@ function createIcarusStations()
         public_relations = true,
         general_information = "Communication traffic relay and coordination"
 	}
-	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
 	--Stromboli
     stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2351,7 +2350,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	luxury = 	{quantity = math.random(5,10),	cost = math.random(60,70)}	},
@@ -2360,7 +2358,6 @@ function createIcarusStations()
         general_information = "A remote station location for the Stromboli family and gusts to get away from the pressures of modern life",
     	history = "The Stromboli family picked this station up cheap from the Human Navy when this sector was practically empty. Now it serves as a nice place for the family to escape to when they are stressed out"
 	}
-	station_names[stationStromboli:getCallSign()] = {stationStromboli:getSectorName(), stationStromboli}
 	table.insert(stations,stationStromboli)
 	--Gagarin
 	stationGagarin = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gagarin"):setPosition(-60000, 62193):setDescription("Mining and exploring"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2376,7 +2373,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,6),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
-        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -2386,7 +2382,6 @@ function createIcarusStations()
         general_information = "Facilitate mining the nearby asteroids",
     	history = "Station named after the Cosmonaut from 20th century Earth"
 	}
-	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Finnegan
 	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2400,7 +2395,6 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,6),	HVLI = math.random(1,4),Mine = math.random(5,9),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
-        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	circuit = 	{quantity = math.random(4,8),	cost = math.random(40,80)},
@@ -2410,7 +2404,6 @@ function createIcarusStations()
         general_information = "We mine the asteroids and the nebula and use these to manufacture various specialized circuits",
     	history = "The Finnegan family set up this station here to take advantage of the readily available resources"
 	}
-	station_names[stationFinnegan:getCallSign()] = {stationFinnegan:getSectorName(), stationFinnegan}
 	table.insert(stations,stationFinnegan)
 	--Sovinec
 	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
@@ -2435,7 +2428,6 @@ function createIcarusStations()
         general_information = "We manufacture beam components from the resources gathered from teh nearby asteroids. We specialize in plasma based beam systems",
     	history = "Our station recognizes Sovinec, an early computer simulation researcher in plasma based weaponry in the late 20th century on Earth"
 	}
-	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	return stations
 end
@@ -3199,7 +3191,6 @@ function createKentarStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	cobalt = 	{quantity = math.random(5,10),	cost = math.random(60,70)},
@@ -3209,7 +3200,6 @@ function createKentarStations()
         general_information = "Extracting minerals from these asteroids is our job",
     	history = "Based on the scans showing cobalt in many of these asteroids, we named this station after an ancient earth mining operation that was part of the Glencore Public Limited Comany"
 	}
-	station_names[stationKatanga:getCallSign()] = {stationKatanga:getSectorName(), stationKatanga}
 	table.insert(stations,stationKatanga)
 	--Keyhole-23
 	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
@@ -3230,7 +3220,6 @@ function createKentarStations()
         general_information = "Work here is classified, however, it involves research on this black hole",
     	history = "Reference classified archives at headquarters. Public access redacted"
 	}
-	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
 	--Gamma-3
     stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
@@ -3247,7 +3236,6 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	tractor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
@@ -3257,7 +3245,6 @@ function createKentarStations()
         general_information = "We watch and report on enemy vessel movement. We also run a small tractor and repulsor component machine shop",
     	history = "The Human Navy set this station up as a strategic observation post"
 	}
-	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
 	--Nereus
     stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
@@ -3283,7 +3270,6 @@ function createKentarStations()
         general_information = "We mine primarily for nickel, watch for enemy vessels and manufacture lifter components",
     	history = "These asteroids provide a good nearby source for nickel, so a station was placed to facilitate mining. One of the original station members had lifter experience and over time built up a lifter manufacturing facility"
 	}
-	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
 	--Talos
 	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
@@ -3310,7 +3296,6 @@ function createKentarStations()
         general_information = "We mine primarily for platinum and gold and watch for enemy vessels",
     	history = "These asteroids provide a good nearby source for gold and platinum, so a station was placed to facilitate mining. It also serves as a good early warning post for enemy vessels"
 	}
-	station_names[stationTalos:getCallSign()] = {stationTalos:getSectorName(), stationTalos}
 	table.insert(stations,stationTalos)
 	--Sutter
     stationSutter = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Sutter"):setPosition(84609, 293172):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
@@ -3338,7 +3323,6 @@ function createKentarStations()
         general_information = "We mine for nickel, dilithium and cobalt. A science team researches some extraordinarily rare minerals found here",
     	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. A scientific research team is also based herer to investigate unusual readings on some of the asteroids"
 	}
-	station_names[stationSutter:getCallSign()] = {stationSutter:getSectorName(), stationSutter}
 	table.insert(stations,stationSutter)
 	--Locarno
     stationLocarno = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Locarno"):setPosition(246819, 331779):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
@@ -3356,7 +3340,6 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nanites = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -3367,7 +3350,6 @@ function createKentarStations()
         general_information = "We mine, we trade, we sell nanites and android components",
     	history = "It looked like a good location for resupply and mining and it's served us well"
 	}
-	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Kolar
     stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
@@ -3385,7 +3367,6 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(1,4),Mine = math.random(1,4),Nuke = math.random(12,18),	EMP = math.random(13,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 5000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	circuit = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -3396,7 +3377,6 @@ function createKentarStations()
         general_information = "We mine gold, we make and sell autodoc and circuit",
     	history = "We said, 'thar's gold in them there rocks' and we just had to get some"
 	}
-	station_names[stationKolar:getCallSign()] = {stationKolar:getSectorName(), stationKolar}
 	table.insert(stations,stationKolar)
 	return stations
 end
@@ -4909,7 +4889,6 @@ function createPlayerShipCobra()
 	playerCobra:setWeaponStorageMax("HVLI",6)	
 	playerCobra:setWeaponStorage("HVLI", 6)	
 	playerCobra:setLongRangeRadarRange(20000)				--shorter longer range sensors (vs 30000)
-	playerCobra.normal_long_range_radar = 20000
 	playerCobra:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerCobra:addReputationPoints(50)
 	playerShipSpawned("Cobra")
@@ -4926,7 +4905,6 @@ function createPlayerShipEagle()
 	playerEagle:setShieldsMax(70, 100)									--stronger rear shields (vs 70, 70)
 	playerEagle:setShields(70, 100)
 	playerEagle:setLongRangeRadarRange(50000)							--longer long range sensors (vs 30000)
-	playerEagle.normal_long_range_radar = 50000
 	playerEagle:addReputationPoints(50)
 	playerShipSpawned("Eagle")
 end
@@ -4956,7 +4934,6 @@ function createPlayerShipGabble()
 	playerGabble:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
 	playerGabble:setWeaponStorage("Nuke", 4)				
 	playerGabble:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
-	playerGabble.normal_long_range_radar = 25000
 	playerGabble:addReputationPoints(50)
 	playerShipSpawned("Gabble")
 end
@@ -5030,11 +5007,11 @@ function createPlayerShipHolmes()
 	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
 	playerHolmes:setTypeName("Holmes")
 	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
---                  			 Arc, Dir, Range, CycleTime, Dmg
-	playerHolmes:setBeamWeapon(0, 50, -85, 900.0, 		6.0, 5)	--broadside beams, narrower (vs 70)
-	playerHolmes:setBeamWeapon(1, 50, -95, 900.0, 		6.0, 5)	
-	playerHolmes:setBeamWeapon(2, 50,  85, 900.0, 		6.0, 5)	
-	playerHolmes:setBeamWeapon(3, 50,  95, 900.0, 		6.0, 5)	
+--                  			 Arc, Dir,  Range, CycleTime, Dmg
+	playerHolmes:setBeamWeapon(0, 50, -85, 1000.0, 6.0, 5)	--broadside beams, narrower (vs 70)
+	playerHolmes:setBeamWeapon(1, 50, -95, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(2, 50,  85, 1000.0, 6.0, 5)	
+	playerHolmes:setBeamWeapon(3, 50,  95, 1000.0, 6.0, 5)	
 	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
 	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
 	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
@@ -5049,9 +5026,8 @@ function createPlayerShipHolmes()
 	playerHolmes:setWeaponStorage("EMP", 0)				
 	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
 	playerHolmes:setWeaponStorage("Nuke", 0)	
-	playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
-	playerHolmes.normal_long_range_radar = 35000
-	playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
+	--playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
+	--playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerHolmes:addReputationPoints(50)
 	playerShipSpawned("Holmes")
 end
@@ -5158,7 +5134,7 @@ function createPlayerShipRogue()
 	playerRogue:setJumpDrive(true)
 	playerRogue:setJumpDriveRange(2000,20000)				--shorter than typical jump drive range (vs 5-50)
 --                  		    Arc, Dir,  Range, CycleTime, Dmg
-	playerRogue:setBeamWeapon(0, 10,   0, 1000.0,      20.0, 20)
+	playerRogue:setBeamWeapon(0, 10,   0, 1200.0,      20.0, 20)
 --									   Arc, Dir, Rotate speed
 	playerRogue:setBeamWeaponTurret(0, 270,   0, .2)
 	playerRogue:setBeamWeaponEnergyPerFire(0,playerRogue:getBeamWeaponEnergyPerFire(0)*6)
@@ -5169,7 +5145,6 @@ function createPlayerShipRogue()
 	playerRogue:setBeamWeapon(4, 0, 0, 0, 0, 0)	
 	playerRogue:setBeamWeapon(5, 0, 0, 0, 0, 0)	
 	playerRogue:setLongRangeRadarRange(25000)				--shorter longer range sensors (vs 30000)
-	playerRogue.normal_long_range_radar = 25000
 	playerRogue:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
 	playerRogue:addReputationPoints(50)
 	playerShipSpawned("Rogue")
@@ -6864,20 +6839,6 @@ function elaraP2(enemyFaction)
 	ship:setWarpDrive(true)			--warp drive (vs none)
 	ship:setShieldsMax(70,40)		--stronger front shield (vs 50,40)
 	ship:setShields(70,40)
-	return ship
-end
-function wzLindworm(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming()
-	ship:setTypeName("WZ-Lindworm")
-	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
-	ship:setWeaponStorage("Nuke",2)
-	ship:setWeaponStorageMax("Homing",4)	--more homing (vs 1)
-	ship:setWeaponStorage("Homing",4)
-	ship:setWeaponStorageMax("HVLI",12)		--more homing (vs 6)
-	ship:setWeaponStorage("HVLI",12)
-	ship:setRotationMaxSpeed(12)			--slower maneuver (vs 15)
-	ship:setHullMax(45)						--weaker hull (vs 50)
-	ship:setHull(45)
 	return ship
 end
 ------------------------------------------------------------------
@@ -11189,107 +11150,6 @@ function changeTimerSpeed()
 		changeTimerSpeed()
 	end)
 end
------------------------------------
---	End Session > Region Report  --
------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM REGION	F	initialGMFunctions
--- -END SESSION			F	endSession
--- ICARUS REPORT		F	inline
-function regionReport()
-	clearGMFunctions()
-	addGMFunction("-Main From Region",initialGMFunctions)
-	addGMFunction("-End Session",endSession)
-	if icarus_color then
-		addGMFunction("Icarus Report",function()
-			local icarus_report = "Icarus Region Report:"
-			local stations_destroyed = ""
-			local all_survived = true
-			for name, station in pairs(station_names) do
-				if station[2] == nil or not station[2]:isValid() then
-					all_survived = false
-					stations_destroyed = string.format("%s\n    %s %s",stations_destroyed,station[1],name)
-				end
-			end
-			if all_survived then
-				icarus_report = icarus_report .. "\n  All stations survived"
-			else
-				icarus_report = string.format("%s\n  Stations Destroyed:%s",icarus_report,stations_destroyed)
-			end
-			addGMMessage(icarus_report)
-			print(icarus_report)
-		end)
-	end
-	if kentar_color then
-		addGMFunction("Kentar Report",function()
-			local kentar_report = "Kentar Region Report:"
-			local stations_destroyed = ""
-			local all_survived = true
-			for name, station in pairs(station_names) do
-				if station[2] == nil or not station[2]:isValid() then
-					all_survived = false
-					stations_destroyed = string.format("%s\n    %s %s",stations_destroyed,station[1],name)
-				end
-			end
-			if all_survived then
-				kentar_report = kentar_report .. "\n  All stations survived"
-			else
-				kentar_report = string.format("%s\n  Stations Destroyed:%s",kentar_report,stations_destroyed)
-			end
-			addGMMessage(kentar_report)
-			print(kentar_report)
-		end)
-	end
-end
--------------------------------------
---	End Session > Faction Victory  --
--------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM VICTORY		F	inline
--- HUMAN VICTORY		F	inline
--- KRAYLOR VICTORY		F	inline
--- EXUARI VICTORY		F	inline
--- GHOST VICTORY		F	inline
--- ARLENIAN VICTORY		F	inline
--- INDEPENDENT VICTORY	F	inline
--- KTLITAN VICTORY		F	inline
--- TSN VICTORY			F	inline
--- USN VICTORY			F	inline
--- CUF VICTORY			F	inline
-function endMission()
-	clearGMFunctions()
-	addGMFunction("-from Victory",endSession)
-	addGMFunction("Human Victory",function()
-		victory("Human Navy")
-	end)
-	addGMFunction("Kraylor Victory",function()
-		victory("Kraylor")
-	end)
-	addGMFunction("Exuari Victory",function() 
-		victory("Exuari")
-	end)
-	addGMFunction("Ghost Victory",function() 
-		victory("Ghosts")
-	end)
-	addGMFunction("Arlenian Victory",function() 
-		victory("Arlenians")	
-	end)
-	addGMFunction("Independent Victory",function() 
-		victory("Independent")
-	end)
-	addGMFunction("Ktlitan Victory",function() 
-		victory("Ktlitans")
-	end)
-	addGMFunction("TSN Victory",function()
-		victory("TSN")
-	end)
-	addGMFunction("USN Victory",function()
-		victory("USN")
-	end)
-	addGMFunction("CUF Victory",function()
-		victory("CUF")
-	end)
-end
 --------------------------
 --	Ship communication  --
 --------------------------
@@ -12212,7 +12072,6 @@ function commsStation()
         services = {
             supplydrop = "friend",
             reinforcements = "friend",
-            sensor_boost = "neutral",
 			preorder = "friend"
         },
         service_cost = {
@@ -12357,22 +12216,6 @@ function handleDockedState()
 		addCommsReply("Back", commsStation)
 	end)
 	--]]
-	if ctd.sensor_boost ~= nil then
-		if ctd.sensor_boost.cost > 0 then
-			addCommsReply(string.format("Augment scan range with station sensors while docked (%i rep)",ctd.sensor_boost.cost),function()
-				if comms_source:takeReputationPoints(ctd.sensor_boost.cost) then
-					if comms_source.normal_long_range_radar == nil then
-						comms_source.normal_long_range_radar = comms_source:getLongRangeRadarRange()
-					end
-					comms_source:setLongRangeRadarRange(comms_source.normal_long_range_radar + ctd.sensor_boost.value)
-					setCommsMessage(string.format("sensors increased by %i units",ctd.sensor_boost.value/1000))
-				else
-					setCommsMessage("Insufficient reputation")
-				end
-				addCommsReply("Back", commsStation)
-			end)
-		end
-	end
 	if ctd.public_relations then
 		addCommsReply("Tell me more about your station", function()
 			setCommsMessage("What would you like to know?")
@@ -13490,7 +13333,6 @@ function update(delta)
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
-			local player_name = p:getCallSign()
 			if p.spawnAdjust == nil then
 				p:setPosition(playerSpawnX,playerSpawnY)	--put player in the correct region when spawned
 				p.spawnAdjust = true
@@ -13510,14 +13352,14 @@ function update(delta)
 				if goodCount > 0 then		--add inventory button when cargo acquired
 					if p:hasPlayerAtPosition("Relay") then
 						if p.inventoryButton == nil then
-							local tbi = "inventory" .. player_name
+							local tbi = "inventory" .. p:getCallSign()
 							p:addCustomButton("Relay",tbi,"Inventory",cargoInventoryList[pidx])
 							p.inventoryButton = true
 						end
 					end
 					if p:hasPlayerAtPosition("Operations") then
 						if p.inventoryButton == nil then
-							local tbi = "inventoryOp" .. player_name
+							local tbi = "inventoryOp" .. p:getCallSign()
 							p:addCustomButton("Operations",tbi,"Inventory",cargoInventoryList[pidx])
 							p.inventoryButton = true
 						end
@@ -13653,17 +13495,11 @@ function update(delta)
 									end
 								else
 									local current_coolant = p:getMaxCoolant()
-									local lost_coolant = 0
 									if current_coolant >= 10 then
-										lost_coolant = current_coolant*random(.25,.5)	--lose between 25 and 50 percent
+										p:setMaxCoolant(current_coolant*.5)
 									else
-										lost_coolant = current_coolant*random(.15,.35)	--lose between 15 and 35 percent
+										p:setMaxCoolant(current_coolant*.8)
 									end
-									p:setMaxCoolant(current_coolant - lost_coolant)
-									if p.reclaimable_coolant == nil then
-										p.reclaimable_coolant = 0
-									end
-									p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
 									if p:hasPlayerAtPosition("Engineering") then
 										local coolantLoss = "coolantLoss"
 										p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
@@ -13692,23 +13528,16 @@ function update(delta)
 				end	--no repair crew left
 				if p.initialCoolant ~= nil then
 					current_coolant = p:getMaxCoolant()
-					if current_coolant < 20 then
+					if current_coolant < 10 then
 						if random(1,100) <= 4 then
-							local reclaimed_coolant = 0
-							if p.reclaimable_coolant ~= nil and p.reclaimable_coolant > 0 then
-								reclaimed_coolant = p.reclaimable_coolant*random(.1,.5)	--get back 10 to 50 percent of reclaimable coolant
-								p:setMaxCoolant(math.min(20,current_coolant + reclaimed_coolant))
-								p.reclaimable_coolant = p.reclaimable_coolant - reclaimed_coolant
+							p:setMaxCoolant(current_coolant + ((current_coolant + 10)/2))
+							if p:hasPlayerAtPosition("Engineering") then
+								local coolant_recovery = "coolant_recovery"
+								p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
 							end
-							if reclaimed_coolant > 0 then
-								if p:hasPlayerAtPosition("Engineering") then
-									local coolant_recovery = "coolant_recovery"
-									p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
-								end
-								if p:hasPlayerAtPosition("Engineering+") then
-									local coolant_recovery_plus = "coolant_recovery_plus"
-									p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
-								end
+							if p:hasPlayerAtPosition("Engineering+") then
+								local coolant_recovery_plus = "coolant_recovery_plus"
+								p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
 							end
 							resetPreviousSystemHealth(p)
 						end
@@ -14011,163 +13840,6 @@ function update(delta)
 				timer_value = nil
 				timer_gm_message = nil
 			end	--end of timer started boolean checks
-			if p.normal_long_range_radar == nil then
-				p.normal_long_range_radar = p:getLongRangeRadarRange()
-			end
-			if regionStations ~= nil then
-				local free_sensor_boost = false
-				local sensor_boost_present = false
-				local sensor_boost_amount = 0
-				for i=1,#regionStations do
-					local sensor_station = regionStations[i]
-					if p:isDocked(sensor_station) then
-						if sensor_station.comms_data.sensor_boost ~= nil then
-							sensor_boost_present = true
-							if sensor_station.comms_data.sensor_boost.cost < 1 then
-								free_sensor_boost = true
-							end
-							sensor_boost_amount = sensor_station.comms_data.sensor_boost.value
-						end
-					end
-				end
-				if p:isDocked(stationIcarus) then
-					free_sensor_boost = true
-					sensor_boost_amount = stationIcarus.comms_data.sensor_boost.value
-				end
-				if p:isDocked(stationKentar) then
-					free_sensor_boost = true
-					sensor_boost_amount = stationKentar.comms_data.sensor_boost.value
-				end
-				local boosted_range = p.normal_long_range_radar + sensor_boost_amount
-				if sensor_boost_present or free_sensor_boost then
-					if free_sensor_boost then
-						if p:getLongRangeRadarRange() < boosted_range then
-							p:setLongRangeRadarRange(boosted_range)
-						end
-					end
-				else
-					if p:getLongRangeRadarRange() > p.normal_long_range_radar then
-						local temp_player = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy")
-						local science_swap = false
-						if p:hasPlayerAtPosition("Science") then
-							science_swap = true
-							p:transferPlayersAtPositionToShip("Science",temp_player)
-						end
-						p:setLongRangeRadarRange(p.normal_long_range_radar)
-						if science_swap then
-							temp_player:transferPlayersAtPositionToShip("Science",p)
-						end
-						temp_player:destroy()
-					end
-				end
-			end
-			if p.tractor then
-				local vx, vy = p:getVelocity()
-				local player_velocity = math.abs(vx) + math.abs(vy)
-				local cpx, cpy = p:getPosition()
-				if player_velocity < 1 then
-					--print(string.format("%s velocity: %.1f slow enough to establish tractor",player_name,player_velocity))
-					if p.tractor_target_lock then
-						if p.tractor_target ~= nil and p.tractor_target:isValid() then
-							p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
-							p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
-							if random(1,100) < 27 then
-								BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
-							end
-							if p.disengage_tractor_button == nil then
-								p.disengage_tractor_button = "disengage_tractor_button"
-								p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
-									p.tractor_target_lock = false
-									p:removeCustom(p.disengage_tractor_button)
-									p.disengage_tractor_button = nil
-								end)
-							end
-						else
-							p.tractor_target_lock = false
-							p:removeCustom(p.disengage_tractor_button)
-							p.disengage_tractor_button = nil
-						end
-					else	--tractor not locked on target
-						local nearby_objects = p:getObjectsInRange(1000)
-						local tractor_objects = {}
-						if nearby_objects ~= nil and #nearby_objects > 1 then
-							for _, obj in ipairs(nearby_objects) do
-								if p ~= obj then
-									local object_type = obj.typeName
-									if object_type ~= nil then
-										if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
-											table.insert(tractor_objects,obj)
-										end
-									end
-								end
-							end		--end of nearby object list loop
-							if #tractor_objects > 0 then
-								--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
-								if p.tractor_target ~= nil and p.tractor_target:isValid() then
-									local target_in_list = false
-									for i=1,#tractor_objects do
-										if tractor_objects[i] == p.tractor_target then
-											target_in_list = true
-											break
-										end
-									end		--end of check for the current target in list loop
-									if not target_in_list then
-										p.tractor_target = tractor_objects[1]
-										removeTractorObjectButtons(p)
-									end
-									addTractorObjectButtons(p,tractor_objects)
-								else
-									p.tractor_target = tractor_objects[1]
-									addTractorObjectButtons(p,tractor_objects)
-								end
-							else	--no nearby tractorable objects
-								if p.tractor_target ~= nil then
-									removeTractorObjectButtons(p)
-									p.tractor_target = nil
-								end
-							end
-						else	--no nearby objects
-							if p.tractor_target ~= nil then
-								removeTractorObjectButtons(p)
-								p.tractor_target = nil
-							end
-						end
-					end
-				else	--not moving slowly enough to establish tractor
-					removeTractorObjectButtons(p)
-					--print(string.format("%s velocity: %.1f too fast to establish tractor",player_name,player_velocity))
-					if player_velocity > 50 then
-						--print(string.format("%s velocity: %.1f too fast to continue tractor",player_name,player_velocity))
-						p.tractor_target_lock = false
-						if p.disengage_tractor_button ~= nil then
-							p:removeCustom(p.disengage_tractor_button)
-							p.disengage_tractor_button = nil
-						end
-					else
-						if p.tractor_target_lock then
-							if p.tractor_target ~= nil and p.tractor_target:isValid() then
-								p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
-								p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
-								if random(1,100) < 27 then
-									BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
-								end
-								if p.disengage_tractor_button == nil then
-									p.disengage_tractor_button = "disengage_tractor_button"
-									p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
-										p.tractor_target_lock = false
-										p:removeCustom(p.disengage_tractor_button)
-										p.disengage_tractor_button = nil
-									end)
-								end
-							else
-								p.tractor_target_lock = false
-								p:removeCustom(p.disengage_tractor_button)
-								p.disengage_tractor_button = nil
-							end
-						end						
-					end
-				end
-			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -14186,151 +13858,7 @@ function update(delta)
 	end
 	if updateDiagnostic then print("update: end of update function") end
 end
-function removeTractorObjectButtons(p)
-	if p.tractor_next_target_button ~= nil then
-		p:removeCustom(p.tractor_next_target_button)
-		p.tractor_next_target_button = nil
-	end
-	if p.tractor_target_button ~= nil then
-		p:removeCustom(p.tractor_target_button)
-		p.tractor_target_button = nil
-	end
-	if p.tractor_lock_button ~= nil then
-		p:removeCustom(p.tractor_lock_button)
-		p.tractor_lock_button = nil
-	end
-end
-function addTractorObjectButtons(p,tractor_objects)
-	local cpx, cpy = p:getPosition()
-	local tpx, tpy = p.tractor_target:getPosition()
-	if p.tractor_lock_button == nil then
-		if p:hasPlayerAtPosition("Engineering") then
-			p.tractor_lock_button = "tractor_lock_button"
-			p:addCustomButton("Engineering",p.tractor_lock_button,"Lock on Tractor",function()
-				local cpx, cpy = p:getPosition()
-				local tpx, tpy = p.tractor_target:getPosition()
-				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
-				if tractor_object_distance < 1000 then
-					p.tractor_target_lock = true
-					p.tractor_vector_x = tpx - cpx
-					p.tractor_vector_y = tpy - cpy
-					local locked_message = "locked_message"
-					p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
-				else
-					local lock_fail_message = "lock_fail_message"
-					p:addCustomMessage("Engineering",lock_fail_message,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
-					p.tractor_target = nil
-				end
-				removeTractorObjectButtons(p)
-			end)
-		end
-	end
-	if p.tractor_target_button == nil then
-		if p:hasPlayerAtPosition("Engineering") then
-			p.tractor_target_button = "tractor_target_button"
-			local label_type = p.tractor_target.typeName
-			if label_type == "CpuShip" or label_type == "PlayerSpaceship" then
-				label_type = p.tractor_target:getCallSign()
-			elseif label_type == "VisualAsteroid" then
-				label_type = "Asteroid"
-			end
-			p:addCustomButton("Engineering",p.tractor_target_button,string.format("Target %s",label_type),function()
-				string.format("")	--necessary to have global reference for Serious Proton engine
-				tpx, tpy = p.tractor_target:getPosition()
-				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
-				local theta = math.atan(tpy - cpy,tpx - cpx)
-				if theta < 0 then
-					theta = theta + 6.2831853071795865
-				end
-				local angle = theta * 57.2957795130823209
-				angle = angle + 90
-				if angle > 360 then
-					angle = angle - 360
-				end
-				local target_description = "target_description"
-				p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
-			end)
-		end
-	end
-	if #tractor_objects > 1 then
-		if p.tractor_next_target_button == nil then
-			if p:hasPlayerAtPosition("Engineering") then
-				p.tractor_next_target_button = "tractor_next_target_button"
-				p:addCustomButton("Engineering",p.tractor_next_target_button,"Other tractor target",function()
-					local nearby_objects = p:getObjectsInRange(1000)
-					local tractor_objects = {}
-					if nearby_objects ~= nil and #nearby_objects > 1 then
-						for _, obj in ipairs(nearby_objects) do
-							if p ~= obj then
-								local object_type = obj.typeName
-								if object_type ~= nil then
-									if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
-										table.insert(tractor_objects,obj)
-									end
-								end
-							end
-						end		--end of nearby object list loop
-						if #tractor_objects > 0 then
-							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
-							if p.tractor_target ~= nil and p.tractor_target:isValid() then
-								local target_in_list = false
-								local matching_index = 0
-								for i=1,#tractor_objects do
-									if tractor_objects[i] == p.tractor_target then
-										target_in_list = true
-										matching_index = i
-										break
-									end
-								end		--end of check for the current target in list loop
-								if target_in_list then
-									if #tractor_objects > 1 then
-										if #tractor_objects > 2 then
-											local new_index = matching_index
-											repeat
-												new_index = math.random(1,#tractor_objects)
-											until(new_index ~= matching_index)
-											p.tractor_target = tractor_objects[new_index]
-										else
-											if matching_index == 1 then
-												p.tractor_target = tractor_objects[2]
-											else
-												p.tractor_target = tractor_objects[1]
-											end
-										end
-										removeTractorObjectButtons(p)
-										addTractorObjectButtons(p,tractor_objects)
-									end
-								else
-									p.tractor_target = tractor_objects[1]
-									removeTractorObjectButtons(p)
-									addTractorObjectButtons(p,tractor_objects)
-								end
-							else
-								p.tractor_target = tractor_objects[1]
-								addTractorObjectButtons(p,tractor_objects)
-							end
-						else	--no nearby tractorable objects
-							if p.tractor_target ~= nil then
-								removeTractorObjectButtons(p)
-								p.tractor_target = nil
-							end
-						end
-					else	--no nearby objects
-						if p.tractor_target ~= nil then
-							removeTractorObjectButtons(p)
-							p.tractor_target = nil
-						end
-					end
-				end)
-			end
-		end
-	else
-		if p.tractor_next_target_button ~= nil then
-			p:removeCustom(p.tractor_next_target_button)
-			p.tractor_next_target_button = nil
-		end
-	end
-end
+
 function movingObjects(delta)
 	if icarus_mobile_nebula_1 ~= nil and icarus_mobile_nebula_1:isValid() then
 		local neb_x, neb_y = icarus_mobile_nebula_1:getPosition()
@@ -14495,3 +14023,42 @@ function movingObjects(delta)
 		end
 	end
 end
+function crewFate(p, fatalityChance)
+	if math.random() < (fatalityChance) then
+		if p.initialCoolant == nil then
+			p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+			if p:hasPlayerAtPosition("Engineering") then
+				local repairCrewFatality = "repairCrewFatality"
+				p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				local repairCrewFatalityPlus = "repairCrewFatalityPlus"
+				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
+			end
+		else
+			if random(1,100) < 50 then
+				p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+				if p:hasPlayerAtPosition("Engineering") then
+					local repairCrewFatality = "repairCrewFatality"
+					p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					local repairCrewFatalityPlus = "repairCrewFatalityPlus"
+					p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
+				end
+			else
+				p:setMaxCoolant(p:getMaxCoolant()*.5)
+				if p:hasPlayerAtPosition("Engineering") then
+					local coolantLoss = "coolantLoss"
+					p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					local coolantLossPlus = "coolantLossPlus"
+					p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
+				end
+			end
+		end
+	end
+end
+
+
