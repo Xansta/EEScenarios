@@ -291,41 +291,41 @@ function setConstants()
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
 
-	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false	},
-						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false	},
-						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true	},
-						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true	},
-						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
-						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
-						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false	},
-						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
-						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true	},
-						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false	},
-						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false	},
-						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true	},
-						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true	},
-						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false	},
-						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
-						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false	},
-						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
-						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false	},
-						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false	},
-						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
-						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false	},
-						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true	},
-						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false	},
-						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true	},
-						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false	},
-						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false	},
-						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false	},
-						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true	},
-						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true	},
-						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false	},
-						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true	},
+	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false	},
+						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false	},
+						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false	},
+						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false	},
+						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false	},
+						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true	},
+						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true	},
+						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true	},
+						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false	},
+						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false	},
+						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true	},
+						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true	},
+						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false	},
+						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
 					}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
@@ -709,6 +709,12 @@ function setConstants()
 		"electric_sphere_texture.png"
 	}
 	tractor_drain = .000005
+	mining_beam_string = {
+		"beam_orange.png",
+		"beam_yellow.png",
+		"fire_sphere_texture.png"
+	}
+	mining_drain = .00025
 end
 ----------------------------
 --  Main Menu of Buttons  --
@@ -842,6 +848,9 @@ function assignPlayerShipScore(p)
 			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
 			p.tractor = playerShipStats[tempTypeName].tractor
 			p.tractor_target_lock = false
+			p.mining = playerShipStats[tempTypeName].mining
+			p.mining_target_lock = false
+			p.mining_in_progress = false
 			p.max_reactor = 1
 			p.max_beam = 1
 			p.max_missile = 1
@@ -856,6 +865,7 @@ function assignPlayerShipScore(p)
 			p.maxCargo = 5
 			p.cargo = p.maxCargo
 			p.tractor = false
+			p.mining = false
 		end
 	else
 		p.shipScore = 24
@@ -13368,7 +13378,7 @@ function resetPreviousSystemHealth(p)
 	end
 	if healthDiagnostic then print("end of reset previous system health function") end
 end
-
+--	Tractor functions (called from update loop
 function removeTractorObjectButtons(p)
 	if p.tractor_next_target_button ~= nil then
 		p:removeCustom(p.tractor_next_target_button)
@@ -13511,6 +13521,163 @@ function addTractorObjectButtons(p,tractor_objects)
 		if p.tractor_next_target_button ~= nil then
 			p:removeCustom(p.tractor_next_target_button)
 			p.tractor_next_target_button = nil
+		end
+	end
+end
+-- Mining functions (called from update loop)
+function removeMiningButtons(p)
+	if p.mining_next_target_button ~= nil then
+		p:removeCustom(p.mining_next_target_button)
+		p.mining_next_target_button = nil
+	end
+	if p.mining_target_button ~= nil then
+		p:removeCustom(p.mining_target_button)
+		p.mining_target_button = nil
+	end
+	if p.mining_lock_button ~= nil then
+		p:removeCustom(p.mining_lock_button)
+		p.mining_lock_button = nil
+	end
+end
+function addMiningButtons(p,mining_objects)
+	local cpx, cpy = p:getPosition()
+	local tpx, tpy = p.mining_target:getPosition()
+	if p.mining_lock_button == nil then
+		if p:hasPlayerAtPosition("Science") then
+			p.mining_lock_button = "mining_lock_button"
+			p:addCustomButton("Science",p.mining_lock_button,"Lock for Mining",function()
+				local cpx, cpy = p:getPosition()
+				local tpx, tpy = p.mining_target:getPosition()
+				local asteroid_distance = distance(cpx,cpy,tpx,tpy)
+				if asteroid_distance < 1000 then
+					p.mining_target_lock = true
+					local mining_locked_message = "mining_locked_message"
+					p:addCustomMessage("Science",mining_locked_message,"Mining target locked\nWeapons may trigger the mining beam")
+				else
+					local mining_lock_fail_message = "mining_lock_fail_message"
+					p:addCustomMessage("Engineering",mining_lock_fail_message,string.format("Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U",asteroid_distance/1000))
+					p.mining_target = nil
+				end
+				removeMiningButtons(p)
+			end)
+		end
+	end
+	if p.mining_target_button == nil then
+		if p:hasPlayerAtPosition("Science") then
+			p.mining_target_button = "mining_target_button"
+			p:addCustomButton("Science",p.mining_target_button,"Target Asteroid",function()
+				string.format("")	--necessary to have global reference for Serious Proton engine
+				tpx, tpy = p.mining_target:getPosition()
+				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+				local theta = math.atan(tpy - cpy,tpx - cpx)
+				if theta < 0 then
+					theta = theta + 6.2831853071795865
+				end
+				local angle = theta * 57.2957795130823209
+				angle = angle + 90
+				if angle > 360 then
+					angle = angle - 360
+				end
+				if p.mining_target.trace_minerals == nil then
+					p.mining_target.trace_minerals = {}
+					for i=1,#mineralGoods do
+						if random(1,100) < 26 then
+							table.insert(p.mining_target.trace_minerals,mineralGoods[i])
+						end
+					end
+				end
+				local minerals = ""
+				for i=1,#p.mining_target.trace_minerals do
+					if minerals == "" then
+						minerals = minerals .. p.mining_target.trace_minerals[i]
+					else
+						minerals = minerals .. ", " .. p.mining_target.trace_minerals[i]
+					end
+				end
+				if minerals == "" then
+					minerals = "none"
+				end
+				local target_description = "target_description"
+				p:addCustomMessage("Science",target_description,string.format("Distance: %.1fU\nBearing: %.1f\nMineral traces detected: %s",target_distance,angle,minerals))
+			end)
+		end
+	end
+	if #mining_objects > 1 then
+		if p.mining_next_target_button == nil then
+			if p:hasPlayerAtPosition("Science") then
+				p.mining_next_target_button = "mining_next_target_button"
+				p:addCustomButton("Science",p.mining_next_target_button,"Other mining target",function()
+					local nearby_objects = p:getObjectsInRange(1000)
+					local mining_objects = {}
+					if nearby_objects ~= nil and #nearby_objects > 1 then
+						for _, obj in ipairs(nearby_objects) do
+							if p ~= obj then
+								local object_type = obj.typeName
+								if object_type ~= nil then
+									if object_type == "Asteroid" or object_type == "VisualAsteroid" then
+										table.insert(mining_objects,obj)
+									end
+								end
+							end
+						end		--end of nearby object list loop
+						if #mining_objects > 0 then
+							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+							if p.mining_target ~= nil and p.mining_target:isValid() then
+								local target_in_list = false
+								local matching_index = 0
+								for i=1,#mining_objects do
+									if mining_objects[i] == p.mining_target then
+										target_in_list = true
+										matching_index = i
+										break
+									end
+								end		--end of check for the current target in list loop
+								if target_in_list then
+									if #mining_objects > 1 then
+										if #mining_objects > 2 then
+											local new_index = matching_index
+											repeat
+												new_index = math.random(1,#mining_objects)
+											until(new_index ~= matching_index)
+											p.mining_target = mining_objects[new_index]
+										else
+											if matching_index == 1 then
+												p.mining_target = mining_objects[2]
+											else
+												p.mining_target = mining_objects[1]
+											end
+										end
+										removeMiningButtons(p)
+										addMiningButtons(p,mining_objects)
+									end
+								else
+									p.mining_target = mining_objects[1]
+									removeMiningButtons(p)
+									addMiningButtons(p,mining_objects)
+								end
+							else
+								p.mining_target = mining_objects[1]
+								addMiningButtons(p,mining_objects)
+							end
+						else	--no nearby tractorable objects
+							if p.mining_target ~= nil then
+								removeMiningButtons(p)
+								p.mining_target = nil
+							end
+						end
+					else	--no nearby objects
+						if p.mining_target ~= nil then
+							removeMiningButtons(p)
+							p.mining_target = nil
+						end
+					end
+				end)
+			end
+		end
+	else
+		if p.mining_next_target_button ~= nil then
+			p:removeCustom(p.mining_next_target_button)
+			p.mining_next_target_button = nil
 		end
 	end
 end
@@ -14393,10 +14560,11 @@ function update(delta)
 					end
 				end
 			end
+			local vx, vy = p:getVelocity()
+			local player_velocity = math.abs(vx) + math.abs(vy)
+			local cpx, cpy = p:getPosition()
+			local nearby_objects = p:getObjectsInRange(1000)
 			if p.tractor then
-				local vx, vy = p:getVelocity()
-				local player_velocity = math.abs(vx) + math.abs(vy)
-				local cpx, cpy = p:getPosition()
 				if player_velocity < 1 then
 					--print(string.format("%s velocity: %.1f slow enough to establish tractor",player_name,player_velocity))
 					if p.tractor_target_lock then
@@ -14420,7 +14588,6 @@ function update(delta)
 							p.disengage_tractor_button = nil
 						end
 					else	--tractor not locked on target
-						local nearby_objects = p:getObjectsInRange(1000)
 						local tractor_objects = {}
 						if nearby_objects ~= nil and #nearby_objects > 1 then
 							for _, obj in ipairs(nearby_objects) do
@@ -14447,11 +14614,10 @@ function update(delta)
 										p.tractor_target = tractor_objects[1]
 										removeTractorObjectButtons(p)
 									end
-									addTractorObjectButtons(p,tractor_objects)
 								else
 									p.tractor_target = tractor_objects[1]
-									addTractorObjectButtons(p,tractor_objects)
 								end
+								addTractorObjectButtons(p,tractor_objects)
 							else	--no nearby tractorable objects
 								if p.tractor_target ~= nil then
 									removeTractorObjectButtons(p)
@@ -14491,13 +14657,137 @@ function update(delta)
 										p.disengage_tractor_button = nil
 									end)
 								end
-							else
+							else	--invalid tractor target
 								p.tractor_target_lock = false
 								p:removeCustom(p.disengage_tractor_button)
 								p.disengage_tractor_button = nil
 							end
-						end						
+						end		--end of tractor lock processing				
+					end		--end of player moving slow enough to tractor branch
+				end		--end of speed checks for tractoring
+			end		--end of tractor checks
+			if p.mining and p.cargo > 0 then
+				if player_velocity < 10 then
+					if p.mining_target_lock then
+						if p.mining_target ~= nil and p.mining_target:isValid() then
+							if p.mining_in_progress then
+								p.mining_timer = p.mining_timer - delta
+								if p.mining_timer < 0 then
+									p.mining_in_progress = false
+									if p.mining_timer_info ~= nil then
+										p:removeCustom(p.mining_timer_info)
+										p.mining_timer_info = nil
+									end
+									p.mining_target_lock = false
+									p.mining_timer = nil
+									if #p.mining_target.trace_minerals > 0 then
+										local good = p.mining_target.trace_minerals[math.random(1,#p.mining_target.trace_minerals)]
+										if p.goods == nil then
+											p.goods = {}
+										end
+										if p.goods[good] == nil then
+											p.goods[good] = 0
+										end
+										p.goods[good] = p.goods[good] + 1
+										p.cargo = p.cargo - 1
+										if p:hasPlayerAtPosition("Science") then
+											local mined_mineral_message = "mined_mineral_message"
+											p:addCustomMessage("Science",mined_mineral_message,string.format("Mining obtained %s which has been stored in the cargo hold",good))
+										end
+									else	--no minerals in asteroid
+										if p:hasPlayerAtPosition("Science") then
+											local mined_mineral_message = "mined_mineral_message"
+											p:addCustomMessage("Science",mined_mineral_message,"mining failed to extract any minerals")
+										end										
+									end
+								else	--still mining, update timer display, energy and heat
+									p:setEnergy(p:getEnergy() - p:getMaxEnergy()*mining_drain)
+									p:setSystemHeat("beamweapons",p:getSystemHeat("beamweapons") + .0025)
+									local mining_seconds = math.floor(p.mining_timer % 60)
+									if random(1,100) < 38 then
+										BeamEffect():setSource(p,0,0,0):setTarget(p.mining_target,0,0):setRing(false):setDuration(1):setTexture(mining_beam_string[math.random(1,#mining_beam_string)])
+									end
+									if p:hasPlayerAtPosition("Weapons") then
+										p.mining_timer_info = "mining_timer_info"
+										p:addCustomInfo("Weapons",p.mining_timer_info,string.format("Mining %i",mining_seconds))
+									end
+								end
+							else	--mining not in progress
+								if p.trigger_mine_beam_button == nil then
+									if p:hasPlayerAtPosition("Weapons") then
+										p.trigger_mine_beam_button = "trigger_mine_beam_button"
+										p:addCustomButton("Weapons",p.trigger_mine_beam_button,"Start Mining",function()
+											p.mining_in_progress = true
+											p.mining_timer = delta + 5
+											p:removeCustom(p.trigger_mine_beam_button)
+											p.trigger_mine_beam_button = nil
+										end)
+									end
+								end
+							end
+						else	--no mining target or mining target invalid
+							p.mining_target_lock = false
+							if p.mining_timer_info ~= nil then
+								p:removeCustom(p.mining_timer_info)
+								p.mining_timer_info = nil
+							end
+						end
+					else	--not locked
+						local mining_objects = {}
+						if nearby_objects ~= nil and #nearby_objects > 1 then
+							for _, obj in ipairs(nearby_objects) do
+								if p ~= obj then
+									local object_type = obj.typeName
+									if object_type ~= nil then
+										if object_type == "Asteroid" or object_type == "VisualAsteroid" then
+											table.insert(mining_objects,obj)
+										end
+									end
+								end
+							end		--end of nearby object list loop
+							if #mining_objects > 0 then
+								if p.mining_target ~= nil and p.mining_target:isValid() then
+									local target_in_list = false
+									for i=1,#mining_objects do
+										if mining_objects[i] == p.mining_target then
+											target_in_list = true
+											break
+										end
+									end		--end of check for the current target in list loop
+									if not target_in_list then
+										p.mining_target = mining_objects[1]
+										removeMiningButtons(p)
+									end
+								else
+									p.mining_target = mining_objects[1]
+								end
+								addMiningButtons(p,mining_objects)
+							else	--no mining objects
+								if p.mining_target ~= nil then
+									removeMiningButtons(p)
+									p.mining_target = nil
+								end
+							end
+						else	--no nearby objects
+							if p.mining_target ~= nil then
+								removeMiningButtons(p)
+								p.mining_target = nil
+							end
+						end
 					end
+				else	--not moving slowly enough to mine
+					removeMiningButtons(p)
+					if p.mining_timer_info ~= nil then
+						p:removeCustom(p.mining_timer_info)
+						p.mining_timer_info = nil
+					end
+					if p.trigger_mine_beam_button then
+						p:removeCustom(p.trigger_mine_beam_button)
+						p.trigger_mine_beam_button = nil
+					end
+					p.mining_target_lock = false
+					p.mining_in_progress = false
+					p.mining_timer = nil
 				end
 			end
 			if updateDiagnostic then print("update: end of player loop") end
