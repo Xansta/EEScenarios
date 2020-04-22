@@ -11420,10 +11420,115 @@ function muckAndFlies(delta)
 		end
 		muckFlyCounter = muckFlyCounter - 1
 		if muckFlyCounter <= 0 then
-			plotMF = nil
+			plotMF = sleeperAgent
+			muckFlyTimer = 500 - difficulty * 90 + random(1,60)
 		else
 			muckFlyTimer = nil
 		end
+	end
+end
+function sleeperAgent(delta)
+	muckFlyTimer = muckFlyTimer - delta
+	if muckFlyTimer < 0 then
+		local victim_list = {}
+		for pidx=1,8 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				table.insert(victim_list,p)
+			end
+		end
+		if #victim_list > 0 then
+			local victim = victim_list[math.random(1,#victim_list)]
+			local victim_x, victim_y = victim:getPosition()
+			local nearby_objects = getObjectsInRadius(victim_x,victim_y,5000)
+			local friendly_station = nil
+			local sleeper_freighter = {}
+			local object_type = nil
+			for _, obj in pairs(nearby_objects) do
+				if victim ~= obj then
+					object_type = obj.typeName
+					if object_type ~= nil then
+						if object_type == "SpaceStation" then
+							if victim:isDocked(obj) then
+								if obj:getFaction() == "Human Navy" then
+									friendly_station = obj
+								end
+							end
+						end
+						if object_type == "CpuShip" then
+							local ship_type = obj:getTypeName()
+							if ship_type:find("Freighter") ~= nil then
+								if obj:getFaction() == "Independent" or obj:getFaction() == "Human Navy" then
+									table.insert(sleeper_freighter,obj)
+								end
+							end
+						end
+					end
+				end
+			end
+			if friendly_station ~= nil and #sleeper_freighter > 0 then
+				sleeper_agent = {}
+				if difficulty < 1 then
+					table.insert(sleeper_agent,sleeper_freighter[math.random(1,#sleeper_freighter)])
+				elseif difficulty > 1 then
+					sleeper_agent = sleeper_freighter
+				else
+					repeat
+						local freighter_choice = math.random(1,#sleeper_freighter)
+						table.insert(sleeper_agent,sleeper_freighter[freighter_choice])
+						table.remove(sleeper_freighter,freighter_choice)
+					until(#sleeper_agent == 3 or #sleeper_freighter < 1)
+				end
+				for i=1,#sleeper_agent do
+					local ship = sleeper_agent[i]
+					ship:orderAttack(victim)
+					ship:setBeamWeapon(0,270,0,1000,5.0,2.0)
+					ship:setWeaponTubeCount(1)
+					if difficulty > 1 then
+						if random(1,100) < 50 then
+							ship:setWeaponStorageMax("Nuke",1)
+							ship:setWeaponStorage("Nuke",1)
+						else
+							ship:setWeaponStorageMax("EMP",1)
+							ship:setWeaponStorage("EMP",1)
+						end
+						ship:setWeaponTubeCount(2)
+					end
+					if difficulty == 1 then
+						ship:setWeaponStorageMax("Homing",2)
+						ship:setWeaponStorage("Homing",2)
+					end
+					ship:setWeaponStorageMax("HVLI",4)
+					ship:setWeaponStorage("HVLI",4)
+				end
+				muckFlyTimer = 15
+				plotMF = sleeperAwakes
+			end
+		end
+	end
+end
+function sleeperAwakes(delta)
+	muckFlyTimer = muckFlyTimer - delta
+	if muckFlyTimer < 0 then
+		for i=1,#sleeper_agent do
+			local ship = sleeper_agent[i]
+			if ship ~= nil then
+				ship:setFaction("Kraylor")
+			end
+		end
+		plotMF = bedtime
+	end
+end
+function bedtime(delta)
+	local sleeper_count = 0
+	for i=1,#sleeper_agent do
+		if sleeper_agent[i] ~= nil and sleeper_agent[i]:isValid() then
+			sleeper_count = sleeper_count + 1
+		end
+	end
+	if sleeper_count == 0 then
+		muckFlyTimer = 500 - difficulty * 90 + random(1,60)
+		plotMF = sleeperAgent
 	end
 end
 function armoredWarpJammer(self, instigator)
