@@ -10251,6 +10251,7 @@ function treatyHolds(delta)
 			removeGMFunction(GMBelligerentKraylors)
 		end
 		GMBelligerentKraylors = nil
+		globalMessage("Kraylors Belligerent")
 		plot1 = treatyStressed
 	end
 end
@@ -10292,6 +10293,7 @@ function treatyStressed(delta)
 		treaty = false
 		targetKraylorStations = false
 		plot1 = limitedWar
+		globalMessage("War With Kraylors Declared")
 	end
 end
 function limitedWar(delta)
@@ -10312,7 +10314,7 @@ function limitedWar(delta)
 				p:addToShipLog(string.format("To: Commanding Officer of %s",p:getCallSign()),"Magenta")
 				p:addToShipLog("From: Human Navy Headquarters","Magenta")
 				p:addToShipLog("    War continues on Kraylors.","Magenta")
-				p:addToShipLog("    Intelligence reports Kraylors targeting civillian assets.","Magenta")
+				p:addToShipLog("    Intelligence reports Kraylors targeting civilian assets.","Magenta")
 				p:addToShipLog("    All Kraylor targets may be destroyed.","Magenta")
 				p:addToShipLog("End official dispatch","Magenta")
 			end
@@ -10323,6 +10325,7 @@ function limitedWar(delta)
 		GMFullWar = nil
 		targetKraylorStations = true
 		plot1 = nil
+		globalMessage("Kraylors Target Civilians. Destroy All Kraylors")
 	end
 end
 function evaluateInitialAssets()
@@ -10382,6 +10385,7 @@ function evaluateInitialAssets()
 			p:addToShipLog("    Prepare for imminent Kraylor intrusion.","Magenta")
 		end
 	end
+	globalMessage("Fleet Disposition Authority Granted")
 	if plot1Diagnostic then
 		for i=1,#playerShipNames do
 			print(i .. ": " .. playerShipNames[i])
