@@ -20,6 +20,12 @@ require("utils.lua")
 --------------------
 function init()
 	print(_VERSION)
+	banner = {}
+	banner["number_of_players"] = 0
+	banner["player_strength"] = 0
+	banner["player"] = {}
+	banner["Human Navy"] = {}
+	banner["Kraylor"] = {}
 	defaultGameTimeLimitInMinutes = 30	--final: 30 (lowered for test)
 	rawKraylorShipStrength = 0
 	rawHumanShipStrength = 0
@@ -71,7 +77,7 @@ function init()
 	plot2diagnostic = false
 	endStatDiagnostic = false
 	printDetailedStats = true
-	change_enemy_order_diagnostic = true
+	change_enemy_order_diagnostic = false
 	setConstants()	--missle type names, template names and scores, deployment directions, player ship names, etc.
 	repeat
 		setGossipSnippets()
@@ -8754,11 +8760,11 @@ function playerPower()
 end
 function setPlayers()
 --set up players with name, goods, cargo space, reputation and either a warp drive or a jump drive if applicable
-	concurrentPlayerCount = 0
+	local active_player_count = 0
 	for p1idx=1,8 do
 		pobj = getPlayerShip(p1idx)
 		if pobj ~= nil and pobj:isValid() then
-			concurrentPlayerCount = concurrentPlayerCount + 1
+			active_player_count = active_player_count + 1
 			if pobj.goods == nil then
 				pobj.goods = {}
 			end
@@ -9027,6 +9033,49 @@ function setPlayers()
 			pobj.initialCoolant = pobj:getMaxCoolant()
 		end
 	end
+	if active_player_count ~= banner["number_of_players"] then
+		resetBanner()
+	end
+end
+function resetBanner(evalFriendly,evalEnemy)
+	local active_player_count = 0
+	local players_relative_strength = 0
+	banner["player"] = {}
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			active_player_count = active_player_count + 1
+			players_relative_strength = players_relative_strength + p.shipScore
+			table.insert(banner["player"],{index = pidx, name = p:getCallSign(), type_name = p:getTypeName(), strength = p.shipScore })
+		end
+	end
+	banner["player_strength"] = players_relative_strength
+	banner["number_of_players"] = active_player_count
+	local banner_string = string.format("Number of player ships: %i.  Relative strength of all player ships: %i.  Player ships:",banner["number_of_players"],banner["player_strength"])
+	for _, player in pairs(banner["player"]) do
+		banner_string = string.format("%s  Index: %i, Name: %s, Type: %s, Relative Strength: %i",banner_string,player.index,player.name,player.type_name,player.strength)
+	end
+	local war_state = "War State:"
+	if treaty then
+		if treatyTimer == nil then
+			war_state = string.format("%s undefined",war_state)
+		elseif treatyTimer < 0 then
+			war_state = string.format("%s Treaty holds. Kraylors belligerent",war_state)
+		else
+			war_state = string.format("%s Treaty holds",war_state)
+		end
+	else
+		if limitedWarTimer < 0 then
+			war_state = string.format("%s War, destroy all Kraylor assets",war_state)
+		else
+			war_state = string.format("%s War, preserve Kraylor stations",war_state)
+		end
+	end
+	banner_string = string.format("%s  %s",banner_string,war_state)
+	if evalFriendly ~= nil then
+		banner_string = string.format("%s  Friendly: %.1f  Enemy: %.1f  Difference: %.1f",banner_string,evalFriendly,evalEnemy,evalFriendly-evalEnemy)
+	end
+	setBanner(banner_string)
 end
 function expediteDockCheck(delta)
 	for pidx=1,8 do
@@ -9256,6 +9305,7 @@ function healthCheck(delta)
 		if friendlySurvivedCount ~= nil then
 			local evalFriendly = fpct2*friendlyStationComponentWeight + npct2*neutralStationComponentWeight + fpct*friendlyShipComponentWeight
 			local evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
+			resetBanner(evalFriendly,evalEnemy)
 			local eval_status = string.format("F:%.1f%% E:%.1f%% D:%.1f%%",evalFriendly,evalEnemy,evalFriendly-evalEnemy)
 			for pidx=1,8 do
 				local p = getPlayerShip(pidx)
