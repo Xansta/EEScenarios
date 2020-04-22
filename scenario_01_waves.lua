@@ -215,6 +215,12 @@ function update(delta)
 						endmy:orderAttack(getPlayerShip(-1))
 					end
 				end
+			elseif order == "Idle" then
+				if random(1,100) < 50 then
+					enemy:orderRoaming()
+				else
+					enemy:orderAttack(getPlayerShip(-1))
+				end
 			end
 			ship_type = enemy:getTypeName()
 			if ship_type == "WX-Lindworm" or ship_type == "Piranha F12" then
