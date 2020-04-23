@@ -142,6 +142,7 @@ function init()
 	plotSS = spinalShip
 	plotExDk = expediteDockCheck
 	plotShowPlayerInfo = showPlayerInfoOnConsole
+	plotMining = checkForMining
 	enemyVesselDestroyedNameList = {}
 	enemyVesselDestroyedType = {}
 	enemyVesselDestroyedValue = {}
@@ -210,56 +211,43 @@ function setConstants()
 	-- rough hexagonal deployment
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
-	--						Template, 					strength
-	playerShipStrength = {	["MP52 Hornet"] =			7,
-							["Piranha"] = 				16,
-							["Flavia P.Falcon"] =		13,
-							["Phobos M3P"] =			19,
-							["Atlantis"] =				52,
-							["Player Cruiser"] =		40,
-							["Player Missile Cr."] =	45,
-							["Player Fighter"] =		7,
-							["Benedict"] =				10,
-							["Kiriya"] =				10,
-							["Striker"] =				8,
-							["ZX-Lindworm"] =			8,
-							["Repulse"] =				14,
-							["Ender"] =					100,
-							["Nautilus"] =				12,
-							["Hathcock"] =				30,
-							["Maverick"] =				45,
-							["Crucible"] =				45,
-							["Proto-Atlantis"] =		40,
-							["Surkov"] =				35,
-							["Stricken"] =				40,
-							["Atlantis II"] =			60,
-							["Destroyer III"] =			25,
-							["Redhook"] =				18	}
-	--						Template				maximum cargo space
-	playerShipCargo = 	{	["MP52 Hornet"] =			3,
-							["Piranha"] = 				8,
-							["Flavia P.Falcon"] =		15,
-							["Phobos M3P"] =			10,
-							["Atlantis"] =				6,
-							["Player Cruiser"] =		6,
-							["Player Missile Cr."] =	8,
-							["Player Fighter"] =		3,
-							["Benedict"] =				9,
-							["Kiriya"] =				9,
-							["Striker"] =				4,
-							["ZX-Lindworm"] =			3,
-							["Repulse"] =				12,
-							["Ender"] =					20,
-							["Nautilus"] =				7,
-							["Hathcock"] =				6,
-							["Maverick"] =				5,
-							["Crucible"] =				5,
-							["Proto-Atlantis"] =		4,
-							["Surkov"] =				6,
-							["Stricken"] =				4,
-							["Atlantis II"] =			5,
-							["Destroyer III"] =			7,
-							["Redhook"] =				8	}
+	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false	},
+						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false	},
+						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false	},
+						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false	},
+						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false	},
+						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true	},
+						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true	},
+						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true	},
+						["Stricken"]			= { strength = 40,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false	},
+						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false	},
+						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false	},
+						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true	},
+						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true	},
+						["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false	},
+						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true	},
+						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false	},
+						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
+					}	
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
 	playerShipNamesForPiranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
@@ -414,6 +402,12 @@ function setConstants()
 	show_only_player_name = true
 	info_choice = 0
 	info_choice_max = 5
+	mining_beam_string = {
+		"beam_orange.png",
+		"beam_yellow.png",
+		"fire_sphere_texture.png"
+	}
+	mining_drain = .00025 * difficulty
 end
 function setGossipSnippets()
 	gossipSnippets = {}
@@ -4896,6 +4890,7 @@ function spawnEnemyFleet(xOrigin, yOrigin, power, danger, enemyFaction, fleetNam
 		end
 		fleetPower = fleetPower + stsl[shipTemplateType]
 		local ship = CpuShip():setFaction(enemyFaction):setTemplate(stnl[shipTemplateType]):orderRoaming()
+		ship:setCallSign(generateCallSign(nil,enemyFaction))
 		if enemyFaction == "Kraylor" then
 			rawKraylorShipStrength = rawKraylorShipStrength + stsl[shipTemplateType]
 			ship:onDestruction(enemyVesselDestroyed)
@@ -7266,6 +7261,7 @@ function handleUndockedState()
 							else
 								if comms_source:takeReputationPoints(getServiceCost("reinforcements")) then
 									local ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Adder MK5"):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
+									ship:setCallSign(generateCallSign(nil,"Human Navy"))
 									ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(friendlyVesselDestroyed)
 									table.insert(friendlyHelperFleet,ship)
 									setCommsMessage("We have dispatched " .. ship:getCallSign() .. " to assist at WP" .. n);
@@ -7278,6 +7274,7 @@ function handleUndockedState()
 							if comms_source:takeReputationPoints(getServiceCost("reinforcements")) then
 								ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Adder MK5"):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
 								ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(friendlyVesselDestroyed)
+								ship:setCallSign(generateCallSign(nil,"Human Navy"))
 								table.insert(friendlyHelperFleet,ship)
 								setCommsMessage("We have dispatched " .. ship:getCallSign() .. " to assist at WP" .. n);
 							else
@@ -8775,14 +8772,20 @@ function setPlayers()
 			if not pobj.nameAssigned then
 				pobj.nameAssigned = true
 				local tempPlayerType = pobj:getTypeName()
+				pobj.shipScore = playerShipStats[tempPlayerType].strength
+				pobj.maxCargo = playerShipStats[tempPlayerType].cargo
+				pobj:setLongRangeRadarRange(playerShipStats[tempPlayerType].long_range_radar)
+				pobj:setShortRangeRadarRange(playerShipStats[tempPlayerType].short_range_radar)
+				pobj.tractor = playerShipStats[tempPlayerType].tractor
+				pobj.mining = playerShipStats[tempPlayerType].mining
+				pobj.mining_target_lock = false
+				pobj.mining_in_progress = false
 				if tempPlayerType == "MP52 Hornet" then
 					if #playerShipNamesForMP52Hornet > 0 then
 						local ni = math.random(1,#playerShipNamesForMP52Hornet)
 						pobj:setCallSign(playerShipNamesForMP52Hornet[ni])
 						table.remove(playerShipNamesForMP52Hornet,ni)
 					end
-					pobj.shipScore = 7
-					pobj.maxCargo = 3
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Piranha" then
@@ -8791,57 +8794,44 @@ function setPlayers()
 						pobj:setCallSign(playerShipNamesForPiranha[ni])
 						table.remove(playerShipNamesForPiranha,ni)
 					end
-					pobj.shipScore = 16
-					pobj.maxCargo = 8
 				elseif tempPlayerType == "Flavia P.Falcon" then
 					if #playerShipNamesForFlaviaPFalcon > 0 then
 						ni = math.random(1,#playerShipNamesForFlaviaPFalcon)
 						pobj:setCallSign(playerShipNamesForFlaviaPFalcon[ni])
 						table.remove(playerShipNamesForFlaviaPFalcon,ni)
 					end
-					pobj.shipScore = 13
-					pobj.maxCargo = 15
 				elseif tempPlayerType == "Phobos M3P" then
 					if #playerShipNamesForPhobosM3P > 0 then
 						ni = math.random(1,#playerShipNamesForPhobosM3P)
 						pobj:setCallSign(playerShipNamesForPhobosM3P[ni])
 						table.remove(playerShipNamesForPhobosM3P,ni)
 					end
-					pobj.shipScore = 19
-					pobj.maxCargo = 10
 					pobj:setWarpDrive(true)
+					pobj:setWarpSpeed(500)
 				elseif tempPlayerType == "Atlantis" then
 					if #playerShipNamesForAtlantis > 0 then
 						ni = math.random(1,#playerShipNamesForAtlantis)
 						pobj:setCallSign(playerShipNamesForAtlantis[ni])
 						table.remove(playerShipNamesForAtlantis,ni)
 					end
-					pobj.shipScore = 52
-					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Cruiser" then
 					if #playerShipNamesForCruiser > 0 then
 						ni = math.random(1,#playerShipNamesForCruiser)
 						pobj:setCallSign(playerShipNamesForCruiser[ni])
 						table.remove(playerShipNamesForCruiser,ni)
 					end
-					pobj.shipScore = 40
-					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Missile Cr." then
 					if #playerShipNamesForMissileCruiser > 0 then
 						ni = math.random(1,#playerShipNamesForMissileCruiser)
 						pobj:setCallSign(playerShipNamesForMissileCruiser[ni])
 						table.remove(playerShipNamesForMissileCruiser,ni)
 					end
-					pobj.shipScore = 45
-					pobj.maxCargo = 8
 				elseif tempPlayerType == "Player Fighter" then
 					if #playerShipNamesForFighter > 0 then
 						ni = math.random(1,#playerShipNamesForFighter)
 						pobj:setCallSign(playerShipNamesForFighter[ni])
 						table.remove(playerShipNamesForFighter,ni)
 					end
-					pobj.shipScore = 7
-					pobj.maxCargo = 3
 					pobj.autoCoolant = false
 					pobj:setJumpDrive(true)
 					pobj:setJumpDriveRange(3000,40000)
@@ -8851,16 +8841,12 @@ function setPlayers()
 						pobj:setCallSign(playerShipNamesForBenedict[ni])
 						table.remove(playerShipNamesForBenedict,ni)
 					end
-					pobj.shipScore = 10
-					pobj.maxCargo = 9
 				elseif tempPlayerType == "Kiriya" then
 					if #playerShipNamesForKiriya > 0 then
 						ni = math.random(1,#playerShipNamesForKiriya)
 						pobj:setCallSign(playerShipNamesForKiriya[ni])
 						table.remove(playerShipNamesForKiriya,ni)
 					end
-					pobj.shipScore = 10
-					pobj.maxCargo = 9
 				elseif tempPlayerType == "Striker" then
 					if #playerShipNamesForStriker > 0 then
 						ni = math.random(1,#playerShipNamesForStriker)
@@ -8881,8 +8867,6 @@ function setPlayers()
 							bi = bi + 1
 						until(pobj:getBeamWeaponRange(bi) < 1)
 					end
-					pobj.shipScore = 8
-					pobj.maxCargo = 4
 					pobj:setJumpDrive(true)
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "ZX-Lindworm" then
@@ -8891,8 +8875,6 @@ function setPlayers()
 						pobj:setCallSign(playerShipNamesForLindworm[ni])
 						table.remove(playerShipNamesForLindworm,ni)
 					end
-					pobj.shipScore = 8
-					pobj.maxCargo = 3
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Repulse" then
@@ -8901,96 +8883,72 @@ function setPlayers()
 						pobj:setCallSign(playerShipNamesForRepulse[ni])
 						table.remove(playerShipNamesForRepulse,ni)
 					end
-					pobj.shipScore = 14
-					pobj.maxCargo = 12
 				elseif tempPlayerType == "Ender" then
 					if #playerShipNamesForEnder > 0 then
 						ni = math.random(1,#playerShipNamesForEnder)
 						pobj:setCallSign(playerShipNamesForEnder[ni])
 						table.remove(playerShipNamesForEnder,ni)
 					end
-					pobj.shipScore = 100
-					pobj.maxCargo = 20
 				elseif tempPlayerType == "Nautilus" then
 					if #playerShipNamesForNautilus > 0 then
 						ni = math.random(1,#playerShipNamesForNautilus)
 						pobj:setCallSign(playerShipNamesForNautilus[ni])
 						table.remove(playerShipNamesForNautilus,ni)
 					end
-					pobj.shipScore = 12
-					pobj.maxCargo = 7
 				elseif tempPlayerType == "Hathcock" then
 					if #playerShipNamesForHathcock > 0 then
 						ni = math.random(1,#playerShipNamesForHathcock)
 						pobj:setCallSign(playerShipNamesForHathcock[ni])
 						table.remove(playerShipNamesForHathcock,ni)
 					end
-					pobj.shipScore = 30
-					pobj.maxCargo = 6
 				elseif tempPlayerType == "Proto-Atlantis" then
 					if #playerShipNamesForProtoAtlantis > 0 then
 						ni = math.random(1,#playerShipNamesForProtoAtlantis)
 						pobj:setCallSign(playerShipNamesForProtoAtlantis[ni])
 						table.remove(playerShipNamesForProtoAtlantis,ni)
 					end
-					pobj.shipScore = 40
-					pobj.maxCargo = 4
 				elseif tempPlayerType == "Maverick" then
 					if #playerShipNamesForMaverick > 0 then
 						ni = math.random(1,#playerShipNamesForMaverick)
 						pobj:setCallSign(playerShipNamesForMaverick[ni])
 						table.remove(playerShipNamesForMaverick,ni)
 					end
-					pobj.shipScore = 45
-					pobj.maxCargo = 5
 				elseif tempPlayerType == "Crucible" then
 					if #playerShipNamesForCrucible > 0 then
 						ni = math.random(1,#playerShipNamesForCrucible)
 						pobj:setCallSign(playerShipNamesForCrucible[ni])
 						table.remove(playerShipNamesForCrucible,ni)
 					end
-					pobj.shipScore = 45
-					pobj.maxCargo = 5
 				elseif tempPlayerType == "Atlantis II" then
 					if #playerShipNamesForAtlantisII > 0 then
 						ni = math.random(1,#playerShipNamesForAtlantisII)
 						pobj:setCallSign(playerShipNamesForAtlantisII[ni])
 						table.remove(playerShipNamesForAtlantisII,ni)
 					end
-					pobj.shipScore = 60
-					pobj.maxCargo = 5
 				elseif tempPlayerType == "Surkov" then
 					if #playerShipNamesForSurkov > 0 then
 						ni = math.random(1,#playerShipNamesForSurkov)
 						pobj:setCallSign(playerShipNamesForSurkov[ni])
 						table.remove(playerShipNamesForSurkov,ni)
 					end
-					pobj.shipScore = 35
-					pobj.maxCargo = 6
 				elseif tempPlayerType == "Stricken" then
 					if #playerShipNamesForStricken > 0 then
 						ni = math.random(1,#playerShipNamesForStricken)
 						pobj:setCallSign(playerShipNamesForStricken[ni])
 						table.remove(playerShipNamesForStricken,ni)
 					end
-					pobj.shipScore = 40
-					pobj.maxCargo = 4
 				elseif tempPlayerType == "Redhook" then
 					if #playerShipNamesForRedhook > 0 then
 						ni = math.random(1,#playerShipNamesForRedhook)
 						pobj:setCallSign(playerShipNamesForRedhook[ni])
 						table.remove(playerShipNamesForRedhook,ni)
 					end
-					pobj.shipScore = 18
-					pobj.maxCargo = 8
 				elseif tempPlayerType == "Destroyer III" then
 					if #playerShipNamesForDestroyerIII > 0 then
 						ni = math.random(1,#playerShipNamesForDestroyerIII)
 						pobj:setCallSign(playerShipNamesForDestroyerIII[ni])
 						table.remove(playerShipNamesForDestroyerIII,ni)
 					end
-					pobj.shipScore = 25
-					pobj.maxCargo = 7
 				else
 					if #playerShipNamesForLeftovers > 0 then
 						ni = math.random(1,#playerShipNamesForLeftovers)
@@ -9000,6 +8958,11 @@ function setPlayers()
 					pobj.shipScore = 24
 					pobj.maxCargo = 5
 					pobj:setWarpDrive(true)
+					pobj:setWarpSpeed(500)
+					pobj:setLongRangeRadarRange(30000)
+					pobj:setShortRangeRadarRange(5000)
+					pobj.tractor = false
+					pobj.mining = false
 				end
 				if pobj.cargo == nil then
 					pobj.cargo = pobj.maxCargo
@@ -9825,10 +9788,271 @@ function getFactionPrefix(faction)
 		faction_prefix = kraylor_names[kraylor_name_choice]
 		table.remove(kraylor_names,kraylor_name_choice)
 	end
+	if faction == "Exuari" then
+		if exuari_names == nil then
+			setExuariNames()
+		else
+			if #exuari_names < 1 then
+				setExuariNames()
+			end
+		end
+		local exuari_name_choice = math.random(1,#exuari_names)
+		faction_prefix = exuari_names[exuari_name_choice]
+		table.remove(exuari_names,exuari_name_choice)
+	end
+	if faction == "Ghosts" then
+		if ghosts_names == nil then
+			setGhostsNames()
+		else
+			if #ghosts_names < 1 then
+				setGhostsNames()
+			end
+		end
+		local ghosts_name_choice = math.random(1,#ghosts_names)
+		faction_prefix = ghosts_names[ghosts_name_choice]
+		table.remove(ghosts_names,ghosts_name_choice)
+	end
+	if faction == "Independent" then
+		if independent_names == nil then
+			setIndependentNames()
+		else
+			if #independent_names < 1 then
+				setIndependentNames()
+			end
+		end
+		local independent_name_choice = math.random(1,#independent_names)
+		faction_prefix = independent_names[independent_name_choice]
+		table.remove(independent_names,independent_name_choice)
+	end
+	if faction == "Human Navy" then
+		if human_names == nil then
+			setHumanNames()
+		else
+			if #human_names < 1 then
+				setHumanNames()
+			end
+		end
+		local human_name_choice = math.random(1,#human_names)
+		faction_prefix = human_names[human_name_choice]
+		table.remove(human_names,human_name_choice)
+	end
 	if faction_prefix == nil then
 		faction_prefix = generateCallSignPrefix()
 	end
 	return faction_prefix
+end
+function setGhostsNames()
+	ghosts_names = {}
+	table.insert(ghosts_names,"Abstract")
+	table.insert(ghosts_names,"Ada")
+	table.insert(ghosts_names,"Assemble")
+	table.insert(ghosts_names,"Assert")
+	table.insert(ghosts_names,"Backup")
+	table.insert(ghosts_names,"BASIC")
+	table.insert(ghosts_names,"Big Iron")
+	table.insert(ghosts_names,"BigEndian")
+	table.insert(ghosts_names,"Binary")
+	table.insert(ghosts_names,"Bit")
+	table.insert(ghosts_names,"Block")
+	table.insert(ghosts_names,"Boot")
+	table.insert(ghosts_names,"Branch")
+	table.insert(ghosts_names,"BTree")
+	table.insert(ghosts_names,"Bubble")
+	table.insert(ghosts_names,"Byte")
+	table.insert(ghosts_names,"Capacitor")
+	table.insert(ghosts_names,"Case")
+	table.insert(ghosts_names,"Chad")
+	table.insert(ghosts_names,"Charge")
+	table.insert(ghosts_names,"COBOL")
+	table.insert(ghosts_names,"Collate")
+	table.insert(ghosts_names,"Compile")
+	table.insert(ghosts_names,"Control")
+	table.insert(ghosts_names,"Construct")
+	table.insert(ghosts_names,"Cycle")
+	table.insert(ghosts_names,"Data")
+	table.insert(ghosts_names,"Debug")
+	table.insert(ghosts_names,"Decimal")
+	table.insert(ghosts_names,"Decision")
+	table.insert(ghosts_names,"Default")
+	table.insert(ghosts_names,"DIMM")
+	table.insert(ghosts_names,"Displacement")
+	table.insert(ghosts_names,"Edge")
+	table.insert(ghosts_names,"Exit")
+	table.insert(ghosts_names,"Factor")
+	table.insert(ghosts_names,"Flag")
+	table.insert(ghosts_names,"Float")
+	table.insert(ghosts_names,"Flow")
+	table.insert(ghosts_names,"FORTRAN")
+	table.insert(ghosts_names,"Fullword")
+	table.insert(ghosts_names,"GIGO")
+	table.insert(ghosts_names,"Graph")
+	table.insert(ghosts_names,"Hack")
+	table.insert(ghosts_names,"Hash")
+	table.insert(ghosts_names,"Halfword")
+	table.insert(ghosts_names,"Hertz")
+	table.insert(ghosts_names,"Hexadecimal")
+	table.insert(ghosts_names,"Indicator")
+	table.insert(ghosts_names,"Initialize")
+	table.insert(ghosts_names,"Integer")
+	table.insert(ghosts_names,"Integrate")
+	table.insert(ghosts_names,"Interrupt")
+	table.insert(ghosts_names,"Java")
+	table.insert(ghosts_names,"Lisp")
+	table.insert(ghosts_names,"List")
+	table.insert(ghosts_names,"Logic")
+	table.insert(ghosts_names,"Loop")
+	table.insert(ghosts_names,"Lua")
+	table.insert(ghosts_names,"Magnetic")
+	table.insert(ghosts_names,"Mask")
+	table.insert(ghosts_names,"Memory")
+	table.insert(ghosts_names,"Mnemonic")
+	table.insert(ghosts_names,"Micro")
+	table.insert(ghosts_names,"Model")
+	table.insert(ghosts_names,"Nibble")
+	table.insert(ghosts_names,"Octal")
+	table.insert(ghosts_names,"Order")
+	table.insert(ghosts_names,"Operator")
+	table.insert(ghosts_names,"Parameter")
+	table.insert(ghosts_names,"Pascal")
+	table.insert(ghosts_names,"Pattern")
+	table.insert(ghosts_names,"Pixel")
+	table.insert(ghosts_names,"Point")
+	table.insert(ghosts_names,"Polygon")
+	table.insert(ghosts_names,"Port")
+	table.insert(ghosts_names,"Process")
+	table.insert(ghosts_names,"RAM")
+	table.insert(ghosts_names,"Raster")
+	table.insert(ghosts_names,"Rate")
+	table.insert(ghosts_names,"Redundant")
+	table.insert(ghosts_names,"Reference")
+	table.insert(ghosts_names,"Refresh")
+	table.insert(ghosts_names,"Register")
+	table.insert(ghosts_names,"Resistor")
+	table.insert(ghosts_names,"ROM")
+	table.insert(ghosts_names,"Routine")
+	table.insert(ghosts_names,"Ruby")
+	table.insert(ghosts_names,"SAAS")
+	table.insert(ghosts_names,"Sequence")
+	table.insert(ghosts_names,"Share")
+	table.insert(ghosts_names,"Silicon")
+	table.insert(ghosts_names,"SIMM")
+	table.insert(ghosts_names,"Socket")
+	table.insert(ghosts_names,"Sort")
+	table.insert(ghosts_names,"Structure")
+	table.insert(ghosts_names,"Switch")
+	table.insert(ghosts_names,"Symbol")
+	table.insert(ghosts_names,"Trace")
+	table.insert(ghosts_names,"Transistor")
+	table.insert(ghosts_names,"Value")
+	table.insert(ghosts_names,"Vector")
+	table.insert(ghosts_names,"Version")
+	table.insert(ghosts_names,"View")
+	table.insert(ghosts_names,"WYSIWYG")
+	table.insert(ghosts_names,"XOR")
+end
+function setExuariNames()
+	exuari_names = {}
+	table.insert(exuari_names,"Astonester")
+	table.insert(exuari_names,"Ametripox")
+	table.insert(exuari_names,"Bakeltevex")
+	table.insert(exuari_names,"Baropledax")
+	table.insert(exuari_names,"Batongomox")
+	table.insert(exuari_names,"Bekilvimix")
+	table.insert(exuari_names,"Benoglopok")
+	table.insert(exuari_names,"Bilontipur")
+	table.insert(exuari_names,"Bolictimik")
+	table.insert(exuari_names,"Bomagralax")
+	table.insert(exuari_names,"Buteldefex")
+	table.insert(exuari_names,"Catondinab")
+	table.insert(exuari_names,"Chatorlonox")
+	table.insert(exuari_names,"Culagromik")
+	table.insert(exuari_names,"Dakimbinix")
+	table.insert(exuari_names,"Degintalix")
+	table.insert(exuari_names,"Dimabratax")
+	table.insert(exuari_names,"Dokintifix")
+	table.insert(exuari_names,"Dotandirex")
+	table.insert(exuari_names,"Dupalgawax")
+	table.insert(exuari_names,"Ekoftupex")
+	table.insert(exuari_names,"Elidranov")
+	table.insert(exuari_names,"Fakobrovox")
+	table.insert(exuari_names,"Femoplabix")
+	table.insert(exuari_names,"Fibatralax")
+	table.insert(exuari_names,"Fomartoran")
+	table.insert(exuari_names,"Gateldepex")
+	table.insert(exuari_names,"Gamutrewal")
+	table.insert(exuari_names,"Gesanterux")
+	table.insert(exuari_names,"Gimardanax")
+	table.insert(exuari_names,"Hamintinal")
+	table.insert(exuari_names,"Holangavak")
+	table.insert(exuari_names,"Igolpafik")
+	table.insert(exuari_names,"Inoklomat")
+	table.insert(exuari_names,"Jamewtibex")
+	table.insert(exuari_names,"Jepospagox")
+	table.insert(exuari_names,"Kajortonox")
+	table.insert(exuari_names,"Kapogrinix")
+	table.insert(exuari_names,"Kelitravax")
+	table.insert(exuari_names,"Kipaldanax")
+	table.insert(exuari_names,"Kodendevex")
+	table.insert(exuari_names,"Kotelpedex")
+	table.insert(exuari_names,"Kutandolak")
+	table.insert(exuari_names,"Lakirtinix")
+	table.insert(exuari_names,"Lapoldinek")
+	table.insert(exuari_names,"Lavorbonox")
+	table.insert(exuari_names,"Letirvinix")
+	table.insert(exuari_names,"Lowibromax")
+	table.insert(exuari_names,"Makintibix")
+	table.insert(exuari_names,"Makorpohox")
+	table.insert(exuari_names,"Matoprowox")
+	table.insert(exuari_names,"Mefinketix")
+	table.insert(exuari_names,"Motandobak")
+	table.insert(exuari_names,"Nakustunux")
+	table.insert(exuari_names,"Nequivonax")
+	table.insert(exuari_names,"Nitaldavax")
+	table.insert(exuari_names,"Nobaldorex")
+	table.insert(exuari_names,"Obimpitix")
+	table.insert(exuari_names,"Owaklanat")
+	table.insert(exuari_names,"Pakendesik")
+	table.insert(exuari_names,"Pazinderix")
+	table.insert(exuari_names,"Pefoglamuk")
+	table.insert(exuari_names,"Pekirdivix")
+	table.insert(exuari_names,"Potarkadax")
+	table.insert(exuari_names,"Pulendemex")
+	table.insert(exuari_names,"Quatordunix")
+	table.insert(exuari_names,"Rakurdumux")
+	table.insert(exuari_names,"Ralombenik")
+	table.insert(exuari_names,"Regosporak")
+	table.insert(exuari_names,"Retordofox")
+	table.insert(exuari_names,"Rikondogox")
+	table.insert(exuari_names,"Rokengelex")
+	table.insert(exuari_names,"Rutarkadax")
+	table.insert(exuari_names,"Sakeldepex")
+	table.insert(exuari_names,"Setiftimix")
+	table.insert(exuari_names,"Siparkonal")
+	table.insert(exuari_names,"Sopaldanax")
+	table.insert(exuari_names,"Sudastulux")
+	table.insert(exuari_names,"Takeftebex")
+	table.insert(exuari_names,"Taliskawit")
+	table.insert(exuari_names,"Tegundolex")
+	table.insert(exuari_names,"Tekintipix")
+	table.insert(exuari_names,"Tiposhomox")
+	table.insert(exuari_names,"Tokaldapax")
+	table.insert(exuari_names,"Tomuglupux")
+	table.insert(exuari_names,"Tufeldepex")
+	table.insert(exuari_names,"Unegremek")
+	table.insert(exuari_names,"Uvendipax")
+	table.insert(exuari_names,"Vatorgopox")
+	table.insert(exuari_names,"Venitribix")
+	table.insert(exuari_names,"Vobalterix")
+	table.insert(exuari_names,"Wakintivix")
+	table.insert(exuari_names,"Wapaltunix")
+	table.insert(exuari_names,"Wekitrolax")
+	table.insert(exuari_names,"Wofarbanax")
+	table.insert(exuari_names,"Xeniplofek")
+	table.insert(exuari_names,"Yamaglevik")
+	table.insert(exuari_names,"Yakildivix")
+	table.insert(exuari_names,"Yegomparik")
+	table.insert(exuari_names,"Zapondehex")
+	table.insert(exuari_names,"Zikandelat")
 end
 function setKraylorNames()		
 	kraylor_names = {}
@@ -9935,6 +10159,188 @@ function setKraylorNames()
 	table.insert(kraylor_names,"Yeskret")
 	table.insert(kraylor_names,"Zacktrope")
 end
+function setIndependentNames()
+	independent_names = {}
+	table.insert(independent_names,"Akdroft")	--faux Kraylor
+	table.insert(independent_names,"Bletnik")	--faux Kraylor
+	table.insert(independent_names,"Brogfent")	--faux Kraylor
+	table.insert(independent_names,"Cruflech")	--faux Kraylor
+	table.insert(independent_names,"Dengtoct")	--faux Kraylor
+	table.insert(independent_names,"Fiklerg")	--faux Kraylor
+	table.insert(independent_names,"Groftep")	--faux Kraylor
+	table.insert(independent_names,"Hinkflort")	--faux Kraylor
+	table.insert(independent_names,"Irklesht")	--faux Kraylor
+	table.insert(independent_names,"Jotrak")	--faux Kraylor
+	table.insert(independent_names,"Kargleth")	--faux Kraylor
+	table.insert(independent_names,"Lidroft")	--faux Kraylor
+	table.insert(independent_names,"Movrect")	--faux Kraylor
+	table.insert(independent_names,"Nitrang")	--faux Kraylor
+	table.insert(independent_names,"Poklapt")	--faux Kraylor
+	table.insert(independent_names,"Raknalg")	--faux Kraylor
+	table.insert(independent_names,"Stovtuk")	--faux Kraylor
+	table.insert(independent_names,"Trongluft")	--faux Kraylor
+	table.insert(independent_names,"Vactremp")	--faux Kraylor
+	table.insert(independent_names,"Wunklesp")	--faux Kraylor
+	table.insert(independent_names,"Yentrilg")	--faux Kraylor
+	table.insert(independent_names,"Zeltrag")	--faux Kraylor
+	table.insert(independent_names,"Avoltojop")		--faux Exuari
+	table.insert(independent_names,"Bimartarax")	--faux Exuari
+	table.insert(independent_names,"Cidalkapax")	--faux Exuari
+	table.insert(independent_names,"Darongovax")	--faux Exuari
+	table.insert(independent_names,"Felistiyik")	--faux Exuari
+	table.insert(independent_names,"Gopendewex")	--faux Exuari
+	table.insert(independent_names,"Hakortodox")	--faux Exuari
+	table.insert(independent_names,"Jemistibix")	--faux Exuari
+	table.insert(independent_names,"Kilampafax")	--faux Exuari
+	table.insert(independent_names,"Lokuftumux")	--faux Exuari
+	table.insert(independent_names,"Mabildirix")	--faux Exuari
+	table.insert(independent_names,"Notervelex")	--faux Exuari
+	table.insert(independent_names,"Pekolgonex")	--faux Exuari
+	table.insert(independent_names,"Rifaltabax")	--faux Exuari
+	table.insert(independent_names,"Sobendeyex")	--faux Exuari
+	table.insert(independent_names,"Tinaftadax")	--faux Exuari
+	table.insert(independent_names,"Vadorgomax")	--faux Exuari
+	table.insert(independent_names,"Wilerpejex")	--faux Exuari
+	table.insert(independent_names,"Yukawvalak")	--faux Exuari
+	table.insert(independent_names,"Zajiltibix")	--faux Exuari
+	table.insert(independent_names,"Alter")		--faux Ghosts
+	table.insert(independent_names,"Assign")	--faux Ghosts
+	table.insert(independent_names,"Brain")		--faux Ghosts
+	table.insert(independent_names,"Break")		--faux Ghosts
+	table.insert(independent_names,"Boundary")	--faux Ghosts
+	table.insert(independent_names,"Code")		--faux Ghosts
+	table.insert(independent_names,"Compare")	--faux Ghosts
+	table.insert(independent_names,"Continue")	--faux Ghosts
+	table.insert(independent_names,"Core")		--faux Ghosts
+	table.insert(independent_names,"CRUD")		--faux Ghosts
+	table.insert(independent_names,"Decode")	--faux Ghosts
+	table.insert(independent_names,"Decrypt")	--faux Ghosts
+	table.insert(independent_names,"Device")	--faux Ghosts
+	table.insert(independent_names,"Encode")	--faux Ghosts
+	table.insert(independent_names,"Encrypt")	--faux Ghosts
+	table.insert(independent_names,"Event")		--faux Ghosts
+	table.insert(independent_names,"Fetch")		--faux Ghosts
+	table.insert(independent_names,"Frame")		--faux Ghosts
+	table.insert(independent_names,"Go")		--faux Ghosts
+	table.insert(independent_names,"IO")		--faux Ghosts
+	table.insert(independent_names,"Interface")	--faux Ghosts
+	table.insert(independent_names,"Kilo")		--faux Ghosts
+	table.insert(independent_names,"Modify")	--faux Ghosts
+	table.insert(independent_names,"Pin")		--faux Ghosts
+	table.insert(independent_names,"Program")	--faux Ghosts
+	table.insert(independent_names,"Purge")		--faux Ghosts
+	table.insert(independent_names,"Retrieve")	--faux Ghosts
+	table.insert(independent_names,"Store")		--faux Ghosts
+	table.insert(independent_names,"Unit")		--faux Ghosts
+	table.insert(independent_names,"Wire")		--faux Ghosts
+end
+function setHumanNames()
+	human_names = {}
+	table.insert(human_names,"Andromeda")
+	table.insert(human_names,"Angelica")
+	table.insert(human_names,"Artemis")
+	table.insert(human_names,"Barrier")
+	table.insert(human_names,"Beauteous")
+	table.insert(human_names,"Bliss")
+	table.insert(human_names,"Bonita")
+	table.insert(human_names,"Bounty Hunter")
+	table.insert(human_names,"Bueno")
+	table.insert(human_names,"Capitol")
+	table.insert(human_names,"Castigator")
+	table.insert(human_names,"Centurion")
+	table.insert(human_names,"Chakalaka")
+	table.insert(human_names,"Charity")
+	table.insert(human_names,"Christmas")
+	table.insert(human_names,"Chutzpah")
+	table.insert(human_names,"Constantine")
+	table.insert(human_names,"Crystal")
+	table.insert(human_names,"Dauntless")
+	table.insert(human_names,"Defiant")
+	table.insert(human_names,"Discovery")
+	table.insert(human_names,"Dorcas")
+	table.insert(human_names,"Elite")
+	table.insert(human_names,"Empathy")
+	table.insert(human_names,"Enlighten")
+	table.insert(human_names,"Enterprise")
+	table.insert(human_names,"Escape")
+	table.insert(human_names,"Exclamatory")
+	table.insert(human_names,"Faith")
+	table.insert(human_names,"Felicity")
+	table.insert(human_names,"Firefly")
+	table.insert(human_names,"Foresight")
+	table.insert(human_names,"Forthright")
+	table.insert(human_names,"Fortitude")
+	table.insert(human_names,"Frankenstein")
+	table.insert(human_names,"Gallant")
+	table.insert(human_names,"Gladiator")
+	table.insert(human_names,"Glider")
+	table.insert(human_names,"Godzilla")
+	table.insert(human_names,"Grind")
+	table.insert(human_names,"Happiness")
+	table.insert(human_names,"Hearken")
+	table.insert(human_names,"Helena")
+	table.insert(human_names,"Heracles")
+	table.insert(human_names,"Honorable Intentions")
+	table.insert(human_names,"Hope")
+	table.insert(human_names,"Hurricane")
+	table.insert(human_names,"Inertia")
+	table.insert(human_names,"Ingenius")
+	table.insert(human_names,"Injurious")
+	table.insert(human_names,"Insight")
+	table.insert(human_names,"Insufferable")
+	table.insert(human_names,"Insurmountable")
+	table.insert(human_names,"Intractable")
+	table.insert(human_names,"Intransigent")
+	table.insert(human_names,"Jenny")
+	table.insert(human_names,"Juice")
+	table.insert(human_names,"Justice")
+	table.insert(human_names,"Jurassic")
+	table.insert(human_names,"Karma Cast")
+	table.insert(human_names,"Knockout")
+	table.insert(human_names,"Leila")
+	table.insert(human_names,"Light Fantastic")
+	table.insert(human_names,"Livid")
+	table.insert(human_names,"Lolita")
+	table.insert(human_names,"Mercury")
+	table.insert(human_names,"Moira")
+	table.insert(human_names,"Mona Lisa")
+	table.insert(human_names,"Nancy")
+	table.insert(human_names,"Olivia")
+	table.insert(human_names,"Ominous")
+	table.insert(human_names,"Oracle")
+	table.insert(human_names,"Orca")
+	table.insert(human_names,"Pandemic")
+	table.insert(human_names,"Parsimonious")
+	table.insert(human_names,"Personal Prejudice")
+	table.insert(human_names,"Porpoise")
+	table.insert(human_names,"Pristine")
+	table.insert(human_names,"Purple Passion")
+	table.insert(human_names,"Renegade")
+	table.insert(human_names,"Revelation")
+	table.insert(human_names,"Rosanna")
+	table.insert(human_names,"Rozelle")
+	table.insert(human_names,"Sainted Gramma")
+	table.insert(human_names,"Shazam")
+	table.insert(human_names,"Starbird")
+	table.insert(human_names,"Stargazer")
+	table.insert(human_names,"Stile")
+	table.insert(human_names,"Streak")
+	table.insert(human_names,"Take Flight")
+	table.insert(human_names,"Taskmaster")
+	table.insert(human_names,"Tempest")
+	table.insert(human_names,"The Way")
+	table.insert(human_names,"Tornado")
+	table.insert(human_names,"Trailblazer")
+	table.insert(human_names,"Trident")
+	table.insert(human_names,"Triple Threat")
+	table.insert(human_names,"Turnabout")
+	table.insert(human_names,"Undulator")
+	table.insert(human_names,"Urgent")
+	table.insert(human_names,"Victoria")
+	table.insert(human_names,"Wee Bit")
+	table.insert(human_names,"Wet Willie")
+end
+
 --------------------
 -- Plot functions --
 --------------------
@@ -10035,6 +10441,7 @@ function kraylorTransportPlot(delta)
 					name = name .. " Freighter " .. irandom(1, 5)
 				end
 				kobj = CpuShip():setTemplate(name):setFaction('Kraylor'):setCommsScript(""):setCommsFunction(commsShip)
+				kobj:setCallSign(generateCallSign(nil,"Kraylor"))
 				kobj.target = target
 				kobj.undock_delay = math.random(1,4)
 				kobj:orderDock(kobj.target)
@@ -10113,6 +10520,7 @@ function independentTransportPlot(delta)
 					name = name .. " Freighter " .. irandom(1, 5)
 				end
 				obj = CpuShip():setTemplate(name):setFaction('Independent'):setCommsScript(""):setCommsFunction(commsShip)
+				obj:setCallSign(generateCallSign(nil,"Independent"))
 				obj.target = target
 				obj.undock_delay = irandom(1,4)
 				obj:orderDock(obj.target)
@@ -10189,6 +10597,7 @@ function friendlyTransportPlot(delta)
 					name = name .. " Freighter " .. fSize
 				end
 				obj = CpuShip():setTemplate(name):setFaction('Human Navy'):setCommsScript(""):setCommsFunction(commsShip)
+				obj:setCallSign(generateCallSign(nil,"Human Navy"))
 				obj.target = target
 				obj.undock_delay = irandom(1,4)
 				obj:orderDock(obj.target)
@@ -10753,6 +11162,7 @@ function enemyDefenseCheck(delta)
 							end
 							vx, vy = vectorFromAngle(random(0,360),random(25000,30000))
 							tdt = CpuShip():setTemplate(name):setFaction('Kraylor'):setCommsScript(""):setCommsFunction(commsShip):orderDock(enemyStation):setPosition(esx+vx,esy+vy)
+							tdt:setCallSign(generateCallSign(nil,"Kraylor"))
 							table.insert(deadlyTransportList,tdt)
 							plotExpTrans = explosiveTransportCheck
 							enemyStation.defenseDeployed = true
@@ -10795,6 +11205,7 @@ function artifactToPlatform(delta)
 				enemyDefensePlatformList = {}
 			end
 			twp = CpuShip():setTemplate("Defense platform"):setFaction("Kraylor"):setPosition(apx,apy):orderRoaming()
+			twp:setCallSign(generateCallSign(nil,"Kraylor"))
 			twp.distance = tap.triggerDistance
 			twp.originX = tap.originX
 			twp.originY = tap.originY
@@ -10968,6 +11379,7 @@ function spawnDroneFleet(originX, originY, droneCount, faction)
 	local deployConfig = random(1,100)
 	for i=1,droneCount do
 		ship = CpuShip():setFaction(faction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+		ship:setCallSign(generateCallSign(nil,faction))
 		if faction == "Kraylor" then
 			rawKraylorShipStrength = rawKraylorShipStrength + 4
 			ship:onDestruction(enemyVesselDestroyed)
@@ -11000,6 +11412,7 @@ function spawnFighterFleet(originX, originY, fighterCount, faction)
 		local shipTemplateType = math.random(1,#fighterNames)
 		fleetPower = fleetPower + fighterScores[shipTemplateType]
 		ship = CpuShip():setFaction(faction):setTemplate(fighterNames[shipTemplateType]):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+		ship:setCallSign(generateCallSign(nil,faction))
 		if faction == "Kraylor" then
 			rawKraylorShipStrength = rawKraylorShipStrength + fighterScores[shipTemplateType]
 			ship:onDestruction(enemyVesselDestroyed)
@@ -11036,6 +11449,7 @@ function spawnJammerFleet(originX, originY)
 		local shipTemplateType = math.random(1,#jammerNames)
 		fleetPower = fleetPower + jammerScores[shipTemplateType]
 		ship = CpuShip():setFaction(faction):setTemplate(jammerNames[shipTemplateType]):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+		ship:setCallSign(generateCallSign(nil,faction))
 		rawKraylorShipStrength = rawKraylorShipStrength + jammerScores[shipTemplateType]
 		ship:onDestruction(enemyVesselDestroyed)
 		if deployConfig < 50 then
@@ -11547,6 +11961,298 @@ function armoredWarpJammer(self, instigator)
 		instigator:setHull(instigator:getHull()*.8)
 	end
 end
+-- Plot mining
+function checkForMining(delta)
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if p.mining and p.cargo > 0 then
+				local vx, vy = p:getVelocity()
+				local player_velocity = math.abs(vx) + math.abs(vy)
+				local cpx, cpy = p:getPosition()
+				local nearby_objects = p:getObjectsInRange(1000)
+				if player_velocity < 10 then
+					if p.mining_target_lock then
+						if p.mining_target ~= nil and p.mining_target:isValid() then
+							if p.mining_in_progress then
+								p.mining_timer = p.mining_timer - delta
+								if p.mining_timer < 0 then
+									p.mining_in_progress = false
+									if p.mining_timer_info ~= nil then
+										p:removeCustom(p.mining_timer_info)
+										p.mining_timer_info = nil
+									end
+									p.mining_target_lock = false
+									p.mining_timer = nil
+									if #p.mining_target.trace_minerals > 0 then
+										local good = p.mining_target.trace_minerals[math.random(1,#p.mining_target.trace_minerals)]
+										if p.goods == nil then
+											p.goods = {}
+										end
+										if p.goods[good] == nil then
+											p.goods[good] = 0
+										end
+										p.goods[good] = p.goods[good] + 1
+										p.cargo = p.cargo - 1
+										if p:hasPlayerAtPosition("Science") then
+											local mined_mineral_message = "mined_mineral_message"
+											p:addCustomMessage("Science",mined_mineral_message,string.format("Mining obtained %s which has been stored in the cargo hold",good))
+										end
+									else	--no minerals in asteroid
+										if p:hasPlayerAtPosition("Science") then
+											local mined_mineral_message = "mined_mineral_message"
+											p:addCustomMessage("Science",mined_mineral_message,"mining failed to extract any minerals")
+										end										
+									end
+								else	--still mining, update timer display, energy and heat
+									p:setEnergy(p:getEnergy() - p:getMaxEnergy()*mining_drain)
+									p:setSystemHeat("beamweapons",p:getSystemHeat("beamweapons") + (.0025 * difficulty))
+									local mining_seconds = math.floor(p.mining_timer % 60)
+									if random(1,100) < 22 then
+										BeamEffect():setSource(p,0,0,0):setTarget(p.mining_target,0,0):setRing(false):setDuration(1):setTexture(mining_beam_string[math.random(1,#mining_beam_string)])
+									end
+									if p:hasPlayerAtPosition("Weapons") then
+										p.mining_timer_info = "mining_timer_info"
+										p:addCustomInfo("Weapons",p.mining_timer_info,string.format("Mining %i",mining_seconds))
+									end
+								end
+							else	--mining not in progress
+								if p.trigger_mine_beam_button == nil then
+									if p:hasPlayerAtPosition("Weapons") then
+										p.trigger_mine_beam_button = "trigger_mine_beam_button"
+										p:addCustomButton("Weapons",p.trigger_mine_beam_button,"Start Mining",function()
+											p.mining_in_progress = true
+											p.mining_timer = delta + 5
+											p:removeCustom(p.trigger_mine_beam_button)
+											p.trigger_mine_beam_button = nil
+										end)
+									end
+								end
+							end
+						else	--no mining target or mining target invalid
+							p.mining_target_lock = false
+							if p.mining_timer_info ~= nil then
+								p:removeCustom(p.mining_timer_info)
+								p.mining_timer_info = nil
+							end
+						end
+					else	--not locked
+						local mining_objects = {}
+						if nearby_objects ~= nil and #nearby_objects > 1 then
+							for _, obj in ipairs(nearby_objects) do
+								if p ~= obj then
+									local object_type = obj.typeName
+									if object_type ~= nil then
+										if object_type == "Asteroid" or object_type == "VisualAsteroid" then
+											table.insert(mining_objects,obj)
+										end
+									end
+								end
+							end		--end of nearby object list loop
+							if #mining_objects > 0 then
+								if p.mining_target ~= nil and p.mining_target:isValid() then
+									local target_in_list = false
+									for i=1,#mining_objects do
+										if mining_objects[i] == p.mining_target then
+											target_in_list = true
+											break
+										end
+									end		--end of check for the current target in list loop
+									if not target_in_list then
+										p.mining_target = mining_objects[1]
+										removeMiningButtons(p)
+									end
+								else
+									p.mining_target = mining_objects[1]
+								end
+								addMiningButtons(p,mining_objects)
+							else	--no mining objects
+								if p.mining_target ~= nil then
+									removeMiningButtons(p)
+									p.mining_target = nil
+								end
+							end
+						else	--no nearby objects
+							if p.mining_target ~= nil then
+								removeMiningButtons(p)
+								p.mining_target = nil
+							end
+						end
+					end
+				else	--not moving slowly enough to mine
+					removeMiningButtons(p)
+					if p.mining_timer_info ~= nil then
+						p:removeCustom(p.mining_timer_info)
+						p.mining_timer_info = nil
+					end
+					if p.trigger_mine_beam_button then
+						p:removeCustom(p.trigger_mine_beam_button)
+						p.trigger_mine_beam_button = nil
+					end
+					p.mining_target_lock = false
+					p.mining_in_progress = false
+					p.mining_timer = nil
+				end
+			end			
+		end
+	end
+end
+function removeMiningButtons(p)
+	if p.mining_next_target_button ~= nil then
+		p:removeCustom(p.mining_next_target_button)
+		p.mining_next_target_button = nil
+	end
+	if p.mining_target_button ~= nil then
+		p:removeCustom(p.mining_target_button)
+		p.mining_target_button = nil
+	end
+	if p.mining_lock_button ~= nil then
+		p:removeCustom(p.mining_lock_button)
+		p.mining_lock_button = nil
+	end
+end
+function addMiningButtons(p,mining_objects)
+	local cpx, cpy = p:getPosition()
+	local tpx, tpy = p.mining_target:getPosition()
+	if p.mining_lock_button == nil then
+		if p:hasPlayerAtPosition("Science") then
+			p.mining_lock_button = "mining_lock_button"
+			p:addCustomButton("Science",p.mining_lock_button,"Lock for Mining",function()
+				local cpx, cpy = p:getPosition()
+				local tpx, tpy = p.mining_target:getPosition()
+				local asteroid_distance = distance(cpx,cpy,tpx,tpy)
+				if asteroid_distance < 1000 then
+					p.mining_target_lock = true
+					local mining_locked_message = "mining_locked_message"
+					p:addCustomMessage("Science",mining_locked_message,"Mining target locked\nWeapons may trigger the mining beam")
+				else
+					local mining_lock_fail_message = "mining_lock_fail_message"
+					p:addCustomMessage("Engineering",mining_lock_fail_message,string.format("Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U",asteroid_distance/1000))
+					p.mining_target = nil
+				end
+				removeMiningButtons(p)
+			end)
+		end
+	end
+	if p.mining_target_button == nil then
+		if p:hasPlayerAtPosition("Science") then
+			p.mining_target_button = "mining_target_button"
+			p:addCustomButton("Science",p.mining_target_button,"Target Asteroid",function()
+				string.format("")	--necessary to have global reference for Serious Proton engine
+				tpx, tpy = p.mining_target:getPosition()
+				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+				local theta = math.atan(tpy - cpy,tpx - cpx)
+				if theta < 0 then
+					theta = theta + 6.2831853071795865
+				end
+				local angle = theta * 57.2957795130823209
+				angle = angle + 90
+				if angle > 360 then
+					angle = angle - 360
+				end
+				if p.mining_target.trace_minerals == nil then
+					p.mining_target.trace_minerals = {}
+					for i=1,#mineralGoods do
+						if random(1,100) < (26 - (difficulty * 5)) then
+							table.insert(p.mining_target.trace_minerals,mineralGoods[i])
+						end
+					end
+				end
+				local minerals = ""
+				for i=1,#p.mining_target.trace_minerals do
+					if minerals == "" then
+						minerals = minerals .. p.mining_target.trace_minerals[i]
+					else
+						minerals = minerals .. ", " .. p.mining_target.trace_minerals[i]
+					end
+				end
+				if minerals == "" then
+					minerals = "none"
+				end
+				local target_description = "target_description"
+				p:addCustomMessage("Science",target_description,string.format("Distance: %.1fU\nBearing: %.1f\nMineral traces detected: %s",target_distance,angle,minerals))
+			end)
+		end
+	end
+	if #mining_objects > 1 then
+		if p.mining_next_target_button == nil then
+			if p:hasPlayerAtPosition("Science") then
+				p.mining_next_target_button = "mining_next_target_button"
+				p:addCustomButton("Science",p.mining_next_target_button,"Other mining target",function()
+					local nearby_objects = p:getObjectsInRange(1000)
+					local mining_objects = {}
+					if nearby_objects ~= nil and #nearby_objects > 1 then
+						for _, obj in ipairs(nearby_objects) do
+							if p ~= obj then
+								local object_type = obj.typeName
+								if object_type ~= nil then
+									if object_type == "Asteroid" or object_type == "VisualAsteroid" then
+										table.insert(mining_objects,obj)
+									end
+								end
+							end
+						end		--end of nearby object list loop
+						if #mining_objects > 0 then
+							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+							if p.mining_target ~= nil and p.mining_target:isValid() then
+								local target_in_list = false
+								local matching_index = 0
+								for i=1,#mining_objects do
+									if mining_objects[i] == p.mining_target then
+										target_in_list = true
+										matching_index = i
+										break
+									end
+								end		--end of check for the current target in list loop
+								if target_in_list then
+									if #mining_objects > 1 then
+										if #mining_objects > 2 then
+											local new_index = matching_index
+											repeat
+												new_index = math.random(1,#mining_objects)
+											until(new_index ~= matching_index)
+											p.mining_target = mining_objects[new_index]
+										else
+											if matching_index == 1 then
+												p.mining_target = mining_objects[2]
+											else
+												p.mining_target = mining_objects[1]
+											end
+										end
+										removeMiningButtons(p)
+										addMiningButtons(p,mining_objects)
+									end
+								else
+									p.mining_target = mining_objects[1]
+									removeMiningButtons(p)
+									addMiningButtons(p,mining_objects)
+								end
+							else
+								p.mining_target = mining_objects[1]
+								addMiningButtons(p,mining_objects)
+							end
+						else	--no nearby tractorable objects
+							if p.mining_target ~= nil then
+								removeMiningButtons(p)
+								p.mining_target = nil
+							end
+						end
+					else	--no nearby objects
+						if p.mining_target ~= nil then
+							removeMiningButtons(p)
+							p.mining_target = nil
+						end
+					end
+				end)
+			end
+		end
+	else
+		if p.mining_next_target_button ~= nil then
+			p:removeCustom(p.mining_next_target_button)
+			p.mining_next_target_button = nil
+		end
+	end
+end
 -- Plot end of war checks and functions
 function endWar(delta)
 	endWarTimer = endWarTimer - delta
@@ -12039,6 +12745,9 @@ function update(delta)
 	end
 	if plotCN ~= nil then	--coolant via nebula
 		plotCN(delta)
+	end
+	if plotMining ~= nil then
+		plotMining(delta)
 	end
 	if plotSS ~= nil then	--spinal ship
 		plotSS(delta)
