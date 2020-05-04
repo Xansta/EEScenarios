@@ -1747,7 +1747,7 @@ end
 -- WARNING OFF			*	inline
 -- SHIP TYPE ON*		*	inline
 -- SHIP TYPE OFF		*	inline
--- +PROXIMITY 30U SRV	D	setStationSensorRange
+-- +PROXIMITY 30U DFLT	D	setStationSensorRange
 function autoStationWarn()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -1786,8 +1786,9 @@ function autoStationWarn()
 	end)
 	button_label = "+Proximity"
 	if server_sensor then
-		local long_range_server = getLongRangeRadarRange()
-		button_label = string.format("%s %iU SRV",button_label,long_range_server/1000)
+		--local long_range_server = getLongRangeRadarRange()
+		local long_range_server = 30000
+		button_label = string.format("%s %iU Dflt",button_label,long_range_server/1000)
 	else
 		button_label = string.format("%s %iU",button_label,station_sensor_range/1000)
 	end
@@ -5545,7 +5546,7 @@ end
 --	Initial Set Up > Automated Station Warning > Set Warning Proximity Distance  --
 -----------------------------------------------------------------------------------
 -- Button Text FD*	Related Function(s)
--- SERVER 30U	D	inline	
+-- DEFAULT 30U	D	inline	
 -- ZERO			F	inline
 -- 5U			F	inline
 -- 10U			F	inline
@@ -5553,8 +5554,9 @@ end
 -- 30U			F	inline
 function setStationSensorRange()
 	clearGMFunctions()
-	local long_range_server = getLongRangeRadarRange()
-	addGMFunction(string.format("Server %iU",long_range_server/1000),function()
+	--local long_range_server = getLongRangeRadarRange()
+	local long_range_server = 30000
+	addGMFunction(string.format("Default %iU",long_range_server/1000),function()
 		station_sensor_range = long_range_server
 		server_sensor = true
 		autoStationWarn()
@@ -6437,6 +6439,7 @@ function parmSpawnFleet()
 		fsx, fsy = centerOfSelected(objectList)
 	elseif fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" or fleetSpawnLocation == "Ambush" then
 		local selectedMatchesPlayer = false
+		local selected_player = nil
 		for i=1,#objectList do
 			local curSelObj = objectList[i]
 			for pidx=1,8 do
@@ -6445,6 +6448,7 @@ function parmSpawnFleet()
 					if p == curSelObj then
 						selectedMatchesPlayer = true
 						fsx, fsy = p:getPosition()
+						selected_player = p
 						break
 					end
 				end
@@ -6467,9 +6471,11 @@ function parmSpawnFleet()
 				local tvx = 0
 				local tvy = 0
 				if fleetSpawnLocation == "Sensor Edge" then
-					tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange())
+					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange())
+					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange())
 				else	--beyond sensors
-					tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange() + 10000)
+					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange() + 10000)
+					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange() + 10000)
 				end
 				fsx = fsx + tvx
 				fsy = fsy + tvy
