@@ -1807,9 +1807,9 @@ function setDefaultPlayerSpawnPoint()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Plyr Spwn Pt",setStartRegion)
-	local button_label = "Default"
+	local button_label = "Icarus (Default)"
 	if startRegion == "Default" then
-		button_label = "Default*"
+		button_label = "Icarus (Default)*"
 	end
 	addGMFunction(button_label,function()
 		playerSpawnX = 0
@@ -1848,9 +1848,9 @@ function changeTerrain()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Terrain",setStartRegion)
-	local button_label = "Default"
+	local button_label = "Icarus (Default)"
 	if icarus_color then
-		button_label = "Default*"
+		button_label = "Icarus (Default)*"
 	end
 	addGMFunction(button_label,function()
 		if icarus_color then
