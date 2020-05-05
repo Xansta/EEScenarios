@@ -3834,24 +3834,43 @@ end
 -- -MAIN			F	initialGMFunctions
 -- -SETUP			F	initialSetUp
 -- -PLAYER SHIP		F	playerShip
--- +AUTO COOL		F	autoCool
--- +COOLANT			F	changePlayerCoolant
--- +REPAIR CREW		F	changePlayerRepairCrew
+-- +ENGINEERING		F	tweakEngineering
 -- +CARGO			F	changePlayerCargo
 -- +REPUTATION		F	changePlayerReputation
--- +MAX SYSTEM		F	changePlayerMaxSystem
 function tweakPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("+Auto Cool",autoCool)
-	addGMFunction("+Coolant",changePlayerCoolant)
-	addGMFunction("+Repair Crew",changePlayerRepairCrew)
+	addGMFunction("+Engineering",tweakEngineering)
 	addGMFunction("+Cargo",changePlayerCargo)
 	addGMFunction("+Reputation",changePlayerReputation)
-	addGMFunction("+Max System",changePlayerMaxSystem)
 	addGMFunction("+Console Message",playerConsoleMessage)
+end
+------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering  --
+------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -PLAYER SHIP		F	playerShip
+-- -TWEAK PLAYER	F	tweakPlayerShip
+-- +AUTO COOL		F	autoCool
+-- +AUTO REPAIR		F	autoRepair
+-- +COOLANT			F	changePlayerCoolant
+-- +REPAIR CREW		F	changePlayerRepairCrew
+-- +MAX SYSTEM		F	changePlayerMaxSystem
+function tweakEngineering()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("+Auto Cool",autoCool)
+	addGMFunction("+Auto Repair",autoRepair)
+	addGMFunction("+Coolant",changePlayerCoolant)
+	addGMFunction("+Repair Crew",changePlayerRepairCrew)
+	addGMFunction("+Max System",changePlayerMaxSystem)
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Descriptions  --
@@ -3921,7 +3940,8 @@ function autoCool()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-From Auto Cool",tweakPlayerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-From Auto Cool",tweakEngineering)
 	for pidx=1,8 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
@@ -3947,6 +3967,37 @@ function autoCool()
 		end
 	end
 end
+function autoRepair()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-From Auto Repair",tweakEngineering)
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if p.auto_repair == nil then
+				p.auto_repair = false
+			end
+			local button_label = p:getCallSign()
+			if p.auto_repair then
+				button_label = button_label .. " on"
+			else
+				button_label = button_label .. " off"
+			end
+			addGMFunction(button_label,function()
+				if p.auto_repair then
+					p.auto_repair = false
+					p:commandSetAutoRepair(false)
+				else
+					p.auto_repair = true
+					p:commandSetAutoRepair(true)
+				end
+				autoRepair()
+			end)
+		end
+	end
+end
 --------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Coolant  --
 --------------------------------------------------------------
@@ -3963,6 +4014,7 @@ function changePlayerCoolant()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Engineering",tweakEngineering)
 	addGMFunction(string.format("Add %.1f coolant",coolant_amount), function()
 		local p = playerShipSelected()
 		if p ~= nil then
@@ -4040,6 +4092,7 @@ function changePlayerRepairCrew()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Engineering",tweakEngineering)
 	addGMFunction("Add repair crew", function()
 		local p = playerShipSelected()
 		if p ~= nil then
@@ -4296,7 +4349,7 @@ end
 -- +REAR SHIELD 1.00	D	changePlayerMaxRearShield
 function changePlayerMaxSystem()
 	clearGMFunctions()
-	addGMFunction("-From Max System",tweakPlayerShip)
+	addGMFunction("-From Max System",tweakEngineering)
 	local p = playerShipSelected()
 	if p ~= nil then
 		string.format("")	--necessary to have global reference for Serious Proton engine
