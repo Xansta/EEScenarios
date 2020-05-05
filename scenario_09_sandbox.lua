@@ -5,100 +5,93 @@
 -- Type: GM Controlled missions
 
 --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- +INITIAL SET UP------------>	-MAIN FROM INITIAL											  Toggle button per player ship <-------+AUTO COOL 	
--- +SPAWN FLEET---------------+	+START REGION------------------------->	[Region]													+COOLANT------------------>	ADD 1.0 COOLANT		
--- +ORDER FLEET-------------+ |	+PLAYER SHIPS 0/0-----------------------------+														+REPAIR CREW--------------+	REMOVE 1.0 COOLANT	
--- +ORDER SHIP------------+	| |	+WORMHOLES----------------------------------+ +--->	+TWEAK PLAYER--------------------------------->	+CARGO------------------+ |	1.0 - 0.5 = 0.5		
--- +DROP POINT----------+ |	| |	+ZONES------------------------------------+ | 		+CURRENT--->List	+DESCRIBE CURRENT---> List	+REPUTATION-----------+ | |	1.0 + 0.5 = 1.5		
--- +SCAN CLUE---------+	| |	| |	+WARN Y SHIP 30U S						  | | 		+SCRAPPED-->List	+DESCRIBE SCRAPPED--> List	+MAX SYSTEM------+	  | | V
--- +TWEAK TERRAIN---+ | | |	| V											  | | 		+DESCRIPTIONS----->	+DESCRIBE STOCK-----> List	+CONSOLE MESSAGE |	  | | ADD REPAIR CREW		
--- +COUNTDOWN TIMER	| | | |	| -MAIN FROM FLT SPWN					.5	  | V									 								   | |	  | | REMOVE REPAIR CREW	
--- +END SESSION-+ | | | | |	| +EXUARI--->Faction List				1*	  | +ICARUS TO DEFAULT---->	DEFAULT*	 		+SELECT|CHANGE MSG OBJ <---+ |	  | V	
---				| | | | | |	| +1 PLAYER STRENGTH: n*-------------->	2	  V							KENTAR				+SELECT PLAYER				 |	  |	+REMOVE CARGO--> List
---				| | | | | |	| +SET FIXED STRENGTH-----------------+	3	  +ADD ZONE---------------------+				+SEND TO CONSOLE----+		 |	  |	+ADD MINERAL---> List
---				| | | | | |	| +RANDOM---------------------------+ |	4	  +DELETE ZONE--> List	0		|									|		 |	  |	+ADD COMPONENT-> List
---				| | | | | |	| +UNMODIFIED---------------------+ | |	5							45		V				HELM		<-------+		 |	  V
---				| | | | | |	| +IDLE-------------------------+ | | |								90*		SECTOR			WEAPONS						 |	  ADD ONE REP n  
---				| | | | | |	| +AWAY-----------------------+ | | | +--->	250 - 50 = 200			135		SMALL SQUARE	ENGINEERING					 |	  ADD FIVE REP n
---				| | | | | |	| SPAWN						  | | | +---+	250 + 50 = 300			180						SCIENCE						 |	  ADD TEN REP n	
---				| | | | | |	V							  | | +---+ V							225						RELAY						 |	  DEL ONE REP n	
---				| | | | | |	-MAIN FROM ORDER FLT		  | +---+ | RANDOM*						270						 							 |	  FIVE REP n		
---				| | | | | |	+SELECT FLEET-->Fleet list	  +---+ | | FIGHTERS		+--------->	315						+----------------------------+	  DEL TEN REP n	
---				| | | | | |	+REORGANIZE FLEET--> Pending	  | | | CHASERS			|									|						
---				| | | | | V									  | | | FRIGATES		|	[Near To]						V
---				| | | | | -MAIN FROM ORDER SHIP				  | | | BEAMERS			|	3 CpuShip Buttons Possible		+REACTOR 1.00	--------+
---				| | | | | JAM RANGE 10 - 5 = 5U				  | | | MISSILERS		+---+90 DEGREES						+BEAM 1.00	------------+		
---				| | | | | JAM RANGE 10 + 5 = 15U			  | | | ADDERS			+---+30 UNITS						+MISSILE 1.00  ---------+		
---				| | | | | DROP JAMMER 10U					  | | | NON-DB			|	CREATE AT 90 DEG, 30U			+MANEUVER 1.00	--------+	
---				| | | | V									  | | | DRONES			|									+IMPULSE 1.00	--------+	
---				| | | | -MAIN FROM DROP PNT					  | | V					+----->	.5U							+WARP 1.00	------------+		
---				| | | | +ESCAPE POD-------------------------+ | | UNMODIFIED*				1U							+JUMP 1.00	------------+		
---				| | | | +MARINE POINT---------------------+	| | | IMPROVED					2U							+FRONT SHIELD 1.00	----+
---				| | | | +ENGINEER POINT-----------------+ |	| | | DEGRADED					3U							+REAR SHIELD 1.00  -----+	
---				| | | | +MEDICAL TEAM POINT-----------+ | |	| | | TINKERED					5U													|
---				| | | | +CUSTOM SUPPLY--------------+ | | |	| | | CHANGE CHANCE: 20			10U							V FROM 1.00 TO 0.95 <---+
---				| | | V								| | | |	| | | SET TO 10					20U							
---				| | | -MAIN FROM SCAN CLUE			| | | |	| | | SET TO 30					30U*						
---				| | | +UNSCANNED DESC--> Choice List| | | |	| | V							DEL 						
---				| | | +SCANNED DESC--> 5 Lists		| | | |	| | ROAMING													
---				| | | SHOW DESCRIPTIONS				| | | |	| | IDLE*													
---				| | | +SCAN COMPLEX: 1--> 4 Choices	| | | |	| | STAND GROUND											
---				| | | +SCAN DEPTH: 1--> 4 Choices	| | | |	| |															
---				| | | UNRETRIEVABLE					| | | |	| V							
---				| | | EXPIRING						| | | | | AT SELECTION
---				| | | +NEAR TO--> [Near To]			| | | |	| SENSOR EDGE				
---				| | V								| | | |	| BEYOND SENSORS								+->	DEFAULT*
---				| | -MAIN							| | | |	| +RANDOM DIRECTION			[Region]			|	KENTAR (R17)
---				| | EXPLODE SEL ART					| | | |	| +AWAY*					-MAIN FROM REGION	|
---				| | PULSE ASTEROID					| | | |	| +AMBUSH 5					-SETUP				|	
---				| | JUMP CORRIDOR OFF				| | | | |							+PLAYER SPAWN POINT-+
---				| | SANDBOX COMMS					| | | | |							+TERRAIN-------------->	DEFAULT
---				| | +STATION DEFENSE--------------+	| | | | |													KENTAR (R17)
---				| V								  |	| | | |	V													
---				| -MAIN FROM TIMER				  |	| | | |	(+)ASSOCIATED				
---				| +DISPLAY: GM----------+		  |	| | | |	+NEAR TO--> [Near To]						
---				| +LENGTH: 5----------+	|		  |	| | | |	NEAR RADIUS BUT SAFE			
---				| +PURPOSE: TIMER---+ |	|		  |	| | | |	EDGE BUT IN DANGER						
---				| +ADD SECONDS----+	| |	|		  |	| | | |	NEAR RADIUS BUT OUTSIDE			
---				| +DEL SECONDS--+ |	| |	V		  |	| | | |	EDGE BUT INSIDE			
---				| START TIMER	| |	| |	HELM	  |	| | | V
---				V				| |	| |	WEAPONS	  |	| | | DROP MARINES*	
---		-MAIN FROM END			| |	| |	ENGINEER  |	| | | EXTRACT MARINES	
---	+---+REGION REPORT			| | | |	SCIENCE	  |	| | | ASSOCIATED		
---	|	+FACTION VICTORY----+	| | | |	RELAY	  |	| | | +NEAR TO--> [Near To]		
---	|						|	| | | V			  |	| | V					  +----------->	500-100=400		
---	|						V	| | | 1 MINUTE	  |	| | DROP ENGINEERS*		  |				500+100=600		
---	|			[Victory List]	| | | 3 MINUTES	  |	| | EXTRACT ENGINEERS	  |								[Victory List]
---	V							| | | 5 MINUTES*  |	| | ASSOCIATED			  |	+--------->	1-1=0			-FROM VICTORY		
---	-MAIN FROM REGION			| | | 10 MINUTES  |	| | +NEAR TO--> [Near To] |	|			1+1=2			HUMAN VICTORY		
---	-END SESSION				| | | 15 MINUTES  |	| V						  | |							KRAYLOR VICTORY		
---	ICARUS REPORT				| | | 20 MINUTES  |	| DROP MEDICAL TEAM*	  |	| +------->	1-1=0			EXUARI VICTORY		
---								| | | 30 MINUTES  |	| EXTRACT MEDICAL TEAM	  |	| |			1+1=2			GHOST VICTORY		
---								| | | 45 MINUTES  |	| ASSOCIATED			  |	| |							ARLENIAN VICTORY	
---	+---------------------------+ |	V			  |	| +NEAR TO--> [Near To]	  | | | +----->	2-1=1			INDEPENDENT VICTORY	
---	|				+-------------+	TIMER*		  |	V						  | | | |		2+1=3			KTLITAN VICTORY		
---	V				V				DEATH		  |	+ENERGY 500---------------+ | | |						TSN VICTORY			
---	DEL 1 SECOND	ADD 1 SECOND	BREAKDOWN	  |	+NUKE 1---------------------+ | | +---> 4-1=3			USN VICTORY			
---	DEL 3 SECONDS	ADD 3 SECONDS	MISSION		  |	+EMP 1------------------------+ | |		4+1=5			CUF VICTORY			
---	DEL 5 SECONDS	ADD 5 SECONDS	DEPARTURE	  |	+MINE 2-------------------------+ |					
---	DEL 10 SECONDS	ADD 10 SECONDS	DESTRUCTION	  |	+HOMING 4-------------------------+	+->	0+1=1
---									DISCOVERY	  |	+HVLI 0-----------------------------+			
---			.5<-----+							  |	+REPAIR CREW 0------------------------> 0+1=1		+-->+PLATFORMS: 3---------->V FROM 3 TO 2
---			1*		|	AVG SPEED OFF			  |	+COOLANT 0--------------------------+				|	+ORBIT:NO-->[Orbit]		^ FROM 3 TO 4
---			2		+---+1 PLAYER STRENGTH: 16*	  |	+NEAR TO--> [Near To]				+->	0+1=1		|	SPAWN DEF PLATFORMS
---			3	 +------+SET FIXED STRENGTH		  V														|
---			4	 |	  +-+RANDOM					  -MAIN				+-----------------------------------+
---			5	 |	  |	SPAWN DEF FLEET<----+	  -TWEAK TERRAIN	|							V FROM 3 TO 2				+-->^ FROM 0 TO 1
---				 V	  V						+-----+DEFENSIVE FLEET	|	+PLATFORMS: 3---------->^ FROM 3 TO 4				|	+ORBIT: NO-->[Orbit]
---	250 - 50 = 200	  RANDOM*					  +INNER RING-------+	+MINES: NO----------------------------->+INLINE: 0-+									
---	250 + 50 = 300	  FIGHTERS					  +OUTER RING---------->+DP ORBIT: NO---------->ORBIT > FAST	+INSIDE: 0----->^ FROM 0 TO 1
---					  CHASERS					  AUTOROTATE NO			SPAWN OUTER DEFENSE		ORBIT > NORMAL	+OUTSIDE: 0---->+ORBIT: NO-->[Orbit]
---					  FRIGATES																	ORBIT > SLOW					V GAPS FROM 3 TO 2
---					  BEAMERS																	NO								^ GAPS FROM 3 TO 4
---					  MISSILERS																	ORBIT < FAST	
---					  ADDERS																	ORBIT < NORMAL
---					  NON-DB														[Orbit]---->ORBIT < SLOW
---					  DRONES																		
+-- * Main *							*** Start Region ***		*** Spawn Fleet Faction ***			**** Player Spawn Point ****	**** Icarus Wormhole ****		***** Engineering *****		
+-- +INITIAL SET UP					+PLAYER SPAWN POINT			List of factions					ICARUS (DEFAULT)*				DEFAULT*						+AUTO COOL					
+-- +SPAWN FLEET						+TERRAIN														KENTAR (R17)					KENTAR							+AUTO REPAIR				
+-- +ORDER FLEET													*** Fleet Str. vs Player ***																		+COOLANT					
+-- +ORDER SHIP						*** Player Ships ***		.5									**** Terrain ****				**** Add Zone ****				+REPAIR CREW				
+-- +DROP POINT						+TWEAK PLAYER				1*									ICARUS (DEFAULT)*				SECTOR							+MAX SYSTEM					
+-- +SCAN CLUE						+CURRENT--->List			2									KENTAR (R17)					SMALL SQUARE					
+-- +TWEAK TERRAIN					+SCRAPPED-->List			3																									****** Auto Cool ******
+-- +COUNTDOWN TIMER					+DESCRIPTIONS				4									**** Tweak Player ****			**** Degrees ****				Each player ship: OFF
+-- +END SESSION													5									+ENGINEERING					RANDOM							
+--									*** Wormholes ***												+CARGO							0								****** Auto Repair ******
+-- ** Initial Set Up **				+ICARUS TO DEFAULT			*** Fixed Fleet Strength ***		+REPUTATION						45								Each player ship: OFF
+-- +START REGION												250 - 50 = 200						+CONSOLE MESSAGE				90								
+-- +PLAYER SHIPS 0/0				*** Zones ***				250 + 50 = 300														135								****** Coolant ******
+-- +WORMHOLES						+ADD ZONE														**** Descriptions ****			180								ADD 1.0 COOLANT
+-- +ZONES							+DELETE ZONE-->List			*** Fleet Composition ***			+DESCRIBE CURRENT				225								REMOVE 1.0 COOLANT
+-- +WARN Y SHIP 30U D											RANDOM*								+DESCRIBE SCRAPPED				270								1.0 - 0.5 = 0.5
+--									*** Warning Config ***		FIGHTERS							+DESCRIBE STOCK					315								1.0 + 0.5 = 1.5
+-- ** Spawn Fleet **				WARNING ON*					CHASERS																								
+-- +EXUARI							WARNING OFF					FRIGATES							**** Warning Proximity ****		**** Distance ****				****** Repair Crew ******
+-- +1 PLAYER STRENGTH: n*			SHIP TYPE ON*				BEAMERS								DEFAULT 30U						5U								ADD REPAIR CREW
+-- +SET FIXED STRENGTH				SHIP TYPE OFF				MISSILERS							ZERO							10U								REMOVE REPAIR CREW
+-- +RANDOM							+PROXIMITY 30U DFLT			ADDERS								5U								20U								
+-- +UNMODIFIED													NON-DB								10U								30U								****** Max System ******
+-- +IDLE							*** Escape Pod ***			DRONES								20U								40U								+REACTOR 1.00
+-- +AWAY							(+)ASSOCIATED													30U								50U								+BEAM 1.00
+-- SPAWN							+NEAR TO--> [Near To]		*** Fleet Tweaked ***												60U*							+MISSILE 1.00
+--									NEAR RADIUS BUT SAFE		UNMODIFIED*							**** Spawn Away ****											+MANEUVER 1.00
+-- ** Order Fleet **				EDGE BUT IN DANGER			IMPROVED							+90 DEGREES						**** Ring Platforms ****		+IMPULSE 1.00
+-- +SELECT FLEET-->Fleet list		NEAR RADIUS BUT OUTSIDE		DEGRADED							+60U							V FROM 3 TO 2					+WARP 1.00
+-- +REORGANIZE FLEET--> Pending		EDGE BUT INSIDE				TINKERED															^ FROM 3 TO 4					+JUMP 1.00
+--																CHANGE CHANCE: 20					**** Ambush ****												+FRONT SHIELD 1.00
+-- ** Order Ship **					*** Marine Point ***		SET TO 10							3								**** Platform Orbit ****		+REAR SHIELD 1.00
+-- JAM RANGE 10 - 5 = 5U			DROP MARINES*				SET TO 30							4								ORBIT > FAST					
+-- JAM RANGE 10 + 5 = 15U			EXTRACT MARINES													5*								ORBIT > NORMAL					******* Each System *******
+-- DROP JAMMER 10U					ASSOCIATED					*** Fleet Orders ***				6								ORBIT > SLOW					V FROM 1.00 TO 0.95
+--									+NEAR TO--> [Near To]		ROAMING								7								NO*								
+-- ** Drop Point **												IDLE*																ORBIT < FAST					
+-- +ESCAPE POD						*** Engineer Point ***		STAND GROUND						**** Defensive Fleet ****		ORBIT < NORMAL					
+-- +MARINE POINT					DROP ENGINEERS*		 											AVG SPEED OFF					ORBIT < SLOW					
+-- +ENGINEER POINT					EXTRACT ENGINEERS	 		*** Fleet Spawn Location ***		+1 PLAYER STRENGTH: 40*											
+-- +MEDICAL TEAM POINT				ASSOCIATED			 		AT SELECTION						+SET FIXED STRENGTH				**** Mines ****					
+-- +CUSTOM SUPPLY					+NEAR TO--> [Near To]		SENSOR EDGE							+RANDOM							+INLINE: 0						
+--																BEYOND SENSORS						SPAWN DEF FLEET					+INSIDE: 0						
+-- ** Scan Clue **					*** Medics Point ***		+AWAY*																+OUTSIDE: 0						
+-- +UNSCANNED DESC--> Choice List	DROP MEDICAL TEAM*			+AMBUSH 5							**** Inner Ring ****											
+-- +SCANNED DESC--> 5 Lists			EXTRACT MEDICAL TEAM											+PLATFORMS: 3					***** Mine Rings *****			
+-- SHOW DESCRIPTIONS				ASSOCIATED					*** Station Defense ***				+ORBIT: NO						^ FROM 0 TO 1					
+-- +SCAN COMPLEX: 1--> 4 Choices	+NEAR TO--> [Near To]		+SELECT STATION						SPAWN DEF PLATFORMS				+ORBIT: NO						
+-- +SCAN DEPTH: 1--> 4 Choices									or																									
+-- UNRETRIEVABLE					*** Custom Supply ***		+DEFENSIVE FLEET					**** Outer Ring ****			**** Tweak Player ****			
+-- EXPIRING							+ENERGY 500					+INNER RING							+PLATFORMS: 3					+ENGINEERING					
+-- +NEAR TO--> [Near To]			+NUKE 1						+OUTER RING							+MINES: NO						+CARGO							
+--									+EMP 1						AUTOROTATE NO						+DP ORBIT: NO					+REPUTATION						
+-- ** Tweak Terrain **				+MINE 2															SPAWN OUTER DEFENSE				+CONSOLE MESSAGE				
+-- EXPLODE SEL ART					+HOMING 4					*** Countdown Displays ***																			
+-- PULSE ASTEROID					+HVLI 0						HELM								**** Energy ****				***** Cargo *****					
+-- JUMP CORRIDOR OFF				+REPAIR CREW 0				WEAPONS								500 - 100 = 400					+REMOVE CARGO						
+-- SANDBOX COMMS					+COOLANT 0					ENGINEER							500 + 100 = 600					+ADD MINERAL						
+-- +STATION DEFENSE					+NEAR TO--> [Near To]		SCIENCE																+ADD COMPONENT						
+-- 																RELAY								**** Nuke ****														
+-- ** Countdown Timer **			[Near To]														1 - 1 = 0						***** REPUTATION *****				
+-- +DISPLAY: GM,R					3 CpuShip Buttons Possible	*** Countdown Length ***			1 + 1 = 0						ADD ONE REP 50													
+-- +LENGTH: 5						+90 DEGREES					1 MINUTE	 														ADD FIVE REP 50					
+-- +PURPOSE: TIMER					+30 UNITS					3 MINUTES	 						**** EMP ****					ADD TEN REP 50					
+-- +ADD SECONDS						CREATE AT 90 DEG, 30U		5 MINUTES* 							1 - 1 = 0						DEL ONE REP 50					
+-- +DEL SECONDS 												10 MINUTES 							1 + 1 = 0						DEL FIVE REP 50					
+-- +CHANGE SPEED					[Near To Degrees]			15 MINUTES 															DEL TEN REP 50					
+-- SHOW CURRENT						0							20 MINUTES 							**** Mine ****													
+-- START TIMER 						45							30 MINUTES 							2 - 1 = 1						***** Console Message *****		
+--									90*							45 MINUTES 							2 + 1 = 3						+SELECT MSG OBJ					
+-- ** End Session **				135																								+CHANGE MSG OBJ					
+-- +REGION REPORT-->Region			180							*** Countdown Purpose ***			**** Homing ****				+SELECT PLAYER					
+-- +FACTION VICTORY-->Faction		225							TIMER*								4 - 1 = 3						+SEND TO CONSOLE				
+--									270							DEATH								4 + 1 = 5														
+-- *** Add Seconds ***				315							BREAKDOWN															****** Send to Console ******	
+-- ADD 1 SECOND													MISSION								**** HVLI ****					HELM							
+-- ADD 3 SECONDS					[Near To Units]				DEPARTURE							0 + 1 = 1						WEAPONS							
+-- ADD 5 SECONDS					.5U							DESTRUCTION															ENGINEERING						
+-- ADD 10 SECONDS					1U							DISCOVERY							**** Repair Crew ****			SCIENCE							
+--									2U							DECOMPRESSION						0 + 1 = 1						RELAY							
+-- *** Change Speed ***				3U																								
+-- SLOW DOWN						4U																**** Coolant ****				
+-- NORMALIZE						5U																0 + 1 = 1						
+-- SPEED UP							10U																								
+--									20U																								
+--									30U																								
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 require("utils.lua")
@@ -784,7 +777,7 @@ function initialSetUp()
 		button_label = button_label .. " NoShip"
 	end
 	if server_sensor then
-		button_label = string.format("%s %iU S",button_label,station_sensor_range/1000)
+		button_label = string.format("%s %iU D",button_label,station_sensor_range/1000)
 	else
 		button_label = string.format("%s %iU",button_label,station_sensor_range/1000)
 	end
@@ -3847,31 +3840,6 @@ function tweakPlayerShip()
 	addGMFunction("+Reputation",changePlayerReputation)
 	addGMFunction("+Console Message",playerConsoleMessage)
 end
-------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Engineering  --
-------------------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -PLAYER SHIP		F	playerShip
--- -TWEAK PLAYER	F	tweakPlayerShip
--- +AUTO COOL		F	autoCool
--- +AUTO REPAIR		F	autoRepair
--- +COOLANT			F	changePlayerCoolant
--- +REPAIR CREW		F	changePlayerRepairCrew
--- +MAX SYSTEM		F	changePlayerMaxSystem
-function tweakEngineering()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("+Auto Cool",autoCool)
-	addGMFunction("+Auto Repair",autoRepair)
-	addGMFunction("+Coolant",changePlayerCoolant)
-	addGMFunction("+Repair Crew",changePlayerRepairCrew)
-	addGMFunction("+Max System",changePlayerMaxSystem)
-end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Descriptions  --
 ----------------------------------------------------
@@ -3928,9 +3896,34 @@ function inactivePlayerShip()
 		end
 	end
 end
----------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Auto Cool --
----------------------------------------------------------------
+------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering  --
+------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -PLAYER SHIP		F	playerShip
+-- -TWEAK PLAYER	F	tweakPlayerShip
+-- +AUTO COOL		F	autoCool
+-- +AUTO REPAIR		F	autoRepair
+-- +COOLANT			F	changePlayerCoolant
+-- +REPAIR CREW		F	changePlayerRepairCrew
+-- +MAX SYSTEM		F	changePlayerMaxSystem
+function tweakEngineering()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("+Auto Cool",autoCool)
+	addGMFunction("+Auto Repair",autoRepair)
+	addGMFunction("+Coolant",changePlayerCoolant)
+	addGMFunction("+Repair Crew",changePlayerRepairCrew)
+	addGMFunction("+Max System",changePlayerMaxSystem)
+end
+-----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Cool --
+-----------------------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -SETUP			F	initialSetUp
@@ -3967,6 +3960,14 @@ function autoCool()
 		end
 	end
 end
+-------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Repair --
+-------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -FROM AUTO REPAIR	F	tweakPlayerShip
+-- Button to toggle auto cool for each player ship already spawned
 function autoRepair()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -3998,9 +3999,9 @@ function autoRepair()
 		end
 	end
 end
---------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Coolant  --
---------------------------------------------------------------
+----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering > Coolant  --
+----------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- -SETUP				F	initialSetUp
@@ -4078,9 +4079,9 @@ function changePlayerCoolant()
 		end)
 	end
 end
-------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Repair Crew  --
-------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering > Repair Crew  --
+--------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- -SETUP				F	initialSetUp
@@ -4146,6 +4147,39 @@ function changePlayerRepairCrew()
 		changePlayerRepairCrew()
 	end)
 end
+-------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering > Max System  --
+-------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -FROM MAX SYSTEM		F	tweakPlayerShip
+-- +REACTOR 1.00		D	changePlayerMaxReactor
+-- +BEAM 1.00			D	changePlayerMaxBeam
+-- +MISSILE 1.00		D	changePlayerMaxMissile
+-- +MANEUVER 1.00		D	changePlayerMaxManeuver
+-- +IMPULSE 1.00		D	changePlayerMaxImpulse
+-- +WARP 1.00			D	changePlayerMaxWarp
+-- +JUMP 1.00			D	changePlayerMaxJump
+-- +FRONT SHIELD 1.00	D	changePlayerMaxFrontShield
+-- +REAR SHIELD 1.00	D	changePlayerMaxRearShield
+function changePlayerMaxSystem()
+	clearGMFunctions()
+	addGMFunction("-From Max System",tweakEngineering)
+	local p = playerShipSelected()
+	if p ~= nil then
+		string.format("")	--necessary to have global reference for Serious Proton engine
+		addGMFunction(string.format("+Reactor %.2f",p.max_reactor),changePlayerMaxReactor)
+		addGMFunction(string.format("+Beam %.2f",p.max_beam),changePlayerMaxBeam)
+		addGMFunction(string.format("+Missile %.2f",p.max_missile),changePlayerMaxMissile)
+		addGMFunction(string.format("+Maneuver %.2f",p.max_maneuver),changePlayerMaxManeuver)
+		addGMFunction(string.format("+Impulse %.2f",p.max_impulse),changePlayerMaxImpulse)
+		addGMFunction(string.format("+Warp %.2f",p.max_warp),changePlayerMaxWarp)
+		addGMFunction(string.format("+Jump %.2f",p.max_jump),changePlayerMaxJump)
+		addGMFunction(string.format("+Front Shield %.2f",p.max_front_shield),changePlayerMaxFrontShield)
+		addGMFunction(string.format("+Rear Shield %.2f",p.max_rear_shield),changePlayerMaxRearShield)
+	else
+		addGMFunction("+Select Player",changePlayerMaxSystem)
+	end
+end
 ------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Cargo  --
 ------------------------------------------------------------
@@ -4189,6 +4223,12 @@ function playerShipSelected()
 	end
 	return nil
 end
+---------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Cargo > Remove Cargo  --
+---------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -CARGO FROM DEL		F	changePlayerCargo
+-- One button for each type of cargo in the selected player ship
 function removeCargo()
 	clearGMFunctions()
 	addGMFunction("-Cargo From Del",changePlayerCargo)
@@ -4220,6 +4260,12 @@ function removeCargo()
 		changePlayerCargo()
 	end
 end
+--------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Cargo > Add Mineral Cargo  --
+--------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -CARGO FROM ADD		F	changePlayerCargo
+-- One button for each mineral cargo type
 function addMineralCargo()
 	clearGMFunctions()
 	addGMFunction("-Cargo From Add",changePlayerCargo)
@@ -4250,6 +4296,12 @@ function addMineralCargo()
 		changePlayerCargo()
 	end
 end
+----------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Cargo > Add Component Cargo  --
+----------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -CARGO FROM ADD		F	changePlayerCargo
+-- One button for each component cargo type
 function addComponentCargo()
 	clearGMFunctions()
 	addGMFunction("-Cargo From Add",changePlayerCargo)
@@ -4331,39 +4383,6 @@ function changePlayerReputation()
 	else
 		addGMMessage("No player selected. No action taken. No reputation options presented")
 		tweakPlayerShip()
-	end
-end
------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Max System  --
------------------------------------------------------------------
--- Button text		   FD*	Related Function(s)
--- -FROM MAX SYSTEM		F	tweakPlayerShip
--- +REACTOR 1.00		D	changePlayerMaxReactor
--- +BEAM 1.00			D	changePlayerMaxBeam
--- +MISSILE 1.00		D	changePlayerMaxMissile
--- +MANEUVER 1.00		D	changePlayerMaxManeuver
--- +IMPULSE 1.00		D	changePlayerMaxImpulse
--- +WARP 1.00			D	changePlayerMaxWarp
--- +JUMP 1.00			D	changePlayerMaxJump
--- +FRONT SHIELD 1.00	D	changePlayerMaxFrontShield
--- +REAR SHIELD 1.00	D	changePlayerMaxRearShield
-function changePlayerMaxSystem()
-	clearGMFunctions()
-	addGMFunction("-From Max System",tweakEngineering)
-	local p = playerShipSelected()
-	if p ~= nil then
-		string.format("")	--necessary to have global reference for Serious Proton engine
-		addGMFunction(string.format("+Reactor %.2f",p.max_reactor),changePlayerMaxReactor)
-		addGMFunction(string.format("+Beam %.2f",p.max_beam),changePlayerMaxBeam)
-		addGMFunction(string.format("+Missile %.2f",p.max_missile),changePlayerMaxMissile)
-		addGMFunction(string.format("+Maneuver %.2f",p.max_maneuver),changePlayerMaxManeuver)
-		addGMFunction(string.format("+Impulse %.2f",p.max_impulse),changePlayerMaxImpulse)
-		addGMFunction(string.format("+Warp %.2f",p.max_warp),changePlayerMaxWarp)
-		addGMFunction(string.format("+Jump %.2f",p.max_jump),changePlayerMaxJump)
-		addGMFunction(string.format("+Front Shield %.2f",p.max_front_shield),changePlayerMaxFrontShield)
-		addGMFunction(string.format("+Rear Shield %.2f",p.max_rear_shield),changePlayerMaxRearShield)
-	else
-		addGMFunction("+Select Player",changePlayerMaxSystem)
 	end
 end
 ----------------------------------------------------------------------
@@ -5879,7 +5898,10 @@ end
 -- DRONES				*	inline
 function setFleetComposition(caller)
 	clearGMFunctions()
-	addGMFunction("-From composition",spawnGMFleet)
+	addGMFunction("-From composition",function()
+		string.format("")	--necessary to have global reference for Serious Proton engine
+		caller()
+	end)
 	local GMSetFleetCompositionRandom = "Random"
 	if fleetComposition == "Random" then
 		GMSetFleetCompositionRandom = "Random*"
