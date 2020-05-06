@@ -5114,6 +5114,8 @@ function createPlayerShipGorn()
 	playerGorn:setBeamWeaponHeatPerFire(0,playerGorn:getBeamWeaponHeatPerFire(0)*3)			--triple heat
 	playerGorn:setBeamWeaponEnergyPerFire(1,playerGorn:getBeamWeaponEnergyPerFire(1)*3)		--triple power use
 	playerGorn:setBeamWeaponHeatPerFire(1,playerGorn:getBeamWeaponHeatPerFire(1)*3)			--triple heat
+--                  			Arc, Dir, Range, CycleTime, Dmg
+	playerGorn:setBeamWeapon(0, 100, -20,   750,		 6,   4)	--shorter range (vs 1500), less damage (vs 8)
 	playerGorn:setWeaponTubeExclusiveFor(0,"HVLI")		--HVLI only (vs all but Mine)
 	playerGorn:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs all but Mine)
 	playerGorn:setWeaponTubeExclusiveFor(2,"HVLI")		--HVLI only (vs all but Mine)
