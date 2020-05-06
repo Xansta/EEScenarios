@@ -736,6 +736,7 @@ function initialGMFunctions()
 	addGMFunction("+Tweak Terrain",tweakTerrain)
 	addGMFunction("+Countdown Timer",countdownTimer)
 	addGMFunction("+End Session",endSession)
+	addGMFunction("+Custom",customButtons)
 end
 ----------------------
 --  Initial set up  --
@@ -1609,6 +1610,19 @@ function endSession()
 	addGMFunction("-Main From End",initialGMFunctions)
 	addGMFunction("+Region Report",regionReport)
 	addGMFunction("+Faction Victory",endMission)
+end
+--------------
+--	Custom  --
+--------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM END		F	initialGMFunctions
+-- STARRY				F	inline
+function customButtons()
+	clearGMFunctions()
+	addGMFunction("-Main From Custom",initialGMFunctions)
+	addGMFunction("Starry",function()
+		addGMMessage("Starry was here")
+	end)
 end
 -------------------------------------
 --	Initial Set Up > Start Region  --
