@@ -93,9 +93,49 @@
 --									20U																								
 --									30U																								
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-
 require("utils.lua")
-
+starryUtil={
+	math={
+		-- linear interpolation
+		-- mostly intended as an aid to make code more readable
+		lerp=function(a,b,t)
+			assert(type(a)=="number")
+			assert(type(b)=="number")
+			assert(type(t)=="number")
+			return a + t * (b - a);
+		end
+	},
+	debug={
+		-- get a multi-line string for the number of objects at the current time
+		-- intended to be used via addGMMessage or print, but there may be other uses
+		-- it may be worth considering adding a function which would return an array rather than a string
+		getNumberOfObjectsString=function()
+			local counts={}
+			--first up we accumulate the number of each type of object
+			for _,obj in pairs(getAllObjects()) do
+				if counts[obj.typeName]==nil then
+					counts[obj.typeName]=0
+				end
+				counts[obj.typeName]=counts[obj.typeName]+1
+			end
+			-- we want the ordering to be stable so we build a key list
+			local sortedKeys={}
+			for key in pairs(counts) do
+				table.insert(sortedKeys, key)
+			end
+			table.sort(sortedKeys)
+			--lastly we build the output
+			local ret=""
+			for _,key in ipairs(sortedKeys) do
+				if not(ret=="") then
+					ret=ret.."\n"
+				end
+				ret=ret..key.." "..counts[key]
+			end
+			return ret
+		end
+	}
+}
 function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
@@ -318,7 +358,7 @@ function setConstants()
 						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false	},
 						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true	},
 						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false	},
-						["Nusret"]				= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = false	},
+						["Nusret"]				= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true	},
 						["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
 						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
 					}	
@@ -1620,8 +1660,34 @@ end
 function customButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From Custom",initialGMFunctions)
-	addGMFunction("Starry",function()
-		addGMMessage("Starry was here")
+	addGMFunction("Object Numbers",function()
+		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
+	end)
+	addGMFunction("Object Counts",function()
+		local object_list = getAllObjects()
+		local object_counts = {}
+		for i=1,#object_list do
+			local obj = object_list[i]
+			if object_counts[obj.typeName] == nil then
+				object_counts[obj.typeName] = 1
+			else
+				object_counts[obj.typeName] = object_counts[obj.typeName] + 1
+			end
+		end
+		local sorted_counts = {}
+		for object_type in pairs(object_counts) do
+			table.insert(sorted_counts,object_type)
+		end
+		table.sort(sorted_counts)
+		local output_blob = ""
+		for _, object_type in ipairs(sorted_counts) do
+			local output_line = string.format("%s: %i",object_type,object_counts[object_type])
+			print(output_line)
+			output_blob = output_blob .. output_line .. "\n"
+		end
+		print("Total: " .. #object_list)
+		output_blob = output_blob .. "Total: " .. #object_list
+		addGMMessage(output_blob)
 	end)
 end
 -------------------------------------
