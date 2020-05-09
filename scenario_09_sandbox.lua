@@ -142,6 +142,7 @@ function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
 	change_enemy_order_diagnostic = true
+	popupGMDebug = "once"
 	setConstants()
 	initialGMFunctions()
 	createSkeletonUniverse()
@@ -1662,6 +1663,15 @@ function debugButtons()
 	addGMFunction("-Custom",customButtons)
 	addGMFunction("Object Counts",function()
 		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
+	end)
+	addGMFunction("always popup debug",function()
+		popupGMDebug = "always"
+	end)
+	addGMFunction("once popup debug",function()
+		popupGMDebug = "once"
+	end)
+	addGMFunction("never popup debug",function()
+		popupGMDebug = "never"
 	end)
 end
 --------------
@@ -14102,7 +14112,7 @@ function movingObjects(delta)
 		end
 	end
 end
-function update(delta)
+function updateInner(delta)
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
 	if timer_started then
@@ -15064,4 +15074,17 @@ function update(delta)
 		plotPulse(delta)
 	end
 	if updateDiagnostic then print("update: end of update function") end
+end
+function update(delta)
+    local status,error=pcall(updateInner,delta)
+    if not status then
+		print("script error : - ")
+		print(error)
+		if popupGMDebug == "once" or popupGMDebug == "always" then
+			if popupGMDebug == "once" then
+				popupGMDebug = "never"
+			end
+			addGMMessage("script error - \n"..error)
+		end
+    end
 end
