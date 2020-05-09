@@ -1653,6 +1653,17 @@ function endSession()
 	addGMFunction("+Region Report",regionReport)
 	addGMFunction("+Faction Victory",endMission)
 end
+-------------
+--  debug  --
+-------------
+function debugButtons()
+	clearGMFunctions()
+	addGMFunction("-Main From Debug",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("Object Counts",function()
+		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
+	end)
+end
 --------------
 --	Custom  --
 --------------
@@ -1662,9 +1673,7 @@ end
 function customButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From Custom",initialGMFunctions)
-	addGMFunction("Object Counts",function()
-		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
-	end)
+	addGMFunction("+Debug",debugButtons)
 end
 -------------------------------------
 --	Initial Set Up > Start Region  --
