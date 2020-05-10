@@ -14,11 +14,55 @@
 -- Station warning of enemies in area (helpful warnings - shuffle stations)
 
 require("utils.lua")
+-- starryUtil v2
+starryUtil={
+	math={
+		-- linear interpolation
+		-- mostly intended as an aid to make code more readable
+		lerp=function(a,b,t)
+			assert(type(a)=="number")
+			assert(type(b)=="number")
+			assert(type(t)=="number")
+			return a + t * (b - a);
+		end
+	},
+	debug={
+		-- get a multi-line string for the number of objects at the current time
+		-- intended to be used via addGMMessage or print, but there may be other uses
+		-- it may be worth considering adding a function which would return an array rather than a string
+		getNumberOfObjectsString=function()
+			local all_objects=getAllObjects()
+			local object_counts={}
+			--first up we accumulate the number of each type of object
+			for i=1,#all_objects do
+				local object_type=all_objects[i].typeName
+				local current_count=object_counts[object_type]
+				if current_count==nil then
+					current_count=0
+				end
+				object_counts[object_type]=current_count+1
+			end
+			-- we want the ordering to be stable so we build a key list
+			local sorted_counts={}
+			for type in pairs(object_counts) do
+				table.insert(sorted_counts, type)
+			end
+			table.sort(sorted_counts)
+			--lastly we build the output
+			local output=""
+			for _,object_type in ipairs(sorted_counts) do
+				output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
+			end
+			return output..string.format("\nTotal: %i",#all_objects)
+		end
+	},
+}
 
 --------------------
 -- Initialization --
 --------------------
 function init()
+	popupGMDebug = "once"
 	print(_VERSION)
 	banner = {}
 	banner["number_of_players"] = 0
@@ -1547,6 +1591,22 @@ end
 ---------------------------
 -- Game Master functions --
 ---------------------------
+function debugButtons()
+	clearGMFunctions()
+	addGMFunction("-From Debug",mainGMButtons)
+	addGMFunction("Object Counts",function()
+		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
+	end)
+	addGMFunction("always popup debug",function()
+		popupGMDebug = "always"
+	end)
+	addGMFunction("once popup debug",function()
+		popupGMDebug = "once"
+	end)
+	addGMFunction("never popup debug",function()
+		popupGMDebug = "never"
+	end)
+end
 function mainGMButtons()
 	clearGMFunctions()
 	local playerShipCount = 0
@@ -1563,6 +1623,7 @@ function mainGMButtons()
 	addGMFunction(string.format("+Player ships %i/%i",playerShipCount,highestPlayerIndex),playerShip)
 	addGMFunction("+Set Time Limit",setGameTimeLimit)
 	addGMFunction("+Show Player Info",setShowPlayerInfo)
+	addGMFunction("+debug",debugButtons)
 	GMBelligerentKraylors = nil
 	GMLimitedWar = nil
 	GMFullWar = nil
@@ -12636,7 +12697,7 @@ function endStatistics()
 		if endStatDiagnostic then print("executed detalied stats function") end
 	end
 end
-function update(delta)
+function updateInner(delta)
 	if delta == 0 then
 		--game paused
 		setPlayers()
@@ -12764,4 +12825,17 @@ function update(delta)
 	if plotShowPlayerInfo ~= nil then
 		plotShowPlayerInfo(delta)
 	end
+end
+function update(delta)
+    local status,error=pcall(updateInner,delta)
+    if not status then
+		print("script error : - ")
+		print(error)
+		if popupGMDebug == "once" or popupGMDebug == "always" then
+			if popupGMDebug == "once" then
+				popupGMDebug = "never"
+			end
+			addGMMessage("script error - \n"..error)
+		end
+    end
 end

@@ -94,6 +94,7 @@
 --									30U																								
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 require("utils.lua")
+-- starryUtil v2
 starryUtil={
 	math={
 		-- linear interpolation
@@ -110,36 +111,38 @@ starryUtil={
 		-- intended to be used via addGMMessage or print, but there may be other uses
 		-- it may be worth considering adding a function which would return an array rather than a string
 		getNumberOfObjectsString=function()
-			local counts={}
+			local all_objects=getAllObjects()
+			local object_counts={}
 			--first up we accumulate the number of each type of object
-			for _,obj in pairs(getAllObjects()) do
-				if counts[obj.typeName]==nil then
-					counts[obj.typeName]=0
+			for i=1,#all_objects do
+				local object_type=all_objects[i].typeName
+				local current_count=object_counts[object_type]
+				if current_count==nil then
+					current_count=0
 				end
-				counts[obj.typeName]=counts[obj.typeName]+1
+				object_counts[object_type]=current_count+1
 			end
 			-- we want the ordering to be stable so we build a key list
-			local sortedKeys={}
-			for key in pairs(counts) do
-				table.insert(sortedKeys, key)
+			local sorted_counts={}
+			for type in pairs(object_counts) do
+				table.insert(sorted_counts, type)
 			end
-			table.sort(sortedKeys)
+			table.sort(sorted_counts)
 			--lastly we build the output
-			local ret=""
-			for _,key in ipairs(sortedKeys) do
-				if not(ret=="") then
-					ret=ret.."\n"
-				end
-				ret=ret..key.." "..counts[key]
+			local output=""
+			for _,object_type in ipairs(sorted_counts) do
+				output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
 			end
-			return ret
+			return output..string.format("\nTotal: %i",#all_objects)
 		end
-	}
+	},
 }
+
 function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
 	change_enemy_order_diagnostic = true
+	popupGMDebug = "once"
 	setConstants()
 	initialGMFunctions()
 	createSkeletonUniverse()
@@ -1651,6 +1654,26 @@ function endSession()
 	addGMFunction("+Region Report",regionReport)
 	addGMFunction("+Faction Victory",endMission)
 end
+-------------
+--  debug  --
+-------------
+function debugButtons()
+	clearGMFunctions()
+	addGMFunction("-Main From Debug",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("Object Counts",function()
+		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
+	end)
+	addGMFunction("always popup debug",function()
+		popupGMDebug = "always"
+	end)
+	addGMFunction("once popup debug",function()
+		popupGMDebug = "once"
+	end)
+	addGMFunction("never popup debug",function()
+		popupGMDebug = "never"
+	end)
+end
 --------------
 --	Custom  --
 --------------
@@ -1660,35 +1683,7 @@ end
 function customButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From Custom",initialGMFunctions)
-	addGMFunction("Object Numbers",function()
-		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
-	end)
-	addGMFunction("Object Counts",function()
-		local object_list = getAllObjects()
-		local object_counts = {}
-		for i=1,#object_list do
-			local obj = object_list[i]
-			if object_counts[obj.typeName] == nil then
-				object_counts[obj.typeName] = 1
-			else
-				object_counts[obj.typeName] = object_counts[obj.typeName] + 1
-			end
-		end
-		local sorted_counts = {}
-		for object_type in pairs(object_counts) do
-			table.insert(sorted_counts,object_type)
-		end
-		table.sort(sorted_counts)
-		local output_blob = ""
-		for _, object_type in ipairs(sorted_counts) do
-			local output_line = string.format("%s: %i",object_type,object_counts[object_type])
-			print(output_line)
-			output_blob = output_blob .. output_line .. "\n"
-		end
-		print("Total: " .. #object_list)
-		output_blob = output_blob .. "Total: " .. #object_list
-		addGMMessage(output_blob)
-	end)
+	addGMFunction("+Debug",debugButtons)
 end
 -------------------------------------
 --	Initial Set Up > Start Region  --
@@ -14117,7 +14112,7 @@ function movingObjects(delta)
 		end
 	end
 end
-function update(delta)
+function updateInner(delta)
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
 	if timer_started then
@@ -15079,4 +15074,17 @@ function update(delta)
 		plotPulse(delta)
 	end
 	if updateDiagnostic then print("update: end of update function") end
+end
+function update(delta)
+    local status,error=pcall(updateInner,delta)
+    if not status then
+		print("script error : - ")
+		print(error)
+		if popupGMDebug == "once" or popupGMDebug == "always" then
+			if popupGMDebug == "once" then
+				popupGMDebug = "never"
+			end
+			addGMMessage("script error - \n"..error)
+		end
+    end
 end
