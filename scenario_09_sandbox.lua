@@ -1737,10 +1737,10 @@ function playerShip()
 			{"Cobra"		,"inactive"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
 			{"Eagle"		,"inactive"	,createPlayerShipEagle		,"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Gabble"		,"inactive"	,createPlayerShipGabble		,"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:4   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
-			{"Gorn"			,"active"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
+			{"Gorn"			,"inactive"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
 			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	},
-			{"Hearken"		,"active"	,createPlayerShipHearken	,"Redhook (Hearken), Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
+			{"Hearken"		,"inactive"	,createPlayerShipHearken	,"Redhook (Hearken), Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Holmes"		,"active"	,createPlayerShipHolmes		,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
 			{"Jeeves"		,"active"	,createPlayerShipJeeves		},
 			{"Knick"		,"active"	,createPlayerShipKnick		},
@@ -1752,7 +1752,7 @@ function playerShip()
 			{"Rattler"		,"active"	,createPlayerShipRattler	,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
 			{"Rogue"		,"inactive"	,createPlayerShipRogue		,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
 			{"Simian"		,"inactive"	,createPlayerShipSimian		,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
-			{"Sparrow"		,"active"	,createPlayerShipSparrow	},
+			{"Sparrow"		,"inactive"	,createPlayerShipSparrow	},
 			{"Spike"		,"inactive"	,createPlayerShipSpike		},
 			{"Spyder"		,"inactive"	,createPlayerShipSpyder		},
 			{"Sting"		,"inactive"	,createPlayerShipSting		},
@@ -1986,9 +1986,9 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
-			dp2Zone:setColor(0,128,0)
+		if i == 4 then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
+			dp4Zone:setColor(0,128,0)
 		elseif i == 3 then
 			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
 			dp3Zone:setColor(0,128,0)
@@ -2113,10 +2113,9 @@ function createIcarusStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Aquarius F4m9
-	local aquariusZone = squareZone(-4295, 14159, "Aquarius IV")
-	aquariusZone:setColor(51,153,255)
-	--[[ destroyed 9May2020
-    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius III"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	--local aquariusZone = squareZone(-4295, 14159, "Aquarius IV")
+	--aquariusZone:setColor(51,153,255)
+    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius IV"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2140,7 +2139,6 @@ function createIcarusStations()
 	}
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
-	--]]
 	--Borlan
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2215,10 +2213,9 @@ function createIcarusStations()
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
 	--Finnegan
-	local finneganZone = squareZone(114460, 95868, "Finnegan 2")
-	finneganZone:setColor(51,153,255)
-	--[[ Destroyed 9May2020
-	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	--local finneganZone = squareZone(114460, 95868, "Finnegan 2")
+	--finneganZone:setColor(51,153,255)
+	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan 2"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
@@ -2241,7 +2238,6 @@ function createIcarusStations()
 	}
 	station_names[stationFinnegan:getCallSign()] = {stationFinnegan:getSectorName(), stationFinnegan}
 	table.insert(stations,stationFinnegan)
-	--]]
 	--Gagarin
 	stationGagarin = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gagarin"):setPosition(-60000, 62193):setDescription("Mining and exploring"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2269,10 +2265,9 @@ function createIcarusStations()
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Macassa
-	local macassaZone = squareZone(16335, -18034, "Macassa 7")
-	macassaZone:setColor(0,128,0)
-	--[[ Destroyed 9May2020
-    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 6"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	--local macassaZone = squareZone(16335, -18034, "Macassa 7")
+	--macassaZone:setColor(0,128,0)
+    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 7"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2297,7 +2292,6 @@ function createIcarusStations()
 	}
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
-	--]]
 	--Maximilian
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2399,10 +2393,9 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Pistil
-	local pistilZone = squareZone(24834, 20416, "Pistil 3")
-	pistilZone:setColor(0,128,0)
-	--[[ Destroyed 9May2020
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 2"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	--local pistilZone = squareZone(24834, 20416, "Pistil 3")
+	--pistilZone:setColor(0,128,0)
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 3"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2425,7 +2418,6 @@ function createIcarusStations()
 	}
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
-	--]]
 	--Relay-13
 	--local relay13Zone = squareZone(77918, 23876, "Relay13")
 	--relay13Zone:setColor(0,255,0)
@@ -2475,10 +2467,9 @@ function createIcarusStations()
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
 	--Sovinec
-	local sovinecZone = squareZone(134167, 104690, "Sovinec Two")
-	sovinecZone:setColor(51,153,255)
-	--[[
-	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	--local sovinecZone = squareZone(134167, 104690, "Sovinec Two")
+	--sovinecZone:setColor(51,153,255)
+	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec Two"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -2502,7 +2493,6 @@ function createIcarusStations()
 	}
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
-	--]]
 	--Speculator
 	--local speculatorZone = squareZone(55000,108000, "Speculator")
 	--speculatorZone:setColor(51,153,255)
@@ -2593,11 +2583,10 @@ function createIcarusStations()
 	table.insert(stations,leechO)
 	station_names[stationTransylvania:getCallSign()] = {stationTransylvania:getSectorName(), stationTransylvania}
 	table.insert(stations,stationTransylvania)
-	local wookieZone = squareZone(-11280, 7425, "Tri-Wookie")
-	wookieZone:setColor(51,153,255)
-	--[[	Destroyed 28Mar2020
-	--Wookie F4m5 (ookie suffix indicates that this is the second version of this station)
-    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-ookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
+	--Wookie F4m5 
+	--local wookieZone = squareZone(-11280, 7425, "Tri-Wookie")
+	--wookieZone:setColor(51,153,255)
+    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Tri-Wookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2619,7 +2608,6 @@ function createIcarusStations()
 	}
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
-	--]]
 	return stations
 end
 function createIcarusArtifacts()
