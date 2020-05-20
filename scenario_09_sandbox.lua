@@ -6398,6 +6398,16 @@ function setFleetSpawnLocation()
 		fleetSpawnLocation = "Ambush"
 		setFleetAmbushDistance()
 	end)
+	if onGMClick ~= nil then
+		GMSetSpawnLocationClick = "Click"
+		if fleetSpawnLocation == "Click" then
+			GMSetSpawnLocationClick = "Click*"
+		end
+		addGMFunction(GMSetSpawnLocationClick,function()
+			fleetSpawnLocation = "Click"
+			setFleetSpawnLocation()
+		end)
+	end
 end
 --------------------------------------------------------
 --	Spawn Fleet > Ambush (Set Fleet Ambush Distance)  --
@@ -6744,7 +6754,7 @@ function parmSpawnFleet()
 	local fsx = 0
 	local fsy = 0
 	local objectList = getGMSelection()
-	if #objectList < 1 then
+	if #objectList < 1 and (fleetSpawnLocation ~= "Click" and fleetSpawnLocation ~= "AtCachedLocation") then
 		addGMMessage("Fleet spawn failed: nothing selected for spawn location determination")
 		return
 	end
@@ -6811,6 +6821,18 @@ function parmSpawnFleet()
 		tvx, tvy = vectorFromAngle(spawnAngle,fleetSpawnAwayDistance*1000)
 		fsx = fsx + tvx
 		fsy = fsy + tvy
+	elseif fleetSpawnLocation == "Click" then
+		onGMClick(function (x,y) -- this probably could be made simpler, but I lack the understanding and time to make it neater at this time
+			cached_x = x
+			cached_y = y
+			fleetSpawnLocation = "AtCachedLocation"
+			parmSpawnFleet()
+			fleetSpawnLocation = "Click"
+		end)
+		return
+	elseif fleetSpawnLocation == "AtCachedLocation" then
+		fsx = cached_x
+		fsy = cached_y
 	end
 	local sl = stsl	--default to full lists (Random)
 	local nl = stnl	
