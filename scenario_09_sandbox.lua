@@ -14667,7 +14667,8 @@ function updateInner(delta)
 							p:removeCustom(p.expedite_dock_timer_info_ops)
 							p.expedite_dock_timer_info_ops = nil
 						end
-						p:addToShipLog(string.format("Docking crew of station %s returned to their normal duties",p.expedite_doc_station:getCallSign()),"Yellow")
+--						p:addToShipLog(string.format("Docking crew of station %s returned to their normal duties",p.expedite_doc_station:getCallSign()),"Yellow")
+						p:addToShipLog("Docking crew of station returned to their normal duties","Yellow")
 						p.expedite_dock = nil
 						p.expedite_timer = nil
 						p.expedite_dock_station = nil
