@@ -424,7 +424,7 @@ function setConstants()
 	marinePointList = {}
 	engineerPointList = {}
 	medicPointList = {}
-	scanClueList = {}
+	updateList = {}
 	scanComplexity = 1
 	scanDepth = 1
 	--Default GM supply drop gives:
@@ -1701,11 +1701,17 @@ end
 --------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM END		F	initialGMFunctions
--- STARRY				F	inline
+-- +DEBUG				F	inline
+-- EXPIRE SELECTED		F	inline
 function customButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From Custom",initialGMFunctions)
 	addGMFunction("+Debug",debugButtons)
+	addGMFunction("Expire Selected", function ()
+		for k,v in pairs(getGMSelection()) do
+			addTimeToLiveUpdate(v)
+		end
+	end)
 end
 -------------------------------------
 --	Initial Set Up > Start Region  --
@@ -10474,6 +10480,16 @@ function createScanClueAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	scanClueCreation(nearx, neary, sox, soy)
 end
+function addTimeToLiveUpdate(obj)
+	obj.timeToLive = 300
+	obj.update = function (self,delta)
+		self.timeToLive = self.timeToLive - delta
+		if self.timeToLive < 0 then
+			self:destroy()
+		end
+	end
+	table.insert(updateList,obj)
+end
 function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	artifactCounter = artifactCounter + 1
 	artifactNumber = artifactNumber + math.random(1,5)
@@ -10503,11 +10519,8 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 		scanCluePoint:allowPickup(false)
 	end
 	if scan_clue_expire then
-		scanCluePoint.scan_clue_expire = true
-	else
-		scanCluePoint.scan_clue_expire = false
+		addTimeToLiveUpdate(scanCluePoint)
 	end
-	table.insert(scanClueList,scanCluePoint)
 end
 ---------------------------------------
 --	Tweak Terrain > Station Defense  --
@@ -14613,25 +14626,12 @@ function updateInner(delta)
 			end
 		end
 	end
-	if updateDiagnostic then print("update: scan clues") end
-	if #scanClueList > 0 then	--decrement scan clue timer(s) and delete when applicable
-		for sci,sc in pairs(scanClueList) do
-			if sc:isValid() then
-				if sc.scan_clue_expire then
-					if sc.timeToLive == nil then
-						sc.timeToLive = delta + 300
-					else
-						sc.timeToLive = sc.timeToLive - delta
-						if sc.timeToLive < 0 then
-							table.remove(scanClueList,sci)
-							sc:destroy()
-						end
-					end
-				end
-			else
-				table.remove(scanClueList,sci)
-				sc:destroy()						
-			end
+	if updateDiagnostic then print("update: update list") end
+	for index = #updateList,1,-1 do
+		if updateList[index]:isValid() then
+			updateList[index]:update(delta)
+		else
+			table.remove(updateList,index)
 		end
 	end
 	for pidx=1,8 do
