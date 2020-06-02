@@ -15190,9 +15190,11 @@ function updateInner(delta)
 					free_sensor_boost = true
 					sensor_boost_amount = stationIcarus.comms_data.sensor_boost.value
 				end
-				if p:isDocked(stationKentar) then
-					free_sensor_boost = true
-					sensor_boost_amount = stationKentar.comms_data.sensor_boost.value
+				if stationKentar ~= nil then
+					if p:isDocked(stationKentar) then
+						free_sensor_boost = true
+						sensor_boost_amount = stationKentar.comms_data.sensor_boost.value
+					end
 				end
 				local boosted_range = p.normal_long_range_radar + sensor_boost_amount
 				if sensor_boost_present or free_sensor_boost then
