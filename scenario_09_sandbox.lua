@@ -3443,6 +3443,7 @@ function createKentarStations()
 	}
 	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
+	addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Gamma-3
     stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -10486,6 +10487,23 @@ function createScanClueAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	scanClueCreation(nearx, neary, sox, soy)
 end
+--note all update functions are currently mutually exclusive
+function addUpdate(obj)
+	table.insert(updateList,obj)
+end
+function addOrbitUpdate(obj, center_x, center_y, distance, orbit_time)
+	obj.center_x = center_x
+	obj.center_y = center_y
+	obj.distance = distance
+	obj.orbit_time = orbit_time/(2*math.pi)
+	obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version
+	obj.update = function (self,delta)
+		self.time = self.time + delta
+		local orbit_pos=self.time/self.orbit_time
+		self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+	end
+	addUpdate(obj)
+end
 function addTimeToLiveUpdate(obj)
 	obj.timeToLive = 300
 	obj.update = function (self,delta)
@@ -10494,7 +10512,7 @@ function addTimeToLiveUpdate(obj)
 			self:destroy()
 		end
 	end
-	table.insert(updateList,obj)
+	addUpdate(obj)
 end
 function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	artifactCounter = artifactCounter + 1
@@ -14454,15 +14472,6 @@ function movingObjects(delta)
 		end
 		local px,py = vectorFromAngle(kentar_mobile_nebula_1.angle,kentar_mobile_nebula_1.mobile_neb_dist)
 		kentar_mobile_nebula_1:setPosition(kentar_mobile_nebula_1.center_x+px,kentar_mobile_nebula_1.center_y+py)
-	end
-	if stationKeyhole23 ~= nil and stationKeyhole23:isValid() then
-		stationKeyhole23.total_time = stationKeyhole23.total_time + delta
-		local orbit_distance
-		local center_x=210000
-		local center_y=290000
-		local dist=3600
-		local orbit_pos=stationKeyhole23.total_time/15 --math.fmod(total_time/1,
-		stationKeyhole23:setPosition(center_x+(math.cos(orbit_pos)*dist),center_y+(math.sin(orbit_pos)*dist))
 	end
 	if mobile_defense_platform ~= nil and #mobile_defense_platform > 0 then
 		for i=1,#mobile_defense_platform do
