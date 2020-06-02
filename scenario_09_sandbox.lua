@@ -10492,6 +10492,12 @@ function addUpdate(obj)
 	table.insert(updateList,obj)
 end
 function addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, inital_angle)
+	assert(type(obj)=="table")
+	assert(type(center_x)=="number")
+	assert(type(center_y)=="number")
+	assert(type(distance)=="number")
+	assert(type(orbit_time)=="number")
+	assert(type(inital_angle)=="number" or inital_angle == nil)
 	obj.center_x = center_x
 	obj.center_y = center_y
 	obj.distance = distance
@@ -10785,10 +10791,7 @@ function stationDefensiveInnerRing()
 			local ax, ay = vectorFromAngle(angle,platform_distance)
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
 			if inner_defense_platform_orbit ~= "No" then
-				if mobile_defense_platform == nil then
-					mobile_defense_platform = {}
-				end
-				setObjectForOrbit(dp,angle,inner_defense_platform_orbit,fsx,fsy,platform_distance,mobile_defense_platform)
+				addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
 			angle = angle + increment
 			if angle > 360 then
@@ -10803,7 +10806,7 @@ function createOrbitingObject(obj,do_i_orbit,travel_angle,orbit_type,origin_x,or
 	mx, my = vectorFromAngle(travel_angle,distance)
 	obj:setPosition(origin_x+mx,origin_y+my)
 	if  do_i_orbit == true then
-		setObjectForOrbit(obj,travel_angle,orbit_type,origin_x,origin_y,distance)
+		addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_increment[orbit_type],travel_angle)
 	end
 end
 ----------------------------------------------------
@@ -10855,14 +10858,8 @@ function stationDefensiveOuterRing()
 				local increment = 360/outer_defense_platform_count
 				local fleet = {}
 				for i=1,outer_defense_platform_count do
-					local ax, ay = vectorFromAngle(angle,platform_distance)
-					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
-					if outer_defense_platform_orbit ~= "No" then
-						if mobile_defense_platform == nil then
-							mobile_defense_platform = {}
-						end
-						setObjectForOrbit(dp,angle,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_defense_platform)
-					end
+					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):orderRoaming()
+					createOrbitingObject(dp,outer_defense_platform_orbit ~= "No" , angle, outer_defense_platform_orbit, fsx, fsy, platform_distance)
 					angle = (angle + increment) % 360
 					table.insert(fleet,dp)
 				end
@@ -10934,9 +10931,6 @@ function stationDefensiveOuterRing()
 			end
 		end)
 	end
-end
-function setObjectForOrbit(obj,travel_angle,orbit_type,origin_x,origin_y,distance)
-	addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_increment[orbit_type],travel_angle)
 end
 -----------------------------------------------------------------------------
 --	Tweak Terrain > Station Defense > Defensive Fleet > Relative Strength  --
@@ -14385,25 +14379,6 @@ function movingObjects(delta)
 		end
 		local px,py = vectorFromAngle(kentar_mobile_nebula_1.angle,kentar_mobile_nebula_1.mobile_neb_dist)
 		kentar_mobile_nebula_1:setPosition(kentar_mobile_nebula_1.center_x+px,kentar_mobile_nebula_1.center_y+py)
-	end
-	if mobile_defense_platform ~= nil and #mobile_defense_platform > 0 then
-		for i=1,#mobile_defense_platform do
-			local current_platform = mobile_defense_platform[i]
-			if current_platform ~= nil and current_platform:isValid() then
-				current_platform.travel_angle = current_platform.travel_angle + current_platform.orbit_increment
-				if current_platform.orbit_increment > 0 then
-					if current_platform.travel_angle > 360 then
-						current_platform.travel_angle = current_platform.travel_angle - 360
-					end
-				else
-					if current_platform.travel_angle < 0 then
-						current_platform.travel_angle = current_platform.travel_angle + 360
-					end
-				end
-				local new_x, new_y = vectorFromAngle(current_platform.travel_angle,current_platform.distance)
-				current_platform:setPosition(current_platform.origin_x+new_x,current_platform.origin_y+new_y)
-			end
-		end
 	end
 	if rotate_station ~= nil and #rotate_station > 0 then
 		for i=1,#rotate_station do
