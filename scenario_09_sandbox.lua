@@ -10921,13 +10921,7 @@ function stationDefensiveOuterRing()
 			end
 			if inside_mines > 0 then
 				angle = random(0,360)
-				local outer_inside_mine_distance = {
-						["Small Station"] 	= 5500,
-						["Medium Station"]	= 7100,
-						["Large Station"]	= 7700,
-						["Huge Station"]	= 8100,
-					}
-				local mine_distance = outer_inside_mine_distance[station_type]
+				local mine_distance = outer_platform_distance[station_type]-2000
 				increment = 360/inside_mine_gap_count
 				for i=1,inside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
@@ -10956,13 +10950,7 @@ function stationDefensiveOuterRing()
 			end
 			if outside_mines > 0 then
 				angle = random(0,360)
-				local outer_outside_mine_distance = {
-						["Small Station"] 	= 10500,
-						["Medium Station"]	= 12100,
-						["Large Station"]	= 12700,
-						["Huge Station"]	= 13100,
-					}
-				mine_distance = outer_outside_mine_distance[station_type]
+				mine_distance = outer_platform_distance[station_type]+3000
 				increment = 360/outside_mine_gap_count
 				for i=1,outside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
