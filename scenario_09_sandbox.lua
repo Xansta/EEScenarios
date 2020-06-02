@@ -10856,10 +10856,7 @@ function stationDefensiveOuterRing()
 						end
 						setObjectForOrbit(dp,angle,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_defense_platform)
 					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					angle = (angle + increment) % 360
 					table.insert(fleet,dp)
 				end
 				table.insert(fleetList,fleet)
@@ -10888,10 +10885,7 @@ function stationDefensiveOuterRing()
 								end
 							end
 						end
-						angle = angle + increment
-						if angle > 360 then
-							angle = angle - 360
-						end
+						angle = (angle + increment) % 360
 					end
 				end
 			elseif inline_mines > 0 then
@@ -10922,10 +10916,7 @@ function stationDefensiveOuterRing()
 							end
 						end
 					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					angle = (angle + increment) % 360
 				end
 			end
 			if inside_mines > 0 then
@@ -10960,10 +10951,7 @@ function stationDefensiveOuterRing()
 							end
 						end
 					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					angle = (angle + increment) % 360
 				end
 			end
 			if outside_mines > 0 then
@@ -10998,10 +10986,7 @@ function stationDefensiveOuterRing()
 							end
 						end
 					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					angle = (angle + increment) % 360
 				end
 			end
 		end)
