@@ -10799,6 +10799,13 @@ function stationDefensiveInnerRing()
 		table.insert(fleetList,fleet)
 	end)
 end
+function createOrbitingObject(obj,do_i_orbit,travel_angle,orbit_type,origin_x,origin_y,distance)
+	mx, my = vectorFromAngle(travel_angle,distance)
+	obj:setPosition(origin_x+mx,origin_y+my)
+	if  do_i_orbit == true then
+		setObjectForOrbit(obj,travel_angle,orbit_type,origin_x,origin_y,distance)
+	end
+end
 ----------------------------------------------------
 --	Tweak Terrain > Station Defense > Outer Ring  --
 ----------------------------------------------------
@@ -10864,24 +10871,11 @@ function stationDefensiveOuterRing()
 				if inline_mines > 0 then
 					for i=1,outer_defense_platform_count do
 						for j=angle+10,angle+increment-10,3 do
-							local mx, my = vectorFromAngle(j,platform_distance)
-							local mine = Mine():setPosition(fsx+mx,fsy+my)
-							--print(string.format("i: %i, j: %.1f, mx: %.1f, my: %.1f, platform distance: %.1f",i,j,mx,my,platform_distance))
-							if outer_defense_platform_orbit ~= "No" then
-								setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
-							end
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
 							if inline_mines > 1 then
-								mx, my = vectorFromAngle(j,platform_distance + 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								if outer_defense_platform_orbit ~= "No" then
-									setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance + 500)
-								end
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance+500)
 								if inline_mines > 2 then
-									mx, my = vectorFromAngle(j,platform_distance - 500)
-									mine = Mine():setPosition(fsx+mx,fsy+my)
-									if outer_defense_platform_orbit ~= "No" then
-										setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance - 500)
-									end
+									createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance-500)
 								end
 							end
 						end
@@ -10893,26 +10887,11 @@ function stationDefensiveOuterRing()
 				--print(string.format("increment: %.1f, inline mine gap count: %i",increment,inline_mine_gap_count))
 				for i=1,inline_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						mx, my = vectorFromAngle(j,platform_distance)
-						mine = Mine():setPosition(fsx+mx,fsy+my)
-						--print(string.format("i: %i, j: %.1f, mx: %.1f, my: %.1f, platform distance: %.1f",i,j,mx,my,platform_distance))
-						if outer_defense_platform_orbit ~= "No" then
-							setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
-						end
+						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
 						if inline_mines > 1 then
-							mx, my = vectorFromAngle(j,platform_distance + 500)
-							mine = Mine():setPosition(fsx+mx,fsy+my)
-							--print(string.format("outside line: mx: %.1f, my: %.1f, platform distance + 500: %.1f",mx,my,platform_distance + 500))
-							if outer_defense_platform_orbit ~= "No" then
-								setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance + 500)
-							end
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance+500)
 							if inline_mines > 2 then
-								mx, my = vectorFromAngle(j,platform_distance - 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								--print(string.format("inside line: mx: %.1f, my: %.1f, platform distance - 500: %.1f",mx,my,platform_distance - 500))
-								if outer_defense_platform_orbit ~= "No" then
-									setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance - 500)
-								end
+								createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance-500)
 							end
 						end
 					end
@@ -10925,23 +10904,11 @@ function stationDefensiveOuterRing()
 				increment = 360/inside_mine_gap_count
 				for i=1,inside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						mx, my = vectorFromAngle(j,mine_distance)
-						mine = Mine():setPosition(fsx+mx,fsy+my)
-						if inside_mine_orbit ~= "No" then
-							setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance)
-						end
+						createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance)
 						if inside_mines > 1 then
-							mx, my = vectorFromAngle(j,mine_distance + 500)
-							mine = Mine():setPosition(fsx+mx,fsy+my)
-							if inside_mine_orbit ~= "No" then
-								setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance + 500)
-							end
+							createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance+500)
 							if inside_mines > 2 then
-								mx, my = vectorFromAngle(j,mine_distance - 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								if inside_mine_orbit ~= "No" then
-									setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance - 500)
-								end
+								createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance-500)
 							end
 						end
 					end
@@ -10954,23 +10921,11 @@ function stationDefensiveOuterRing()
 				increment = 360/outside_mine_gap_count
 				for i=1,outside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						mx, my = vectorFromAngle(j,mine_distance)
-						mine = Mine():setPosition(fsx+mx,fsy+my)
-						if outside_mine_orbit ~= "No" then
-							setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance)
-						end
+						createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance)
 						if outside_mines > 1 then
-							mx, my = vectorFromAngle(j,mine_distance + 500)
-							mine = Mine():setPosition(fsx+mx,fsy+my)
-							if outside_mine_orbit ~= "No" then
-								setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance + 500)
-							end
+							createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance+500)
 							if outside_mines > 2 then
-								mx, my = vectorFromAngle(j,mine_distance - 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								if outside_mine_orbit ~= "No" then
-									setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance - 500)
-								end
+								createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance-500)
 							end
 						end
 					end
