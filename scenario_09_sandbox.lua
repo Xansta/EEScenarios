@@ -10923,24 +10923,22 @@ function stationDefensiveOuterRing()
 				end
 			end
 			angle = random(0,360)
-			local mine_distance = outer_platform_distance[station_type]-2000
 			increment = 360/inside_mine_gap_count
 			for i=1,inside_mine_gap_count do
 				for j=angle+10,angle+increment-10,3 do
 					for row=0,inline_mines-1 do
-						local dist=mine_distance-((inline_mines-1)*250)+(row*500)
+						local dist=(platform_distance-2000)-((inline_mines-1)*250)+(row*500)
 						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 					end
 				end
 				angle = (angle + increment) % 360
 			end
 			angle = random(0,360)
-			mine_distance = outer_platform_distance[station_type]+3000
 			increment = 360/outside_mine_gap_count
 			for i=1,outside_mine_gap_count do
 				for j=angle+10,angle+increment-10,3 do
 					for row=0,inline_mines-1 do
-						local dist=mine_distance-((inline_mines-1)*250)+(row*500)
+						local dist=(platform_distance+3000)-((inline_mines-1)*250)+(row*500)
 						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 					end
 				end
