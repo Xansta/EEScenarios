@@ -10907,16 +10907,11 @@ function stationDefensiveOuterRing()
 				end
 				table.insert(fleetList,fleet)
 				--print(string.format("increment: %.1f, inline mines: %i",increment,inline_mines))
-				if inline_mines > 0 then
-					for i=1,outer_defense_platform_count do
-						for j=angle+10,angle+increment-10,3 do
-							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
-							if inline_mines > 1 then
-							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance+500)
-								if inline_mines > 2 then
-									createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance-500)
-								end
-							end
+				for i=1,outer_defense_platform_count do
+					for j=angle+10,angle+increment-10,3 do
+						for row=0,inline_mines-1 do
+							local dist=platform_distance-((inline_mines-1)*250)+(row*500)
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 						end
 						angle = (angle + increment) % 360
 					end
@@ -10926,12 +10921,9 @@ function stationDefensiveOuterRing()
 				--print(string.format("increment: %.1f, inline mine gap count: %i",increment,inline_mine_gap_count))
 				for i=1,inline_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
-						if inline_mines > 1 then
-							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance+500)
-							if inline_mines > 2 then
-								createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance-500)
-							end
+						for row=0,inline_mines-1 do
+							local dist=platform_distance-((inline_mines-1)*250)+(row*500)
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 						end
 					end
 					angle = (angle + increment) % 360
@@ -10943,12 +10935,9 @@ function stationDefensiveOuterRing()
 				increment = 360/inside_mine_gap_count
 				for i=1,inside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance)
-						if inside_mines > 1 then
-							createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance+500)
-							if inside_mines > 2 then
-								createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance-500)
-							end
+						for row=0,inline_mines-1 do
+							local dist=mine_distance-((inline_mines-1)*250)+(row*500)
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 						end
 					end
 					angle = (angle + increment) % 360
@@ -10960,12 +10949,9 @@ function stationDefensiveOuterRing()
 				increment = 360/outside_mine_gap_count
 				for i=1,outside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance)
-						if outside_mines > 1 then
-							createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance+500)
-							if outside_mines > 2 then
-								createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance-500)
-							end
+						for row=0,inline_mines-1 do
+							local dist=mine_distance-((inline_mines-1)*250)+(row*500)
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 						end
 					end
 					angle = (angle + increment) % 360
