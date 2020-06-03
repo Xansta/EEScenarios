@@ -10845,7 +10845,7 @@ function stationDefensiveInnerRing()
 	end)
 end
 function createOrbitingObject(obj,do_i_orbit,travel_angle,orbit_type,origin_x,origin_y,distance)
-	mx, my = vectorFromAngle(travel_angle,distance)
+	local mx, my = vectorFromAngle(travel_angle,distance)
 	obj:setPosition(origin_x+mx,origin_y+my)
 	if  do_i_orbit == true then
 		addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_increment[orbit_type],travel_angle)
