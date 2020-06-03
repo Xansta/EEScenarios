@@ -10851,6 +10851,32 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 		addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
 	end
 end
+--this needs work, I need it exposed in some way for the game on 2020-06-06, this is the most expedient way
+--the Mine() call probably should be a callback? maybe? at least there should be an option other than mines
+--there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
+function mineRingShim(args)
+	local angle=args.angle or random(0,360)
+	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
+	local x=args.x or 0
+	local y=args.y or 0
+	local min_dist=args.dist or 1000
+	local num_rows=args.num_rows or 1
+	local row_gap=args.row_gap or 500
+	local segments=args.segments or 1
+	local half_gap_size=args.gap_size or 20
+	half_gap_size=half_gap_size/2
+	local mine_gap=args.mine_gap or 3
+	local increment=(360/segments)
+	for i=1,segments do
+		for j=angle+half_gap_size,angle+increment-half_gap_size,mine_gap do
+			for row=0,num_rows-1 do
+				local dist=min_dist+row_gap*row
+				createOrbitingObject(Mine(),j,speed,x,y,dist)
+			end
+		end
+		angle=angle+increment
+	end
+end
 ----------------------------------------------------
 --	Tweak Terrain > Station Defense > Outer Ring  --
 ----------------------------------------------------
@@ -10896,10 +10922,9 @@ function stationDefensiveOuterRing()
 			--local platform_distance = spaceStationDistance[station_type] * 4
 			local platform_distance = outer_platform_distance[station_type]
 			--print(string.format("outer defense platform count: %i, platform distance: %i",outer_defense_platform_count,platform_distance))
-			local increment
 			local inline_num_gaps
 			if outer_defense_platform_count > 0 then
-				increment = 360/outer_defense_platform_count
+				local increment = 360/outer_defense_platform_count
 				local fleet = {}
 				for i=1,outer_defense_platform_count do
 					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):orderRoaming()
@@ -10910,40 +10935,33 @@ function stationDefensiveOuterRing()
 				table.insert(fleetList,fleet)
 				inline_num_gaps = outer_defense_platform_count
 			else
-				increment = 360/inline_mine_gap_count
 				inline_num_gaps = inline_mine_gap_count
 			end
-			for i=1,inline_num_gaps do
-				for j=angle+10,angle+increment-10,3 do
-					for row=0,inline_mines-1 do
-						local dist=platform_distance-((inline_mines-1)*250)+(row*500)
-						createOrbitingObject(Mine(),j,orbit_increment[outer_defense_platform_orbit],fsx,fsy,dist)
-					end
-					angle = (angle + increment) % 360
-				end
-			end
-			angle = random(0,360)
-			increment = 360/inside_mine_gap_count
-			for i=1,inside_mine_gap_count do
-				for j=angle+10,angle+increment-10,3 do
-					for row=0,inside_mines-1 do
-						local dist=(platform_distance-2000)-((inside_mines-1)*250)+(row*500)
-						createOrbitingObject(Mine(),j,orbit_increment[inside_mine_orbit],fsx,fsy,dist)
-					end
-				end
-				angle = (angle + increment) % 360
-			end
-			angle = random(0,360)
-			increment = 360/outside_mine_gap_count
-			for i=1,outside_mine_gap_count do
-				for j=angle+10,angle+increment-10,3 do
-					for row=0,outside_mines-1 do
-						local dist=(platform_distance+3000)-((outside_mines-1)*250)+(row*500)
-						createOrbitingObject(Mine(),j,orbit_increment[outside_mine_orbit],fsx,fsy,dist)
-					end
-				end
-				angle = (angle + increment) % 360
-			end
+			mineRingShim{
+				speed=orbit_increment[outer_defense_platform_orbit],
+				x=fsx,
+				y=fsy,
+				dist=platform_distance-((inline_mines-1)*250),
+				num_rows=inline_mines,
+				segments=inline_num_gaps,
+				angle=angle
+			}
+			mineRingShim{
+				speed=orbit_increment[inside_mine_orbit],
+				x=fsx,
+				y=fsy,
+				dist=platform_distance-2000-((inside_mines-1)*250),
+				num_rows=inside_mines,
+				segments=inside_mine_gap_count
+			}
+			mineRingShim {
+				speed=orbit_increment[outside_mine_orbit],
+				x=fsx,
+				y=fsy,
+				dist=platform_distance+3000-((outside_mines-1)*250),
+				num_rows=outside_mines,
+				segments=outside_mine_gap_count
+			}
 		end)
 	end
 end
