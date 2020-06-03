@@ -10926,8 +10926,8 @@ function stationDefensiveOuterRing()
 			increment = 360/inside_mine_gap_count
 			for i=1,inside_mine_gap_count do
 				for j=angle+10,angle+increment-10,3 do
-					for row=0,inline_mines-1 do
-						local dist=(platform_distance-2000)-((inline_mines-1)*250)+(row*500)
+					for row=0,inside_mines-1 do
+						local dist=(platform_distance-2000)-((inside_mines-1)*250)+(row*500)
 						createOrbitingObject(Mine(),j,orbit_increment[inside_mine_orbit],fsx,fsy,dist)
 					end
 				end
@@ -10937,8 +10937,8 @@ function stationDefensiveOuterRing()
 			increment = 360/outside_mine_gap_count
 			for i=1,outside_mine_gap_count do
 				for j=angle+10,angle+increment-10,3 do
-					for row=0,inline_mines-1 do
-						local dist=(platform_distance+3000)-((inline_mines-1)*250)+(row*500)
+					for row=0,outside_mines-1 do
+						local dist=(platform_distance+3000)-((outside_mines-1)*250)+(row*500)
 						createOrbitingObject(Mine(),j,orbit_increment[outside_mine_orbit],fsx,fsy,dist)
 					end
 				end
