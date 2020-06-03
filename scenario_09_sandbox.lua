@@ -10896,8 +10896,10 @@ function stationDefensiveOuterRing()
 			--local platform_distance = spaceStationDistance[station_type] * 4
 			local platform_distance = outer_platform_distance[station_type]
 			--print(string.format("outer defense platform count: %i, platform distance: %i",outer_defense_platform_count,platform_distance))
+			local increment
+			local inline_num_gaps
 			if outer_defense_platform_count > 0 then
-				local increment = 360/outer_defense_platform_count
+				increment = 360/outer_defense_platform_count
 				local fleet = {}
 				for i=1,outer_defense_platform_count do
 					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):orderRoaming()
@@ -10906,56 +10908,43 @@ function stationDefensiveOuterRing()
 					table.insert(fleet,dp)
 				end
 				table.insert(fleetList,fleet)
-				--print(string.format("increment: %.1f, inline mines: %i",increment,inline_mines))
-				for i=1,outer_defense_platform_count do
-					for j=angle+10,angle+increment-10,3 do
-						for row=0,inline_mines-1 do
-							local dist=platform_distance-((inline_mines-1)*250)+(row*500)
-							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
-						end
-						angle = (angle + increment) % 360
-					end
-				end
-			elseif inline_mines > 0 then
+				inline_num_gaps = outer_defense_platform_count
+			else
 				increment = 360/inline_mine_gap_count
-				--print(string.format("increment: %.1f, inline mine gap count: %i",increment,inline_mine_gap_count))
-				for i=1,inline_mine_gap_count do
-					for j=angle+10,angle+increment-10,3 do
-						for row=0,inline_mines-1 do
-							local dist=platform_distance-((inline_mines-1)*250)+(row*500)
-							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
-						end
+				inline_num_gaps = inline_mine_gap_count
+			end
+			for i=1,inline_num_gaps do
+				for j=angle+10,angle+increment-10,3 do
+					for row=0,inline_mines-1 do
+						local dist=platform_distance-((inline_mines-1)*250)+(row*500)
+						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 					end
 					angle = (angle + increment) % 360
 				end
 			end
-			if inside_mines > 0 then
-				angle = random(0,360)
-				local mine_distance = outer_platform_distance[station_type]-2000
-				increment = 360/inside_mine_gap_count
-				for i=1,inside_mine_gap_count do
-					for j=angle+10,angle+increment-10,3 do
-						for row=0,inline_mines-1 do
-							local dist=mine_distance-((inline_mines-1)*250)+(row*500)
-							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
-						end
+			angle = random(0,360)
+			local mine_distance = outer_platform_distance[station_type]-2000
+			increment = 360/inside_mine_gap_count
+			for i=1,inside_mine_gap_count do
+				for j=angle+10,angle+increment-10,3 do
+					for row=0,inline_mines-1 do
+						local dist=mine_distance-((inline_mines-1)*250)+(row*500)
+						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 					end
-					angle = (angle + increment) % 360
 				end
+				angle = (angle + increment) % 360
 			end
-			if outside_mines > 0 then
-				angle = random(0,360)
-				mine_distance = outer_platform_distance[station_type]+3000
-				increment = 360/outside_mine_gap_count
-				for i=1,outside_mine_gap_count do
-					for j=angle+10,angle+increment-10,3 do
-						for row=0,inline_mines-1 do
-							local dist=mine_distance-((inline_mines-1)*250)+(row*500)
-							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
-						end
+			angle = random(0,360)
+			mine_distance = outer_platform_distance[station_type]+3000
+			increment = 360/outside_mine_gap_count
+			for i=1,outside_mine_gap_count do
+				for j=angle+10,angle+increment-10,3 do
+					for row=0,inline_mines-1 do
+						local dist=mine_distance-((inline_mines-1)*250)+(row*500)
+						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,dist)
 					end
-					angle = (angle + increment) % 360
 				end
+				angle = (angle + increment) % 360
 			end
 		end)
 	end
