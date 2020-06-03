@@ -753,12 +753,12 @@ function setConstants()
 	outer_defense_platform_count = 3
 	outer_defense_platform_orbit = "No"
 	orbit_increment = {
-		["Orbit > Fast"] 	= .1,
-		["Orbit > Normal"] 	= .05,
-		["Orbit > Slow"]	= .01,
-		["Orbit < Fast"]	= -.1,
-		["Orbit < Normal"]	= -.05,
-		["Orbit < Slow"]	= -.01,
+		["Orbit > Fast"] 	= 60,
+		["Orbit > Normal"] 	= 120,
+		["Orbit > Slow"]	= 600,
+		["Orbit < Fast"]	= -60,
+		["Orbit < Normal"]	= -120,
+		["Orbit < Slow"]	= -600,
 	} 
 	outer_mines = "No"
 	inline_mines = 0
@@ -3445,6 +3445,7 @@ function createKentarStations()
 	}
 	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
+	addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Gamma-3
     stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -10528,6 +10529,31 @@ function createScanClueAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	scanClueCreation(nearx, neary, sox, soy)
 end
+--note all update functions are currently mutually exclusive
+function addUpdate(obj)
+	table.insert(updateList,obj)
+end
+function addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, inital_angle)
+	assert(type(obj)=="table")
+	assert(type(center_x)=="number")
+	assert(type(center_y)=="number")
+	assert(type(distance)=="number")
+	assert(type(orbit_time)=="number")
+	assert(type(inital_angle)=="number" or inital_angle == nil)
+	obj.center_x = center_x
+	obj.center_y = center_y
+	obj.distance = distance
+	obj.orbit_time = orbit_time/(2*math.pi)
+	inital_angle = inital_angle or 0
+	obj.start_offset = (inital_angle/360)*orbit_time
+	obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version
+	obj.update = function (self,delta)
+		self.time = self.time + delta
+		local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+		self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+	end
+	addUpdate(obj)
+end
 function addTimeToLiveUpdate(obj)
 	obj.timeToLive = 300
 	obj.update = function (self,delta)
@@ -10536,7 +10562,7 @@ function addTimeToLiveUpdate(obj)
 			self:destroy()
 		end
 	end
-	table.insert(updateList,obj)
+	addUpdate(obj)
 end
 function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	artifactCounter = artifactCounter + 1
@@ -10807,10 +10833,7 @@ function stationDefensiveInnerRing()
 			local ax, ay = vectorFromAngle(angle,platform_distance)
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
 			if inner_defense_platform_orbit ~= "No" then
-				if mobile_defense_platform == nil then
-					mobile_defense_platform = {}
-				end
-				setObjectForOrbit(dp,angle,inner_defense_platform_orbit,fsx,fsy,platform_distance,mobile_defense_platform)
+				addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
 			angle = angle + increment
 			if angle > 360 then
@@ -10820,6 +10843,13 @@ function stationDefensiveInnerRing()
 		end
 		table.insert(fleetList,fleet)
 	end)
+end
+function createOrbitingObject(obj,do_i_orbit,travel_angle,orbit_type,origin_x,origin_y,distance)
+	mx, my = vectorFromAngle(travel_angle,distance)
+	obj:setPosition(origin_x+mx,origin_y+my)
+	if  do_i_orbit == true then
+		addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_increment[orbit_type],travel_angle)
+	end
 end
 ----------------------------------------------------
 --	Tweak Terrain > Station Defense > Outer Ring  --
@@ -10870,18 +10900,9 @@ function stationDefensiveOuterRing()
 				local increment = 360/outer_defense_platform_count
 				local fleet = {}
 				for i=1,outer_defense_platform_count do
-					local ax, ay = vectorFromAngle(angle,platform_distance)
-					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
-					if outer_defense_platform_orbit ~= "No" then
-						if mobile_defense_platform == nil then
-							mobile_defense_platform = {}
-						end
-						setObjectForOrbit(dp,angle,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_defense_platform)
-					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):orderRoaming()
+					createOrbitingObject(dp,outer_defense_platform_orbit ~= "No" , angle, outer_defense_platform_orbit, fsx, fsy, platform_distance)
+					angle = (angle + increment) % 360
 					table.insert(fleet,dp)
 				end
 				table.insert(fleetList,fleet)
@@ -10889,34 +10910,15 @@ function stationDefensiveOuterRing()
 				if inline_mines > 0 then
 					for i=1,outer_defense_platform_count do
 						for j=angle+10,angle+increment-10,3 do
-							local mx, my = vectorFromAngle(j,platform_distance)
-							local mine = Mine():setPosition(fsx+mx,fsy+my)
-							--print(string.format("i: %i, j: %.1f, mx: %.1f, my: %.1f, platform distance: %.1f",i,j,mx,my,platform_distance))
-							if outer_defense_platform_orbit ~= "No" then
-								if mobile_mine == nil then
-									mobile_mine = {}
-								end
-								setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_mine)
-							end
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
 							if inline_mines > 1 then
-								mx, my = vectorFromAngle(j,platform_distance + 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								if outer_defense_platform_orbit ~= "No" then
-									setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance + 500,mobile_mine)
-								end
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance+500)
 								if inline_mines > 2 then
-									mx, my = vectorFromAngle(j,platform_distance - 500)
-									mine = Mine():setPosition(fsx+mx,fsy+my)
-									if outer_defense_platform_orbit ~= "No" then
-										setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance - 500,mobile_mine)
-									end
+									createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No" ,j,outer_defense_platform_orbit,fsx,fsy,platform_distance-500)
 								end
 							end
 						end
-						angle = angle + increment
-						if angle > 360 then
-							angle = angle - 360
-						end
+						angle = (angle + increment) % 360
 					end
 				end
 			elseif inline_mines > 0 then
@@ -10924,130 +10926,53 @@ function stationDefensiveOuterRing()
 				--print(string.format("increment: %.1f, inline mine gap count: %i",increment,inline_mine_gap_count))
 				for i=1,inline_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						mx, my = vectorFromAngle(j,platform_distance)
-						mine = Mine():setPosition(fsx+mx,fsy+my)
-						--print(string.format("i: %i, j: %.1f, mx: %.1f, my: %.1f, platform distance: %.1f",i,j,mx,my,platform_distance))
-						if outer_defense_platform_orbit ~= "No" then
-							if mobile_mine == nil then
-								mobile_mine = {}
-							end
-							setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance,mobile_mine)
-						end
+						createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance)
 						if inline_mines > 1 then
-							mx, my = vectorFromAngle(j,platform_distance + 500)
-							mine = Mine():setPosition(fsx+mx,fsy+my)
-							--print(string.format("outside line: mx: %.1f, my: %.1f, platform distance + 500: %.1f",mx,my,platform_distance + 500))
-							if outer_defense_platform_orbit ~= "No" then
-								setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance + 500,mobile_mine)
-							end
+							createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance+500)
 							if inline_mines > 2 then
-								mx, my = vectorFromAngle(j,platform_distance - 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								--print(string.format("inside line: mx: %.1f, my: %.1f, platform distance - 500: %.1f",mx,my,platform_distance - 500))
-								if outer_defense_platform_orbit ~= "No" then
-									setObjectForOrbit(mine,j,outer_defense_platform_orbit,fsx,fsy,platform_distance - 500,mobile_mine)
-								end
+								createOrbitingObject(Mine(),outer_defense_platform_orbit ~= "No",j,outer_defense_platform_orbit,fsx,fsy,platform_distance-500)
 							end
 						end
 					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					angle = (angle + increment) % 360
 				end
 			end
 			if inside_mines > 0 then
 				angle = random(0,360)
-				local outer_inside_mine_distance = {
-						["Small Station"] 	= 5500,
-						["Medium Station"]	= 7100,
-						["Large Station"]	= 7700,
-						["Huge Station"]	= 8100,
-					}
-				local mine_distance = outer_inside_mine_distance[station_type]
+				local mine_distance = outer_platform_distance[station_type]-2000
 				increment = 360/inside_mine_gap_count
 				for i=1,inside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						mx, my = vectorFromAngle(j,mine_distance)
-						mine = Mine():setPosition(fsx+mx,fsy+my)
-						if inside_mine_orbit ~= "No" then
-							if mobile_mine == nil then
-								mobile_mine = {}
-							end
-							setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance,mobile_mine)
-						end
+						createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance)
 						if inside_mines > 1 then
-							mx, my = vectorFromAngle(j,mine_distance + 500)
-							mine = Mine():setPosition(fsx+mx,fsy+my)
-							if inside_mine_orbit ~= "No" then
-								setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance + 500,mobile_mine)
-							end
+							createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance+500)
 							if inside_mines > 2 then
-								mx, my = vectorFromAngle(j,mine_distance - 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								if inside_mine_orbit ~= "No" then
-									setObjectForOrbit(mine,j,inside_mine_orbit,fsx,fsy,mine_distance - 500,mobile_mine)
-								end
+								createOrbitingObject(Mine(),inside_mine_orbit ~= "No",j,inside_mine_orbit,fsx,fsy,mine_distance-500)
 							end
 						end
 					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					angle = (angle + increment) % 360
 				end
 			end
 			if outside_mines > 0 then
 				angle = random(0,360)
-				local outer_outside_mine_distance = {
-						["Small Station"] 	= 10500,
-						["Medium Station"]	= 12100,
-						["Large Station"]	= 12700,
-						["Huge Station"]	= 13100,
-					}
-				mine_distance = outer_outside_mine_distance[station_type]
+				mine_distance = outer_platform_distance[station_type]+3000
 				increment = 360/outside_mine_gap_count
 				for i=1,outside_mine_gap_count do
 					for j=angle+10,angle+increment-10,3 do
-						mx, my = vectorFromAngle(j,mine_distance)
-						mine = Mine():setPosition(fsx+mx,fsy+my)
-						if outside_mine_orbit ~= "No" then
-							if mobile_mine == nil then
-								mobile_mine = {}
-							end
-							setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance,mobile_mine)
-						end
+						createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance)
 						if outside_mines > 1 then
-							mx, my = vectorFromAngle(j,mine_distance + 500)
-							mine = Mine():setPosition(fsx+mx,fsy+my)
-							if outside_mine_orbit ~= "No" then
-								setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance + 500,mobile_mine)
-							end
+							createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance+500)
 							if outside_mines > 2 then
-								mx, my = vectorFromAngle(j,mine_distance - 500)
-								mine = Mine():setPosition(fsx+mx,fsy+my)
-								if outside_mine_orbit ~= "No" then
-									setObjectForOrbit(mine,j,outside_mine_orbit,fsx,fsy,mine_distance - 500,mobile_mine)
-								end
+								createOrbitingObject(Mine(),outside_mine_orbit ~= "No",j,outside_mine_orbit,fsx,fsy,mine_distance-500)
 							end
 						end
 					end
-					angle = angle + increment
-					if angle > 360 then
-						angle = angle - 360
-					end
+					angle = (angle + increment) % 360
 				end
 			end
 		end)
 	end
-end
-function setObjectForOrbit(obj,travel_angle,orbit_type,origin_x,origin_y,distance,mobile_table)
-	obj.travel_angle = travel_angle
-	obj.orbit_increment = orbit_increment[orbit_type]
-	obj.origin_x = origin_x
-	obj.origin_y = origin_y
-	obj.distance = distance
-	table.insert(mobile_table,obj)
 end
 -----------------------------------------------------------------------------
 --	Tweak Terrain > Station Defense > Defensive Fleet > Relative Strength  --
@@ -14496,53 +14421,6 @@ function movingObjects(delta)
 		end
 		local px,py = vectorFromAngle(kentar_mobile_nebula_1.angle,kentar_mobile_nebula_1.mobile_neb_dist)
 		kentar_mobile_nebula_1:setPosition(kentar_mobile_nebula_1.center_x+px,kentar_mobile_nebula_1.center_y+py)
-	end
-	if stationKeyhole23 ~= nil and stationKeyhole23:isValid() then
-		stationKeyhole23.total_time = stationKeyhole23.total_time + delta
-		local orbit_distance
-		local center_x=210000
-		local center_y=290000
-		local dist=3600
-		local orbit_pos=stationKeyhole23.total_time/15 --math.fmod(total_time/1,
-		stationKeyhole23:setPosition(center_x+(math.cos(orbit_pos)*dist),center_y+(math.sin(orbit_pos)*dist))
-	end
-	if mobile_defense_platform ~= nil and #mobile_defense_platform > 0 then
-		for i=1,#mobile_defense_platform do
-			local current_platform = mobile_defense_platform[i]
-			if current_platform ~= nil and current_platform:isValid() then
-				current_platform.travel_angle = current_platform.travel_angle + current_platform.orbit_increment
-				if current_platform.orbit_increment > 0 then
-					if current_platform.travel_angle > 360 then
-						current_platform.travel_angle = current_platform.travel_angle - 360
-					end
-				else
-					if current_platform.travel_angle < 0 then
-						current_platform.travel_angle = current_platform.travel_angle + 360
-					end
-				end
-				local new_x, new_y = vectorFromAngle(current_platform.travel_angle,current_platform.distance)
-				current_platform:setPosition(current_platform.origin_x+new_x,current_platform.origin_y+new_y)
-			end
-		end
-	end
-	if mobile_mine ~= nil and #mobile_mine > 0 then
-		for i=1,#mobile_mine do
-			local current_mine = mobile_mine[i]
-			if current_mine ~= nil and current_mine:isValid() then
-				current_mine.travel_angle = current_mine.travel_angle + current_mine.orbit_increment
-				if current_mine.orbit_increment > 0 then
-					if current_mine.travel_angle > 360 then
-						current_mine.travel_angle = current_mine.travel_angle - 360
-					end
-				else
-					if current_mine.travel_angle < 0 then
-						current_mine.travel_angle = current_mine.travel_angle + 360
-					end
-				end
-				local new_x, new_y = vectorFromAngle(current_mine.travel_angle,current_mine.distance)
-				current_mine:setPosition(current_mine.origin_x+new_x,current_mine.origin_y+new_y)
-			end
-		end
 	end
 	if rotate_station ~= nil and #rotate_station > 0 then
 		for i=1,#rotate_station do
