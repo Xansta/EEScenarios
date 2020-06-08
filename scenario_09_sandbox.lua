@@ -10614,6 +10614,11 @@ function createScanClueAway()
 end
 --note all update functions are currently mutually exclusive
 function addUpdate(obj)
+	for i = 0,#updateList do
+		if updateList[i]==obj then
+			table.remove(updateList,i)
+		end
+	end
 	table.insert(updateList,obj)
 end
 function addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, inital_angle)
