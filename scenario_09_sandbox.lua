@@ -1689,6 +1689,13 @@ end
 -------------
 --  debug  --
 -------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM END		F	initialGMFunctions
+-- -CUSTOM				F	customButtons
+-- OBJECT COUNTS		F	inline
+-- ALWAYS POPUP DEBUG	F	inline
+-- ONCE POPUP DEBUG		F	inline
+-- NEVER POPUP DEBUG	F	inline
 function debugButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From Debug",initialGMFunctions)
@@ -1706,22 +1713,124 @@ function debugButtons()
 		popupGMDebug = "never"
 	end)
 end
+
 --------------
---	Custom  --
+-- snippets --
 --------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM END		F	initialGMFunctions
--- +DEBUG				F	inline
--- EXPIRE SELECTED		F	inline
-function customButtons()
+--Due to the intent of this being high churn I am skipping the customary list of buttons
+
+-- these are fragments of code which may be of use as is
+-- they currently don't live in a menu that they should eventually
+-- and they may lack being generic enough to be part of the sandbox proper
+-- note to people adding to them
+-- please put a reason as to at least one of
+-- 1) why they exist
+-- 2) why they aren't in a menu
+-- 3) why they aren't generic enough to be in a menu
+function snippetButtons()
 	clearGMFunctions()
-	addGMFunction("-Main From Custom",initialGMFunctions)
-	addGMFunction("+Debug",debugButtons)
+	addGMFunction("-Main From snippet",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	-- starry suggested replacement for scan points menu
+	-- currently the stock EE build lacks onGMClick and tweak menu additions
 	addGMFunction("Expire Selected", function ()
 		for k,v in pairs(getGMSelection()) do
 			addTimeToLiveUpdate(v)
 		end
 	end)
+	-- spawn the research base used on 2020-06-06
+	-- the location is fixed, the design is fixed
+	-- with both of those being fixed it is hard to make it generic
+	-- and we aren't (probably) going back there making it not applicable for the sandbox
+	-- but the code is somehting that could be edited into generic code for circular base designs in time
+	addGMFunction("base", function ()
+		local cx=27200
+		local cy=227000
+		local inner_ring_speed=90
+		local i_rad=8200
+		local i_1=21000
+		local i_2=math.sqrt(2)*i_1/2
+		local i_3=math.cos(math.pi/8)*(i_1-i_rad)
+		local i_4=math.sin(math.pi/8)*(i_1-i_rad)
+		local i_5=math.sin(math.pi/8)*(27000)
+		local i_6=math.cos(math.pi/8)*(27000)
+		mineRingShim{dist=30000	,x=cx		,y=cy		,mine_gap=1,gap_size=10,speed=900,segments=6}--outer ring, easy to get in with 60 impluse boosted
+		mineRingShim{dist=9000	,x=cx		,y=cy		,mine_gap=6,gap_size=20,speed=60 ,segments=8} -- inner ring, expected method of breaching is probes
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2} -- test traversing
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_1,cy+0)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_1,cy+0)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+0,cy+i_1)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+0,cy-i_1)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_2,cy+i_2)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_2,cy-i_2)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_2,cy+i_2)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_2,cy-i_2)
+		WarpJammer():setPosition(cx+i_3,cy+i_4):setFaction("Kraylor")
+		WarpJammer():setPosition(cx+i_3,cy-i_4):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_3,cy+i_4):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_3,cy-i_4):setFaction("Kraylor")
+		WarpJammer():setPosition(cx+i_4,cy+i_3):setFaction("Kraylor")
+		WarpJammer():setPosition(cx+i_4,cy-i_3):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_4,cy+i_3):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_4,cy-i_3):setFaction("Kraylor")
+		WarpJammer():setPosition(cx+i_5,cy+i_6):setFaction("Kraylor")
+		WarpJammer():setPosition(cx+i_5,cy-i_6):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_5,cy+i_6):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_5,cy-i_6):setFaction("Kraylor")
+		WarpJammer():setPosition(cx+i_6,cy+i_5):setFaction("Kraylor")
+		WarpJammer():setPosition(cx+i_6,cy-i_5):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_6,cy+i_5):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-i_6,cy-i_5):setFaction("Kraylor")
+		WarpJammer():setPosition(cx-2000,cy+0):setFaction("Kraylor"):setRange(6000)
+		WarpJammer():setPosition(cx+2000,cy+0):setFaction("Kraylor"):setRange(6000)
+		WarpJammer():setPosition(cx+0,cy+2000):setFaction("Kraylor"):setRange(6000)
+		WarpJammer():setPosition(cx+0,cy-2000):setFaction("Kraylor"):setRange(6000)
+		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
+		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
+		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
+		leech("Kraylor"):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 6"):setPosition(cx+6000,cy+0)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 15"):setPosition(cx-6000,cy+0)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 35"):setPosition(cx+0,cy+6000)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 27"):setPosition(cx+0,cy-6000)
+		Artifact():setPosition(cx+0,cy+0):setDescription("Contains long range jumpNav calculation"):setCallSign("computer core")
+	end)
+	-- continuation of the above, whatever happens to base should happen to this
+	-- debatably they should be merged into one function as they are both for reference
+	addGMFunction("Jammer Ring",function ()
+		local cx=27200
+		local cy=227000
+		local i_1=21500
+		local i_2=math.sqrt(2)*i_1/2
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_1,cy+0)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_1,cy+0)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+0,cy+i_1)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+0,cy-i_1)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_2,cy+i_2)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_2,cy-i_2)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy+i_2)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
+	end)
+end
+--------------
+--	Custom  --
+--------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM END		F	initialGMFunctions
+-- +DEBUG				F	debugButtons
+-- +SNIPPET				F	snippetButtons
+function customButtons()
+	clearGMFunctions()
+	addGMFunction("-Main From Custom",initialGMFunctions)
+	addGMFunction("+Debug",debugButtons)
+	addGMFunction("+Snippet",snippetButtons)
 end
 -------------------------------------
 --	Initial Set Up > Start Region  --
