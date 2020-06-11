@@ -415,15 +415,6 @@ function setConstants()
 	tradeFood = {}				--stations that will trade food for other goods
 	tradeLuxury = {}			--stations that will trade luxury for other goods
 	tradeMedicine = {}			--stations that will trade medicine for other goods
-	cargoInventoryList = {}		--for inventory button function
-	table.insert(cargoInventoryList,cargoInventory1)
-	table.insert(cargoInventoryList,cargoInventory2)
-	table.insert(cargoInventoryList,cargoInventory3)
-	table.insert(cargoInventoryList,cargoInventory4)
-	table.insert(cargoInventoryList,cargoInventory5)
-	table.insert(cargoInventoryList,cargoInventory6)
-	table.insert(cargoInventoryList,cargoInventory7)
-	table.insert(cargoInventoryList,cargoInventory8)
 	healthCheckTimerInterval = 10
 	healthCheckTimer = healthCheckTimerInterval
 	rendezvousPoints = {}
@@ -14100,39 +14091,6 @@ function getFriendStatus()
         return "neutral"
     end
 end
---Cargo Inventory button for relay or operations
-function cargoInventory1()
-	local p = getPlayerShip(1)
-	playerShipCargoInventory(p)
-end
-function cargoInventory2()
-	local p = getPlayerShip(2)
-	playerShipCargoInventory(p)
-end
-function cargoInventory3()
-	local p = getPlayerShip(3)
-	playerShipCargoInventory(p)
-end
-function cargoInventory4()
-	local p = getPlayerShip(4)
-	playerShipCargoInventory(p)
-end
-function cargoInventory5()
-	local p = getPlayerShip(5)
-	playerShipCargoInventory(p)
-end
-function cargoInventory6()
-	local p = getPlayerShip(6)
-	playerShipCargoInventory(p)
-end
-function cargoInventory7()
-	local p = getPlayerShip(7)
-	playerShipCargoInventory(p)
-end
-function cargoInventory8()
-	local p = getPlayerShip(8)
-	playerShipCargoInventory(p)
-end
 function playerShipCargoInventory(p)
 	p:addToShipLog(string.format("%s Current cargo:",p:getCallSign()),"Yellow")
 	local goodCount = 0
@@ -14773,14 +14731,14 @@ function updateInner(delta)
 					if p:hasPlayerAtPosition("Relay") then
 						if p.inventoryButton == nil then
 							local tbi = "inventory" .. player_name
-							p:addCustomButton("Relay",tbi,"Inventory",cargoInventoryList[pidx])
+							p:addCustomButton("Relay",tbi,"Inventory",function () playerShipCargoInventory(p) end)
 							p.inventoryButton = true
 						end
 					end
 					if p:hasPlayerAtPosition("Operations") then
 						if p.inventoryButton == nil then
 							local tbi = "inventoryOp" .. player_name
-							p:addCustomButton("Operations",tbi,"Inventory",cargoInventoryList[pidx])
+							p:addCustomButton("Operations",tbi,"Inventory", function () playerShipCargoInventory(p) end)
 							p.inventoryButton = true
 						end
 					end
