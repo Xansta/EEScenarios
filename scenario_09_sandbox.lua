@@ -8906,15 +8906,15 @@ function podNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			local GMPodAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip1,podAssociatedToCpuShip1,function () podAssociatedToGivenCpuShip(cpuShipList[1]) end)
+			addGMFunction(GMPodAssociatedToCpuShip1,function () podAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			local GMPodAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip2,podAssociatedToCpuShip2,function () podAssociatedToGivenCpuShip(cpuShipList[2]) end)
+			addGMFunction(GMPodAssociatedToCpuShip2,function () podAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			local GMPodAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip3,podAssociatedToCpuShip3,function () podAssociatedToGivenCpuShip(cpuShipList[3]) end)
+			addGMFunction(GMPodAssociatedToCpuShip3,function () podAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = podNearTo
@@ -9371,15 +9371,15 @@ function marineNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			GMMarineAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip1,marineAssociatedToCpuShip1,function () marineAssociatedToGivenCpuShip(cpuShipList[1]) end)
+			addGMFunction(GMMarineAssociatedToCpuShip1,function () marineAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			GMMarineAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip2,marineAssociatedToCpuShip2,function () marineAssociatedToGivenCpuShip(cpuShipList[2]) end)
+			addGMFunction(GMMarineAssociatedToCpuShip2,function () marineAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			GMMarineAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip3,marineAssociatedToCpuShip3,function () marineAssociatedToGivenCpuShip(cpuShipList[3]) end)
+			addGMFunction(GMMarineAssociatedToCpuShip3,function () marineAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = marineNearTo
