@@ -386,9 +386,6 @@ function setConstants()
 						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
 					}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
-	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
-	roamingFleetFunction = {orderFleetRoaming1,orderFleetRoaming2,orderFleetRoaming3,orderFleetRoaming4,orderFleetRoaming5,orderFleetRoaming6,orderFleetRoaming7,orderFleetRoaming8}
-	standGroundFleetFunction = {orderFleetStandGround1,orderFleetStandGround2,orderFleetStandGround3,orderFleetStandGround4,orderFleetStandGround5,orderFleetStandGround6,orderFleetStandGround7,orderFleetStandGround8}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
 	defendFleetFunction = {orderFleetDefend1,orderFleetDefend2,orderFleetDefend3,orderFleetDefend4,orderFleetDefend5,orderFleetDefend6,orderFleetDefend7,orderFleetDefend8}
 	flyFleetFunction = {orderFleetFly1,orderFleetFly2,orderFleetFly3,orderFleetFly4,orderFleetFly5,orderFleetFly6,orderFleetFly7,orderFleetFly8}
@@ -8073,7 +8070,7 @@ function orderFleetIdle()
 				end
 			end
 			local GMOrderFleetIdle = string.format("%i %s",i,sampleName)
-			addGMFunction(GMOrderFleetIdle,idleFleetFunction[i])
+			addGMFunction(GMOrderFleetIdle, function () orderFleetIdleGivenFleet(fleetList[i]) end)
 		else
 			break
 		end
@@ -8085,38 +8082,6 @@ function orderFleetIdleGivenFleet(fto)
 			fm:orderIdle()
 		end
 	end	
-end
-function orderFleetIdle1()
-	local fto = fleetList[1]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle2()
-	local fto = fleetList[2]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle3()
-	local fto = fleetList[3]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle4()
-	local fto = fleetList[4]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle5()
-	local fto = fleetList[5]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle6()
-	local fto = fleetList[6]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle7()
-	local fto = fleetList[7]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle8()
-	local fto = fleetList[8]
-	orderFleetIdleGivenFleet(fto)
 end
 --Order fleet to roam, attack any and all enemies
 function orderFleetRoaming()
@@ -8135,7 +8100,7 @@ function orderFleetRoaming()
 				end
 			end
 			GMOrderFleetRoaming = string.format("%i %s",i,sampleName)
-			addGMFunction(GMOrderFleetRoaming,roamingFleetFunction[i])
+			addGMFunction(GMOrderFleetRoaming,function () orderFleetRoamingGivenFleet(fleetList[i]) end)
 		else
 			break
 		end
@@ -8147,38 +8112,6 @@ function orderFleetRoamingGivenFleet(fto)
 			fm:orderRoaming()	--set fleet member order
 		end
 	end
-end
-function orderFleetRoaming1()
-	local fto = fleetList[1]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming2()
-	local fto = fleetList[2]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming3()
-	local fto = fleetList[3]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming4()
-	local fto = fleetList[4]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming5()
-	local fto = fleetList[5]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming6()
-	local fto = fleetList[6]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming7()
-	local fto = fleetList[7]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming8()
-	local fto = fleetList[8]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
 end
 --Order fleet to stand ground, attacking nearby enemies
 function orderFleetStandGround()
@@ -8197,7 +8130,7 @@ function orderFleetStandGround()
 				end
 			end
 			GMOrderFleetStandGround = string.format("%i %s",i,sampleName)
-			addGMFunction(GMOrderFleetStandGround,standGroundFleetFunction[i])
+			addGMFunction(GMOrderFleetStandGround,function () orderFleetStandGroundGivenFleet(fleetList[i]) end)
 		else
 			break
 		end
@@ -8209,38 +8142,6 @@ function orderFleetStandGroundGivenFleet(fto)
 			fm:orderStandGround()
 		end
 	end	
-end
-function orderFleetStandGround1()
-	local fto = fleetList[1]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround2()
-	local fto = fleetList[2]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround3()
-	local fto = fleetList[3]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround4()
-	local fto = fleetList[4]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround5()
-	local fto = fleetList[5]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround6()
-	local fto = fleetList[6]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround7()
-	local fto = fleetList[7]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround8()
-	local fto = fleetList[8]
-	orderFleetStandGroundGivenFleet(fto)
 end
 --Order fleet to attack GM selected object
 function orderFleetAttack()
