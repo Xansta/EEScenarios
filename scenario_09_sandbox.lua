@@ -1737,48 +1737,20 @@ function snippetButtons()
 		local i_rad=8200
 		local i_1=21000
 		local i_2=math.sqrt(2)*i_1/2
-		local i_3=math.cos(math.pi/8)*(i_1-i_rad)
-		local i_4=math.sin(math.pi/8)*(i_1-i_rad)
-		local i_5=math.sin(math.pi/8)*(27000)
-		local i_6=math.cos(math.pi/8)*(27000)
-		mineRingShim{dist=30000	,x=cx		,y=cy		,mine_gap=1,gap_size=10,speed=900,segments=6}--outer ring, easy to get in with 60 impluse boosted
-		mineRingShim{dist=9000	,x=cx		,y=cy		,mine_gap=6,gap_size=20,speed=60 ,segments=8} -- inner ring, expected method of breaching is probes
-		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2} -- test traversing
-		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_1,cy+0)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_1,cy+0)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+0,cy+i_1)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+0,cy-i_1)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_2,cy+i_2)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_2,cy-i_2)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_2,cy+i_2)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_2,cy-i_2)
-		WarpJammer():setPosition(cx+i_3,cy+i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_3,cy-i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_3,cy+i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_3,cy-i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_4,cy+i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_4,cy-i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_4,cy+i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_4,cy-i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_5,cy+i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_5,cy-i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_5,cy+i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_5,cy-i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_6,cy+i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_6,cy-i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_6,cy+i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_6,cy-i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-2000,cy+0):setFaction("Kraylor"):setRange(6000)
-		WarpJammer():setPosition(cx+2000,cy+0):setFaction("Kraylor"):setRange(6000)
-		WarpJammer():setPosition(cx+0,cy+2000):setFaction("Kraylor"):setRange(6000)
-		WarpJammer():setPosition(cx+0,cy-2000):setFaction("Kraylor"):setRange(6000)
+		mineRingShim{dist=30000	,x=cx		,y=cy		,gap=1,gap_size=10,speed=900,segments=6}--outer ring, easy to get in with 60 impluse boosted
+		mineRingShim{dist=9000	,x=cx		,y=cy		,gap=6,gap_size=20,speed=60 ,segments=8} -- inner ring, expected method of breaching is probes
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2} -- test traversing
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_1,	angle=0	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
+		mineRingShim{dist=i_1-i_rad,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
+		mineRingShim{dist=27000,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
+		mineRingShim{dist=2000,	angle=0	,x=cx	,y=cy	,gap=(360/4),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
 		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
 		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
 		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
@@ -10902,8 +10874,7 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 		addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
 	end
 end
---this needs work, I need it exposed in some way for the game on 2020-06-06, this is the most expedient way
---the Mine() call probably should be a callback? maybe? at least there should be an option other than mines
+--this needs work
 --there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
 function mineRingShim(args)
 	local angle=args.angle or random(0,360)
@@ -10916,13 +10887,18 @@ function mineRingShim(args)
 	local segments=args.segments or 1
 	local half_gap_size=args.gap_size or 20
 	half_gap_size=half_gap_size/2
-	local mine_gap=args.mine_gap or 3
+	local gap=args.gap or 3
 	local increment=(360/segments)
+	local object_creation=args.object_creation or Mine
+	if segments == 0 then
+		segments=1
+		half_gap_size=0
+	end
 	for i=1,segments do
-		for j=angle+half_gap_size,angle+increment-half_gap_size,mine_gap do
+		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
 			for row=0,num_rows-1 do
 				local dist=min_dist+row_gap*row
-				createOrbitingObject(Mine(),j,speed,x,y,dist)
+				createOrbitingObject(object_creation(),j,speed,x,y,dist)
 			end
 		end
 		angle=angle+increment
