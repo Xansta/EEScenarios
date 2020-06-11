@@ -9033,15 +9033,15 @@ function podNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			local GMPodAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip1,podAssociatedToCpuShip1)
+			addGMFunction(GMPodAssociatedToCpuShip1,podAssociatedToCpuShip1,function () podAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			local GMPodAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip2,podAssociatedToCpuShip2)
+			addGMFunction(GMPodAssociatedToCpuShip2,podAssociatedToCpuShip2,function () podAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			local GMPodAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip3,podAssociatedToCpuShip3)
+			addGMFunction(GMPodAssociatedToCpuShip3,podAssociatedToCpuShip3,function () podAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = podNearTo
@@ -9051,16 +9051,6 @@ function podNearTo()
 	addGMFunction(string.format("+%s",GMSetCreateDistance),setCreateDistance)
 	local GMCreatePodAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreatePodAway,createPodAway)
-end
---Associate to CpuShip since they cannot be part of GM selection in this context
-function podAssociatedToCpuShip1()
-	podAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function podAssociatedToCpuShip2()
-	podAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function podAssociatedToCpuShip3()
-	podAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function podAssociatedToGivenCpuShip(tempObject)
 	local podDistance = associatedTypeDistance["CpuShip"]
@@ -9508,15 +9498,15 @@ function marineNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			GMMarineAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip1,marineAssociatedToCpuShip1)
+			addGMFunction(GMMarineAssociatedToCpuShip1,marineAssociatedToCpuShip1,function () marineAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			GMMarineAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip2,marineAssociatedToCpuShip2)
+			addGMFunction(GMMarineAssociatedToCpuShip2,marineAssociatedToCpuShip2,function () marineAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			GMMarineAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip3,marineAssociatedToCpuShip3)
+			addGMFunction(GMMarineAssociatedToCpuShip3,marineAssociatedToCpuShip3,function () marineAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = marineNearTo
@@ -9526,15 +9516,6 @@ function marineNearTo()
 	addGMFunction(GMSetCreateDistance,setCreateDistance)
 	GMCreateMarineAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreateMarineAway,createMarineAway)
-end
-function marineAssociatedToCpuShip1()
-	marineAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function marineAssociatedToCpuShip2()
-	marineAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function marineAssociatedToCpuShip3()
-	marineAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function marineAssociatedToGivenCpuShip(tempObject)
 	local marineDistance = associatedTypeDistance["CpuShip"]
@@ -9768,15 +9749,15 @@ function engineerNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			GMEngineerAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMEngineerAssociatedToCpuShip1,engineerAssociatedToCpuShip1)
+			addGMFunction(GMEngineerAssociatedToCpuShip1,function () engineerAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			GMEngineerAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMEngineerAssociatedToCpuShip2,engineerAssociatedToCpuShip2)
+			addGMFunction(GMEngineerAssociatedToCpuShip2,function () engineerAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			GMEngineerAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMEngineerAssociatedToCpuShip3,engineerAssociatedToCpuShip3)
+			addGMFunction(GMEngineerAssociatedToCpuShip3,function () engineerAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = engineerNearTo
@@ -9786,15 +9767,6 @@ function engineerNearTo()
 	addGMFunction(string.format("+%s",GMSetCreateDistance),setCreateDistance)
 	GMCreateEngineerAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreateEngineerAway,createEngineerAway)
-end
-function engineerAssociatedToCpuShip1()
-	engineerAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function engineerAssociatedToCpuShip2()
-	engineerAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function engineerAssociatedToCpuShip3()
-	engineerAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function engineerAssociatedToGivenCpuShip(tempObject)
 	local engineerDistance = associatedTypeDistance["CpuShip"]
@@ -10029,15 +10001,15 @@ function medicNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			GMMedicAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMMedicAssociatedToCpuShip1,medicAssociatedToCpuShip1)
+			addGMFunction(GMMedicAssociatedToCpuShip1,function () medicAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			GMMedicAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMMedicAssociatedToCpuShip2,medicAssociatedToCpuShip2)
+			addGMFunction(GMMedicAssociatedToCpuShip2,function () medicAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			GMMedicAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMMedicAssociatedToCpuShip3,medicAssociatedToCpuShip3)
+			addGMFunction(GMMedicAssociatedToCpuShip3,function () medicAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = medicNearTo
@@ -10047,15 +10019,6 @@ function medicNearTo()
 	addGMFunction(string.format("+%s",GMSetCreateDistance),setCreateDistance)
 	GMCreateMedicAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreateMedicAway,createMedicAway)
-end
-function medicAssociatedToCpuShip1()
-	medicAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function medicAssociatedToCpuShip2()
-	medicAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function medicAssociatedToCpuShip3()
-	medicAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function medicAssociatedToGivenCpuShip(tempObject)
 	local medicDistance = associatedTypeDistance["CpuShip"]
