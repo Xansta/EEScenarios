@@ -185,10 +185,12 @@ function createSkeletonUniverse()
 	}
 	station_names[stationIcarus:getCallSign()] = {stationIcarus:getSectorName(), stationIcarus}
 	--Kentar
-	local kentarZone = squareZone(246000,247000, "Kentar 2")
+	kentar_x = 246000
+	kentar_y = 247000
+	local kentarZone = squareZone(kentar_x,kentar_y, "Kentar 2")
 	kentarZone:setColor(0,128,0)
 	--[[	Destroyed 30May2020
-	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(246000,247000):setCallSign("Kentar"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(kentar_x,kentar_y):setCallSign("Kentar"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationKentar.comms_data = {
     	friendlyness = 68,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -3463,6 +3465,13 @@ function createKentarColor()
 	kentar_mines = createKentarMines()
 	kentar_stations = createKentarStations()
 	regionStations = kentar_stations
+	local start_angle = 315
+	for i=1,3 do
+		local dpx, dpy = vectorFromAngle(start_angle,3500)
+		local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+		kentar_zone:setColor(0,128,0)
+		start_angle = (start_angle + 120) % 360
+	end
 end
 function createKentarStations()
 	local stations = {}
