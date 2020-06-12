@@ -3483,6 +3483,33 @@ function createKentarStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
+	--Gamma-3
+    stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationGamma3.comms_data = {
+    	friendlyness = 68,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 10000, cost = 10},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	tractor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
+        			repulsor = 	{quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We watch and report on enemy vessel movement. We also run a small tractor and repulsor component machine shop",
+    	history = "The Human Navy set this station up as a strategic observation post"
+	}
+	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
+	table.insert(stations,stationGamma3)
 	--Katanga
     stationKatanga = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(229513, 224048):setCallSign("Katanga"):setDescription("Mining station for cobalt, gold and other minerals"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3531,33 +3558,64 @@ function createKentarStations()
 	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
 	addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
-	--Gamma-3
-    stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
+	--Kolar
+    stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
     if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
     if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
-    stationGamma3.comms_data = {
-    	friendlyness = 68,
-        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
-        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
+    stationKolar.comms_data = {
+    	friendlyness = 85,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(1,4),Mine = math.random(1,4),Nuke = math.random(12,18),	EMP = math.random(13,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 10000, cost = 10},
+        sensor_boost = {value = 5000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	tractor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
-        			repulsor = 	{quantity = math.random(2,5),	cost = math.random(55,90)}	},
-        trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
+        goods = {	circuit = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			autodoc =	{quantity = math.random(5,9),	cost = math.random(63,70)},
+        			gold =		{quantity = math.random(5,9),	cost = math.random(33,50)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
-        general_information = "We watch and report on enemy vessel movement. We also run a small tractor and repulsor component machine shop",
-    	history = "The Human Navy set this station up as a strategic observation post"
+        general_information = "We mine gold, we make and sell autodoc and circuit",
+    	history = "We said, 'thar's gold in them there rocks' and we just had to get some"
 	}
-	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
-	table.insert(stations,stationGamma3)
+	station_names[stationKolar:getCallSign()] = {stationKolar:getSectorName(), stationKolar}
+	table.insert(stations,stationKolar)
+	--Locarno
+    stationLocarno = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Locarno"):setPosition(246819, 331779):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationLocarno.comms_data = {
+    	friendlyness = 85,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "neutral", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost = {value = 5000, cost = 5},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	nanites = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			android =	{quantity = math.random(5,9),	cost = math.random(63,70)},
+        			cobalt =	{quantity = math.random(5,9),	cost = math.random(33,50)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine, we trade, we sell nanites and android components",
+    	history = "It looked like a good location for resupply and mining and it's served us well"
+	}
+	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
+	table.insert(stations,stationLocarno)
 	--Nereus
     stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3584,6 +3642,34 @@ function createKentarStations()
 	}
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
+	--Pastern
+	local ergot_x, ergot_y = planet_primus:getPosition()
+    stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationPastern.comms_data = {
+    	friendlyness = 58,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	circuit = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
+        			battery = 	{quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We research the relationship between Rigil, Ergot and the cosmos",
+    	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
+	}
+	addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi)
+	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
+	table.insert(stations,stationPastern)
 	--Talos
 	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3639,64 +3725,6 @@ function createKentarStations()
 	}
 	station_names[stationSutter:getCallSign()] = {stationSutter:getSectorName(), stationSutter}
 	table.insert(stations,stationSutter)
-	--Locarno
-    stationLocarno = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Locarno"):setPosition(246819, 331779):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
-    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
-    if random(1,100) <= 40 then empAvail = true else empAvail = false end
-    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
-    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
-    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
-    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
-    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
-    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
-    stationLocarno.comms_data = {
-    	friendlyness = 85,
-        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "neutral", 			EMP = "neutral"},
-        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
-        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 5000, cost = 5},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	nanites = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
-        			android =	{quantity = math.random(5,9),	cost = math.random(63,70)},
-        			cobalt =	{quantity = math.random(5,9),	cost = math.random(33,50)}	},
-        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
-        public_relations = true,
-        general_information = "We mine, we trade, we sell nanites and android components",
-    	history = "It looked like a good location for resupply and mining and it's served us well"
-	}
-	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
-	table.insert(stations,stationLocarno)
-	--Kolar
-    stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
-    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
-    if random(1,100) <= 40 then empAvail = true else empAvail = false end
-    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
-    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
-    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
-    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
-    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
-    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
-    stationKolar.comms_data = {
-    	friendlyness = 85,
-        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "neutral"},
-        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(1,4),Mine = math.random(1,4),Nuke = math.random(12,18),	EMP = math.random(13,17) },
-        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        sensor_boost = {value = 5000, cost = 10},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	circuit = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
-        			autodoc =	{quantity = math.random(5,9),	cost = math.random(63,70)},
-        			gold =		{quantity = math.random(5,9),	cost = math.random(33,50)}	},
-        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
-        public_relations = true,
-        general_information = "We mine gold, we make and sell autodoc and circuit",
-    	history = "We said, 'thar's gold in them there rocks' and we just had to get some"
-	}
-	station_names[stationKolar:getCallSign()] = {stationKolar:getSectorName(), stationKolar}
-	table.insert(stations,stationKolar)
 	return stations
 end
 function createKentarPlanets()
@@ -10583,6 +10611,26 @@ function addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, inital_an
 		self.time = self.time + delta
 		local orbit_pos=(self.time+self.start_offset)/self.orbit_time
 		self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+	end
+	addUpdate(obj)
+end
+function addOrbitTargetUpdate(obj, orbit_target, distance, orbit_time, initial_angle)
+	assert(type(obj)=="table")
+	assert(type(orbit_target)=="table")
+	assert(type(distance)=="number")
+	assert(type(orbit_time)=="number")
+	assert(type(inital_angle)=="number" or inital_angle == nil)
+	obj.orbit_target = orbit_target
+	obj.distance = distance
+	obj.orbit_time = orbit_time/(2*math.pi)
+	inital_angle = inital_angle or 0
+	obj.start_offset = (inital_angle/360)*orbit_time
+	obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version
+	obj.update = function (self,delta)
+		self.time = self.time + delta
+		local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+		local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+		self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
 	end
 	addUpdate(obj)
 end
