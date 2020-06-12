@@ -386,9 +386,6 @@ function setConstants()
 						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
 					}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
-	idleFleetFunction = {orderFleetIdle1,orderFleetIdle2,orderFleetIdle3,orderFleetIdle4,orderFleetIdle5,orderFleetIdle6,orderFleetIdle7,orderFleetIdle8}
-	roamingFleetFunction = {orderFleetRoaming1,orderFleetRoaming2,orderFleetRoaming3,orderFleetRoaming4,orderFleetRoaming5,orderFleetRoaming6,orderFleetRoaming7,orderFleetRoaming8}
-	standGroundFleetFunction = {orderFleetStandGround1,orderFleetStandGround2,orderFleetStandGround3,orderFleetStandGround4,orderFleetStandGround5,orderFleetStandGround6,orderFleetStandGround7,orderFleetStandGround8}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
 	defendFleetFunction = {orderFleetDefend1,orderFleetDefend2,orderFleetDefend3,orderFleetDefend4,orderFleetDefend5,orderFleetDefend6,orderFleetDefend7,orderFleetDefend8}
 	flyFleetFunction = {orderFleetFly1,orderFleetFly2,orderFleetFly3,orderFleetFly4,orderFleetFly5,orderFleetFly6,orderFleetFly7,orderFleetFly8}
@@ -415,15 +412,6 @@ function setConstants()
 	tradeFood = {}				--stations that will trade food for other goods
 	tradeLuxury = {}			--stations that will trade luxury for other goods
 	tradeMedicine = {}			--stations that will trade medicine for other goods
-	cargoInventoryList = {}		--for inventory button function
-	table.insert(cargoInventoryList,cargoInventory1)
-	table.insert(cargoInventoryList,cargoInventory2)
-	table.insert(cargoInventoryList,cargoInventory3)
-	table.insert(cargoInventoryList,cargoInventory4)
-	table.insert(cargoInventoryList,cargoInventory5)
-	table.insert(cargoInventoryList,cargoInventory6)
-	table.insert(cargoInventoryList,cargoInventory7)
-	table.insert(cargoInventoryList,cargoInventory8)
 	healthCheckTimerInterval = 10
 	healthCheckTimer = healthCheckTimerInterval
 	rendezvousPoints = {}
@@ -1749,48 +1737,20 @@ function snippetButtons()
 		local i_rad=8200
 		local i_1=21000
 		local i_2=math.sqrt(2)*i_1/2
-		local i_3=math.cos(math.pi/8)*(i_1-i_rad)
-		local i_4=math.sin(math.pi/8)*(i_1-i_rad)
-		local i_5=math.sin(math.pi/8)*(27000)
-		local i_6=math.cos(math.pi/8)*(27000)
-		mineRingShim{dist=30000	,x=cx		,y=cy		,mine_gap=1,gap_size=10,speed=900,segments=6}--outer ring, easy to get in with 60 impluse boosted
-		mineRingShim{dist=9000	,x=cx		,y=cy		,mine_gap=6,gap_size=20,speed=60 ,segments=8} -- inner ring, expected method of breaching is probes
-		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2} -- test traversing
-		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,mine_gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,mine_gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_1,cy+0)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_1,cy+0)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+0,cy+i_1)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+0,cy-i_1)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_2,cy+i_2)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx+i_2,cy-i_2)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_2,cy+i_2)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station"):setPosition(cx-i_2,cy-i_2)
-		WarpJammer():setPosition(cx+i_3,cy+i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_3,cy-i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_3,cy+i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_3,cy-i_4):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_4,cy+i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_4,cy-i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_4,cy+i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_4,cy-i_3):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_5,cy+i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_5,cy-i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_5,cy+i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_5,cy-i_6):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_6,cy+i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx+i_6,cy-i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_6,cy+i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-i_6,cy-i_5):setFaction("Kraylor")
-		WarpJammer():setPosition(cx-2000,cy+0):setFaction("Kraylor"):setRange(6000)
-		WarpJammer():setPosition(cx+2000,cy+0):setFaction("Kraylor"):setRange(6000)
-		WarpJammer():setPosition(cx+0,cy+2000):setFaction("Kraylor"):setRange(6000)
-		WarpJammer():setPosition(cx+0,cy-2000):setFaction("Kraylor"):setRange(6000)
+		mineRingShim{dist=30000	,x=cx		,y=cy		,gap=1,gap_size=10,speed=900,segments=6}--outer ring, easy to get in with 60 impluse boosted
+		mineRingShim{dist=9000	,x=cx		,y=cy		,gap=6,gap_size=20,speed=60 ,segments=8} -- inner ring, expected method of breaching is probes
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2} -- test traversing
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_1,	angle=0	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
+		mineRingShim{dist=i_1-i_rad,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
+		mineRingShim{dist=27000,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
+		mineRingShim{dist=2000,	angle=0	,x=cx	,y=cy	,gap=(360/4),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
 		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
 		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
 		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
@@ -8082,7 +8042,7 @@ function orderFleetIdle()
 				end
 			end
 			local GMOrderFleetIdle = string.format("%i %s",i,sampleName)
-			addGMFunction(GMOrderFleetIdle,idleFleetFunction[i])
+			addGMFunction(GMOrderFleetIdle, function () orderFleetIdleGivenFleet(fleetList[i]) end)
 		else
 			break
 		end
@@ -8094,38 +8054,6 @@ function orderFleetIdleGivenFleet(fto)
 			fm:orderIdle()
 		end
 	end	
-end
-function orderFleetIdle1()
-	local fto = fleetList[1]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle2()
-	local fto = fleetList[2]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle3()
-	local fto = fleetList[3]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle4()
-	local fto = fleetList[4]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle5()
-	local fto = fleetList[5]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle6()
-	local fto = fleetList[6]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle7()
-	local fto = fleetList[7]
-	orderFleetIdleGivenFleet(fto)
-end
-function orderFleetIdle8()
-	local fto = fleetList[8]
-	orderFleetIdleGivenFleet(fto)
 end
 --Order fleet to roam, attack any and all enemies
 function orderFleetRoaming()
@@ -8144,7 +8072,7 @@ function orderFleetRoaming()
 				end
 			end
 			GMOrderFleetRoaming = string.format("%i %s",i,sampleName)
-			addGMFunction(GMOrderFleetRoaming,roamingFleetFunction[i])
+			addGMFunction(GMOrderFleetRoaming,function () orderFleetRoamingGivenFleet(fleetList[i]) end)
 		else
 			break
 		end
@@ -8156,38 +8084,6 @@ function orderFleetRoamingGivenFleet(fto)
 			fm:orderRoaming()	--set fleet member order
 		end
 	end
-end
-function orderFleetRoaming1()
-	local fto = fleetList[1]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming2()
-	local fto = fleetList[2]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming3()
-	local fto = fleetList[3]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming4()
-	local fto = fleetList[4]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming5()
-	local fto = fleetList[5]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming6()
-	local fto = fleetList[6]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming7()
-	local fto = fleetList[7]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
-end
-function orderFleetRoaming8()
-	local fto = fleetList[8]	--get fleet to order
-	orderFleetRoamingGivenFleet(fto)
 end
 --Order fleet to stand ground, attacking nearby enemies
 function orderFleetStandGround()
@@ -8206,7 +8102,7 @@ function orderFleetStandGround()
 				end
 			end
 			GMOrderFleetStandGround = string.format("%i %s",i,sampleName)
-			addGMFunction(GMOrderFleetStandGround,standGroundFleetFunction[i])
+			addGMFunction(GMOrderFleetStandGround,function () orderFleetStandGroundGivenFleet(fleetList[i]) end)
 		else
 			break
 		end
@@ -8218,38 +8114,6 @@ function orderFleetStandGroundGivenFleet(fto)
 			fm:orderStandGround()
 		end
 	end	
-end
-function orderFleetStandGround1()
-	local fto = fleetList[1]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround2()
-	local fto = fleetList[2]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround3()
-	local fto = fleetList[3]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround4()
-	local fto = fleetList[4]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround5()
-	local fto = fleetList[5]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround6()
-	local fto = fleetList[6]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround7()
-	local fto = fleetList[7]
-	orderFleetStandGroundGivenFleet(fto)
-end
-function orderFleetStandGround8()
-	local fto = fleetList[8]
-	orderFleetStandGroundGivenFleet(fto)
 end
 --Order fleet to attack GM selected object
 function orderFleetAttack()
@@ -9042,15 +8906,15 @@ function podNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			local GMPodAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip1,podAssociatedToCpuShip1)
+			addGMFunction(GMPodAssociatedToCpuShip1,function () podAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			local GMPodAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip2,podAssociatedToCpuShip2)
+			addGMFunction(GMPodAssociatedToCpuShip2,function () podAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			local GMPodAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMPodAssociatedToCpuShip3,podAssociatedToCpuShip3)
+			addGMFunction(GMPodAssociatedToCpuShip3,function () podAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = podNearTo
@@ -9060,16 +8924,6 @@ function podNearTo()
 	addGMFunction(string.format("+%s",GMSetCreateDistance),setCreateDistance)
 	local GMCreatePodAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreatePodAway,createPodAway)
-end
---Associate to CpuShip since they cannot be part of GM selection in this context
-function podAssociatedToCpuShip1()
-	podAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function podAssociatedToCpuShip2()
-	podAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function podAssociatedToCpuShip3()
-	podAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function podAssociatedToGivenCpuShip(tempObject)
 	local podDistance = associatedTypeDistance["CpuShip"]
@@ -9517,15 +9371,15 @@ function marineNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			GMMarineAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip1,marineAssociatedToCpuShip1)
+			addGMFunction(GMMarineAssociatedToCpuShip1,function () marineAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			GMMarineAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip2,marineAssociatedToCpuShip2)
+			addGMFunction(GMMarineAssociatedToCpuShip2,function () marineAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			GMMarineAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMMarineAssociatedToCpuShip3,marineAssociatedToCpuShip3)
+			addGMFunction(GMMarineAssociatedToCpuShip3,function () marineAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = marineNearTo
@@ -9535,15 +9389,6 @@ function marineNearTo()
 	addGMFunction(GMSetCreateDistance,setCreateDistance)
 	GMCreateMarineAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreateMarineAway,createMarineAway)
-end
-function marineAssociatedToCpuShip1()
-	marineAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function marineAssociatedToCpuShip2()
-	marineAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function marineAssociatedToCpuShip3()
-	marineAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function marineAssociatedToGivenCpuShip(tempObject)
 	local marineDistance = associatedTypeDistance["CpuShip"]
@@ -9777,15 +9622,15 @@ function engineerNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			GMEngineerAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMEngineerAssociatedToCpuShip1,engineerAssociatedToCpuShip1)
+			addGMFunction(GMEngineerAssociatedToCpuShip1,function () engineerAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			GMEngineerAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMEngineerAssociatedToCpuShip2,engineerAssociatedToCpuShip2)
+			addGMFunction(GMEngineerAssociatedToCpuShip2,function () engineerAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			GMEngineerAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMEngineerAssociatedToCpuShip3,engineerAssociatedToCpuShip3)
+			addGMFunction(GMEngineerAssociatedToCpuShip3,function () engineerAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = engineerNearTo
@@ -9795,15 +9640,6 @@ function engineerNearTo()
 	addGMFunction(string.format("+%s",GMSetCreateDistance),setCreateDistance)
 	GMCreateEngineerAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreateEngineerAway,createEngineerAway)
-end
-function engineerAssociatedToCpuShip1()
-	engineerAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function engineerAssociatedToCpuShip2()
-	engineerAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function engineerAssociatedToCpuShip3()
-	engineerAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function engineerAssociatedToGivenCpuShip(tempObject)
 	local engineerDistance = associatedTypeDistance["CpuShip"]
@@ -10038,15 +9874,15 @@ function medicNearTo()
 	if #cpuShipList > 0 then
 		if #cpuShipList >= 1 then
 			GMMedicAssociatedToCpuShip1 = string.format("Associate to %s",cpuShipList[1]:getCallSign())
-			addGMFunction(GMMedicAssociatedToCpuShip1,medicAssociatedToCpuShip1)
+			addGMFunction(GMMedicAssociatedToCpuShip1,function () medicAssociatedToGivenCpuShip(cpuShipList[1]) end)
 		end
 		if #cpuShipList >= 2 then
 			GMMedicAssociatedToCpuShip2 = string.format("Associate to %s",cpuShipList[2]:getCallSign())
-			addGMFunction(GMMedicAssociatedToCpuShip2,medicAssociatedToCpuShip2)
+			addGMFunction(GMMedicAssociatedToCpuShip2,function () medicAssociatedToGivenCpuShip(cpuShipList[2]) end)
 		end
 		if #cpuShipList >= 3 then
 			GMMedicAssociatedToCpuShip3 = string.format("Associate to %s",cpuShipList[3]:getCallSign())
-			addGMFunction(GMMedicAssociatedToCpuShip3,medicAssociatedToCpuShip3)
+			addGMFunction(GMMedicAssociatedToCpuShip3,function () medicAssociatedToGivenCpuShip(cpuShipList[3]) end)
 		end
 	end
 	callingNearTo = medicNearTo
@@ -10056,15 +9892,6 @@ function medicNearTo()
 	addGMFunction(string.format("+%s",GMSetCreateDistance),setCreateDistance)
 	GMCreateMedicAway = "Create at " .. createDirection .. " Deg, " .. createDistance .. "U"
 	addGMFunction(GMCreateMedicAway,createMedicAway)
-end
-function medicAssociatedToCpuShip1()
-	medicAssociatedToGivenCpuShip(cpuShipList[1])
-end
-function medicAssociatedToCpuShip2()
-	medicAssociatedToGivenCpuShip(cpuShipList[2])
-end
-function medicAssociatedToCpuShip3()
-	medicAssociatedToGivenCpuShip(cpuShipList[3])
 end
 function medicAssociatedToGivenCpuShip(tempObject)
 	local medicDistance = associatedTypeDistance["CpuShip"]
@@ -11047,8 +10874,7 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 		addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
 	end
 end
---this needs work, I need it exposed in some way for the game on 2020-06-06, this is the most expedient way
---the Mine() call probably should be a callback? maybe? at least there should be an option other than mines
+--this needs work
 --there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
 function mineRingShim(args)
 	local angle=args.angle or random(0,360)
@@ -11061,13 +10887,18 @@ function mineRingShim(args)
 	local segments=args.segments or 1
 	local half_gap_size=args.gap_size or 20
 	half_gap_size=half_gap_size/2
-	local mine_gap=args.mine_gap or 3
+	local gap=args.gap or 3
 	local increment=(360/segments)
+	local object_creation=args.object_creation or Mine
+	if segments == 0 then
+		segments=1
+		half_gap_size=0
+	end
 	for i=1,segments do
-		for j=angle+half_gap_size,angle+increment-half_gap_size,mine_gap do
+		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
 			for row=0,num_rows-1 do
 				local dist=min_dist+row_gap*row
-				createOrbitingObject(Mine(),j,speed,x,y,dist)
+				createOrbitingObject(object_creation(),j,speed,x,y,dist)
 			end
 		end
 		angle=angle+increment
@@ -14100,39 +13931,6 @@ function getFriendStatus()
         return "neutral"
     end
 end
---Cargo Inventory button for relay or operations
-function cargoInventory1()
-	local p = getPlayerShip(1)
-	playerShipCargoInventory(p)
-end
-function cargoInventory2()
-	local p = getPlayerShip(2)
-	playerShipCargoInventory(p)
-end
-function cargoInventory3()
-	local p = getPlayerShip(3)
-	playerShipCargoInventory(p)
-end
-function cargoInventory4()
-	local p = getPlayerShip(4)
-	playerShipCargoInventory(p)
-end
-function cargoInventory5()
-	local p = getPlayerShip(5)
-	playerShipCargoInventory(p)
-end
-function cargoInventory6()
-	local p = getPlayerShip(6)
-	playerShipCargoInventory(p)
-end
-function cargoInventory7()
-	local p = getPlayerShip(7)
-	playerShipCargoInventory(p)
-end
-function cargoInventory8()
-	local p = getPlayerShip(8)
-	playerShipCargoInventory(p)
-end
 function playerShipCargoInventory(p)
 	p:addToShipLog(string.format("%s Current cargo:",p:getCallSign()),"Yellow")
 	local goodCount = 0
@@ -14773,14 +14571,14 @@ function updateInner(delta)
 					if p:hasPlayerAtPosition("Relay") then
 						if p.inventoryButton == nil then
 							local tbi = "inventory" .. player_name
-							p:addCustomButton("Relay",tbi,"Inventory",cargoInventoryList[pidx])
+							p:addCustomButton("Relay",tbi,"Inventory",function () playerShipCargoInventory(p) end)
 							p.inventoryButton = true
 						end
 					end
 					if p:hasPlayerAtPosition("Operations") then
 						if p.inventoryButton == nil then
 							local tbi = "inventoryOp" .. player_name
-							p:addCustomButton("Operations",tbi,"Inventory",cargoInventoryList[pidx])
+							p:addCustomButton("Operations",tbi,"Inventory", function () playerShipCargoInventory(p) end)
 							p.inventoryButton = true
 						end
 					end
