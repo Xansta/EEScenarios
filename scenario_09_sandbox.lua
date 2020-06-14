@@ -1466,8 +1466,10 @@ function tweakTerrain()
 							trade = {	food = false, medicine = false, luxury = true },
 							public_relations = false
 						}
+						addGMMessage(string.format("Station %s now has sandbox communications",tempObject:getCallSign()))
 					elseif tempType == "CpuShip" then
 						tempObject:setCommsScript(""):setCommsFunction(commsShip)
+						addGMMessage(string.format("Ship %s now has sandbox communications",tempObject:getCallSign()))
 					else
 						addGMMessage("You can only add sandbox comms to stations or ships. No action taken")
 					end
