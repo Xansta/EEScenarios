@@ -187,10 +187,9 @@ function createSkeletonUniverse()
 	--Kentar
 	kentar_x = 246000
 	kentar_y = 247000
-	local kentarZone = squareZone(kentar_x,kentar_y, "Kentar 2")
-	kentarZone:setColor(0,128,0)
-	--[[	Destroyed 30May2020
-	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(kentar_x,kentar_y):setCallSign("Kentar"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+	--local kentarZone = squareZone(kentar_x,kentar_y, "Kentar 2")
+	--kentarZone:setColor(0,128,0)
+	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(kentar_x,kentar_y):setCallSign("Kentar 2"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationKentar.comms_data = {
     	friendlyness = 68,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -209,7 +208,6 @@ function createSkeletonUniverse()
     	history = "This used to be a scientific observation and research station. As the Kraylors have grown more agressive, it's been built up and serves as a strategic cornerstone for actions against the Kraylors. The name Kentar derives from Kentauros or Centaurus, after the nearby star's prominent position in the constellation Centaurus"
 	}
 	station_names[stationKentar:getCallSign()] = {stationKentar:getSectorName(), stationKentar}
-	--]]
 	createFleurNebula()
 	BlackHole():setPosition(-12443,-23245)
     BlackHole():setPosition(87747, -3384)
@@ -3461,6 +3459,7 @@ end
 -- Kentar area stations, asteroids, mines, etc. 
 function createKentarColor()
 	kentar_color = true
+	kentar_defense_platforms = {}
 	kentar_planets = createKentarPlanets()
 	kentar_asteroids = createKentarAsteroids()
 	kentar_nebula = createKentarNebula()
@@ -3470,8 +3469,11 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
-		local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
-		kentar_zone:setColor(0,128,0)
+		--local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+		--kentar_zone:setColor(0,128,0)
+		local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
+		station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
+		table.insert(kentar_defense_platforms,dp)
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -3513,6 +3515,9 @@ function createKentarStations()
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
 	--Katanga
+	local katangaZone = squareZone(229513, 224048, "Katanga 2")
+	katangaZone:setColor(0,128,0)
+	--[[	Destroyed 13Jun2020
     stationKatanga = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(229513, 224048):setCallSign("Katanga"):setDescription("Mining station for cobalt, gold and other minerals"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3538,6 +3543,7 @@ function createKentarStations()
 	}
 	station_names[stationKatanga:getCallSign()] = {stationKatanga:getSectorName(), stationKatanga}
 	table.insert(stations,stationKatanga)
+	--]]
 	--Keyhole-23
 	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
 	stationKeyhole23.total_time = 0
@@ -4082,6 +4088,13 @@ function removeKentarColor()
 		end
 	end
 	kentar_mines = nil
+	
+	if kentar_defense_platforms ~= nil then
+		for _,kdp in pairs(kentar_defense_platforms) do
+			kdp:destroy()
+		end
+	end
+	kentar_defense_platforms = nil
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
