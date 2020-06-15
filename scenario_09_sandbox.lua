@@ -146,17 +146,17 @@ function universe()
 		-- each region has at least 2 functions
 		-- destroy(self) this destroys the sector
 		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
-		activeRegions = {},
+		active_regions = {},
 		-- run update for all registered regions
 		update = function (self,delta)
 			assert(type(self)=="table")
-			for i = 1,#self.activeRegions do
-				self.activeRegions[i].region:update(delta)
+			for i = 1,#self.active_regions do
+				self.active_regions[i].region:update(delta)
 			end
 		end,
-		-- spawn a region already registered in the availableRegionList
+		-- spawn a region already registered in the available_regions
 		-- it is expected to be called like
-		-- universe:spawnRegion(universe.availableRegionList[spawnIndex])
+		-- universe:spawnRegion(universe.available_regions[spawnIndex])
 		-- rather than the region being built from scratch
 		-- that allows addAvailableRegion to have validated the region rather than relying on outside validation
 		spawnRegion = function (self,region)
@@ -164,7 +164,7 @@ function universe()
 			assert(type(region)=="table")
 			assert(type(region.name)=="string")
 			assert(type(region.spawn)=="function")
-			table.insert(self.activeRegions,{name=region.name,region=region.spawn()})
+			table.insert(self.active_regions,{name=region.name,region=region.spawn()})
 		end,
 		-- has the following region been spawned already
 		-- expected use is like the spawnRegion above
@@ -172,8 +172,8 @@ function universe()
 			assert(type(self)=="table")
 			assert(type(region)=="table")
 			assert(type(region.name)=="string")
-			for i = 1,#self.activeRegions do
-				if self.activeRegions[i].name==region.name then
+			for i = 1,#self.active_regions do
+				if self.active_regions[i].name==region.name then
 					return true
 				end
 			end
@@ -186,10 +186,10 @@ function universe()
 			assert(type(self)=="table")
 			assert(type(region)=="table")
 			assert(type(region.name)=="string")
-			for i = 1,#self.activeRegions do
-				if self.activeRegions[i].name==region.name then
-					self.activeRegions[i].region:destroy()
-					table.remove(self.activeRegions,i)
+			for i = 1,#self.active_regions do
+				if self.active_regions[i].name==region.name then
+					self.active_regions[i].region:destroy()
+					table.remove(self.active_regions,i)
 					return
 				end
 			end
@@ -199,17 +199,17 @@ function universe()
 		end,
 		-- add an available region to the internal list
 		-- name is what will be shown to the gm
-		-- spawnFunction should create the region and return a table in the same form activeRegions uses
-		-- spawnX and spawnY are used for default location for new ships in this region (this is ensure outside of this class currently)
-		addAvailableRegion = function (self, name, spawnFunction, spawnX, spawnY)
+		-- spawn_function should create the region and return a table in the same form active_regions uses
+		-- spawn_x and spawn_y are used for default location for new ships in this region (this is ensure outside of this class currently)
+		addAvailableRegion = function (self, name, spawn_function, spawn_x, spawn_y)
 			assert(type(self)=="table")
 			assert(type(name)=="string")
-			assert(type(spawnFunction)=="function")
-			assert(type(spawnX)=="number")
-			assert(type(spawnY)=="number")
-			table.insert(self.availableRegionList,{name=name,spawn=spawnFunction,spawnX=spawnX,spawnY=spawnY})
+			assert(type(spawn_function)=="function")
+			assert(type(spawn_x)=="number")
+			assert(type(spawn_y)=="number")
+			table.insert(self.available_regions,{name=name,spawn=spawn_function,spawn_x=spawn_x,spawn_y=spawn_y})
 		end,
-		availableRegionList = {}
+		available_regions = {}
 	}
 end
 
@@ -2107,17 +2107,17 @@ function setDefaultPlayerSpawnPoint()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Plyr Spwn Pt",setStartRegion)
-	for i=1,#universe.availableRegionList do
-		local region=universe.availableRegionList[i]
-		local hasBeenCreated=universe:hasRegionSpawned(region)
-		local buttonName=region.name
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local has_been_created=universe:hasRegionSpawned(region)
+		local button_name=region.name
 		if startRegion==region.name then
-			buttonName=buttonName .. "*"
+			button_name=button_name .. "*"
 		end
-		addGMFunction(buttonName, function()
-			playerSpawnX=region.spawnX
-			playerSpawnY=region.spawnY
-			if not hasBeenCreated then
+		addGMFunction(button_name, function()
+			playerSpawnX=region.spawn_x
+			playerSpawnY=region.spawn_y
+			if not has_been_created then
 				universe:spawnRegion(region)
 			end
 			startRegion=region.name
@@ -2138,10 +2138,10 @@ function changeTerrain()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Terrain",setStartRegion)
-	for i=1,#universe.availableRegionList do
-		local region=universe.availableRegionList[i]
-		local hasBeenCreated=universe:hasRegionSpawned(region)
-		if hasBeenCreated then
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local has_been_created=universe:hasRegionSpawned(region)
+		if has_been_created then
 			addGMFunction(region.name .. "*",function ()
 				universe:removeRegion(region)
 				changeTerrain()
