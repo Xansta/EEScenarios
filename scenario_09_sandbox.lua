@@ -164,6 +164,7 @@ function universe()
 			assert(type(region)=="table")
 			assert(type(region.name)=="string")
 			assert(type(region.spawn)=="function")
+			addGMMessage(region.name .. " created")
 			table.insert(self.active_regions,{name=region.name,region=region.spawn()})
 		end,
 		-- has the following region been spawned already
@@ -186,6 +187,7 @@ function universe()
 			assert(type(self)=="table")
 			assert(type(region)=="table")
 			assert(type(region.name)=="string")
+			addGMMessage(region.name .. " removed")
 			for i = 1,#self.active_regions do
 				if self.active_regions[i].name==region.name then
 					self.active_regions[i].region:destroy()
