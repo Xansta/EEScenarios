@@ -143,6 +143,7 @@ starryUtil={
 
 function updateSystem()
 	return {
+		--TODO the update functions really could use a way to say "I am now invalid stop updating me", other than destroying the object
 		--treat _update_objects as private to updateSystem
 		_update_objects={},
 		update = function(self,delta)
@@ -203,8 +204,10 @@ function updateSystem()
 			obj.update = function (self,delta)
 				self.time = self.time + delta
 				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
-				local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-				self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+				if self.orbit_target ~= nil and self.orbit_target:isValid() then
+					local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+					self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+				end
 			end
 			self:addUpdate(obj)
 		end,
