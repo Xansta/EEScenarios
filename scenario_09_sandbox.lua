@@ -141,6 +141,115 @@ starryUtil={
 	},
 }
 
+function universe()
+	return {
+		-- each region has at least 2 functions
+		-- destroy(self) this destroys the sector
+		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
+		active_regions = {},
+		-- run update for all registered regions
+		update = function (self,delta)
+			assert(type(self)=="table")
+			for i = 1,#self.active_regions do
+				self.active_regions[i].region:update(delta)
+			end
+		end,
+		-- spawn a region already registered in the available_regions
+		-- it is expected to be called like
+		-- universe:spawnRegion(universe.available_regions[spawnIndex])
+		-- rather than the region being built from scratch
+		-- that allows addAvailableRegion to have validated the region rather than relying on outside validation
+		spawnRegion = function (self,region)
+			assert(type(self)=="table")
+			assert(type(region)=="table")
+			assert(type(region.name)=="string")
+			assert(type(region.spawn)=="function")
+			addGMMessage(region.name .. " created")
+			table.insert(self.active_regions,{name=region.name,region=region.spawn()})
+		end,
+		-- has the following region been spawned already
+		-- expected use is like the spawnRegion above
+		hasRegionSpawned = function (self,region)
+			assert(type(self)=="table")
+			assert(type(region)=="table")
+			assert(type(region.name)=="string")
+			for i = 1,#self.active_regions do
+				if self.active_regions[i].name==region.name then
+					return true
+				end
+			end
+			return false
+		end,
+		-- remove the following region from the region
+		-- expected use is much like spawnRegion above
+		-- it is asserted that self:hasRegionSpawned(region)==true
+		removeRegion = function (self,region)
+			assert(type(self)=="table")
+			assert(type(region)=="table")
+			assert(type(region.name)=="string")
+			addGMMessage(region.name .. " removed")
+			for i = 1,#self.active_regions do
+				if self.active_regions[i].name==region.name then
+					self.active_regions[i].region:destroy()
+					table.remove(self.active_regions,i)
+					return
+				end
+			end
+			-- if we reached this then we have been asked to remove an area that wasn't spawned
+			-- this means the calling code is in error
+			assert(false)
+		end,
+		-- add an available region to the internal list
+		-- name is what will be shown to the gm
+		-- spawn_function should create the region and return a table in the same form active_regions uses
+		-- spawn_x and spawn_y are used for default location for new ships in this region (this is ensure outside of this class currently)
+		addAvailableRegion = function (self, name, spawn_function, spawn_x, spawn_y)
+			assert(type(self)=="table")
+			assert(type(name)=="string")
+			assert(type(spawn_function)=="function")
+			assert(type(spawn_x)=="number")
+			assert(type(spawn_y)=="number")
+			table.insert(self.available_regions,{name=name,spawn=spawn_function,spawn_x=spawn_x,spawn_y=spawn_y})
+		end,
+		available_regions = {}
+	}
+end
+
+universe=universe()
+function icarusSector()
+	createIcarusColor()
+	return {
+		update = function(self,delta)
+		end,
+		destroy = function(self)
+			removeIcarusColor()
+		end
+	}
+end
+universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
+
+function kentarSector()
+	createKentarColor()
+	return {
+		update = function(self,delta)
+		end,
+		destroy = function(self)
+			removeKentarColor()
+		end
+	}
+end
+universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
+
+function erisSector()
+	return {
+		update = function(self,delta)
+		end,
+		destroy = function(self)
+		end
+	}
+end
+universe:addAvailableRegion("Eris (WIP)",erisSector,0,0)
+
 function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
@@ -240,7 +349,7 @@ end
 function setConstants()
 	playerSpawnX = 0
 	playerSpawnY = 0
-	startRegion = "Default"
+	startRegion = "Icarus (F5)"
 	icarus_color = false
 	kentar_color = false
 	fleetSpawnFaction = "Exuari"
@@ -1994,39 +2103,29 @@ end
 -- -MAIN				F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- -FROM PLYR SPWN PT	F	setStartRegion
--- DEFAULT*				*	inline, createIcarusColor
--- KENTAR(R17)			*	inline, createKentarColor
+-- followed by all regions after that
 function setDefaultPlayerSpawnPoint()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Plyr Spwn Pt",setStartRegion)
-	local button_label = "Icarus (Default)"
-	if startRegion == "Default" then
-		button_label = "Icarus (Default)*"
-	end
-	addGMFunction(button_label,function()
-		playerSpawnX = 0
-		playerSpawnY = 0
-		startRegion = "Default"
-		if not icarus_color then
-			createIcarusColor()
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local has_been_created=universe:hasRegionSpawned(region)
+		local button_name=region.name
+		if startRegion==region.name then
+			button_name=button_name .. "*"
 		end
-		setDefaultPlayerSpawnPoint()
-	end)
-	button_label = "Kentar (R17)"
-	if startRegion == "Kentar" then
-		button_label = "Kentar* (R17)"
+		addGMFunction(button_name, function()
+			playerSpawnX=region.spawn_x
+			playerSpawnY=region.spawn_y
+			if not has_been_created then
+				universe:spawnRegion(region)
+			end
+			startRegion=region.name
+			setDefaultPlayerSpawnPoint()
+		end)
 	end
-	addGMFunction(button_label,function()
-		playerSpawnX = 250000
-		playerSpawnY = 250000
-		startRegion = "Kentar"
-		if not kentar_color then
-			createKentarColor()
-		end
-		setDefaultPlayerSpawnPoint()
-	end)
 end
 -----------------------------------------------
 --	Initial Set Up > Start Region > Terrain  --
@@ -2035,41 +2134,27 @@ end
 -- -MAIN			F	initialGMFunctions
 -- -SETUP			F	initialSetUp
 -- -FROM TERRAIN	F	setStartRegion
--- DEFAULT*			*	inline, createIcarusColor, removeIcarusColor
--- KENTAR(R17)		*	inline, createKentarColor, removeKentarColor
+-- followed by all regions after that
 function changeTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Terrain",setStartRegion)
-	local button_label = "Icarus (Default)"
-	if icarus_color then
-		button_label = "Icarus (Default)*"
-	end
-	addGMFunction(button_label,function()
-		if icarus_color then
-			removeIcarusColor()
-			addGMMessage("Icarus (default) terrain removed")
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local has_been_created=universe:hasRegionSpawned(region)
+		if has_been_created then
+			addGMFunction(region.name .. "*",function ()
+				universe:removeRegion(region)
+				changeTerrain()
+			end)
 		else
-			createIcarusColor()
-			addGMMessage("Icarus (default) terrain created")
+			addGMFunction(region.name,function ()
+				universe:spawnRegion(region)
+				changeTerrain()
+			end)
 		end
-		changeTerrain()
-	end)
-	button_label = "Kentar (R17)"
-	if kentar_color then
-		button_label = "Kentar* (R17)"
 	end
-	addGMFunction(button_label,function()
-		if kentar_color then
-			removeKentarColor()
-			addGMMessage("Kentar terrain removed")
-		else
-			createKentarColor()
-			addGMMessage("Kentar terrain created")
-		end
-		changeTerrain()
-	end)
 end
 -- Icarus area stations, asteroids, mines, etc. 
 function createIcarusColor()
@@ -13422,7 +13507,7 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
-						startRegion = "Kentar"
+						startRegion = "Kentar (R17)"
 						if not kentar_color then
 							createKentarColor()
 						end
@@ -13440,7 +13525,7 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
-						startRegion = "Default"
+						startRegion = "Icarus (F5)"
 						if not icarus_color then
 							createIcarusColor()
 						end
@@ -14610,6 +14695,7 @@ function updateInner(delta)
 		end
 	end
 	if updateDiagnostic then print("update: update list") end
+	-- we iterate through the updateList in reverse order so removed entries dont result in skiped updates
 	for index = #updateList,1,-1 do
 		if updateList[index]:isValid() then
 			updateList[index]:update(delta)
@@ -14617,6 +14703,7 @@ function updateInner(delta)
 			table.remove(updateList,index)
 		end
 	end
+	universe:update(delta)
 	for pidx=1,8 do
 		if updateDiagnostic then print("update: pidx: " .. pidx) end
 		local p = getPlayerShip(pidx)
