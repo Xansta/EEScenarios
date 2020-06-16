@@ -141,8 +141,93 @@ starryUtil={
 	},
 }
 
+function updateSystem()
+	return {
+		--TODO the update functions really could use a way to say "I am now invalid stop updating me", other than destroying the object
+		--treat _update_objects as private to updateSystem
+		_update_objects={},
+		update = function(self,delta)
+			-- we iterate through the _update_objects in reverse order so removed entries don't result in skipped updates
+			for index = #self._update_objects,1,-1 do
+				if self._update_objects[index]:isValid() then
+					self._update_objects[index]:update(delta)
+				else
+					table.remove(self._update_objects,index)
+				end
+			end
+		end,
+		--note all update functions are currently mutually exclusive
+		addUpdate = function(self,obj)
+			for i = 0,#self._update_objects do
+				assert(type(self)=="table")
+				if self._update_objects[i]==obj then
+					table.remove(self._update_objects,i)
+				end
+			end
+			table.insert(self._update_objects,obj)
+		end,
+		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, inital_angle)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(center_x)=="number")
+			assert(type(center_y)=="number")
+			assert(type(distance)=="number")
+			assert(type(orbit_time)=="number")
+			assert(type(inital_angle)=="number" or inital_angle == nil)
+			obj.center_x = center_x
+			obj.center_y = center_y
+			obj.distance = distance
+			obj.orbit_time = orbit_time/(2*math.pi)
+			inital_angle = inital_angle or 0
+			obj.start_offset = (inital_angle/360)*orbit_time
+			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
+			obj.update = function (self,delta)
+				self.time = self.time + delta
+				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+				self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+			end
+			self:addUpdate(obj)
+		end,
+		addOrbitTargetUpdate = function (self, obj, orbit_target, distance, orbit_time, initial_angle)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(orbit_target)=="table")
+			assert(type(distance)=="number")
+			assert(type(orbit_time)=="number")
+			assert(type(inital_angle)=="number" or inital_angle == nil)
+			obj.orbit_target = orbit_target
+			obj.distance = distance
+			obj.orbit_time = orbit_time/(2*math.pi)
+			inital_angle = inital_angle or 0
+			obj.start_offset = (inital_angle/360)*orbit_time
+			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
+			obj.update = function (self,delta)
+				self.time = self.time + delta
+				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+				if self.orbit_target ~= nil and self.orbit_target:isValid() then
+					local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+					self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+				end
+			end
+			self:addUpdate(obj)
+		end,
+		addTimeToLiveUpdate = function(self, obj)
+			assert(type(self)=="table")
+			obj.timeToLive = 300
+			obj.update = function (self,delta)
+				self.timeToLive = self.timeToLive - delta
+				if self.timeToLive < 0 then
+					self:destroy()
+				end
+			end
+			self:addUpdate(obj)
+		end
+	}
+end
+
 function universe()
 	return {
+		update_system=updateSystem(),
 		-- each region has at least 2 functions
 		-- destroy(self) this destroys the sector
 		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
@@ -150,6 +235,8 @@ function universe()
 		-- run update for all registered regions
 		update = function (self,delta)
 			assert(type(self)=="table")
+			assert(type(delta)=="number")
+			self.update_system:update(delta)
 			for i = 1,#self.active_regions do
 				self.active_regions[i].region:update(delta)
 			end
@@ -531,7 +618,6 @@ function setConstants()
 	marinePointList = {}
 	engineerPointList = {}
 	medicPointList = {}
-	updateList = {}
 	scanComplexity = 1
 	scanDepth = 1
 	--Default GM supply drop gives:
@@ -1833,7 +1919,7 @@ function snippetButtons()
 	-- currently the stock EE build lacks onGMClick and tweak menu additions
 	addGMFunction("Expire Selected", function ()
 		for k,v in pairs(getGMSelection()) do
-			addTimeToLiveUpdate(v)
+			universe.update_system:addTimeToLiveUpdate(v)
 		end
 	end)
 	-- spawn the research base used on 2020-06-06
@@ -3650,7 +3736,7 @@ function createKentarStations()
 	}
 	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
-	addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
+	universe.update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Kolar
     stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3760,7 +3846,7 @@ function createKentarStations()
         general_information = "We research the relationship between Rigil, Ergot and the cosmos",
     	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
 	}
-	addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi)
+	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi)
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
@@ -10684,66 +10770,6 @@ function createScanClueAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	scanClueCreation(nearx, neary, sox, soy)
 end
---note all update functions are currently mutually exclusive
-function addUpdate(obj)
-	for i = 0,#updateList do
-		if updateList[i]==obj then
-			table.remove(updateList,i)
-		end
-	end
-	table.insert(updateList,obj)
-end
-function addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, inital_angle)
-	assert(type(obj)=="table")
-	assert(type(center_x)=="number")
-	assert(type(center_y)=="number")
-	assert(type(distance)=="number")
-	assert(type(orbit_time)=="number")
-	assert(type(inital_angle)=="number" or inital_angle == nil)
-	obj.center_x = center_x
-	obj.center_y = center_y
-	obj.distance = distance
-	obj.orbit_time = orbit_time/(2*math.pi)
-	inital_angle = inital_angle or 0
-	obj.start_offset = (inital_angle/360)*orbit_time
-	obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version
-	obj.update = function (self,delta)
-		self.time = self.time + delta
-		local orbit_pos=(self.time+self.start_offset)/self.orbit_time
-		self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
-	end
-	addUpdate(obj)
-end
-function addOrbitTargetUpdate(obj, orbit_target, distance, orbit_time, initial_angle)
-	assert(type(obj)=="table")
-	assert(type(orbit_target)=="table")
-	assert(type(distance)=="number")
-	assert(type(orbit_time)=="number")
-	assert(type(inital_angle)=="number" or inital_angle == nil)
-	obj.orbit_target = orbit_target
-	obj.distance = distance
-	obj.orbit_time = orbit_time/(2*math.pi)
-	inital_angle = inital_angle or 0
-	obj.start_offset = (inital_angle/360)*orbit_time
-	obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version
-	obj.update = function (self,delta)
-		self.time = self.time + delta
-		local orbit_pos=(self.time+self.start_offset)/self.orbit_time
-		local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-		self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
-	end
-	addUpdate(obj)
-end
-function addTimeToLiveUpdate(obj)
-	obj.timeToLive = 300
-	obj.update = function (self,delta)
-		self.timeToLive = self.timeToLive - delta
-		if self.timeToLive < 0 then
-			self:destroy()
-		end
-	end
-	addUpdate(obj)
-end
 function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	artifactCounter = artifactCounter + 1
 	artifactNumber = artifactNumber + math.random(1,5)
@@ -10773,7 +10799,7 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 		scanCluePoint:allowPickup(false)
 	end
 	if scan_clue_expire then
-		addTimeToLiveUpdate(scanCluePoint)
+		universe.update_system:addTimeToLiveUpdate(scanCluePoint)
 	end
 end
 ---------------------------------------
@@ -11013,7 +11039,7 @@ function stationDefensiveInnerRing()
 			local ax, ay = vectorFromAngle(angle,platform_distance)
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
 			if inner_defense_platform_orbit ~= "No" then
-				addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
+				universe:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
 			angle = angle + increment
 			if angle > 360 then
@@ -11028,7 +11054,7 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 	local mx, my = vectorFromAngle(travel_angle,distance)
 	obj:setPosition(origin_x+mx,origin_y+my)
 	if  orbit_speed ~= nil then
-		addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
+		universe.update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
 	end
 end
 --this needs work
@@ -14695,14 +14721,6 @@ function updateInner(delta)
 		end
 	end
 	if updateDiagnostic then print("update: update list") end
-	-- we iterate through the updateList in reverse order so removed entries dont result in skiped updates
-	for index = #updateList,1,-1 do
-		if updateList[index]:isValid() then
-			updateList[index]:update(delta)
-		else
-			table.remove(updateList,index)
-		end
-	end
 	universe:update(delta)
 	for pidx=1,8 do
 		if updateDiagnostic then print("update: pidx: " .. pidx) end
