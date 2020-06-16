@@ -307,8 +307,11 @@ function icarusSector()
 	createIcarusColor()
 	return {
 		update = function(self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
 		end,
 		destroy = function(self)
+			assert(type(self)=="table")
 			removeIcarusColor()
 		end
 	}
@@ -319,8 +322,11 @@ function kentarSector()
 	createKentarColor()
 	return {
 		update = function(self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
 		end,
 		destroy = function(self)
+			assert(type(self)=="table")
 			removeKentarColor()
 		end
 	}
@@ -330,8 +336,11 @@ universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 function erisSector()
 	return {
 		update = function(self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
 		end,
 		destroy = function(self)
+			assert(type(self)=="table")
 		end
 	}
 end
