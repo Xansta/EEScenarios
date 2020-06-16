@@ -336,15 +336,25 @@ universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 function erisSector(x,y)
 	assert(type(x)=="number")
 	assert(type(y)=="number")
-	return {
+	local eris = {
+		update_system = updateSystem(),
+		all_local_objects = {}, -- this may want to become another system maybe?
 		update = function(self,delta)
 			assert(type(self)=="table")
 			assert(type(delta)=="number")
+			self.update_system:update(delta)
 		end,
 		destroy = function(self)
 			assert(type(self)=="table")
+			for i=1,#self.all_local_objects do
+				local obj=self.all_local_objects[i]
+				if obj:isValid() then
+					obj:destroy()
+				end
+			end
 		end
 	}
+	return eris
 end
 universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,0,0)
 
