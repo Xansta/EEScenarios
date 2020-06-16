@@ -333,7 +333,9 @@ function kentarSector()
 end
 universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 
-function erisSector()
+function erisSector(x,y)
+	assert(type(x)=="number")
+	assert(type(y)=="number")
 	return {
 		update = function(self,delta)
 			assert(type(self)=="table")
@@ -344,7 +346,7 @@ function erisSector()
 		end
 	}
 end
-universe:addAvailableRegion("Eris (WIP)",erisSector,0,0)
+universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,0,0)
 
 function init()
 	updateDiagnostic = false
