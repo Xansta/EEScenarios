@@ -98,6 +98,8 @@
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 require("utils.lua")
 -- starryUtil v2
+-- either this should be broken up and integrated into logical places (and starry somehow figures out how to include testing code inline)
+-- or starry should write more library functions rather than sandbox stuff
 starryUtil={
 	math={
 		-- linear interpolation
@@ -223,6 +225,69 @@ function updateSystem()
 			self:addUpdate(obj)
 		end
 	}
+end
+
+-- object creation utils
+-- these may want to be considered to merge into utils.lua
+
+-- all of these functions take a table of function parameters
+-- this is to mimic named arguments
+-- defaults that are "sensible" will be picked for all
+-- however I fear to say my definition of sensible and yours may clash
+-- each function takes one argument as a callback
+-- which is called for each point created
+-- this callback function should return a EmptyEpsilon spaceObject
+-- it also has parameters put into a table
+-- currently this is the count parameter
+-- all the standard EE spaceObject constructors should ignore this table, thus allowing them to be used
+
+-- just a circle with no gaps
+function createObjectCircle(args)
+	assert(type(args)=="table")
+	local x=args.x or 0
+	local y=args.y or 0
+	local radius=args.radius or 1000
+	local number=args.number or 360
+	local start_angle=args.start_angle or 0
+	local callback=args.callback or Artifact
+	assert(type(x)=="number")
+	assert(type(y)=="number")
+	assert(type(radius)=="number")
+	assert(type(number)=="number")
+	assert(type(start_angle)=="number")
+	assert(type(callback)=="function")
+	for i=1,number do
+		setCirclePos(callback{count=i},x,y,(360/number*i)+start_angle,radius)
+	end
+end
+
+--there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
+function mineRingShim(args)
+	local angle=args.angle or random(0,360)
+	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
+	local x=args.x or 0
+	local y=args.y or 0
+	local min_dist=args.dist or 1000
+	local num_rows=args.num_rows or 1
+	local row_gap=args.row_gap or 500
+	local segments=args.segments or 1
+	local half_gap_size=args.gap_size or 20
+	half_gap_size=half_gap_size/2
+	local gap=args.gap or 3
+	local increment=(360/segments)
+	if segments == 0 then
+		segments=1
+		half_gap_size=0
+	end
+	for i=1,segments do
+		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
+			for row=0,num_rows-1 do
+				local dist=min_dist+row_gap*row
+				createOrbitingObject(Mine(),j,speed,x,y,dist)
+			end
+		end
+		angle=angle+increment
+	end
 end
 
 function universe()
@@ -1965,10 +2030,10 @@ function snippetButtons()
 		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
 		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
 		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_1,	angle=0	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
-		mineRingShim{dist=i_1-i_rad,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
-		mineRingShim{dist=27000,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
-		mineRingShim{dist=2000,	angle=0	,x=cx	,y=cy	,gap=(360/4),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
+		createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
+		createObjectCircle{radius=i_1-i_rad,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
+		createObjectCircle{radius=27000,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
+		createObjectCircle{radius=2000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
 		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
 		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
 		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
@@ -11076,36 +11141,6 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 	obj:setPosition(origin_x+mx,origin_y+my)
 	if  orbit_speed ~= nil then
 		universe.update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
-	end
-end
---this needs work
---there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
-function mineRingShim(args)
-	local angle=args.angle or random(0,360)
-	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
-	local x=args.x or 0
-	local y=args.y or 0
-	local min_dist=args.dist or 1000
-	local num_rows=args.num_rows or 1
-	local row_gap=args.row_gap or 500
-	local segments=args.segments or 1
-	local half_gap_size=args.gap_size or 20
-	half_gap_size=half_gap_size/2
-	local gap=args.gap or 3
-	local increment=(360/segments)
-	local object_creation=args.object_creation or Mine
-	if segments == 0 then
-		segments=1
-		half_gap_size=0
-	end
-	for i=1,segments do
-		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
-			for row=0,num_rows-1 do
-				local dist=min_dist+row_gap*row
-				createOrbitingObject(object_creation(),j,speed,x,y,dist)
-			end
-		end
-		angle=angle+increment
 	end
 end
 ----------------------------------------------------
