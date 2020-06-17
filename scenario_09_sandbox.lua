@@ -196,19 +196,16 @@ function updateSystem()
 			assert(type(orbit_target)=="table")
 			assert(type(distance)=="number")
 			assert(type(orbit_time)=="number")
-			assert(type(initial_angle )=="number" or initial_angle  == nil)
+			assert(type(initial_angle)=="number")
 			obj.orbit_target = orbit_target
 			obj.distance = distance
-			obj.orbit_time = orbit_time/(2*math.pi)
-			initial_angle  = initial_angle  or 0
-			obj.start_offset = (initial_angle /360)*orbit_time
-			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
+			obj.orbit_time = orbit_time
+			obj.angle = initial_angle
 			obj.update = function (self,delta)
-				self.time = self.time + delta
-				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
 				if self.orbit_target ~= nil and self.orbit_target:isValid() then
 					local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-					self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+					self.angle = (self.angle + 360/self.orbit_time*delta) % 360
+					self:setPosition(orbit_target_x + (math.cos(self.angle / 180 * math.pi) * self.distance),orbit_target_y + (math.sin(self.angle / 180 * math.pi) * self.distance))
 				end
 			end
 			self:addUpdate(obj)
@@ -3932,7 +3929,7 @@ function createKentarStations()
         general_information = "We research the relationship between Rigil, Ergot and the cosmos",
     	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
 	}
-	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi)
+	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
