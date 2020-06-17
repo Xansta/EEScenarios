@@ -141,202 +141,6 @@ starryUtil={
 	},
 }
 
-function updateSystem()
-	return {
-		--TODO the update functions really could use a way to say "I am now invalid stop updating me", other than destroying the object
-		--treat _update_objects as private to updateSystem
-		_update_objects={},
-		update = function(self,delta)
-			-- we iterate through the _update_objects in reverse order so removed entries don't result in skipped updates
-			for index = #self._update_objects,1,-1 do
-				if self._update_objects[index]:isValid() then
-					self._update_objects[index]:update(delta)
-				else
-					table.remove(self._update_objects,index)
-				end
-			end
-		end,
-		--note all update functions are currently mutually exclusive
-		addUpdate = function(self,obj)
-			for i = 0,#self._update_objects do
-				assert(type(self)=="table")
-				if self._update_objects[i]==obj then
-					table.remove(self._update_objects,i)
-				end
-			end
-			table.insert(self._update_objects,obj)
-		end,
-		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, inital_angle)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(center_x)=="number")
-			assert(type(center_y)=="number")
-			assert(type(distance)=="number")
-			assert(type(orbit_time)=="number")
-			assert(type(inital_angle)=="number" or inital_angle == nil)
-			obj.center_x = center_x
-			obj.center_y = center_y
-			obj.distance = distance
-			obj.orbit_time = orbit_time/(2*math.pi)
-			inital_angle = inital_angle or 0
-			obj.start_offset = (inital_angle/360)*orbit_time
-			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
-			obj.update = function (self,delta)
-				self.time = self.time + delta
-				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
-				self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
-			end
-			self:addUpdate(obj)
-		end,
-		addOrbitTargetUpdate = function (self, obj, orbit_target, distance, orbit_time, initial_angle)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(orbit_target)=="table")
-			assert(type(distance)=="number")
-			assert(type(orbit_time)=="number")
-			assert(type(inital_angle)=="number" or inital_angle == nil)
-			obj.orbit_target = orbit_target
-			obj.distance = distance
-			obj.orbit_time = orbit_time/(2*math.pi)
-			inital_angle = inital_angle or 0
-			obj.start_offset = (inital_angle/360)*orbit_time
-			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
-			obj.update = function (self,delta)
-				self.time = self.time + delta
-				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
-				if self.orbit_target ~= nil and self.orbit_target:isValid() then
-					local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-					self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
-				end
-			end
-			self:addUpdate(obj)
-		end,
-		addTimeToLiveUpdate = function(self, obj)
-			assert(type(self)=="table")
-			obj.timeToLive = 300
-			obj.update = function (self,delta)
-				self.timeToLive = self.timeToLive - delta
-				if self.timeToLive < 0 then
-					self:destroy()
-				end
-			end
-			self:addUpdate(obj)
-		end
-	}
-end
-
-function universe()
-	return {
-		update_system=updateSystem(),
-		-- each region has at least 2 functions
-		-- destroy(self) this destroys the sector
-		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
-		active_regions = {},
-		-- run update for all registered regions
-		update = function (self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-			self.update_system:update(delta)
-			for i = 1,#self.active_regions do
-				self.active_regions[i].region:update(delta)
-			end
-		end,
-		-- spawn a region already registered in the available_regions
-		-- it is expected to be called like
-		-- universe:spawnRegion(universe.available_regions[spawnIndex])
-		-- rather than the region being built from scratch
-		-- that allows addAvailableRegion to have validated the region rather than relying on outside validation
-		spawnRegion = function (self,region)
-			assert(type(self)=="table")
-			assert(type(region)=="table")
-			assert(type(region.name)=="string")
-			assert(type(region.spawn)=="function")
-			addGMMessage(region.name .. " created")
-			table.insert(self.active_regions,{name=region.name,region=region.spawn()})
-		end,
-		-- has the following region been spawned already
-		-- expected use is like the spawnRegion above
-		hasRegionSpawned = function (self,region)
-			assert(type(self)=="table")
-			assert(type(region)=="table")
-			assert(type(region.name)=="string")
-			for i = 1,#self.active_regions do
-				if self.active_regions[i].name==region.name then
-					return true
-				end
-			end
-			return false
-		end,
-		-- remove the following region from the region
-		-- expected use is much like spawnRegion above
-		-- it is asserted that self:hasRegionSpawned(region)==true
-		removeRegion = function (self,region)
-			assert(type(self)=="table")
-			assert(type(region)=="table")
-			assert(type(region.name)=="string")
-			addGMMessage(region.name .. " removed")
-			for i = 1,#self.active_regions do
-				if self.active_regions[i].name==region.name then
-					self.active_regions[i].region:destroy()
-					table.remove(self.active_regions,i)
-					return
-				end
-			end
-			-- if we reached this then we have been asked to remove an area that wasn't spawned
-			-- this means the calling code is in error
-			assert(false)
-		end,
-		-- add an available region to the internal list
-		-- name is what will be shown to the gm
-		-- spawn_function should create the region and return a table in the same form active_regions uses
-		-- spawn_x and spawn_y are used for default location for new ships in this region (this is ensure outside of this class currently)
-		addAvailableRegion = function (self, name, spawn_function, spawn_x, spawn_y)
-			assert(type(self)=="table")
-			assert(type(name)=="string")
-			assert(type(spawn_function)=="function")
-			assert(type(spawn_x)=="number")
-			assert(type(spawn_y)=="number")
-			table.insert(self.available_regions,{name=name,spawn=spawn_function,spawn_x=spawn_x,spawn_y=spawn_y})
-		end,
-		available_regions = {}
-	}
-end
-
-universe=universe()
-function icarusSector()
-	createIcarusColor()
-	return {
-		update = function(self,delta)
-		end,
-		destroy = function(self)
-			removeIcarusColor()
-		end
-	}
-end
-universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
-
-function kentarSector()
-	createKentarColor()
-	return {
-		update = function(self,delta)
-		end,
-		destroy = function(self)
-			removeKentarColor()
-		end
-	}
-end
-universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
-
-function erisSector()
-	return {
-		update = function(self,delta)
-		end,
-		destroy = function(self)
-		end
-	}
-end
-universe:addAvailableRegion("Eris (WIP)",erisSector,0,0)
-
 function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
@@ -434,6 +238,10 @@ function createFleurNebula()
     Nebula():setPosition(96857, 44322)
 end
 function setConstants()
+	universe=universe()
+	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
+	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
+	universe:addAvailableRegion("Eris (WIP)",erisSector,0,0)
 	playerSpawnX = 0
 	playerSpawnY = 0
 	startRegion = "Icarus (F5)"
@@ -968,6 +776,165 @@ function setConstants()
 		"fire_sphere_texture.png"
 	}
 	mining_drain = .00025
+end
+function updateSystem()
+	return {
+		--TODO the update functions really could use a way to say "I am now invalid stop updating me", other than destroying the object
+		--treat _update_objects as private to updateSystem
+		_update_objects={},
+		update = function(self,delta)
+			-- we iterate through the _update_objects in reverse order so removed entries don't result in skipped updates
+			for index = #self._update_objects,1,-1 do
+				if self._update_objects[index]:isValid() then
+					self._update_objects[index]:update(delta)
+				else
+					table.remove(self._update_objects,index)
+				end
+			end
+		end,
+		--note all update functions are currently mutually exclusive
+		addUpdate = function(self,obj)
+			for i = 0,#self._update_objects do
+				assert(type(self)=="table")
+				if self._update_objects[i]==obj then
+					table.remove(self._update_objects,i)
+				end
+			end
+			table.insert(self._update_objects,obj)
+		end,
+		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, inital_angle)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(center_x)=="number")
+			assert(type(center_y)=="number")
+			assert(type(distance)=="number")
+			assert(type(orbit_time)=="number")
+			assert(type(inital_angle)=="number" or inital_angle == nil)
+			obj.center_x = center_x
+			obj.center_y = center_y
+			obj.distance = distance
+			obj.orbit_time = orbit_time/(2*math.pi)
+			inital_angle = inital_angle or 0
+			obj.start_offset = (inital_angle/360)*orbit_time
+			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
+			obj.update = function (self,delta)
+				self.time = self.time + delta
+				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+				self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+			end
+			self:addUpdate(obj)
+		end,
+		addOrbitTargetUpdate = function (self, obj, orbit_target, distance, orbit_time, initial_angle)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(orbit_target)=="table")
+			assert(type(distance)=="number")
+			assert(type(orbit_time)=="number")
+			assert(type(inital_angle)=="number" or inital_angle == nil)
+			obj.orbit_target = orbit_target
+			obj.distance = distance
+			obj.orbit_time = orbit_time/(2*math.pi)
+			inital_angle = inital_angle or 0
+			obj.start_offset = (inital_angle/360)*orbit_time
+			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
+			obj.update = function (self,delta)
+				self.time = self.time + delta
+				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+				if self.orbit_target ~= nil and self.orbit_target:isValid() then
+					local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+					self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+				end
+			end
+			self:addUpdate(obj)
+		end,
+		addTimeToLiveUpdate = function(self, obj)
+			assert(type(self)=="table")
+			obj.timeToLive = 300
+			obj.update = function (self,delta)
+				self.timeToLive = self.timeToLive - delta
+				if self.timeToLive < 0 then
+					self:destroy()
+				end
+			end
+			self:addUpdate(obj)
+		end
+	}
+end
+function universe()
+	return {
+		update_system=updateSystem(),
+		-- each region has at least 2 functions
+		-- destroy(self) this destroys the sector
+		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
+		active_regions = {},
+		-- run update for all registered regions
+		update = function (self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
+			self.update_system:update(delta)
+			for i = 1,#self.active_regions do
+				self.active_regions[i].region:update(delta)
+			end
+		end,
+		-- spawn a region already registered in the available_regions
+		-- it is expected to be called like
+		-- universe:spawnRegion(universe.available_regions[spawnIndex])
+		-- rather than the region being built from scratch
+		-- that allows addAvailableRegion to have validated the region rather than relying on outside validation
+		spawnRegion = function (self,region)
+			assert(type(self)=="table")
+			assert(type(region)=="table")
+			assert(type(region.name)=="string")
+			assert(type(region.spawn)=="function")
+			addGMMessage(region.name .. " created")
+			table.insert(self.active_regions,{name=region.name,region=region.spawn()})
+		end,
+		-- has the following region been spawned already
+		-- expected use is like the spawnRegion above
+		hasRegionSpawned = function (self,region)
+			assert(type(self)=="table")
+			assert(type(region)=="table")
+			assert(type(region.name)=="string")
+			for i = 1,#self.active_regions do
+				if self.active_regions[i].name==region.name then
+					return true
+				end
+			end
+			return false
+		end,
+		-- remove the following region from the region
+		-- expected use is much like spawnRegion above
+		-- it is asserted that self:hasRegionSpawned(region)==true
+		removeRegion = function (self,region)
+			assert(type(self)=="table")
+			assert(type(region)=="table")
+			assert(type(region.name)=="string")
+			addGMMessage(region.name .. " removed")
+			for i = 1,#self.active_regions do
+				if self.active_regions[i].name==region.name then
+					self.active_regions[i].region:destroy()
+					table.remove(self.active_regions,i)
+					return
+				end
+			end
+			-- if we reached this then we have been asked to remove an area that wasn't spawned
+			-- this means the calling code is in error
+			assert(false)
+		end,
+		-- add an available region to the internal list
+		-- name is what will be shown to the gm
+		-- spawn_function should create the region and return a table in the same form active_regions uses
+		-- spawn_x and spawn_y are used for default location for new ships in this region (this is ensure outside of this class currently)
+		addAvailableRegion = function (self, name, spawn_function, spawn_x, spawn_y)
+			assert(type(self)=="table")
+			assert(type(name)=="string")
+			assert(type(spawn_function)=="function")
+			assert(type(spawn_x)=="number")
+			assert(type(spawn_y)=="number")
+			table.insert(self.available_regions,{name=name,spawn=spawn_function,spawn_x=spawn_x,spawn_y=spawn_y})
+		end,
+		available_regions = {}
+	}
 end
 ----------------------------
 --  Main Menu of Buttons  --
@@ -2243,6 +2210,16 @@ function changeTerrain()
 	end
 end
 -- Icarus area stations, asteroids, mines, etc. 
+function icarusSector()
+	createIcarusColor()
+	return {
+		update = function(self,delta)
+		end,
+		destroy = function(self)
+			removeIcarusColor()
+		end
+	}
+end
 function createIcarusColor()
 	icarus_color = true
 	icarusDefensePlatforms = {}
@@ -3628,6 +3605,16 @@ function createFinneganFeatures()
     return feature_list
 end
 -- Kentar area stations, asteroids, mines, etc. 
+function kentarSector()
+	createKentarColor()
+	return {
+		update = function(self,delta)
+		end,
+		destroy = function(self)
+			removeKentarColor()
+		end
+	}
+end
 function createKentarColor()
 	kentar_color = true
 	kentar_defense_platforms = {}
@@ -4266,6 +4253,15 @@ function removeKentarColor()
 		end
 	end
 	kentar_defense_platforms = nil
+end
+--	Eris area stations, asteroids, mines, etc.
+function erisSector()
+	return {
+		update = function(self,delta)
+		end,
+		destroy = function(self)
+		end
+	}
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
@@ -14720,7 +14716,7 @@ function updateInner(delta)
 			end
 		end
 	end
-	if updateDiagnostic then print("update: update list") end
+	if updateDiagnostic then print("update: universe update") end
 	universe:update(delta)
 	for pidx=1,8 do
 		if updateDiagnostic then print("update: pidx: " .. pidx) end
