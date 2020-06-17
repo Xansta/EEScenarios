@@ -421,7 +421,7 @@ function erisSector(x,y)
 	}
 	return eris
 end
-universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,0,0)
+universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
 
 function init()
 	updateDiagnostic = false
