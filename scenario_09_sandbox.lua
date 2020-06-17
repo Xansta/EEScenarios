@@ -11125,7 +11125,7 @@ function stationDefensiveInnerRing()
 			local ax, ay = vectorFromAngle(angle,platform_distance)
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
 			if inner_defense_platform_orbit ~= "No" then
-				universe:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
+				universe.update_system:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
 			angle = angle + increment
 			if angle > 360 then
