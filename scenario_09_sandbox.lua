@@ -168,20 +168,20 @@ function updateSystem()
 			end
 			table.insert(self._update_objects,obj)
 		end,
-		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, inital_angle)
+		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle )
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(center_x)=="number")
 			assert(type(center_y)=="number")
 			assert(type(distance)=="number")
 			assert(type(orbit_time)=="number")
-			assert(type(inital_angle)=="number" or inital_angle == nil)
+			assert(type(initial_angle )=="number" or initial_angle  == nil)
 			obj.center_x = center_x
 			obj.center_y = center_y
 			obj.distance = distance
 			obj.orbit_time = orbit_time/(2*math.pi)
-			inital_angle = inital_angle or 0
-			obj.start_offset = (inital_angle/360)*orbit_time
+			initial_angle  = initial_angle  or 0
+			obj.start_offset = (initial_angle /360)*orbit_time
 			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
 			obj.update = function (self,delta)
 				self.time = self.time + delta
@@ -196,12 +196,12 @@ function updateSystem()
 			assert(type(orbit_target)=="table")
 			assert(type(distance)=="number")
 			assert(type(orbit_time)=="number")
-			assert(type(inital_angle)=="number" or inital_angle == nil)
+			assert(type(initial_angle )=="number" or initial_angle  == nil)
 			obj.orbit_target = orbit_target
 			obj.distance = distance
 			obj.orbit_time = orbit_time/(2*math.pi)
-			inital_angle = inital_angle or 0
-			obj.start_offset = (inital_angle/360)*orbit_time
+			initial_angle  = initial_angle  or 0
+			obj.start_offset = (initial_angle /360)*orbit_time
 			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
 			obj.update = function (self,delta)
 				self.time = self.time + delta
