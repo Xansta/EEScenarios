@@ -98,6 +98,8 @@
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 require("utils.lua")
 -- starryUtil v2
+-- either this should be broken up and integrated into logical places (and starry somehow figures out how to include testing code inline)
+-- or starry should write more library functions rather than sandbox stuff
 starryUtil={
 	math={
 		-- linear interpolation
@@ -140,7 +142,68 @@ starryUtil={
 		end
 	},
 }
+-- object creation utils
+-- these may want to be considered to merge into utils.lua
 
+-- all of these functions take a table of function parameters
+-- this is to mimic named arguments
+-- defaults that are "sensible" will be picked for all
+-- however I fear to say my definition of sensible and yours may clash
+-- each function takes one argument as a callback
+-- which is called for each point created
+-- this callback function should return a EmptyEpsilon spaceObject
+-- it also has parameters put into a table
+-- currently this is the count parameter
+-- all the standard EE spaceObject constructors should ignore this table, thus allowing them to be used
+
+-- just a circle with no gaps
+function createObjectCircle(args)
+	assert(type(args)=="table")
+	local x=args.x or 0
+	local y=args.y or 0
+	local radius=args.radius or 1000
+	local number=args.number or 360
+	local start_angle=args.start_angle or 0
+	local callback=args.callback or Artifact
+	assert(type(x)=="number")
+	assert(type(y)=="number")
+	assert(type(radius)=="number")
+	assert(type(number)=="number")
+	assert(type(start_angle)=="number")
+	assert(type(callback)=="function")
+	for i=1,number do
+		setCirclePos(callback{count=i},x,y,(360/number*i)+start_angle,radius)
+	end
+end
+
+--there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
+function mineRingShim(args)
+	local angle=args.angle or random(0,360)
+	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
+	local x=args.x or 0
+	local y=args.y or 0
+	local min_dist=args.dist or 1000
+	local num_rows=args.num_rows or 1
+	local row_gap=args.row_gap or 500
+	local segments=args.segments or 1
+	local half_gap_size=args.gap_size or 20
+	half_gap_size=half_gap_size/2
+	local gap=args.gap or 3
+	local increment=(360/segments)
+	if segments == 0 then
+		segments=1
+		half_gap_size=0
+	end
+	for i=1,segments do
+		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
+			for row=0,num_rows-1 do
+				local dist=min_dist+row_gap*row
+				createOrbitingObject(Mine(),j,speed,x,y,dist)
+			end
+		end
+		angle=angle+increment
+	end
+end
 function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
@@ -241,7 +304,7 @@ function setConstants()
 	universe=universe()
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
-	universe:addAvailableRegion("Eris (WIP)",erisSector,0,0)
+	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
 	playerSpawnX = 0
 	playerSpawnY = 0
 	startRegion = "Icarus (F5)"
@@ -802,20 +865,20 @@ function updateSystem()
 			end
 			table.insert(self._update_objects,obj)
 		end,
-		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, inital_angle)
+		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle )
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(center_x)=="number")
 			assert(type(center_y)=="number")
 			assert(type(distance)=="number")
 			assert(type(orbit_time)=="number")
-			assert(type(inital_angle)=="number" or inital_angle == nil)
+			assert(type(initial_angle )=="number" or initial_angle  == nil)
 			obj.center_x = center_x
 			obj.center_y = center_y
 			obj.distance = distance
 			obj.orbit_time = orbit_time/(2*math.pi)
-			inital_angle = inital_angle or 0
-			obj.start_offset = (inital_angle/360)*orbit_time
+			initial_angle  = initial_angle  or 0
+			obj.start_offset = (initial_angle /360)*orbit_time
 			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
 			obj.update = function (self,delta)
 				self.time = self.time + delta
@@ -830,19 +893,16 @@ function updateSystem()
 			assert(type(orbit_target)=="table")
 			assert(type(distance)=="number")
 			assert(type(orbit_time)=="number")
-			assert(type(inital_angle)=="number" or inital_angle == nil)
+			assert(type(initial_angle)=="number")
 			obj.orbit_target = orbit_target
 			obj.distance = distance
-			obj.orbit_time = orbit_time/(2*math.pi)
-			inital_angle = inital_angle or 0
-			obj.start_offset = (inital_angle/360)*orbit_time
-			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
+			obj.orbit_time = orbit_time
+			obj.angle = initial_angle
 			obj.update = function (self,delta)
-				self.time = self.time + delta
-				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
 				if self.orbit_target ~= nil and self.orbit_target:isValid() then
 					local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-					self:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+					self.angle = (self.angle + 360/self.orbit_time*delta) % 360
+					self:setPosition(orbit_target_x + (math.cos(self.angle / 180 * math.pi) * self.distance),orbit_target_y + (math.sin(self.angle / 180 * math.pi) * self.distance))
 				end
 			end
 			self:addUpdate(obj)
@@ -936,6 +996,7 @@ function universe()
 		available_regions = {}
 	}
 end
+
 ----------------------------
 --  Main Menu of Buttons  --
 ----------------------------
@@ -1911,10 +1972,10 @@ function snippetButtons()
 		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
 		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
 		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_1,	angle=0	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
-		mineRingShim{dist=i_1-i_rad,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
-		mineRingShim{dist=27000,	angle=(360/16)	,x=cx	,y=cy	,gap=(360/8),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor") end}
-		mineRingShim{dist=2000,	angle=0	,x=cx	,y=cy	,gap=(360/4),	gap_size=0, segments=1,object_creation=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
+		createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
+		createObjectCircle{radius=i_1-i_rad,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
+		createObjectCircle{radius=27000,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
+		createObjectCircle{radius=2000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
 		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
 		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
 		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
@@ -2214,8 +2275,11 @@ function icarusSector()
 	createIcarusColor()
 	return {
 		update = function(self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
 		end,
 		destroy = function(self)
+			assert(type(self)=="table")
 			removeIcarusColor()
 		end
 	}
@@ -3609,8 +3673,11 @@ function kentarSector()
 	createKentarColor()
 	return {
 		update = function(self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
 		end,
 		destroy = function(self)
+			assert(type(self)=="table")
 			removeKentarColor()
 		end
 	}
@@ -3833,7 +3900,7 @@ function createKentarStations()
         general_information = "We research the relationship between Rigil, Ergot and the cosmos",
     	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
 	}
-	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi)
+	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
@@ -4255,13 +4322,28 @@ function removeKentarColor()
 	kentar_defense_platforms = nil
 end
 --	Eris area stations, asteroids, mines, etc.
-function erisSector()
-	return {
+function erisSector(x,y)
+	assert(type(x)=="number")
+	assert(type(y)=="number")
+	local eris = {
+		update_system = updateSystem(),
+		all_local_objects = {}, -- this may want to become another system maybe?
 		update = function(self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
+			self.update_system:update(delta)
 		end,
 		destroy = function(self)
+			assert(type(self)=="table")
+			for i=1,#self.all_local_objects do
+				local obj=self.all_local_objects[i]
+				if obj:isValid() then
+					obj:destroy()
+				end
+			end
 		end
 	}
+	return eris
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
@@ -11035,7 +11117,7 @@ function stationDefensiveInnerRing()
 			local ax, ay = vectorFromAngle(angle,platform_distance)
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
 			if inner_defense_platform_orbit ~= "No" then
-				universe:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
+				universe.update_system:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
 			angle = angle + increment
 			if angle > 360 then
@@ -11051,36 +11133,6 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 	obj:setPosition(origin_x+mx,origin_y+my)
 	if  orbit_speed ~= nil then
 		universe.update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
-	end
-end
---this needs work
---there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
-function mineRingShim(args)
-	local angle=args.angle or random(0,360)
-	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
-	local x=args.x or 0
-	local y=args.y or 0
-	local min_dist=args.dist or 1000
-	local num_rows=args.num_rows or 1
-	local row_gap=args.row_gap or 500
-	local segments=args.segments or 1
-	local half_gap_size=args.gap_size or 20
-	half_gap_size=half_gap_size/2
-	local gap=args.gap or 3
-	local increment=(360/segments)
-	local object_creation=args.object_creation or Mine
-	if segments == 0 then
-		segments=1
-		half_gap_size=0
-	end
-	for i=1,segments do
-		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
-			for row=0,num_rows-1 do
-				local dist=min_dist+row_gap*row
-				createOrbitingObject(object_creation(),j,speed,x,y,dist)
-			end
-		end
-		angle=angle+increment
 	end
 end
 ----------------------------------------------------
