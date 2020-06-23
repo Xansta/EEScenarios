@@ -64,33 +64,33 @@
 -- PULSE ASTEROID					+HOMING 4					HELM								**** Energy ****				***** Cargo *****					
 -- JUMP CORRIDOR OFF				+HVLI 0						WEAPONS								500 - 100 = 400					+REMOVE CARGO						
 -- SANDBOX COMMS					+REPAIR CREW 0				ENGINEER							500 + 100 = 600					+ADD MINERAL						
--- +STATION DEFENSE					+COOLANT 0					SCIENCE																+ADD COMPONENT						
--- 									+NEAR TO--> [Near To]		RELAY								**** Nuke ****														
--- ** Countdown Timer **																			1 - 1 = 0						***** REPUTATION *****				
--- +DISPLAY: GM,R					[Near To]						*** Countdown Length ***			1 + 1 = 0						ADD ONE REP 50													
--- +LENGTH: 5						3 CpuShip Buttons Possible1 MINUTE	 														ADD FIVE REP 50					
--- +PURPOSE: TIMER					+90 DEGREES					3 MINUTES	 						**** EMP ****					ADD TEN REP 50					
--- +ADD SECONDS						+30 UNITS					5 MINUTES* 							1 - 1 = 0						DEL ONE REP 50					
--- +DEL SECONDS 					CREATE AT 90 DEG, 30U		10 MINUTES 							1 + 1 = 0						DEL FIVE REP 50					
--- +CHANGE SPEED												15 MINUTES 															DEL TEN REP 50					
--- SHOW CURRENT						[Near To Degrees]			20 MINUTES 							**** Mine ****													
--- START TIMER 						0							30 MINUTES 							2 - 1 = 1						***** Console Message *****		
---									45							45 MINUTES 							2 + 1 = 3						+SELECT MSG OBJ					
--- ** End Session **				90*																								+CHANGE MSG OBJ					
--- +REGION REPORT-->Region			135							*** Countdown Purpose ***			**** Homing ****				+SELECT PLAYER					
--- +FACTION VICTORY-->Faction		180							TIMER*								4 - 1 = 3						+SEND TO CONSOLE				
---									225							DEATH								4 + 1 = 5														
--- *** Add Seconds ***				270							BREAKDOWN															****** Send to Console ******	
--- ADD 1 SECOND						315							MISSION								**** HVLI ****					HELM							
--- ADD 3 SECONDS												DEPARTURE							0 + 1 = 1						WEAPONS							
--- ADD 5 SECONDS					[Near To Units]				DESTRUCTION															ENGINEERING						
--- ADD 10 SECONDS					.5U							DISCOVERY							**** Repair Crew ****			SCIENCE							
---									1U							DECOMPRESSION						0 + 1 = 1						RELAY							
--- *** Change Speed ***				2U																								
--- SLOW DOWN						3U																**** Coolant ****				
--- NORMALIZE						4U																0 + 1 = 1						
--- SPEED UP							5U																								
---									10U																								
+-- +STATION OPERATIONS				+COOLANT 0					SCIENCE																+ADD COMPONENT						
+-- +STATION DEFENSE					+NEAR TO--> [Near To]		RELAY								**** Nuke ****														
+-- 																									1 - 1 = 0						***** REPUTATION *****				
+-- ** Countdown Timer **			[Near To]					*** Countdown Length ***			1 + 1 = 0						ADD ONE REP 50													
+-- +DISPLAY: GM,R					3 CpuShip Buttons Possible	1 MINUTE	 														ADD FIVE REP 50					
+-- +LENGTH: 5						+90 DEGREES					3 MINUTES	 						**** EMP ****					ADD TEN REP 50					
+-- +PURPOSE: TIMER					+30 UNITS					5 MINUTES* 							1 - 1 = 0						DEL ONE REP 50					
+-- +ADD SECONDS						CREATE AT 90 DEG, 30U		10 MINUTES 							1 + 1 = 0						DEL FIVE REP 50					
+-- +DEL SECONDS 												15 MINUTES 															DEL TEN REP 50					
+-- +CHANGE SPEED					[Near To Degrees]			20 MINUTES 							**** Mine ****													
+-- SHOW CURRENT						0							30 MINUTES 							2 - 1 = 1						***** Console Message *****		
+-- START TIMER 						45							45 MINUTES 							2 + 1 = 3						+SELECT MSG OBJ					
+-- 									90*																								+CHANGE MSG OBJ					
+-- ** End Session **				135							*** Countdown Purpose ***			**** Homing ****				+SELECT PLAYER					
+-- +REGION REPORT-->Region			180							TIMER*								4 - 1 = 3						+SEND TO CONSOLE				
+-- +FACTION VICTORY-->Faction		225							DEATH								4 + 1 = 5														
+-- 									270							BREAKDOWN															****** Send to Console ******	
+-- *** Add Seconds ***				315							MISSION								**** HVLI ****					HELM							
+-- ADD 1 SECOND													DEPARTURE							0 + 1 = 1						WEAPONS							
+-- ADD 3 SECONDS					[Near To Units]				DESTRUCTION															ENGINEERING						
+-- ADD 5 SECONDS					.5U							DISCOVERY							**** Repair Crew ****			SCIENCE							
+-- ADD 10 SECONDS					1U							DECOMPRESSION						0 + 1 = 1						RELAY							
+-- 									2U																								
+-- *** Change Speed ***				3U																**** Coolant ****				
+-- SLOW DOWN						4U																0 + 1 = 1						
+-- NORMALIZE						5U																								
+-- SPEED UP							10U																								
 --									20U																								
 --									30U							
 --									
@@ -410,48 +410,49 @@ function setConstants()
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
 
-	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false	},
-						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true	},
-						["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false	},
-						["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
-						["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
-						["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false	},
-						["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
-						["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true	},
-						["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false	},
-						["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false	},
-						["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false	},
-						["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false	},
-						["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false	},
-						["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true	},
-						["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true	},
-						["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true	},
-						["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false	},
-						["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false	},
-						["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true	},
-						["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true	},
-						["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true	},
-						["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
-						["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
-						["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false	},
-						["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false	},
-						["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true	},
-						["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false	},
-						["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true	},
-						["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false	},
-						["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true	},
-						["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false	},
-						["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false	},
-						["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true	},
-						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
-					}	
+	playerShipStats = {	
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5	},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6	},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8	},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6	},
+		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10	},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10	},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9	},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4	},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10	},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10},
+		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6	},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4	},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8	},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12	},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10	},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8	},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9	},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9	},
+		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8	},
+		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8	},
+		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6	},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6	},
+		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5	},
+		["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5	},
+		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8	},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8	},
+		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9	},
+		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8	},
+		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8	},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 5	},
+		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7	},
+		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10	},
+		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8	},
+		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7	},
+		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10	},
+		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5	},
+		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4	},
+		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8	},
+		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8	},
+		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8	},
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11	},
+	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
 	defendFleetFunction = {orderFleetDefend1,orderFleetDefend2,orderFleetDefend3,orderFleetDefend4,orderFleetDefend5,orderFleetDefend6,orderFleetDefend7,orderFleetDefend8}
@@ -1128,6 +1129,8 @@ function assignPlayerShipScore(p)
 			p.cargo = p.maxCargo
 			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
 			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
+			p:setMaxScanProbeCount(playerShipStats[tempTypeName].probes)
+			p:setScanProbeCount(p:getMaxScanProbeCount())
 			p.tractor = playerShipStats[tempTypeName].tractor
 			p.tractor_target_lock = false
 			p.mining = playerShipStats[tempTypeName].mining
@@ -1645,6 +1648,7 @@ end
 -- PULSE ASTEROID		F	pulseAsteroid
 -- JUMP CORRIDOR OFF	F	inline (toggles between ON and OFF)
 -- SANDBOX COMMS		F	inline
+-- +STATION OPERATIONS	F	stationOperations
 -- +STATION DEFENSE		F	stationDefense
 function tweakTerrain()
 	clearGMFunctions()
@@ -1700,6 +1704,7 @@ function tweakTerrain()
 			end)
 		end
 	end
+	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station defense",stationDefense)
 end
 function explodeSelectedArtifact()
@@ -2456,6 +2461,9 @@ function createIcarusStations()
         general_information = "Facilitate mining the nearby asteroids",
     	history = "Station named after the platinum mine on ancient Earth on the African continent"
 	}
+	if random(1,100) <= 72 then stationAquarius:setRestocksScanProbes(false) end
+	if random(1,100) <= 61 then stationAquarius:setRepairDocked(false) end
+	if random(1,100) <= 37 then stationAquarius:setSharesEnergyWithDocked(false) end
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
 	--Borlan
@@ -2482,6 +2490,9 @@ function createIcarusStations()
         general_information = "Mining and resupply, New and improved",
     	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich"
 	}
+	if random(1,100) <= 42 then stationBorlan:setRestocksScanProbes(false) end
+	if random(1,100) <= 21 then stationBorlan:setRepairDocked(false) end
+	if random(1,100) <= 13 then stationBorlan:setSharesEnergyWithDocked(false) end
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
 	--Cindy's Folly
@@ -2507,6 +2518,9 @@ function createIcarusStations()
         general_information = "Mine nearby asteroids",
     	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes"
 	}
+	if random(1,100) <= 89 then stationCindyFolly:setRestocksScanProbes(false) end
+	if random(1,100) <= 72 then stationCindyFolly:setRepairDocked(false) end
+	if random(1,100) <= 13 then stationCindyFolly:setSharesEnergyWithDocked(false) end
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
 	--Elysium F4m2.5
@@ -2529,6 +2543,9 @@ function createIcarusStations()
         general_information = "This is where all the wealthy species shop and stay when traveling",
     	history = "Named after a fictional station from early 21st century literature as a reminder of what can happen if people don't pay attention to what goes on in all levels of the society in which they live"
 	}
+	if random(1,100) <= 86 then stationElysium:setRestocksScanProbes(false) end
+	if random(1,100) <= 35 then stationElysium:setRepairDocked(false) end
+	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
 	--Finnegan
@@ -2555,6 +2572,9 @@ function createIcarusStations()
         general_information = "We mine the asteroids and the nebula and use these to manufacture various specialized circuits",
     	history = "The Finnegan family set up this station here to take advantage of the readily available resources"
 	}
+	if random(1,100) <= 63 then stationFinnegan:setRestocksScanProbes(false) end
+	if random(1,100) <= 46 then stationFinnegan:setRepairDocked(false) end
+	if random(1,100) <= 25 then stationFinnegan:setSharesEnergyWithDocked(false) end
 	station_names[stationFinnegan:getCallSign()] = {stationFinnegan:getSectorName(), stationFinnegan}
 	table.insert(stations,stationFinnegan)
 	--Gagarin
@@ -2581,6 +2601,9 @@ function createIcarusStations()
         general_information = "Facilitate mining the nearby asteroids",
     	history = "Station named after the Cosmonaut from 20th century Earth"
 	}
+	if random(1,100) <= 16 then stationGagarin:setRestocksScanProbes(false) end
+	if random(1,100) <= 25 then stationGagarin:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationGagarin:setSharesEnergyWithDocked(false) end
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Macassa
@@ -2609,6 +2632,9 @@ function createIcarusStations()
         general_information = "Station location facilitates mining the nearby asteroids. This is the 5th time the staion has been rebuilt: 5 iterations, 9 plans, 3 years hence the name Macassa 17",
     	history = "The station was named in the hopes that the asteroids will be as productive as the Macassa mine was on Earth in the mid to late 1900s"
 	}
+	if random(1,100) <= 16 then stationMacassa:setRestocksScanProbes(false) end
+	if random(1,100) <= 12 then stationMacassa:setRepairDocked(false) end
+	if random(1,100) <= 9  then stationMacassa:setSharesEnergyWithDocked(false) end
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
@@ -2634,6 +2660,9 @@ function createIcarusStations()
         general_information = "Observe and measure black hole for scientific understanding purposes",
     	history = "One of the researchers also develops software and watches ancient films. He was put in charge of naming the station so he named it after a mute evil robot depicted in an old movie about a black hole from the late 1970s"
 	}
+	if random(1,100) <= 81 then stationMaximilian:setRestocksScanProbes(false) end
+	if random(1,100) <= 68 then stationMaximilian:setRepairDocked(false) end
+	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
 	--Nerva E4m8
@@ -2659,6 +2688,9 @@ function createIcarusStations()
         general_information = "Observatory of stellar phenomena and space ship traffic",
     	history = "A combination of science and military staff share the various delicate instruments on this station. Originally designed to watch for incoming Kraylor and Exuari ships, other stations now share the early warning military purpose and these sensors double as research resources"
 	}
+	if random(1,100) <= 13 then stationNerva:setRestocksScanProbes(false) end
+	if random(1,100) <= 42 then stationNerva:setRepairDocked(false) end
+	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Mermaid
@@ -2684,6 +2716,9 @@ function createIcarusStations()
         general_information = "Rest stop, refueling and convenience shopping",
     	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop\n\nFree drinks for the crew of the freighter Gamma Hydra"
 	}
+	if random(1,100) <= 36 then stationMermaid:setRestocksScanProbes(false) end
+	if random(1,100) <= 22 then stationMermaid:setRepairDocked(false) end
+	if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
 	--Mos Espa
@@ -2709,6 +2744,9 @@ function createIcarusStations()
         general_information = "Relax, maybe observe a scheduled race",
     	history = "You will never find a more wretched hive of scum and villainy... except in Mos Eisley space port. Mos Espa is a much better place"
 	}
+	if random(1,100) <= 28 then stationMosEspa:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationMosEspa:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationMosEspa:setSharesEnergyWithDocked(false) end
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Pistil
@@ -2735,6 +2773,9 @@ function createIcarusStations()
         general_information = "Studying, observing, measuring the Fleur nebula",
     	history = "The station naming continued in the vein of the nebula which we study. Station personnel have started paying closer attention to readings indicating enemy vessels in the area after some stray Exuari got past the defensive patrols and destroyed the station."
 	}
+	if random(1,100) <= 4  then stationPistil:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationPistil:setRepairDocked(false) end
+	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
 	--Relay-13
@@ -2756,6 +2797,9 @@ function createIcarusStations()
         public_relations = true,
         general_information = "Communication traffic relay and coordination"
 	}
+	if random(1,100) <= 22 then stationRelay13:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationRelay13:setRepairDocked(false) end
+	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
 	--local slurryZone = squareZone(100342, 27871, "Slurry")
@@ -2783,6 +2827,9 @@ function createIcarusStations()
         general_information = "Mining and research of neaby stellar phenomena",
     	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research"
 	}
+	if random(1,100) <= 43 then stationSlurry:setRestocksScanProbes(false) end
+	if random(1,100) <= 34 then stationSlurry:setRepairDocked(false) end
+	if random(1,100) <= 26 then stationSlurry:setSharesEnergyWithDocked(false) end
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
 	--Sovinec
@@ -2810,6 +2857,9 @@ function createIcarusStations()
         general_information = "We manufacture beam components from the resources gathered from teh nearby asteroids. We specialize in plasma based beam systems",
     	history = "Our station recognizes Sovinec, an early computer simulation researcher in plasma based weaponry in the late 20th century on Earth"
 	}
+	if random(1,100) <= 63 then stationSovinec:setRestocksScanProbes(false) end
+	if random(1,100) <= 34 then stationSovinec:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationSovinec:setSharesEnergyWithDocked(false) end
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	--Speculator
@@ -2837,6 +2887,9 @@ function createIcarusStations()
         general_information = "Mining operations are the primary purpose, but there are scientists here conducting research on the mobile nebula in the area",
     	history = "A consorium of mining interests and scientists banded together to create this station. It was considered a risk for both groups, but they undertook it anyway."
 	}
+	if random(1,100) <= 13 then stationSpeculator:setRestocksScanProbes(false) end
+	if random(1,100) <= 24 then stationSpeculator:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationSpeculator:setSharesEnergyWithDocked(false) end
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
 	--Stromboli
@@ -2862,6 +2915,9 @@ function createIcarusStations()
         general_information = "A remote station location for the Stromboli family and gusts to get away from the pressures of modern life",
     	history = "The Stromboli family picked this station up cheap from the Human Navy when this sector was practically empty. Now it serves as a nice place for the family to escape to when they are stressed out"
 	}
+	if random(1,100) <= 53 then stationStromboli:setRestocksScanProbes(false) end
+	if random(1,100) <= 17 then stationStromboli:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationStromboli:setSharesEnergyWithDocked(false) end
 	station_names[stationStromboli:getCallSign()] = {stationStromboli:getSectorName(), stationStromboli}
 	table.insert(stations,stationStromboli)
 	--Transylvania
@@ -2900,6 +2956,9 @@ function createIcarusStations()
 	table.insert(stations,leechAB)
 	table.insert(stations,leechB)
 	table.insert(stations,leechO)
+	if random(1,100) <= 43 then stationTransylvania:setRestocksScanProbes(false) end
+	if random(1,100) <= 27 then stationTransylvania:setRepairDocked(false) end
+	if random(1,100) <= 21 then stationTransylvania:setSharesEnergyWithDocked(false) end
 	station_names[stationTransylvania:getCallSign()] = {stationTransylvania:getSectorName(), stationTransylvania}
 	table.insert(stations,stationTransylvania)
 	--Wookie F4m5 
@@ -2925,6 +2984,9 @@ function createIcarusStations()
         general_information = "Researchers here study the Wookie language as well as several other languages of intelligent species",
     	history = "The first language studied when the station was founded was Wookie. Wookie language and culture is still a major focus of study"
 	}
+	if random(1,100) <= 83 then stationWookie:setRestocksScanProbes(false) end
+	if random(1,100) <= 47 then stationWookie:setRepairDocked(false) end
+	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
 	return stations
@@ -10880,6 +10942,104 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 		universe.update_system:addTimeToLiveUpdate(scanCluePoint)
 	end
 end
+------------------------------------------
+--	Tweak Terrain > Station Operations  --
+------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- PROBES ON			D	inline
+-- REPAIR ON			D	inline
+-- ENERGY ON			D	inline
+function stationOperations()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMFunction("+Select Station",stationOperations)
+	else
+		local first_object = objectList[1]
+		local object_type = first_object.typeName
+		if object_type ~= "SpaceStation" then
+			addGMFunction("+Select Station",stationDefense)
+		else
+			local button_label = "Probes"
+			if first_object:getRestocksScanProbes() then
+				button_label = string.format("%s On",button_label)
+			else
+				button_label = string.format("%s Off",button_label)
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object:getRestocksScanProbes() then
+							first_object:setRestocksScanProbes(false)
+						else
+							first_object:setRestocksScanProbes(true)
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
+			if first_object:getRepairDocked() then
+				button_label = "Repair On"
+			else
+				button_label = "Repair Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object:getRepairDocked() then
+							first_object:setRepairDocked(false)
+						else
+							first_object:setRepairDocked(true)
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
+			if first_object:getSharesEnergyWithDocked() then
+				button_label = "Energy On"
+			else
+				button_label = "Energy Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object:getSharesEnergyWithDocked() then
+							first_object:setSharesEnergyWithDocked(false)
+						else
+							first_object:setSharesEnergyWithDocked(true)
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
+		end
+	end
+end
 ---------------------------------------
 --	Tweak Terrain > Station Defense  --
 ---------------------------------------
@@ -13274,6 +13434,50 @@ function handleDockedState()
 		addCommsReply("Back", commsStation)
 	end)
 	--]]
+	addCommsReply("Docking services status", function()
+		local service_status = string.format("Station %s docking services status:",comms_target:getCallSign())
+		if comms_target:getRestocksScanProbes() then
+			service_status = string.format("%s\nReplenish scan probes.",service_status)
+		else
+			if comms_target.probe_fail_reason == nil then
+				local reason_list = {
+					"Cannot replenish scan probes due to fabrication unit failure.",
+					"Parts shortage prevents scan probe replenishment.",
+					"Station management has curtailed scan probe replenishment for cost cutting reasons.",
+				}
+				comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
+			end
+			service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
+		end
+		if comms_target:getRepairDocked() then
+			service_status = string.format("%s\nShip hull repair.",service_status)
+		else
+			if comms_target.repair_fail_reason == nil then
+				reason_list = {
+					"We're out of the necessary materials and supplies for hull repair.",
+					"Hull repair automation unavailable whie it is undergoing maintenance.",
+					"All hull repair technicians quarantined to quarters due to illness.",
+				}
+				comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
+			end
+			service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
+		end
+		if comms_target:getSharesEnergyWithDocked() then
+			service_status = string.format("%s\nRecharge ship energy stores.",service_status)
+		else
+			if comms_target.energy_fail_reason == nil then
+				reason_list = {
+					"A recent reactor failure has put us on auxiliary power, so we cannot recharge ships.",
+					"A damaged power coupling makes it too dangerous to recharge ships.",
+					"An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now.",
+				}
+				comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
+			end
+			service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
+		end
+		setCommsMessage(service_status)
+		addCommsReply("Back", commsStation)
+	end)
 	if ctd.sensor_boost ~= nil then
 		if ctd.sensor_boost.cost > 0 then
 			addCommsReply(string.format("Augment scan range with station sensors while docked (%i rep)",ctd.sensor_boost.cost),function()
@@ -14006,6 +14210,50 @@ function handleUndockedState()
 				addCommsReply("Back", commsStation)
 			end)
 		end
+		addCommsReply("Docking services status", function()
+			local service_status = string.format("Station %s docking services status:",comms_target:getCallSign())
+			if comms_target:getRestocksScanProbes() then
+				service_status = string.format("%s\nReplenish scan probes.",service_status)
+			else
+				if comms_target.probe_fail_reason == nil then
+					local reason_list = {
+						"Cannot replenish scan probes due to fabrication unit failure.",
+						"Parts shortage prevents scan probe replenishment.",
+						"Station management has curtailed scan probe replenishment for cost cutting reasons.",
+					}
+					comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
+			end
+			if comms_target:getRepairDocked() then
+				service_status = string.format("%s\nShip hull repair.",service_status)
+			else
+				if comms_target.repair_fail_reason == nil then
+					reason_list = {
+						"We're out of the necessary materials and supplies for hull repair.",
+						"Hull repair automation unavailable whie it is undergoing maintenance.",
+						"All hull repair technicians quarantined to quarters due to illness.",
+					}
+					comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
+			end
+			if comms_target:getSharesEnergyWithDocked() then
+				service_status = string.format("%s\nRecharge ship energy stores.",service_status)
+			else
+				if comms_target.energy_fail_reason == nil then
+					reason_list = {
+						"A recent reactor failure has put us on auxiliary power, so we cannot recharge ships.",
+						"A damaged power coupling makes it too dangerous to recharge ships.",
+						"An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now.",
+					}
+					comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
+			end
+			setCommsMessage(service_status)
+			addCommsReply("Back", commsStation)
+		end)
 		addCommsReply("Where can I find particular goods?", function()
 			local ctd = comms_target.comms_data
 			gkMsg = "Friendly stations often have food or medicine or both. Neutral stations may trade their goods for food, medicine or luxury."
