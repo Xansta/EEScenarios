@@ -3799,6 +3799,9 @@ function createKentarStations()
         general_information = "We watch and report on enemy vessel movement. We also run a small tractor and repulsor component machine shop",
     	history = "The Human Navy set this station up as a strategic observation post"
 	}
+	if random(1,100) <= 22 then stationGamma3:setRestocksScanProbes(false) end
+	if random(1,100) <= 31 then stationGamma3:setRepairDocked(false) end
+	if random(1,100) <= 17 then stationGamma3:setSharesEnergyWithDocked(false) end
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
 	--Katanga
@@ -3828,6 +3831,9 @@ function createKentarStations()
         general_information = "Extracting minerals from these asteroids is our job",
     	history = "Based on the scans showing cobalt in many of these asteroids, we named this station after an ancient earth mining operation that was part of the Glencore Public Limited Comany"
 	}
+	if random(1,100) <= 22 then stationKatanga:setRestocksScanProbes(false) end
+	if random(1,100) <= 38 then stationKatanga:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationKatanga:setSharesEnergyWithDocked(false) end
 	station_names[stationKatanga:getCallSign()] = {stationKatanga:getSectorName(), stationKatanga}
 	table.insert(stations,stationKatanga)
 	--]]
@@ -3850,6 +3856,9 @@ function createKentarStations()
         general_information = "Work here is classified, however, it involves research on this black hole",
     	history = "Reference classified archives at headquarters. Public access redacted"
 	}
+	if random(1,100) <= 42 then stationKeyhole23:setRestocksScanProbes(false) end
+	if random(1,100) <= 28 then stationKeyhole23:setRepairDocked(false) end
+	if random(1,100) <= 15 then stationKeyhole23:setSharesEnergyWithDocked(false) end
 	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
 	universe.update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
@@ -3880,6 +3889,9 @@ function createKentarStations()
         general_information = "We mine gold, we make and sell autodoc and circuit",
     	history = "We said, 'thar's gold in them there rocks' and we just had to get some"
 	}
+	if random(1,100) <= 62 then stationKolar:setRestocksScanProbes(false) end
+	if random(1,100) <= 48 then stationKolar:setRepairDocked(false) end
+	if random(1,100) <= 35 then stationKolar:setSharesEnergyWithDocked(false) end
 	station_names[stationKolar:getCallSign()] = {stationKolar:getSectorName(), stationKolar}
 	table.insert(stations,stationKolar)
 	--Locarno
@@ -3909,6 +3921,9 @@ function createKentarStations()
         general_information = "We mine, we trade, we sell nanites and android components",
     	history = "It looked like a good location for resupply and mining and it's served us well"
 	}
+	if random(1,100) <= 32 then stationLocarno:setRestocksScanProbes(false) end
+	if random(1,100) <= 28 then stationLocarno:setRepairDocked(false) end
+	if random(1,100) <= 25 then stationLocarno:setSharesEnergyWithDocked(false) end
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Nereus
@@ -3935,6 +3950,9 @@ function createKentarStations()
         general_information = "We mine primarily for nickel, watch for enemy vessels and manufacture lifter components",
     	history = "These asteroids provide a good nearby source for nickel, so a station was placed to facilitate mining. One of the original station members had lifter experience and over time built up a lifter manufacturing facility"
 	}
+	if random(1,100) <= 12 then stationNereus:setRestocksScanProbes(false) end
+	if random(1,100) <= 18 then stationNereus:setRepairDocked(false) end
+	if random(1,100) <= 35 then stationNereus:setSharesEnergyWithDocked(false) end
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
 	--Pastern
@@ -3963,6 +3981,9 @@ function createKentarStations()
     	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
 	}
 	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
+	if random(1,100) <= 23 then stationPastern:setRestocksScanProbes(false) end
+	if random(1,100) <= 18 then stationPastern:setRepairDocked(false) end
+	if random(1,100) <= 15 then stationPastern:setSharesEnergyWithDocked(false) end
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
@@ -3990,6 +4011,9 @@ function createKentarStations()
         general_information = "We mine primarily for platinum and gold and watch for enemy vessels",
     	history = "These asteroids provide a good nearby source for gold and platinum, so a station was placed to facilitate mining. It also serves as a good early warning post for enemy vessels"
 	}
+	if random(1,100) <= 14 then stationTalos:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationTalos:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationTalos:setSharesEnergyWithDocked(false) end
 	station_names[stationTalos:getCallSign()] = {stationTalos:getSectorName(), stationTalos}
 	table.insert(stations,stationTalos)
 	--Sutter
@@ -4018,6 +4042,9 @@ function createKentarStations()
         general_information = "We mine for nickel, dilithium and cobalt. A science team researches some extraordinarily rare minerals found here",
     	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. A scientific research team is also based herer to investigate unusual readings on some of the asteroids"
 	}
+	if random(1,100) <= 14 then stationSutter:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationSutter:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationSutter:setSharesEnergyWithDocked(false) end
 	station_names[stationSutter:getCallSign()] = {stationSutter:getSectorName(), stationSutter}
 	table.insert(stations,stationSutter)
 	return stations
