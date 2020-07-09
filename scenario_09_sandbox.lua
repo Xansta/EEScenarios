@@ -843,50 +843,107 @@ function setConstants()
 end
 function updateSystem()
 	return {
-		--TODO the update functions really could use a way to say "I am now invalid stop updating me", other than destroying the object
-		--treat _update_objects as private to updateSystem
+		-- treat _update_objects as private to updateSystem
+		-- my lack of lua knowledge is showing here
+		-- _update_objects is an array, which probably is probably non optimal
+		-- in particular random removal and checking if an item is within are slow
+		-- this was not a issue with the few thousand entries tested with, but may need revisiting if performance issue surface
 		_update_objects={},
+		-- update should be called each time the main update is called
+		-- it will run all updates on all objects
+		-- it will also handle the case that objects are deleted
+		-- TODO it should have a way to say "remove this update", but currently doesn't
 		update = function(self,delta)
+			assert(type(self)=="table")
+			assert(type(delta)=="number")
 			-- we iterate through the _update_objects in reverse order so removed entries don't result in skipped updates
 			for index = #self._update_objects,1,-1 do
 				if self._update_objects[index]:isValid() then
-					self._update_objects[index]:update(delta)
+					local obj=self._update_objects[index]
+					for index = #obj.update_list,1,-1 do
+						obj.update_list[index]:update(obj,delta)
+					end
 				else
 					table.remove(self._update_objects,index)
 				end
 			end
 		end,
-		--note all update functions are currently mutually exclusive
-		addUpdate = function(self,obj)
-			for i = 0,#self._update_objects do
+		-- treat _addToUpdateList as private to updateSystem
+		-- this adds a object to the update list, while ensuring it isn't duplicated
+		_addToUpdateList = function(self,obj)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			for index = 0,#self._update_objects do
 				assert(type(self)=="table")
-				if self._update_objects[i]==obj then
-					table.remove(self._update_objects,i)
+				if self._update_objects[index]==obj then
+					return
 				end
 			end
 			table.insert(self._update_objects,obj)
 		end,
-		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle )
+		-- treat _eraseUpdateType as private
+		-- remove updates of update_type
+		_eraseUpdateType = function(obj,update_type)
+			assert(type(obj)=="table")
+			assert(type(update_type)=="string")
+			if obj.update_list == nil then
+				return
+			end
+			for index = #obj.update_list,1,-1 do
+				if obj.update_list[index].type==update_type then
+					table.remove(obj.update_list,index)
+				end
+			end
+		end,
+		-- there is only one update function of each update_type
+		-- it is intended that the update_types are picked such that incompatible types aren't merged
+		-- the obvious example is multiple functions setting a object x & y location
+		-- update_type is a string which makes multiple incompatibles impossible to express
+		-- in an ideal world that would be fixed, however as of writing this it sounds manageable  to do without
+		-- update_data is a table with at a minimum a function called update which takes 3 arguments
+		-- argument 1 - self (the table)
+		-- argument 2 - delta - delta (as passed from the main update function)
+		-- argument 3 - obj - the object being updated
+		-- it is expected that data needed needed for the update function will be stored in the obj or the update_data table
+		addUpdate = function(self,obj,update_type,update_data)
+			assert(type(obj)=="table")
+			assert(type(update_type)=="string")
+			assert(type(update_data)=="table")
+			self._eraseUpdateType(obj,update_type)
+			if obj.update_list == nil then
+				obj.update_list = {}
+			end
+			update_data.type=update_type
+			table.insert(obj.update_list,update_data)
+			self:_addToUpdateList(obj)
+		end,
+		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(center_x)=="number")
 			assert(type(center_y)=="number")
 			assert(type(distance)=="number")
 			assert(type(orbit_time)=="number")
-			assert(type(initial_angle )=="number" or initial_angle  == nil)
-			obj.center_x = center_x
-			obj.center_y = center_y
-			obj.distance = distance
-			obj.orbit_time = orbit_time/(2*math.pi)
-			initial_angle  = initial_angle  or 0
-			obj.start_offset = (initial_angle /360)*orbit_time
-			obj.time = 0 -- this can be removed after getSecnarioTime gets into the current version of EE
-			obj.update = function (self,delta)
-				self.time = self.time + delta
-				local orbit_pos=(self.time+self.start_offset)/self.orbit_time
-				self:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
-			end
-			self:addUpdate(obj)
+			assert(type(initial_angle)=="number" or initial_angle == nil)
+			initial_angle = initial_angle or 0
+			local update_data = {
+				center_x = center_x,
+				center_y = center_y,
+				distance = distance,
+				orbit_time = orbit_time/(2*math.pi),
+				initial_angle = initial_angle,
+				start_offset = (initial_angle/360)*orbit_time,
+				time = 0, -- this can be removed after getSecnarioTime gets into the current version of EE
+				update = function (self,obj,delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					self.time = self.time + delta
+					local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+					obj:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+				end
+			}
+			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
 		addOrbitTargetUpdate = function (self, obj, orbit_target, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
@@ -894,30 +951,91 @@ function updateSystem()
 			assert(type(orbit_target)=="table")
 			assert(type(distance)=="number")
 			assert(type(orbit_time)=="number")
-			assert(type(initial_angle)=="number")
-			obj.orbit_target = orbit_target
-			obj.distance = distance
-			obj.orbit_time = orbit_time
-			obj.angle = initial_angle
-			obj.update = function (self,delta)
-				if self.orbit_target ~= nil and self.orbit_target:isValid() then
-					local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-					self.angle = (self.angle + 360/self.orbit_time*delta) % 360
-					self:setPosition(orbit_target_x + (math.cos(self.angle / 180 * math.pi) * self.distance),orbit_target_y + (math.sin(self.angle / 180 * math.pi) * self.distance))
+			assert(type(initial_angle)=="number" or initial_angle == nil)
+			initial_angle = initial_angle or 0
+			local update_data = {
+				orbit_target = orbit_target,
+				distance = distance,
+				orbit_time = orbit_time/(2*math.pi),
+				initial_angle = initial_angle,
+				start_offset = (initial_angle/360)*orbit_time,
+				time = 0, -- this can be removed after getSecnarioTime gets into the current version of EE
+				update = function (self,obj,delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					self.time = self.time + delta
+					local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+					if self.orbit_target ~= nil and self.orbit_target:isValid() then
+						local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+						obj:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+					end
 				end
-			end
-			self:addUpdate(obj)
+			}
+			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
-		addTimeToLiveUpdate = function(self, obj)
+		addTimeToLiveUpdate = function(self, obj, timeToLive)
 			assert(type(self)=="table")
-			obj.timeToLive = 300
-			obj.update = function (self,delta)
-				self.timeToLive = self.timeToLive - delta
-				if self.timeToLive < 0 then
-					self:destroy()
+			assert(type(obj)=="table")
+			assert(type(timeToLive)=="number" or TimeToLive==nil)
+			timeToLive = timeToLive or 300
+			local update_data = {
+				timeToLive = timeToLive,
+				update = function (self,obj,delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					self.timeToLive = self.timeToLive - delta
+					if self.timeToLive < 0 then
+						obj:destroy()
+					end
 				end
-			end
-			self:addUpdate(obj)
+			}
+			self:addUpdate(obj,"timeToLive",update_data)
+		end,
+		_test = function(self)
+			assert(type(self)=="table")
+			---------------------------------------------------------------------------------------------------------------
+			-- first up we are going to ensure that _addToUpdateList doesn't add the same element multiple times
+			-- this likely would be annoying to debug (as things would run faster for no real reason) and hard to spot
+			-- (as many of the ways it will fail would not result in errors)
+			local tmp1={}
+			local tmp2={}
+			-- starting
+			assert(#self._update_objects==0)
+			-- add the first element
+			self:_addToUpdateList(tmp1)
+			assert(#self._update_objects==1)
+			-- ensure we cant add one more
+			self:_addToUpdateList(tmp1)
+			assert(#self._update_objects==1)
+			-- add the second element
+			self:_addToUpdateList(tmp2)
+			assert(#self._update_objects==2)
+			-- ensure both the first and last element are checked
+			self:_addToUpdateList(tmp1)
+			assert(#self._update_objects==2)
+			self:_addToUpdateList(tmp2)
+			assert(#self._update_objects==2)
+			---------------------------------------------------------------------------------------------------------------
+			-- now onto testing addUpdate
+			-- we are going to ensure that multiple updates of the same type cant be added (as that will break in non obvious ways)
+			-- note the testObj is not a spaceObject, which will break some functions like update
+			-- if this blocks fails asserts later, it is possible that checks have been added to addUpdate to ensure that the object is a spaceObject
+			local testObj={}
+			assert(testObj.update_list==nil)
+			self:addUpdate(testObj,"test",{})
+			assert(testObj.update_list~=nil)
+			assert(#testObj.update_list==1)
+			self:addUpdate(testObj,"test",{})
+			assert(#testObj.update_list==1)
+			self:addUpdate(testObj,"test2",{})
+			assert(#testObj.update_list==2)
+			self:addUpdate(testObj,"test",{})
+			assert(#testObj.update_list==2)
+			self:addUpdate(testObj,"test2",{})
+			assert(#testObj.update_list==2)
+			---------------------------------------------------------------------------------------------------------------
 		end
 	}
 end
@@ -14964,6 +15082,10 @@ function movingObjects(delta)
 		end
 	end
 end
+function runAllTests()
+	updateSystem():_test()
+end
+runAllTests()
 function updateInner(delta)
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
