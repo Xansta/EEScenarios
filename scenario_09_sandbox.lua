@@ -2429,20 +2429,20 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 1 then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
-			dp1Zone:setColor(0,128,0)
-		elseif i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
-			dp6Zone:setColor(0,128,0)
-		elseif i == 2 then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
-			dp2Zone:setColor(0,128,0)
-		else		
+--		if i == 1 then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
+--			dp1Zone:setColor(0,128,0)
+--		elseif i == 6 then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
+--			dp6Zone:setColor(0,128,0)
+--		elseif i == 2 then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
+--			dp2Zone:setColor(0,128,0)
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -2450,6 +2450,11 @@ function createIcarusColor()
 		end
 		startAngle = startAngle + 60
 	end
+	--Arlenian escorts
+	CpuShip():setTemplate("Adder MK5"):setFaction("Arlenians"):setPosition(-30000,130000):setScannedByFaction("Human Navy",true):setCallSign("Marvielle"):orderDefendLocation(-30000,130000)
+	CpuShip():setTemplate("Adder MK5"):setFaction("Arlenians"):setPosition(-30000,130000):setScannedByFaction("Human Navy",true):setCallSign("Veronne"):orderDefendLocation(-30000,130000)
+	CpuShip():setTemplate("Adder MK5"):setFaction("Arlenians"):setPosition(-30000,130000):setScannedByFaction("Human Navy",true):setCallSign("Linoire"):orderDefendLocation(-30000,130000)
+	CpuShip():setTemplate("Adder MK5"):setFaction("Arlenians"):setPosition(-30000,130000):setScannedByFaction("Human Navy",true):setCallSign("Mivienne"):orderDefendLocation(-30000,130000)
 	--planetBespin = Planet():setPosition(40000,5000):setPlanetRadius(3000):setDistanceFromMovementPlane(-2000):setCallSign("Donflist")
 	--planetBespin:setPlanetSurfaceTexture("planets/gas-1.png"):setAxialRotationTime(300):setDescription("Mining and Gambling")
 end
@@ -2558,10 +2563,10 @@ function createIcarusStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
-	--Aquarius F4m9
+	--Aquarius F4m9 captured 11Jul2020
 	--local aquariusZone = squareZone(-4295, 14159, "Aquarius IV")
 	--aquariusZone:setColor(51,153,255)
-    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius IV"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Aquarius IV"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -2586,8 +2591,8 @@ function createIcarusStations()
 	if random(1,100) <= 72 then stationAquarius:setRestocksScanProbes(false) end
 	if random(1,100) <= 61 then stationAquarius:setRepairDocked(false) end
 	if random(1,100) <= 37 then stationAquarius:setSharesEnergyWithDocked(false) end
-	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
-	table.insert(stations,stationAquarius)
+	--station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
+	--table.insert(stations,stationAquarius)
 	--Borlan
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2645,8 +2650,11 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationCindyFolly:setSharesEnergyWithDocked(false) end
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
-	--Elysium F4m2.5
-    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
+	--Elysium F4m2.5 
+	local elysiumZone = squareZone(-7504, 1384, "Elysium 2")
+	elysiumZone:setColor(51,153,255)
+	--[[ Destroyed 11Jul2020
+    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 2"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -2670,6 +2678,7 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
+	--]]
 	--Finnegan
 	--local finneganZone = squareZone(114460, 95868, "Finnegan 2")
 	--finneganZone:setColor(51,153,255)
@@ -2760,7 +2769,8 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+	--captured 11Jul2020
+    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -2785,13 +2795,12 @@ function createIcarusStations()
 	if random(1,100) <= 81 then stationMaximilian:setRestocksScanProbes(false) end
 	if random(1,100) <= 68 then stationMaximilian:setRepairDocked(false) end
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
-	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
-	table.insert(stations,stationMaximilian)
+	--station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
+	--table.insert(stations,stationMaximilian)
 	--Mermaid
-	local mermaidZone = squareZone(28889, -4417, "Mermaid 3")
-	mermaidZone:setColor(51,153,255)
-	--[[	Destroyed 4Jul2020
-    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 2"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+	--local mermaidZone = squareZone(28889, -4417, "Mermaid 3")
+	--mermaidZone:setColor(51,153,255)
+    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 3"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -2818,7 +2827,6 @@ function createIcarusStations()
 	if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
-	--]]
 	--Mos Espa
 	stationMosEspa = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(113941, -85822):setCallSign("Mos Espa"):setDescription("Resupply and Entertainment"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -2848,6 +2856,9 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
+	local nervaZone = squareZone(-9203, -2077, "Nerva 2")
+	nervaZone:setColor(51,153,255)
+	--[[ Destroyed 11Jul2020
     stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -2875,6 +2886,7 @@ function createIcarusStations()
 	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
+	--]]
 	--Pistil
 	--local pistilZone = squareZone(24834, 20416, "Pistil 3")
 	--pistilZone:setColor(0,128,0)
@@ -3088,9 +3100,10 @@ function createIcarusStations()
 	station_names[stationTransylvania:getCallSign()] = {stationTransylvania:getSectorName(), stationTransylvania}
 	table.insert(stations,stationTransylvania)
 	--Wookie F4m5 
-	--local wookieZone = squareZone(-11280, 7425, "Tri-Wookie")
-	--wookieZone:setColor(51,153,255)
-    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Tri-Wookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local wookieZone = squareZone(-11280, 7425, "Wookie-oka")
+	wookieZone:setColor(51,153,255)
+	--[[ destroyed 11Jul2020
+    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-oka"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -3115,6 +3128,7 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
+	--]]
 	return stations
 end
 function createIcarusArtifacts()
@@ -6479,11 +6493,12 @@ function createPlayerShipSting()
 	--sent to Kraylor war front. May return later
 	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
 	playerSting:setTypeName("Surkov")
-	playerSting:setRepairCrewCount(3)	--more repair crew (vs 2)
+	playerSting:setRepairCrewCount(4)	--more repair crew (vs 2)
 	playerSting:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
+	playerSting:setRotationMaxSpeed(20)					--faster spin (vs 15)
 	playerSting:setJumpDrive(false)		--no jump
 	playerSting:setWarpDrive(true)		--add warp
-	playerSting:setWarpSpeed(500)
+	playerSting:setWarpSpeed(400)
 	playerSting:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
 	playerSting:setWeaponTubeDirection(0, -90)
 	playerSting:weaponTubeDisallowMissle(0,"Mine")
