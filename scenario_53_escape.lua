@@ -1,9 +1,9 @@
 -- Name: Escape
 -- Description: Escape imprisonment and return home. 
 ---
---- Mission consists of one ship with a full crew. Engineer and Science will be busy
+--- Mission consists of one ship with a full crew. Engineer and Science will be the most busy initially
 ---
---- Version 4 Adds more activity for the weapons officer (6Apr2020)
+--- Version 5 Provides additional information while on the initial fighter (13Jul2020)
 -- Type: Mission, somewhat replayable
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
@@ -57,6 +57,17 @@ function init()
     brigStation = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS23"):setPosition(912787, 148301)
 	table.insert(enemyStationList,brigStation)
 	buildNearbyStations()
+	--build headquarters
+	local vx, vy = vectorFromAngle(random(0,90),random(300000,400000))
+	psx = brigx + vx
+	psy = brigy + vy
+	si = math.random(1,#placeStation)			--station index
+	stationFaction = "Human Navy"
+	pStation = placeStation[si]()
+	table.remove(placeStation,si)
+	table.insert(stationList,pStation)
+	stationHeadquarters = pStation
+	stationHeadquarters:setTemplate("Huge Station")	
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
 	playerShipNamesForPiranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
@@ -4768,7 +4779,30 @@ function scanRepulse(delta)
 	if difficulty >= 1 then
 		plotSuffocate = checkForSuffocationOnFighter
 	end
+	local junk_ships_scanned = 0
+	for i=1,#junkShips do
+		local junk_ship = junkShips[i]
+		if junk_ship ~= nil and junk_ship:isValid() then
+			if junk_ship:isScannedBy(playerFighter) then
+				junk_ships_scanned = junk_ships_scanned + 1
+			end
+		end
+	end
+	local encrypted_message = string.format("Encrypted message from Human Navy regional headquarters station %s in %s: Assuming our intercepted Kraylor intelligence is correct (that you've escaped the Kraylor brig station) you're likely to need to find a jump or warp capable ship to bring you home. One of our intelligence analysts suggests that you've probably boarded one of the barely functioning junk ships in Boris Junk Yard. There is a small possibility that one of those ships could have a warp drive or a jump drive that you might get working well enough to bring you home. Boris is a notorious retired militia captian turned junk yard manager. Beware of his semi-automated junk yard defenses. To find a ship with a jump drive, your science officer will need to either check the database on the ships after a single scan or check the scanned ship systems after a second scan if the model does not appear in the database. We're blindly broadcasting this message on the encrypted channel hoping you'll receive it in time for it to be helpful. Good luck. [message repeats continuously]",stationHeadquarters:getCallSign(),stationHeadquarters:getSectorName())
+	if junk_ships_scanned >= 5 then
+		if playerFighter.encrypted_message == nil then
+			playerFighter:addToShipLog(encrypted_message,"Magenta")
+			playerFighter.encrypted_message = "sent"
+		end
+	end
 	if junkRepulse:isValid() then
+		local junk_scanned = junkRepulse:isScannedBy(playerFighter)
+		if junk_scanned then
+			if playerFighter.encrypted_message == nil then
+				playerFighter:addToShipLog(encrypted_message,"Magenta")
+				playerFighter.encrypted_message = "sent"
+			end
+		end
 		if junkRepulse:isFullyScannedBy(playerFighter) then
 			hintRepulseTimer = random(30,60)
 			plot1 = hintRepulse
@@ -4784,6 +4818,12 @@ function checkForSuffocationOnFighter(delta)
 		end
 	end
 	air_low_timer = air_low_timer - delta
+	if air_low_timer < 120 then
+		if playerFighter.initial_air_warning == nil then
+			playerFighter:addToShipLog(string.format("[Environmental Repair Crew Member] There's something wrong with %s's environmental system. I have not quite figured it out yet. I'll report to the engineer as soon as I get more information",playerFighter:getCallSign()),"Magenta")
+			playerFighter.initial_air_warning = "sent"
+		end
+	end
 	if air_low_timer < 0 then
 		if suffocation_timer == nil then
 			if difficulty > 1 then
@@ -5277,6 +5317,9 @@ function junkYardDog(delta)
 	end
 end
 function borisChase(delta)
+	if boris_chase_count == nil then
+		boris_chase_count = 0
+	end
 	borisChaseTimer = borisChaseTimer - delta
 	if borisChaseTimer < 0 then
 		borisChaseTimer = delta + 300 + random(1,300)
@@ -5295,8 +5338,14 @@ function borisChase(delta)
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Drone"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
 				elseif difficulty > 1 then
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Fighter"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
+					if boris_chase_count >= 2 then
+						junkChaser:setWarpDrive(true)
+					end
 				else
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Fighter"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
+					if boris_chase_count >= 3 then
+						junkChaser:setWarpDrive(true)
+					end
 				end
 				junkChaser:onDestruction(resetBoris)
 				chaserMsgChoice = math.random(1,3)
@@ -5312,6 +5361,7 @@ function borisChase(delta)
 	end
 end
 function resetBoris(self, instigator)
+	boris_chase_count = boris_chase_count + 1
 	if borisChaseTimer < 300 then
 		borisChaseTimer = 300
 	end
