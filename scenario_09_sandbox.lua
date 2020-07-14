@@ -142,6 +142,17 @@ starryUtil={
 		end
 	},
 }
+
+-- these 2 functions and variable be removed in the next version of EE
+scenarioTime = 0
+function getScenarioTimePreStandard()
+	return scenarioTime
+end
+
+function getScenarioTimePreStandardAddDelta(delta)
+	scenarioTime = scenarioTime + delta
+end
+
 -- object creation utils
 -- these may want to be considered to merge into utils.lua
 
@@ -945,7 +956,7 @@ function updateSystem()
 				orbit_time = orbit_time/(2*math.pi),
 				initial_angle = initial_angle,
 				start_offset = (initial_angle/360)*orbit_time,
-				time = 0, -- this can be removed after getSecnarioTime gets into the current version of EE
+				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -971,7 +982,7 @@ function updateSystem()
 				orbit_time = orbit_time/(2*math.pi),
 				initial_angle = initial_angle,
 				start_offset = (initial_angle/360)*orbit_time,
-				time = 0, -- this can be removed after getSecnarioTime gets into the current version of EE
+				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -15302,6 +15313,7 @@ function runAllTests()
 end
 runAllTests()
 function updateInner(delta)
+	getScenarioTimePreStandardAddDelta(delta) -- this can be removed in the next version of EE
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
 	if timer_started then
