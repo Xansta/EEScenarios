@@ -874,6 +874,12 @@ function updateSystem()
 				end
 			end
 		end,
+		-- mostly to assist in testing
+		-- while it could easily be done inline it hopefully will make it easier to change data structures if needed
+		_clear_update_list = function(self)
+			assert(type(self)=="table")
+			self._update_objects = {}
+		end,
 		-- treat _addToUpdateList as private to updateSystem
 		-- this adds a object to the update list, while ensuring it isn't duplicated
 		_addToUpdateList = function(self,obj)
@@ -980,6 +986,38 @@ function updateSystem()
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
+		-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
+		-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
+		-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
+		addPeriodicCallback = function(self, obj, callback, period)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(callback)=="function")
+			assert(type(period)=="number")
+			assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
+			local update_data = {
+				callback = callback,
+				period = period,
+				accumulated_time = 0,
+				update = function (self,obj,delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					self.accumulated_time = self.accumulated_time + delta
+					if self.accumulated_time > self.period then
+						self.callback(obj)
+						self.accumulated_time = self.accumulated_time - self.period
+						-- we could do this via a loop
+						-- or via calling back into this own function
+						-- technically this is probably slower (as we will end up with calling a function and the assert logic)
+						-- I am going to be surprised if that matters
+						-- a callback is pretty easy to do, so we will do it that way
+						self:update(obj,0)
+					end
+				end
+			}
+			self:addUpdate(obj,"periodic",update_data)
+		end,
 		addTimeToLiveUpdate = function(self, obj, timeToLive)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -1005,6 +1043,7 @@ function updateSystem()
 			-- first up we are going to ensure that _addToUpdateList doesn't add the same element multiple times
 			-- this likely would be annoying to debug (as things would run faster for no real reason) and hard to spot
 			-- (as many of the ways it will fail would not result in errors)
+			---------------------------------------------------------------------------------------------------------------
 			local tmp1={}
 			local tmp2={}
 			-- starting
@@ -1023,11 +1062,16 @@ function updateSystem()
 			assert(#self._update_objects==2)
 			self:_addToUpdateList(tmp2)
 			assert(#self._update_objects==2)
+
+			-- reset for next test
+			self:_clear_update_list()
+			assert(#self._update_objects==0)
 			---------------------------------------------------------------------------------------------------------------
 			-- now onto testing addUpdate
 			-- we are going to ensure that multiple updates of the same type cant be added (as that will break in non obvious ways)
 			-- note the testObj is not a spaceObject, which will break some functions like update
 			-- if this blocks fails asserts later, it is possible that checks have been added to addUpdate to ensure that the object is a spaceObject
+			---------------------------------------------------------------------------------------------------------------
 			local testObj={}
 			assert(testObj.update_list==nil)
 			self:addUpdate(testObj,"test",{})
