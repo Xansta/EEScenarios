@@ -1000,16 +1000,17 @@ function updateSystem()
 		-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 		-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 		-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
-		addPeriodicCallback = function(self, obj, callback, period)
+		addPeriodicCallback = function(self, obj, callback, period, accumulated_time)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(callback)=="function")
 			assert(type(period)=="number")
+			assert(accumulated_time==nil or type(accumulated_time)=="number")
 			assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
 			local update_data = {
 				callback = callback,
 				period = period,
-				accumulated_time = 0,
+				accumulated_time = accumulated_time or 0,
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1028,6 +1029,20 @@ function updateSystem()
 				end
 			}
 			self:addUpdate(obj,"periodic",update_data)
+		end,
+		addNameCycleUpdate = function(self, obj, period, nameTable, accumulated_time)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			assert(type(nameTable)=="table")
+			assert(#nameTable~=0)
+			assert(offset==nil or type(accumulated_time)=="number")
+			obj.nameNum=0
+			local callback = function(obj)
+				obj.nameNum = (obj.nameNum + 1) % #nameTable
+				obj:setCallSign(nameTable[obj.nameNum + 1])
+			end
+			self:addPeriodicCallback(obj,callback,period,accumulated_time)
 		end,
 		addTimeToLiveUpdate = function(self, obj, timeToLive)
 			assert(type(self)=="table")
@@ -1121,7 +1136,7 @@ function updateSystem()
 			-- check that the callback being called once results in the callback running once
 			self:update(1)
 			assert(captured==1)
-			-- TODO check for calling running twice
+			-- check that the callback being overdue results in multiple calls
 			self:update(2)
 			assert(captured==3)
 			-- TODO check with different periodic values
