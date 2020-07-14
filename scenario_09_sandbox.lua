@@ -410,6 +410,12 @@ function setConstants()
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
 
+	fleet_exclusions = {
+		["Nuke"] = {letter = "N", exclude = false},
+		["Warp"] = {letter = "W", exclude = false},
+		["Jump"] = {letter = "J", exclude = false},
+	}
+
 	playerShipStats = {	
 		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5	},
 		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6	},
@@ -1065,7 +1071,9 @@ function universe()
 			assert(type(region)=="table")
 			assert(type(region.name)=="string")
 			assert(type(region.spawn)=="function")
-			addGMMessage(region.name .. " created")
+			if region.name ~= "Icarus (F5)" then
+				addGMMessage(region.name .. " created")
+			end
 			table.insert(self.active_regions,{name=region.name,region=region.spawn()})
 		end,
 		-- has the following region been spawned already
@@ -1215,7 +1223,16 @@ function spawnGMFleet()
 		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
 		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
 	end
-	addGMFunction(string.format("+%s",fleetComposition),function()
+	local exclusion_string = ""
+	for name, details in pairs(fleet_exclusions) do
+		if details.exclude then
+			if exclusion_string == "" then
+				exclusion_string = "-"
+			end
+			exclusion_string = exclusion_string .. details.letter
+		end
+	end
+	addGMFunction(string.format("+%s%s",fleetComposition,exclusion_string),function()
 		setFleetComposition(spawnGMFleet)
 	end)
 	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
@@ -6942,25 +6959,88 @@ function fixFleetStrength(caller)
 	end	
 	fleetStrengthFixed = true
 end
-------------------------------------------------
---	Spawn Fleet > Random (Fleet Composition)  --
-------------------------------------------------
+----------------------------
+--	Spawn Fleet > Random  --
+----------------------------
 -- Button Text		   FD*	Related Function(s)
--- -FROM COMPOSITION	F	spawnGMFleet
--- RANDOM*				*	inline		asterisk = current selection
--- FIGHTERS				*	inline
--- CHASERS				*	inline
--- FRIGATES				*	inline
--- BEAMERS				*	inline
--- MISSILERS			*	inline
--- ADDERS				*	inline
--- NON-DB				*	inline
--- DRONES				*	inline
+-- -FROM COMPOSITION	F	inline
+-- +GROUP RANDOM		D	SetFleetGroupComposition
+-- +EXCLUDE				D	SetFleetExclusions
 function setFleetComposition(caller)
 	clearGMFunctions()
 	addGMFunction("-From composition",function()
 		string.format("")	--necessary to have global reference for Serious Proton engine
 		caller()
+	end)
+	addGMFunction(string.format("+Group %s",fleetComposition),function()
+		setFleetGroupComposition(caller)
+	end)
+	local exclusion_string = ""
+	for name, details in pairs(fleet_exclusions) do
+		if details.exclude then
+			if exclusion_string == "" then
+				exclusion_string = "-"
+			end
+			exclusion_string = exclusion_string .. details.letter
+		end
+	end
+	addGMFunction(string.format("+Exclude%s",exclusion_string),function()
+		setFleetExclusions(caller)
+	end)
+end
+--------------------------------------
+--	Spawn Fleet > Random > Exclude  --
+--------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM COMPOSITION	F	inline
+-- -FROM EXCLUSIONS		F	setFleetComposition
+-- -WARP				*	asterisk = included in exclusions, list order varies, items not mutually exclusive
+-- -JUMP				*
+-- -NUKE				*
+function setFleetExclusions(caller)
+	clearGMFunctions()
+	addGMFunction("-From composition",function()
+		string.format("")	--necessary to have global reference for Serious Proton engine
+		caller()
+	end)
+	addGMFunction("-From Exclusions",function()
+		string.format("")	--necessary to have global reference for Serious Proton engine
+		setFleetComposition(caller)
+	end)
+	for name, details in pairs(fleet_exclusions) do
+		local button_label = name
+		if details.exclude then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			if details.exclude then
+				details.exclude = false
+			else
+				details.exclude = true
+			end
+			setFleetExclusions(caller)
+		end)
+	end
+end
+-------------------------------------------
+--	Spawn Fleet > Random > Group Random  --
+-------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM COMPOSITION GROUP	F	spawnGMFleet
+-- RANDOM*					*	inline		asterisk = current selection
+-- FIGHTERS					*	inline
+-- CHASERS					*	inline
+-- FRIGATES					*	inline
+-- BEAMERS					*	inline
+-- MISSILERS				*	inline
+-- ADDERS					*	inline
+-- NON-DB					*	inline
+-- DRONES					*	inline
+function setFleetGroupComposition(caller)
+	clearGMFunctions()
+	addGMFunction("-From composition group",function()
+		string.format("")	--necessary to have global reference for Serious Proton engine
+		setFleetComposition(caller)
 	end)
 	local GMSetFleetCompositionRandom = "Random"
 	if fleetComposition == "Random" then
@@ -7033,7 +7113,7 @@ function setFleetComposition(caller)
 	addGMFunction(GMSetFleetCompositionDrone,function()
 		fleetComposition = "Drones"
 		caller()
-	end)		
+	end)
 end
 ------------------------------------------------------------------
 --	Spawn Fleet > Unmodified (Random Tweaking or Fleet Change)  --
@@ -7734,6 +7814,53 @@ function parmSpawnFleet()
 	end
 	table.insert(fleetList,fleet)
 end
+function excludeCheck(shipTemplateType,shipName,shipDatabase,fleetSpawnFaction)
+	local ship = nil
+	if shipDatabase then
+		ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate(shipName)
+	else
+		local nsfl_index = 0
+		for i=1,#nsfl do
+			if stnl[i] == shipName then
+				nsfl_index = i
+				break
+			end
+		end
+		if nsfl_index > 0 then
+			ship = nsfl[nsfl_index](fleetSpawnFaction)
+			if ship == nil then
+				print(string.format("function exclude check you forgot to return the ship spawned in your ship creation function for %s",shipName))
+			end
+		else
+			print(string.format("function exclude check nsfl index is zero. You forgot to add %s to the ship template name list (stnl)",shipName))
+		end
+	end
+	local exclude = false
+	for name, details in pairs(fleet_exclusions) do
+		if details.exclude then
+			if name == "Nuke" then
+				if ship:getWeaponStorageMax("Nuke") > 0 then
+					exclude = true
+					break
+				end
+			end
+			if name == "Warp" then
+				if ship:hasWarpDrive() then
+					exclude = true
+					break
+				end
+			end
+			if name == "Jump" then
+				if ship:hasJumpDrive() then
+					exclude = true
+					break
+				end
+			end
+		end
+	end
+	ship:destroy()
+	return exclude
+end
 function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_angle)
 --x and y are central spawn coordinates
 --fleetIndex is the number of the fleet to be spawned
@@ -7758,12 +7885,32 @@ function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_a
 	local sp = irandom(500,1000)			--random spacing of spawned group
 	local deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
 	local enemyList = {}
+	local exclude_ships = false
+	for name, details in pairs(fleet_exclusions) do
+		if details.exclude then
+			exclude_ships = true
+			break
+		end
+	end
 	while enemyStrength > 0 do
 		local shipTemplateType = math.random(1,#sl)
 		local loopLimit = 100
 		local loopCount = 0
 		local shipScore = sl[shipTemplateType]
-		while sl[shipTemplateType] > enemyStrength * 1.1 + 5 and loopCount < loopLimit do
+		if exclude_ships then
+			repeat
+				shipTemplateType = math.random(1,#sl)
+				loopCount = loopCount + 1
+			until( (sl[shipTemplateType] <= enemyStrength * 1.1 + 5 and 
+					not excludeCheck(shipTemplateType,nl[shipTemplateType],bl[shipTemplateType],fleetSpawnFaction)
+				   ) or loopCount > loopLimit)
+		else
+			while sl[shipTemplateType] > enemyStrength * 1.1 + 5 and loopCount < loopLimit do
+				shipTemplateType = math.random(1,#sl)
+				loopCount = loopCount + 1
+			end
+		end
+		while 	sl[shipTemplateType] > enemyStrength * 1.1 + 5 and loopCount < loopLimit do
 			shipTemplateType = math.random(1,#sl)
 			loopCount = loopCount + 1
 		end
@@ -11349,7 +11496,16 @@ function stationDefensiveFleet()
 		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setDefensiveFleetStrength)
 		addGMFunction("+Set Fixed Strength",setDefensiveFleetFixedStrength)
 	end
-	addGMFunction(string.format("+%s",fleetComposition),function()
+	local exclusion_string = ""
+	for name, details in pairs(fleet_exclusions) do
+		if details.exclude then
+			if exclusion_string == "" then
+				exclusion_string = "-"
+			end
+			exclusion_string = exclusion_string .. details.letter
+		end
+	end
+	addGMFunction(string.format("+%s%s",fleetComposition,exclusion_string),function()
 		setFleetComposition(stationDefensiveFleet)
 	end)
 	addGMFunction("Spawn Def Fleet",spawnDefensiveFleet)
