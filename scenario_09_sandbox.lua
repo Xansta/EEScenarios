@@ -1096,7 +1096,40 @@ function updateSystem()
 			assert(#testObj.update_list==2)
 			self:addUpdate(testObj,"test2",{})
 			assert(#testObj.update_list==2)
+
+			-- reset for next test
+			self:_clear_update_list()
+			assert(#self._update_objects==0)
 			---------------------------------------------------------------------------------------------------------------
+			-- addPeriodicCallback
+			---------------------------------------------------------------------------------------------------------------
+			-- phony spaceObject, probably needs to move to a testing library some day
+			local testObj={
+				isValid=function()
+					return true
+				end
+			}
+			local captured=0
+			local captured_fun = function ()
+				captured = captured + 1
+			end
+			self:addPeriodicCallback(testObj,captured_fun,1)
+			assert(captured==0)
+			-- insufficient to run the callback
+			self:update(0.9)
+			assert(captured==0)
+			-- check that the callback being called once results in the callback running once
+			self:update(1)
+			assert(captured==1)
+			-- TODO check for calling running twice
+			self:update(2)
+			assert(captured==3)
+			-- TODO check with different periodic values
+			--assert(captured==0)
+
+			-- reset for next test
+			self:_clear_update_list()
+			assert(#self._update_objects==0)
 		end
 	}
 end
