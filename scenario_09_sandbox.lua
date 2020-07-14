@@ -1036,7 +1036,7 @@ function updateSystem()
 			assert(type(period)=="number")
 			assert(type(nameTable)=="table")
 			assert(#nameTable~=0)
-			assert(offset==nil or type(accumulated_time)=="number")
+			assert(accumulated_time==nil or type(accumulated_time)=="number")
 			obj.nameNum=0
 			local callback = function(obj)
 				obj.nameNum = (obj.nameNum + 1) % #nameTable
