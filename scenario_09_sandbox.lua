@@ -414,6 +414,169 @@ function setConstants()
 	stslDrone = {2     ,4             ,5            ,3           ,4}
 	stblDrone = {false ,false         ,false        ,false       ,true}
 
+	ship_template = {	--ordered by relative strength
+		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	create = gnat},
+		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	create = droneLite},
+		["Jacket Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	create = droneJacket},
+		["Ktlitan Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	create = stockTemplate},
+		["Heavy Drone"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	create = droneHeavy},
+		["Adder MK3"] =			{strength = 5,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = adderMk3},
+		["MT52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = stockTemplate},
+		["MU52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = stockTemplate},
+		["MV52 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = hornetMV52},
+		["Adder MK4"] =			{strength = 6,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Fighter"] =			{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = stockTemplate},
+		["Ktlitan Fighter"] =	{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = stockTemplate},
+		["K2 Fighter"] =		{strength = 7,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = k2fighter},
+		["Adder MK5"] =			{strength = 7,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["WX-Lindworm"] =		{strength = 7,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = stockTemplate},
+		["K3 Fighter"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = k3fighter},
+		["Adder MK6"] =			{strength = 8,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Ktlitan Scout"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["WZ-Lindworm"] =		{strength = 9,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	create = wzLindworm},
+		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = adderMk7},
+		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = adderMk8},
+		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = adderMk9},
+		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = nirvanaR3},
+		["Phobos R2"] =			{strength = 13,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = phobosR2},
+		["Missile Cruiser"] =	{strength = 14,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = waddle5},
+		["Jade 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = jade5},
+		["Phobos T3"] =			{strength = 15,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Piranha F8"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Piranha F12"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Piranha F12.M"] =		{strength = 16,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Phobos M3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Nirvana R5A"] =		{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Adv. Gunship"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Storm"] =				{strength = 22,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Stalker R5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = stalkerR5},
+		["Stalker Q5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = stalkerQ5},
+		["Ranus U"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Stalker Q7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+		["Stalker R7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+		["Adv. Striker"] =		{strength = 27,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+		["Elara P2"] =			{strength = 28,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = elaraP2},
+		["Tempest"] =			{strength = 30,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = tempest},
+		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = fiendG3},
+		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = fiendG4},
+		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = fiendG5},
+		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	create = fiendG6},
+		["Ktlitan Worker"] =	{strength = 40,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = predator},
+		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = atlantisY42},
+		["Blockade Runner"] =	{strength = 65,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Starhammer II"] =		{strength = 70,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+		["Enforcer"] =			{strength = 75,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	create = enforcer},
+		["Dreadnought"] =		{strength = 80,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	create = stockTemplate},
+		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = starhammerV},
+		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = tyr},
+		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	create = stockTemplate},
+	}
+	fleet_group = {
+		["adder"] = "Adders",
+		["Adders"] = "adder",
+		["missiler"] = "Missilers",
+		["Missilers"] = "missiler",
+		["beamer"] = "Beamers",
+		["Beamers"] = "beamer",
+		["frigate"] = "Frigates",
+		["Frigates"] = "frigate",
+		["chaser"] = "Chasers",
+		["Chasers"] = "chaser",
+		["fighter"] = "Fighters",
+		["Fighters"] = "fighter",
+		["drone"] = "Drones",
+		["Drones"] = "drone",
+	}
+	pool_selectivity = "full"
+	template_pool_size = 5
+	formation_delta = {
+		["square"] = {
+			x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4},
+			y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2,3,-3,0, 0,3,-3,1, 1, 3,-3,-1,-1,3,-3,2, 2, 3,-3,-2,-2,3,-3, 3,-3,0,4, 0,-4,4,-4,-4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4,0, 0,5,-5,5,-5, 5,-5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5},
+		},
+		["hexagonal"] = {
+			x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0},
+			y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6},
+		},
+		["pyramid"] = {
+			[1] = {
+				{angle =  0, distance = 0},
+			},
+			[2] = {
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+			},
+			[3] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},				
+			},
+			[4] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle =  0, distance = 2},	
+			},
+			[5] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+			},
+			[6] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+			},
+			[7] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[8] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[9] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -4, distance = 4},
+				{angle =  4, distance = 4},
+			},
+		},
+	}
+	max_pyramid_tier = 9
 	-- square grid deployment	
 	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4}
 	fleetPosDelta1y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2,3,-3,0, 0,3,-3,1, 1, 3,-3,-1,-1,3,-3,2, 2, 3,-3,-2,-2,3,-3, 3,-3,0,4, 0,-4,4,-4,-4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4,0, 0,5,-5,5,-5, 5,-5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5}
@@ -2142,110 +2305,6 @@ function endSession()
 	addGMFunction("+Region Report",regionReport)
 	addGMFunction("+Faction Victory",endMission)
 end
--------------
---  debug  --
--------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM END		F	initialGMFunctions
--- -CUSTOM				F	customButtons
--- OBJECT COUNTS		F	inline
--- ALWAYS POPUP DEBUG	F	inline
--- ONCE POPUP DEBUG		F	inline
--- NEVER POPUP DEBUG	F	inline
-function debugButtons()
-	clearGMFunctions()
-	addGMFunction("-Main From Debug",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction("Object Counts",function()
-		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
-	end)
-	addGMFunction("always popup debug",function()
-		popupGMDebug = "always"
-	end)
-	addGMFunction("once popup debug",function()
-		popupGMDebug = "once"
-	end)
-	addGMFunction("never popup debug",function()
-		popupGMDebug = "never"
-	end)
-end
---------------
--- snippets --
---------------
---Due to the intent of this being high churn I am skipping the customary list of buttons
-
--- these are fragments of code which may be of use as is
--- they currently don't live in a menu that they should eventually
--- and they may lack being generic enough to be part of the sandbox proper
--- note to people adding to them
--- please put a reason as to at least one of
--- 1) why they exist
--- 2) why they aren't in a menu
--- 3) why they aren't generic enough to be in a menu
-function snippetButtons()
-	clearGMFunctions()
-	addGMFunction("-Main From snippet",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	-- starry suggested replacement for scan points menu
-	-- currently the stock EE build lacks onGMClick and tweak menu additions
-	addGMFunction("Expire Selected", function ()
-		for k,v in pairs(getGMSelection()) do
-			universe.update_system:addTimeToLiveUpdate(v)
-		end
-	end)
-	-- spawn the research base used on 2020-06-06
-	-- the location is fixed, the design is fixed
-	-- with both of those being fixed it is hard to make it generic
-	-- and we aren't (probably) going back there making it not applicable for the sandbox
-	-- but the code is somehting that could be edited into generic code for circular base designs in time
-	addGMFunction("base", function ()
-		local cx=27200
-		local cy=227000
-		local inner_ring_speed=90
-		local i_rad=8200
-		local i_1=21000
-		local i_2=math.sqrt(2)*i_1/2
-		mineRingShim{dist=30000	,x=cx		,y=cy		,gap=1,gap_size=10,speed=900,segments=6}--outer ring, easy to get in with 60 impluse boosted
-		mineRingShim{dist=9000	,x=cx		,y=cy		,gap=6,gap_size=20,speed=60 ,segments=8} -- inner ring, expected method of breaching is probes
-		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2} -- test traversing
-		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
-		createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
-		createObjectCircle{radius=i_1-i_rad,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
-		createObjectCircle{radius=27000,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
-		createObjectCircle{radius=2000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
-		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
-		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
-		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
-		leech("Kraylor"):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 6"):setPosition(cx+6000,cy+0)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 15"):setPosition(cx-6000,cy+0)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 35"):setPosition(cx+0,cy+6000)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 27"):setPosition(cx+0,cy-6000)
-		Artifact():setPosition(cx+0,cy+0):setDescription("Contains long range jumpNav calculation"):setCallSign("computer core")
-	end)
-	-- continuation of the above, whatever happens to base should happen to this
-	-- debatably they should be merged into one function as they are both for reference
-	addGMFunction("Jammer Ring",function ()
-		local cx=27200
-		local cy=227000
-		local i_1=21500
-		local i_2=math.sqrt(2)*i_1/2
-		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_1,cy+0)
-		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_1,cy+0)
-		WarpJammer():setFaction("Kraylor"):setPosition(cx+0,cy+i_1)
-		WarpJammer():setFaction("Kraylor"):setPosition(cx+0,cy-i_1)
-		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_2,cy+i_2)
-		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_2,cy-i_2)
-		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy+i_2)
-		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
-	end)
-end
 --------------
 --	Custom  --
 --------------
@@ -2259,6 +2318,13 @@ function customButtons()
 	addGMFunction("+Debug",debugButtons)
 	addGMFunction("+Snippet",snippetButtons)
 end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****			Initial Set Up				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
 -------------------------------------
 --	Initial Set Up > Start Region  --
 -------------------------------------
@@ -6873,6 +6939,13 @@ function setStationSensorRange()
 		autoStationWarn()
 	end)
 end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****				Spawn Fleet				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
 ----------------------------
 --	Spawn Fleet > Exuari  --
 ----------------------------
@@ -7090,6 +7163,34 @@ function setFleetComposition(caller)
 	addGMFunction(string.format("+Exclude%s",exclusion_string),function()
 		setFleetExclusions(caller)
 	end)
+	addGMFunction(string.format("selectivity: %s",pool_selectivity),function()
+		if pool_selectivity == "full" then
+			pool_selectivity = "less/heavy"
+		elseif pool_selectivity == "less/heavy" then
+			pool_selectivity = "more/light"
+		elseif pool_selectivity == "more/light" then
+			pool_selectivity = "full"
+		end
+		setFleetComposition(caller)
+	end)
+	if pool_selectivity ~= "full" then
+		addGMFunction(string.format("Increase Pool: %i",template_pool_size),function()
+			if template_pool_size < 20 then
+				template_pool_size = template_pool_size + 1
+			else
+				addGMMessage("Reached maximum ship template selection pool size of 20")
+			end
+			setFleetComposition(caller)
+		end)
+		addGMFunction(string.format("Decrease Pool: %i",template_pool_size),function()
+			if template_pool_size > 1 then
+				template_pool_size = template_pool_size - 1
+			else
+				addGMMessage("Reached minimum ship template selection pool size of 1")
+			end
+			setFleetComposition(caller)
+		end)
+	end
 end
 --------------------------------------
 --	Spawn Fleet > Random > Exclude  --
@@ -7911,52 +8012,32 @@ function parmSpawnFleet()
 	end
 	local fleet = nil
 	if fleetSpawnLocation == "Ambush" then
-		fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, sl, nl, bl, fleetAmbushDistance, spawnAngle)
+		fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, "ambush", fleetAmbushDistance, spawnAngle)
 	else
-		fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, sl, nl, bl)
+		fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1)
 	end
 	table.insert(fleetList,fleet)
 end
-function excludeCheck(shipTemplateType,shipName,shipDatabase,fleetSpawnFaction)
+function excludeShip(current_ship_template)
 	local ship = nil
-	if shipDatabase then
-		ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate(shipName)
-	else
-		local nsfl_index = 0
-		for i=1,#nsfl do
-			if stnl[i] == shipName then
-				nsfl_index = i
-				break
-			end
-		end
-		if nsfl_index > 0 then
-			ship = nsfl[nsfl_index](fleetSpawnFaction)
-			if ship == nil then
-				print(string.format("function exclude check you forgot to return the ship spawned in your ship creation function for %s",shipName))
-			end
-		else
-			print(string.format("function exclude check nsfl index is zero. You forgot to add %s to the ship template name list (stnl)",shipName))
-		end
-	end
+	ship = ship_template[current_ship_template].create("Human Navy",current_ship_template)
+	ship:orderIdle()
 	local exclude = false
 	for name, details in pairs(fleet_exclusions) do
 		if details.exclude then
 			if name == "Nuke" then
 				if ship:getWeaponStorageMax("Nuke") > 0 then
 					exclude = true
-					break
 				end
 			end
 			if name == "Warp" then
 				if ship:hasWarpDrive() then
 					exclude = true
-					break
 				end
 			end
 			if name == "Jump" then
 				if ship:hasJumpDrive() then
 					exclude = true
-					break
 				end
 			end
 		end
@@ -7964,30 +8045,21 @@ function excludeCheck(shipTemplateType,shipName,shipDatabase,fleetSpawnFaction)
 	ship:destroy()
 	return exclude
 end
-function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_angle)
---x and y are central spawn coordinates
---fleetIndex is the number of the fleet to be spawned
---sl is the score list, nl is the name list, bl is the boolean list
---ambush_distance optional - used for ambush
---spawn_angle optional - used for ambush
-	local weakestEnemy = 500
-	for i=1,#sl do
-		local weakCandidate = sl[i]
-		if weakCandidate < weakestEnemy then
-			weakestEnemy = weakCandidate
+function getTemplatePool(max_strength)
+	local function getStrengthSort(tbl, sortFunction)
+		local keys = {}
+		for key in pairs(tbl) do
+			table.insert(keys,key)
 		end
+		table.sort(keys, function(a,b)
+			return sortFunction(tbl[a], tbl[b])
+		end)
+		return keys
 	end
-	if weakestEnemy > playerPower()*fleetStrengthByPlayerStrength then
-		return
-	end
-	local enemyStrength = math.max(fleetStrengthByPlayerStrength * playerPower(),5)
-	if fleetStrengthFixed then
-		enemyStrength = fleetStrengthFixedValue
-	end
-	local enemyPosition = 0
-	local sp = irandom(500,1000)			--random spacing of spawned group
-	local deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
-	local enemyList = {}
+	local ship_template_by_strength = getStrengthSort(ship_template, function(a,b)
+		return a.strength > b.strength
+	end)
+	local template_pool = {}
 	local exclude_ships = false
 	for name, details in pairs(fleet_exclusions) do
 		if details.exclude then
@@ -7995,51 +8067,118 @@ function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_a
 			break
 		end
 	end
+	if pool_selectivity == "less/heavy" then
+		for _, current_ship_template in ipairs(ship_template_by_strength) do
+			local include_ship = true
+			if exclude_ships then
+				if excludeShip(current_ship_template) then
+					include_ship = false
+				end
+			end
+			if include_ship then
+				if ship_template[current_ship_template].strength <= max_strength then
+					if fleetComposition == "Non-DB" then
+						if ship_template[current_ship_template].create ~= stockTemplate then
+							table.insert(template_pool,current_ship_template)
+						end
+					elseif fleetComposition == "Random" then
+						table.insert(template_pool,current_ship_template)
+					else
+						if ship_template[current_ship_template].fleet_group[fleetComposition] then
+							table.insert(template_pool,current_ship_template)							
+						end
+					end
+				end
+			end
+			if #template_pool >= template_pool_size then
+				break
+			end
+		end
+	elseif pool_selectivity == "more/light" then
+		for i=#ship_template_by_strength,1,-1 do
+			local current_ship_template = ship_template[i]
+			local include_ship = true
+			if exclude_ships then
+				if excludeShip(current_ship_template) then
+					include_ship = false
+				end
+			end
+			if include_ship then
+				if ship_template[current_ship_template].strength <= max_strength then
+					if fleetComposition == "Non-DB" then
+						if ship_template[current_ship_template].create ~= stockTemplate then
+							table.insert(template_pool,current_ship_template)
+						end
+					elseif fleetComposition == "Random" then
+						table.insert(template_pool,current_ship_template)
+					else
+						if ship_template[current_ship_template].fleet_group[fleetComposition] then
+							table.insert(template_pool,current_ship_template)							
+						end
+					end
+				end
+			end
+			if #template_pool >= template_pool_size then
+				break
+			end
+		end
+	else	--full
+		for current_ship_template, details in pairs(ship_template) do
+			local include_ship = true
+			if exclude_ships then
+				if excludeShip(current_ship_template) then
+					include_ship = false
+				end
+			end
+			if include_ship then
+				if details.strength <= max_strength then
+					if fleetComposition == "Non-DB" then
+						if ship_template[current_ship_template].create ~= stockTemplate then
+							table.insert(template_pool,current_ship_template)
+						end
+					elseif fleetComposition == "Random" then
+						table.insert(template_pool,current_ship_template)
+					else
+						if ship_template[current_ship_template][fleet_group[fleetComposition]] then
+							table.insert(template_pool,current_ship_template)							
+						end
+					end
+				end
+			end
+		end
+	end
+	return template_pool
+end
+--function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_angle)
+function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, px, py)
+--x and y are central spawn coordinates
+--fleetIndex is the number of the fleet to be spawned
+--sl (was) the score list, nl is the name list, bl is the boolean list
+--spawn_distance optional - used for ambush or pyramid
+--spawn_angle optional - used for ambush or pyramid
+--px and py are the player coordinates or the pyramid fly towards point coordinates
+	local enemyStrength = math.max(fleetStrengthByPlayerStrength * playerPower(),5)
+	if fleetStrengthFixed then
+		enemyStrength = fleetStrengthFixedValue
+	end
+	local enemyPosition = 0
+	local sp = irandom(500,1000)			--random spacing of spawned group
+	if shape == nil then
+		shape = "square"
+		if random(1,100) < 50 then
+			shape = "hexagonal"
+		end
+	end
+	local enemy_position = 0
+	local enemyList = {}
+	local template_pool = getTemplatePool(enemyStrength)
+	if #template_pool < 1 then
+		addGMMessage("Empty Template pool: fix excludes or other criteria")
+		return enemyList
+	end
 	while enemyStrength > 0 do
-		local shipTemplateType = math.random(1,#sl)
-		local loopLimit = 100
-		local loopCount = 0
-		local shipScore = sl[shipTemplateType]
-		if exclude_ships then
-			repeat
-				shipTemplateType = math.random(1,#sl)
-				loopCount = loopCount + 1
-			until( (sl[shipTemplateType] <= enemyStrength * 1.1 + 5 and 
-					not excludeCheck(shipTemplateType,nl[shipTemplateType],bl[shipTemplateType],fleetSpawnFaction)
-				   ) or loopCount > loopLimit)
-		else
-			while sl[shipTemplateType] > enemyStrength * 1.1 + 5 and loopCount < loopLimit do
-				shipTemplateType = math.random(1,#sl)
-				loopCount = loopCount + 1
-			end
-		end
-		while 	sl[shipTemplateType] > enemyStrength * 1.1 + 5 and loopCount < loopLimit do
-			shipTemplateType = math.random(1,#sl)
-			loopCount = loopCount + 1
-		end
-		local shipName = nl[shipTemplateType]
-		--print(string.format("ship name: %s, ship template type: %s",shipName,shipTemplateType))
-		local ship = nil
-		if bl[shipTemplateType] then
-			ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate(shipName)
-		else
-			local nsfl_index = 0
-			for i=1,#nsfl do
-				if stnl[i] == shipName then
-					nsfl_index = i
-					break
-				end
-			end
-			if nsfl_index > 0 then
-				ship = nsfl[nsfl_index](fleetSpawnFaction)
-				if ship == nil then
-					print(string.format("you forgot to return the ship spawned in your ship creation function for %s",shipName))
-				end
-			else
-				print(string.format("nsfl index is zero. You forgot to add %s to the ship template name list (stnl)",shipName))
-			end
-			--ship = nsfl[shipTemplateType](fleetSpawnFaction)
-		end
+		local selected_template = template_pool[math.random(1,#template_pool)]
+		local ship = ship_template[selected_template].create(fleetSpawnFaction,selected_template)
 		ship:setCommsScript(""):setCommsFunction(commsShip):orderRoaming()
 		if fleetOrders == "Roaming" then
 			ship:orderRoaming()
@@ -8048,11 +8187,11 @@ function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_a
 		elseif fleetOrders == "Stand Ground" then
 			ship:orderStandGround()
 		end
-		enemyPosition = enemyPosition + 1
-		if deployConfig < 50 then
-			ship:setPosition(x+fleetPosDelta1x[enemyPosition]*sp,y+fleetPosDelta1y[enemyPosition]*sp)
+		enemy_position = enemy_position + 1
+		if shape == "none" or shape == "pyramid" or shape == "ambush" then
+			ship:setPosition(x,y)
 		else
-			ship:setPosition(x+fleetPosDelta2x[enemyPosition]*sp,y+fleetPosDelta2y[enemyPosition]*sp)
+			ship:setPosition(x + formation_delta[shape].x[enemy_position] * sp, y + formation_delta[shape].y[enemy_position] * sp)
 		end
 		ship.fleetIndex = fleetIndex
 		if fleetChange ~= "unmodified" then
@@ -8184,15 +8323,48 @@ function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_a
 			end
 		end
 		table.insert(enemyList, ship)
-		enemyStrength = enemyStrength - sl[shipTemplateType]
+		enemyStrength = enemyStrength - ship_template[selected_template].strength
 	end
-	if ambush_distance ~= nil then
+	if shape == "pyramid" then
+		if spawn_distance == nil then
+			spawn_distance = 30
+		end
+		if spawn_angle == nil then
+			spawn_angle = random(0,360)
+		end
+		if px == nil then
+			px = 0
+		end
+		if py == nil then
+			py = 0
+		end
+		local pyramid_tier = math.min(#enemyList,max_pyramid_tier)
+		for index, ship in ipairs(enemyList) do
+			if index <= max_pyramid_tier then
+				local pyramid_angle = spawn_angle + formation_delta.pyramid[pyramid_tier][index].angle
+				if pyramid_angle < 0 then 
+					pyramid_angle = pyramid_angle + 360
+				end
+				pyramid_angle = pyramid_angle % 360
+				rx, ry = vectorFromAngle(pyramid_angle,radius + formation_delta.pyramid[pyramid_tier][index].distance * 800)
+				ship:setPosition(px+rx,py+ry)
+			else
+				ship:setPosition(px+vx,py+vy)
+			end
+			ship:setHeading((spawn_angle + 270) % 360)
+			ship:orderFlyTowards(px,py)
+		end
+	end
+	if shape == "ambush" then
+		if spawn_distance ~= nil then
+			spawn_distance = 5
+		end
 		if spawn_angle == nil then
 			spawn_angle = random(0,360)
 		end
 		local circle_increment = 360/#enemyList
 		for _, enemy in ipairs(enemyList) do
-			local dex, dey = vectorFromAngle(spawn_angle,ambush_distance*1000)
+			local dex, dey = vectorFromAngle(spawn_angle,spawn_distance*1000)
 			enemy:setPosition(x+dex,y+dey)
 			spawn_angle = spawn_angle + circle_increment
 		end
@@ -8220,6 +8392,10 @@ function modifiedValue()
 		end
 	end
 	return modValue
+end
+function stockTemplate(enemyFaction,template)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming()
+	return ship
 end
 --------------------------------------------------------------------------------------------
 --	Additional enemy ships with some modifications from the original template parameters  --
@@ -8580,6 +8756,13 @@ function leech(enemyFaction)
 	ship:setShields(300,100)									--shield strength variance
 	return ship
 end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****				Order Fleet				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
 ------------------------------------------------------------------
 --	Order Fleet > Select Fleet (Select Fleet To Give Order To)  --
 ------------------------------------------------------------------
@@ -9528,6 +9711,13 @@ function orderFleetDock8()
 		end
 	end
 end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****				Drop Point				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
 -------------------------------
 --	Drop Point > Escape Pod  --
 -------------------------------
@@ -11105,6 +11295,13 @@ function supplyPickupProcess(self, player)
 		player:setMaxCoolant(player:getMaxCoolant() + self.coolant)
 	end
 end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****				Scan Clue				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
 -----------------------------------------
 --  Scan Clue > Unscanned Description  --
 -----------------------------------------
@@ -11391,6 +11588,13 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 		universe.update_system:addTimeToLiveUpdate(scanCluePoint)
 	end
 end
+--	*												   *  --
+--	**												  **  --
+--	****************************************************  --
+--	****				Tweak Terrain				****  --
+--	****************************************************  --
+--	**												  **  --
+--	*												   *  --
 ------------------------------------------
 --	Tweak Terrain > Station Operations  --
 ------------------------------------------
@@ -11673,7 +11877,7 @@ function spawnDefensiveFleet()
 	if station_type == nil then
 		station_type = "Small Station"
 	end
-	fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, sl, nl, bl, fleet_distance[station_type])
+	fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, "ambush", fleet_distance[station_type])
 	local total_speed = 0
 	local average_speed = 0
 	if station_defensive_fleet_speed_average then
@@ -12408,7 +12612,13 @@ function setOuterOuterMineOrbit()
 		setOuterOuterMineOrbit()
 	end)
 end
-
+--	*												   *  --
+--	**												  **  --
+--	****************************************************  --
+--	****				Countdown Timer				****  --
+--	****************************************************  --
+--	**												  **  --
+--	*												   *  --
 ---------------------------------
 --	Countdown Timer > Display  --
 ---------------------------------
@@ -12724,6 +12934,13 @@ function changeTimerSpeed()
 		changeTimerSpeed()
 	end)
 end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****				End Session				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
 -----------------------------------
 --	End Session > Region Report  --
 -----------------------------------
@@ -12825,6 +13042,118 @@ function endMission()
 		victory("CUF")
 	end)
 end
+--	*										   *  --
+--	**										  **  --
+--	********************************************  --
+--	****				Custom				****  --
+--	********************************************  --
+--	**										  **  --
+--	*										   *  --
+----------------------
+--  Custom > Debug  --
+----------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM END		F	initialGMFunctions
+-- -CUSTOM				F	customButtons
+-- OBJECT COUNTS		F	inline
+-- ALWAYS POPUP DEBUG	F	inline
+-- ONCE POPUP DEBUG		F	inline
+-- NEVER POPUP DEBUG	F	inline
+function debugButtons()
+	clearGMFunctions()
+	addGMFunction("-Main From Debug",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("Object Counts",function()
+		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
+	end)
+	addGMFunction("always popup debug",function()
+		popupGMDebug = "always"
+	end)
+	addGMFunction("once popup debug",function()
+		popupGMDebug = "once"
+	end)
+	addGMFunction("never popup debug",function()
+		popupGMDebug = "never"
+	end)
+end
+-------------------------
+--	Custom > Snippets  --
+-------------------------
+--Due to the intent of this being high churn I am skipping the customary list of buttons
+
+-- these are fragments of code which may be of use as is
+-- they currently don't live in a menu that they should eventually
+-- and they may lack being generic enough to be part of the sandbox proper
+-- note to people adding to them
+-- please put a reason as to at least one of
+-- 1) why they exist
+-- 2) why they aren't in a menu
+-- 3) why they aren't generic enough to be in a menu
+function snippetButtons()
+	clearGMFunctions()
+	addGMFunction("-Main From snippet",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	-- starry suggested replacement for scan points menu
+	-- currently the stock EE build lacks onGMClick and tweak menu additions
+	addGMFunction("Expire Selected", function ()
+		for k,v in pairs(getGMSelection()) do
+			universe.update_system:addTimeToLiveUpdate(v)
+		end
+	end)
+	-- spawn the research base used on 2020-06-06
+	-- the location is fixed, the design is fixed
+	-- with both of those being fixed it is hard to make it generic
+	-- and we aren't (probably) going back there making it not applicable for the sandbox
+	-- but the code is somehting that could be edited into generic code for circular base designs in time
+	addGMFunction("base", function ()
+		local cx=27200
+		local cy=227000
+		local inner_ring_speed=90
+		local i_rad=8200
+		local i_1=21000
+		local i_2=math.sqrt(2)*i_1/2
+		mineRingShim{dist=30000	,x=cx		,y=cy		,gap=1,gap_size=10,speed=900,segments=6}--outer ring, easy to get in with 60 impluse boosted
+		mineRingShim{dist=9000	,x=cx		,y=cy		,gap=6,gap_size=20,speed=60 ,segments=8} -- inner ring, expected method of breaching is probes
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2} -- test traversing
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=3,gap_size=20,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=3,gap_size=20,speed=-inner_ring_speed,segments=2}
+		createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Control Station") end}
+		createObjectCircle{radius=i_1-i_rad,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
+		createObjectCircle{radius=27000,	start_angle=(360/16)	,x=cx	,y=cy	,number=8,callback=function() return WarpJammer():setFaction("Kraylor") end}
+		createObjectCircle{radius=2000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction("Kraylor"):setRange(6000) end}
+		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
+		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
+		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
+		leech("Kraylor"):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 6"):setPosition(cx+6000,cy+0)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 15"):setPosition(cx-6000,cy+0)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 35"):setPosition(cx+0,cy+6000)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 27"):setPosition(cx+0,cy-6000)
+		Artifact():setPosition(cx+0,cy+0):setDescription("Contains long range jumpNav calculation"):setCallSign("computer core")
+	end)
+	-- continuation of the above, whatever happens to base should happen to this
+	-- debatably they should be merged into one function as they are both for reference
+	addGMFunction("Jammer Ring",function ()
+		local cx=27200
+		local cy=227000
+		local i_1=21500
+		local i_2=math.sqrt(2)*i_1/2
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_1,cy+0)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_1,cy+0)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+0,cy+i_1)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+0,cy-i_1)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_2,cy+i_2)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_2,cy-i_2)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy+i_2)
+		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
+	end)
+end
+
 --------------------------
 --	Ship communication  --
 --------------------------
