@@ -16438,7 +16438,9 @@ function updateInner(delta)
 				end
 			end
 			local vx, vy = p:getVelocity()
-			local player_velocity = math.abs(vx) + math.abs(vy)
+			local dx=math.abs(vx)
+			local dy=math.abs(vy)
+			local player_velocity = math.sqrt((dx*dx)+(dy*dy))
 			local cpx, cpy = p:getPosition()
 			local nearby_objects = p:getObjectsInRange(1000)
 			if p.tractor then
