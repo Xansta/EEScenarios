@@ -2366,14 +2366,14 @@ function playerShip()
 	if playerShipInfo == nil then
 		playerShipInfo={
 			{"Ambition"		,"active"	,createPlayerShipAmbition	,"Phobos T2(Ambition): Frigate, Cruiser   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
-			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordinance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
+			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
 			{"Barracuda"	,"active"	,createPlayerShipBarracuda	,"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
 			{"Cobra"		,"inactive"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:120   Shield:100,100   Size:200   Repair Crew:2   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:800   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.1\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
 			{"Darkstar"		,"inactive"	,createPlayerShipDarkstar	,"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Eagle"		,"inactive"	,createPlayerShipEagle		,"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
-			{"Falcon"		,"active"	,createPlayerShipFalcon		,"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ornance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors"},
+			{"Falcon"		,"active"	,createPlayerShipFalcon		,"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors"},
 			{"Gabble"		,"inactive"	,createPlayerShipGabble		,"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:4   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
@@ -2384,7 +2384,7 @@ function playerShip()
 			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,"Butler (Jeeves), Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Knick"		,"active"	,createPlayerShipKnick		},
 			{"Magnum"		,"inactive"	,createPlayerShipMagnum		},
-			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ornance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
+			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
 			{"Nimbus"		,"inactive"	,createPlayerShipNimbus		,"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
 			{"Osprey"		,"inactive"	,createPlayerShipOsprey		},
@@ -2854,7 +2854,8 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	warp = 	{quantity = math.random(2,4),	cost = math.random(80,120)}	},
+        goods = {	warp =		{quantity = math.random(2,4),	cost = math.random(80,120)},
+        			cobalt =	{quantity = math.random(2,4),	cost = math.random(30,70)},	},
         trade = {	food = false, medicine = false, luxury = tradeLuxury },
         public_relations = true,
         general_information = "This is where all the wealthy species shop and stay when traveling",
@@ -13138,39 +13139,6 @@ end
 -- 1) why they exist
 -- 2) why they aren't in a menu
 -- 3) why they aren't generic enough to be in a menu
-function callsignCycle()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction("-Snippets",snippetButtons)
-	local params = {
-		{"setup",450,200,1,2,0},
-		{"drone",75,60,1,2,200},
-		{"fighter",50,60,1,2,100},
-		{"beam",100,150,1,2,400},
-		{"missile",100,150,1,2,600},
-		{"chaser",50,30,1,2,500},
-		{"adder",75,60,1,2,350}
-	}
-	for param_index=1,#params do
-		local param = params[param_index]
-		addGMFunction(param[1],function()
-			local objectList = getGMSelection()
-			if #objectList == 0 then
-				addGMMessage("Need to select a target(s) for this to apply to")
-				return
-			end
-			for index = 1,#objectList do
-				local callbackFunction = function(self,obj)
-					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
-					local str=string.format("%.2f",num)
-					self:setCallSign(str)
-				end
-				universe.update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
-			end
-		end)
-	end
-end
 function snippetButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From snippet",initialGMFunctions)
@@ -13239,6 +13207,39 @@ function snippetButtons()
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy+i_2)
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
 	end)
+end
+function callsignCycle()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-Snippets",snippetButtons)
+	local params = {
+		{"setup",450,200,1,2,0},
+		{"drone",75,60,1,2,200},
+		{"fighter",50,60,1,2,100},
+		{"beam",100,150,1,2,400},
+		{"missile",100,150,1,2,600},
+		{"chaser",50,30,1,2,500},
+		{"adder",75,60,1,2,350}
+	}
+	for param_index=1,#params do
+		local param = params[param_index]
+		addGMFunction(param[1],function()
+			local objectList = getGMSelection()
+			if #objectList == 0 then
+				addGMMessage("Need to select a target(s) for this to apply to")
+				return
+			end
+			for index = 1,#objectList do
+				local callbackFunction = function(self,obj)
+					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
+					local str=string.format("%.2f",num)
+					self:setCallSign(str)
+				end
+				universe.update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
+			end
+		end)
+	end
 end
 
 --------------------------
