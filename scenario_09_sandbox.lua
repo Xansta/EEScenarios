@@ -313,6 +313,7 @@ function createFleurNebula()
 end
 function setConstants()
 	universe=universe()
+	update_system=updateSystem()
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
@@ -1320,15 +1321,6 @@ function universe()
 		-- destroy(self) this destroys the sector
 		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
 		active_regions = {},
-		-- run update for all registered regions
-		update = function (self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-			self.update_system:update(delta)
-			for i = 1,#self.active_regions do
-				self.active_regions[i].region:update(delta)
-			end
-		end,
 		-- spawn a region already registered in the available_regions
 		-- it is expected to be called like
 		-- universe:spawnRegion(universe.available_regions[spawnIndex])
@@ -2589,10 +2581,6 @@ end
 function icarusSector()
 	createIcarusColor()
 	return {
-		update = function(self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-		end,
 		destroy = function(self)
 			assert(type(self)=="table")
 			removeIcarusColor()
@@ -4060,10 +4048,6 @@ end
 function kentarSector()
 	createKentarColor()
 	return {
-		update = function(self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-		end,
 		destroy = function(self)
 			assert(type(self)=="table")
 			removeKentarColor()
@@ -4187,7 +4171,7 @@ function createKentarStations()
 	if random(1,100) <= 15 then stationKeyhole23:setSharesEnergyWithDocked(false) end
 	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
-	universe.update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
+	update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Kolar
     stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4306,7 +4290,7 @@ function createKentarStations()
         general_information = "We research the relationship between Rigil, Ergot and the cosmos",
     	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
 	}
-	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
+	update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
 	if random(1,100) <= 23 then stationPastern:setRestocksScanProbes(false) end
 	if random(1,100) <= 18 then stationPastern:setRepairDocked(false) end
 	if random(1,100) <= 15 then stationPastern:setSharesEnergyWithDocked(false) end
@@ -4741,13 +4725,7 @@ function erisSector(x,y)
 	assert(type(x)=="number")
 	assert(type(y)=="number")
 	local eris = {
-		update_system = updateSystem(),
 		all_local_objects = {}, -- this may want to become another system maybe?
-		update = function(self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-			self.update_system:update(delta)
-		end,
 		destroy = function(self)
 			assert(type(self)=="table")
 			for i=1,#self.all_local_objects do
@@ -11635,7 +11613,7 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 		scanCluePoint:allowPickup(false)
 	end
 	if scan_clue_expire then
-		universe.update_system:addTimeToLiveUpdate(scanCluePoint)
+		update_system:addTimeToLiveUpdate(scanCluePoint)
 	end
 end
 --	*												   *  --
@@ -11989,7 +11967,7 @@ function stationDefensiveInnerRing()
 			local ax, ay = vectorFromAngle(angle,platform_distance)
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
 			if inner_defense_platform_orbit ~= "No" then
-				universe.update_system:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
+				update_system:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
 			angle = angle + increment
 			if angle > 360 then
@@ -12004,7 +11982,7 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 	local mx, my = vectorFromAngle(travel_angle,distance)
 	obj:setPosition(origin_x+mx,origin_y+my)
 	if  orbit_speed ~= nil then
-		universe.update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
+		update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
 	end
 end
 ----------------------------------------------------
@@ -13152,7 +13130,7 @@ function snippetButtons()
 	-- currently the stock EE build lacks onGMClick and tweak menu additions
 	addGMFunction("Expire Selected", function ()
 		for k,v in pairs(getGMSelection()) do
-			universe.update_system:addTimeToLiveUpdate(v)
+			update_system:addTimeToLiveUpdate(v)
 		end
 	end)
 	-- spawn the research base used on 2020-06-06
@@ -13236,7 +13214,7 @@ function callsignCycle()
 					local str=string.format("%.2f",num)
 					self:setCallSign(str)
 				end
-				universe.update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
+				update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
 			end
 		end)
 	end
@@ -15897,7 +15875,7 @@ function updateInner(delta)
 		end
 	end
 	if updateDiagnostic then print("update: universe update") end
-	universe:update(delta)
+	update_system:update(delta)
 	for pidx=1,8 do
 		if updateDiagnostic then print("update: pidx: " .. pidx) end
 		local p = getPlayerShip(pidx)
