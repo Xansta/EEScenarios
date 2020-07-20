@@ -1102,6 +1102,17 @@ function updateSystem()
 				end
 			end
 		end,
+		getUpdateNamed = function(self,obj,name)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(name)=="string")
+			if obj.update_list ~= nil then
+				for index = 1,#obj.update_list do
+					return obj.update_list[index]
+				end
+			end
+			return nil
+		end,
 		-- there is only one update function of each update_type
 		-- it is intended that the update_types are picked such that incompatible types aren't merged
 		-- the obvious example is multiple functions setting a object x & y location
@@ -1134,8 +1145,33 @@ function updateSystem()
 			end
 			local ret={}
 			for index = 1,#obj.update_list do
-				assert(type(obj.update_list[index].name)=="string")
-				table.insert(ret,{name=obj.update_list[index].name})
+				local update_name=obj.update_list[index].name
+				assert(type(update_name)=="string")
+				local edit={}
+				for index2 = 1,#obj.update_list[index].edit do
+					local name=obj.update_list[index].edit[index2].name
+					local fixedAdjAmount=obj.update_list[index].edit[index2].fixedAdjAmount
+					assert(type(name)=="string")
+					table.insert(edit,{
+						getter = function ()
+							-- note the time that this is executed the number of updates and their order may of changed
+							-- as such we have to fetch them from scratch
+							-- this probably could use being tested better, ideally added into the testing code
+							local ret=self:getUpdateNamed(obj,update_name)[name]
+							assert(type(ret)=="number")
+							return ret
+						end,
+						setter = function (val)
+							self:getUpdateNamed(obj,update_name)[name]=val
+						end,
+						fixedAdjAmount=fixedAdjAmount,
+						name=name
+					})
+				end
+				table.insert(ret,{
+					name=update_name,
+					edit=edit
+				})
 			end
 			return ret
 		end,
@@ -1154,9 +1190,15 @@ function updateSystem()
 				center_y = center_y,
 				distance = distance,
 				orbit_time = orbit_time/(2*math.pi),
-				initial_angle = initial_angle,
+				initial_angle = initial_angle, -- this looks obsolete, test removal with proper testing
 				start_offset = (initial_angle/360)*orbit_time,
 				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
+				edit = {
+					-- center x and y should be added when it can be - it probably wants an onclick handler
+					{name = "distance" , fixedAdjAmount=1000},
+					{name = "orbit_time", fixedAdjAmount=1},
+					{name = "start_offset", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1181,9 +1223,15 @@ function updateSystem()
 				orbit_target = orbit_target,
 				distance = distance,
 				orbit_time = orbit_time/(2*math.pi),
-				initial_angle = initial_angle,
+				initial_angle = initial_angle, -- this looks obsolete, test removal with proper testing
 				start_offset = (initial_angle/360)*orbit_time,
 				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
+				edit = {
+					-- orbit target wants to be exposed when we have a object selection control
+					{name = "distance" , fixedAdjAmount=1000},
+					{name = "orbit_time", fixedAdjAmount=1},
+					{name = "start_offset", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1213,6 +1261,11 @@ function updateSystem()
 				callback = callback,
 				period = period,
 				accumulated_time = accumulated_time or 0,
+				edit = {
+					-- orbit target wants to be exposed when we have a object selection control
+					{name = "period" , fixedAdjAmount=1},
+					{name = "accumulated_time", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1254,6 +1307,9 @@ function updateSystem()
 			local update_data = {
 				name = "time to live",
 				timeToLive = timeToLive,
+				edit = {
+					{name = "timeToLive", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -2081,6 +2137,33 @@ function updateEditObjectValid()
 		return true
 	end
 end
+function numericEditControl(params)
+	-- we need to be able to call the function that we are defining within itself
+	-- there probably is a tidy way to do this, but I don't know it
+	-- thus we are going to create a table which we will look up itself within
+	local ret = {}
+	ret.fun = function()
+		assert(type(params)=="table")
+		assert(type(params.closers)=="function")
+		assert(type(params.getter)=="function")
+		assert(type(params.setter)=="function")
+		assert(type(params.name)=="string")
+		assert(type(params.fixedAdjAmount)=="number")
+		params.closers()
+		addGMFunction(string.format("%.2f - %.2f",params.getter(),params.fixedAdjAmount),
+			function ()
+				params.setter(params.getter()-params.fixedAdjAmount)
+				ret["fun"]()
+			end)
+		addGMFunction(string.format("%s = %.2f",params.name,params.getter()),nil)
+		addGMFunction(string.format("%.2f + %.2f",params.getter(),params.fixedAdjAmount),
+			function ()
+				params.setter(params.getter()+params.fixedAdjAmount)
+				ret["fun"]()
+			end)
+	end
+	return ret.fun
+end
 -----------------
 -- edit update --
 -----------------
@@ -2092,8 +2175,10 @@ end
 -- -EDIT				F	editSelected
 -- ---NAME EDIT---		D	none - UI element
 -- REMOVE				F	inline
-function editUpdate(name)
+-- followed by a list of dynamically created edit buttons
+function editUpdate(name,editElements)
 	assert(type(name)=="string")
+	assert(type(editElements)=="table")
 	return function()
 		if updateEditObjectValid() then
 			clearGMFunctions()
@@ -2108,6 +2193,19 @@ function editUpdate(name)
 					editSelected()
 				end
 			end)
+			for index=1,#editElements do
+				assert(type(editElements[index].name)=="string")
+				local edit=editElements[index]
+				edit.closers=function()
+					clearGMFunctions()
+					addGMFunction("-Main",initialGMFunctions)
+					addGMFunction("-Tweak",tweakTerrain)
+					addGMFunction("-update editor",updateEditor)
+					addGMFunction("-edit",editSelected)
+					addGMFunction("-"..name,editUpdate(name,editElements))
+				end
+				addGMFunction(editElements[index].name,numericEditControl(edit))
+			end
 		end
 	end
 end
@@ -2130,7 +2228,10 @@ function editSelected()
 		local updateTypes = update_system:getUpdateNamesOnObject(update_edit_object)
 		for index=1,#updateTypes do
 			local name="+"..updateTypes[index].name
-			addGMFunction(name,editUpdate(updateTypes[index].name))
+			local editElements=updateTypes[index].edit
+			assert(editElements ~= nil)
+			assert(type(editElements)=="table")
+			addGMFunction(name,editUpdate(updateTypes[index].name,editElements))
 		end
 	end
 end
