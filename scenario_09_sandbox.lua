@@ -1405,6 +1405,7 @@ end
 -- +SCAN CLUE			F	scanClue
 -- +TWEAK TERRAIN		F	tweakTerrain
 -- +COUNTDOWN TIMER		F	countdownTimer
+-- +CUSTOM				F	customButtons
 -- +END SESSION			F	endSession
 function initialGMFunctions()
 	clearGMFunctions()
@@ -1416,8 +1417,8 @@ function initialGMFunctions()
 	addGMFunction("+Scan Clue",scanClue)
 	addGMFunction("+Tweak Terrain",tweakTerrain)
 	addGMFunction("+Countdown Timer",countdownTimer)
-	addGMFunction("+End Session",endSession)
 	addGMFunction("+Custom",customButtons)
+	addGMFunction("+End Session",endSession)
 end
 ----------------------
 --  Initial set up  --
