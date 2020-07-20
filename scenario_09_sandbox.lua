@@ -1098,7 +1098,9 @@ function updateSystem()
 			if obj.update_list ~= nil then
 				for index = 1,#obj.update_list do
 					assert(type(obj.update_list[index].name)=="string")
-					table.remove(obj.update_list,index)
+					if obj.update_list[index].name==name then
+						table.remove(obj.update_list,index)
+					end
 				end
 			end
 		end,
