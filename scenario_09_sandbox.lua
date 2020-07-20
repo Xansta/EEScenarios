@@ -13137,10 +13137,48 @@ end
 -- 1) why they exist
 -- 2) why they aren't in a menu
 -- 3) why they aren't generic enough to be in a menu
+function callsignCycle()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-Snippets",snippetButtons)
+	local params = {
+		{"setup",450,200,1,2,0},
+		{"drone",75,60,1,2,200},
+		{"fighter",50,60,1,2,100},
+		{"beam",100,150,1,2,400},
+		{"missile",100,150,1,2,600},
+		{"chaser",50,30,1,2,500},
+		{"adder",75,60,1,2,350}
+	}
+	for param_index=1,#params do
+		local param = params[param_index]
+		addGMFunction(param[1],function()
+			local objectList = getGMSelection()
+			if #objectList == 0 then
+				addGMMessage("Need to select a target(s) for this to apply to")
+				return
+			end
+			for index = 1,#objectList do
+				local callbackFunction = function(self,obj)
+					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
+					local str=string.format("%.2f",num)
+					self:setCallSign(str)
+				end
+				universe.update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
+			end
+		end)
+	end
+end
 function snippetButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From snippet",initialGMFunctions)
 	addGMFunction("-Custom",customButtons)
+	-- set up for moons game for 2020-07-18
+	-- there are parameters in there that where tunned for that game
+	-- it detestably should be moved elsewhere
+	-- ideally it would be made so the tunned parameters could be set at run time
+	addGMFunction("+callsign cycle",callsignCycle)
 	-- starry suggested replacement for scan points menu
 	-- currently the stock EE build lacks onGMClick and tweak menu additions
 	addGMFunction("Expire Selected", function ()
