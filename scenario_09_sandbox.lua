@@ -314,6 +314,7 @@ end
 function setConstants()
 	universe=universe()
 	update_system=updateSystem()
+	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
@@ -1084,6 +1085,23 @@ function updateSystem()
 				end
 			end
 		end,
+		-- this really wants to be merged into _eraseUpdateType
+		-- however at this time they are used differently so its hard
+		-- _eraseUpdateType removes a type, this removes a particular update
+		-- types probably need work/thought sooner rather than later
+		-- but the names probably can stay stable (at least after the periodic functions are fixed)
+		-- thus this should work for a public facing function, _eraseUpdateType should be private
+		removeUpdateNamed = function(self,obj,name)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(name)=="string")
+			if obj.update_list ~= nil then
+				for index = 1,#obj.update_list do
+					assert(type(obj.update_list[index].name)=="string")
+					table.remove(obj.update_list,index)
+				end
+			end
+		end,
 		-- there is only one update function of each update_type
 		-- it is intended that the update_types are picked such that incompatible types aren't merged
 		-- the obvious example is multiple functions setting a object x & y location
@@ -1098,6 +1116,8 @@ function updateSystem()
 			assert(type(obj)=="table")
 			assert(type(update_type)=="string")
 			assert(type(update_data)=="table")
+			assert(type(update_data.name)=="string")
+			assert(type(update_data.update)=="function")
 			self._eraseUpdateType(obj,update_type)
 			if obj.update_list == nil then
 				obj.update_list = {}
@@ -1105,6 +1125,19 @@ function updateSystem()
 			update_data.type=update_type
 			table.insert(obj.update_list,update_data)
 			self:_addToUpdateList(obj)
+		end,
+		getUpdateNamesOnObject = function(self, obj)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			if obj.update_list == nil then
+				return {}
+			end
+			local ret={}
+			for index = 1,#obj.update_list do
+				assert(type(obj.update_list[index].name)=="string")
+				table.insert(ret,{name=obj.update_list[index].name})
+			end
+			return ret
 		end,
 		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
@@ -1116,6 +1149,7 @@ function updateSystem()
 			assert(type(initial_angle)=="number" or initial_angle == nil)
 			initial_angle = initial_angle or 0
 			local update_data = {
+				name = "orbit",
 				center_x = center_x,
 				center_y = center_y,
 				distance = distance,
@@ -1143,6 +1177,7 @@ function updateSystem()
 			assert(type(initial_angle)=="number" or initial_angle == nil)
 			initial_angle = initial_angle or 0
 			local update_data = {
+				name = "orbit target",
 				orbit_target = orbit_target,
 				distance = distance,
 				orbit_time = orbit_time/(2*math.pi),
@@ -1174,6 +1209,7 @@ function updateSystem()
 			assert(accumulated_time==nil or type(accumulated_time)=="number")
 			assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
 			local update_data = {
+				name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
 				callback = callback,
 				period = period,
 				accumulated_time = accumulated_time or 0,
@@ -1216,6 +1252,7 @@ function updateSystem()
 			assert(type(timeToLive)=="number" or TimeToLive==nil)
 			timeToLive = timeToLive or 300
 			local update_data = {
+				name = "time to live",
 				timeToLive = timeToLive,
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
@@ -1266,16 +1303,16 @@ function updateSystem()
 			---------------------------------------------------------------------------------------------------------------
 			local testObj={}
 			assert(testObj.update_list==nil)
-			self:addUpdate(testObj,"test",{})
+			self:addUpdate(testObj,"test",{name="",update=function()end})
 			assert(testObj.update_list~=nil)
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test",{})
+			self:addUpdate(testObj,"test",{name="",update=function()end})
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test2",{})
+			self:addUpdate(testObj,"test2",{name="",update=function()end})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test",{})
+			self:addUpdate(testObj,"test",{name="",update=function()end})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test2",{})
+			self:addUpdate(testObj,"test2",{name="",update=function()end})
 			assert(#testObj.update_list==2)
 
 			-- reset for next test
@@ -2035,11 +2072,95 @@ function scanClue()
 	end
 	addGMFunction("+Near To",scanClueNearTo)
 end
+function updateEditObjectValid()
+	if update_edit_object == nil or not update_edit_object:isValid() then
+		addGMMessage("the object being edited has been destroyed")
+		updateEditor()
+		return false
+	else
+		return true
+	end
+end
+-----------------
+-- edit update --
+-----------------
+-- captures a name for the update type and then returns a function like
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- -UPDATE EDITOR		F	updateEditor
+-- -EDIT				F	editSelected
+-- ---NAME EDIT---		D	none - UI element
+-- REMOVE				F	inline
+function editUpdate(name)
+	assert(type(name)=="string")
+	return function()
+		if updateEditObjectValid() then
+			clearGMFunctions()
+			addGMFunction("-Main",initialGMFunctions)
+			addGMFunction("-Tweak",tweakTerrain)
+			addGMFunction("-update editor",updateEditor)
+			addGMFunction("-edit",editSelected)
+			addGMFunction("---"..name.." edit---",nil)
+			addGMFunction("remove",function()
+				if updateEditObjectValid() then
+					update_system:removeUpdateNamed(update_edit_object,name)
+					editSelected()
+				end
+			end)
+		end
+	end
+end
+-------------------
+-- Update editor --
+-------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- -UPDATE EDITOR		F	updateEditor
+-- ---OBJECT EDIT---	F	none - UI element
+-- followed by a dynamically generated list of updates on the object
+function editSelected()
+	if updateEditObjectValid() then
+		clearGMFunctions()
+		addGMFunction("-Main",initialGMFunctions)
+		addGMFunction("-Tweak",tweakTerrain)
+		addGMFunction("-update editor",updateEditor)
+		addGMFunction("---object edit---",nil)
+		local updateTypes = update_system:getUpdateNamesOnObject(update_edit_object)
+		for index=1,#updateTypes do
+			local name="+"..updateTypes[index].name
+			addGMFunction(name,editUpdate(updateTypes[index].name))
+		end
+	end
+end
+-------------------
+-- Update editor --
+-------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- +EDIT SELECTED		F	editSelected
+function updateEditor()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak",tweakTerrain)
+	addGMFunction("+Edit Selected",function()
+		local objectList = getGMSelection()
+		if #objectList ~= 1 then
+			addGMMessage("to edit select one (and only one) object before selecting the edit button")
+			return
+		end
+		update_edit_object=objectList[1]
+		editSelected()
+	end)
+end
 ---------------------
 --	Tweak Terrain  --
 ---------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
+-- +UPDATE EDITOR		F	updateEditor
 -- EXPLODE SEL ART		F	explodeSelectedArtifact
 -- PULSE ASTEROID		F	pulseAsteroid
 -- JUMP CORRIDOR OFF	F	inline (toggles between ON and OFF)
@@ -2049,6 +2170,7 @@ end
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("+Update Editor",updateEditor)
 	addGMFunction("Explode Sel Art",explodeSelectedArtifact)
 	addGMFunction("Pulse Asteroid",pulseAsteroid)
 	if jump_corridor then
