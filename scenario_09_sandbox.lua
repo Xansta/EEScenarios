@@ -1405,6 +1405,7 @@ end
 -- +SCAN CLUE			F	scanClue
 -- +TWEAK TERRAIN		F	tweakTerrain
 -- +COUNTDOWN TIMER		F	countdownTimer
+-- +CUSTOM				F	customButtons
 -- +END SESSION			F	endSession
 function initialGMFunctions()
 	clearGMFunctions()
@@ -1416,8 +1417,8 @@ function initialGMFunctions()
 	addGMFunction("+Scan Clue",scanClue)
 	addGMFunction("+Tweak Terrain",tweakTerrain)
 	addGMFunction("+Countdown Timer",countdownTimer)
-	addGMFunction("+End Session",endSession)
 	addGMFunction("+Custom",customButtons)
+	addGMFunction("+End Session",endSession)
 end
 ----------------------
 --  Initial set up  --
@@ -2365,7 +2366,7 @@ function playerShip()
 	if playerShipInfo == nil then
 		playerShipInfo={
 			{"Ambition"		,"active"	,createPlayerShipAmbition	,"Phobos T2(Ambition): Frigate, Cruiser   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
-			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ornance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
+			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordinance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
 			{"Barracuda"	,"active"	,createPlayerShipBarracuda	,"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
@@ -13137,10 +13138,48 @@ end
 -- 1) why they exist
 -- 2) why they aren't in a menu
 -- 3) why they aren't generic enough to be in a menu
+function callsignCycle()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-Snippets",snippetButtons)
+	local params = {
+		{"setup",450,200,1,2,0},
+		{"drone",75,60,1,2,200},
+		{"fighter",50,60,1,2,100},
+		{"beam",100,150,1,2,400},
+		{"missile",100,150,1,2,600},
+		{"chaser",50,30,1,2,500},
+		{"adder",75,60,1,2,350}
+	}
+	for param_index=1,#params do
+		local param = params[param_index]
+		addGMFunction(param[1],function()
+			local objectList = getGMSelection()
+			if #objectList == 0 then
+				addGMMessage("Need to select a target(s) for this to apply to")
+				return
+			end
+			for index = 1,#objectList do
+				local callbackFunction = function(self,obj)
+					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
+					local str=string.format("%.2f",num)
+					self:setCallSign(str)
+				end
+				universe.update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
+			end
+		end)
+	end
+end
 function snippetButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From snippet",initialGMFunctions)
 	addGMFunction("-Custom",customButtons)
+	-- set up for moons game for 2020-07-18
+	-- there are parameters in there that where tunned for that game
+	-- it detestably should be moved elsewhere
+	-- ideally it would be made so the tunned parameters could be set at run time
+	addGMFunction("+callsign cycle",callsignCycle)
 	-- starry suggested replacement for scan points menu
 	-- currently the stock EE build lacks onGMClick and tweak menu additions
 	addGMFunction("Expire Selected", function ()
@@ -13152,7 +13191,7 @@ function snippetButtons()
 	-- the location is fixed, the design is fixed
 	-- with both of those being fixed it is hard to make it generic
 	-- and we aren't (probably) going back there making it not applicable for the sandbox
-	-- but the code is somehting that could be edited into generic code for circular base designs in time
+	-- but the code is something that could be edited into generic code for circular base designs in time
 	addGMFunction("base", function ()
 		local cx=27200
 		local cy=227000
@@ -14290,7 +14329,7 @@ function handleDockedState()
 			if comms_target.repair_fail_reason == nil then
 				reason_list = {
 					"We're out of the necessary materials and supplies for hull repair.",
-					"Hull repair automation unavailable whie it is undergoing maintenance.",
+					"Hull repair automation unavailable while it is undergoing maintenance.",
 					"All hull repair technicians quarantined to quarters due to illness.",
 				}
 				comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
@@ -16438,7 +16477,9 @@ function updateInner(delta)
 				end
 			end
 			local vx, vy = p:getVelocity()
-			local player_velocity = math.abs(vx) + math.abs(vy)
+			local dx=math.abs(vx)
+			local dy=math.abs(vy)
+			local player_velocity = math.sqrt((dx*dx)+(dy*dy))
 			local cpx, cpy = p:getPosition()
 			local nearby_objects = p:getObjectsInRange(1000)
 			if p.tractor then
