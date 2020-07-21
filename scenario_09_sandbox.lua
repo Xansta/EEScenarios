@@ -143,12 +143,66 @@ starryUtil={
 	},
 }
 
+-- I (starry) will at some point soon add a similar function to these in a pull request to EE core
+-- they will be added to each spaceship
+-- if it is accepted, then on the version after that which is release we can use that
+-- if not then we should probably find a nice location for these functions to live long term
+function compatSetBeamWeaponArc(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		val,
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponDirection(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		val,
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponRange(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		val,
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponCycleTime(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		val,
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponDamage(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		val
+	)
+end
+
 -- these 2 functions and variable be removed in the next version of EE
 scenarioTime = 0
 function getScenarioTimePreStandard()
 	return scenarioTime
 end
-
 function getScenarioTimePreStandardAddDelta(delta)
 	scenarioTime = scenarioTime + delta
 end
