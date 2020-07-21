@@ -1268,6 +1268,49 @@ function updateSystem()
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
+		addChasingUpdate = function (self, obj, target, speed, callback_on_contact)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(target)=="table")
+			assert(type(speed)=="number")
+			assert(callback_on_contact==nil or type(callback_on_contact)=="function")
+			local update_self = self -- this is so it can be captured for later
+			local update_data = {
+				name = "chasing",
+				speed = speed,
+				target = target,
+				callback_on_contact = callback_on_contact,
+				edit = {
+					-- todo add target
+					{name = "speed", fixedAdjAmount = 100}
+				},
+				update = function (self, obj, delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					if target==nil or not target:isValid() then
+						obj:destroy()
+					else
+						local update_speed=speed*delta
+						local my_x, my_y = obj:getPosition()
+						local target_x, target_y = target:getPosition()
+						local dist=distance(my_x, my_y, target_x, target_y)
+						if dist > update_speed then
+							local dx=target_x-my_x
+							local dy=target_y-my_y
+							local angle=math.atan2(dx,dy)
+							local ny=math.cos(angle)*update_speed
+							local nx=math.sin(angle)*update_speed
+							obj:setPosition(my_x+nx,my_y+ny)
+						else
+							self.callback_on_contact(update_self, obj, target)
+							obj:destroy()
+						end
+					end
+				end
+			}
+			self:addUpdate(obj,"absolutePosition",update_data)
+		end,
 		addOrbitTargetUpdate = function (self, obj, orbit_target, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
