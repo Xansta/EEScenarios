@@ -143,12 +143,66 @@ starryUtil={
 	},
 }
 
+-- I (starry) will at some point soon add a similar function to these in a pull request to EE core
+-- they will be added to each spaceship
+-- if it is accepted, then on the version after that which is release we can use that
+-- if not then we should probably find a nice location for these functions to live long term
+function compatSetBeamWeaponArc(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		val,
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponDirection(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		val,
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponRange(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		val,
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponCycleTime(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		val,
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponDamage(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		val
+	)
+end
+
 -- these 2 functions and variable be removed in the next version of EE
 scenarioTime = 0
 function getScenarioTimePreStandard()
 	return scenarioTime
 end
-
 function getScenarioTimePreStandardAddDelta(delta)
 	scenarioTime = scenarioTime + delta
 end
@@ -1110,7 +1164,9 @@ function updateSystem()
 			assert(type(name)=="string")
 			if obj.update_list ~= nil then
 				for index = 1,#obj.update_list do
-					return obj.update_list[index]
+					if obj.update_list[index].name==name then
+						return obj.update_list[index]
+					end
 				end
 			end
 			return nil
@@ -1208,6 +1264,49 @@ function updateSystem()
 					self.time = self.time + delta
 					local orbit_pos=(self.time+self.start_offset)/self.orbit_time
 					obj:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+				end
+			}
+			self:addUpdate(obj,"absolutePosition",update_data)
+		end,
+		addChasingUpdate = function (self, obj, target, speed, callback_on_contact)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(target)=="table")
+			assert(type(speed)=="number")
+			assert(callback_on_contact==nil or type(callback_on_contact)=="function")
+			local update_self = self -- this is so it can be captured for later
+			local update_data = {
+				name = "chasing",
+				speed = speed,
+				target = target,
+				callback_on_contact = callback_on_contact,
+				edit = {
+					-- todo add target
+					{name = "speed", fixedAdjAmount = 100}
+				},
+				update = function (self, obj, delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					if target==nil or not target:isValid() then
+						obj:destroy()
+					else
+						local update_speed=speed*delta
+						local my_x, my_y = obj:getPosition()
+						local target_x, target_y = target:getPosition()
+						local dist=distance(my_x, my_y, target_x, target_y)
+						if dist > update_speed then
+							local dx=target_x-my_x
+							local dy=target_y-my_y
+							local angle=math.atan2(dx,dy)
+							local ny=math.cos(angle)*update_speed
+							local nx=math.sin(angle)*update_speed
+							obj:setPosition(my_x+nx,my_y+ny)
+						else
+							self.callback_on_contact(update_self, obj, target)
+							obj:destroy()
+						end
+					end
 				end
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
