@@ -313,6 +313,8 @@ function createFleurNebula()
 end
 function setConstants()
 	universe=universe()
+	update_system=updateSystem()
+	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
@@ -1083,6 +1085,36 @@ function updateSystem()
 				end
 			end
 		end,
+		-- this really wants to be merged into _eraseUpdateType
+		-- however at this time they are used differently so its hard
+		-- _eraseUpdateType removes a type, this removes a particular update
+		-- types probably need work/thought sooner rather than later
+		-- but the names probably can stay stable (at least after the periodic functions are fixed)
+		-- thus this should work for a public facing function, _eraseUpdateType should be private
+		removeUpdateNamed = function(self,obj,name)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(name)=="string")
+			if obj.update_list ~= nil then
+				for index = 1,#obj.update_list do
+					assert(type(obj.update_list[index].name)=="string")
+					if obj.update_list[index].name==name then
+						table.remove(obj.update_list,index)
+					end
+				end
+			end
+		end,
+		getUpdateNamed = function(self,obj,name)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(name)=="string")
+			if obj.update_list ~= nil then
+				for index = 1,#obj.update_list do
+					return obj.update_list[index]
+				end
+			end
+			return nil
+		end,
 		-- there is only one update function of each update_type
 		-- it is intended that the update_types are picked such that incompatible types aren't merged
 		-- the obvious example is multiple functions setting a object x & y location
@@ -1097,6 +1129,8 @@ function updateSystem()
 			assert(type(obj)=="table")
 			assert(type(update_type)=="string")
 			assert(type(update_data)=="table")
+			assert(type(update_data.name)=="string")
+			assert(type(update_data.update)=="function")
 			self._eraseUpdateType(obj,update_type)
 			if obj.update_list == nil then
 				obj.update_list = {}
@@ -1104,6 +1138,44 @@ function updateSystem()
 			update_data.type=update_type
 			table.insert(obj.update_list,update_data)
 			self:_addToUpdateList(obj)
+		end,
+		getUpdateNamesOnObject = function(self, obj)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			if obj.update_list == nil then
+				return {}
+			end
+			local ret={}
+			for index = 1,#obj.update_list do
+				local update_name=obj.update_list[index].name
+				assert(type(update_name)=="string")
+				local edit={}
+				for index2 = 1,#obj.update_list[index].edit do
+					local name=obj.update_list[index].edit[index2].name
+					local fixedAdjAmount=obj.update_list[index].edit[index2].fixedAdjAmount
+					assert(type(name)=="string")
+					table.insert(edit,{
+						getter = function ()
+							-- note the time that this is executed the number of updates and their order may of changed
+							-- as such we have to fetch them from scratch
+							-- this probably could use being tested better, ideally added into the testing code
+							local ret=self:getUpdateNamed(obj,update_name)[name]
+							assert(type(ret)=="number")
+							return ret
+						end,
+						setter = function (val)
+							self:getUpdateNamed(obj,update_name)[name]=val
+						end,
+						fixedAdjAmount=fixedAdjAmount,
+						name=name
+					})
+				end
+				table.insert(ret,{
+					name=update_name,
+					edit=edit
+				})
+			end
+			return ret
 		end,
 		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
@@ -1115,13 +1187,20 @@ function updateSystem()
 			assert(type(initial_angle)=="number" or initial_angle == nil)
 			initial_angle = initial_angle or 0
 			local update_data = {
+				name = "orbit",
 				center_x = center_x,
 				center_y = center_y,
 				distance = distance,
 				orbit_time = orbit_time/(2*math.pi),
-				initial_angle = initial_angle,
+				initial_angle = initial_angle, -- this looks obsolete, test removal with proper testing
 				start_offset = (initial_angle/360)*orbit_time,
 				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
+				edit = {
+					-- center x and y should be added when it can be - it probably wants an onclick handler
+					{name = "distance" , fixedAdjAmount=1000},
+					{name = "orbit_time", fixedAdjAmount=1},
+					{name = "start_offset", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1142,12 +1221,19 @@ function updateSystem()
 			assert(type(initial_angle)=="number" or initial_angle == nil)
 			initial_angle = initial_angle or 0
 			local update_data = {
+				name = "orbit target",
 				orbit_target = orbit_target,
 				distance = distance,
 				orbit_time = orbit_time/(2*math.pi),
-				initial_angle = initial_angle,
+				initial_angle = initial_angle, -- this looks obsolete, test removal with proper testing
 				start_offset = (initial_angle/360)*orbit_time,
 				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
+				edit = {
+					-- orbit target wants to be exposed when we have a object selection control
+					{name = "distance" , fixedAdjAmount=1000},
+					{name = "orbit_time", fixedAdjAmount=1},
+					{name = "start_offset", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1173,9 +1259,15 @@ function updateSystem()
 			assert(accumulated_time==nil or type(accumulated_time)=="number")
 			assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
 			local update_data = {
+				name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
 				callback = callback,
 				period = period,
 				accumulated_time = accumulated_time or 0,
+				edit = {
+					-- orbit target wants to be exposed when we have a object selection control
+					{name = "period" , fixedAdjAmount=1},
+					{name = "accumulated_time", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1215,7 +1307,11 @@ function updateSystem()
 			assert(type(timeToLive)=="number" or TimeToLive==nil)
 			timeToLive = timeToLive or 300
 			local update_data = {
+				name = "time to live",
 				timeToLive = timeToLive,
+				edit = {
+					{name = "timeToLive", fixedAdjAmount=1}
+				},
 				update = function (self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1265,16 +1361,16 @@ function updateSystem()
 			---------------------------------------------------------------------------------------------------------------
 			local testObj={}
 			assert(testObj.update_list==nil)
-			self:addUpdate(testObj,"test",{})
+			self:addUpdate(testObj,"test",{name="",update=function()end})
 			assert(testObj.update_list~=nil)
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test",{})
+			self:addUpdate(testObj,"test",{name="",update=function()end})
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test2",{})
+			self:addUpdate(testObj,"test2",{name="",update=function()end})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test",{})
+			self:addUpdate(testObj,"test",{name="",update=function()end})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test2",{})
+			self:addUpdate(testObj,"test2",{name="",update=function()end})
 			assert(#testObj.update_list==2)
 
 			-- reset for next test
@@ -1320,15 +1416,6 @@ function universe()
 		-- destroy(self) this destroys the sector
 		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
 		active_regions = {},
-		-- run update for all registered regions
-		update = function (self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-			self.update_system:update(delta)
-			for i = 1,#self.active_regions do
-				self.active_regions[i].region:update(delta)
-			end
-		end,
 		-- spawn a region already registered in the available_regions
 		-- it is expected to be called like
 		-- universe:spawnRegion(universe.available_regions[spawnIndex])
@@ -2043,11 +2130,140 @@ function scanClue()
 	end
 	addGMFunction("+Near To",scanClueNearTo)
 end
+function updateEditObjectValid()
+	if update_edit_object == nil or not update_edit_object:isValid() then
+		addGMMessage("the object being edited has been destroyed")
+		updateEditor()
+		return false
+	else
+		return true
+	end
+end
+function numericEditControl(params)
+	-- we need to be able to call the function that we are defining within itself
+	-- there probably is a tidy way to do this, but I don't know it
+	-- thus we are going to create a table which we will look up itself within
+	local ret = {}
+	ret.fun = function()
+		assert(type(params)=="table")
+		assert(type(params.closers)=="function")
+		assert(type(params.getter)=="function")
+		assert(type(params.setter)=="function")
+		assert(type(params.name)=="string")
+		assert(type(params.fixedAdjAmount)=="number")
+		params.closers()
+		addGMFunction(string.format("%.2f - %.2f",params.getter(),params.fixedAdjAmount),
+			function ()
+				params.setter(params.getter()-params.fixedAdjAmount)
+				ret["fun"]()
+			end)
+		addGMFunction(string.format("%s = %.2f",params.name,params.getter()),nil)
+		addGMFunction(string.format("%.2f + %.2f",params.getter(),params.fixedAdjAmount),
+			function ()
+				params.setter(params.getter()+params.fixedAdjAmount)
+				ret["fun"]()
+			end)
+	end
+	return ret.fun
+end
+-----------------
+-- edit update --
+-----------------
+-- captures a name for the update type and then returns a function like
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- -UPDATE EDITOR		F	updateEditor
+-- -EDIT				F	editSelected
+-- ---NAME EDIT---		D	none - UI element
+-- REMOVE				F	inline
+-- followed by a list of dynamically created edit buttons
+function editUpdate(name,editElements)
+	assert(type(name)=="string")
+	assert(type(editElements)=="table")
+	return function()
+		if updateEditObjectValid() then
+			clearGMFunctions()
+			addGMFunction("-Main",initialGMFunctions)
+			addGMFunction("-Tweak",tweakTerrain)
+			addGMFunction("-update editor",updateEditor)
+			addGMFunction("-edit",editSelected)
+			addGMFunction("---"..name.." edit---",nil)
+			addGMFunction("remove",function()
+				if updateEditObjectValid() then
+					update_system:removeUpdateNamed(update_edit_object,name)
+					editSelected()
+				end
+			end)
+			for index=1,#editElements do
+				assert(type(editElements[index].name)=="string")
+				local edit=editElements[index]
+				edit.closers=function()
+					clearGMFunctions()
+					addGMFunction("-Main",initialGMFunctions)
+					addGMFunction("-Tweak",tweakTerrain)
+					addGMFunction("-update editor",updateEditor)
+					addGMFunction("-edit",editSelected)
+					addGMFunction("-"..name,editUpdate(name,editElements))
+				end
+				addGMFunction(editElements[index].name,numericEditControl(edit))
+			end
+		end
+	end
+end
+-------------------
+-- Update editor --
+-------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- -UPDATE EDITOR		F	updateEditor
+-- ---OBJECT EDIT---	F	none - UI element
+-- followed by a dynamically generated list of updates on the object
+function editSelected()
+	if updateEditObjectValid() then
+		clearGMFunctions()
+		addGMFunction("-Main",initialGMFunctions)
+		addGMFunction("-Tweak",tweakTerrain)
+		addGMFunction("-update editor",updateEditor)
+		addGMFunction("---object edit---",nil)
+		local updateTypes = update_system:getUpdateNamesOnObject(update_edit_object)
+		for index=1,#updateTypes do
+			local name="+"..updateTypes[index].name
+			local editElements=updateTypes[index].edit
+			assert(editElements ~= nil)
+			assert(type(editElements)=="table")
+			addGMFunction(name,editUpdate(updateTypes[index].name,editElements))
+		end
+	end
+end
+-------------------
+-- Update editor --
+-------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- +EDIT SELECTED		F	editSelected
+function updateEditor()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak",tweakTerrain)
+	addGMFunction("+Edit Selected",function()
+		local objectList = getGMSelection()
+		if #objectList ~= 1 then
+			addGMMessage("to edit select one (and only one) object before selecting the edit button")
+			return
+		end
+		update_edit_object=objectList[1]
+		editSelected()
+	end)
+end
 ---------------------
 --	Tweak Terrain  --
 ---------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
+-- +UPDATE EDITOR		F	updateEditor
 -- EXPLODE SEL ART		F	explodeSelectedArtifact
 -- PULSE ASTEROID		F	pulseAsteroid
 -- JUMP CORRIDOR OFF	F	inline (toggles between ON and OFF)
@@ -2057,6 +2273,7 @@ end
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("+Update Editor",updateEditor)
 	addGMFunction("Explode Sel Art",explodeSelectedArtifact)
 	addGMFunction("Pulse Asteroid",pulseAsteroid)
 	if jump_corridor then
@@ -2589,10 +2806,6 @@ end
 function icarusSector()
 	createIcarusColor()
 	return {
-		update = function(self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-		end,
 		destroy = function(self)
 			assert(type(self)=="table")
 			removeIcarusColor()
@@ -4060,10 +4273,6 @@ end
 function kentarSector()
 	createKentarColor()
 	return {
-		update = function(self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-		end,
 		destroy = function(self)
 			assert(type(self)=="table")
 			removeKentarColor()
@@ -4187,7 +4396,7 @@ function createKentarStations()
 	if random(1,100) <= 15 then stationKeyhole23:setSharesEnergyWithDocked(false) end
 	station_names[stationKeyhole23:getCallSign()] = {stationKeyhole23:getSectorName(), stationKeyhole23}
 	table.insert(stations,stationKeyhole23)
-	universe.update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
+	update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Kolar
     stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4306,7 +4515,7 @@ function createKentarStations()
         general_information = "We research the relationship between Rigil, Ergot and the cosmos",
     	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
 	}
-	universe.update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
+	update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
 	if random(1,100) <= 23 then stationPastern:setRestocksScanProbes(false) end
 	if random(1,100) <= 18 then stationPastern:setRepairDocked(false) end
 	if random(1,100) <= 15 then stationPastern:setSharesEnergyWithDocked(false) end
@@ -4741,13 +4950,7 @@ function erisSector(x,y)
 	assert(type(x)=="number")
 	assert(type(y)=="number")
 	local eris = {
-		update_system = updateSystem(),
 		all_local_objects = {}, -- this may want to become another system maybe?
-		update = function(self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-			self.update_system:update(delta)
-		end,
 		destroy = function(self)
 			assert(type(self)=="table")
 			for i=1,#self.all_local_objects do
@@ -11635,7 +11838,7 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 		scanCluePoint:allowPickup(false)
 	end
 	if scan_clue_expire then
-		universe.update_system:addTimeToLiveUpdate(scanCluePoint)
+		update_system:addTimeToLiveUpdate(scanCluePoint)
 	end
 end
 --	*												   *  --
@@ -11989,7 +12192,7 @@ function stationDefensiveInnerRing()
 			local ax, ay = vectorFromAngle(angle,platform_distance)
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
 			if inner_defense_platform_orbit ~= "No" then
-				universe.update_system:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
+				update_system:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
 			angle = angle + increment
 			if angle > 360 then
@@ -12004,7 +12207,7 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 	local mx, my = vectorFromAngle(travel_angle,distance)
 	obj:setPosition(origin_x+mx,origin_y+my)
 	if  orbit_speed ~= nil then
-		universe.update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
+		update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
 	end
 end
 ----------------------------------------------------
@@ -13152,7 +13355,7 @@ function snippetButtons()
 	-- currently the stock EE build lacks onGMClick and tweak menu additions
 	addGMFunction("Expire Selected", function ()
 		for k,v in pairs(getGMSelection()) do
-			universe.update_system:addTimeToLiveUpdate(v)
+			update_system:addTimeToLiveUpdate(v)
 		end
 	end)
 	-- spawn the research base used on 2020-06-06
@@ -13236,7 +13439,7 @@ function callsignCycle()
 					local str=string.format("%.2f",num)
 					self:setCallSign(str)
 				end
-				universe.update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
+				update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
 			end
 		end)
 	end
@@ -15897,7 +16100,7 @@ function updateInner(delta)
 		end
 	end
 	if updateDiagnostic then print("update: universe update") end
-	universe:update(delta)
+	update_system:update(delta)
 	for pidx=1,8 do
 		if updateDiagnostic then print("update: pidx: " .. pidx) end
 		local p = getPlayerShip(pidx)
