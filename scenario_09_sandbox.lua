@@ -1164,7 +1164,9 @@ function updateSystem()
 			assert(type(name)=="string")
 			if obj.update_list ~= nil then
 				for index = 1,#obj.update_list do
-					return obj.update_list[index]
+					if obj.update_list[index].name==name then
+						return obj.update_list[index]
+					end
 				end
 			end
 			return nil
