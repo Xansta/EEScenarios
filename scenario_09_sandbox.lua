@@ -134,6 +134,20 @@ function math.lerp (a,b,t)
 	assert(type(t)=="number")
 	return a + t * (b - a);
 end
+-- intended to mirror C++ clamp
+-- clamps value within the range of low and high
+function math.clamp(value,lo,hi)
+	assert(type(value)=="number")
+	assert(type(lo)=="number")
+	assert(type(hi)=="number")
+	if value < lo then
+		value = lo
+	end
+	if value > hi then
+		return hi
+	end
+	return value
+end
 
 -- I (starry) will at some point soon add a similar function to these in a pull request to EE core
 -- they will be added to each spaceship
