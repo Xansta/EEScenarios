@@ -1510,10 +1510,8 @@ function updateSystem()
 end
 function universe()
 	return {
-		update_system=updateSystem(),
-		-- each region has at least 2 functions
+		-- each region has at least 1 function
 		-- destroy(self) this destroys the sector
-		-- update(self,delta) - called each time the update function is called here (which in turn should be called by the main sim's update function)
 		active_regions = {},
 		-- spawn a region already registered in the available_regions
 		-- it is expected to be called like
