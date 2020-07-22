@@ -2955,12 +2955,27 @@ end
 -- Icarus area stations, asteroids, mines, etc. 
 function icarusSector()
 	createIcarusColor()
-	return {
+	local ret = {
 		destroy = function(self)
 			assert(type(self)=="table")
 			removeIcarusColor()
-		end
+			for index = #self.objects,1,-1 do
+				self.objects[index]:destroy()
+			end
+		end,
+		objects = {}
 	}
+
+	-- Ghost jump trace (from moons GM session @ 2020-07-18)
+	local art=Artifact():setPosition(37333, 27778)
+	update_system:addPeriodicCallback(art,
+		function (self, obj)
+			self:setCallSign(string.format("%.2f",450*(200*math.cos(getScenarioTimePreStandard()))))
+		end
+		,0.1)
+	table.insert(ret.objects,art)
+
+	return ret
 end
 function createIcarusColor()
 	icarus_color = true
