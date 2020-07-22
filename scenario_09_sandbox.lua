@@ -98,11 +98,15 @@
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 require("utils.lua")
 
-function getNumberOfObjectsString()
 -- get a multi-line string for the number of objects at the current time
 -- intended to be used via addGMMessage or print, but there may be other uses
 -- it may be worth considering adding a function which would return an array rather than a string
-	local all_objects=getAllObjects()
+-- all_objects is passed in (as an optional argument) mostly to assist testing
+function getNumberOfObjectsString(all_objects)
+	assert(all_objects==nil or type(all_objects)=="table")
+	if all_objects == nil then
+		all_objects=getAllObjects()
+	end
 	local object_counts={}
 	--first up we accumulate the number of each type of object
 	for i=1,#all_objects do
@@ -126,6 +130,14 @@ function getNumberOfObjectsString()
 	end
 	return output..string.format("\nTotal: %i",#all_objects)
 end
+function getNumberOfObjectsStringTest()
+	-- ideally we would have something to ensure the tables we pass in are close to getAllObjects tables
+	assert(getNumberOfObjectsString({})=="\nTotal: 0")
+	assert(getNumberOfObjectsString({{typeName ="test"}})=="test: 1\n\nTotal: 1")
+	assert(getNumberOfObjectsString({{typeName ="test"},{typeName ="test"}})=="test: 2\n\nTotal: 2")
+	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"}})=="testA: 1\ntestB: 1\n\nTotal: 2")
+	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"},{typeName ="testB"}})=="testA: 1\ntestB: 2\n\nTotal: 3")
+end
 -- intended to mirror C++ lerp
 -- linear interpolation
 function math.lerp (a,b,t)
@@ -133,6 +145,16 @@ function math.lerp (a,b,t)
 	assert(type(b)=="number")
 	assert(type(t)=="number")
 	return a + t * (b - a);
+end
+function math.lerpTest()
+	assert(math.lerp(1,2,0)==1)
+	assert(math.lerp(1,2,1)==2)
+	assert(math.lerp(2,1,0)==2)
+	assert(math.lerp(2,1,1)==1)
+	assert(math.lerp(2,1,.5)==1.5)
+	-- extrapolation
+	assert(math.lerp(1,2,-1)==0)
+	assert(math.lerp(1,2,2)==3)
 end
 -- intended to mirror C++ clamp
 -- clamps value within the range of low and high
@@ -148,7 +170,19 @@ function math.clamp(value,lo,hi)
 	end
 	return value
 end
+function math.clampTest()
+	assert(math.clamp(0,1,2)==1)
+	assert(math.clamp(3,1,2)==2)
+	assert(math.clamp(1.5,1,2)==1.5)
 
+	assert(math.clamp(0,2,3)==2)
+	assert(math.clamp(4,2,3)==3)
+	assert(math.clamp(2.5,2,3)==2.5)
+end
+function math.extraTests()
+	math.lerpTest()
+	math.clampTest()
+end
 -- I (starry) will at some point soon add a similar function to these in a pull request to EE core
 -- they will be added to each spaceship
 -- if it is accepted, then on the version after that which is release we can use that
@@ -16080,6 +16114,8 @@ function movingObjects(delta)
 	end
 end
 function runAllTests()
+	getNumberOfObjectsStringTest()
+	math.extraTests()
 	updateSystem():_test()
 end
 runAllTests()
