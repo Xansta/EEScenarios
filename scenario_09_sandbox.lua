@@ -97,51 +97,43 @@
 --									
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 require("utils.lua")
--- starryUtil v2
--- either this should be broken up and integrated into logical places (and starry somehow figures out how to include testing code inline)
--- or starry should write more library functions rather than sandbox stuff
-starryUtil={
-	math={
-		-- linear interpolation
-		-- mostly intended as an aid to make code more readable
-		lerp=function(a,b,t)
-			assert(type(a)=="number")
-			assert(type(b)=="number")
-			assert(type(t)=="number")
-			return a + t * (b - a);
+
+function getNumberOfObjectsString()
+-- get a multi-line string for the number of objects at the current time
+-- intended to be used via addGMMessage or print, but there may be other uses
+-- it may be worth considering adding a function which would return an array rather than a string
+	local all_objects=getAllObjects()
+	local object_counts={}
+	--first up we accumulate the number of each type of object
+	for i=1,#all_objects do
+		local object_type=all_objects[i].typeName
+		local current_count=object_counts[object_type]
+		if current_count==nil then
+			current_count=0
 		end
-	},
-	debug={
-		-- get a multi-line string for the number of objects at the current time
-		-- intended to be used via addGMMessage or print, but there may be other uses
-		-- it may be worth considering adding a function which would return an array rather than a string
-		getNumberOfObjectsString=function()
-			local all_objects=getAllObjects()
-			local object_counts={}
-			--first up we accumulate the number of each type of object
-			for i=1,#all_objects do
-				local object_type=all_objects[i].typeName
-				local current_count=object_counts[object_type]
-				if current_count==nil then
-					current_count=0
-				end
-				object_counts[object_type]=current_count+1
-			end
-			-- we want the ordering to be stable so we build a key list
-			local sorted_counts={}
-			for type in pairs(object_counts) do
-				table.insert(sorted_counts, type)
-			end
-			table.sort(sorted_counts)
-			--lastly we build the output
-			local output=""
-			for _,object_type in ipairs(sorted_counts) do
-				output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
-			end
-			return output..string.format("\nTotal: %i",#all_objects)
-		end
-	},
-}
+		object_counts[object_type]=current_count+1
+	end
+	-- we want the ordering to be stable so we build a key list
+	local sorted_counts={}
+	for type in pairs(object_counts) do
+		table.insert(sorted_counts, type)
+	end
+	table.sort(sorted_counts)
+	--lastly we build the output
+	local output=""
+	for _,object_type in ipairs(sorted_counts) do
+		output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
+	end
+	return output..string.format("\nTotal: %i",#all_objects)
+end
+-- intended to mirror C++ lerp
+-- linear interpolation
+function math.lerp (a,b,t)
+	assert(type(a)=="number")
+	assert(type(b)=="number")
+	assert(type(t)=="number")
+	return a + t * (b - a);
+end
 
 -- I (starry) will at some point soon add a similar function to these in a pull request to EE core
 -- they will be added to each spaceship
@@ -13414,7 +13406,7 @@ function debugButtons()
 	addGMFunction("-Main From Debug",initialGMFunctions)
 	addGMFunction("-Custom",customButtons)
 	addGMFunction("Object Counts",function()
-		addGMMessage(starryUtil.debug.getNumberOfObjectsString())
+		addGMMessage(getNumberOfObjectsString())
 	end)
 	addGMFunction("always popup debug",function()
 		popupGMDebug = "always"
