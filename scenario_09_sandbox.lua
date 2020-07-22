@@ -1198,6 +1198,19 @@ function updateSystem()
 				end
 			end
 		end,
+		removeThisUpdate = function(self,obj,update)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(update)=="table")
+			if obj.update_list ~= nil then
+				for index = 1,#obj.update_list do
+					if obj.update_list[index]==update then
+						table.remove(obj.update_list,index)
+						return
+					end
+				end
+			end
+		end,
 		getUpdateNamed = function(self,obj,name)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
