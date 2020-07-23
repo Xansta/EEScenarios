@@ -3,312 +3,7 @@
 --- Regions defined: Icarus and Kentar
 --- Version 1
 -- Type: GM Controlled missions
-
---  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
--- * Main *							*** Start Region ***		*** Spawn Fleet Faction ***			**** Player Spawn Point ****	**** Icarus Wormhole ****		***** Engineering *****		
--- +INITIAL SET UP					+PLAYER SPAWN POINT			List of factions					ICARUS (DEFAULT)*				DEFAULT*						+AUTO COOL					
--- +SPAWN FLEET						+TERRAIN														KENTAR (R17)					KENTAR							+AUTO REPAIR				
--- +ORDER FLEET													*** Fleet Str. vs Player ***																		+COOLANT					
--- +ORDER SHIP						*** Player Ships ***		.5									**** Terrain ****				**** Add Zone ****				+REPAIR CREW				
--- +DROP POINT						+TWEAK PLAYER				1*									ICARUS (DEFAULT)*				SECTOR							+MAX SYSTEM					
--- +SCAN CLUE						+CURRENT--->List			2									KENTAR (R17)					SMALL SQUARE					
--- +TWEAK TERRAIN					+SCRAPPED-->List			3																									****** Auto Cool ******
--- +COUNTDOWN TIMER					+DESCRIPTIONS				4									**** Tweak Player ****			**** Degrees ****				Each player ship: OFF
--- +END SESSION						+TELEPORT PLAYERS			5									+ENGINEERING					RANDOM							
---																									+CARGO							0								****** Auto Repair ******
--- ** Initial Set Up **				*** Wormholes ***			*** Fixed Fleet Strength ***		+REPUTATION						45								Each player ship: OFF
--- +START REGION					+ICARUS TO DEFAULT			250 - 50 = 200						+CONSOLE MESSAGE				90								
--- +PLAYER SHIPS 0/0											250 + 50 = 300														135								****** Coolant ******
--- +WORMHOLES						*** Zones ***													**** Descriptions ****			180								ADD 1.0 COOLANT
--- +ZONES							+ADD ZONE					*** Fleet Composition ***			+DESCRIBE CURRENT				225								REMOVE 1.0 COOLANT
--- +WARN Y SHIP 30U D				+DELETE ZONE-->List			RANDOM*								+DESCRIBE SCRAPPED				270								1.0 - 0.5 = 0.5
---																FIGHTERS							+DESCRIBE STOCK					315								1.0 + 0.5 = 1.5
--- ** Spawn Fleet **				*** Warning Config ***		CHASERS																								
--- +EXUARI							WARNING ON*					FRIGATES							**** Warning Proximity ****		**** Distance ****				****** Repair Crew ******
--- +1 PLAYER STRENGTH: n*			WARNING OFF					BEAMERS								DEFAULT 30U						5U								ADD REPAIR CREW
--- +SET FIXED STRENGTH				SHIP TYPE ON*				MISSILERS							ZERO							10U								REMOVE REPAIR CREW
--- +RANDOM							SHIP TYPE OFF				ADDERS								5U								20U								
--- +UNMODIFIED						+PROXIMITY 30U DFLT			NON-DB								10U								30U								****** Max System ******
--- +IDLE														DRONES								20U								40U								+REACTOR 1.00
--- +AWAY							*** Escape Pod ***												30U								50U								+BEAM 1.00
--- SPAWN							(+)ASSOCIATED				*** Fleet Tweaked ***												60U*							+MISSILE 1.00
---									+NEAR TO--> [Near To]		UNMODIFIED*							**** Spawn Away ****											+MANEUVER 1.00
--- ** Order Fleet **				NEAR RADIUS BUT SAFE		IMPROVED							+90 DEGREES						**** Ring Platforms ****		+IMPULSE 1.00
--- +SELECT FLEET-->Fleet list		EDGE BUT IN DANGER			DEGRADED							+60U							V FROM 3 TO 2					+WARP 1.00
--- +REORGANIZE FLEET--> Pending		NEAR RADIUS BUT OUTSIDE		TINKERED															^ FROM 3 TO 4					+JUMP 1.00
---									EDGE BUT INSIDE				CHANGE CHANCE: 20					**** Ambush ****												+FRONT SHIELD 1.00
--- ** Order Ship **												SET TO 10							3								**** Platform Orbit ****		+REAR SHIELD 1.00
--- JAM RANGE 10 - 5 = 5U			*** Marine Point ***		SET TO 30							4								ORBIT > FAST					
--- JAM RANGE 10 + 5 = 15U			DROP MARINES*													5*								ORBIT > NORMAL					******* Each System *******
--- DROP JAMMER 10U					EXTRACT MARINES				*** Fleet Orders ***				6								ORBIT > SLOW					V FROM 1.00 TO 0.95
---									ASSOCIATED					ROAMING								7								NO*								
--- ** Drop Point **					+NEAR TO--> [Near To]		IDLE*																ORBIT < FAST					
--- +ESCAPE POD													STAND GROUND						**** Defensive Fleet ****		ORBIT < NORMAL					
--- +MARINE POINT					*** Engineer Point ***											AVG SPEED OFF					ORBIT < SLOW					
--- +ENGINEER POINT					DROP ENGINEERS*		 		*** Fleet Spawn Location ***		+1 PLAYER STRENGTH: 40*											
--- +MEDICAL TEAM POINT				EXTRACT ENGINEERS	 		AT SELECTION						+SET FIXED STRENGTH				**** Mines ****					
--- +CUSTOM SUPPLY					ASSOCIATED			 		SENSOR EDGE							+RANDOM							+INLINE: 0						
---									+NEAR TO--> [Near To]		BEYOND SENSORS						SPAWN DEF FLEET					+INSIDE: 0						
--- ** Scan Clue **												+AWAY*																+OUTSIDE: 0						
--- +UNSCANNED DESC--> Choice List	*** Medics Point ***		+AMBUSH 5							**** Inner Ring ****											
--- +SCANNED DESC--> 5 Lists			DROP MEDICAL TEAM*												+PLATFORMS: 3					***** Mine Rings *****			
--- SHOW DESCRIPTIONS				EXTRACT MEDICAL TEAM		*** Station Defense ***				+ORBIT: NO						^ FROM 0 TO 1					
--- +SCAN COMPLEX: 1--> 4 Choices	ASSOCIATED					+SELECT STATION						SPAWN DEF PLATFORMS				+ORBIT: NO						
--- +SCAN DEPTH: 1--> 4 Choices		+NEAR TO--> [Near To]		or																									
--- UNRETRIEVABLE												+DEFENSIVE FLEET					**** Outer Ring ****			**** Tweak Player ****			
--- EXPIRING							*** Custom Supply ***		+INNER RING							+PLATFORMS: 3					+ENGINEERING					
--- +NEAR TO--> [Near To]			+ENERGY 500					+OUTER RING							+MINES: NO						+CARGO							
---									+NUKE 1						AUTOROTATE NO						+DP ORBIT: NO					+REPUTATION						
--- ** Tweak Terrain **				+EMP 1															SPAWN OUTER DEFENSE				+CONSOLE MESSAGE				
--- EXPLODE SEL ART					+MINE 2						*** Countdown Displays ***																			
--- PULSE ASTEROID					+HOMING 4					HELM								**** Energy ****				***** Cargo *****					
--- JUMP CORRIDOR OFF				+HVLI 0						WEAPONS								500 - 100 = 400					+REMOVE CARGO						
--- SANDBOX COMMS					+REPAIR CREW 0				ENGINEER							500 + 100 = 600					+ADD MINERAL						
--- +STATION OPERATIONS				+COOLANT 0					SCIENCE																+ADD COMPONENT						
--- +STATION DEFENSE					+NEAR TO--> [Near To]		RELAY								**** Nuke ****														
--- 																									1 - 1 = 0						***** REPUTATION *****				
--- ** Countdown Timer **			[Near To]					*** Countdown Length ***			1 + 1 = 0						ADD ONE REP 50													
--- +DISPLAY: GM,R					3 CpuShip Buttons Possible	1 MINUTE	 														ADD FIVE REP 50					
--- +LENGTH: 5						+90 DEGREES					3 MINUTES	 						**** EMP ****					ADD TEN REP 50					
--- +PURPOSE: TIMER					+30 UNITS					5 MINUTES* 							1 - 1 = 0						DEL ONE REP 50					
--- +ADD SECONDS						CREATE AT 90 DEG, 30U		10 MINUTES 							1 + 1 = 0						DEL FIVE REP 50					
--- +DEL SECONDS 												15 MINUTES 															DEL TEN REP 50					
--- +CHANGE SPEED					[Near To Degrees]			20 MINUTES 							**** Mine ****													
--- SHOW CURRENT						0							30 MINUTES 							2 - 1 = 1						***** Console Message *****		
--- START TIMER 						45							45 MINUTES 							2 + 1 = 3						+SELECT MSG OBJ					
--- 									90*																								+CHANGE MSG OBJ					
--- ** End Session **				135							*** Countdown Purpose ***			**** Homing ****				+SELECT PLAYER					
--- +REGION REPORT-->Region			180							TIMER*								4 - 1 = 3						+SEND TO CONSOLE				
--- +FACTION VICTORY-->Faction		225							DEATH								4 + 1 = 5														
--- 									270							BREAKDOWN															****** Send to Console ******	
--- *** Add Seconds ***				315							MISSION								**** HVLI ****					HELM							
--- ADD 1 SECOND													DEPARTURE							0 + 1 = 1						WEAPONS							
--- ADD 3 SECONDS					[Near To Units]				DESTRUCTION															ENGINEERING						
--- ADD 5 SECONDS					.5U							DISCOVERY							**** Repair Crew ****			SCIENCE							
--- ADD 10 SECONDS					1U							DECOMPRESSION						0 + 1 = 1						RELAY							
--- 									2U																								
--- *** Change Speed ***				3U																**** Coolant ****				
--- SLOW DOWN						4U																0 + 1 = 1						
--- NORMALIZE						5U																								
--- SPEED UP							10U																								
---									20U																								
---									30U							
---									
---									
---  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  Menu Map  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 require("utils.lua")
-
--- get a multi-line string for the number of objects at the current time
--- intended to be used via addGMMessage or print, but there may be other uses
--- it may be worth considering adding a function which would return an array rather than a string
--- all_objects is passed in (as an optional argument) mostly to assist testing
-function getNumberOfObjectsString(all_objects)
-	assert(all_objects==nil or type(all_objects)=="table")
-	if all_objects == nil then
-		all_objects=getAllObjects()
-	end
-	local object_counts={}
-	--first up we accumulate the number of each type of object
-	for i=1,#all_objects do
-		local object_type=all_objects[i].typeName
-		local current_count=object_counts[object_type]
-		if current_count==nil then
-			current_count=0
-		end
-		object_counts[object_type]=current_count+1
-	end
-	-- we want the ordering to be stable so we build a key list
-	local sorted_counts={}
-	for type in pairs(object_counts) do
-		table.insert(sorted_counts, type)
-	end
-	table.sort(sorted_counts)
-	--lastly we build the output
-	local output=""
-	for _,object_type in ipairs(sorted_counts) do
-		output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
-	end
-	return output..string.format("\nTotal: %i",#all_objects)
-end
-function getNumberOfObjectsStringTest()
-	-- ideally we would have something to ensure the tables we pass in are close to getAllObjects tables
-	assert(getNumberOfObjectsString({})=="\nTotal: 0")
-	assert(getNumberOfObjectsString({{typeName ="test"}})=="test: 1\n\nTotal: 1")
-	assert(getNumberOfObjectsString({{typeName ="test"},{typeName ="test"}})=="test: 2\n\nTotal: 2")
-	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"}})=="testA: 1\ntestB: 1\n\nTotal: 2")
-	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"},{typeName ="testB"}})=="testA: 1\ntestB: 2\n\nTotal: 3")
-end
--- intended to mirror C++ lerp
--- linear interpolation
-function math.lerp (a,b,t)
-	assert(type(a)=="number")
-	assert(type(b)=="number")
-	assert(type(t)=="number")
-	return a + t * (b - a);
-end
-function math.lerpTest()
-	assert(math.lerp(1,2,0)==1)
-	assert(math.lerp(1,2,1)==2)
-	assert(math.lerp(2,1,0)==2)
-	assert(math.lerp(2,1,1)==1)
-	assert(math.lerp(2,1,.5)==1.5)
-	-- extrapolation
-	assert(math.lerp(1,2,-1)==0)
-	assert(math.lerp(1,2,2)==3)
-end
--- intended to mirror C++ clamp
--- clamps value within the range of low and high
-function math.clamp(value,lo,hi)
-	assert(type(value)=="number")
-	assert(type(lo)=="number")
-	assert(type(hi)=="number")
-	if value < lo then
-		value = lo
-	end
-	if value > hi then
-		return hi
-	end
-	return value
-end
-function math.clampTest()
-	assert(math.clamp(0,1,2)==1)
-	assert(math.clamp(3,1,2)==2)
-	assert(math.clamp(1.5,1,2)==1.5)
-
-	assert(math.clamp(0,2,3)==2)
-	assert(math.clamp(4,2,3)==3)
-	assert(math.clamp(2.5,2,3)==2.5)
-end
-function math.extraTests()
-	math.lerpTest()
-	math.clampTest()
-end
--- I (starry) will at some point soon add a similar function to these in a pull request to EE core
--- they will be added to each spaceship
--- if it is accepted, then on the version after that which is release we can use that
--- if not then we should probably find a nice location for these functions to live long term
-function compatSetBeamWeaponArc(obj,index,val)
-	obj:setBeamWeapon(
-		index,
-		val,
-		obj:getBeamWeaponDirection(index),
-		obj:getBeamWeaponRange(index),
-		obj:getBeamWeaponCycleTime(index),
-		obj:getBeamWeaponDamage(index)
-	)
-end
-function compatSetBeamWeaponDirection(obj,index,val)
-	obj:setBeamWeapon(
-		index,
-		obj:getBeamWeaponArc(index),
-		val,
-		obj:getBeamWeaponRange(index),
-		obj:getBeamWeaponCycleTime(index),
-		obj:getBeamWeaponDamage(index)
-	)
-end
-function compatSetBeamWeaponRange(obj,index,val)
-	obj:setBeamWeapon(
-		index,
-		obj:getBeamWeaponArc(index),
-		obj:getBeamWeaponDirection(index),
-		val,
-		obj:getBeamWeaponCycleTime(index),
-		obj:getBeamWeaponDamage(index)
-	)
-end
-function compatSetBeamWeaponCycleTime(obj,index,val)
-	obj:setBeamWeapon(
-		index,
-		obj:getBeamWeaponArc(index),
-		obj:getBeamWeaponDirection(index),
-		obj:getBeamWeaponRange(index),
-		val,
-		obj:getBeamWeaponDamage(index)
-	)
-end
-function compatSetBeamWeaponDamage(obj,index,val)
-	obj:setBeamWeapon(
-		index,
-		obj:getBeamWeaponArc(index),
-		obj:getBeamWeaponDirection(index),
-		obj:getBeamWeaponRange(index),
-		obj:getBeamWeaponCycleTime(index),
-		val
-	)
-end
-
--- these 2 functions and variable be removed in the next version of EE
-scenarioTime = 0
-function getScenarioTimePreStandard()
-	return scenarioTime
-end
-function getScenarioTimePreStandardAddDelta(delta)
-	scenarioTime = scenarioTime + delta
-end
-
--- object creation utils
--- these may want to be considered to merge into utils.lua
-
--- all of these functions take a table of function parameters
--- this is to mimic named arguments
--- defaults that are "sensible" will be picked for all
--- however I fear to say my definition of sensible and yours may clash
--- each function takes one argument as a callback
--- which is called for each point created
--- this callback function should return a EmptyEpsilon spaceObject
--- it also has parameters put into a table
--- currently this is the count parameter
--- all the standard EE spaceObject constructors should ignore this table, thus allowing them to be used
-
--- just a circle with no gaps
-function createObjectCircle(args)
-	assert(type(args)=="table")
-	local x=args.x or 0
-	local y=args.y or 0
-	local radius=args.radius or 1000
-	local number=args.number or 360
-	local start_angle=args.start_angle or 0
-	local callback=args.callback or Artifact
-	assert(type(x)=="number")
-	assert(type(y)=="number")
-	assert(type(radius)=="number")
-	assert(type(number)=="number")
-	assert(type(start_angle)=="number")
-	assert(type(callback)=="function")
-	for i=1,number do
-		setCirclePos(callback{count=i},x,y,(360/number*i)+start_angle,radius)
-	end
-end
-
---there is a similar version to this in starryUtilv3 - they should become the same, neither can currently replace the other
-function mineRingShim(args)
-	local angle=args.angle or random(0,360)
-	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
-	local x=args.x or 0
-	local y=args.y or 0
-	local min_dist=args.dist or 1000
-	local num_rows=args.num_rows or 1
-	local row_gap=args.row_gap or 500
-	local segments=args.segments or 1
-	local half_gap_size=args.gap_size or 20
-	half_gap_size=half_gap_size/2
-	local gap=args.gap or 3
-	local increment=(360/segments)
-	if segments == 0 then
-		segments=1
-		half_gap_size=0
-	end
-	for i=1,segments do
-		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
-			for row=0,num_rows-1 do
-				local dist=min_dist+row_gap*row
-				createOrbitingObject(Mine(),j,speed,x,y,dist)
-			end
-		end
-		angle=angle+increment
-	end
-end
 function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
@@ -317,6 +12,7 @@ function init()
 	setConstants()
 	initialGMFunctions()
 	createSkeletonUniverse()
+	runAllTests()
 --	testObject = Artifact():setPosition(100,100):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorArrayMKI"):setDescriptions("sensor","good sensor")
 end
 --Human navy stations that may always be reached by long range communication
@@ -412,11 +108,13 @@ function setConstants()
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
+	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
 	startRegion = "Icarus (F5)"
 	icarus_color = false
 	kentar_color = false
+	individual_ship = "Gnat"
 	fleetSpawnFaction = "Exuari"
 	fleetStrengthFixed = false
 	fleetStrengthFixedValue = 250
@@ -439,77 +137,6 @@ function setConstants()
 	revert_timer = revert_timer_interval
 	plotRevert = revertWait
 	
-	--stnl: Ship Template Name List
-	--stsl: Ship Template Score List
-	--stbl: Ship Template Boolean List
-	--nsfl: Non Standard Function List
-	stnl = {"Gnat","Tyr","Starhammer V","Atlantis Y42","Predator","Enforcer","Tempest","WZ-Lindworm","Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	stsl = {2     ,150  ,90            ,60            ,42        ,75        ,30       ,9            ,28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11          ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,16             ,25       ,19          ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	stbl = {false ,false,false         ,false         ,false     ,false     ,false    ,false        ,false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false       ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true           ,true     ,true        ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
-	nsfl = {}
-	table.insert(nsfl,gnat)
-	table.insert(nsfl,tyr)
-	table.insert(nsfl,starhammerV)
-	table.insert(nsfl,atlantisY42)
-	table.insert(nsfl,predator)
-	table.insert(nsfl,enforcer)
-	table.insert(nsfl,tempest)
-	table.insert(nsfl,wzLindworm)
-	table.insert(nsfl,elaraP2)
-	table.insert(nsfl,droneJacket)
-	table.insert(nsfl,droneHeavy)
-	table.insert(nsfl,droneLite)
-	table.insert(nsfl,jade5)
-	table.insert(nsfl,waddle5)
-	table.insert(nsfl,stalkerR5)
-	table.insert(nsfl,stalkerQ5)
-	table.insert(nsfl,adderMk9)
-	table.insert(nsfl,k2fighter)
-	table.insert(nsfl,k3fighter)
-	table.insert(nsfl,fiendG3)
-	table.insert(nsfl,fiendG4)
-	table.insert(nsfl,fiendG5)
-	table.insert(nsfl,fiendG6)
-	table.insert(nsfl,nirvanaR3)
-	table.insert(nsfl,hornetMV52)
-	table.insert(nsfl,phobosR2)
-	table.insert(nsfl,adderMk8)
-	table.insert(nsfl,adderMk7)
-	table.insert(nsfl,adderMk3)
-	
-	--Adder Ship Template Name List, Score List and Boolean List
-	stnlAdder = {"Jade 5","Waddle 5","Adder MK9","Adder MK8","Adder MK7","Adder MK3","Adder MK5","Adder MK4","Adder MK6","Cruiser"}
-	stslAdder = {15      ,15        ,11         ,10         ,9          ,5          ,7          ,6          ,8          ,18       }
-	stblAdder = {false   ,false     ,false      ,false      ,false      ,false      ,true       ,true       ,true       ,true     }
-	--Missiler Ship Template Name List, Score List and Boolean List
-	stnlMissiler = {"Tempest","WZ-Lindworm","WX-Lindworm","Piranha F8","Piranha F12","Ranus U","Missile Cruiser","Storm"}
-	stslMissiler = {30       ,9            ,7            ,15          ,15           ,25       ,14               ,22     }
-	stblMissiler = {false    ,false        ,true         ,true        ,true         ,true     ,true             ,true   }
-	--Beamer Ship Template Name List, Score List and Boolean List
-	stnlBeamer = {"Gnat","Tyr","Stalker R5","Stalker Q5","K2 Fighter","K3 Fighter","Nirvana R3","MV52 Hornet","MT52 Hornet","MU52 Hornet","Nirvana R5","Nirvana R5A","Stalker Q7","Stalker R7","Fighter","Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout"}
-	stslBeamer = {2     ,150  ,22          ,22          ,7           ,8           ,12          ,6            ,5            ,5            ,19          ,20           ,25          ,25          ,6        ,18       ,30          ,27            ,80           ,100            ,65               ,6                ,40              ,4              ,48              ,8              }
-	stblBeamer = {false ,false,false       ,false       ,false       ,false       ,false       ,false        ,true         ,true         ,true        ,true         ,true        ,true        ,true     ,true     ,true        ,true          ,true         ,true           ,true             ,true             ,true            ,true           ,true            ,true           }
-	--Frigates Ship Template Name List, Score List and Boolean List
-	stnlFrigate = {"Predator","Enforcer","Tempest","Elara P2","Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Phobos R2","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Piranha F12.M","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Karnack","Cruiser","Missile Cruiser","Gunship","Adv. Gunship","Strikeship","Adv. Striker","Storm"}
-	stslFrigate = {42        ,75        ,30       ,28        ,22          ,22          ,33        ,35        ,37        ,39        ,13         ,15         ,16         ,15          ,15           ,16             ,25       ,20           ,25          ,25          ,17       ,18       ,14               ,17       ,20            ,30          ,27            ,22     }
-	stblFrigate = {false     ,false     ,false    ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,false      ,true       ,true       ,true        ,true         ,true           ,true     ,true         ,true        ,true        ,true     ,true     ,true             ,true     ,true          ,true        ,true          ,true   }
-	--Chaser Ship Template Name List, Score List and Boolean List
-	stnlChaser = {"Tyr","Starhammer V","Atlantis Y42","Elara P2","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Strikeship","Adv. Striker","Battlestation"}
-	stslChaser = {150  ,90            ,60            ,28        ,15      ,15        ,22          ,22          ,33        ,35        ,37        ,39        ,25          ,25          ,50            ,70             ,250   ,30          ,27            ,100            }
-	stblChaser = {false,false         ,false         ,false     ,false   ,false     ,false       ,false       ,false     ,false     ,false     ,false     ,true        ,true        ,true          ,true           ,true  ,true        ,true          ,true           }
-	--Fighter Ship Template Name List, Score List and Boolean List
-	stnlFighter = {"Gnat","WZ-Lindworm","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","K2 Fighter","K3 Fighter","MV52 Hornet","MT52 Hornet","MU52 Hornet","WX-Lindworm","Fighter","Ktlitan Fighter","Ktlitan Drone"}
-	stslFighter = {2     ,9            ,4             ,5            ,3           ,15      ,15        ,7           ,8           ,6            ,5            ,5            ,7            ,6        ,6                ,4              }
-	stblFighter = {false ,false        ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false        ,true         ,true         ,true         ,true     ,true             ,true           }
-	--Non database Ship Template Name List, Score List and Boolean List
-	stnlNonDB = {"Gnat","Tyr","Starhammer V","Atlantis Y42","Predator","Enforcer","Tempest","WZ-Lindworm","Elara P2","Jacket Drone","Heavy Drone","Lite Drone","Jade 5","Waddle 5","Stalker R5","Stalker Q5","Adder MK9","K2 Fighter","K3 Fighter","Fiend G3","Fiend G4","Fiend G5","Fiend G6","Nirvana R3","MV52 Hornet","Phobos R2","Adder MK8","Adder MK7","Adder MK3"}
-	stslNonDB = {2     ,150  ,90            ,60            ,42        ,75        ,30       ,9            ,28        ,4             ,5            ,3           ,15      ,15        ,22          ,22          ,11         ,7           ,8           ,33        ,35        ,37        ,39        ,12          ,6            ,13         ,10         ,9          ,5          }
-	stblNonDB = {false ,false,false         ,false         ,false     ,false     ,false    ,false        ,false     ,false         ,false        ,false       ,false   ,false     ,false       ,false       ,false      ,false       ,false       ,false     ,false     ,false     ,false     ,false       ,false        ,false      ,false      ,false      ,false      }
-	--Drone Ship Template Name List, Score List and Boolean List
-	stnlDrone = {"Gnat","Jacket Drone","Heavy Drone","Lite Drone","Ktlitan Drone"}
-	stslDrone = {2     ,4             ,5            ,3           ,4}
-	stblDrone = {false ,false         ,false        ,false       ,true}
-
 	ship_template = {	--ordered by relative strength
 		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	create = gnat},
 		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	create = droneLite},
@@ -1628,7 +1255,13 @@ function universe()
 		available_regions = {}
 	}
 end
-
+--	*										   *  --
+--	**										  **  --
+--	********************************************  --
+--	****			GM Buttons				****  --
+--	********************************************  --
+--	**										  **  --
+--	*										   *  --
 ----------------------------
 --  Main Menu of Buttons  --
 ----------------------------
@@ -1647,7 +1280,7 @@ end
 function initialGMFunctions()
 	clearGMFunctions()
 	addGMFunction("+Initial Set Up",initialSetUp)
-	addGMFunction("+Spawn Fleet",spawnGMFleet)
+	addGMFunction("+Spawn Ship(s)",spawnGMShips)
 	addGMFunction("+Order Fleet",orderFleet)
 	addGMFunction("+Order Ship",orderShip)
 	addGMFunction("+Drop Point",dropPoint)
@@ -1716,9 +1349,41 @@ end
 -- +IDLE					D	(orders)							setFleetOrders
 -- +AWAY					D	(position)							setFleetSpawnLocation
 -- SPAWN					F										parmSpawnFleet
+function spawnGMShips()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Spawn",initialGMFunctions)
+	addGMFunction("+Spawn Fleet",spawnGMFleet)
+	addGMFunction("+Spawn a ship",spawnGMShip)
+end
+function spawnGMShip()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Spawn",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	returnFromFleetSpawnLocation = spawnGMShip
+	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
+	addGMFunction(string.format("Spawn %s",individual_ship),parmSpawnShip)
+	sandbox_templates = {}
+	for name, details in pairs(ship_template) do
+		if details.create ~= stockTemplate then
+			table.insert(sandbox_templates,name)
+		end
+	end
+	table.sort(sandbox_templates)
+	for _, name in ipairs(sandbox_templates) do
+		local button_label = name
+		if name == individual_ship then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			individual_ship = name
+			spawnGMShip()
+		end)
+	end
+end
 function spawnGMFleet()
 	clearGMFunctions()
 	addGMFunction("-Main From Flt Spwn",initialGMFunctions)
+	addGMFunction("-Ship Spawn",spawnGMShips)
 	addGMFunction(string.format("+%s",fleetSpawnFaction),setGMFleetFaction)
 	if fleetStrengthFixed then
 		addGMFunction("+Set Relative Strength",setGMFleetStrength)
@@ -1743,6 +1408,7 @@ function spawnGMFleet()
 	end)
 	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
 	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
+	returnFromFleetSpawnLocation = spawnGMFleet
 	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
 	addGMFunction("Spawn",parmSpawnFleet)
 end
@@ -7915,7 +7581,7 @@ end
 function setFleetSpawnLocation()
 	clearGMFunctions()
 	addGMFunction("-Main from Flt Loctn",initialGMFunctions)
-	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("-Fleet Spawn",returnFromFleetSpawnLocation)
 	local GMSetSpawnLocationAtSelection = "At Selection"
 	if fleetSpawnLocation == "At Selection" then
 		GMSetSpawnLocationAtSelection = "At Selection*"
@@ -8308,6 +7974,108 @@ function centerOfSelected(objectList)
 	local fsy = ySum/#objectList
 	return fsx, fsy
 end
+function parmSpawnShip()
+	local fsx = 0
+	local fsy = 0
+	local objectList = getGMSelection()
+	if #objectList < 1 and (fleetSpawnLocation ~= "Click" and fleetSpawnLocation ~= "AtCachedLocation") then
+		addGMMessage("Fleet spawn failed: nothing selected for spawn location determination")
+		return
+	end
+	if fleetSpawnLocation == "At Selection" then
+		fsx, fsy = centerOfSelected(objectList)
+	elseif fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" or fleetSpawnLocation == "Ambush" then
+		local selectedMatchesPlayer = false
+		local selected_player = nil
+		for i=1,#objectList do
+			local curSelObj = objectList[i]
+			for pidx=1,8 do
+				local p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					if p == curSelObj then
+						selectedMatchesPlayer = true
+						fsx, fsy = p:getPosition()
+						selected_player = p
+						break
+					end
+				end
+			end
+			if selectedMatchesPlayer then
+				break
+			end
+		end
+		if selectedMatchesPlayer then
+			local spawnAngle = fleetSpawnRelativeDirection
+			if fleetSpawnRelativeDirection == "Random Direction" then
+				spawnAngle = random(0,360)
+			else
+				spawnAngle = spawnAngle + 270
+				if spawnAngle > 360 then 
+					spawnAngle = spawnAngle - 360
+				end
+			end
+			if fleetSpawnLocation ~= "Ambush" then
+				local tvx = 0
+				local tvy = 0
+				if fleetSpawnLocation == "Sensor Edge" then
+					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange())
+					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange())
+				else	--beyond sensors
+					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange() + 10000)
+					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange() + 10000)
+				end
+				fsx = fsx + tvx
+				fsy = fsy + tvy
+			end
+		else
+			addGMMessage("Fleet spawn failed: no valid player ship found amongst selected items")
+			return
+		end
+	elseif string.find(fleetSpawnLocation,"Away") then
+		fsx, fsy = centerOfSelected(objectList)
+		spawnAngle = fleetSpawnAwayDirection
+		if fleetSpawnAwayDirection == "Random" then
+			spawnAngle = random(0,360)
+		else
+			spawnAngle = spawnAngle + 270
+			if spawnAngle > 360 then 
+				spawnAngle = spawnAngle - 360
+			end
+		end
+		tvx, tvy = vectorFromAngle(spawnAngle,fleetSpawnAwayDistance*1000)
+		fsx = fsx + tvx
+		fsy = fsy + tvy
+	elseif fleetSpawnLocation == "Click" then
+		onGMClick(function (x,y) -- this probably could be made simpler, but I lack the understanding and time to make it neater at this time
+			cached_x = x
+			cached_y = y
+			fleetSpawnLocation = "AtCachedLocation"
+			parmSpawnShip()
+			fleetSpawnLocation = "Click"
+		end)
+		return
+	elseif fleetSpawnLocation == "AtCachedLocation" then
+		fsx = cached_x
+		fsy = cached_y
+	end
+	local ship = ship_template[individual_ship].create(fleetSpawnFaction,individual_ship)
+	if fleetOrders == "Roaming" then
+		ship:orderRoaming()
+	elseif fleetOrders == "Idle" then
+		ship:orderIdle()
+	elseif fleetOrders == "Stand Ground" then
+		ship:orderStandGround()
+	end
+	if fleetChange ~= "unmodified" then
+		modifyShip(ship)
+	end
+	if fleetSpawnLocation == "Ambush" then
+		local dex, dey = vectorFromAngle(random(0,360),fleetAmbushDistance*1000)
+		ship:setPosition(fsx+dex,fsy+dey)
+	else
+		ship:setPosition(fsx,fsy)
+	end
+end
 function parmSpawnFleet()
 	local fsx = 0
 	local fsy = 0
@@ -8391,42 +8159,6 @@ function parmSpawnFleet()
 	elseif fleetSpawnLocation == "AtCachedLocation" then
 		fsx = cached_x
 		fsy = cached_y
-	end
-	local sl = stsl	--default to full lists (Random)
-	local nl = stnl	
-	local bl = stbl
-	if fleetComposition == "Frigates" then
-		sl = stslFrigate
-		nl = stnlFrigate
-		bl = stblFrigate
-	elseif fleetComposition == "Chasers" then
-		sl = stslChaser
-		nl = stnlChaser
-		bl = stblChaser
-	elseif fleetComposition == "Fighters" then
-		sl = stslFighter
-		nl = stnlFighter
-		bl = stblFighter
-	elseif fleetComposition == "Beamers" then
-		sl = stslBeamer
-		nl = stnlBeamer
-		bl = stblBeamer
-	elseif fleetComposition == "Missilers" then
-		sl = stslMissiler
-		nl = stnlMissiler
-		bl = stblMissiler
-	elseif fleetComposition == "Adders" then
-		sl = stslAdder
-		nl = stnlAdder
-		bl = stblAdder
-	elseif fleetComposition == "Non-DB" then
-		sl = stslNonDB
-		nl = stnlNonDB
-		bl = stblNonDB
-	elseif fleetComposition == "Drones" then
-		sl = stslDrone
-		nl = stnlDrone
-		bl = stblDrone
 	end
 	local fleet = nil
 	if fleetSpawnLocation == "Ambush" then
@@ -8567,6 +8299,134 @@ function getTemplatePool(max_strength)
 	end
 	return template_pool
 end
+function modifyShip(ship)
+	local modVal = modifiedValue()
+	if modVal ~= 1 then
+		ship:setHullMax(ship:getHullMax()*modVal)
+		ship:setHull(ship:getHullMax())
+	end
+	modVal = modifiedValue()
+	if modVal ~= 1 then
+		local shieldCount = ship:getShieldCount()
+		if shieldCount > 0 then
+			if shieldCount == 1 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal)
+				ship:setShields(ship:getShieldMax(0))
+			elseif shieldCount == 2 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal)
+				ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1))
+			elseif shieldCount == 3 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal)
+				ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2))
+			elseif shieldCount == 4 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal)
+				ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3))
+			elseif shieldCount == 5 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal)
+				ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4))
+			elseif shieldCount == 6 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal,ship:getShieldMax(5)*modVal)
+				ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4),ship:getShieldMax(5))
+			elseif shieldCount == 7 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal,ship:getShieldMax(5)*modVal,ship:getShieldMax(6)*modVal)
+				ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4),ship:getShieldMax(5),ship:getShieldMax(6))
+			elseif shieldCount == 8 then
+				ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal,ship:getShieldMax(5)*modVal,ship:getShieldMax(6)*modVal,ship:getShieldMax(7)*modVal)
+				ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4),ship:getShieldMax(5),ship:getShieldMax(6),ship:getShieldMax(7))
+			end
+		end
+	end
+	local maxNuke = ship:getWeaponStorageMax("Nuke")
+	if maxNuke > 0 then
+		modVal = modifiedValue()
+		if modVal ~= 1 then
+			if modVal > 1 then
+				ship:setWeaponStorageMax("Nuke",math.ceil(maxNuke*modVal))
+			else
+				ship:setWeaponStorageMax("Nuke",math.floor(maxNuke*modVal))
+			end
+			ship:setWeaponStorage("Nuke",ship:getWeaponStorageMax("Nuke"))
+		end
+	end
+	local maxEMP = ship:getWeaponStorageMax("EMP")
+	if maxEMP > 0 then
+		modVal = modifiedValue()
+		if modVal ~= 1 then
+			if modVal > 1 then
+				ship:setWeaponStorageMax("EMP",math.ceil(maxEMP*modVal))
+			else
+				ship:setWeaponStorageMax("EMP",math.floor(maxEMP*modVal))
+			end
+			ship:setWeaponStorage("EMP",ship:getWeaponStorageMax("EMP"))
+		end
+	end
+	local maxMine = ship:getWeaponStorageMax("Mine")
+	if maxMine > 0 then
+		modVal = modifiedValue()
+		if modVal ~= 1 then
+			if modVal > 1 then
+				ship:setWeaponStorageMax("Mine",math.ceil(maxMine*modVal))
+			else
+				ship:setWeaponStorageMax("Mine",math.floor(maxMine*modVal))
+			end
+			ship:setWeaponStorage("Mine",ship:getWeaponStorageMax("Mine"))
+		end
+	end
+	local maxHoming = ship:getWeaponStorageMax("Homing")
+	if maxHoming > 0 then
+		modVal = modifiedValue()
+		if modVal ~= 1 then
+			if modVal > 1 then
+				ship:setWeaponStorageMax("Homing",math.ceil(maxHoming*modVal))
+			else
+				ship:setWeaponStorageMax("Homing",math.floor(maxHoming*modVal))
+			end
+			ship:setWeaponStorage("Homing",ship:getWeaponStorageMax("Homing"))
+		end
+	end
+	local maxHVLI = ship:getWeaponStorageMax("HVLI")
+	if maxHVLI > 0 then
+		modVal = modifiedValue()
+		if modVal ~= 1 then
+			if modVal > 1 then
+				maxHVLI = math.ceil(maxHVLI*modVal)
+			else
+				maxHVLI = math.floor(maxHVLI*modVal)
+			end
+			ship:setWeaponStorageMax("HVLI",maxHVLI)
+			ship:setWeaponStorage("HVLI",maxHVLI)
+		end
+	end
+	modVal = modifiedValue()
+	if modVal ~= 1 then
+		ship:setImpulseMaxSpeed(ship:getImpulseMaxSpeed()*modVal)
+	end
+	modVal = modifiedValue()
+	if modVal ~= 1 then
+		ship:setRotationMaxSpeed(ship:getRotationMaxSpeed()*modVal)
+	end
+	if ship:getBeamWeaponRange(0) > 0 then
+		local beamIndex = 0
+		local modArc = modifiedValue()
+		local modDirection = modifiedValue()
+		local modRange = modifiedValue()
+		local modCycle = 1/modifiedValue()
+		local modDamage = modifiedValue()
+		local modEnergy = 1/modifiedValue()
+		local modHeat = 1/modifiedValue()
+		repeat
+			local beamArc = ship:getBeamWeaponArc(beamIndex)
+			local beamDirection = ship:getBeamWeaponDirection(beamIndex)
+			local beamRange = ship:getBeamWeaponRange(beamIndex)
+			local beamCycle = ship:getBeamWeaponCycleTime(beamIndex)
+			local beamDamage = ship:getBeamWeaponDamage(beamIndex)
+			ship:setBeamWeapon(beamIndex,beamArc*modArc,beamDirection*modDirection,beamRange*modRange,beamCycle*modCycle,beamDamage*modDamage)
+			ship:setBeamWeaponEnergyPerFire(beamIndex,ship:getBeamWeaponEnergyPerFire(beamIndex)*modEnergy)
+			ship:setBeamWeaponHeatPerFire(beamIndex,ship:getBeamWeaponHeatPerFire(beamIndex)*modHeat)
+			beamIndex = beamIndex + 1
+		until(ship:getBeamWeaponRange(beamIndex) < 1)
+	end
+end
 --function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_angle)
 function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, px, py)
 --x and y are central spawn coordinates
@@ -8613,132 +8473,7 @@ function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, 
 		end
 		ship.fleetIndex = fleetIndex
 		if fleetChange ~= "unmodified" then
-			local modVal = modifiedValue()
-			if modVal ~= 1 then
-				ship:setHullMax(ship:getHullMax()*modVal)
-				ship:setHull(ship:getHullMax())
-			end
-			modVal = modifiedValue()
-			if modVal ~= 1 then
-				local shieldCount = ship:getShieldCount()
-				if shieldCount > 0 then
-					if shieldCount == 1 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal)
-						ship:setShields(ship:getShieldMax(0))
-					elseif shieldCount == 2 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal)
-						ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1))
-					elseif shieldCount == 3 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal)
-						ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2))
-					elseif shieldCount == 4 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal)
-						ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3))
-					elseif shieldCount == 5 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal)
-						ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4))
-					elseif shieldCount == 6 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal,ship:getShieldMax(5)*modVal)
-						ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4),ship:getShieldMax(5))
-					elseif shieldCount == 7 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal,ship:getShieldMax(5)*modVal,ship:getShieldMax(6)*modVal)
-						ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4),ship:getShieldMax(5),ship:getShieldMax(6))
-					elseif shieldCount == 8 then
-						ship:setShieldsMax(ship:getShieldMax(0)*modVal,ship:getShieldMax(1)*modVal,ship:getShieldMax(2)*modVal,ship:getShieldMax(3)*modVal,ship:getShieldMax(4)*modVal,ship:getShieldMax(5)*modVal,ship:getShieldMax(6)*modVal,ship:getShieldMax(7)*modVal)
-						ship:setShields(ship:getShieldMax(0),ship:getShieldMax(1),ship:getShieldMax(2),ship:getShieldMax(3),ship:getShieldMax(4),ship:getShieldMax(5),ship:getShieldMax(6),ship:getShieldMax(7))
-					end
-				end
-			end
-			local maxNuke = ship:getWeaponStorageMax("Nuke")
-			if maxNuke > 0 then
-				modVal = modifiedValue()
-				if modVal ~= 1 then
-					if modVal > 1 then
-						ship:setWeaponStorageMax("Nuke",math.ceil(maxNuke*modVal))
-					else
-						ship:setWeaponStorageMax("Nuke",math.floor(maxNuke*modVal))
-					end
-					ship:setWeaponStorage("Nuke",ship:getWeaponStorageMax("Nuke"))
-				end
-			end
-			local maxEMP = ship:getWeaponStorageMax("EMP")
-			if maxEMP > 0 then
-				modVal = modifiedValue()
-				if modVal ~= 1 then
-					if modVal > 1 then
-						ship:setWeaponStorageMax("EMP",math.ceil(maxEMP*modVal))
-					else
-						ship:setWeaponStorageMax("EMP",math.floor(maxEMP*modVal))
-					end
-					ship:setWeaponStorage("EMP",ship:getWeaponStorageMax("EMP"))
-				end
-			end
-			local maxMine = ship:getWeaponStorageMax("Mine")
-			if maxMine > 0 then
-				modVal = modifiedValue()
-				if modVal ~= 1 then
-					if modVal > 1 then
-						ship:setWeaponStorageMax("Mine",math.ceil(maxMine*modVal))
-					else
-						ship:setWeaponStorageMax("Mine",math.floor(maxMine*modVal))
-					end
-					ship:setWeaponStorage("Mine",ship:getWeaponStorageMax("Mine"))
-				end
-			end
-			local maxHoming = ship:getWeaponStorageMax("Homing")
-			if maxHoming > 0 then
-				modVal = modifiedValue()
-				if modVal ~= 1 then
-					if modVal > 1 then
-						ship:setWeaponStorageMax("Homing",math.ceil(maxHoming*modVal))
-					else
-						ship:setWeaponStorageMax("Homing",math.floor(maxHoming*modVal))
-					end
-					ship:setWeaponStorage("Homing",ship:getWeaponStorageMax("Homing"))
-				end
-			end
-			local maxHVLI = ship:getWeaponStorageMax("HVLI")
-			if maxHVLI > 0 then
-				modVal = modifiedValue()
-				if modVal ~= 1 then
-					if modVal > 1 then
-						maxHVLI = math.ceil(maxHVLI*modVal)
-					else
-						maxHVLI = math.floor(maxHVLI*modVal)
-					end
-					ship:setWeaponStorageMax("HVLI",maxHVLI)
-					ship:setWeaponStorage("HVLI",maxHVLI)
-				end
-			end
-			modVal = modifiedValue()
-			if modVal ~= 1 then
-				ship:setImpulseMaxSpeed(ship:getImpulseMaxSpeed()*modVal)
-			end
-			modVal = modifiedValue()
-			if modVal ~= 1 then
-				ship:setRotationMaxSpeed(ship:getRotationMaxSpeed()*modVal)
-			end
-			if ship:getBeamWeaponRange(0) > 0 then
-				local beamIndex = 0
-				local modArc = modifiedValue()
-				local modDirection = modifiedValue()
-				local modRange = modifiedValue()
-				local modCycle = 1/modifiedValue()
-				local modDamage = modifiedValue()
-				local modEnergy = 1/modifiedValue()
-				local modHeat = 1/modifiedValue()
-				repeat
-					local beamArc = ship:getBeamWeaponArc(beamIndex)
-					local beamDirection = ship:getBeamWeaponDirection(beamIndex)
-					local beamRange = ship:getBeamWeaponRange(beamIndex)
-					local beamCycle = ship:getBeamWeaponCycleTime(beamIndex)
-					local beamDamage = ship:getBeamWeaponDamage(beamIndex)
-					ship:setBeamWeapon(beamIndex,beamArc*modArc,beamDirection*modDirection,beamRange*modRange,beamCycle*modCycle,beamDamage*modDamage)
-					ship:setBeamWeaponEnergyPerFire(beamIndex,ship:getBeamWeaponEnergyPerFire(beamIndex)*modEnergy)
-					ship:setBeamWeaponHeatPerFire(beamIndex,ship:getBeamWeaponHeatPerFire(beamIndex)*modHeat)
-					beamIndex = beamIndex + 1
-				until(ship:getBeamWeaponRange(beamIndex) < 1)
-			end
+			modifyShip(ship)
 		end
 		table.insert(enemyList, ship)
 		enemyStrength = enemyStrength - ship_template[selected_template].strength
@@ -12248,42 +11983,6 @@ function spawnDefensiveFleet()
 		return		
 	end
 	local fsx, fsy = station:getPosition()
-	local sl = stsl	--default to full lists (Random)
-	local nl = stnl	
-	local bl = stbl
-	if fleetComposition == "Frigates" then
-		sl = stslFrigate
-		nl = stnlFrigate
-		bl = stblFrigate
-	elseif fleetComposition == "Chasers" then
-		sl = stslChaser
-		nl = stnlChaser
-		bl = stblChaser
-	elseif fleetComposition == "Fighters" then
-		sl = stslFighter
-		nl = stnlFighter
-		bl = stblFighter
-	elseif fleetComposition == "Beamers" then
-		sl = stslBeamer
-		nl = stnlBeamer
-		bl = stblBeamer
-	elseif fleetComposition == "Missilers" then
-		sl = stslMissiler
-		nl = stnlMissiler
-		bl = stblMissiler
-	elseif fleetComposition == "Adders" then
-		sl = stslAdder
-		nl = stnlAdder
-		bl = stblAdder
-	elseif fleetComposition == "Non-DB" then
-		sl = stslNonDB
-		nl = stnlNonDB
-		bl = stblNonDB
-	elseif fleetComposition == "Drones" then
-		sl = stslDrone
-		nl = stnlDrone
-		bl = stblDrone
-	end
 	local fleet = nil
 	local fleet_distance = {
 		["Small Station"]	= 2,
@@ -13576,6 +13275,67 @@ function snippetButtons()
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
 	end)
 end
+-----------------------------
+--	Object creation utils  --
+-----------------------------
+-- these may want to be considered to merge into utils.lua
+
+-- all of these functions take a table of function parameters
+-- this is to mimic named arguments
+-- defaults that are "sensible" will be picked for all
+-- however I fear to say my definition of sensible and yours may clash
+-- each function takes one argument as a callback
+-- which is called for each point created
+-- this callback function should return a EmptyEpsilon spaceObject
+-- it also has parameters put into a table
+-- currently this is the count parameter
+-- all the standard EE spaceObject constructors should ignore this table, thus allowing them to be used
+function createObjectCircle(args)
+	-- just a circle with no gaps
+	assert(type(args)=="table")
+	local x=args.x or 0
+	local y=args.y or 0
+	local radius=args.radius or 1000
+	local number=args.number or 360
+	local start_angle=args.start_angle or 0
+	local callback=args.callback or Artifact
+	assert(type(x)=="number")
+	assert(type(y)=="number")
+	assert(type(radius)=="number")
+	assert(type(number)=="number")
+	assert(type(start_angle)=="number")
+	assert(type(callback)=="function")
+	for i=1,number do
+		setCirclePos(callback{count=i},x,y,(360/number*i)+start_angle,radius)
+	end
+end
+function mineRingShim(args)
+	local angle=args.angle or random(0,360)
+	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
+	local x=args.x or 0
+	local y=args.y or 0
+	local min_dist=args.dist or 1000
+	local num_rows=args.num_rows or 1
+	local row_gap=args.row_gap or 500
+	local segments=args.segments or 1
+	local half_gap_size=args.gap_size or 20
+	half_gap_size=half_gap_size/2
+	local gap=args.gap or 3
+	local increment=(360/segments)
+	if segments == 0 then
+		segments=1
+		half_gap_size=0
+	end
+	for i=1,segments do
+		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
+			for row=0,num_rows-1 do
+				local dist=min_dist+row_gap*row
+				createOrbitingObject(Mine(),j,speed,x,y,dist)
+			end
+		end
+		angle=angle+increment
+	end
+end
 function callsignCycle()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -13608,6 +13368,161 @@ function callsignCycle()
 			end
 		end)
 	end
+end
+function getNumberOfObjectsString(all_objects)
+	-- get a multi-line string for the number of objects at the current time
+	-- intended to be used via addGMMessage or print, but there may be other uses
+	-- it may be worth considering adding a function which would return an array rather than a string
+	-- all_objects is passed in (as an optional argument) mostly to assist testing
+	assert(all_objects==nil or type(all_objects)=="table")
+	if all_objects == nil then
+		all_objects=getAllObjects()
+	end
+	local object_counts={}
+	--first up we accumulate the number of each type of object
+	for i=1,#all_objects do
+		local object_type=all_objects[i].typeName
+		local current_count=object_counts[object_type]
+		if current_count==nil then
+			current_count=0
+		end
+		object_counts[object_type]=current_count+1
+	end
+	-- we want the ordering to be stable so we build a key list
+	local sorted_counts={}
+	for type in pairs(object_counts) do
+		table.insert(sorted_counts, type)
+	end
+	table.sort(sorted_counts)
+	--lastly we build the output
+	local output=""
+	for _,object_type in ipairs(sorted_counts) do
+		output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
+	end
+	return output..string.format("\nTotal: %i",#all_objects)
+end
+function getNumberOfObjectsStringTest()
+	-- ideally we would have something to ensure the tables we pass in are close to getAllObjects tables
+	assert(getNumberOfObjectsString({})=="\nTotal: 0")
+	assert(getNumberOfObjectsString({{typeName ="test"}})=="test: 1\n\nTotal: 1")
+	assert(getNumberOfObjectsString({{typeName ="test"},{typeName ="test"}})=="test: 2\n\nTotal: 2")
+	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"}})=="testA: 1\ntestB: 1\n\nTotal: 2")
+	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"},{typeName ="testB"}})=="testA: 1\ntestB: 2\n\nTotal: 3")
+end
+------------------------------
+--	Time related functions  --
+------------------------------
+-- these 2 functions and variable be removed in the next version of EE
+function getScenarioTimePreStandard()
+	return scenarioTime
+end
+function getScenarioTimePreStandardAddDelta(delta)
+	scenarioTime = scenarioTime + delta
+end
+------------------------------
+--	Math related functions  --
+------------------------------
+function math.lerp (a,b,t)
+	-- intended to mirror C++ lerp
+	-- linear interpolation
+	assert(type(a)=="number")
+	assert(type(b)=="number")
+	assert(type(t)=="number")
+	return a + t * (b - a);
+end
+function math.lerpTest()
+	assert(math.lerp(1,2,0)==1)
+	assert(math.lerp(1,2,1)==2)
+	assert(math.lerp(2,1,0)==2)
+	assert(math.lerp(2,1,1)==1)
+	assert(math.lerp(2,1,.5)==1.5)
+	-- extrapolation
+	assert(math.lerp(1,2,-1)==0)
+	assert(math.lerp(1,2,2)==3)
+end
+function math.clamp(value,lo,hi)
+	-- intended to mirror C++ clamp
+	-- clamps value within the range of low and high
+	assert(type(value)=="number")
+	assert(type(lo)=="number")
+	assert(type(hi)=="number")
+	if value < lo then
+		value = lo
+	end
+	if value > hi then
+		return hi
+	end
+	return value
+end
+function math.clampTest()
+	assert(math.clamp(0,1,2)==1)
+	assert(math.clamp(3,1,2)==2)
+	assert(math.clamp(1.5,1,2)==1.5)
+
+	assert(math.clamp(0,2,3)==2)
+	assert(math.clamp(4,2,3)==3)
+	assert(math.clamp(2.5,2,3)==2.5)
+end
+function math.extraTests()
+	math.lerpTest()
+	math.clampTest()
+end
+------------------------------------------------------
+--	Individual beam weapon parameter set functions  --
+------------------------------------------------------
+-- I (starry) will at some point soon add a similar function to these in a pull request to EE core
+-- they will be added to each spaceship
+-- if it is accepted, then on the version after that which is release we can use that
+-- if not then we should probably find a nice location for these functions to live long term
+function compatSetBeamWeaponArc(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		val,
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponDirection(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		val,
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponRange(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		val,
+		obj:getBeamWeaponCycleTime(index),
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponCycleTime(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		val,
+		obj:getBeamWeaponDamage(index)
+	)
+end
+function compatSetBeamWeaponDamage(obj,index,val)
+	obj:setBeamWeapon(
+		index,
+		obj:getBeamWeaponArc(index),
+		obj:getBeamWeaponDirection(index),
+		obj:getBeamWeaponRange(index),
+		obj:getBeamWeaponCycleTime(index),
+		val
+	)
 end
 
 --------------------------
@@ -15667,6 +15582,9 @@ function playerShipCargoInventory(p)
 	end
 	p:addToShipLog(string.format("Available space: %i",p.cargo),"Yellow")
 end
+---------------------------------------------------
+--	Dynamic functions linked to update function  --
+---------------------------------------------------
 function resetPreviousSystemHealth(p)
 	if healthDiagnostic then print("reset previous system health") end
 	if p == nil then
@@ -16141,12 +16059,15 @@ function movingObjects(delta)
 		end
 	end
 end
+-------------------------
+--	Testing functions  --
+-------------------------
 function runAllTests()
 	getNumberOfObjectsStringTest()
 	math.extraTests()
 	updateSystem():_test()
 end
-runAllTests()
+
 function updateInner(delta)
 	getScenarioTimePreStandardAddDelta(delta) -- this can be removed in the next version of EE
 	if updateDiagnostic then print("update: top of update function") end
