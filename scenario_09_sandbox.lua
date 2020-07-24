@@ -13369,6 +13369,34 @@ function callsignCycle()
 		end)
 	end
 end
+-- in several places it would be nice to get more errors reported
+-- this is to assist with that
+-- the popupGMDebug may want to go in the next version of EE
+-- currently popups are stored between script reloads
+-- which means without that if there is an error in update
+-- you can end with hundreds of popups which need to be closed
+-- for the next sim
+function wrapFunctionInPcall(fun, ...)
+	assert(type(fun)=="function")
+    local status,error=pcall(fun, ...)
+    if not status then
+		print("script error : - ")
+		print(error)
+		if popupGMDebug == "once" or popupGMDebug == "always" then
+			if popupGMDebug == "once" then
+				popupGMDebug = "never"
+			end
+			addGMMessage("script error - \n"..error)
+		end
+    end
+end
+-- currently EE doesn't make it easy to see if there are errors in GMbuttons
+-- this saves the old addGMFunction, and makes it so all calls to addGMFunction
+-- wraps the callback in the pcall logic elsewhere
+addGMFunctionReal=addGMFunction
+function addGMFunction(msg, fun)
+	return addGMFunctionReal(msg,function () wrapFunctionInPcall(fun) end)
+end
 function getNumberOfObjectsString(all_objects)
 	-- get a multi-line string for the number of objects at the current time
 	-- intended to be used via addGMMessage or print, but there may be other uses
@@ -17019,15 +17047,5 @@ function updateInner(delta)
 	if updateDiagnostic then print("update: end of update function") end
 end
 function update(delta)
-    local status,error=pcall(updateInner,delta)
-    if not status then
-		print("script error : - ")
-		print(error)
-		if popupGMDebug == "once" or popupGMDebug == "always" then
-			if popupGMDebug == "once" then
-				popupGMDebug = "never"
-			end
-			addGMMessage("script error - \n"..error)
-		end
-    end
+	wrapFunctionInPcall(updateInner,delta)
 end
