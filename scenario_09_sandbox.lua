@@ -3222,7 +3222,7 @@ function createIcarusStations()
         			tritanium =	{quantity = math.random(6,12),	cost = math.random(45,65)}	},
         trade = {	food = false, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
-        general_information = "We manufacture beam components from the resources gathered from teh nearby asteroids. We specialize in plasma based beam systems",
+        general_information = "We manufacture beam components from the resources gathered from the nearby asteroids. We specialize in plasma based beam systems",
     	history = "Our station recognizes Sovinec, an early computer simulation researcher in plasma based weaponry in the late 20th century on Earth"
 	}
 	if random(1,100) <= 63 then stationSovinec:setRestocksScanProbes(false) end
