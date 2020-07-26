@@ -983,7 +983,9 @@ function updateSystem()
 							local nx=math.sin(angle)*update_speed
 							obj:setPosition(my_x+nx,my_y+ny)
 						else
-							self.callback_on_contact(update_self, obj, target)
+							if self.callback_on_contact ~= nil then
+								self.callback_on_contact(update_self, obj, target)
+							end
 							obj:destroy()
 						end
 					end
