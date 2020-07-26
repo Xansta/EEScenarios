@@ -1549,6 +1549,21 @@ function spawnGMShips()
 	addGMFunction("+Spawn Fleet",spawnGMFleet)
 	addGMFunction("+Spawn a ship",spawnGMShip)
 end
+-- this probably can go sooner rather than later (as in I hope it wont be in the sandbox at the end of the month)
+function singleSpawnHelper(callback)
+	return function ()
+		-- YUK this wants to be replaces with a onClick handler
+		-- as the lifespan of this code is probably 1 game I am going
+		-- to accept it is ugly until onClick is here
+		local sel=getGMSelection()
+		local x = 0
+		local y = 0
+		if #sel ~= 0 then
+			x,y=sel[1]:getPosition()
+		end
+		callback(fleetSpawnFaction):setPosition(x,y)
+	end
+end
 function spawnGMShip()
 	clearGMFunctions()
 	addGMFunction("-Main From Ship Spawn",initialGMFunctions)
@@ -1573,6 +1588,10 @@ function spawnGMShip()
 			spawnGMShip()
 		end)
 	end
+	addGMFunction("leech satellite", singleSpawnHelper(leech))
+	addGMFunction("beam overclocker", singleSpawnHelper(beamOverclocker))
+	addGMFunction("eng overclocker", singleSpawnHelper(engineOverclocker))
+	addGMFunction("overclock opti", singleSpawnHelper(overclockOptimizer))
 end
 function spawnGMFleet()
 	clearGMFunctions()
@@ -8747,6 +8766,40 @@ end
 --------------------------------------------------------------------------------------------
 --	Additional enemy ships with some modifications from the original template parameters  --
 --------------------------------------------------------------------------------------------
+function overclocker(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Equipment Freighter 1"):orderRoaming()
+	ship:setTypeName("overclocker")
+	ship:setShieldsMax(150,150,150)
+	ship:setShields(150,150,150) -- high shields, slightly unusual number of arcs (3)
+	ship:setRotationMaxSpeed(20)
+	ship:setImpulseMaxSpeed(100)
+	return ship
+end
+function beamOverclocker(enemyFaction)
+	local ship = overclocker(enemyFaction)
+	ship:setDescription("beam overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
+	ship:setDescriptions("sending encrypted data","sending encrypted data to boost beams of nearby ships")
+	update_system:addBeamOverclocker(ship,10)
+	return ship
+end
+function engineOverclocker(enemyFaction)
+	local ship = overclocker(enemyFaction)
+	ship:setDescription("engine overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
+	ship:setDescriptions("sending encrypted data","sending encrypted data to boost engines of nearby ships")
+	update_system:addEngineOverclocker(ship,10)
+	return ship
+end
+function overclockOptimizer(enemyFaction)
+	-- the boost is only cosmetic / only GM controlled at this time
+	local ship = overclocker(enemyFaction)
+	ship:setDescription("overclocker optimizer")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
+	ship:setDescriptions("sending encrypted data","sending encrypted data to boost overclockers of allied ships")
+	ship:setTypeName("unshackled mind")
+	ship:setShieldsMax(300,300,300)
+	ship:setShields(300,300,300)
+	update_system:addOverclockOptimizer(ship,20)
+	return ship
+end
 function adderMk3(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK4"):orderRoaming()
 	ship:setTypeName("Adder MK3")
