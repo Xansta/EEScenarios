@@ -913,6 +913,198 @@ function updateSystem()
 			end
 			return ret
 		end,
+		_addGenericOverclock = function (self, obj, overboosted_time, boost_time, overclock_name, data_mirror ,add_extra_update_data, inner_update)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(overboosted_time)=="number")
+			assert(type(boost_time)=="number")
+			assert(type(overclock_name)=="string")
+			assert(type(data_mirror)=="function")
+			assert(type(inner_update)=="function")
+			assert(type(add_extra_update_data)=="function")
+			local update_self = self
+			local update_data = {
+				name = overclock_name,
+				boost_time = boost_time,
+				overboosted_time = overboosted_time,
+
+				time = overboosted_time + boost_time,
+				mirrored_data = data_mirror(self,obj),
+				edit = {
+					{name = "boost_time", fixedAdjAmount=1},
+					{name = "overboosted_time", fixedAdjAmount=1},
+					{name = "time", fixedAdjAmount=1}
+					-- mirrored data would be nice to export but not realistic
+					-- refresh would be nice as an exported button
+				},
+				refresh = function (self)
+					assert(type(self)=="table")
+					self.time = self.overboosted_time + self.boost_time
+				end,
+				update = function (self, obj, delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					self.time = self.time - delta
+					local scale = math.clamp(self.time/self.boost_time,0,1)
+					inner_update(self, obj, scale)
+					-- if scale == 0 inner_update has already been called with 0, resulting in overclocks being turned off
+					if scale == 0 then
+						update_self:removeThisUpdate(obj,self)
+					end
+				end,
+			}
+			add_extra_update_data(self,obj,update_data)
+			self:addUpdate(obj,overclock_name,update_data)
+		end,
+		-- note calling this on a object that already has a boost enabled will probably not work as expected
+		-- as it will pull the beam range/cycle time off of the boosted values rather than the default
+		-- this should be fixed at some time
+		addBeamBoostOverclock = function (self, obj, overboosted_time, boost_time, max_range_boosted, max_cycle_boosted)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(overboosted_time)=="number")
+			assert(type(boost_time)=="number")
+			assert(type(max_range_boosted)=="number")
+			assert(type(max_cycle_boosted)=="number")
+
+			self:_addGenericOverclock(obj,overboosted_time, boost_time,"beam overclock",
+				-- 16 seems to be the max number of beams (seen via tweak menu)
+				-- if the engine exports max number of beams it should be used rather than mirror all data
+				function (self, obj)
+					local mirrored_data={}
+					for index=0,16 do
+						table.insert(mirrored_data,
+						{
+							range = obj:getBeamWeaponRange(index),
+							cycle_time = obj:getBeamWeaponCycleTime(index)
+						})
+					end
+					return mirrored_data
+				end,
+				function (self, obj, update)
+					update.max_range_boosted = max_range_boosted
+					update.max_cycle_boosted = max_cycle_boosted
+					table.insert(update.edit,{name = "max_range_boosted", fixedAdjAmount=0.1})
+					table.insert(update.edit,{name = "max cycle_damage_boosted", fixedAdjAmount=0.1})
+				end,
+				function (self, obj, scale)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(scale)=="number")
+						-- 16 seems to be the max number of beams (seen via tweak menu)
+						-- if the engine exports max number of beams it should be used rather than mirror all data
+					for index=0,16 do
+						local beam_range = math.lerp(1,self.max_range_boosted,scale)*self.mirrored_data[index+1].range
+						compatSetBeamWeaponRange(obj,index,beam_range)
+						local beam_cycle = math.lerp(1,self.max_cycle_boosted,scale)*self.mirrored_data[index+1].cycle_time
+						compatSetBeamWeaponCycleTime(obj,index,beam_cycle)
+					end
+				end
+			)
+		end,
+		addEngineBoostUpdate = function (self, obj, overboosted_time, boost_time, max_impulse_boosted, max_turn_boosted)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(overboosted_time)=="number")
+			assert(type(boost_time)=="number")
+			assert(type(max_impulse_boosted)=="number")
+			assert(type(max_turn_boosted)=="number")
+			self:_addGenericOverclock(obj,overboosted_time, boost_time,"engine overclock",
+				function (self, obj)
+					return {
+						impulse = obj:getImpulseMaxSpeed(index),
+						turn_rate = obj:getRotationMaxSpeed(index)
+					}
+				end,
+				function (self, obj, update)
+					update.max_impulse_boosted = max_impulse_boosted
+					update.max_turn_boosted = max_turn_boosted
+					table.insert(update.edit,{name = "max_impulse_boosted", fixedAdjAmount=0.1})
+					table.insert(update.edit,{name = "max max_turn_boosted", fixedAdjAmount=0.1})
+				end,
+				function (self, obj, scale)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(scale)=="number")
+					obj:setImpulseMaxSpeed(math.lerp(1,self.max_impulse_boosted,scale)*self.mirrored_data.impulse)
+					obj:setRotationMaxSpeed(math.lerp(1,self.max_turn_boosted,scale)*self.mirrored_data.turn_rate)
+				end
+			)
+		end,
+		_addGenericOverclocker = function (self, obj, period, updateName, addUpdate)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			assert(type(updateName)=="string")
+			assert(type(addUpdate)=="function")
+			local callback = function(obj)
+				assert(type(obj)=="table")
+				local x,y=obj:getPosition()
+				local objs=getObjectsInRadius(x,y,5000)
+				-- filter to spaceShips that are our faction
+				for index=#objs,1,-1 do
+					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
+						local art=Artifact():setPosition(x,y)
+						local callback=function (self, obj, target)
+							assert(type(self)=="table")
+							assert(type(obj)=="table")
+							assert(type(target)=="table")
+							local update = self:getUpdateNamed(target,updateName)
+							if update == nil then
+								addUpdate(target)
+							else
+								update:refresh()
+							end
+						end
+						self:addChasingUpdate(art,objs[index],1000,callback)
+					end
+				end
+			end
+			self:addPeriodicCallback(obj,callback,period)
+		end,
+		addBeamOverclocker = function (self, obj, period)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			local addUpdate = function (target)
+				self:addBeamBoostOverclock(target, 5, 10, 2, 0.75)
+			end
+			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate)
+		end,
+		addEngineOverclocker = function (self, obj, period)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			local addUpdate = function (target)
+				self:addEngineBoostUpdate(target, 5, 10, 2, 2)
+			end
+			self:_addGenericOverclocker(obj, period, "engine overclock", addUpdate)
+		end,
+		addOverclockOptimizer = function (self, obj, period)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			local callback = function (obj)
+				local objs = getAllObjects()
+				print("----")
+				for index = #objs,1,-1 do
+					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
+						-- this is mostly wrong, we really want to check if an overclocker
+						-- callback was in the update function, however this is not exposed
+						-- currently it is almost always correct to say if there is a periodic callback
+						-- then it is an overclocker ship, this is possible to ensure via being aware of
+						-- this fact and GMing around it, this is however sub optimal
+						if self:getUpdateNamed(objs[index],"periodic callback") ~= nil then
+							local x,y=obj:getPosition()
+							local art=Artifact():setPosition(x,y)
+							self:addChasingUpdate(art,objs[index],2000)
+						end
+					end
+				end
+			end
+			self:addPeriodicCallback(obj,callback,period)
+		end,
 		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
