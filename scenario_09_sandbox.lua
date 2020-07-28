@@ -1032,32 +1032,74 @@ function updateSystem()
 				end
 			)
 		end,
-		_addGenericOverclocker = function (self, obj, period, updateName, addUpdate)
+		-- this is horrifically specialized and I don't think there is any way around that
+		addOverclockableTractor = function (self, obj, spawnFunc)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(spawnFunc)=="function")
+			local update_self=self
+			local max_dist=2000
+			self:_addGenericOverclock(obj,5, 30, "overclockable tractor",
+				function (self, obj)end,
+				function (self, obj, update)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(update)=="table")
+					update.orbitingObj= {}
+					for i=1,12 do
+						local spawned = spawnFunc()
+						self:addOrbitTargetUpdate(spawned,obj, max_dist, 30, i*30)
+						table.insert(update.orbitingObj,spawned)
+					end
+				end,
+				function (self, obj, scale)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(scale)=="number")
+					for i=#self.orbitingObj,1,-1 do
+						local orbiting=self.orbitingObj[i]
+						if orbiting:isValid() then
+							local orbiting_update=update_self:getUpdateNamed(orbiting,"orbit target")
+							if orbiting_update ~= nil then
+								orbiting_update.distance=math.lerp(0,max_dist,scale)
+							end
+						else
+							table.remove(self.orbitingObj,i)
+						end
+					end
+				end
+			)
+		end,
+		_addGenericOverclocker = function (self, obj, period, updateName, addUpdate, updateRange, filterFun)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(period)=="number")
 			assert(type(updateName)=="string")
 			assert(type(addUpdate)=="function")
+			assert(type(updateRange)=="number")
+			assert(filterFun==nil or type(filterFun)=="function")
 			local callback = function(obj)
 				assert(type(obj)=="table")
 				local x,y=obj:getPosition()
-				local objs=getObjectsInRadius(x,y,5000)
+				local objs=getObjectsInRadius(x,y,updateRange)
 				-- filter to spaceShips that are our faction
 				for index=#objs,1,-1 do
 					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
-						local art=Artifact():setPosition(x,y)
-						local callback=function (self, obj, target)
-							assert(type(self)=="table")
-							assert(type(obj)=="table")
-							assert(type(target)=="table")
-							local update = self:getUpdateNamed(target,updateName)
-							if update == nil then
-								addUpdate(target)
-							else
-								update:refresh()
+						if filterFun == nil or filterFun(objs[index]) then
+							local art=Artifact():setPosition(x,y)
+							local callback=function (self, obj, target)
+								assert(type(self)=="table")
+								assert(type(obj)=="table")
+								assert(type(target)=="table")
+								local update = self:getUpdateNamed(target,updateName)
+								if update == nil then
+									addUpdate(target)
+								else
+									update:refresh()
+								end
 							end
+							self:addChasingUpdate(art,objs[index],1000,callback)
 						end
-						self:addChasingUpdate(art,objs[index],1000,callback)
 					end
 				end
 			end
@@ -1068,26 +1110,52 @@ function updateSystem()
 			assert(type(obj)=="table")
 			assert(type(period)=="number")
 			local addUpdate = function (target)
+				assert(type(target)=="table")
 				self:addBeamBoostOverclock(target, 5, 10, 2, 0.75)
 			end
-			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate)
+			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate, 5000)
+		end,
+		addShieldOverclocker = function (self, obj, period)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			local addUpdate = function (target)
+				assert(type(target)=="table")
+				local shields = {}
+				for i=0,target:getShieldCount()-1 do
+					table.insert(shields,math.min(target:getShieldMax(i),target:getShieldLevel(i)+10))
+				end
+				target:setShields(table.unpack(shields))
+			end
+			self:_addGenericOverclocker(obj, period, "shield overclock", addUpdate, 5000)
 		end,
 		addEngineOverclocker = function (self, obj, period)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(period)=="number")
 			local addUpdate = function (target)
+				assert(type(target)=="table")
 				self:addEngineBoostUpdate(target, 5, 10, 2, 2)
 			end
-			self:_addGenericOverclocker(obj, period, "engine overclock", addUpdate)
+			self:_addGenericOverclocker(obj, period, "engine overclock", addUpdate, 5000)
+		end,
+		addOrbitingOverclocker = function (self, obj, period)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			local addUpdate = function (target) end -- we are not adding updates, only refreshing existing ones
+			local filterFun = function (possibleTarget)
+				return self:getUpdateNamed(possibleTarget,"overclockable tractor") ~= nil
+			end
+			self:_addGenericOverclocker(obj, period, "overclockable tractor", addUpdate, 10000, filterFun)
 		end,
 		addOverclockOptimizer = function (self, obj, period)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(period)=="number")
 			local callback = function (obj)
+				assert(type(obj)=="table")
 				local objs = getAllObjects()
-				print("----")
 				for index = #objs,1,-1 do
 					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
 						-- this is mostly wrong, we really want to check if an overclocker
@@ -1591,7 +1659,11 @@ function spawnGMShip()
 	addGMFunction("leech satellite", singleSpawnHelper(leech))
 	addGMFunction("beam overclocker", singleSpawnHelper(beamOverclocker))
 	addGMFunction("eng overclocker", singleSpawnHelper(engineOverclocker))
+	addGMFunction("shield overclocker", singleSpawnHelper(shieldOverclocker))
+	addGMFunction("orbiter overclocker", singleSpawnHelper(orbiterOverclocker))
 	addGMFunction("overclock opti", singleSpawnHelper(overclockOptimizer))
+	addGMFunction("asteroid orbiter", singleSpawnHelper(asteroidOrbiter))
+	addGMFunction("mine orbiter", singleSpawnHelper(mineOrbiter))
 end
 function spawnGMFleet()
 	clearGMFunctions()
@@ -8789,6 +8861,13 @@ function engineOverclocker(enemyFaction)
 	update_system:addEngineOverclocker(ship,10)
 	return ship
 end
+function shieldOverclocker(enemyFaction)
+	local ship = overclocker(enemyFaction)
+	ship:setDescription("shield overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
+	ship:setDescriptions("sending encrypted data","sending encrypted data to boost shields of nearby ships")
+	update_system:addShieldOverclocker(ship,10)
+	return ship
+end
 function overclockOptimizer(enemyFaction)
 	-- the boost is only cosmetic / only GM controlled at this time
 	local ship = overclocker(enemyFaction)
@@ -8798,6 +8877,35 @@ function overclockOptimizer(enemyFaction)
 	ship:setShieldsMax(300,300,300)
 	ship:setShields(300,300,300)
 	update_system:addOverclockOptimizer(ship,20)
+	return ship
+end
+function orbiterOverclocker(enemyFaction)
+	-- internally these are marked as orbiter overclockers
+	-- externally they are marked as tractor overlockers
+	-- this is as the only tractor ship supported are the orbiting craft
+	local ship = overclocker(enemyFaction)
+	ship:setDescription("tractor overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
+	update_system:addOrbitingOverclocker(ship,10)
+	return ship
+end
+function orbiter(enemyFaction)
+	local ship  = CpuShip():setFaction(enemyFaction):setTemplate("Equipment Freighter 1"):orderRoaming()
+	ship:setDescription("A large number of tractor beams are detected aboard")
+	ship:setTypeName("overclocker")
+	ship:setShieldsMax(50,50)
+	ship:setShields(50,50)
+	ship:setRotationMaxSpeed(10)
+	ship:setImpulseMaxSpeed(50)
+	return ship
+end
+function mineOrbiter(enemyFaction)
+	local ship = orbiter(enemyFaction)
+	update_system:addOverclockableTractor(ship,Mine)
+	return ship
+end
+function asteroidOrbiter(enemyFaction)
+	local ship = orbiter(enemyFaction)
+	update_system:addOverclockableTractor(ship,Asteroid)
 	return ship
 end
 function adderMk3(enemyFaction)
