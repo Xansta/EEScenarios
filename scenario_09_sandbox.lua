@@ -1072,6 +1072,20 @@ function updateSystem()
 			end
 			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate)
 		end,
+		addShieldOverclocker = function (self, obj, period)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(period)=="number")
+			local addUpdate = function (target)
+				assert(type(target)=="table")
+				local shields = {}
+				for i=0,target:getShieldCount()-1 do
+					table.insert(shields,math.min(target:getShieldMax(i),target:getShieldLevel(i)+10))
+				end
+				target:setShields(table.unpack(shields))
+			end
+			self:_addGenericOverclocker(obj, period, "shield overclock", addUpdate)
+		end,
 		addEngineOverclocker = function (self, obj, period)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -1591,6 +1605,7 @@ function spawnGMShip()
 	addGMFunction("leech satellite", singleSpawnHelper(leech))
 	addGMFunction("beam overclocker", singleSpawnHelper(beamOverclocker))
 	addGMFunction("eng overclocker", singleSpawnHelper(engineOverclocker))
+	addGMFunction("shield overclocker", singleSpawnHelper(shieldOverclocker))
 	addGMFunction("overclock opti", singleSpawnHelper(overclockOptimizer))
 end
 function spawnGMFleet()
@@ -8787,6 +8802,13 @@ function engineOverclocker(enemyFaction)
 	ship:setDescription("engine overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
 	ship:setDescriptions("sending encrypted data","sending encrypted data to boost engines of nearby ships")
 	update_system:addEngineOverclocker(ship,10)
+	return ship
+end
+function shieldOverclocker(enemyFaction)
+	local ship = overclocker(enemyFaction)
+	ship:setDescription("shield overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
+	ship:setDescriptions("sending encrypted data","sending encrypted data to boost shields of nearby ships")
+	update_system:addShieldOverclocker(ship,10)
 	return ship
 end
 function overclockOptimizer(enemyFaction)
