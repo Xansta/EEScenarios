@@ -1039,7 +1039,7 @@ function updateSystem()
 			assert(type(obj)=="table")
 			assert(type(spawnFunc)=="function")
 			local update_self=self
-			local max_dist=2000
+			local max_dist=1500
 			self:_addGenericOverclock(obj,5, 30, "overclockable tractor",
 				function (self, obj)end,
 				function (self, obj, update)
@@ -1087,7 +1087,7 @@ function updateSystem()
 				for index=#objs,1,-1 do
 					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
 						if filterFun == nil or filterFun(objs[index]) then
-							local art=Artifact():setPosition(x,y)
+							local art=Artifact():setPosition(x,y):setDescription("encrypted data")
 							local callback=function (self, obj, target)
 								assert(type(self)=="table")
 								assert(type(obj)=="table")
@@ -9275,13 +9275,13 @@ function orbiterOverclocker(enemyFaction)
 	-- this is as the only tractor ship supported are the orbiting craft
 	local ship = overclocker(enemyFaction)
 	ship:setDescription("tractor overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
+	ship:setDescriptions("sending encrypted data","sending encrypted data to boost tractor beams of nearby ships")
 	update_system:addOrbitingOverclocker(ship,10)
 	return ship
 end
 function orbiter(enemyFaction)
-	local ship  = CpuShip():setFaction(enemyFaction):setTemplate("Equipment Freighter 1"):orderRoaming()
+	local ship  = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming()
 	ship:setDescription("A large number of tractor beams are detected aboard")
-	ship:setTypeName("overclocker")
 	ship:setShieldsMax(50,50)
 	ship:setShields(50,50)
 	ship:setRotationMaxSpeed(10)
