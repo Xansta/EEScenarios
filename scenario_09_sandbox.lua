@@ -2105,6 +2105,55 @@ function orderFleet()
 		end)
 	end
 	addGMFunction("+Reorganize Fleet",orderFleetChange)
+	addGMFunction("+Average Impulse",averageImpulse)
+end
+function averageImpulse()
+	clearGMFunctions()
+	addGMFunction("-Main from Avg Imp",initialGMFunctions)
+	addGMFunction("-Order Fleet",orderFleet)
+	addGMFunction("Selected ships",function()
+		local object_list = getGMSelection()
+		if #object_list < 1 then
+			addGMMessage("Average impulse failed - nothing selected. No action taken") 
+			return
+		end
+		local selected_matches_npc_ship = true
+		for i=1,#object_list do
+			local current_selected_object = object_list[i]
+			if current_selected_object.typeName ~= "CpuShip" then
+				selected_matches_npc_ship = false
+				break
+			end
+		end
+		if selected_matches_npc_ship then
+			local avg_impulse = 0
+			for i=1,#object_list do
+				avg_impulse = avg_impulse + object_list[i]:getImpulseMaxSpeed()
+			end
+			avg_impulse = avg_impulse/#object_list
+			for i=1,#object_list do
+				object_list[i]:setImpulseMaxSpeed(avg_impulse)
+			end
+			addGMMessage(string.format("Changed %i selected ships' max impulse to %.1f",#object_list,avg_impulse))
+		else
+			addGMMessage("Something other than a CpuShip was selected. No action taken")
+		end
+	end)
+	local select_fleet_label = "Select Fleet"
+	if selected_fleet_representative ~= nil and selected_fleet_representative:isValid() then
+		if selected_fleet_index ~= nil and fleetList[selected_fleet_index] ~= nil then
+			local fl = fleetList[selected_fleet_index]
+			if fl ~= nil then
+				if selected_fleet_representative_index ~= nil then
+					if selected_fleet_representative == fl[selected_fleet_representative_index] then
+						select_fleet_label = string.format("%i %s",selected_fleet_index,selected_fleet_representative:getCallSign())
+					end
+				end
+			end
+		end
+	end
+	addGMFunction(string.format("%s",select_fleet_label),function()
+	end)
 end
 ------------------
 --	Order Ship  --
