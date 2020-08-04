@@ -1222,6 +1222,30 @@ function updateSystem()
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
+		addAttachedUpdate = function(self, obj, attach_target, relative_attach_x, relative_attach_y)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(attach_target)=="table")
+			assert(type(relative_attach_x)=="number")
+			assert(type(relative_attach_y)=="number")
+			local update_data = {
+				name = "attached",
+				attach_target = attach_target,
+				relative_attach_x = relative_attach_x,
+				relative_attach_y = relative_attach_y,
+				update = function (self,obj)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					if self.attach_target ~= nil and self.attach_target:isValid() then
+						local attach_x, attach_y = self.attach_target:getPosition()
+						obj:setPosition(attach_x+self.relative_attach_x,attach_y+self.relative_attach_y)
+					else
+						self:removeUpdateNamed(obj,"attached")
+					end
+				end
+			}
+			self:addUpdate(obj,"absolutePosition",update_data)
+		end,
 		addChasingUpdate = function (self, obj, target, speed, callback_on_contact)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -1792,6 +1816,7 @@ end
 -- +ROAMING					D	changeFleetOrder
 -- GIVE ORDER TO FLEET		F	inline
 -- +REORGANIZE FLEET		F	orderFleetChange
+-- +AVERAGE IMPULSE			F	averageImpulse
 function orderFleet()
 	clearGMFunctions()
 	addGMFunction("-Main from Order Flt",initialGMFunctions)
@@ -2107,54 +2132,6 @@ function orderFleet()
 	addGMFunction("+Reorganize Fleet",orderFleetChange)
 	addGMFunction("+Average Impulse",averageImpulse)
 end
-function averageImpulse()
-	clearGMFunctions()
-	addGMFunction("-Main from Avg Imp",initialGMFunctions)
-	addGMFunction("-Order Fleet",orderFleet)
-	addGMFunction("Selected ships",function()
-		local object_list = getGMSelection()
-		if #object_list < 1 then
-			addGMMessage("Average impulse failed - nothing selected. No action taken") 
-			return
-		end
-		local selected_matches_npc_ship = true
-		for i=1,#object_list do
-			local current_selected_object = object_list[i]
-			if current_selected_object.typeName ~= "CpuShip" then
-				selected_matches_npc_ship = false
-				break
-			end
-		end
-		if selected_matches_npc_ship then
-			local avg_impulse = 0
-			for i=1,#object_list do
-				avg_impulse = avg_impulse + object_list[i]:getImpulseMaxSpeed()
-			end
-			avg_impulse = avg_impulse/#object_list
-			for i=1,#object_list do
-				object_list[i]:setImpulseMaxSpeed(avg_impulse)
-			end
-			addGMMessage(string.format("Changed %i selected ships' max impulse to %.1f",#object_list,avg_impulse))
-		else
-			addGMMessage("Something other than a CpuShip was selected. No action taken")
-		end
-	end)
-	local select_fleet_label = "Select Fleet"
-	if selected_fleet_representative ~= nil and selected_fleet_representative:isValid() then
-		if selected_fleet_index ~= nil and fleetList[selected_fleet_index] ~= nil then
-			local fl = fleetList[selected_fleet_index]
-			if fl ~= nil then
-				if selected_fleet_representative_index ~= nil then
-					if selected_fleet_representative == fl[selected_fleet_representative_index] then
-						select_fleet_label = string.format("%i %s",selected_fleet_index,selected_fleet_representative:getCallSign())
-					end
-				end
-			end
-		end
-	end
-	addGMFunction(string.format("%s",select_fleet_label),function()
-	end)
-end
 ------------------
 --	Order Ship  --
 ------------------
@@ -2206,6 +2183,8 @@ end
 -- +ENGINEER POINT			F	setEngineerPoint
 -- +MEDICAL TEAM POINT		F	setMedicPoint
 -- +CUSTOM SUPPLY			F	setCustomSupply
+-- +ATTACH TO NPS			F	attachArtifact
+-- +DETACH					f	detachArtifact
 function dropPoint()
 	clearGMFunctions()
 	addGMFunction("-Main from Drop Pnt",initialGMFunctions)
@@ -2214,6 +2193,8 @@ function dropPoint()
 	addGMFunction("+Engineer Point",setEngineerPoint)
 	addGMFunction("+Medical Team Point",setMedicPoint)
 	addGMFunction("+Custom Supply",setCustomSupply)
+	addGMFunction("+Attach to NPS",attachArtifact)
+	addGMFunction("+Detach",detachArtifact)
 end
 -----------------
 --	Scan Clue  --
@@ -8652,7 +8633,7 @@ end
 function excludeShip(current_ship_template)
 	assert(type(current_ship_template)=="string") -- the template name we are spawning from ship_template	
 	local ship = nil
-	ship = ship_template[current_ship_template].create("Human Navy",current_ship_template)
+	ship = ship_template[current_ship_template].create("Independent",current_ship_template)
 	ship:orderIdle()
 	local exclude = false
 	for name, details in pairs(fleet_exclusions) do
@@ -9712,6 +9693,79 @@ function orderFleetChange()
 	end
 	addGMMessage("incomplete function. Need to complete later")
 end
+-------------------------------------
+--	Order fleet > Average Impulse  --
+-------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM AVG IMP		F	initialGMFunctions
+-- -ORDER FLEET				F	orderFleet
+-- SELECTED SHIPS			F	inline
+-- 1 ship-in-fleet			D	inline
+function averageImpulse()
+	clearGMFunctions()
+	addGMFunction("-Main from Avg Imp",initialGMFunctions)
+	addGMFunction("-Order Fleet",orderFleet)
+	addGMFunction("Selected ships",function()
+		local object_list = getGMSelection()
+		if #object_list < 1 then
+			addGMMessage("Average impulse failed - nothing selected. No action taken") 
+			return
+		end
+		local selected_matches_npc_ship = true
+		for i=1,#object_list do
+			local current_selected_object = object_list[i]
+			if current_selected_object.typeName ~= "CpuShip" then
+				selected_matches_npc_ship = false
+				break
+			end
+		end
+		if selected_matches_npc_ship then
+			local avg_impulse = 0
+			for i=1,#object_list do
+				avg_impulse = avg_impulse + object_list[i]:getImpulseMaxSpeed()
+			end
+			avg_impulse = avg_impulse/#object_list
+			for i=1,#object_list do
+				object_list[i]:setImpulseMaxSpeed(avg_impulse)
+			end
+			addGMMessage(string.format("Changed %i selected ships' max impulse to %.1f",#object_list,avg_impulse))
+		else
+			addGMMessage("Something other than a CpuShip was selected. No action taken")
+		end
+	end)
+	local select_fleet_label = "Select Fleet"
+	if selected_fleet_representative ~= nil and selected_fleet_representative:isValid() then
+		if selected_fleet_index ~= nil and fleetList[selected_fleet_index] ~= nil then
+			local fl = fleetList[selected_fleet_index]
+			if fl ~= nil then
+				if selected_fleet_representative_index ~= nil then
+					if selected_fleet_representative == fl[selected_fleet_representative_index] then
+						select_fleet_label = string.format("%i %s",selected_fleet_index,selected_fleet_representative:getCallSign())
+					end
+				end
+			end
+		end
+	end
+	if select_fleet_label ~= "Select Fleet" then
+		addGMFunction(string.format("%s",select_fleet_label),function()
+			local avg_impulse = 0
+			local ship_count = 0
+			for _, fm in pairs(fleetList[selected_fleet_index]) do
+				if fm ~= nil and fm:isValid() then
+					avg_impulse = avg_impulse + fm:getImpulseMaxSpeed()
+					ship_count = ship_count + 1
+				end
+			end
+			avg_impulse = avg_impulse/ship_count
+			for _, fm in pairs(fleetList[selected_fleet_index]) do
+				if fm ~= nil and fm:isValid() then
+					fm:setImpulseMaxSpeed(avg_impulse)
+				end
+			end
+			addGMMessage(string.format("Changed max impulse of %i ships in fleet %i to %.1f",ship_count,selected_fleet_index,avg_impulse))
+		end)
+	end
+end
 --Order fleet to be idle - do nothing
 function orderFleetIdle()
 	clearGMFunctions()
@@ -10584,7 +10638,7 @@ function podNearTo()
 	else
 		nearx, neary = objectList[1]:getPosition()	
 	end
-	print(string.format("nearx: %.1f, neary: %.1f",nearx,neary))
+	--print(string.format("nearx: %.1f, neary: %.1f",nearx,neary))
 	local nearbyObjects = getObjectsInRadius(nearx, neary, 20000)
 	cpuShipList = {}
 	for i=1,#nearbyObjects do
@@ -11985,6 +12039,123 @@ function supplyPickupProcess(self, player)
 	end
 	if self.coolant ~= nil then
 		player:setMaxCoolant(player:getMaxCoolant() + self.coolant)
+	end
+end
+----------------------------
+--	Drop Points > Attach  --
+----------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM ATTACH		F	initialGMFunctions
+-- -DROP POINT				F	dropPoint
+-- +SELECT DROP POINT		F	attachArtifact
+-- or list of CCPU Ships to attach
+function attachArtifact()
+	clearGMFunctions()
+	addGMFunction("-Main from attach",initialGMFunctions)
+	addGMFunction("-Drop point",dropPoint)
+	local object_list = getGMSelection()
+	if #object_list < 1 or #object_list > 1 then
+		addGMFunction("+Select drop point",attachArtifact)
+		return
+	end
+	local current_selected_object = object_list[1]
+	local current_selected_object_type = current_selected_object.typeName
+	if current_selected_object_type ~= "Artifact" and current_selected_object_type ~= "SupplyDrop" then
+		addGMFunction("+Select drop point",attachArtifact)
+	else
+		if current_selected_object_type == "Artifact" then
+			if escapePodList[current_selected_object:getCallSign()] == nil then
+				addGMFunction("+Select drop point",attachArtifact)
+				return
+			end
+		else	--supply drop
+			if current_selected_object:getCallSign() == nil then
+				addGMFunction("+Select drop point",attachArtifact)
+				return
+			end
+		end
+		local pod_x, pod_y = current_selected_object:getPosition()
+		local nearby_objects = getObjectsInRadius(pod_x, pod_y, 40000)
+		cpu_ship_list = {}
+		for i=1,#nearby_objects do
+			local temp_object = nearby_objects[i]
+			local temp_type = temp_object.typeName
+			if temp_type == "CpuShip" then
+				local ship_distance = distance(temp_object,current_selected_object)
+				table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
+			end
+		end
+		if #cpu_ship_list > 0 then
+			table.sort(cpu_ship_list,function(a,b)
+				return a.distance < b.distance
+			end)
+			if #cpu_ship_list >= 1 then
+				addGMFunction(string.format("Attach to %s",cpu_ship_list[1].ship:getCallSign()), function()
+					local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
+				end)
+			end
+			if #cpu_ship_list >= 2 then
+				addGMFunction(string.format("Attach to %s",cpu_ship_list[2].ship:getCallSign()), function()
+					local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
+				end)
+			end
+			if #cpu_ship_list >= 3 then
+				addGMFunction(string.format("Attach to %s",cpu_ship_list[3].ship:getCallSign()), function()
+					local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+				end)
+			end
+		else
+			if current_selected_object_type == "Artifact" then
+				addGMMessage("No CPU Ships within 40 units of selected escape pod")
+			else
+				addGMMessage("No CPU Ships within 40 units of selected supply drop")
+			end
+			addGMFunction("+Select drop point",attachArtifact)
+		end
+	end
+end
+----------------------------
+--	Drop Points > Detach  --
+----------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM DETACH		F	initialGMFunctions
+-- -DROP POINT				F	dropPoint
+-- +SELECT DROP POINT		F	detachArtifact
+function detachArtifact()
+	clearGMFunctions()
+	addGMFunction("-Main from detach",initialGMFunctions)
+	addGMFunction("-Drop point",dropPoint)
+	local object_list = getGMSelection()
+	if #object_list < 1 or #object_list > 1 then
+		addGMFunction("+Select drop point",detachArtifact)
+		return
+	end
+	local current_selected_object = object_list[1]
+	local current_selected_object_type = current_selected_object.typeName
+	if current_selected_object_type ~= "Artifact" and current_selected_object_type ~= "SupplyDrop" then
+		addGMFunction("+Select drop point",detachArtifact)
+	else
+		if current_selected_object_type == "Artifact" then
+			if escapePodList[current_selected_object:getCallSign()] == nil then
+				addGMFunction("+Select drop point",detachArtifact)
+				return
+			end
+		else	--supply drop
+			if current_selected_object:getCallSign() == nil then
+				addGMFunction("+Select drop point",detachArtifact)
+				return
+			end
+		end
+		update_system:removeUpdateNamed(current_selected_object,"attached")
 	end
 end
 --	*											   *  --
