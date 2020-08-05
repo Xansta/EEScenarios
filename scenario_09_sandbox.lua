@@ -2447,6 +2447,13 @@ function tweakTerrain()
 						addGMMessage(string.format("Station %s now has sandbox communications",tempObject:getCallSign()))
 					elseif tempType == "CpuShip" then
 						tempObject:setCommsScript(""):setCommsFunction(commsShip)
+						local p = getPlayerShip(-1)
+						if p ~= nil and not p:isEnemy(tempObject) then
+							if region_ships == nil then
+								region_ships = {}
+							end
+							table.insert(region_ships,tempObject)
+						end
 						addGMMessage(string.format("Ship %s now has sandbox communications",tempObject:getCallSign()))
 					else
 						addGMMessage("You can only add sandbox comms to stations or ships. No action taken")
@@ -16925,6 +16932,48 @@ function updateInner(delta)
 			end
 		end
 	end
+	local ship_warning_message = nil
+	local warning_ship = nil
+	if automated_station_danger_warning and region_ships ~= nil then
+		for ship_index=1,#region_ships do
+			local current_ship = region_ships[ship_index]
+			if current_ship ~= nil and current_ship:isValid() then
+				if current_ship.proximity_warning == nil then
+					for _, obj in ipairs(current_ship:getObjectsInRange(station_sensor_range)) do
+						if obj ~= nil and obj:isValid() then
+							if obj:isEnemy(current_ship) then
+								local detected_enemy_ship = false
+								local obj_type_name = obj.typeName
+								if obj_type_name ~= nil then
+									if string.find(obj_type_name,"CpuShip") then
+										detected_enemy_ship = true
+									end
+								end
+								if detected_enemy_ship then
+									warning_ship = current_ship
+									ship_warning_message = string.format("[%s in %s] We detect one or more enemies nearby",current_ship:getCallSign(),current_ship:getSectorName())
+									if warning_includes_ship_type then
+										ship_warning_message = string.format("%s. At least one is of type %s",ship_warning_message,obj:getTypeName())
+									end
+									current_ship.proximity_warning = ship_warning_message
+									current_ship.proximity_warning_timer = delta + 300
+									break
+								end
+							end
+						end
+					end
+					if warning_ship ~= nil then
+						break
+					end
+				else
+					current_ship.proximity_warning_timer = current_ship.proximity_warning_timer - delta
+					if current_ship.proximity_warning_timer < 0 then
+						current_ship.proximity_warning = nil
+					end
+				end
+			end
+		end
+	end
 	if updateDiagnostic then print("update: universe update") end
 	update_system:update(delta)
 	for pidx=1,8 do
@@ -16940,6 +16989,9 @@ function updateInner(delta)
 			end
 			if warning_station ~= nil then
 				p:addToShipLog(warning_message,"Red")
+			end
+			if warning_ship ~= nil then
+				p:addToShipLog(ship_warning_message,"Red")
 			end
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
