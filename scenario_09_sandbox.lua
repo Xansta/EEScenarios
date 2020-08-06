@@ -28,6 +28,7 @@ function createSkeletonUniverse()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
+	skeleton_stations = {}
 	station_names = {}
 	--Icarus
 	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
@@ -48,6 +49,7 @@ function createSkeletonUniverse()
     	history = "As humans ran up against more and more unfriendly races, this station became the nexus for research and development of new space ship building technologies. After a few experimental accidents involving militarily driven scientists and fabrication specialists, the station was renamed from Research-37 to Icarus referencing the mythical figure that flew too close to the sun"
 	}
 	station_names[stationIcarus:getCallSign()] = {stationIcarus:getSectorName(), stationIcarus}
+	table.insert(skeleton_stations,stationIcarus)
 	--Kentar
 	kentar_x = 246000
 	kentar_y = 247000
@@ -71,6 +73,7 @@ function createSkeletonUniverse()
         general_information = "Regional headquarters. Jumping off point for actions against Kraylor activity",
     	history = "This used to be a scientific observation and research station. As the Kraylors have grown more agressive, it's been built up and serves as a strategic cornerstone for actions against the Kraylors. The name Kentar derives from Kentauros or Centaurus, after the nearby star's prominent position in the constellation Centaurus"
 	}
+	table.insert(skeleton_stations,stationKentar)
 	station_names[stationKentar:getCallSign()] = {stationKentar:getSectorName(), stationKentar}
 	createFleurNebula()
 	BlackHole():setPosition(-12443,-23245)
@@ -722,8 +725,29 @@ function setConstants()
 	jammer_range = 10000
 	automated_station_danger_warning = true
 	server_sensor = true
-	station_sensor_range = 30000
+	station_sensor_range = 20000
 	warning_includes_ship_type = true
+	player_ship_log_message_color = "Magenta"
+	color_list = {
+		["Magenta"]		= "Magenta",
+		["Yellow"]		= "Yellow",
+		["Red"]			= "Red",
+		["Blue"]		= "Blue",
+		["Cyan"]		= "Cyan",
+		["White"]		= "White",
+		["Black"]		= "Black",
+		["Green"]		= "Green",
+		["186,85,211"]	= "Medium Orchid",
+		["95,158,160"]	= "Cadet Blue",
+		["55,55,55"]	= "Dark Gray",
+		["255,69,0"]	= "Orange Red",
+		["255,127,80"]	= "Coral",
+		["65,105,225"]	= "Royal Blue",
+		["160,82,45"]	= "Sienna",
+		["85,107,47"]	= "Dark Olive Green",
+		["34,139,34"]	= "Forest Green",
+		["178,34,34"]	= "Firebrick Red",
+	}
 	jump_corridor = false
 	station_defensive_fleet_speed_average = false
 	inner_defense_platform_count = 3
@@ -5131,6 +5155,7 @@ end
 -- +ENGINEERING		F	tweakEngineering
 -- +CARGO			F	changePlayerCargo
 -- +REPUTATION		F	changePlayerReputation
+-- +PLAYER MESSAGE	F	playerMessage
 function tweakPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -5139,7 +5164,7 @@ function tweakPlayerShip()
 	addGMFunction("+Engineering",tweakEngineering)
 	addGMFunction("+Cargo",changePlayerCargo)
 	addGMFunction("+Reputation",changePlayerReputation)
-	addGMFunction("+Console Message",playerConsoleMessage)
+	addGMFunction("+Player Message",playerMessage)
 end
 -----------------------------------------------
 --	Initial Set Up > Player Ships > Current  --
@@ -5718,19 +5743,39 @@ function changePlayerReputation()
 		tweakPlayerShip()
 	end
 end
+---------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Player Message  --
+---------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PLYR MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +CONSOLE MESSAGE		F	playerConsoleMessage
+-- +SHIP LOG MSG		F	playerShipLogMessage
+function playerMessage()
+	clearGMFunctions()
+	addGMFunction("-Main from plyr msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak player",tweakPlayerShip)
+	addGMFunction("+Console Message",playerConsoleMessage)
+	addGMFunction("+Ship Log Msg",playerShipLogMessage)
+end
 ----------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Console Message  --
 ----------------------------------------------------------------------
 -- Button text	   FD*	Related Function(s)
--- -MAIN FROM MSG	F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -TWEAK PLAYER	F	tweakPlayerShip
--- +SELECT MSG OBJ	F	changeMessageObject
+-- -MAIN FROM CNSL MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +SELECT MSG OBJ		F	changeMessageObject
 function playerConsoleMessage()
 	clearGMFunctions()
-	addGMFunction("-Main From Msg",initialGMFunctions)
+	addGMFunction("-Main From Cnsl Msg",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
 	if message_object == nil then
 		addGMFunction("+Select Msg Obj",changeMessageObject)
 	else
@@ -5755,7 +5800,283 @@ function changeMessageObject()
 	else
 		addGMMessage("Select an object to use to pass messages via its description field. No action taken")
 	end 
-	playerConsoleMessage()
+end
+-----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message  --
+-----------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- +SRC:UNKNOWN			D	playerMessageSource
+-- +SELECT MSG OBJ		D	changeMessageObject
+-- +PSHIP:ALL			D	setPlayerShipMessageDestination
+-- +COLOR:MAGENTA		D	setPlayerShipLogMessageColor
+-- PREVIEW				F	inline
+-- SEND					F	inline
+function playerShipLogMessage()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if player_message_source == nil then
+		player_message_source = "Unknown"
+	end
+	if type(player_message_source) == "string" then
+		addGMFunction(string.format("+Src:%s",player_message_source),playerMessageSource)
+	else
+		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageSource)
+	end
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+	end
+	if player_ship_message_destination == nil then
+		player_ship_message_destination = "All"
+	end
+	local button_label = "+pShip"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. ":All"
+	else
+		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
+	end
+	addGMFunction(button_label,setPlayerShipMessageDestination)
+	addGMFunction(string.format("+Color:%s",color_list[player_ship_log_message_color]),setPlayerShipLogMessageColor)
+	addGMFunction("Preview",function()
+		local preview_message = "Clicking send will send the following message:"
+		if message_object ~= nil then
+			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
+			preview_message = preview_message .. "\nIdentified as coming from"
+			if type(player_message_source) == "string" then
+				if message_source_object ~= nil then
+					local source = message_source_object:getDescription()
+					if source ~= nil then
+						player_message_source = source
+					end
+				end
+				preview_message = string.format("%s\n%s",preview_message,player_message_source)
+			else
+				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
+			end
+			if type(player_ship_message_destination) == "string" then
+				preview_message = string.format("%s\nTo all player ship logs",preview_message)
+			else
+				preview_message = string.format("%s\nTo %s's ship log",preview_message,player_ship_message_destination:getCallSign())
+			end
+			preview_message = string.format("%s\nIn this color: %s",preview_message,color_list[player_ship_log_message_color])
+		else
+			preview_message = preview_message .. "\nno message because no message object has been selected"
+		end
+		addGMMessage(preview_message)
+	end)
+	addGMFunction("Send",function()
+		local ship_log_message = ""
+		if type(player_message_source) == "string" then
+			if message_source_object ~= nil then
+				local source = message_source_object:getDescription()
+				if source ~= nil then
+					player_message_source = source
+				end
+			end
+			ship_log_message = string.format("[%s] %s",player_message_source,message_object:getDescription())
+		else
+			ship_log_message = string.format("[%s in %s] %s",player_message_source:getCallSign(),player_message_source:getSectorName(),message_object:getDescription())
+		end
+		if type(player_ship_message_destination) == "string" then
+			for pidx=1,32 do
+				local p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					p:addToShipLog(ship_log_message,player_ship_log_message_color)
+				end
+			end
+		else
+			player_ship_message_destination:addToShipLog(ship_log_message,player_ship_log_message_color)
+		end
+		local confirmation_message = string.format("Message...\n%s\nsent to\n",ship_log_message)
+		if type(player_ship_message_destination) == "string" then
+			confirmation_message = string.format("%sAll player ships colored in %s",confirmation_message,color_list[player_ship_log_message_color])
+		else
+			confirmation_message = string.format("%s%s colored in %s",confirmation_message,player_ship_message_destination:getCallSign(),color_list[player_ship_log_message_color])
+		end
+		addGMMessage(confirmation_message)
+	end)
+end
+----------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source  --
+----------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -SHIP LOG MSG		F	playerShipLogMessage
+-- UNKNOWN				*	inline
+-- +INPUT				D*	inputMessageSource
+-- List of stations and ships, inline function for each
+function playerMessageSource()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Ship Log Msg",playerShipLogMessage)
+	local button_label = "Unknown"
+	if type(player_message_source) == "string" and player_message_source == "Unknown" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		player_message_source = "Unknown"
+		playerMessageSource()
+	end)
+	button_label = "+Input"
+	if type(player_message_source) == "string" and player_message_source ~= "Unknown" then
+		button_label = string.format("+%s*",player_message_source)
+	end
+	addGMFunction(button_label,inputMessageSource)
+	local stations_and_ships = {}
+	for _, station in pairs(regionStations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	if region_ships ~= nil then
+		for _, ship in pairs(region_ships) do
+			if ship ~= nil and ship:isValid() then
+				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
+			end
+		end
+	end
+	for _, station in pairs(skeleton_stations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	table.sort(stations_and_ships,function(a,b)
+		return a.name < b.name
+	end)
+	for _,item in ipairs(stations_and_ships) do
+		button_label = item.name
+		if type(player_message_source) == "table" and player_message_source == item.object then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			player_message_source = item.object
+			playerMessageSource()
+		end)
+	end
+end
+------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source > Input  --
+------------------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -SHIP LOG MSG		F	playerShipLogMessage
+-- -MSG SOURCE			F	playerMessageSource
+-- +SEL SRC MSG OBJ		D	changeMessageSourceObject
+function inputMessageSource()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Input Src",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Ship Log Msg",playerShipLogMessage)
+	addGMFunction("-Msg Source",playerMessageSource)
+	if message_source_object == nil then
+		addGMFunction("+Sel Src Msg Obj",changeMessageSourceObject)
+	else
+		addGMFunction("+Chg Src Msg Obj",changeMessageSourceObject)
+	end
+end
+function changeMessageSourceObject()
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			message_source_object = object_list[1]
+			local source = message_source_object:getDescription()
+			if source ~= nil then
+				player_message_source = source
+			end
+			addGMMessage(string.format("Object in %s selected to identify message source.\nplace message source text in description field",message_source_object:getSectorName()))
+		else
+			addGMMessage("Select only one object to use to identify message source via its description field. No action taken")
+		end
+	else
+		addGMMessage("Select an object to use to identify message source via its description field. No action taken")
+	end 
+end
+-------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Color  --
+-------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -PLYR SHP LOG MSG	F	playerShipLogMessage
+-- List of colors		D*	inline per color
+function setPlayerShipLogMessageColor()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Plyr Shp Log Msg",playerShipLogMessage)
+	for id, name in pairs(color_list) do
+		local button_label = name
+		if id == player_ship_log_message_color then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			player_ship_log_message_color = id
+			setPlayerShipLogMessageColor()
+		end)
+	end
+end
+-------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Destination  --
+-------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -PLYR SHIP LOG MSG	F	playerShipLogMessage
+-- ALL					*	inline
+-- Player ship list		*	inline per ship
+function setPlayerShipMessageDestination()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Msg Dstn",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Plyr Ship Log Msg",playerShipLogMessage)
+	local button_label = "All"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		player_ship_message_destination = "All"
+		setPlayerShipMessageDestination()
+	end)
+	for pidx=1,32 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			button_label = p:getCallSign()
+			if type(player_ship_message_destination) == "table" and p == player_ship_message_destination then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				player_ship_message_destination = p
+				setPlayerShipMessageDestination()
+			end)
+		end
+	end
 end
 ----------------------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Console Message > Send to console  --
