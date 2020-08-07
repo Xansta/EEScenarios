@@ -9148,7 +9148,7 @@ function getTemplatePool(max_strength)
 		end
 	elseif pool_selectivity == "more/light" then
 		for i=#ship_template_by_strength,1,-1 do
-			local current_ship_template = ship_template[i]
+			local current_ship_template = ship_template_by_strength[i]
 			if not excludeShip(current_ship_template) then
 				if ship_template[current_ship_template].strength <= max_strength then
 					if fleetComposition == "Non-DB" then
