@@ -17433,6 +17433,27 @@ function updateInner(delta)
 			if warning_ship ~= nil then
 				p:addToShipLog(ship_warning_message,"Red")
 			end
+			local name_tag_text = string.format("%s in %s",player_name,p:getSectorName())
+			if p:hasPlayerAtPosition("Relay") then
+				p.name_tag = "name_tag"
+				p:addCustomInfo("Relay",p.name_tag,name_tag_text)
+			end
+			if p:hasPlayerAtPosition("Operations") then
+				p.name_tag_ops = "name_tag_ops"
+				p:addCustomInfo("Operations",p.name_tag_ops,name_tag_text)
+			end
+			if p:hasPlayerAtPosition("ShipLog") then
+				p.name_tag_log = "name_tag_log"
+				p:addCustomInfo("ShipLog",p.name_tag_log,name_tag_text)
+			end
+			if p:hasPlayerAtPosition("Helms") then
+				p.name_tag_helm = "name_tag_helm"
+				p:addCustomInfo("Helms",p.name_tag_helm,name_tag_text)
+			end
+			if p:hasPlayerAtPosition("Tactical") then
+				p.name_tag_tac = "name_tag_tac"
+				p:addCustomInfo("Tactical",p.name_tag_tac,name_tag_text)
+			end
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
 				local goodCount = 0
