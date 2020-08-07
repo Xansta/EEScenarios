@@ -5761,6 +5761,7 @@ function playerMessage()
 	addGMFunction("-Tweak player",tweakPlayerShip)
 	addGMFunction("+Console Message",playerConsoleMessage)
 	addGMFunction("+Ship Log Msg",playerShipLogMessage)
+	addGMFunction("+Hail Message",playerHailMessage)
 end
 ----------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Console Message  --
@@ -5843,6 +5844,7 @@ function playerShipLogMessage()
 	else
 		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
 	end
+	set_player_ship_message_destination_caller = playerShipLogMessage
 	addGMFunction(button_label,setPlayerShipMessageDestination)
 	addGMFunction(string.format("+Color:%s",color_list[player_ship_log_message_color]),setPlayerShipLogMessageColor)
 	addGMFunction("Preview",function()
@@ -5903,6 +5905,119 @@ function playerShipLogMessage()
 		end
 		addGMMessage(confirmation_message)
 	end)
+end
+function playerHailMessage()
+	clearGMFunctions()
+	addGMFunction("-Main From Hail Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if player_message_source == nil or type(player_message_source) == "string" then
+		addGMFunction("+Source",playerMessageObjectSource)
+	else
+		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageObjectSource)
+	end
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+	end
+	if player_ship_message_destination == nil then
+		player_ship_message_destination = "All"
+	end
+	local button_label = "+pShip"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. ":All"
+	else
+		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
+	end
+	set_player_ship_message_destination_caller = playerHailMessage
+	addGMFunction(button_label,setPlayerShipMessageDestination)
+	addGMFunction("Preview",function()
+		local preview_message = "Clicking send will send the following message:"
+		if message_object ~= nil then
+			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
+			preview_message = preview_message .. "\nIdentified as coming from"
+			if player_message_source == nil or type(player_message_source) == "string" then
+				preview_message = preview_message .. "\nNobody (message will not go out). You need to select a message source"
+			else
+				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
+			end
+			if type(player_ship_message_destination) == "string" then
+				preview_message = string.format("%s\nTo all player ships",preview_message)
+			else
+				preview_message = string.format("%s\nTo %s",preview_message,player_ship_message_destination:getCallSign())
+			end
+		else
+			preview_message = preview_message .. "\nNo message because no message object has been selected"
+		end
+		addGMMessage(preview_message)
+	end)
+	addGMFunction("Send",function()
+		local hail_message = ""
+		if player_message_source == nil or type(player_message_source) == "string" then
+			addGMMessage("You need to select a message source. No action taken")
+			return
+		else
+			hail_message = string.format("[Sector %s] %s",player_message_source:getSectorName(),message_object:getDescription())
+		end
+		if type(player_ship_message_destination) == "string" then
+			for pidx=1,32 do
+				local p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					player_message_source:sendCommsMessage(p,hail_message)
+				end
+			end
+		else
+			player_message_source:sendCommsMessage(player_ship_message_destination,hail_message)
+		end
+		local confirmation_message = string.format("Message...\n%s\nsent to\n",hail_message)
+		if type(player_ship_message_destination) == "string" then
+			confirmation_message = string.format("%sAll player ships",confirmation_message)
+		else
+			confirmation_message = string.format("%s%s",confirmation_message,player_ship_message_destination:getCallSign())
+		end
+		addGMMessage(confirmation_message)
+	end)
+end
+function playerMessageObjectSource()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Hail Message",playerHailMessage)
+	local stations_and_ships = {}
+	for _, station in pairs(regionStations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	if region_ships ~= nil then
+		for _, ship in pairs(region_ships) do
+			if ship ~= nil and ship:isValid() then
+				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
+			end
+		end
+	end
+	for _, station in pairs(skeleton_stations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	table.sort(stations_and_ships,function(a,b)
+		return a.name < b.name
+	end)
+	for _,item in ipairs(stations_and_ships) do
+		button_label = item.name
+		if type(player_message_source) == "table" and player_message_source == item.object then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			player_message_source = item.object
+			playerMessageObjectSource()
+		end)
+	end
 end
 ----------------------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source  --
@@ -6055,7 +6170,11 @@ function setPlayerShipMessageDestination()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
 	addGMFunction("-Player Message",playerMessage)
-	addGMFunction("-Plyr Ship Log Msg",playerShipLogMessage)
+	if set_player_ship_message_destination_caller == playerShipLogMessage then
+		addGMFunction("-Plyr Ship Log Msg",playerShipLogMessage)
+	else
+		addGMFunction("-Plyr Hail Msg",playerHailMessage)
+	end
 	local button_label = "All"
 	if type(player_ship_message_destination) == "string" then
 		button_label = button_label .. "*"
