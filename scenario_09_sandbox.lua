@@ -783,6 +783,19 @@ function setConstants()
 		"fire_sphere_texture.png"
 	}
 	mining_drain = .00025
+	gm_names = {
+		"Administrative Assistant",
+		"General Manager",
+		"Finnicky Flunky",
+		"Vericose Veined VIP",
+		"Operator",
+		"Tempermental Technician",
+	}
+	gm_verbs = {
+		"Contact",
+		"Talk to",
+		"Direct Message",
+	}
 end
 function updateSystem()
 	return {
@@ -15674,6 +15687,12 @@ function handleDockedState()
 		oMsg = oMsg .. "Forgive us if we seem a little distracted. We are carefully monitoring the enemies nearby."
 	end
 	setCommsMessage(oMsg)
+	local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
+	local gm_name = gm_names[math.random(1,#gm_names)]
+	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+		commsSwitchToGM()
+		addCommsReply("Back", commsStation)
+	end)
 	local missilePresence = 0
 	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	for _, missile_type in ipairs(missile_types) do
@@ -16406,6 +16425,12 @@ function handleUndockedState()
 		oMsg = oMsg .. "\nBe aware that if enemies in the area get much closer, we will be too busy to conduct business with you."
 	end
 	setCommsMessage(oMsg)
+	local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
+	local gm_name = gm_names[math.random(1,#gm_names)]
+	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+		commsSwitchToGM()
+		addCommsReply("Back", commsStation)
+	end)
 	if isAllowedTo(ctd.services.preorder) then
 		addCommsReply("Expedite Dock",function()
 			if comms_source.expedite_dock == nil then
