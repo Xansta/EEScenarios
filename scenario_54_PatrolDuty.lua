@@ -29,6 +29,20 @@
 
 require("utils.lua")
 
+--- Remove random element from array and return it.
+--
+-- The function returns `nil` if the array is empty,
+-- analogously to `table.remove`.
+function tableremoverandom(array)
+    local n = #array
+    if n == 0 then
+        return nil
+    end
+    local i = math.random(n)
+    array[i], array[n] = array[n], array[i]
+    return table.remove(array)
+end
+
 function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 -- Create amount of objects of type object_type along arc
 -- Center defined by x and y
@@ -315,67 +329,51 @@ function setPlayers()
 				tempPlayerType = pobj:getTypeName()
 				if tempPlayerType == "MP52 Hornet" then
 					if #playerShipNamesForMP52Hornet > 0 then
-						ni = math.random(1,#playerShipNamesForMP52Hornet)
-						pobj:setCallSign(playerShipNamesForMP52Hornet[ni])
-						table.remove(playerShipNamesForMP52Hornet,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForMP52Hornet))
 					end
 					pobj.shipScore = 7
 					pobj.maxCargo = 3
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Piranha" then
 					if #playerShipNamesForPiranha > 0 then
-						ni = math.random(1,#playerShipNamesForPiranha)
-						pobj:setCallSign(playerShipNamesForPiranha[ni])
-						table.remove(playerShipNamesForPiranha,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForPiranha))
 					end
 					pobj.shipScore = 16
 					pobj.maxCargo = 8
 				elseif tempPlayerType == "Flavia P.Falcon" then
 					if #playerShipNamesForFlaviaPFalcon > 0 then
-						ni = math.random(1,#playerShipNamesForFlaviaPFalcon)
-						pobj:setCallSign(playerShipNamesForFlaviaPFalcon[ni])
-						table.remove(playerShipNamesForFlaviaPFalcon,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForFlaviaPFalcon))
 					end
 					pobj.shipScore = 13
 					pobj.maxCargo = 15
 				elseif tempPlayerType == "Phobos M3P" then
 					if #playerShipNamesForPhobosM3P > 0 then
-						ni = math.random(1,#playerShipNamesForPhobosM3P)
-						pobj:setCallSign(playerShipNamesForPhobosM3P[ni])
-						table.remove(playerShipNamesForPhobosM3P,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForPhobosM3P))
 					end
 					pobj.shipScore = 19
 					pobj.maxCargo = 10
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Atlantis" then
 					if #playerShipNamesForAtlantis > 0 then
-						ni = math.random(1,#playerShipNamesForAtlantis)
-						pobj:setCallSign(playerShipNamesForAtlantis[ni])
-						table.remove(playerShipNamesForAtlantis,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForAtlantis))
 					end
 					pobj.shipScore = 52
 					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Cruiser" then
 					if #playerShipNamesForCruiser > 0 then
-						ni = math.random(1,#playerShipNamesForCruiser)
-						pobj:setCallSign(playerShipNamesForCruiser[ni])
-						table.remove(playerShipNamesForCruiser,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForCruiser))
 					end
 					pobj.shipScore = 40
 					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Missile Cr." then
 					if #playerShipNamesForMissileCruiser > 0 then
-						ni = math.random(1,#playerShipNamesForMissileCruiser)
-						pobj:setCallSign(playerShipNamesForMissileCruiser[ni])
-						table.remove(playerShipNamesForMissileCruiser,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForMissileCruiser))
 					end
 					pobj.shipScore = 45
 					pobj.maxCargo = 8
 				elseif tempPlayerType == "Player Fighter" then
 					if #playerShipNamesForFighter > 0 then
-						ni = math.random(1,#playerShipNamesForFighter)
-						pobj:setCallSign(playerShipNamesForFighter[ni])
-						table.remove(playerShipNamesForFighter,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForFighter))
 					end
 					pobj.shipScore = 7
 					pobj.maxCargo = 3
@@ -383,25 +381,19 @@ function setPlayers()
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "Benedict" then
 					if #playerShipNamesForBenedict > 0 then
-						ni = math.random(1,#playerShipNamesForBenedict)
-						pobj:setCallSign(playerShipNamesForBenedict[ni])
-						table.remove(playerShipNamesForBenedict,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForBenedict))
 					end
 					pobj.shipScore = 10
 					pobj.maxCargo = 9
 				elseif tempPlayerType == "Kiriya" then
 					if #playerShipNamesForKiriya > 0 then
-						ni = math.random(1,#playerShipNamesForKiriya)
-						pobj:setCallSign(playerShipNamesForKiriya[ni])
-						table.remove(playerShipNamesForKiriya,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForKiriya))
 					end
 					pobj.shipScore = 10
 					pobj.maxCargo = 9
 				elseif tempPlayerType == "Striker" then
 					if #playerShipNamesForStriker > 0 then
-						ni = math.random(1,#playerShipNamesForStriker)
-						pobj:setCallSign(playerShipNamesForStriker[ni])
-						table.remove(playerShipNamesForStriker,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForStriker))
 					end
 					if pobj:getImpulseMaxSpeed() == 45 then
 						pobj:setImpulseMaxSpeed(90)
@@ -423,9 +415,7 @@ function setPlayers()
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "ZX-Lindworm" then
 					if #playerShipNamesForLindworm > 0 then
-						ni = math.random(1,#playerShipNamesForLindworm)
-						pobj:setCallSign(playerShipNamesForLindworm[ni])
-						table.remove(playerShipNamesForLindworm,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForLindworm))
 					end
 					pobj.shipScore = 8
 					pobj.maxCargo = 3
@@ -433,57 +423,43 @@ function setPlayers()
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Repulse" then
 					if #playerShipNamesForRepulse > 0 then
-						ni = math.random(1,#playerShipNamesForRepulse)
-						pobj:setCallSign(playerShipNamesForRepulse[ni])
-						table.remove(playerShipNamesForRepulse,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForRepulse))
 					end
 					pobj.shipScore = 14
 					pobj.maxCargo = 12
 				elseif tempPlayerType == "Ender" then
 					if #playerShipNamesForEnder > 0 then
-						ni = math.random(1,#playerShipNamesForEnder)
-						pobj:setCallSign(playerShipNamesForEnder[ni])
-						table.remove(playerShipNamesForEnder,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForEnder))
 					end
 					pobj.shipScore = 100
 					pobj.maxCargo = 20
 				elseif tempPlayerType == "Nautilus" then
 					if #playerShipNamesForNautilus > 0 then
-						ni = math.random(1,#playerShipNamesForNautilus)
-						pobj:setCallSign(playerShipNamesForNautilus[ni])
-						table.remove(playerShipNamesForNautilus,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForNautilus))
 					end
 					pobj.shipScore = 12
 					pobj.maxCargo = 7
 				elseif tempPlayerType == "Hathcock" then
 					if #playerShipNamesForHathcock > 0 then
-						ni = math.random(1,#playerShipNamesForHathcock)
-						pobj:setCallSign(playerShipNamesForHathcock[ni])
-						table.remove(playerShipNamesForHathcock,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForHathcock))
 					end
 					pobj.shipScore = 30
 					pobj.maxCargo = 6
 				elseif tempPlayerType == "Maverick" then
 					if #playerShipNamesForMaverick > 0 then
-						ni = math.random(1,#playerShipNamesForMaverick)
-						pobj:setCallSign(playerShipNamesForMaverick[ni])
-						table.remove(playerShipNamesForMaverick,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForMaverick))
 					end
 					pobj.shipScore = 45
 					pobj.maxCargo = 5
 				elseif tempPlayerType == "Crucible" then
 					if #playerShipNamesForCrucible > 0 then
-						ni = math.random(1,#playerShipNamesForCrucible)
-						pobj:setCallSign(playerShipNamesForCrucible[ni])
-						table.remove(playerShipNamesForCrucible,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForCrucible))
 					end
 					pobj.shipScore = 45
 					pobj.maxCargo = 5
 				else
 					if #playerShipNamesForLeftovers > 0 then
-						ni = math.random(1,#playerShipNamesForLeftovers)
-						pobj:setCallSign(playerShipNamesForLeftovers[ni])
-						table.remove(playerShipNamesForLeftovers,ni)
+						pobj:setCallSign(tableremoverandom(playerShipNamesForLeftovers))
 					end
 					pobj.shipScore = 24
 					pobj.maxCargo = 5
