@@ -308,31 +308,32 @@ function setConstants()
 						["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true	},
 					}	
 	--Player ship name lists to supplant standard randomized call sign generation
-	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
-	playerShipNamesForPiranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
-	playerShipNamesForFlaviaPFalcon = {"Ladyhawke","Hunter","Seeker","Gyrefalcon","Kestrel","Magpie","Bandit","Buccaneer"}
-	playerShipNamesForPhobosM3P = {"Blinder","Shadow","Distortion","Diemos","Ganymede","Castillo","Thebe","Retrograde"}
-	playerShipNamesForAtlantis = {"Excaliber","Thrasher","Punisher","Vorpal","Protang","Drummond","Parchim","Coronado"}
-	playerShipNamesForCruiser = {"Excelsior","Velociraptor","Thunder","Kona","Encounter","Perth","Aspern","Panther"}
-	playerShipNamesForMissileCruiser = {"Projectus","Hurlmeister","Flinger","Ovod","Amatola","Nakhimov","Antigone"}
-	playerShipNamesForFighter = {"Buzzer","Flitter","Zippiticus","Hopper","Molt","Stinger","Stripe"}
-	playerShipNamesForBenedict = {"Elizabeth","Ford","Vikramaditya","Liaoning","Avenger","Naruebet","Washington","Lincoln","Garibaldi","Eisenhower"}
-	playerShipNamesForKiriya = {"Cavour","Reagan","Gaulle","Paulo","Truman","Stennis","Kuznetsov","Roosevelt","Vinson","Old Salt"}
-	playerShipNamesForStriker = {"Sparrow","Sizzle","Squawk","Crow","Phoenix","Snowbird","Hawk"}
-	playerShipNamesForLindworm = {"Seagull","Catapult","Blowhard","Flapper","Nixie","Pixie","Tinkerbell"}
-	playerShipNamesForRepulse = {"Fiddler","Brinks","Loomis","Mowag","Patria","Pandur","Terrex","Komatsu","Eitan"}
-	playerShipNamesForEnder = {"Mongo","Godzilla","Leviathan","Kraken","Jupiter","Saturn"}
-	playerShipNamesForNautilus = {"October", "Abdiel", "Manxman", "Newcon", "Nusret", "Pluton", "Amiral", "Amur", "Heinkel", "Dornier"}
-	playerShipNamesForHathcock = {"Hayha", "Waldron", "Plunkett", "Mawhinney", "Furlong", "Zaytsev", "Pavlichenko", "Pegahmagabow", "Fett", "Hawkeye", "Hanzo"}
-	playerShipNamesForProtoAtlantis = {"Narsil", "Blade", "Decapitator", "Trisect", "Sabre"}
-	playerShipNamesForMaverick = {"Angel", "Thunderbird", "Roaster", "Magnifier", "Hedge"}
-	playerShipNamesForCrucible = {"Sling", "Stark", "Torrid", "Kicker", "Flummox"}
-	playerShipNamesForSurkov = {"Sting", "Sneak", "Bingo", "Thrill", "Vivisect"}
-	playerShipNamesForStricken = {"Blazon", "Streaker", "Pinto", "Spear", "Javelin"}
-	playerShipNamesForAtlantisII = {"Spyder", "Shelob", "Tarantula", "Aragog", "Charlotte"}
-	playerShipNamesForRedhook = {"Headhunter", "Thud", "Troll", "Scalper", "Shark"}
-	playerShipNamesForDestroyerIII = {"Trebuchet", "Pitcher", "Mutant", "Gronk", "Methuselah"}
-	playerShipNamesForLeftovers = {"Foregone","Righteous","Masher"}
+	playerShipNamesFor = {}
+	playerShipNamesFor.MP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
+	playerShipNamesFor.Piranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
+	playerShipNamesFor.FlaviaPFalcon = {"Ladyhawke","Hunter","Seeker","Gyrefalcon","Kestrel","Magpie","Bandit","Buccaneer"}
+	playerShipNamesFor.PhobosM3P = {"Blinder","Shadow","Distortion","Diemos","Ganymede","Castillo","Thebe","Retrograde"}
+	playerShipNamesFor.Atlantis = {"Excaliber","Thrasher","Punisher","Vorpal","Protang","Drummond","Parchim","Coronado"}
+	playerShipNamesFor.Cruiser = {"Excelsior","Velociraptor","Thunder","Kona","Encounter","Perth","Aspern","Panther"}
+	playerShipNamesFor.MissileCruiser = {"Projectus","Hurlmeister","Flinger","Ovod","Amatola","Nakhimov","Antigone"}
+	playerShipNamesFor.Fighter = {"Buzzer","Flitter","Zippiticus","Hopper","Molt","Stinger","Stripe"}
+	playerShipNamesFor.Benedict = {"Elizabeth","Ford","Vikramaditya","Liaoning","Avenger","Naruebet","Washington","Lincoln","Garibaldi","Eisenhower"}
+	playerShipNamesFor.Kiriya = {"Cavour","Reagan","Gaulle","Paulo","Truman","Stennis","Kuznetsov","Roosevelt","Vinson","Old Salt"}
+	playerShipNamesFor.Striker = {"Sparrow","Sizzle","Squawk","Crow","Phoenix","Snowbird","Hawk"}
+	playerShipNamesFor.Lindworm = {"Seagull","Catapult","Blowhard","Flapper","Nixie","Pixie","Tinkerbell"}
+	playerShipNamesFor.Repulse = {"Fiddler","Brinks","Loomis","Mowag","Patria","Pandur","Terrex","Komatsu","Eitan"}
+	playerShipNamesFor.Ender = {"Mongo","Godzilla","Leviathan","Kraken","Jupiter","Saturn"}
+	playerShipNamesFor.Nautilus = {"October", "Abdiel", "Manxman", "Newcon", "Nusret", "Pluton", "Amiral", "Amur", "Heinkel", "Dornier"}
+	playerShipNamesFor.Hathcock = {"Hayha", "Waldron", "Plunkett", "Mawhinney", "Furlong", "Zaytsev", "Pavlichenko", "Pegahmagabow", "Fett", "Hawkeye", "Hanzo"}
+	playerShipNamesFor.ProtoAtlantis = {"Narsil", "Blade", "Decapitator", "Trisect", "Sabre"}
+	playerShipNamesFor.Maverick = {"Angel", "Thunderbird", "Roaster", "Magnifier", "Hedge"}
+	playerShipNamesFor.Crucible = {"Sling", "Stark", "Torrid", "Kicker", "Flummox"}
+	playerShipNamesFor.Surkov = {"Sting", "Sneak", "Bingo", "Thrill", "Vivisect"}
+	playerShipNamesFor.Stricken = {"Blazon", "Streaker", "Pinto", "Spear", "Javelin"}
+	playerShipNamesFor.AtlantisII = {"Spyder", "Shelob", "Tarantula", "Aragog", "Charlotte"}
+	playerShipNamesFor.Redhook = {"Headhunter", "Thud", "Troll", "Scalper", "Shark"}
+	playerShipNamesFor.DestroyerIII = {"Trebuchet", "Pitcher", "Mutant", "Gronk", "Methuselah"}
+	playerShipNamesFor.Leftovers = {"Foregone","Righteous","Masher"}
 	commonGoods = {"food","medicine","nickel","platinum","gold","dilithium","tritanium","luxury","cobalt","impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	componentGoods = {"impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	mineralGoods = {"nickel","platinum","gold","dilithium","tritanium","cobalt"}
@@ -8857,55 +8858,55 @@ function setPlayers()
 				pobj.mining_target_lock = false
 				pobj.mining_in_progress = false
 				if tempPlayerType == "MP52 Hornet" then
-					if #playerShipNamesForMP52Hornet > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForMP52Hornet))
+					if #playerShipNamesFor.MP52Hornet > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.MP52Hornet))
 					end
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Piranha" then
-					if #playerShipNamesForPiranha > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForPiranha))
+					if #playerShipNamesFor.Piranha > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Piranha))
 					end
 				elseif tempPlayerType == "Flavia P.Falcon" then
-					if #playerShipNamesForFlaviaPFalcon > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForFlaviaPFalcon))
+					if #playerShipNamesFor.FlaviaPFalcon > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.FlaviaPFalcon))
 					end
 				elseif tempPlayerType == "Phobos M3P" then
-					if #playerShipNamesForPhobosM3P > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForPhobosM3P))
+					if #playerShipNamesFor.PhobosM3P > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.PhobosM3P))
 					end
 					pobj:setWarpDrive(true)
 					pobj:setWarpSpeed(500)
 				elseif tempPlayerType == "Atlantis" then
-					if #playerShipNamesForAtlantis > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForAtlantis))
+					if #playerShipNamesFor.Atlantis > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Atlantis))
 					end
 				elseif tempPlayerType == "Player Cruiser" then
-					if #playerShipNamesForCruiser > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForCruiser))
+					if #playerShipNamesFor.Cruiser > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Cruiser))
 					end
 				elseif tempPlayerType == "Player Missile Cr." then
-					if #playerShipNamesForMissileCruiser > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForMissileCruiser))
+					if #playerShipNamesFor.MissileCruiser > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.MissileCruiser))
 					end
 				elseif tempPlayerType == "Player Fighter" then
-					if #playerShipNamesForFighter > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForFighter))
+					if #playerShipNamesFor.Fighter > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Fighter))
 					end
 					pobj.autoCoolant = false
 					pobj:setJumpDrive(true)
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "Benedict" then
-					if #playerShipNamesForBenedict > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForBenedict))
+					if #playerShipNamesFor.Benedict > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Benedict))
 					end
 				elseif tempPlayerType == "Kiriya" then
-					if #playerShipNamesForKiriya > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForKiriya))
+					if #playerShipNamesFor.Kiriya > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Kiriya))
 					end
 				elseif tempPlayerType == "Striker" then
-					if #playerShipNamesForStriker > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForStriker))
+					if #playerShipNamesFor.Striker > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Striker))
 					end
 					if pobj:getImpulseMaxSpeed() == 45 then
 						pobj:setImpulseMaxSpeed(90)
@@ -8924,62 +8925,62 @@ function setPlayers()
 					pobj:setJumpDrive(true)
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "ZX-Lindworm" then
-					if #playerShipNamesForLindworm > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForLindworm))
+					if #playerShipNamesFor.Lindworm > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Lindworm))
 					end
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Repulse" then
-					if #playerShipNamesForRepulse > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForRepulse))
+					if #playerShipNamesFor.Repulse > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Repulse))
 					end
 				elseif tempPlayerType == "Ender" then
-					if #playerShipNamesForEnder > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForEnder))
+					if #playerShipNamesFor.Ender > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Ender))
 					end
 				elseif tempPlayerType == "Nautilus" then
-					if #playerShipNamesForNautilus > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForNautilus))
+					if #playerShipNamesFor.Nautilus > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Nautilus))
 					end
 				elseif tempPlayerType == "Hathcock" then
-					if #playerShipNamesForHathcock > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForHathcock))
+					if #playerShipNamesFor.Hathcock > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Hathcock))
 					end
 				elseif tempPlayerType == "Proto-Atlantis" then
-					if #playerShipNamesForProtoAtlantis > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForProtoAtlantis))
+					if #playerShipNamesFor.ProtoAtlantis > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.ProtoAtlantis))
 					end
 				elseif tempPlayerType == "Maverick" then
-					if #playerShipNamesForMaverick > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForMaverick))
+					if #playerShipNamesFor.Maverick > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Maverick))
 					end
 				elseif tempPlayerType == "Crucible" then
-					if #playerShipNamesForCrucible > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForCrucible))
+					if #playerShipNamesFor.Crucible > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Crucible))
 					end
 				elseif tempPlayerType == "Atlantis II" then
-					if #playerShipNamesForAtlantisII > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForAtlantisII))
+					if #playerShipNamesFor.AtlantisII > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.AtlantisII))
 					end
 				elseif tempPlayerType == "Surkov" then
-					if #playerShipNamesForSurkov > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForSurkov))
+					if #playerShipNamesFor.Surkov > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Surkov))
 					end
 				elseif tempPlayerType == "Stricken" then
-					if #playerShipNamesForStricken > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForStricken))
+					if #playerShipNamesFor.Stricken > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Stricken))
 					end
 				elseif tempPlayerType == "Redhook" then
-					if #playerShipNamesForRedhook > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForRedhook))
+					if #playerShipNamesFor.Redhook > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Redhook))
 					end
 				elseif tempPlayerType == "Destroyer III" then
-					if #playerShipNamesForDestroyerIII > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForDestroyerIII))
+					if #playerShipNamesFor.DestroyerIII > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.DestroyerIII))
 					end
 				else
-					if #playerShipNamesForLeftovers > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesForLeftovers))
+					if #playerShipNamesFor.Leftovers > 0 then
+						pobj:setCallSign(tableremoverandom(playerShipNamesFor.Leftovers))
 					end
 					pobj.shipScore = 24
 					pobj.maxCargo = 5
