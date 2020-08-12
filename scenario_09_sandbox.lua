@@ -124,7 +124,7 @@ function setConstants()
 	fleetStrengthByPlayerStrength = 1
 	fleetComposition = "Random"
 	fleetOrders = "Idle"
-	fleetSpawnLocation = "Away"
+	fleetSpawnLocation = "At Click"
 	fleetSpawnRelativeDirection = "Random Direction"
 	fleetSpawnAwayDirection = "90"
 	fleetSpawnAwayDistance = 60
@@ -406,6 +406,8 @@ function setConstants()
 	healthCheckTimer = healthCheckTimerInterval
 	rendezvousPoints = {}
 	escapePodList = {}
+	drop_point_location = "At Click"
+	scan_clue_location = "At Click"
 	artifactCounter = 0
 	artifactNumber = 0
 	dropOrExtractAction = "Drop"
@@ -1605,7 +1607,7 @@ end
 -- 2nd column: F = Fixed text, D = Dynamic text, * = Fixed with asterisk indicating selection
 -- Button Text		   FD*	Related Function(s)
 -- +INITIAL SET UP		F	initialSetUp
--- +SPAWN FLEET			F	spawnGMFleet
+-- +SPAWN SHIP(S)		F	spawnGMShips
 -- +ORDER FLEET			F	orderFleet
 -- +ORDER SHIP			F	orderShip
 -- +DROP POINT			F	dropPoint
@@ -1673,170 +1675,18 @@ function initialSetUp()
 	end
 	addGMFunction(button_label,autoStationWarn)
 end
--------------------
---	Spawn fleet  --
--------------------
--- Button Text			   FD*	Explanation							Related Function(s)
--- -MAIN FROM FLT SPWN		F										initialGMFunctions
--- +EXUARI					D	(faction)							setGMFleetFaction
--- +1 PLAYER STRENGTH: n*	D	/Asterisk on selection between		setGMFleetStrength
--- +SET FIXED STRENGTH		D	\relative and fixed strength		setFixedFleetStrength
--- +RANDOM					D	(composition)						setFleetComposition
--- +UNMODIFIED				D	(random tweaking)					setFleetChange
--- +IDLE					D	(orders)							setFleetOrders
--- +AWAY					D	(position)							setFleetSpawnLocation
--- SPAWN					F										parmSpawnFleet
+---------------------
+--	Spawn Ship(s)  --
+---------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM SPAWN SHIPS	F	initialGMFunctions
+-- +SPAWN FLEET				F	spawnGMFleet
+-- +SPAWN A SHIP			F	spawnGMShip
 function spawnGMShips()
 	clearGMFunctions()
-	addGMFunction("-Main From Ship Spawn",initialGMFunctions)
+	addGMFunction("-Main From Spawn Ships",initialGMFunctions)
 	addGMFunction("+Spawn Fleet",spawnGMFleet)
 	addGMFunction("+Spawn a ship",spawnGMShip)
-end
-function spawnGMShip()
-	clearGMFunctions()
-	addGMFunction("-Main From Ship Spawn",initialGMFunctions)
-	addGMFunction("-Fleet or Ship",spawnGMShips)
-	returnFromFleetSpawnLocation = spawnGMShip
-	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
-	addGMFunction(string.format("Spawn %s",individual_ship),parmSpawnShip)
-	sandbox_templates = {}
-	for name, details in pairs(ship_template) do
-		if details.create ~= stockTemplate then
-			local sort_name = name
-			if details.unusual then
-				sort_name = "a" .. name
-			else
-				sort_name = "b" .. name
-			end
-			table.insert(sandbox_templates,sort_name)
-		end
-	end
-	table.sort(sandbox_templates)
-	for _, name in ipairs(sandbox_templates) do
-		local short_name = string.sub(name,2)
-		local button_label = short_name
-		if string.sub(name,1,1) == "a" then
-			button_label = "U-" .. short_name
-		end
-		if short_name == individual_ship then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			individual_ship = short_name
-			spawnGMShip()
-		end)
-	end
-end
-function spawnGMFleet()
-	clearGMFunctions()
-	addGMFunction("-Main From Flt Spwn",initialGMFunctions)
-	addGMFunction("-Ship Spawn",spawnGMShips)
-	addGMFunction(string.format("+%s",fleetSpawnFaction),setGMFleetFaction)
-	if fleetStrengthFixed then
-		addGMFunction("+Set Relative Strength",setGMFleetStrength)
-		addGMFunction(string.format("+Strength %i*",fleetStrengthFixedValue),setFixedFleetStrength)
-	else
-		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
-		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
-		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
-		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
-	end
-	local exclusion_string = ""
-	for name, details in pairs(fleet_exclusions) do
-		if details.exclude then
-			if exclusion_string == "" then
-				exclusion_string = "-"
-			end
-			exclusion_string = exclusion_string .. details.letter
-		end
-	end
-	addGMFunction(string.format("+%s%s",fleetComposition,exclusion_string),function()
-		setFleetComposition(spawnGMFleet)
-	end)
-	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
-	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
-	returnFromFleetSpawnLocation = spawnGMFleet
-	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
-	addGMFunction("Spawn",parmSpawnFleet)
-end
---General use functions for spawning fleets
-function playerPower()
-	local playerShipScore = 0
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
-		if p ~= nil and p:isValid() then
-			if p.shipScore == nil then
-				assignPlayerShipScore(p)
-			end
-			playerShipScore = playerShipScore + p.shipScore
-		end
-	end
-	return playerShipScore
-end
-function assignPlayerShipScore(p)
-	local tempTypeName = p:getTypeName()
-	if tempTypeName ~= nil then
-		local shipScore = playerShipStats[tempTypeName].strength
-		if shipScore ~= nil and shipScore > 0 then
-			p.shipScore = shipScore
-			p.maxCargo = playerShipStats[tempTypeName].cargo
-			p.cargo = p.maxCargo
-			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
-			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
-			p:setMaxScanProbeCount(playerShipStats[tempTypeName].probes)
-			p:setScanProbeCount(p:getMaxScanProbeCount())
-			p.tractor = playerShipStats[tempTypeName].tractor
-			p.tractor_target_lock = false
-			p.mining = playerShipStats[tempTypeName].mining
-			p.mining_target_lock = false
-			p.mining_in_progress = false
-			p.max_reactor = 1
-			p.max_beam = 1
-			p.max_missile = 1
-			p.max_maneuver = 1
-			p.max_impulse = 1
-			p.max_warp = 1
-			p.max_jump = 1
-			p.max_front_shield = 1
-			p.max_rear_shield = 1
-		else
-			p.shipScore = 24
-			p.maxCargo = 5
-			p.cargo = p.maxCargo
-			p.tractor = false
-			p.mining = false
-		end
-	else
-		p.shipScore = 24
-		p.maxCargo = 5
-		p.cargo = p.maxCargo
-	end
-	p.maxRepairCrew = p:getRepairCrewCount()
-	p.healthyShield = 1.0
-	p.prevShield = 1.0
-	p.healthyReactor = 1.0
-	p.prevReactor = 1.0
-	p.healthyManeuver = 1.0
-	p.prevManeuver = 1.0
-	p.healthyImpulse = 1.0
-	p.prevImpulse = 1.0
-	if p:getBeamWeaponRange(0) > 0 then
-		p.healthyBeam = 1.0
-		p.prevBeam = 1.0
-	end
-	if p:getWeaponTubeCount() > 0 then
-		p.healthyMissile = 1.0
-		p.prevMissile = 1.0
-	end
-	if p:hasWarpDrive() then
-		p.healthyWarp = 1.0
-		p.prevWarp = 1.0
-	end
-	if p:hasJumpDrive() then
-		p.healthyJump = 1.0
-		p.prevJump = 1.0
-	end
-	p.initialCoolant = p:getMaxCoolant()
 end
 -------------------
 --	Order fleet  --
@@ -2245,7 +2095,8 @@ end
 -- +SCAN DEPTH: 1			D	setScanDepth
 -- UNRETRIEVABLE			D	inline (toggles between retrievable and unretrievable)
 -- EXPIRING					F	inline (toggles between expiring and non-expiring)
--- +NEAR TO					F	scanClueNearTo
+-- +AT CLICK				D	setScanClueLocation
+-- PLACE SCAN CLUE			D	placeScanClue
 function scanClue()
 	clearGMFunctions()
 	addGMFunction("-Main from Scan Clue",initialGMFunctions)
@@ -2297,7 +2148,33 @@ function scanClue()
 			scanClue()
 		end)
 	end
-	addGMFunction("+Near To",scanClueNearTo)
+	addGMFunction(string.format("+%s",scan_clue_location),setScanClueLocation)
+	if gm_click_mode == "place scan clue" then
+		addGMFunction(">Place Scan Clue<",placeScanClue)
+	else
+		addGMFunction("Place Scan Clue",placeScanClue)
+	end
+end
+function placeScanClue()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "place scan clue" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "place scan clue"
+			onGMClick(gmClickPlaceScanClue)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   place scan clue\nGM click mode.",prev_mode))
+			end
+		end
+		scanClue()
+	elseif drop_point_location == "Near To" then
+		scanClueNearTo()
+	end
+end
+function gmClickPlaceScanClue(x,y)
+	scanClueCreation(x, y, 0, 0)
 end
 function updateEditObjectValid()
 	if update_edit_object == nil or not update_edit_object:isValid() then
@@ -2334,98 +2211,6 @@ function numericEditControl(params)
 			end)
 	end
 	return ret.fun
-end
------------------
--- edit update --
------------------
--- captures a name for the update type and then returns a function like
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -TWEAK				F	tweakTerrain
--- -UPDATE EDITOR		F	updateEditor
--- -EDIT				F	editSelected
--- ---NAME EDIT---		D	none - UI element
--- REMOVE				F	inline
--- followed by a list of dynamically created edit buttons
-function editUpdate(name,editElements)
-	assert(type(name)=="string")
-	assert(type(editElements)=="table")
-	return function()
-		if updateEditObjectValid() then
-			clearGMFunctions()
-			addGMFunction("-Main",initialGMFunctions)
-			addGMFunction("-Tweak",tweakTerrain)
-			addGMFunction("-update editor",updateEditor)
-			addGMFunction("-edit",editSelected)
-			addGMFunction("---"..name.." edit---",nil)
-			addGMFunction("remove",function()
-				if updateEditObjectValid() then
-					update_system:removeUpdateNamed(update_edit_object,name)
-					editSelected()
-				end
-			end)
-			for index=1,#editElements do
-				assert(type(editElements[index].name)=="string")
-				local edit=editElements[index]
-				edit.closers=function()
-					clearGMFunctions()
-					addGMFunction("-Main",initialGMFunctions)
-					addGMFunction("-Tweak",tweakTerrain)
-					addGMFunction("-update editor",updateEditor)
-					addGMFunction("-edit",editSelected)
-					addGMFunction("-"..name,editUpdate(name,editElements))
-				end
-				addGMFunction(editElements[index].name,numericEditControl(edit))
-			end
-		end
-	end
-end
--------------------
--- Update editor --
--------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -TWEAK				F	tweakTerrain
--- -UPDATE EDITOR		F	updateEditor
--- ---OBJECT EDIT---	F	none - UI element
--- followed by a dynamically generated list of updates on the object
-function editSelected()
-	if updateEditObjectValid() then
-		clearGMFunctions()
-		addGMFunction("-Main",initialGMFunctions)
-		addGMFunction("-Tweak",tweakTerrain)
-		addGMFunction("-update editor",updateEditor)
-		addGMFunction("---object edit---",nil)
-		local updateTypes = update_system:getUpdateNamesOnObject(update_edit_object)
-		for index=1,#updateTypes do
-			local name="+"..updateTypes[index].name
-			local editElements=updateTypes[index].edit
-			assert(editElements ~= nil)
-			assert(type(editElements)=="table")
-			addGMFunction(name,editUpdate(updateTypes[index].name,editElements))
-		end
-	end
-end
--------------------
--- Update editor --
--------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -TWEAK				F	tweakTerrain
--- +EDIT SELECTED		F	editSelected
-function updateEditor()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak",tweakTerrain)
-	addGMFunction("+Edit Selected",function()
-		local objectList = getGMSelection()
-		if #objectList ~= 1 then
-			addGMMessage("to edit select one (and only one) object before selecting the edit button")
-			return
-		end
-		update_edit_object=objectList[1]
-		editSelected()
-	end)
 end
 ---------------------
 --	Tweak Terrain  --
@@ -2708,6 +2493,7 @@ end
 -- -MAIN FROM END		F	initialGMFunctions
 -- +DEBUG				F	debugButtons
 -- +SNIPPET				F	snippetButtons
+-- +SCIENCE DB			F	scienceDatabase
 function customButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From Custom",initialGMFunctions)
@@ -2780,7 +2566,7 @@ function playerShip()
 			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Knick"		,"inactive"	,createPlayerShipKnick		,"Experimental - not ready for use"},
 			{"Lancelot"		,"active"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
-			{"Magnum"		,"active"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
+			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
 			{"Nimbus"		,"inactive"	,createPlayerShipNimbus		,"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
@@ -2798,7 +2584,7 @@ function playerShip()
 			{"Stick"		,"inactive"	,createPlayerShipStick		,"Surkov (Stick): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, stronger shields, faster impulse, add mine tube facing back, remove nukes and EMPs"},
 			{"Sting"		,"inactive"	,createPlayerShipSting		,"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs"},
 			{"Thunderbird"	,"inactive"	,createPlayerShipThunderbird,"Destroyer IV (Thunderbird) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
-			{"Vision"		,"active"	,createPlayerShipVision		,"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
+			{"Vision"		,"inactive"	,createPlayerShipVision		,"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Wiggy"		,"inactive"	,createPlayerShipWiggy		,"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors"},
 			{"Wombat"		,"inactive"	,createPlayerShipWombat		}
 		}
@@ -3029,17 +2815,17 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 2 then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
---			dp2Zone:setColor(0,128,0)
+		if i == 5 then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
+			dp5Zone:setColor(0,128,0)
 --		elseif i == 6 then
 --			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
 --			dp6Zone:setColor(0,128,0)
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -3047,7 +2833,6 @@ function createIcarusColor()
 		end
 		startAngle = startAngle + 60
 	end
-	--Arlenian escorts
 	--planetBespin = Planet():setPosition(40000,5000):setPlanetRadius(3000):setDistanceFromMovementPlane(-2000):setCallSign("Donflist")
 	--planetBespin:setPlanetSurfaceTexture("planets/gas-1.png"):setAxialRotationTime(300):setDescription("Mining and Gambling")
 end
@@ -3389,9 +3174,8 @@ function createIcarusStations()
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
 	--Mermaid
-	local mermaidZone = squareZone(28889, -4417, "Mermaid 4")
-	mermaidZone:setColor(51,153,255)
-	--[[	destroyed 19Jul2020
+	--local mermaidZone = squareZone(28889, -4417, "Mermaid 4")
+	--mermaidZone:setColor(51,153,255)
     stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 4"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3419,7 +3203,6 @@ function createIcarusStations()
 	if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
-	--]]
 	--Mos Espa
 	stationMosEspa = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(113941, -85822):setCallSign("Mos Espa"):setDescription("Resupply and Entertainment"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3449,10 +3232,9 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	local nervaZone = squareZone(-9203, -2077, "Nerva 2")
-	nervaZone:setColor(51,153,255)
-	--[[ Destroyed 11Jul2020
-    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
+	--local nervaZone = squareZone(-9203, -2077, "Nerva 2")
+	--nervaZone:setColor(51,153,255)
+    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 2"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -3479,7 +3261,6 @@ function createIcarusStations()
 	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
-	--]]
 	--Pistil
 	--local pistilZone = squareZone(24834, 20416, "Pistil 3")
 	--pistilZone:setColor(0,128,0)
@@ -3624,9 +3405,8 @@ function createIcarusStations()
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
 	--Stromboli
-	local stromboliZone = squareZone(109555, 12685, "Stromboli 2")
-	stromboliZone:setColor(51,153,255)
-	--[[	Destroyed 1Aug2020
+	--local stromboliZone = squareZone(109555, 12685, "Stromboli 2")
+	--stromboliZone:setColor(51,153,255)
     stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli 2"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3654,7 +3434,6 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationStromboli:setSharesEnergyWithDocked(false) end
 	station_names[stationStromboli:getCallSign()] = {stationStromboli:getSectorName(), stationStromboli}
 	table.insert(stations,stationStromboli)
-	--]]
 	--Transylvania
     stationTransylvania = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Transylvania"):setPosition(-95000, 111000):setDescription("Abandoned science station turned haven"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -7946,21 +7725,196 @@ function setStationSensorRange()
 		autoStationWarn()
 	end)
 end
---	*											   *  --
---	**											  **  --
---	************************************************  --
---	****				Spawn Fleet				****  --
---	************************************************  --
---	**											  **  --
---	*											   *  --
-----------------------------
---	Spawn Fleet > Exuari  --
-----------------------------
+--	*												   *  --
+--	**												  **  --
+--	****************************************************  --
+--	****				Spawn Ship(s)				****  --
+--	****************************************************  --
+--	**												  **  --
+--	*												   *  --
+------------------------------------
+--	Spawn Ship(s) > Spawn a Ship  --
+------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM SHIP SPAWN	F	initialGMFunctions
+-- -FLEET OR SHIP			F	spawnGMShips
+-- +AT CLICK				D	setFleetSpawnLocation
+-- SPAWN GNAT				D	parmSpawnShip
+-- List of ships unique to sandbox, sorted by unusual first then alphabetically
+function spawnGMShip()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Spawn",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	returnFromFleetSpawnLocation = spawnGMShip
+	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
+	if gm_click_mode == "ship spawn" then
+		addGMFunction(string.format(">Spawn %s<",individual_ship),parmSpawnShip)
+	else
+		addGMFunction(string.format("Spawn %s",individual_ship),parmSpawnShip)
+	end
+	sandbox_templates = {}
+	for name, details in pairs(ship_template) do
+		if details.create ~= stockTemplate then
+			local sort_name = name
+			if details.unusual then
+				sort_name = "a" .. name
+			else
+				sort_name = "b" .. name
+			end
+			table.insert(sandbox_templates,sort_name)
+		end
+	end
+	table.sort(sandbox_templates)
+	for _, name in ipairs(sandbox_templates) do
+		local short_name = string.sub(name,2)
+		local button_label = short_name
+		if string.sub(name,1,1) == "a" then
+			button_label = "U-" .. short_name
+		end
+		if short_name == individual_ship then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			individual_ship = short_name
+			spawnGMShip()
+		end)
+	end
+end
+-----------------------------------
+--	Spawn Ship(s) > Spawn fleet  --
+-----------------------------------
+-- Button Text			   FD*	Explanation							Related Function(s)
+-- -MAIN FROM FLT SPWN		F										initialGMFunctions
+-- -SHIP SPAWN				F										spawnGMShips
+-- +EXUARI					D	(faction)							setGMFleetFaction
+-- +1 PLAYER STRENGTH: n*	D	/Asterisk on selection between		setGMFleetStrength
+-- +SET FIXED STRENGTH		D	\relative and fixed strength		setFixedFleetStrength
+-- +RANDOM-U				D	(composition)						setFleetComposition
+-- +UNMODIFIED				D	(random tweaking)					setFleetChange
+-- +IDLE					D	(orders)							setFleetOrders
+-- +AT CLICK				D	(position)							setFleetSpawnLocation
+-- SPAWN					F										parmSpawnFleet
+function spawnGMFleet()
+	clearGMFunctions()
+	addGMFunction("-Main From Flt Spwn",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	addGMFunction(string.format("+%s",fleetSpawnFaction),setGMFleetFaction)
+	if fleetStrengthFixed then
+		addGMFunction("+Set Relative Strength",setGMFleetStrength)
+		addGMFunction(string.format("+Strength %i*",fleetStrengthFixedValue),setFixedFleetStrength)
+	else
+		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
+		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
+		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
+		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
+	end
+	local exclusion_string = ""
+	for name, details in pairs(fleet_exclusions) do
+		if details.exclude then
+			if exclusion_string == "" then
+				exclusion_string = "-"
+			end
+			exclusion_string = exclusion_string .. details.letter
+		end
+	end
+	addGMFunction(string.format("+%s%s",fleetComposition,exclusion_string),function()
+		setFleetComposition(spawnGMFleet)
+	end)
+	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
+	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
+	returnFromFleetSpawnLocation = spawnGMFleet
+	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
+	if gm_click_mode == "fleet spawn" then
+		addGMFunction(">Spawn<",parmSpawnFleet)
+	else
+		addGMFunction("Spawn",parmSpawnFleet)
+	end
+end
+--General use functions for spawning fleets
+function playerPower()
+	local playerShipScore = 0
+	for pidx=1,8 do
+		local p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if p.shipScore == nil then
+				assignPlayerShipScore(p)
+			end
+			playerShipScore = playerShipScore + p.shipScore
+		end
+	end
+	return playerShipScore
+end
+function assignPlayerShipScore(p)
+	local tempTypeName = p:getTypeName()
+	if tempTypeName ~= nil then
+		local shipScore = playerShipStats[tempTypeName].strength
+		if shipScore ~= nil and shipScore > 0 then
+			p.shipScore = shipScore
+			p.maxCargo = playerShipStats[tempTypeName].cargo
+			p.cargo = p.maxCargo
+			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
+			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
+			p:setMaxScanProbeCount(playerShipStats[tempTypeName].probes)
+			p:setScanProbeCount(p:getMaxScanProbeCount())
+			p.tractor = playerShipStats[tempTypeName].tractor
+			p.tractor_target_lock = false
+			p.mining = playerShipStats[tempTypeName].mining
+			p.mining_target_lock = false
+			p.mining_in_progress = false
+			p.max_reactor = 1
+			p.max_beam = 1
+			p.max_missile = 1
+			p.max_maneuver = 1
+			p.max_impulse = 1
+			p.max_warp = 1
+			p.max_jump = 1
+			p.max_front_shield = 1
+			p.max_rear_shield = 1
+		else
+			p.shipScore = 24
+			p.maxCargo = 5
+			p.cargo = p.maxCargo
+			p.tractor = false
+			p.mining = false
+		end
+	else
+		p.shipScore = 24
+		p.maxCargo = 5
+		p.cargo = p.maxCargo
+	end
+	p.maxRepairCrew = p:getRepairCrewCount()
+	p.healthyShield = 1.0
+	p.prevShield = 1.0
+	p.healthyReactor = 1.0
+	p.prevReactor = 1.0
+	p.healthyManeuver = 1.0
+	p.prevManeuver = 1.0
+	p.healthyImpulse = 1.0
+	p.prevImpulse = 1.0
+	if p:getBeamWeaponRange(0) > 0 then
+		p.healthyBeam = 1.0
+		p.prevBeam = 1.0
+	end
+	if p:getWeaponTubeCount() > 0 then
+		p.healthyMissile = 1.0
+		p.prevMissile = 1.0
+	end
+	if p:hasWarpDrive() then
+		p.healthyWarp = 1.0
+		p.prevWarp = 1.0
+	end
+	if p:hasJumpDrive() then
+		p.healthyJump = 1.0
+		p.prevJump = 1.0
+	end
+	p.initialCoolant = p:getMaxCoolant()
+end
+--------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Exuari  --
+--------------------------------------------
 -- Select faction for fleet being spawned. Button for each faction. Asterisk = current choice
 function setGMFleetFaction()
 	clearGMFunctions()
-	--addGMFunction("-Main from Flt Fctn",initialGMFunctions)
-	--addGMFunction("-Fleet Spawn",spawnGMFleet)
 	local GMSetFleetFactionArlenians = "Arlenians"
 	if fleetSpawnFaction == "Arlenians" then
 		GMSetFleetFactionArlenians = "Arlenians*"
@@ -8042,9 +7996,9 @@ function setGMFleetFaction()
 		spawnGMFleet()
 	end)
 end
----------------------------------------------
---  Spawn Fleet > Relative Fleet Strength  --
----------------------------------------------
+-------------------------------------------------------------
+--  Spawn Ship(s) > Spawn Fleet > Relative Fleet Strength  --
+-------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM REL STR	F	initialGMFunctions
 -- -FLEET SPAWN			F	spawnGMFleet		
@@ -8057,6 +8011,7 @@ end
 function setGMFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Rel Str",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
 	setFleetStrength(setGMFleetStrength)
 end
@@ -8111,9 +8066,9 @@ function setFleetStrength(caller)
 	end)
 	fleetStrengthFixed = false
 end
-----------------------------------------
---	Spawn Fleet > Set Fixed Strength  --
-----------------------------------------
+--------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Fixed Strength  --
+--------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM FIX STR	F	initialGMFunctions
 -- -FLEET SPAWN			F	spawnGMFleet
@@ -8123,6 +8078,7 @@ end
 function setFixedFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Fix Str",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
 	addGMFunction("-Fixed Strength " .. fleetStrengthFixedValue,spawnGMFleet)
 	fixFleetStrength(setFixedFleetStrength)
@@ -8142,9 +8098,9 @@ function fixFleetStrength(caller)
 	end	
 	fleetStrengthFixed = true
 end
-----------------------------
---	Spawn Fleet > Random  --
-----------------------------
+--------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Random  --
+--------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -FROM COMPOSITION	F	inline
 -- +GROUP RANDOM		D	SetFleetGroupComposition
@@ -8199,9 +8155,9 @@ function setFleetComposition(caller)
 		end)
 	end
 end
---------------------------------------
---	Spawn Fleet > Random > Exclude  --
---------------------------------------
+------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Random > Exclude  --
+------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -FROM COMPOSITION	F	inline
 -- -FROM EXCLUSIONS		F	setFleetComposition
@@ -8233,9 +8189,9 @@ function setFleetExclusions(caller)
 		end)
 	end
 end
--------------------------------------------
---	Spawn Fleet > Random > Group Random  --
--------------------------------------------
+-----------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Random > Group Random  --
+-----------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -FROM COMPOSITION GROUP	F	spawnGMFleet
 -- RANDOM*					*	inline		asterisk = current selection
@@ -8326,9 +8282,9 @@ function setFleetGroupComposition(caller)
 		caller()
 	end)
 end
-------------------------------------------------------------------
---	Spawn Fleet > Unmodified (Random Tweaking or Fleet Change)  --
-------------------------------------------------------------------
+----------------------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Unmodified (Random Tweaking or Fleet Change)  --
+----------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM FLT CHNG	F	initialGMFunctions
 -- -FLEET SPAWN			F	spawnGMFleet
@@ -8451,9 +8407,9 @@ function setFleetChange()
 		end
 	end
 end
-------------------------------------------------------
---	Spawn Fleet > Idle (Fleet Orders When Spawned)  --
-------------------------------------------------------
+----------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Idle (Fleet Orders When Spawned)  --
+----------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM FLT ORD	F	initialGMFunctions
 -- -FLEET SPAWN			F	spawnGMFleet
@@ -8463,6 +8419,7 @@ end
 function setFleetOrders()
 	clearGMFunctions()
 	addGMFunction("-Main from Flt Ord",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
 	local GMSetFleetOrdersRoaming = "Roaming"
 	if fleetOrders == "Roaming" then
@@ -8489,9 +8446,9 @@ function setFleetOrders()
 		setFleetOrders()
 	end)
 end
--------------------------------------------------
---	Spawn Fleet > Away (Fleet Spawn Location)  --
--------------------------------------------------
+---------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > At Click (Fleet Spawn Location)  --
+---------------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FROM FLT LOCTN		F	initialGMFunctions
 -- -FLEET SPAWN				F	spawnGMFleet
@@ -8499,65 +8456,64 @@ end
 -- SENSOR EDGE				*	inline 
 -- BEYOND SENSORS			*	inline
 -- +RANDOM DIRECTION		D	setFleetSpawnRelativeDirection (button only appears for SENSOR EDGE and BEYOND SENSORS selections)
--- +AWAY*					D*	setSpawnLocationAway
+-- +AT CLICK*				D*	setSpawnLocationAway
 -- +AMBUSH 5				D*	inline, setFleetAmbushDistance
 function setFleetSpawnLocation()
 	clearGMFunctions()
 	addGMFunction("-Main from Flt Loctn",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction("-Fleet Spawn",returnFromFleetSpawnLocation)
-	local GMSetSpawnLocationAtSelection = "At Selection"
+	local button_label = "At Selection"
 	if fleetSpawnLocation == "At Selection" then
-		GMSetSpawnLocationAtSelection = "At Selection*"
+		button_label = "At Selection*"
 	end
-	addGMFunction(GMSetSpawnLocationAtSelection,function()
+	addGMFunction(button_label,function()
 		fleetSpawnLocation = "At Selection"
 		setFleetSpawnLocation()
 	end)
-	local GMSetSpawnLocationSensorEdge = "Sensor Edge"
+	button_label = "Sensor Edge"
 	if fleetSpawnLocation == "Sensor Edge" then
-		GMSetSpawnLocationSensorEdge = "Sensor Edge*"
+		button_label = "Sensor Edge*"
 	end
-	addGMFunction(GMSetSpawnLocationSensorEdge,function()
+	addGMFunction(button_label,function()
 		fleetSpawnLocation = "Sensor Edge"
 		setFleetSpawnLocation()
 	end)
-	local GMSetSpawnLocationBeyondSensors = "Beyond Sensors"
+	button_label = "Beyond Sensors"
 	if fleetSpawnLocation == "Beyond Sensors" then
-		GMSetSpawnLocationBeyondSensors = "Beyond Sensors*"
+		button_label = "Beyond Sensors*"
 	end
-	addGMFunction(GMSetSpawnLocationBeyondSensors,function()
+	addGMFunction(button_label,function()
 		fleetSpawnLocation = "Beyond Sensors"
 		setFleetSpawnLocation()
 	end)
 	if fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" then
 		addGMFunction(string.format("+%s",fleetSpawnRelativeDirection),setFleetSpawnRelativeDirection)
 	end
-	local GMSetSpawnLocationAway = "Away"
+	button_label = "Away"
 	if string.find(fleetSpawnLocation,"Away") then
-		GMSetSpawnLocationAway = fleetSpawnLocation .. "*"
+		button_label = fleetSpawnLocation .. "*"
 	end
-	addGMFunction(string.format("+%s",GMSetSpawnLocationAway),setSpawnLocationAway)
-	local GMSetSpawnLocationAmbush = string.format("Ambush %i",fleetAmbushDistance) 
+	addGMFunction(string.format("+%s",button_label),setSpawnLocationAway)
+	button_label = string.format("Ambush %i",fleetAmbushDistance)
 	if fleetSpawnLocation == "Ambush" then
-		GMSetSpawnLocationAmbush = string.format("Ambush* %i",fleetAmbushDistance)
+		button_label = string.format("Ambush* %i",fleetAmbushDistance)
 	end
-	addGMFunction(string.format("+%s",GMSetSpawnLocationAmbush),function()
+	addGMFunction(string.format("+%s",button_label),function()
 		fleetSpawnLocation = "Ambush"
 		setFleetAmbushDistance()
 	end)
-	if onGMClick ~= nil then
-		GMSetSpawnLocationClick = "Click"
-		if fleetSpawnLocation == "Click" then
-			GMSetSpawnLocationClick = "Click*"
-		end
-		addGMFunction(GMSetSpawnLocationClick,function()
-			fleetSpawnLocation = "Click"
-			setFleetSpawnLocation()
-		end)
+	button_label = "At Click"
+	if fleetSpawnLocation == "At Click" then
+		button_label = button_label .. "*"
 	end
+	addGMFunction(button_label,function()
+		fleetSpawnLocation = "At Click"
+		setFleetSpawnLocation()
+	end)
 end
 --------------------------------------------------------
---	Spawn Fleet > Ambush (Set Fleet Ambush Distance)  --
+--	Spawn Ship(s) > Spawn Fleet > Ambush (Set Fleet Ambush Distance)  --
 --------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -FROM AMBUSH DIST  	F	setFleetSpawnLocation
@@ -8611,7 +8567,7 @@ function setFleetAmbushDistance()
 	end)
 end
 -----------------------------------------------------------------------------------------------------------------
---	Spawn Fleet > Away (Fleet Spawn Location) > Random Direction (Fleet Spawn Relative Direction From Player)  --
+--	Spawn Ship(s) > Spawn Fleet > Away (Fleet Spawn Location) > Random Direction (Fleet Spawn Relative Direction From Player)  --
 -----------------------------------------------------------------------------------------------------------------
 -- Button Text			   DF*	Related Function(s)
 -- -FROM SPWN DIRECTION		F	setFleetSpawnLocation
@@ -8701,7 +8657,7 @@ function setFleetSpawnRelativeDirection()
 	end)
 end
 ---------------------------------------------------------------------------------------------------
---	Spawn Fleet > Away (Fleet Spawn Location) > Away (Set Spawn Location Away from GM Selection) --
+--	Spawn Ship(s) > Spawn Fleet > Away (Fleet Spawn Location) > Away (Set Spawn Location Away from GM Selection) --
 ---------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM SPWN AWY	F	initialGMFunctions
@@ -8712,6 +8668,7 @@ end
 function setSpawnLocationAway()
 	clearGMFunctions()
 	addGMFunction("-Main from Spwn Awy",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
 	addGMFunction("-From Spawn Away",setFleetSpawnLocation)
 	local GMSetFleetSpawnAwayDirection = fleetSpawnAwayDirection .. " Degrees"
@@ -8721,7 +8678,7 @@ function setSpawnLocationAway()
 	fleetSpawnLocation = string.format("%s Deg Away %iU",fleetSpawnAwayDirection,fleetSpawnAwayDistance)
 end
 -------------------------------------------------------------------------------------------------
---	Spawn Fleet > Away > Away > 90 Degrees (Set Fleet Spawn Away Direction From GM Selection)  --
+--	Spawn Ship(s) > Spawn Fleet > Away > Away > 90 Degrees (Set Fleet Spawn Away Direction From GM Selection)  --
 -------------------------------------------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -SPAWN AWAY		F	setSpawnLocationAway
@@ -8811,7 +8768,7 @@ function setFleetSpawnAwayDirection()
 	end)
 end
 ----------------------------------------------------------------------------------------
---	Spawn Fleet > Away > Away > 60U (Set Fleet Spawn Away Distance From GM Selection) --
+--	Spawn Ship(s) > Spawn Fleet > Away > Away > 60U (Set Fleet Spawn Away Distance From GM Selection) --
 ----------------------------------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -SPAWN AWAY		F	setSpawnLocationAway
@@ -8883,7 +8840,7 @@ function setFleetSpawnAwayDistance()
 	end)
 end
 ---------------------------------------
---	Spawn fleet based on parameters  --
+--	Spawn Ship(s) > Spawn fleet based on parameters  --
 ---------------------------------------
 function centerOfSelected(objectList)
 	local xSum = 0
@@ -8897,91 +8854,9 @@ function centerOfSelected(objectList)
 	local fsy = ySum/#objectList
 	return fsx, fsy
 end
-function parmSpawnShip()
-	local fsx = 0
-	local fsy = 0
-	local objectList = getGMSelection()
-	if #objectList < 1 and (fleetSpawnLocation ~= "Click" and fleetSpawnLocation ~= "AtCachedLocation") then
-		addGMMessage("Fleet spawn failed: nothing selected for spawn location determination")
-		return
-	end
-	if fleetSpawnLocation == "At Selection" then
-		fsx, fsy = centerOfSelected(objectList)
-	elseif fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" or fleetSpawnLocation == "Ambush" then
-		local selectedMatchesPlayer = false
-		local selected_player = nil
-		for i=1,#objectList do
-			local curSelObj = objectList[i]
-			for pidx=1,8 do
-				local p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == curSelObj then
-						selectedMatchesPlayer = true
-						fsx, fsy = p:getPosition()
-						selected_player = p
-						break
-					end
-				end
-			end
-			if selectedMatchesPlayer then
-				break
-			end
-		end
-		if selectedMatchesPlayer then
-			local spawnAngle = fleetSpawnRelativeDirection
-			if fleetSpawnRelativeDirection == "Random Direction" then
-				spawnAngle = random(0,360)
-			else
-				spawnAngle = spawnAngle + 270
-				if spawnAngle > 360 then 
-					spawnAngle = spawnAngle - 360
-				end
-			end
-			if fleetSpawnLocation ~= "Ambush" then
-				local tvx = 0
-				local tvy = 0
-				if fleetSpawnLocation == "Sensor Edge" then
-					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange())
-					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange())
-				else	--beyond sensors
-					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange() + 10000)
-					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange() + 10000)
-				end
-				fsx = fsx + tvx
-				fsy = fsy + tvy
-			end
-		else
-			addGMMessage("Fleet spawn failed: no valid player ship found amongst selected items")
-			return
-		end
-	elseif string.find(fleetSpawnLocation,"Away") then
-		fsx, fsy = centerOfSelected(objectList)
-		spawnAngle = fleetSpawnAwayDirection
-		if fleetSpawnAwayDirection == "Random" then
-			spawnAngle = random(0,360)
-		else
-			spawnAngle = spawnAngle + 270
-			if spawnAngle > 360 then 
-				spawnAngle = spawnAngle - 360
-			end
-		end
-		tvx, tvy = vectorFromAngle(spawnAngle,fleetSpawnAwayDistance*1000)
-		fsx = fsx + tvx
-		fsy = fsy + tvy
-	elseif fleetSpawnLocation == "Click" then
-		onGMClick(function (x,y) -- this probably could be made simpler, but I lack the understanding and time to make it neater at this time
-			cached_x = x
-			cached_y = y
-			fleetSpawnLocation = "AtCachedLocation"
-			parmSpawnShip()
-			fleetSpawnLocation = "Click"
-		end)
-		return
-	elseif fleetSpawnLocation == "AtCachedLocation" then
-		fsx = cached_x
-		fsy = cached_y
-	end
+function gmClickShipSpawn(x,y)
 	local ship = ship_template[individual_ship].create(fleetSpawnFaction,individual_ship)
+	ship:setPosition(x,y)
 	if fleetOrders == "Roaming" then
 		ship:orderRoaming()
 	elseif fleetOrders == "Idle" then
@@ -8992,46 +8867,83 @@ function parmSpawnShip()
 	if fleetChange ~= "unmodified" then
 		modifyShip(ship)
 	end
-	if fleetSpawnLocation == "Ambush" then
-		local dex, dey = vectorFromAngle(random(0,360),fleetAmbushDistance*1000)
-		ship:setPosition(fsx+dex,fsy+dey)
-	else
-		ship:setPosition(fsx,fsy)
-	end
 end
-function parmSpawnFleet()
+function parmSpawnShip()
 	local fsx = 0
 	local fsy = 0
-	local objectList = getGMSelection()
-	if #objectList < 1 and (fleetSpawnLocation ~= "Click" and fleetSpawnLocation ~= "AtCachedLocation") then
-		addGMMessage("Fleet spawn failed: nothing selected for spawn location determination")
-		return
-	end
-	if fleetSpawnLocation == "At Selection" then
-		fsx, fsy = centerOfSelected(objectList)
-	elseif fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" or fleetSpawnLocation == "Ambush" then
-		local selectedMatchesPlayer = false
-		local selected_player = nil
-		for i=1,#objectList do
-			local curSelObj = objectList[i]
-			for pidx=1,8 do
-				local p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p == curSelObj then
-						selectedMatchesPlayer = true
-						fsx, fsy = p:getPosition()
-						selected_player = p
-						break
+	if fleetSpawnLocation == "At Click" then
+		if gm_click_mode == nil then
+			gm_click_mode = "ship spawn"
+			onGMClick(gmClickShipSpawn)
+		elseif gm_click_mode == "ship spawn" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "ship spawn"
+			onGMClick(gmClickShipSpawn)
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   ship spawn\nGM click mode.",prev_mode))
+		end
+		spawnGMShip()
+	else
+		local object_list = getGMSelection()
+		if #object_list < 1 then
+			addGMMessage("Fleet spawn failed: nothing selected for spawn location determination")
+			return
+		end 
+		if fleetSpawnLocation == "At Selection" then
+			fsx, fsy = centerOfSelected(object_list)
+		elseif fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" or fleetSpawnLocation == "Ambush" then
+			local selectedMatchesPlayer = false
+			local selected_player = nil
+			for i=1,#object_list do
+				local curSelObj = object_list[i]
+				for pidx=1,8 do
+					local p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						if p == curSelObj then
+							selectedMatchesPlayer = true
+							fsx, fsy = p:getPosition()
+							selected_player = p
+							break
+						end
 					end
+				end
+				if selectedMatchesPlayer then
+					break
 				end
 			end
 			if selectedMatchesPlayer then
-				break
+				local spawnAngle = fleetSpawnRelativeDirection
+				if fleetSpawnRelativeDirection == "Random Direction" then
+					spawnAngle = random(0,360)
+				else
+					spawnAngle = spawnAngle + 270
+					if spawnAngle > 360 then 
+						spawnAngle = spawnAngle - 360
+					end
+				end
+				if fleetSpawnLocation ~= "Ambush" then
+					local tvx = 0
+					local tvy = 0
+					if fleetSpawnLocation == "Sensor Edge" then
+						--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange())
+						tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange())
+					else	--beyond sensors
+						--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange() + 10000)
+						tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange() + 10000)
+					end
+					fsx = fsx + tvx
+					fsy = fsy + tvy
+				end
+			else
+				addGMMessage("Fleet spawn failed: no valid player ship found amongst selected items")
+				return
 			end
-		end
-		if selectedMatchesPlayer then
-			local spawnAngle = fleetSpawnRelativeDirection
-			if fleetSpawnRelativeDirection == "Random Direction" then
+		elseif string.find(fleetSpawnLocation,"Away") then
+			fsx, fsy = centerOfSelected(object_list)
+			spawnAngle = fleetSpawnAwayDirection
+			if fleetSpawnAwayDirection == "Random" then
 				spawnAngle = random(0,360)
 			else
 				spawnAngle = spawnAngle + 270
@@ -9039,57 +8951,139 @@ function parmSpawnFleet()
 					spawnAngle = spawnAngle - 360
 				end
 			end
-			if fleetSpawnLocation ~= "Ambush" then
-				local tvx = 0
-				local tvy = 0
-				if fleetSpawnLocation == "Sensor Edge" then
-					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange())
-					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange())
-				else	--beyond sensors
-					--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange() + 10000)
-					tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange() + 10000)
-				end
-				fsx = fsx + tvx
-				fsy = fsy + tvy
-			end
+			tvx, tvy = vectorFromAngle(spawnAngle,fleetSpawnAwayDistance*1000)
+			fsx = fsx + tvx
+			fsy = fsy + tvy
+		end
+		local ship = ship_template[individual_ship].create(fleetSpawnFaction,individual_ship)
+		if fleetOrders == "Roaming" then
+			ship:orderRoaming()
+		elseif fleetOrders == "Idle" then
+			ship:orderIdle()
+		elseif fleetOrders == "Stand Ground" then
+			ship:orderStandGround()
+		end
+		if fleetChange ~= "unmodified" then
+			modifyShip(ship)
+		end
+		if fleetSpawnLocation == "Ambush" then
+			local dex, dey = vectorFromAngle(random(0,360),fleetAmbushDistance*1000)
+			ship:setPosition(fsx+dex,fsy+dey)
 		else
-			addGMMessage("Fleet spawn failed: no valid player ship found amongst selected items")
+			ship:setPosition(fsx,fsy)
+		end
+	end
+end
+function gmClickFleetSpawn(x,y)
+	table.insert(fleetList,spawnRandomArmed(x, y, #fleetList + 1))
+end
+function parmSpawnFleet()
+	local fsx = 0
+	local fsy = 0
+	local fleet = nil
+	if fleetSpawnLocation == "At Click" then
+		if gm_click_mode == nil then
+			gm_click_mode = "fleet spawn"
+			onGMClick(gmClickFleetSpawn)
+		elseif gm_click_mode == "fleet spawn" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "fleet spawn"
+			onGMClick(gmClickFleetSpawn)
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   fleet spawn\nGM click mode.",prev_mode))
+		end
+		spawnGMFleet()
+	else
+		local objectList = getGMSelection()
+		if #objectList < 1 and (fleetSpawnLocation ~= "Click" and fleetSpawnLocation ~= "AtCachedLocation") then
+			addGMMessage("Fleet spawn failed: nothing selected for spawn location determination")
 			return
 		end
-	elseif string.find(fleetSpawnLocation,"Away") then
-		fsx, fsy = centerOfSelected(objectList)
-		spawnAngle = fleetSpawnAwayDirection
-		if fleetSpawnAwayDirection == "Random" then
-			spawnAngle = random(0,360)
-		else
-			spawnAngle = spawnAngle + 270
-			if spawnAngle > 360 then 
-				spawnAngle = spawnAngle - 360
+		if fleetSpawnLocation == "At Selection" then
+			fsx, fsy = centerOfSelected(objectList)
+		elseif fleetSpawnLocation == "Sensor Edge" or fleetSpawnLocation == "Beyond Sensors" or fleetSpawnLocation == "Ambush" then
+			local selectedMatchesPlayer = false
+			local selected_player = nil
+			for i=1,#objectList do
+				local curSelObj = objectList[i]
+				for pidx=1,8 do
+					local p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						if p == curSelObj then
+							selectedMatchesPlayer = true
+							fsx, fsy = p:getPosition()
+							selected_player = p
+							break
+						end
+					end
+				end
+				if selectedMatchesPlayer then
+					break
+				end
 			end
+			if selectedMatchesPlayer then
+				local spawnAngle = fleetSpawnRelativeDirection
+				if fleetSpawnRelativeDirection == "Random Direction" then
+					spawnAngle = random(0,360)
+				else
+					spawnAngle = spawnAngle + 270
+					if spawnAngle > 360 then 
+						spawnAngle = spawnAngle - 360
+					end
+				end
+				if fleetSpawnLocation ~= "Ambush" then
+					local tvx = 0
+					local tvy = 0
+					if fleetSpawnLocation == "Sensor Edge" then
+						--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange())
+						tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange())
+					else	--beyond sensors
+						--tvx, tvy = vectorFromAngle(spawnAngle,getLongRangeRadarRange() + 10000)
+						tvx, tvy = vectorFromAngle(spawnAngle,selected_player:getLongRangeRadarRange() + 10000)
+					end
+					fsx = fsx + tvx
+					fsy = fsy + tvy
+				end
+			else
+				addGMMessage("Fleet spawn failed: no valid player ship found amongst selected items")
+				return
+			end
+		elseif string.find(fleetSpawnLocation,"Away") then
+			fsx, fsy = centerOfSelected(objectList)
+			spawnAngle = fleetSpawnAwayDirection
+			if fleetSpawnAwayDirection == "Random" then
+				spawnAngle = random(0,360)
+			else
+				spawnAngle = spawnAngle + 270
+				if spawnAngle > 360 then 
+					spawnAngle = spawnAngle - 360
+				end
+			end
+			tvx, tvy = vectorFromAngle(spawnAngle,fleetSpawnAwayDistance*1000)
+			fsx = fsx + tvx
+			fsy = fsy + tvy
+		elseif fleetSpawnLocation == "Click" then
+			onGMClick(function (x,y) -- this probably could be made simpler, but I lack the understanding and time to make it neater at this time
+				cached_x = x
+				cached_y = y
+				fleetSpawnLocation = "AtCachedLocation"
+				parmSpawnFleet()
+				fleetSpawnLocation = "Click"
+			end)
+			return
+		elseif fleetSpawnLocation == "AtCachedLocation" then
+			fsx = cached_x
+			fsy = cached_y
 		end
-		tvx, tvy = vectorFromAngle(spawnAngle,fleetSpawnAwayDistance*1000)
-		fsx = fsx + tvx
-		fsy = fsy + tvy
-	elseif fleetSpawnLocation == "Click" then
-		onGMClick(function (x,y) -- this probably could be made simpler, but I lack the understanding and time to make it neater at this time
-			cached_x = x
-			cached_y = y
-			fleetSpawnLocation = "AtCachedLocation"
-			parmSpawnFleet()
-			fleetSpawnLocation = "Click"
-		end)
-		return
-	elseif fleetSpawnLocation == "AtCachedLocation" then
-		fsx = cached_x
-		fsy = cached_y
+		if fleetSpawnLocation == "Ambush" then
+			fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, "ambush", fleetAmbushDistance, spawnAngle)
+		else
+			fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1)
+		end
+		table.insert(fleetList,fleet)
 	end
-	local fleet = nil
-	if fleetSpawnLocation == "Ambush" then
-		fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1, "ambush", fleetAmbushDistance, spawnAngle)
-	else
-		fleet = spawnRandomArmed(fsx, fsy, #fleetList + 1)
-	end
-	table.insert(fleetList,fleet)
 end
 function excludeShip(current_ship_template)
 	assert(type(current_ship_template)=="string") -- the template name we are spawning from ship_template	
@@ -11925,14 +11919,82 @@ end
 -- Button Text		   DF*	Related Function(s)
 -- -MAIN FROM ESC POD	F	initialGMFunctions
 -- -FROM ESCAPE POD		F	dropPoint
--- (+)ASSOCIATED		F	podAssociatedTo (selection determines association or activation of submenus)
--- +NEAR TO				F	podNearTo
+-- +AT CLICK			D	setDropPointLocation
+-- PLACE POD			D	placePod
 function setEscapePod()
 	clearGMFunctions()
 	addGMFunction("-Main from Esc Pod",initialGMFunctions)
 	addGMFunction("-From Escape Pod",dropPoint)
-	addGMFunction("(+)Associated",podAssociatedTo)
-	addGMFunction("+Near to",podNearTo)
+	addGMFunction(string.format("+%s",drop_point_location),function()
+		set_drop_point_location_caller = setEscapePod
+		setDropPointLocation()
+	end)
+	if gm_click_mode == "escape pod" then
+		addGMFunction(">Place Pod<",placePod)
+	else
+		addGMFunction("Place Pod",placePod)
+	end
+end
+function placePod()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "escape pod" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "escape pod"
+			onGMClick(gmClickDropPoint)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   escape pod\nGM click mode.",prev_mode))
+			end
+		end
+		setEscapePod()
+	elseif drop_point_location == "Associated" then
+		podAssociatedTo()
+	elseif drop_point_location == "Near To" then
+		podNearTo()
+	end
+end
+function gmClickDropPoint(x,y)
+	podCreation(x,y,0,0)
+end
+--------------------------------------------------------------------
+--	Drop Point > Escape Pod > At Click (set drop point location)  --
+--------------------------------------------------------------------
+-- Button Text		   DF*	Related Function(s)
+-- -MAIN FRM DROP LOC	F	initialGMFunctions
+-- -TO DROP POINT		F	dropPoint
+-- AT CLICK*			*	inline
+-- ASSOCIATED			*	inline
+-- NEAR TO				*	inline
+function setDropPointLocation()
+	clearGMFunctions()
+	addGMFunction("-Main frm Drop Loc",initialGMFunctions)
+	addGMFunction("-To Drop Point",dropPoint)
+	local button_label = "At Click"
+	if drop_point_location == "At Click" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		drop_point_location = "At Click"
+		set_drop_point_location_caller()
+	end)
+	button_label = "Associated"
+	if drop_point_location == "Associated" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		drop_point_location = "Associated"
+		set_drop_point_location_caller()
+	end)
+	button_label = "Near To"
+	if drop_point_location == "Near To" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		drop_point_location = "Near To"
+		set_drop_point_location_caller()
+	end)
 end
 --------------------------------------------
 --	Drop Point > Escape Pod > Associated  --
@@ -12360,25 +12422,55 @@ end
 -- -FROM MARINE POINT	F	dropPoint
 -- DROP MARINES*		*	setDropAction		asterisk = current selection
 -- EXTRACT MARINES		*	setExtractAction
--- ASSOCIATED			F	marineAssociatedTo
--- +NEAR TO				F	marineNearTo
+-- +AT CLICK			F	setDropPointLocation
+-- SET MARINE POINT		F	placeMarinePoint
 function setMarinePoint()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-From Marine Point",dropPoint)
 	dropExtractActionReturn = setMarinePoint	--tell callback function to return to this function
-	local GMMarineDrop = "Drop marines"
+	local button_label = "Drop marines"
 	if dropOrExtractAction == "Drop" then
-		GMMarineDrop = "Drop marines*"
+		button_label = button_label .. "*"
 	end
-	addGMFunction(GMMarineDrop,setDropAction)
-	local GMMarineExtract = "Extract marines"
+	addGMFunction(button_label,setDropAction)
+	button_label = "Extract marines"
 	if dropOrExtractAction == "Extract" then
-		GMMarineExtract = "Extract marines*"
+		button_label = button_label .. "*"
 	end
-	addGMFunction(GMMarineExtract,setExtractAction)
-	addGMFunction("Associated",marineAssociatedTo)
-	addGMFunction("+Near to",marineNearTo)
+	addGMFunction(button_label,setExtractAction)
+	addGMFunction(string.format("+%s",drop_point_location),function()
+		set_drop_point_location_caller = setMarinePoint
+		setDropPointLocation()
+	end)
+	if gm_click_mode == "marine point" then
+		addGMFunction(">Set Marine Point<",placeMarinePoint)
+	else
+		addGMFunction("Set Marine Point",placeMarinePoint)
+	end	
+end
+function placeMarinePoint()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "marine point" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "marine point"
+			onGMClick(gmClickMarinePoint)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   marine point\nGM click mode.",prev_mode))
+			end
+		end
+		setMarinePoint()
+	elseif drop_point_location == "Associated" then
+		marineAssociatedTo()
+	elseif drop_point_location == "Near To" then
+		marineNearTo()
+	end
+end
+function gmClickMarinePoint(x,y)
+	marineCreation(x,y,0,0)
 end
 function setDropAction()
 	dropOrExtractAction = "Drop"
@@ -12621,8 +12713,8 @@ end
 -- -FROM ENGINEER POINT		F	dropPoint
 -- DROP ENGINEERS*			*	setDropAction		asterisk = current selection
 -- EXTRACT ENGINEERS		*	setExtractAction
--- ASSOCIATED				F	engineerAssociatedTo
--- +NEAR TO					F	engineerNearTo
+-- +AT CLICK				D	setDropPointLocation
+-- SET ENGINEER POINT		D	placeEngineerPoint
 function setEngineerPoint()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -12638,8 +12730,38 @@ function setEngineerPoint()
 		GMEngineerExtract = "Extract engineers*"
 	end
 	addGMFunction(GMEngineerExtract,setExtractAction)
-	addGMFunction("Associated",engineerAssociatedTo)
-	addGMFunction("+Near to",engineerNearTo)
+	addGMFunction(string.format("+%s",drop_point_location),function()
+		set_drop_point_location_caller = setEngineerPoint
+		setDropPointLocation()
+	end)
+	if gm_click_mode == "engineer point" then
+		addGMFunction(">Set Engineer Point<",placeEngineerPoint)
+	else
+		addGMFunction("Set Engineer Point",placeEngineerPoint)
+	end	
+end
+function placeEngineerPoint()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "engineer point" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "engineer point"
+			onGMClick(gmClickEngineerPoint)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   engineer point\nGM click mode.",prev_mode))
+			end
+		end
+		setEngineerPoint()
+	elseif drop_point_location == "Associated" then
+		engineerAssociatedTo()
+	elseif drop_point_location == "Near To" then
+		engineerNearTo()
+	end
+end
+function gmClickEngineerPoint(x,y)
+	engineerCreation(x,y,0,0)
 end
 --Create engineer point associated to selected object(s)
 function engineerAssociatedTo()
@@ -12872,8 +12994,8 @@ end
 -- -FROM MEDIC POINT		F	dropPoint
 -- DROP MEDICAL TEAM*		F	setDropAction		asterisk = current selection
 -- EXTRACT MEDICAL TEAM		F	setExtractAction
--- ASSOCIATED				F	medicAssociatedTo
--- +NEAR TO					F	medicNearTo
+-- +AT CLICK				D	setDropPointLocation
+-- SET MEDIC POINT			D	placeMedicPoint
 function setMedicPoint()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -12889,8 +13011,38 @@ function setMedicPoint()
 		GMMedicExtract = "Extract medical team*"
 	end
 	addGMFunction(GMMedicExtract,setExtractAction)
-	addGMFunction("Associated",medicAssociatedTo)
-	addGMFunction("+Near to",medicNearTo)
+	addGMFunction(string.format("+%s",drop_point_location),function()
+		set_drop_point_location_caller = setMedicPoint
+		setDropPointLocation()
+	end)
+	if gm_click_mode == "medic point" then
+		addGMFunction(">Set Medic Point<",placeMedicPoint)
+	else
+		addGMFunction("Set Medic Point",placeMedicPoint)
+	end	
+end
+function placeMedicPoint()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "medic point" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "medic point"
+			onGMClick(gmClickMedicPoint)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   medic point\nGM click mode.",prev_mode))
+			end
+		end
+		setMedicPoint()
+	elseif drop_point_location == "Associated" then
+		medicAssociatedTo()
+	elseif drop_point_location == "Near To" then
+		medicNearTo()
+	end
+end
+function gmClickMedicPoint(x,y)
+	medicCreation(x,y,0,0)
 end
 --Create medical team point associated to selected object(s)
 function medicAssociatedTo()
@@ -13120,16 +13272,12 @@ end
 --	Drop Point > Custom Supply Point  --
 ----------------------------------------
 -- Button Text	   FD*	Related Function(s)
--- -FROM SUPPLY		F	dropPoint
--- +ENERGY 500		D	setSupplyEnergy
--- +NUKE 1			D	setSupplyNuke
--- +EMP 1			D	setSupplyEMP
--- +MINE 2			D	setSupplyMine
--- +HOMING 4		D	setSupplyHoming
--- +HVLI 0			D	setSupplyHVLI
--- +REPAIR CREW 0	D	setSupplyRepairCrew
--- +COOLANT 0		D	setSupplyCoolant
--- +NEAR TO			F	supplyNearTo
+-- -FROM SUPPLY			F	dropPoint
+-- +MISSILES N1E1M2H4	D	setCustomMissiles
+-- +ENERGY 500			D	setSupplyEnergy
+-- +REPAIR CREW 0		D	setSupplyRepairCrew
+-- +COOLANT 0			D	setSupplyCoolant
+-- +NEAR TO				F	supplyNearTo
 function setCustomSupply()
 	--Default supply drop gives:
 	--500 energy
@@ -13138,24 +13286,114 @@ function setCustomSupply()
 	--2 Mines
 	--1 EMP
 	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-From Supply",dropPoint)
-	local GMSetSupplyEnergy = "+Energy " .. supplyEnergy
-	addGMFunction(GMSetSupplyEnergy,setSupplyEnergy)
-	local GMSetSupplyNuke = "+Nuke " .. supplyNuke
-	addGMFunction(GMSetSupplyNuke,setSupplyNuke)
-	local GMSetSupplyEMP = "+EMP " .. supplyEMP
-	addGMFunction(GMSetSupplyEMP,setSupplyEMP)
-	local GMSetSupplyMine = "+Mine " .. supplyMine
-	addGMFunction(GMSetSupplyMine,setSupplyMine)
-	local GMSetSupplyHoming = "+Homing " .. supplyHoming
-	addGMFunction(GMSetSupplyHoming,setSupplyHoming)
-	local GMSetSupplyHVLI = "+HVLI " .. supplyHVLI
-	addGMFunction(GMSetSupplyHVLI,setSupplyHVLI)
-	local GMSetSupplyRepairCrew = "+Repair Crew " .. supplyRepairCrew
-	addGMFunction(GMSetSupplyRepairCrew,setSupplyRepairCrew)
-	local GMSetSupplyCoolant = "+Coolant " .. supplyCoolant
-	addGMFunction(GMSetSupplyCoolant,setSupplyCoolant)
-	addGMFunction("+Near to",supplyNearTo)	
+	local missile_label = ""
+	if supplyNuke > 0 then
+		missile_label = string.format("%sN%i",missile_label,supplyNuke)
+	end
+	if supplyEMP > 0 then
+		missile_label = string.format("%sE%i",missile_label,supplyEMP)
+	end
+	if supplyMine > 0 then
+		missile_label = string.format("%sM%i",missile_label,supplyMine)
+	end
+	if supplyHoming > 0 then
+		missile_label = string.format("%sH%i",missile_label,supplyHoming)
+	end
+	if supplyHVLI > 0 then
+		missile_label = string.format("%sL%i",missile_label,supplyHVLI)
+	end
+	missile_label = string.format("+Missiles %s",missile_label)
+	addGMFunction(missile_label,setCustomMissiles)
+	addGMFunction(string.format("+Energy %i",supplyEnergy),setSupplyEnergy)
+	addGMFunction(string.format("+Repair Crew %i",supplyRepairCrew),setSupplyRepairCrew)
+	addGMFunction(string.format("+Coolant %i",supplyCoolant),setSupplyCoolant)
+	if drop_point_location == "Associated" then
+		drop_point_location = "At Click"
+	end
+	addGMFunction(string.format("+%s",drop_point_location),setSupplyDropLocation)
+	if gm_click_mode == "supply drop" then
+		addGMFunction(">Set Supply Drop<",placeSupplyDrop)
+	else
+		addGMFunction("Set Supply Drop",placeSupplyDrop)
+	end	
+--	addGMFunction("+Near to",supplyNearTo)	
+end
+function placeSupplyDrop()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "supply drop" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "supply drop"
+			onGMClick(gmClickSupplyDrop)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   supply drop\nGM click mode.",prev_mode))
+			end
+		end
+		setCustomSupply()
+	elseif drop_point_location == "Near To" then
+		supplyNearTo()
+	end
+end
+function gmClickSupplyDrop(x,y)
+	supplyCreation(x,y,0,0)
+end
+---------------------------------------------------
+--	Drop Point > Custom Supply Point > Missiles  --
+---------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM MISSILES	F	initialGMFunctions
+-- -DROP POINT			F	dropPoint
+-- -SUPPLY				F	setCustomSupply
+-- +NUKE 1				D	setSupplyNuke
+-- +EMP 1				D	setSupplyEMP
+-- +MINE 2				D	setSupplyMine
+-- +HOMING 4			D	setSupplyHoming
+-- +HVLI 0				D	setSupplyHVLI
+function setCustomMissiles()
+	clearGMFunctions()
+	addGMFunction("-Main From Missiles",initialGMFunctions)
+	addGMFunction("-Drop Point",dropPoint)
+	addGMFunction("-Supply",setCustomSupply)
+	addGMFunction(string.format("+Nuke %i",supplyNuke),setSupplyNuke)
+	addGMFunction(string.format("+EMP %i",supplyEMP),setSupplyEMP)
+	addGMFunction(string.format("+Mine %i",supplyMine),setSupplyMine)
+	addGMFunction(string.format("+Homing %i",supplyHoming),setSupplyHoming)
+	addGMFunction(string.format("+HVLI %i",supplyHVLI),setSupplyHVLI)
+end
+-------------------------------------------------------------------------
+--	Drop Point > Custom Supply Point > At Click (drop point location)  --
+-------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FRM DROP LOC	F	initialGMFunctions
+-- -TO DROP POINT		F	dropPoint
+-- -SUPPLY				F	setCustomSupply
+-- AT CLICK*			*	inline
+-- NEAR TO				*	inline
+function setSupplyDropLocation()
+	clearGMFunctions()
+	addGMFunction("-Main frm Drop Loc",initialGMFunctions)
+	addGMFunction("-To Drop Point",dropPoint)
+	addGMFunction("-Supply",setCustomSupply)
+	local button_label = "At Click"
+	if drop_point_location == "At Click" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		drop_point_location = "At Click"
+		setCustomSupply()
+	end)
+	button_label = "Near To"
+	if drop_point_location == "Near To" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		drop_point_location = "Near To"
+		setCustomSupply()
+	end)
 end
 -------------------------------------------------
 --	Drop Point > Custom Supply Point > Energy  --
@@ -13194,14 +13432,16 @@ end
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
--- -FROM NUKE		F	setCustomSupply
+-- -CUSTOM SUPPLY	F	setCustomSupply
+-- -FROM NUKE		F	setCustomMissiles
 -- 1-1=0			D	subtractANuke
 -- 1+1=2			D	addANuke
 function setSupplyNuke()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
-	addGMFunction("-From Nuke",setCustomSupply)
+	addGMFunction("-Custom Supply",setCustomSupply)
+	addGMFunction("-From Nuke",setCustomMissiles)
 	if supplyNuke > 0 then
 		local GMSubtractANuke = string.format("%i-1=%i",supplyNuke,supplyNuke - 1)
 		addGMFunction(GMSubtractANuke,subtractANuke)
@@ -13225,14 +13465,16 @@ end
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
--- -FROM EMP		F	setCustomSupply
+-- -CUSTOM SUPPLY	F	setCustomSupply
+-- -FROM EMP		F	setCustomMissiles
 -- 1-1=0			D	subtractAnEMP
 -- 1+1=2			D	addAnEMP
 function setSupplyEMP()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
-	addGMFunction("-From EMP",setCustomSupply)
+	addGMFunction("-Custom Supply",setCustomSupply)
+	addGMFunction("-From EMP",setCustomMissiles)
 	if supplyEMP > 0 then
 		local GMSubtractAnEMP = string.format("%i-1=%i",supplyEMP,supplyEMP - 1)
 		addGMFunction(GMSubtractAnEMP,subtractAnEMP)
@@ -13256,14 +13498,16 @@ end
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
--- -FROM MINE		F	setCustomSupply
+-- -CUSTOM SUPPLY	F	setCustomSupply
+-- -FROM MINE		F	setCustomMissiles
 -- 2-1=1			D	subtractAMine
 -- 2+1=3			D	addAMine
 function setSupplyMine()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
-	addGMFunction("-From Mine",setCustomSupply)
+	addGMFunction("-Custom Supply",setCustomSupply)
+	addGMFunction("-From Mine",setCustomMissiles)
 	if supplyMine > 0 then
 		local GMSubtractAMine = string.format("%i-1=%i",supplyMine,supplyMine - 1)
 		addGMFunction(GMSubtractAMine,subtractAMine)
@@ -13287,14 +13531,16 @@ end
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
--- -FROM HOMING		F	setCustomSupply
+-- -CUSTOM SUPPLY	F	setCustomSupply
+-- -FROM HOMING		F	setCustomMissiles
 -- 4-1=3			D	subtractAHoming
 -- 4+1=5			D	addAHoming
 function setSupplyHoming()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
-	addGMFunction("-From Homing",setCustomSupply)
+	addGMFunction("-Custom Supply",setCustomSupply)
+	addGMFunction("-From Homing",setCustomMissiles)
 	if supplyHoming > 0 then
 		local GMSubtractAHoming = string.format("%i-1=%i",supplyHoming,supplyHoming - 1)
 		addGMFunction(GMSubtractAHoming,subtractAHoming)
@@ -13318,13 +13564,15 @@ end
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
--- -FROM HVLI		F	setCustomSupply
+-- -CUSTOM SUPPLY	F	setCustomSupply
+-- -FROM HVLI		F	setCustomMissiles
 -- 0+1=1			D	addAnHVLI
 function setSupplyHVLI()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
-	addGMFunction("-From HVLI",setCustomSupply)
+	addGMFunction("-Custom Supply",setCustomSupply)
+	addGMFunction("-From HVLI",setCustomMissiles)
 	if supplyHVLI > 0 then
 		local GMSubtractAnHVLI = string.format("%i-1=%i",supplyHVLI,supplyHVLI - 1)
 		addGMFunction(GMSubtractAnHVLI,subtractAnHVLI)
@@ -13832,6 +14080,35 @@ function scannedClue5()
 		end)
 	end
 end
+-----------------------------------------------------
+--	Scan Clue > At Click (Set scan clue location)  --
+-----------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FRM CLUE LOC		F	initialGMFunctions
+-- -TO SCAN CLUE			F	scanClue
+-- AT CLICK*				*	inline
+-- NEAR TO					*	inline
+function setScanClueLocation()
+	clearGMFunctions()
+	addGMFunction("-Main frm Clue Loc",initialGMFunctions)
+	addGMFunction("-To Scan Clue",scanClue)
+	local button_label = "At Click"
+	if scan_clue_location == "At Click" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		scan_clue_location = "At Click"
+		scanClue()
+	end)
+	button_label = "Near To"
+	if scan_clue_location == "Near To" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		scan_clue_location = "Near To"
+		scanClue()
+	end)
+end
 ----------------------------
 --	Scan Clue >  Near To  --
 ----------------------------
@@ -13913,6 +14190,98 @@ end
 --	****************************************************  --
 --	**												  **  --
 --	*												   *  --
+-----------------------------------
+-- Tweak Terrain > Update editor --
+-----------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- +EDIT SELECTED		F	editSelected
+function updateEditor()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak",tweakTerrain)
+	addGMFunction("+Edit Selected",function()
+		local objectList = getGMSelection()
+		if #objectList ~= 1 then
+			addGMMessage("to edit select one (and only one) object before selecting the edit button")
+			return
+		end
+		update_edit_object=objectList[1]
+		editSelected()
+	end)
+end
+------------------------------------------------------------------------
+-- Tweak Terrain > Update editor > List of edits for selected object  --
+------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- -UPDATE EDITOR		F	updateEditor
+-- ---OBJECT EDIT---	F	none - UI element
+-- followed by a dynamically generated list of updates on the object
+function editSelected()
+	if updateEditObjectValid() then
+		clearGMFunctions()
+		addGMFunction("-Main",initialGMFunctions)
+		addGMFunction("-Tweak",tweakTerrain)
+		addGMFunction("-update editor",updateEditor)
+		addGMFunction("---object edit---",nil)
+		local updateTypes = update_system:getUpdateNamesOnObject(update_edit_object)
+		for index=1,#updateTypes do
+			local name="+"..updateTypes[index].name
+			local editElements=updateTypes[index].edit
+			assert(editElements ~= nil)
+			assert(type(editElements)=="table")
+			addGMFunction(name,editUpdate(updateTypes[index].name,editElements))
+		end
+	end
+end
+--------------------------------------------------------------------
+-- Tweak Terrain > Update editor > Selected object > edit update  --
+--------------------------------------------------------------------
+-- captures a name for the update type and then returns a function like
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK				F	tweakTerrain
+-- -UPDATE EDITOR		F	updateEditor
+-- -EDIT				F	editSelected
+-- ---NAME EDIT---		D	none - UI element
+-- REMOVE				F	inline
+-- followed by a list of dynamically created edit buttons
+function editUpdate(name,editElements)
+	assert(type(name)=="string")
+	assert(type(editElements)=="table")
+	return function()
+		if updateEditObjectValid() then
+			clearGMFunctions()
+			addGMFunction("-Main",initialGMFunctions)
+			addGMFunction("-Tweak",tweakTerrain)
+			addGMFunction("-update editor",updateEditor)
+			addGMFunction("-edit",editSelected)
+			addGMFunction("---"..name.." edit---",nil)
+			addGMFunction("remove",function()
+				if updateEditObjectValid() then
+					update_system:removeUpdateNamed(update_edit_object,name)
+					editSelected()
+				end
+			end)
+			for index=1,#editElements do
+				assert(type(editElements[index].name)=="string")
+				local edit=editElements[index]
+				edit.closers=function()
+					clearGMFunctions()
+					addGMFunction("-Main",initialGMFunctions)
+					addGMFunction("-Tweak",tweakTerrain)
+					addGMFunction("-update editor",updateEditor)
+					addGMFunction("-edit",editSelected)
+					addGMFunction("-"..name,editUpdate(name,editElements))
+				end
+				addGMFunction(editElements[index].name,numericEditControl(edit))
+			end
+		end
+	end
+end
 ------------------------------------------
 --	Tweak Terrain > Station Operations  --
 ------------------------------------------
@@ -15570,7 +15939,7 @@ function scienceDatabase()
 		local extracted_image = dump_db:getImage()
 		print(extracted_image)
 		for key, value in pairs(dump_db:getKeyValues()) do
-			print(string.format("%20s: %5s", key, value))
+			print(string.format("%20s: %25s", key, value))
 		end
 	end)
 end
