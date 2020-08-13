@@ -200,19 +200,23 @@ function setConstants()
 		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG3},
 		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG4},
+		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = cucaracha},
 		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG5},
 		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG6},
 		["Ktlitan Worker"] =	{strength = 40,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = predator},
 		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
+		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = hurricane},
 		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
+		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = k2breaker},
 		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = atlantisY42},
 		["Blockade Runner"] =	{strength = 65,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Starhammer II"] =		{strength = 70,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Enforcer"] =			{strength = 75,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = enforcer},
 		["Dreadnought"] =		{strength = 80,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
+		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = starhammerIII},
 		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = starhammerV},
 		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = tyr},
@@ -373,6 +377,8 @@ function setConstants()
 		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20	},
 		["Noble"]				= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8	},
 		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13	},
+		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13	},
+		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9	},
 		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11	},
 	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -2288,6 +2294,29 @@ function tweakTerrain()
 	end
 	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station defense",stationDefense)
+	addGMFunction("Fix Shield Freq",function()
+		local object_list = getGMSelection()
+		if #object_list ~= 1 then
+			addGMMessage("You need to select a CPU ship. No action taken")
+			return
+		end
+		local tempObject = object_list[1]
+		local tempType = tempObject.typeName
+		if tempType ~= "CpuShip" then
+			addGMMessage("You need to select a CPU ship. No action taken")
+			return
+		end
+		if tempObject.damage_instigator == nil then
+			addGMMessage("No damage-instigating perpetrator found. No action taken")
+			return
+		end
+		if tempObject.damage_instigator:getBeamFrequency() == nil then
+			addGMMessage("Damage instigator has no beam frequency. No action taken")
+			return
+		end
+		tempObject:setShieldsFrequency(tempObject.damage_instigator:getBeamFrequency())
+		addGMMessage(string.format("shields of %s change to frequency %s",tempObject:getCallSign(),tempObject.damage_instigator:getBeamFrequency()))
+	end)
 end
 function explodeSelectedArtifact()
 	local objectList = getGMSelection()
@@ -2558,6 +2587,7 @@ function playerShip()
 			{"Falcon"		,"inactive"	,createPlayerShipFalcon		,"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors"},
 			{"Gabble"		,"inactive"	,createPlayerShipGabble		,"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:4   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
+			{"Guinevere"	,"active"	,createPlayerShipGuinevere	,"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
 			{"Headhunter"	,"active"	,createPlayerShipHeadhunter	},
 			{"Hearken"		,"inactive"	,createPlayerShipHearken	,"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
@@ -2583,6 +2613,7 @@ function playerShip()
 			{"Spyder"		,"inactive"	,createPlayerShipSpyder		},
 			{"Stick"		,"inactive"	,createPlayerShipStick		,"Surkov (Stick): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, stronger shields, faster impulse, add mine tube facing back, remove nukes and EMPs"},
 			{"Sting"		,"inactive"	,createPlayerShipSting		,"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs"},
+			{"Thelonius"	,"active"	,createPlayerShipThelonius	,"Crab (Thelonius): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Rear Turreted Speed:0.5\n   Arc:70   Direction:170   Range:1   Cycle:6   Damage:6\n   Arc:70   Direction:190   Range:1   Cycle:6   Damage:6\nTubes:5   Load Speed:8   Front:3   Side:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-20   Type:Homing Only - Small\n   Direction: 20   Type:Homing Only - Small\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      16 Homing\n      02 Nuke\n      03 EMP\n      10 HVLI\nBased on Crucible: Slower warp, rear turreted beams, fewer tubes, fewer missiles, except for more homing missiles, large HVLI in front, small homing in two of the front tubes"},
 			{"Thunderbird"	,"inactive"	,createPlayerShipThunderbird,"Destroyer IV (Thunderbird) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Vision"		,"inactive"	,createPlayerShipVision		,"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Wiggy"		,"inactive"	,createPlayerShipWiggy		,"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors"},
@@ -6956,6 +6987,33 @@ function createPlayerShipHolmes()
 	playerHolmes:addReputationPoints(50)
 	playerShipSpawned("Holmes")
 end
+function createPlayerShipGuinevere()
+	playerGuinevere = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Guinevere")
+	playerGuinevere:setTypeName("Caretaker")
+	playerGuinevere:setWarpDrive(false)						--no warp drive (vs warp)
+	playerGuinevere:setJumpDrive(true)						--jump drive (vs warp)
+	playerGuinevere:setJumpDriveRange(4000,40000)			--shorter than typical jump drive range (vs 5-50)
+	playerGuinevere:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
+--                  			 Arc, Dir, Range, CycleTime, Dmg
+	playerGuinevere:setBeamWeapon(0, 80, -90, 900.0, 		5.0,   6)	--side beams (vs forward), faster (vs 6)
+	playerGuinevere:setBeamWeapon(1, 80,  90, 900.0, 		5.0,   6)	
+	playerGuinevere:setWeaponTubeCount(4)					--fewer (vs 6)
+	playerGuinevere:setWeaponTubeExclusiveFor(1,"EMP")		--normal sized tube allow EMPs and Nukes (vs HVLI)
+	playerGuinevere:weaponTubeAllowMissle(1,"Nuke")
+	playerGuinevere:setWeaponTubeExclusiveFor(2,"Homing")	--large tube for homing (vs HVLI)
+	playerGuinevere:setWeaponTubeExclusiveFor(3,"Mine")
+	playerGuinevere:setWeaponTubeDirection(3, 180)
+	playerGuinevere:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
+	playerGuinevere:setWeaponStorage("Homing", 6)				
+	playerGuinevere:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
+	playerGuinevere:setWeaponStorage("EMP", 3)				
+	playerGuinevere:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
+	playerGuinevere:setWeaponStorage("Nuke", 2)				
+	playerGuinevere:setWeaponStorageMax("Mine",3)			--fewer (vs 6)
+	playerGuinevere:setWeaponStorage("Mine", 3)				
+	playerGuinevere:addReputationPoints(50)
+	playerShipSpawned("Guinevere")
+end
 function createPlayerShipJarvis()
 	playerJarvis = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Jarvis")
 	playerJarvis:setTypeName("Butler")
@@ -7022,6 +7080,37 @@ function createPlayerShipKnick()
 	playerKnick:setTubeSize(2, "large")
 	playerKnick:addReputationPoints(50)
 	playerShipSpawned("Knick")
+end
+function createPlayerShipThelonius()
+	playerThelonius = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Thelonius")
+	playerThelonius:setTypeName("Crab")
+	playerThelonius:setWarpSpeed(450)						--slower (vs 750)
+--                 				 	Arc, Dir,  Range, CycleTime, Damage
+	playerThelonius:setBeamWeapon(0, 10, 165,	1000, 		6.0, 	6.0)	--turreted, stronger (vs fixed, 5 Dmg)
+	playerThelonius:setBeamWeapon(1, 10, 195,	1000, 		6.0,	6.0)	--rear facing
+--										   Arc, Dir, Rotate speed
+	playerThelonius:setBeamWeaponTurret(0,	70,	165,		 .5)		--slow turret
+	playerThelonius:setBeamWeaponTurret(1,	70,	195,		 .5)		--slow turret
+	playerThelonius:setWeaponTubeCount(5)					--fewer (vs 6), no mine tube or mines
+	playerThelonius:setTubeSize(0,"large")					--large (vs small)
+	playerThelonius:setTubeSize(1,"small")					--small (vs normal)
+	playerThelonius:setWeaponTubeDirection(1,-20)			--angled (vs zero degrees)
+	playerThelonius:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs HVLI)
+	playerThelonius:setTubeSize(2,"small")					--medium (vs large)
+	playerThelonius:setWeaponTubeDirection(2, 20)			--angled (vs zero degrees)
+	playerThelonius:setWeaponTubeExclusiveFor(2,"Homing")	--homing only (vs HVLI)
+	playerThelonius:setWeaponStorageMax("Homing",16)		--more (vs 8)
+	playerThelonius:setWeaponStorage("Homing", 16)				
+	playerThelonius:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
+	playerThelonius:setWeaponStorage("EMP", 3)				
+	playerThelonius:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
+	playerThelonius:setWeaponStorage("Nuke", 2)				
+	playerThelonius:setWeaponStorageMax("Mine",0)			--fewer (vs 6)
+	playerThelonius:setWeaponStorage("Mine", 0)				
+	playerThelonius:setWeaponStorageMax("HVLI",10)			--fewer (vs 24)
+	playerThelonius:setWeaponStorage("HVLI", 10)				
+	playerThelonius:addReputationPoints(50)
+	playerShipSpawned("Thelonius")
 end
 function createPlayerShipMagnum()
 	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
@@ -9452,6 +9541,12 @@ function modifiedValue()
 end
 function stockTemplate(enemyFaction,template)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	return ship
 end
 --------------------------------------------------------------------------------------------
@@ -9459,6 +9554,12 @@ end
 --------------------------------------------------------------------------------------------
 function adderMk3(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK4"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Adder MK3")
 	ship:setHullMax(35)		--weaker hull (vs 40)
 	ship:setHull(35)
@@ -9499,6 +9600,12 @@ function adderMk3(enemyFaction)
 end
 function adderMk7(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK6"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Adder MK7")
 	ship:setShieldsMax(40)	--stronger shields (vs 30)
 	ship:setShields(40)
@@ -9542,6 +9649,12 @@ function adderMk7(enemyFaction)
 end
 function adderMk8(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Adder MK8")
 	ship:setShieldsMax(50)					--stronger shields (vs 30)
 	ship:setShields(50)
@@ -9585,6 +9698,12 @@ function adderMk8(enemyFaction)
 end
 function adderMk9(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Adder MK9")
 	ship:setShieldsMax(50)					--stronger shields (vs 30)
 	ship:setShields(50)
@@ -9631,6 +9750,12 @@ function adderMk9(enemyFaction)
 end
 function phobosR2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Phobos R2")
 	ship:setWeaponTubeCount(1)			--one tube (vs 2)
 	ship:setWeaponTubeDirection(0,0)	
@@ -9672,6 +9797,12 @@ function phobosR2(enemyFaction)
 end
 function hornetMV52(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("MV52 Hornet")
 	ship:setBeamWeapon(0, 30, 0, 1000.0, 4.0, 3.0)	--longer and stronger beam (vs 700 & 3)
 	ship:setRotationMaxSpeed(31)					--faster maneuver (vs 30)
@@ -9706,6 +9837,12 @@ function hornetMV52(enemyFaction)
 end
 function nirvanaR3(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Nirvana R5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Nirvana R3")
 	ship:setBeamWeapon(0, 90, -15, 1000.0, 3, 1)	--shorter beams (vs 1200)
 	ship:setBeamWeapon(1, 90,  15, 1000.0, 3, 1)	--shorter beams
@@ -9733,6 +9870,12 @@ function nirvanaR3(enemyFaction)
 end
 function fiendG3(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Fiend G3")
 	ship:setJumpDrive(true)
 	ship:setJumpDriveRange(5000,35000)
@@ -9772,6 +9915,12 @@ function fiendG3(enemyFaction)
 end
 function fiendG4(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Fiend G4")
 	ship:setWarpDrive(true)
 	ship:setWarpSpeed(800)
@@ -9811,6 +9960,12 @@ function fiendG4(enemyFaction)
 end
 function fiendG5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Fiend G5")
 	ship:setJumpDrive(true)
 	ship:setJumpDriveRange(5000,35000)
@@ -9852,6 +10007,12 @@ function fiendG5(enemyFaction)
 end
 function fiendG6(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Fiend G6")
 	ship:setWarpDrive(true)
 	ship:setWarpSpeed(800)
@@ -9959,6 +10120,12 @@ function k3fighter(enemyFaction)
 end	
 function stalkerQ5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Stalker Q5")
 	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
 	ship:setShields(50,50)
@@ -9997,6 +10164,12 @@ function stalkerQ5(enemyFaction)
 end
 function stalkerR5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Stalker R5")
 	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
 	ship:setShields(50,50)
@@ -10035,6 +10208,12 @@ function stalkerR5(enemyFaction)
 end
 function waddle5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Waddle 5")
 	ship:setWarpDrive(true)
 --				   Index,  Arc,	  Dir, Range, Cycle,	Damage
@@ -10074,6 +10253,12 @@ function waddle5(enemyFaction)
 end
 function jade5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Jade 5")
 	ship:setJumpDrive(true)
 	ship:setJumpDriveRange(5000,35000)
@@ -10183,6 +10368,12 @@ function droneHeavy(enemyFaction)
 end
 function droneJacket(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Jacket Drone")
 	ship:setShieldsMax(20)				--stronger shields (vs none)
 	ship:setShields(20)
@@ -10311,6 +10502,12 @@ function wzLindworm(enemyFaction)
 end
 function tempest(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Tempest")
 	ship:setWeaponTubeCount(10)						--four more tubes (vs 6)
 	ship:setWeaponTubeDirection(0, -88)				--5 per side
@@ -10382,6 +10579,12 @@ function tempest(enemyFaction)
 end
 function enforcer(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Enforcer")
 	ship:setRadarTrace("radar_ktlitan_destroyer.png")			--different radar trace
 	ship:setWarpDrive(true)										--warp (vs none)
@@ -10443,6 +10646,12 @@ function enforcer(enemyFaction)
 end
 function predator(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Predator")
 	ship:setShieldsMax(100,100)									--stronger shields (vs 30,30)
 	ship:setShields(100,100)					
@@ -10527,6 +10736,12 @@ function predator(enemyFaction)
 end
 function atlantisY42(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Atlantis Y42")
 	ship:setShieldsMax(300,200,300,200)							--stronger shields (vs 200,200,200,200)
 	ship:setShields(300,200,300,200)					
@@ -10582,6 +10797,12 @@ function atlantisY42(enemyFaction)
 end
 function starhammerV(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Starhammer V")
 	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 35)
 	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 6)
@@ -10636,6 +10857,12 @@ function starhammerV(enemyFaction)
 end
 function tyr(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Tyr")
 	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
 	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
@@ -10717,6 +10944,167 @@ function gnat(enemyFaction)
 			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
 			nil,
 			nil		--jump range
+		)
+	end
+	return ship
+end
+function cucaracha(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Cucaracha")
+	ship:setShieldsMax(200, 50, 50, 50, 50, 50)		--stronger shields (vs 20)
+	ship:setShields(200, 50, 50, 50, 50, 50)					
+	ship:setHullMax(100)							--stronger hull (vs 50)
+	ship:setHull(100)
+	ship:setRotationMaxSpeed(20)					--faster maneuver (vs 10)
+	ship:setAcceleration(30)						--faster acceleration (vs 15)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	60,	    0,	1500,		6,		10)	--extra rear facing beam
+	local cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+	if cucaracha_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Cucaracha")
+		cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Cucaracha"),	--base ship database entry
+			cucaracha_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
+			nil,
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function starhammerIII(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Starhammer III")
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
+	ship:setTubeSize(0,"large")
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 36)
+	local starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+	if starhammer_iii_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		corvette_db:addEntry("Starhammer III")
+		starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Starhammer III"),	--base ship database entry
+			starhammer_iii_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire",
+			{
+				{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
+			},
+			"5 - 50 U"		--jump range
+		)
+	end
+	return ship
+end
+function k2breaker(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("K2 Breaker")
+	ship:setHullMax(200)							--stronger hull (vs 120)
+	ship:setHull(200)
+	ship:setWeaponTubeCount(3)						--more (vs 1)
+	ship:setTubeSize(0,"large")						--large (vs normal)
+	ship:setWeaponTubeDirection(1,-30)				
+	ship:setWeaponTubeDirection(2, 30)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponStorageMax("Homing",16)			--more (vs 0)
+	ship:setWeaponStorage("Homing", 16)
+	ship:setWeaponStorageMax("HVLI",8)				--more (vs 5)
+	ship:setWeaponStorage("HVLI", 8)
+	local k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+	if k2_breaker_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("K2 Breaker")
+		k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","K2 Breaker"),	--base ship database entry
+			k2_breaker_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships",
+			{
+				{key = "Large tube 0", value = "13 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
+			},
+			nil
+		)
+	end
+	return ship
+end
+function hurricane(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Hurricane")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,40000)			
+	ship:setWeaponTubeCount(8)						--more (vs 3)
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponTubeDirection(1,  0)				--forward (vs -90)
+	ship:setTubeSize(3,"large")						
+	ship:setWeaponTubeDirection(3,-90)
+	ship:setTubeSize(4,"small")
+	ship:setWeaponTubeExclusiveFor(4,"Homing")
+	ship:setWeaponTubeDirection(4,-15)
+	ship:setTubeSize(5,"small")
+	ship:setWeaponTubeExclusiveFor(5,"Homing")
+	ship:setWeaponTubeDirection(5, 15)
+	ship:setWeaponTubeExclusiveFor(6,"Homing")
+	ship:setWeaponTubeDirection(6,-30)
+	ship:setWeaponTubeExclusiveFor(7,"Homing")
+	ship:setWeaponTubeDirection(7, 30)
+	ship:setWeaponStorageMax("Homing",24)			--more (vs 5)
+	ship:setWeaponStorage("Homing", 24)
+	local hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+	if hurricane_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Hurricane")
+		hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Hurricane"),	--base ship database entry
+			hurricane_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot",
+			{
+				{key = "Large tube 0", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "12 sec"},			--torpedo tube direction and load speed
+				{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube -15", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube 15", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
+			},
+			"5 - 40 U"		--jump range
 		)
 	end
 	return ship
