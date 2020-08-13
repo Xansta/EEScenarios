@@ -948,22 +948,35 @@ function updateSystem()
 				local edit={}
 				for index2 = 1,#obj.update_list[index].edit do
 					local name=obj.update_list[index].edit[index2].name
+					local array_index=obj.update_list[index].edit[index2].index
 					local fixedAdjAmount=obj.update_list[index].edit[index2].fixedAdjAmount
 					assert(type(name)=="string")
+					local display_name=name
+					assert(array_index==nil or type(array_index)=="number")
+					if array_index ~= nil then
+						display_name = display_name .. "[" .. array_index .. "]"
+					end
 					table.insert(edit,{
 						getter = function ()
 							-- note the time that this is executed the number of updates and their order may of changed
 							-- as such we have to fetch them from scratch
 							-- this probably could use being tested better, ideally added into the testing code
 							local ret=self:getUpdateNamed(obj,update_name)[name]
+							if array_index ~= nil then
+								ret=ret[array_index]
+							end
 							assert(type(ret)=="number")
 							return ret
 						end,
 						setter = function (val)
-							self:getUpdateNamed(obj,update_name)[name]=val
+							if array_index == nil then
+								self:getUpdateNamed(obj,update_name)[name]=val
+							else
+								self:getUpdateNamed(obj,update_name)[name][array_index]=val
+							end
 						end,
 						fixedAdjAmount=fixedAdjAmount,
-						name=name
+						name=display_name
 					})
 				end
 				table.insert(ret,{
