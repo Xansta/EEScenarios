@@ -110,7 +110,8 @@ function setConstants()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
-	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
+	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(390000,210000) end,-390000, 210000)
+	universe:addAvailableRegion("Moon WIP",function() return moonsWIPSector(0,0) end,0, 0)
 	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
@@ -4968,6 +4969,25 @@ function erisSector(x,y)
 		end
 	}
 	return eris
+end
+--	Moons work in progress area (name tbd) stations, asteroids, mines, etc.
+function moonsWIPSector(x,y)
+	assert(type(x)=="number")
+	assert(type(y)=="number")
+	local wip = {
+		all_local_objects = {}, -- this may want to become another system maybe?
+		destroy = function(self) -- sigh I am getting less convinced this is a good way, will look at it when I have time for eris
+			assert(type(self)=="table")
+			for i=1,#self.all_local_objects do
+				local obj=self.all_local_objects[i]
+				if obj:isValid() then
+					obj:destroy()
+				end
+			end
+		end
+	}
+	-- moon - insert creation here, I can fix it
+	return wip
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
