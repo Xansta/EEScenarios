@@ -110,7 +110,8 @@ function setConstants()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
-	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(100,100) end,-390000, 210000)
+	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(390000,210000) end,-390000, 210000)
+	universe:addAvailableRegion("Moon WIP",function() return moonsWIPSector(0,0) end,0, 0)
 	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
@@ -947,22 +948,35 @@ function updateSystem()
 				local edit={}
 				for index2 = 1,#obj.update_list[index].edit do
 					local name=obj.update_list[index].edit[index2].name
+					local array_index=obj.update_list[index].edit[index2].index
 					local fixedAdjAmount=obj.update_list[index].edit[index2].fixedAdjAmount
 					assert(type(name)=="string")
+					local display_name=name
+					assert(array_index==nil or type(array_index)=="number")
+					if array_index ~= nil then
+						display_name = display_name .. "[" .. array_index .. "]"
+					end
 					table.insert(edit,{
 						getter = function ()
 							-- note the time that this is executed the number of updates and their order may of changed
 							-- as such we have to fetch them from scratch
 							-- this probably could use being tested better, ideally added into the testing code
 							local ret=self:getUpdateNamed(obj,update_name)[name]
+							if array_index ~= nil then
+								ret=ret[array_index]
+							end
 							assert(type(ret)=="number")
 							return ret
 						end,
 						setter = function (val)
-							self:getUpdateNamed(obj,update_name)[name]=val
+							if array_index == nil then
+								self:getUpdateNamed(obj,update_name)[name]=val
+							else
+								self:getUpdateNamed(obj,update_name)[name][array_index]=val
+							end
 						end,
 						fixedAdjAmount=fixedAdjAmount,
-						name=name
+						name=display_name
 					})
 				end
 				table.insert(ret,{
@@ -4968,6 +4982,25 @@ function erisSector(x,y)
 		end
 	}
 	return eris
+end
+--	Moons work in progress area (name tbd) stations, asteroids, mines, etc.
+function moonsWIPSector(x,y)
+	assert(type(x)=="number")
+	assert(type(y)=="number")
+	local wip = {
+		all_local_objects = {}, -- this may want to become another system maybe?
+		destroy = function(self) -- sigh I am getting less convinced this is a good way, will look at it when I have time for eris
+			assert(type(self)=="table")
+			for i=1,#self.all_local_objects do
+				local obj=self.all_local_objects[i]
+				if obj:isValid() then
+					obj:destroy()
+				end
+			end
+		end
+	}
+	-- moon - insert creation here, I can fix it
+	return wip
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
@@ -16412,7 +16445,40 @@ function math.lerp (a,b,t)
 	assert(type(a)=="number")
 	assert(type(b)=="number")
 	assert(type(t)=="number")
-	return a + t * (b - a);
+	return a + t * (b - a)
+end
+function math.CosineInterpolate(y1,y2,mu)
+	-- see http://paulbourke.net/miscellaneous/interpolation/
+	assert(type(y1)=="number")
+	assert(type(y2)=="number")
+	assert(type(mu)=="number")
+	local mu2 = (1-math.cos(mu*math.pi))/2
+	assert(type(mu2)=="number")
+	return (y1*(1-mu2)+y2*mu2)
+end
+function math._CosineInterpolateTableInner(tbl,elmt,t)
+	assert(type(tbl)=="table")
+	assert(type(t)=="number")
+	assert(type(elmt)=="number")
+	assert(elmt<#tbl)
+	local x_delta=tbl[elmt+1].x-tbl[elmt].x
+	if x_delta == 0 then
+		return tbl[elmt].y
+	end
+	local t_scaled=(t-tbl[elmt].x)*(1/x_delta)
+--	print(math.CosineInterpolate(tbl[elmt].y,tbl[elmt+1].y,t_scaled))
+	return math.CosineInterpolate(tbl[elmt].y,tbl[elmt+1].y,t_scaled)
+end
+function math.CosineInterpolateTable(tbl,t)
+	assert(type(tbl)=="table")
+	assert(type(t)=="number")
+	assert(#tbl>1)
+	for i=1,#tbl-1 do
+		if tbl[i+1].x>t then
+			return math._CosineInterpolateTableInner(tbl,i,t)
+		end
+	end
+	return math._CosineInterpolateTableInner(tbl,#tbl-1,t)
 end
 function math.lerpTest()
 	assert(math.lerp(1,2,0)==1)
