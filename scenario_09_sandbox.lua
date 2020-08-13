@@ -16432,7 +16432,40 @@ function math.lerp (a,b,t)
 	assert(type(a)=="number")
 	assert(type(b)=="number")
 	assert(type(t)=="number")
-	return a + t * (b - a);
+	return a + t * (b - a)
+end
+function math.CosineInterpolate(y1,y2,mu)
+	-- see http://paulbourke.net/miscellaneous/interpolation/
+	assert(type(y1)=="number")
+	assert(type(y2)=="number")
+	assert(type(mu)=="number")
+	local mu2 = (1-math.cos(mu*math.pi))/2
+	assert(type(mu2)=="number")
+	return (y1*(1-mu2)+y2*mu2)
+end
+function math._CosineInterpolateTableInner(tbl,elmt,t)
+	assert(type(tbl)=="table")
+	assert(type(t)=="number")
+	assert(type(elmt)=="number")
+	assert(elmt<#tbl)
+	local x_delta=tbl[elmt+1].x-tbl[elmt].x
+	if x_delta == 0 then
+		return tbl[elmt].y
+	end
+	local t_scaled=(t-tbl[elmt].x)*(1/x_delta)
+--	print(math.CosineInterpolate(tbl[elmt].y,tbl[elmt+1].y,t_scaled))
+	return math.CosineInterpolate(tbl[elmt].y,tbl[elmt+1].y,t_scaled)
+end
+function math.CosineInterpolateTable(tbl,t)
+	assert(type(tbl)=="table")
+	assert(type(t)=="number")
+	assert(#tbl>1)
+	for i=1,#tbl-1 do
+		if tbl[i+1].x>t then
+			return math._CosineInterpolateTableInner(tbl,i,t)
+		end
+	end
+	return math._CosineInterpolateTableInner(tbl,#tbl-1,t)
 end
 function math.lerpTest()
 	assert(math.lerp(1,2,0)==1)
