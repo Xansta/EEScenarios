@@ -355,7 +355,7 @@ function setConstants()
 		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6	},
 		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6	},
 		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5	},
-		["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5	},
+		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5	},
 		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8	},
 		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8	},
 		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9	},
@@ -2787,7 +2787,7 @@ function playerShip()
 			{"Thunderbird"	,"inactive"	,createPlayerShipThunderbird,"Destroyer IV (Thunderbird) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Vision"		,"inactive"	,createPlayerShipVision		,"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Wiggy"		,"inactive"	,createPlayerShipWiggy		,"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors"},
-			{"Wombat"		,"inactive"	,createPlayerShipWombat		}
+			{"Wombat"		,"active"	,createPlayerShipWombat		,"Wombat (Farrah): Starfighter, Bomber   Hull:100   Shield:80,80   Size:100   Repair Crew:4   Cargo:3   R.Strength:18\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   LRS:18   SRS:6\nBeam:2 Turreted Speed:0.3\n   Arc:80   Direction:-20   Range:0.9   Cycle:4   Damage:3\n   Arc:80   Direction: 20   Range:0.9   Cycle:4   Damage:3\nTubes:5   Load Speed:10   Rear, 2 small, 1 large, 2 normal\n   Direction:180   Type:Only HVLI - small\n   Direction:180   Type:Only HVLI or Homing - small\n   Direction:180   Type:Only HVLI or Homing - large\n   Direction:180   Type:Only HVLI, EMP or Nuke\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      08 Homing\n      01 Nuke\n      02 Mine\n      02 EMP\n      12 HVLI\nBased on Lindworm: stronger hull and shields, more repair crew, warp drive, stringer, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, more homing missiles"}
 		}
 	end
 end
@@ -7798,13 +7798,16 @@ function createPlayerShipWiggy()
 end
 function createPlayerShipWombat()
 	--destroyed 1Feb2020
-	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
+	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
 	playerWombat:setTypeName("Wombat")
+	playerWombat:setHullMax(100)							--stronger hull (vs 75)
+	playerWombat:setHull(100)
+	playerWombat:setShieldsMax(80, 80)						--stronger shields (vs 40)
+	playerWombat:setShields(80, 80)
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
-	playerWombat:setJumpDrive(true)							--jump drive (vs none)
-	playerWombat:setJumpDriveRange(3000,20000)
-	playerWombat:setImpulseMaxSpeed(85)						--faster (vs 70)
-	playerWombat:setBeamWeapon(0, 10, 0, 600.0, 4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
+	playerWombat:setWarpDrive(true)							--add warp (vs none)
+	playerWombat:setWarpSpeed(400)
+	playerWombat:setBeamWeapon(0, 10, 0, 900.0, 4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
 	playerWombat:setBeamWeapon(1, 10, 0, 900.0, 4.0, 3)	
 	playerWombat:setBeamWeaponTurret( 0, 80, -20, .3)
 	playerWombat:setBeamWeaponTurret( 1, 80,  20, .3)
@@ -7817,6 +7820,7 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponTubeExclusiveFor(0,"HVLI")
 	playerWombat:setWeaponTubeExclusiveFor(1,"HVLI")
 	playerWombat:weaponTubeAllowMissle(1,"Homing")
+	playerWombat:setTubeSize(2,"large")						--large (vs small)
 	playerWombat:setWeaponTubeExclusiveFor(2,"HVLI")
 	playerWombat:weaponTubeAllowMissle(2,"Homing")
 	playerWombat:setWeaponTubeExclusiveFor(3,"HVLI")
@@ -7824,16 +7828,14 @@ function createPlayerShipWombat()
 	playerWombat:weaponTubeAllowMissle(3,"Nuke")
 	playerWombat:setWeaponTubeExclusiveFor(4,"Mine")
 	playerWombat:setWeaponStorageMax("Mine",2)				--more (vs 0)
-	playerWombat:setWeaponStorage("Mine", 2)				
+	playerWombat:setWeaponStorage("Mine",   2)				
 	playerWombat:setWeaponStorageMax("EMP",2)				--more (vs 0)
-	playerWombat:setWeaponStorage("EMP", 2)				
+	playerWombat:setWeaponStorage("EMP",   2)				
 	playerWombat:setWeaponStorageMax("Nuke",1)				--more (vs 0)
-	playerWombat:setWeaponStorage("Nuke", 1)				
-	playerWombat:setWeaponStorageMax("HVLI",15)				--more (vs 12)	
-	playerWombat:setWeaponStorage("HVLI", 15)				
+	playerWombat:setWeaponStorage("Nuke",   1)				
 	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
-	playerWombat:setWeaponStorage("Homing", 8)				
-	playerShipSpawned("Devon")
+	playerWombat:setWeaponStorage("Homing",   8)				
+	playerShipSpawned("Farrah")
 end
 function createPlayerShipYorik()
 	playerYorik = PlayerSpaceship():setTemplate("Repulse"):setFaction("Human Navy"):setCallSign("Yorik")
@@ -17794,33 +17796,6 @@ function handleDockedState()
 			end)	--end player requests secondary ordnance comms reply branch
 		end	--end secondary ordnance available from station if branch
 	end	--end missles used on player ship if branch
-	--[[
-	--temporary code for session prepared near end of January 2020. Not used. Wombat was destroyed
-	addCommsReply("Do you have a focuser for a Wombat beam array?", function()
-		if comms_target == stationMaximilian then
-			setCommsMessage("Sure, let me get that for you")
-			if comms_source == playerWombat then
-				playerWombat:setBeamWeapon(0, 10, 0, 900.0, 4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
-			end
-		else
-			local wombat_response = math.random(1,6)
-			if wombat_response == 1 then
-				setCommsMessage("No spare parts here")
-			elseif wombat_response == 2 then
-				setCommsMessage("Wombat? We haven't had anything for those models in years")
-			elseif wombat_response == 3 then
-				setCommsMessage("Can't help you")
-			elseif wombat_response == 4 then
-				setCommsMessage("Let me look. I've got focusers for Phobos class and Repulse class, but nothing for Wombat")
-			elseif wombat_response == 5 then
-				setCommsMessage("I'm sure we've got those, let me get one.\n\n[silence followed by the sounds of clanking, mumbling and scraping]\n\nI can't seem to find them")
-			else
-				setCommsMessage("Sorry, we don't")
-			end
-		end
-		addCommsReply("Back", commsStation)
-	end)
-	--]]
 	addCommsReply("Docking services status", function()
 		local service_status = string.format("Station %s docking services status:",comms_target:getCallSign())
 		if comms_target:getRestocksScanProbes() then
