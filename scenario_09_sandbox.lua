@@ -2759,7 +2759,7 @@ function playerShip()
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
 			{"Guinevere"	,"active"	,createPlayerShipGuinevere	,"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
-			{"Headhunter"	,"active"	,createPlayerShipHeadhunter	},
+			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	},
 			{"Hearken"		,"inactive"	,createPlayerShipHearken	,"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Holmes"		,"inactive"	,createPlayerShipHolmes		,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
 			{"Jarvis"		,"inactive"	,createPlayerShipJarvis		,"Butler (Jarvis): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:70   Spin:12   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Front/Broadside\n   Arc:160   Direction:-80   Range:0.9   Cycle:6   Damage:6\n   Arc:160   Direction: 80   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP or Nuke Only\n   Direction:  0   Type:HVLI Only - Large\n   Direction:180   Type:Homing Only\n   Ordnance stock and type:\n      04 Homing\n      03 Nuke\n      04 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, front and side beams, fewer tubes, fewer missiles, no mines, Small Nukes, EMPs in front middle tube, large HVLI"},
@@ -3492,9 +3492,10 @@ function createIcarusStations()
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
 	--Relay-13
-	--local relay13Zone = squareZone(77918, 23876, "Relay13")
-	--relay13Zone:setColor(0,255,0)
-    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 B"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+	local relay13Zone = squareZone(77918, 23876, "Relay-13 C")
+	relay13Zone:setColor(0,255,0)
+	--[[	Destroyed 15Aug2020
+    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 C"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
     stationRelay13.comms_data = {
     	friendlyness = 75,
@@ -3515,10 +3516,12 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
-	--local slurryZone = squareZone(100342, 27871, "Slurry")
-	--slurryZone:setColor(51,153,255)
+	--]]
 	--Slurry
-    stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry IV"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local slurryZone = squareZone(100342, 27871, "Slurry V")
+	slurryZone:setColor(51,153,255)
+	--[[	Destroyed 15Aug2020
+    stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry V"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -3545,6 +3548,7 @@ function createIcarusStations()
 	if random(1,100) <= 26 then stationSlurry:setSharesEnergyWithDocked(false) end
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
+	--]]
 	--Sovinec
 	--local sovinecZone = squareZone(134167, 104690, "Sovinec Two")
 	--sovinecZone:setColor(51,153,255)
@@ -3606,9 +3610,10 @@ function createIcarusStations()
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
 	--Stromboli
-	--local stromboliZone = squareZone(109555, 12685, "Stromboli 2")
-	--stromboliZone:setColor(51,153,255)
-    stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli 2"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
+	local stromboliZone = squareZone(109555, 12685, "Stromboli 3")
+	stromboliZone:setColor(51,153,255)
+	--[[	Destroyed 15Aug2020
+    stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli 3"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -3635,6 +3640,7 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationStromboli:setSharesEnergyWithDocked(false) end
 	station_names[stationStromboli:getCallSign()] = {stationStromboli:getSectorName(), stationStromboli}
 	table.insert(stations,stationStromboli)
+	--]]
 	--Transylvania
     stationTransylvania = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Transylvania"):setPosition(-95000, 111000):setDescription("Abandoned science station turned haven"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4467,11 +4473,14 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
-		--local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
-		--kentar_zone:setColor(0,128,0)
-		local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
-		station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
-		table.insert(kentar_defense_platforms,dp)
+		if i == 1 or i == 2 then
+			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+			kentar_zone:setColor(0,128,0)
+		else
+			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
+			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
+			table.insert(kentar_defense_platforms,dp)
+		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -4638,7 +4647,10 @@ function createKentarStations()
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Nereus
-    stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	local NereusZone = squareZone(174288, 321668, "Nereus B")
+	NereusZone:setColor(0,128,0)
+	--[[	Destroyed 15Aug2020
+    stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus B"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -4666,6 +4678,7 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationNereus:setSharesEnergyWithDocked(false) end
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
+	--]]
 	--Pastern
 	local ergot_x, ergot_y = planet_primus:getPosition()
     stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
@@ -4698,7 +4711,10 @@ function createKentarStations()
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
-	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
+	local talosZone = squareZone(124505, 317170, "Talos 2")
+	talosZone:setColor(0,128,0)
+	--[[	Destroyed 15Aug2020
+	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos 2"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -4727,6 +4743,7 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationTalos:setSharesEnergyWithDocked(false) end
 	station_names[stationTalos:getCallSign()] = {stationTalos:getSectorName(), stationTalos}
 	table.insert(stations,stationTalos)
+	--]]
 	--Sutter
     stationSutter = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Sutter"):setPosition(84609, 293172):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
