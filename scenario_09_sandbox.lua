@@ -986,6 +986,110 @@ function updateSystem()
 			end
 			return ret
 		end,
+		 -- addShieldDecayCurve and addEnergyDecayCurve are mostly the same, they probably should be merged in some way
+		addEnergyDecayCurve = function (self, obj, total_time, curve_x, curve_y)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(total_time)=="number")
+			assert(type(curve_x)=="table")
+			assert(#curve_x==4)
+			assert(type(curve_x[1])=="number")
+			assert(type(curve_x[2])=="number")
+			assert(type(curve_x[3])=="number")
+			assert(type(curve_x[4])=="number")
+			assert(type(curve_y)=="table")
+			assert(#curve_y==4)
+			assert(type(curve_y[1])=="number")
+			assert(type(curve_y[2])=="number")
+			assert(type(curve_y[3])=="number")
+			assert(type(curve_y[4])=="number")
+			local update_data = {
+				name = "energy decay",
+				total_time = total_time,
+				curve_x = curve_x,
+				curve_y = curve_y,
+				elapsed_time = 0,
+				edit = {
+					{name = "total_time", fixedAdjAmount=1},
+					{name = "elapsed_time", fixedAdjAmount=60},
+					{name = "curve_x", index = 1, fixedAdjAmount=0.01},
+					{name = "curve_x", index = 2, fixedAdjAmount=0.01},
+					{name = "curve_x", index = 3, fixedAdjAmount=0.01},
+					{name = "curve_x", index = 4, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 1, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 2, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 3, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 4, fixedAdjAmount=0.01}
+				},
+				update = function (self, obj, delta)
+					self.elapsed_time = self.elapsed_time + delta
+					local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
+					local curve={-- bah this is bad but until the update edit is better its needed
+						{x = self.curve_x[1], y = self.curve_y[1]},
+						{x = self.curve_x[2], y = self.curve_y[2]},
+						{x = self.curve_x[3], y = self.curve_y[3]},
+						{x = self.curve_x[4], y = self.curve_y[4]}
+					}
+					local energy_drain_per_second=math.CosineInterpolateTable(curve,time_ratio)
+					local new_energy=obj:getEnergy()+energy_drain_per_second*delta
+					obj:setEnergy(math.clamp(0,obj:getMaxEnergy(),new_energy))
+				end
+			}
+			self:addUpdate(obj,"energy decay",update_data)
+		end,
+		addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(total_time)=="number")
+			assert(type(curve_x)=="table")
+			assert(#curve_x==4)
+			assert(type(curve_x[1])=="number")
+			assert(type(curve_x[2])=="number")
+			assert(type(curve_x[3])=="number")
+			assert(type(curve_x[4])=="number")
+			assert(type(curve_y)=="table")
+			assert(#curve_y==4)
+			assert(type(curve_y[1])=="number")
+			assert(type(curve_y[2])=="number")
+			assert(type(curve_y[3])=="number")
+			assert(type(curve_y[4])=="number")
+			local update_data = {
+				name = "shield decay",
+				total_time = total_time,
+				curve_x = curve_x,
+				curve_y = curve_y,
+				elapsed_time = 0,
+				edit = {
+					{name = "total_time", fixedAdjAmount=1},
+					{name = "elapsed_time", fixedAdjAmount=60},
+					{name = "curve_x", index = 1, fixedAdjAmount=0.01},
+					{name = "curve_x", index = 2, fixedAdjAmount=0.01},
+					{name = "curve_x", index = 3, fixedAdjAmount=0.01},
+					{name = "curve_x", index = 4, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 1, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 2, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 3, fixedAdjAmount=0.01},
+					{name = "curve_y", index = 4, fixedAdjAmount=0.01}
+				},
+				update = function (self, obj, delta)
+					self.elapsed_time = self.elapsed_time + delta
+					local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
+					local curve={-- bah this is bad but until the update edit is better its needed
+						{x = self.curve_x[1], y = self.curve_y[1]},
+						{x = self.curve_x[2], y = self.curve_y[2]},
+						{x = self.curve_x[3], y = self.curve_y[3]},
+						{x = self.curve_x[4], y = self.curve_y[4]}
+					}
+					local maxShieldRatio=math.CosineInterpolateTable(curve,time_ratio)
+					local shields = {}
+					for i=0,obj:getShieldCount()-1 do
+						table.insert(shields,math.min((obj:getShieldMax(i)*maxShieldRatio),obj:getShieldLevel(i)))
+					end
+					obj:setShields(table.unpack(shields))
+				end
+			}
+			self:addUpdate(obj,"shield decay",update_data)
+		end,
 		_addGenericOverclock = function (self, obj, overboosted_time, boost_time, overclock_name, data_mirror ,add_extra_update_data, inner_update)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -2543,6 +2647,58 @@ function customButtons()
 	addGMFunction("+Debug",debugButtons)
 	addGMFunction("+Snippet",snippetButtons)
 	addGMFunction("+Science DB",scienceDatabase)
+	addGMFunction("shields degrade",shieldsDegrade)
+	addGMFunction("shields regen",shieldsRegen)
+	addGMFunction("bleed energy",bleedEnergy)
+	addGMFunction("restore energy",restoreEnergy)
+end
+function shieldsDegrade()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to decay shields on")
+		return
+	end
+	if object_list[1].getShieldCount == nil then
+		addGMMessage("target has no shield")
+		return
+	end
+	update_system:addShieldDecayCurve(object_list[1],2*60*60,{0,0.33,0.66,1},{1.0,0.5,0.4,0.1})
+end
+function shieldsRegen()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to restore shields on")
+		return
+	end
+	if object_list[1].getShieldCount == nil then
+		addGMMessage("target has no shield")
+		return
+	end
+	update_system:addShieldDecayCurve(object_list[1],60*60,{0,0.33,0.66,1},{0.1,0.4,0.5,1.0})
+end
+function bleedEnergy()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to decay energy on")
+		return
+	end
+	if object_list[1].getMaxEnergy == nil then
+		addGMMessage("target has no energy")
+		return
+	end
+	update_system:addEnergyDecayCurve(object_list[1],2*60*60,{0.0,0.33,0.66,1},{0.0,-0.4,-0.5,-1.0})
+end
+function restoreEnergy()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to restore energy on")
+		return
+	end
+	if object_list[1].getMaxEnergy == nil then
+		addGMMessage("target has no energy")
+		return
+	end
+	update_system:addEnergyDecayCurve(object_list[1],60*60,{0.0,0.33,0.66,1},{-1.0,-0.5,-0.4,0.0})
 end
 --	*											   *  --
 --	**											  **  --
