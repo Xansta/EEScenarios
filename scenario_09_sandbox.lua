@@ -2196,6 +2196,7 @@ end
 -- +CUSTOM SUPPLY			F	setCustomSupply
 -- +ATTACH TO NPS			F	attachArtifact
 -- +DETACH					f	detachArtifact
+-- ARTIFACT TO Pod			f	artifactToPod
 function dropPoint()
 	clearGMFunctions()
 	addGMFunction("-Main from Drop Pnt",initialGMFunctions)
@@ -2206,6 +2207,7 @@ function dropPoint()
 	addGMFunction("+Custom Supply",setCustomSupply)
 	addGMFunction("+Attach to NPS",attachArtifact)
 	addGMFunction("+Detach",detachArtifact)
+	addGMFunction("artifact to pod",artifactToPod)
 end
 -----------------
 --	Scan Clue  --
@@ -12975,6 +12977,48 @@ function createPodAway()
 	end
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	podCreation(nearx, neary, sox, soy)
+end
+-- ideally this would convert to any type of pickup
+-- however I do not currently have the time to ensure it works for any
+-- I think there are slight tweaks needed for each
+function artifactToPod()
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMMessage("Select one object. No action taken")
+		return
+	end
+	local pod=objectList[1]
+	if pod.typeName ~= "Artifact" then
+		addGMMessage("must select an artifact to convert. No action taken")
+	end
+	local podCallSign = pod:getCallSign()
+	pod:onPickUp(podPickupProcess)
+	escapePodList[podCallSign] = pod
+	table.insert(rendezvousPoints,pod)
+	for pidx=1,8 do
+		p = getPlayerShip(pidx)
+		if p ~= nil and p:isValid() then
+			if p.podButton == nil then
+				p.podButton = {}
+			end
+			p.podButton[podCallSign] = true
+			local tempButton = podCallSign
+			p:addCustomButton("Engineering",tempButton,string.format("Prepare to get %s",podCallSign),function()
+				for pidx=1,8 do
+					p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						for pb, enabled in pairs(p.podButton) do
+							if enabled then
+								p:removeCustom(pb)
+								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p.podButton[pb] = false
+							end
+						end
+					end
+				end
+			end)
+		end
+	end
 end
 function podCreation(originx, originy, vectorx, vectory)
 	artifactCounter = artifactCounter + 1
