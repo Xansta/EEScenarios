@@ -2288,8 +2288,8 @@ end
 -- +MEDICAL TEAM POINT		F	setMedicPoint
 -- +CUSTOM SUPPLY			F	setCustomSupply
 -- +ATTACH TO NPS			F	attachArtifact
--- +DETACH					f	detachArtifact
--- ARTIFACT TO Pod			f	artifactToPod
+-- +DETACH					F	detachArtifact
+-- ARTIFACT TO POD			F	artifactToPod
 function dropPoint()
 	clearGMFunctions()
 	addGMFunction("-Main from Drop Pnt",initialGMFunctions)
@@ -2300,7 +2300,7 @@ function dropPoint()
 	addGMFunction("+Custom Supply",setCustomSupply)
 	addGMFunction("+Attach to NPS",attachArtifact)
 	addGMFunction("+Detach",detachArtifact)
-	addGMFunction("artifact to pod",artifactToPod)
+	addGMFunction("Artifact To Pod",artifactToPod)
 end
 -----------------
 --	Scan Clue  --
