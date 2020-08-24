@@ -2167,6 +2167,99 @@ function orderShip()
 		end)
 	end
 	addGMFunction(string.format("Drop Jammer %iU",jammer_range/1000),dropJammer)
+	addGMFunction("Fix Shield Freq",function()
+		local object_list = getGMSelection()
+		if #object_list ~= 1 then
+			addGMMessage("You need to select a CPU ship. No action taken")
+			return
+		end
+		local tempObject = object_list[1]
+		local tempType = tempObject.typeName
+		if tempType ~= "CpuShip" then
+			addGMMessage("You need to select a CPU ship. No action taken")
+			return
+		end
+		if tempObject.damage_instigator == nil then
+			addGMMessage("No damage-instigating perpetrator found. No action taken")
+			return
+		end
+		if tempObject.damage_instigator:getBeamFrequency() == nil then
+			addGMMessage("Damage instigator has no beam frequency. No action taken")
+			return
+		end
+		tempObject:setShieldsFrequency(tempObject.damage_instigator:getBeamFrequency())
+		addGMMessage(string.format("shields of %s change to frequency %s",tempObject:getCallSign(),tempObject.damage_instigator:getBeamFrequency()))
+	end)
+	addGMFunction("+Attach To Ship",attachAnythingToNPS)
+	addGMFunction("+Detach",detachAnythingFromNPS)
+end
+function detachAnythingFromNPS()
+	clearGMFunctions()
+	addGMFunction("-Main from detach",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	local object_list = getGMSelection()
+	if #object_list < 1 or #object_list > 1 then
+		addGMFunction("+Select object",detachAnythingFromNPS)
+		return
+	end
+	local current_selected_object = object_list[1]
+	local current_selected_object_type = current_selected_object.typeName
+	update_system:removeUpdateNamed(current_selected_object,"attached")
+end
+function attachAnythingToNPS()
+	clearGMFunctions()
+	addGMFunction("-Main from attach",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	local object_list = getGMSelection()
+	if #object_list < 1 or #object_list > 1 then
+		addGMFunction("+Select object",attachAnythingToNPS)
+		return
+	end
+	local current_selected_object = object_list[1]
+	local current_selected_object_type = current_selected_object.typeName
+	local pod_x, pod_y = current_selected_object:getPosition()
+	local nearby_objects = getObjectsInRadius(pod_x, pod_y, 40000)
+	cpu_ship_list = {}
+	for i=1,#nearby_objects do
+		local temp_object = nearby_objects[i]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" and temp_object ~= current_selected_object then
+			local ship_distance = distance(temp_object,current_selected_object)
+			table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
+		end
+	end
+	if #cpu_ship_list > 0 then
+		table.sort(cpu_ship_list,function(a,b)
+			return a.distance < b.distance
+		end)
+		if #cpu_ship_list >= 1 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[1].ship:getCallSign()), function()
+				local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
+				local relative_attach_x = pod_x - attach_target_x
+				local relative_attach_y = pod_y - attach_target_y
+				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
+			end)
+		end
+		if #cpu_ship_list >= 2 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[2].ship:getCallSign()), function()
+				local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
+				local relative_attach_x = pod_x - attach_target_x
+				local relative_attach_y = pod_y - attach_target_y
+				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
+			end)
+		end
+		if #cpu_ship_list >= 3 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[3].ship:getCallSign()), function()
+				local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
+				local relative_attach_x = pod_x - attach_target_x
+				local relative_attach_y = pod_y - attach_target_y
+				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+			end)
+		end
+	else
+		addGMMessage("No CPU Ships within 40 units of selected object")
+		addGMFunction("+Select drop point",attachAnythingToNPS)
+	end
 end
 function dropJammer()
 	local object_list = getGMSelection()
@@ -2414,29 +2507,6 @@ function tweakTerrain()
 	end
 	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station defense",stationDefense)
-	addGMFunction("Fix Shield Freq",function()
-		local object_list = getGMSelection()
-		if #object_list ~= 1 then
-			addGMMessage("You need to select a CPU ship. No action taken")
-			return
-		end
-		local tempObject = object_list[1]
-		local tempType = tempObject.typeName
-		if tempType ~= "CpuShip" then
-			addGMMessage("You need to select a CPU ship. No action taken")
-			return
-		end
-		if tempObject.damage_instigator == nil then
-			addGMMessage("No damage-instigating perpetrator found. No action taken")
-			return
-		end
-		if tempObject.damage_instigator:getBeamFrequency() == nil then
-			addGMMessage("Damage instigator has no beam frequency. No action taken")
-			return
-		end
-		tempObject:setShieldsFrequency(tempObject.damage_instigator:getBeamFrequency())
-		addGMMessage(string.format("shields of %s change to frequency %s",tempObject:getCallSign(),tempObject.damage_instigator:getBeamFrequency()))
-	end)
 end
 function explodeSelectedArtifact()
 	local objectList = getGMSelection()
@@ -2772,7 +2842,7 @@ function playerShip()
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
 			{"Nimbus"		,"inactive"	,createPlayerShipNimbus		,"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
-			{"Osprey"		,"active"	,createPlayerShipOsprey		,"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
+			{"Osprey"		,"inactive"	,createPlayerShipOsprey		,"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
 			{"Outcast"		,"inactive"	,createPlayerShipOutcast	,"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
 			{"Quicksilver"	,"inactive"	,createPlayerShipQuick		,"XR-Lindworm (Quicksilver): Starfighter, Bomber   Hull:75   Shield:90,30   Size:100   Repair Crew:2   Cargo:3   R.Strength:11\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400  LRS:20   SRS:6\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      02 Nuke\n      03 EMP\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, warp drive, nukes and EMPs, two shields: stronger in front, weaker in rear"},
 			{"Raptor"		,"inactive"	,createPlayerShipRaptor		,"Destroyer IV (Raptor) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
@@ -2781,7 +2851,7 @@ function playerShip()
 			{"Yorik"		,"active"	,createPlayerShipYorik		,"Rook (Yorik): Frigate, Armored Transport   Hull:200   Shield:200,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:15\nFTL:Jump (3U-30U)   Speeds: Impulse:75   Spin:8   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:41   SRS:5.5\nBeams:2 Front 1 Turreted Speed:0.15\n   Arc:90   Direction:0   Range:0.9   Cycle:6   Damage:4\n   Arc:30   Direction:0   Range:0.9   Cycle:6   Damage:4\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      8 Homing\n      3 Nuke\n      5 Mine\n      6 EMP\n      6 HVLI\nBased on Repulse: slower spin, faster impiulse, 1 turreted beam, both beams forward, hull and shields stronger, relatively weaker rear shield, shorter and weaker beams, more missiles, stronger hull, shorter jump, longer long and short range sensors"},
 			{"Simian"		,"inactive"	,createPlayerShipSimian		,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
 			{"Sparrow"		,"inactive"	,createPlayerShipSparrow	,"Vermin (Sparrow):   Hull:60   Shield:100,60   Size:100   Repair Crew:4   Cargo:3   R.Strength:10   LRS:22   SRS:4\nFTL:Warp (400)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:500   LRS:22   SRS:4\nBeam:3 Front\n   Arc:12   Direction:  0   Range:1.0   Cycle:6   Damage:4\n   Arc:40   Direction:-10   Range:0.8   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:0.8   Cycle:6   Damage:6\nTubes:1   Load Speed:10   Rear\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Mine\nBased on player fighter: more repair crew, more energy, warp drive, stronger shields, more beams, mine laying tube"},
-			{"Spike"		,"inactive"	,createPlayerShipSpike		},
+			{"Phobos T2"	,"active"	,createPlayerShipPhobosT2	,"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:12U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:12U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
 			{"Spyder"		,"inactive"	,createPlayerShipSpyder		},
 			{"Stick"		,"inactive"	,createPlayerShipStick		,"Surkov (Stick): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, stronger shields, faster impulse, add mine tube facing back, remove nukes and EMPs"},
 			{"Sting"		,"inactive"	,createPlayerShipSting		,"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs"},
@@ -3018,17 +3088,17 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 5 then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
-			dp5Zone:setColor(0,128,0)
+--		if i == 5 then
+--			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
+--			dp5Zone:setColor(0,128,0)
 --		elseif i == 6 then
 --			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
 --			dp6Zone:setColor(0,128,0)
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -3494,9 +3564,8 @@ function createIcarusStations()
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
 	--Relay-13
-	local relay13Zone = squareZone(77918, 23876, "Relay-13 C")
-	relay13Zone:setColor(0,255,0)
-	--[[	Destroyed 15Aug2020
+	--local relay13Zone = squareZone(77918, 23876, "Relay-13 C")
+	--relay13Zone:setColor(0,255,0)
     stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 C"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
     stationRelay13.comms_data = {
@@ -3518,11 +3587,9 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
-	--]]
 	--Slurry
-	local slurryZone = squareZone(100342, 27871, "Slurry V")
-	slurryZone:setColor(51,153,255)
-	--[[	Destroyed 15Aug2020
+	--local slurryZone = squareZone(100342, 27871, "Slurry V")
+	--slurryZone:setColor(51,153,255)
     stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry V"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3550,7 +3617,6 @@ function createIcarusStations()
 	if random(1,100) <= 26 then stationSlurry:setSharesEnergyWithDocked(false) end
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
-	--]]
 	--Sovinec
 	--local sovinecZone = squareZone(134167, 104690, "Sovinec Two")
 	--sovinecZone:setColor(51,153,255)
@@ -3612,9 +3678,8 @@ function createIcarusStations()
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
 	--Stromboli
-	local stromboliZone = squareZone(109555, 12685, "Stromboli 3")
-	stromboliZone:setColor(51,153,255)
-	--[[	Destroyed 15Aug2020
+	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3")
+	--stromboliZone:setColor(51,153,255)
     stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli 3"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3642,7 +3707,6 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationStromboli:setSharesEnergyWithDocked(false) end
 	station_names[stationStromboli:getCallSign()] = {stationStromboli:getSectorName(), stationStromboli}
 	table.insert(stations,stationStromboli)
-	--]]
 	--Transylvania
     stationTransylvania = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Transylvania"):setPosition(-95000, 111000):setDescription("Abandoned science station turned haven"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4475,14 +4539,14 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
-		if i == 1 or i == 2 then
-			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
-			kentar_zone:setColor(0,128,0)
-		else
+--		if i == 1 or i == 2 then
+--			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+--			kentar_zone:setColor(0,128,0)
+--		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
-		end
+--		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -4527,10 +4591,9 @@ function createKentarStations()
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
 	--Katanga
-	local katangaZone = squareZone(229513, 224048, "Katanga 2")
-	katangaZone:setColor(0,128,0)
-	--[[	Destroyed 13Jun2020
-    stationKatanga = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(229513, 224048):setCallSign("Katanga"):setDescription("Mining station for cobalt, gold and other minerals"):setCommsScript(""):setCommsFunction(commsStation)
+	--local katangaZone = squareZone(229513, 224048, "Katanga 2")
+	--katangaZone:setColor(0,128,0)
+    stationKatanga = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(229513, 224048):setCallSign("Katanga 2"):setDescription("Mining station for cobalt, gold and other minerals"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -4558,7 +4621,6 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationKatanga:setSharesEnergyWithDocked(false) end
 	station_names[stationKatanga:getCallSign()] = {stationKatanga:getSectorName(), stationKatanga}
 	table.insert(stations,stationKatanga)
-	--]]
 	--Keyhole-23
 	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
 	stationKeyhole23.total_time = 0
@@ -4649,9 +4711,8 @@ function createKentarStations()
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Nereus
-	local NereusZone = squareZone(174288, 321668, "Nereus B")
-	NereusZone:setColor(0,128,0)
-	--[[	Destroyed 15Aug2020
+	--local NereusZone = squareZone(174288, 321668, "Nereus B")
+	--NereusZone:setColor(0,128,0)
     stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus B"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -4680,7 +4741,6 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationNereus:setSharesEnergyWithDocked(false) end
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
-	--]]
 	--Pastern
 	local ergot_x, ergot_y = planet_primus:getPosition()
     stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
@@ -4713,9 +4773,8 @@ function createKentarStations()
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
-	local talosZone = squareZone(124505, 317170, "Talos 2")
-	talosZone:setColor(0,128,0)
-	--[[	Destroyed 15Aug2020
+	--local talosZone = squareZone(124505, 317170, "Talos 2")
+	--talosZone:setColor(0,128,0)
 	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos 2"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -4745,7 +4804,6 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationTalos:setSharesEnergyWithDocked(false) end
 	station_names[stationTalos:getCallSign()] = {stationTalos:getSectorName(), stationTalos}
 	table.insert(stations,stationTalos)
-	--]]
 	--Sutter
     stationSutter = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Sutter"):setPosition(84609, 293172):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -7629,33 +7687,33 @@ function createPlayerShipSparrow()
 	playerSparrow:addReputationPoints(50)
 	playerShipSpawned("Sparrow")
 end
-function createPlayerShipSpike()
-	playerSpike = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Spike")
-	playerSpike:setTypeName("Phobos T2")
-	playerSpike:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerSpike:setJumpDrive(true)						--jump drive (vs none)
-	playerSpike:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
-	playerSpike:setRotationMaxSpeed(20)					--faster spin (vs 10)
-	playerSpike:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
-	playerSpike:setShields(120,80)
-	playerSpike:setMaxEnergy(800)						--less maximum energy (vs 1000)
-	playerSpike:setEnergy(800)
---                 				Arc, Dir, Range, CycleTime, Dmg
-	playerSpike:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
-	playerSpike:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
+function createPlayerShipPhobosT2()
+	playerPhobosT2 = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Terror")
+	playerPhobosT2:setTypeName("Phobos T2")
+	playerPhobosT2:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerPhobosT2:setJumpDrive(true)						--jump drive (vs none)
+	playerPhobosT2:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
+	playerPhobosT2:setRotationMaxSpeed(20)					--faster spin (vs 10)
+	playerPhobosT2:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
+	playerPhobosT2:setShields(120,80)
+	playerPhobosT2:setMaxEnergy(800)						--less maximum energy (vs 1000)
+	playerPhobosT2:setEnergy(800)
+--                 				   Arc, Dir, Range, CycleTime, Dmg
+	playerPhobosT2:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
+	playerPhobosT2:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
 --										 Arc, Dir, Rotate speed
-	playerSpike:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
-	playerSpike:setBeamWeaponTurret(1, 40,  30, .2)
-	playerSpike:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
-	playerSpike:setWeaponTubeDirection(0,0)				--first tube points straight forward
-	playerSpike:setWeaponTubeDirection(1,180)			--second tube points straight back
-	playerSpike:setWeaponTubeExclusiveFor(1,"Mine")
-	playerSpike:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
-	playerSpike:setWeaponStorage("Homing",8)
-	playerSpike:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
-	playerSpike:setWeaponStorage("HVLI",16)
-	playerSpike:addReputationPoints(50)
-	playerShipSpawned("Spike")
+	playerPhobosT2:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
+	playerPhobosT2:setBeamWeaponTurret(1, 40,  30, .2)
+	playerPhobosT2:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
+	playerPhobosT2:setWeaponTubeDirection(0,0)				--first tube points straight forward
+	playerPhobosT2:setWeaponTubeDirection(1,180)			--second tube points straight back
+	playerPhobosT2:setWeaponTubeExclusiveFor(1,"Mine")
+	playerPhobosT2:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
+	playerPhobosT2:setWeaponStorage("Homing",8)
+	playerPhobosT2:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
+	playerPhobosT2:setWeaponStorage("HVLI",16)
+	playerPhobosT2:addReputationPoints(50)
+	playerShipSpawned("Phobos T2")
 end
 function createPlayerShipSpyder()
 	--experimental
@@ -7837,7 +7895,7 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponStorage("Nuke",   1)				
 	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
 	playerWombat:setWeaponStorage("Homing",   8)				
-	playerShipSpawned("Farrah")
+	playerShipSpawned("Wombat")
 end
 function createPlayerShipYorik()
 	playerYorik = PlayerSpaceship():setTemplate("Repulse"):setFaction("Human Navy"):setCallSign("Yorik")
