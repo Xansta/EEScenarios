@@ -780,6 +780,9 @@ function setConstants()
 	outside_mine_gap_count = 3
 	inside_mine_orbit = "No"
 	outside_mine_orbit = "No"
+	mine_shape = "Arc"
+	mine_width = 1
+	mine_radius = 3
 	tractor_beam_string = {
 		"beam_blue.png",
 		"shield_hit_effect.png",
@@ -2443,6 +2446,7 @@ end
 -- SANDBOX COMMS		F	inline
 -- +STATION OPERATIONS	F	stationOperations
 -- +STATION DEFENSE		F	stationDefense
+-- +MINEFIELD			F	mineField
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -2507,7 +2511,9 @@ function tweakTerrain()
 	end
 	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station defense",stationDefense)
+	addGMFunction("+Minefield",mineField)
 end
+
 function explodeSelectedArtifact()
 	local objectList = getGMSelection()
 	if #objectList ~= 1 then
@@ -13036,10 +13042,10 @@ function createPodAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	podCreation(nearx, neary, sox, soy)
 end
+function artifactToPod()
 -- ideally this would convert to any type of pickup
 -- however I do not currently have the time to ensure it works for any
 -- I think there are slight tweaks needed for each
-function artifactToPod()
 	local objectList = getGMSelection()
 	if #objectList ~= 1 then
 		addGMMessage("Select one object. No action taken")
@@ -15149,6 +15155,50 @@ function stationDefense()
 		end
 	end
 end
+---------------------------------
+--	Tweak Terrain > Minefield  --
+---------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM MINEFIELD	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- +SHAPE: ARC			D	setMineShape
+-- +WIDTH: 1			D	setMineWidth
+-- CENTER POINT			D	mineArcCenterPoint
+function mineField()
+	clearGMFunctions()
+	addGMFunction("-Main From Minefield",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction(string.format("+Shape: %s",mine_shape),setMineShape)
+	addGMFunction(string.format("+Width: %i",mine_width),setMineWidth)
+	if mine_shape == "Circle" then
+		addGMFunction(string.format("+Radius: %i",mine_radius),setMineRadius)
+	end
+	if mine_shape == "Line" then
+		if gm_click_mode == "mine line start" then
+			addGMFunction(">Start Point<",mineLineStartPoint)
+		elseif gm_click_mode == "mine line end" then
+			addGMFunction(">End Point<",mineLineEndPoint)
+		else
+			addGMFunction("Start Point",mineLineStartPoint)
+		end
+	elseif mine_shape == "Arc" then
+		if gm_click_mode == "mine arc center" then
+			addGMFunction(">Center Point<",mineArcCenterPoint)
+		elseif gm_click_mode == "mine arc start" then
+			addGMFunction(">Start Arc<",mineArcStartPoint)
+		elseif gm_click_mode == "mine arc end" then
+			addGMFunction(">End Arc<",mineArcEndPoint)
+		else
+			addGMFunction("Center Point",mineArcCenterPoint)
+		end
+	elseif mine_shape == "Circle" then
+		if gm_click_mode == "mine circle" then
+			addGMFunction(">Center of Circle<",mineCircle)
+		else
+			addGMFunction("Center of Circle",mineCircle)
+		end
+	end
+end
 ---------------------------------------------------------
 --	Tweak Terrain > Station Defense > Defensive Fleet  --
 ---------------------------------------------------------
@@ -15960,6 +16010,442 @@ function setOuterOuterMineOrbit()
 		outside_mine_orbit = "Orbit < Slow"
 		setOuterOuterMineOrbit()
 	end)
+end
+-----------------------------------------
+--	Tweak Terrain > Minefield > Shape  --
+-----------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM SHAPE		F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -MINEFIELD			F	mineField
+-- ARC*					*	inline
+-- LINE					*	inline
+-- CIRCLE				*	inline
+function setMineShape()
+	clearGMFunctions()
+	addGMFunction("-Main From Shape",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Minefield",mineField)
+	local button_label = "Arc"
+	if mine_shape == "Arc" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		mine_shape = "Arc"
+		if gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,8) ~= "mine arc" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+		setMineShape()
+	end)
+	button_label = "Line"
+	if mine_shape == "Line" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		mine_shape = "Line"
+		if gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,9) ~= "mine line" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+		setMineShape()
+	end)
+	button_label = "Circle"
+	if mine_shape == "Circle" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		mine_shape = "Circle"
+		if gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,11) ~= "mine circle" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+		setMineShape()
+	end)
+end
+-----------------------------------------
+--	Tweak Terrain > Minefield > Width  --
+-----------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM WIDTH		F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -MINEFIELD			F	mineField
+-- WIDTH 1*				*	inline
+-- WIDTH 2				*	inline
+-- WIDTH 3				*	inline
+function setMineWidth()
+	clearGMFunctions()
+	addGMFunction("-Main From Width",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Minefield",mineField)
+	for i=1,3 do
+		local button_label = string.format("Width %i",i)
+		if mine_width == i then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			mine_width = i
+			setMineWidth()
+		end)
+	end
+end
+------------------------------------------
+--	Tweak Terrain > Minefield > Radius  --
+------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM RADIUS	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -MINEFIELD			F	mineField
+-- RADIUS 1				*	inline
+-- RADIUS 2				*	inline
+-- RADIUS 3*			*	inline
+-- RADIUS 4				*	inline
+-- RADIUS 5				*	inline
+function setMineRadius()
+	clearGMFunctions()
+	addGMFunction("-Main From Radius",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Minefield",mineField)
+	for i=1,5 do
+		local button_label = string.format("Radius %i",i)
+		if mine_radius == i then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			mine_radius = i
+			setMineRadius()
+		end)
+	end
+end
+--	Minefield functions
+function angleFromVectorNorth(p1x,p1y,p2x,p2y)
+	TWOPI = 6.2831853071795865
+	RAD2DEG = 57.2957795130823209
+	atan2parm1 = p2x - p1x
+	atan2parm2 = p2y - p1y
+	theta = math.atan2(atan2parm1, atan2parm2)
+	if theta < 0 then
+		theta = theta + TWOPI
+	end
+	return (360 - (RAD2DEG * theta)) % 360
+end
+function vectorFromAngleNorth(angle,distance)
+--	print("input angle to vectorFromAngleNorth:")
+--	print(angle)
+	angle = (angle + 270) % 360
+	local x, y = vectorFromAngle(angle,distance)
+	return x, y
+end
+--	Line shaped minefield functions
+function mineLineStartPoint()
+	if gm_click_mode == "mine line start" then
+		gm_click_mode = nil
+		onGMClick(nil)	
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "mine line start"
+		onGMClick(gmClickMineLineStart)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   mine line start\nGM click mode.",prev_mode))
+		end
+	end
+	mineField()
+end
+function mineLineEndPoint()
+	if gm_click_mode == "mine end point" then
+		gm_click_mode = nil
+		onGMClick(nil)
+		if mine_line_start_marker ~= nil and mine_line_start_marker:isValid() then
+			mine_line_start_marker:destroy()
+		end
+	end
+	mineField()
+end
+function gmClickMineLineStart(x,y)
+	mine_line_start_x = x
+	mine_line_start_y = y
+	mine_line_start_marker = Asteroid():setPosition(x,y)
+	gm_click_mode = "mine line end"
+	onGMClick(gmClickMineLineEnd)
+	mineField()
+end
+function gmClickMineLineEnd(x,y)
+	mine_line_start_marker:destroy()
+	local line_length = distance(mine_line_start_x,mine_line_start_y,x,y)
+	local angle = angleFromVectorNorth(x,y,mine_line_start_x,mine_line_start_y)
+	local mine_count = 0
+	local placed_mine = Mine():setPosition(mine_line_start_x,mine_line_start_y)
+	local mx, my = vectorFromAngleNorth(angle,mine_count*1200)
+	local line_angle = 0
+	repeat
+		mine_count = mine_count + 1
+		mx, my = vectorFromAngleNorth(angle,mine_count*1200)
+		placed_mine = Mine():setPosition(mine_line_start_x+mx,mine_line_start_y+my)
+	until(distance(placed_mine,mine_line_start_x,mine_line_start_y) > line_length)
+	if mine_width > 1 then
+		line_angle = (angle + 90) % 360
+		mx, my = vectorFromAngleNorth(line_angle,1200)
+		local start_line_2_x = mine_line_start_x + mx
+		local start_line_2_y = mine_line_start_y + my
+		placed_mine = Mine():setPosition(start_line_2_x,start_line_2_y)
+		mine_count = 0
+		repeat
+			mine_count = mine_count + 1
+			mx, my = vectorFromAngleNorth(angle,mine_count*1200)
+			placed_mine = Mine():setPosition(start_line_2_x + mx,start_line_2_y + my)
+		until(distance(placed_mine,start_line_2_x,start_line_2_y) > line_length)
+	end
+	if mine_width > 2 then
+		line_angle = (angle + 270) % 360
+		mx, my = vectorFromAngleNorth(line_angle,1200)
+		local start_line_3_x = mine_line_start_x + mx
+		local start_line_3_y = mine_line_start_y + my
+		placed_mine = Mine():setPosition(start_line_3_x,start_line_3_y)
+		mine_count = 0
+		repeat
+			mine_count = mine_count + 1
+			mx, my = vectorFromAngleNorth(angle,mine_count*1200)
+			placed_mine = Mine():setPosition(start_line_3_x + mx,start_line_3_y + my)
+		until(distance(placed_mine,start_line_3_x,start_line_3_y) > line_length)
+	end
+	onGMClick(gmClickMineLineStart)
+	gm_click_mode = "mine line start"
+	mineField()
+end
+--	Arc shaped minefield functions
+function mineArcCenterPoint()
+	if gm_click_mode == "mine arc center" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "mine arc center"
+		onGMClick(gmClickMineArcCenter)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   mine arc center\nGM click mode.",prev_mode))
+		end
+	end
+	mineField()
+end
+function mineArcStartPoint()
+	if gm_click_mode == "mine arc start" then
+		gm_click_mode = nil
+		onGMClick(nil)
+		if mine_arc_center_marker ~= nil and mine_arc_center_marker:isValid() then
+			mine_arc_center_marker:destroy()
+		end
+	end
+	mineField()
+end
+function mineArcEndPoint()
+	if gm_click_mode == "mine arc end" then
+		gm_click_mode = nil
+		onGMClick(nil)
+		if mine_arc_center_marker ~= nil and mine_arc_center_marker:isValid() then
+			mine_arc_center_marker:destroy()
+		end
+		if mine_arc_start_marker ~= nil and mine_arc_start_marker:isValid() then
+			mine_arc_start_marker:destroy()
+		end
+	end
+	mineField()
+end
+function gmClickMineArcCenter(x,y)
+	mine_arc_center_x = x
+	mine_arc_center_y = y
+	mine_arc_center_marker = Asteroid():setPosition(x,y)
+	gm_click_mode = "mine arc start"
+	onGMClick(gmClickMineArcStart)
+	mineField()
+end
+function gmClickMineArcStart(x,y)
+	mine_arc_start_x = x
+	mine_arc_start_y = y
+	mine_arc_center_marker:setSize(1000)
+	mine_arc_start_marker = Asteroid():setPosition(x,y)
+	gm_click_mode = "mine arc end"
+	onGMClick(gmClickMineArcEnd)
+	mineField()
+end
+function gmClickMineArcEnd(x,y)
+	mine_arc_start_marker:destroy()
+	mine_arc_center_marker:destroy()
+	local arc_radius = distance(mine_arc_center_x,mine_arc_center_y,mine_arc_start_x,mine_arc_start_y)
+	local angle = angleFromVectorNorth(mine_arc_start_x,mine_arc_start_y,mine_arc_center_x,mine_arc_center_y)
+	local final_angle = angleFromVectorNorth(x,y,mine_arc_center_x,mine_arc_center_y)
+	local mine_count = 0
+	local mx, my = vectorFromAngleNorth(angle,arc_radius)
+	local placed_mine = Mine():setPosition(mine_arc_center_x+mx,mine_arc_center_y+my)
+	local angle_increment = 0
+	repeat
+		angle_increment = angle_increment + 0.1
+		mx, my = vectorFromAngleNorth(angle + angle_increment,arc_radius)
+	until(distance(placed_mine,mine_arc_center_x+mx,mine_arc_center_y+my) > 1200)
+	if final_angle <= angle then
+		final_angle = final_angle + 360
+	end
+	local start_angle = angle
+	repeat
+		angle = angle + angle_increment
+		mx, my = vectorFromAngleNorth(angle,arc_radius)
+		placed_mine = Mine():setPosition(mine_arc_center_x+mx,mine_arc_center_y+my)
+	until(angle > final_angle)
+	if mine_width > 1 then
+		angle = start_angle
+		mx, my = vectorFromAngleNorth(angle,arc_radius+1200)
+		placed_mine = Mine():setPosition(mine_arc_center_x+mx,mine_arc_center_y+my)
+		repeat
+			angle_increment = angle_increment + 0.1
+			mx, my = vectorFromAngleNorth(angle + angle_increment,arc_radius + 1200)
+		until(distance(placed_mine,mine_arc_center_x+mx,mine_arc_center_y+my) > 1200)
+		repeat
+			angle = angle + angle_increment
+			mx, my = vectorFromAngleNorth(angle,arc_radius + 1200)
+			placed_mine = Mine():setPosition(mine_arc_center_x+mx,mine_arc_center_y+my)
+		until(angle > final_angle)
+	end
+	if mine_width > 2 then
+		angle = start_angle
+		mx, my = vectorFromAngleNorth(angle,arc_radius+2400)
+		placed_mine = Mine():setPosition(mine_arc_center_x+mx,mine_arc_center_y+my)
+		repeat
+			angle_increment = angle_increment + 0.1
+			mx, my = vectorFromAngleNorth(angle + angle_increment,arc_radius + 2400)
+		until(distance(placed_mine,mine_arc_center_x+mx,mine_arc_center_y+my) > 1200)
+		repeat
+			angle = angle + angle_increment
+			mx, my = vectorFromAngleNorth(angle,arc_radius + 2400)
+			placed_mine = Mine():setPosition(mine_arc_center_x+mx,mine_arc_center_y+my)
+		until(angle > final_angle)
+	end
+	onGMClick(gmClickMineArcCenter)
+	gm_click_mode = "mine arc center"
+	mineField()
+end
+--	Circle shaped minefield functions
+function mineCircle()
+	if gm_click_mode == "mine circle" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "mine circle"
+		onGMClick(gmClickMineCircle)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   mine circle\nGM click mode.",prev_mode))
+		end
+	end
+	mineField()
+end
+function gmClickMineCircle(x,y)
+	local angle = random(0,360)
+	local mx = 0
+	local my = 0
+	if mine_radius == 1 then
+		for i=1,4 do
+			mx, my = vectorFromAngle(angle,mine_radius*1000)
+			Mine():setPosition(x+mx,y+my)
+			angle = (angle + 90) % 360
+		end
+		if mine_width > 1 then
+			for i=1,10 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
+				Mine():setPosition(x+mx,y+my)
+				angle = (angle + 36) % 360
+			end
+		end
+		if mine_width > 2 then
+			for i=1,15 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
+				Mine():setPosition(x+mx,y+my)
+				angle = (angle + 24) % 360
+			end
+		end
+	end
+	if mine_radius == 2 then
+		for i=1,9 do
+			mx, my = vectorFromAngle(angle,mine_radius*1000)
+			Mine():setPosition(x+mx,y+my)
+			angle = (angle + 40) % 360
+		end
+		if mine_width > 1 then
+			for i=1,15 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
+				Mine():setPosition(x+mx,y+my)
+				angle = (angle + 24) % 360
+			end
+		end
+		if mine_width > 2 then
+			for i=1,20 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
+				Mine():setPosition(x+mx,y+my)
+				angle = (angle + 18) % 360
+			end
+		end
+	end
+	if mine_radius == 3 then
+		for i=1,15 do
+			mx, my = vectorFromAngle(angle,mine_radius*1000)
+			Mine():setPosition(x+mx,y+my)
+			angle = (angle + 24) % 360
+		end
+		if mine_width > 1 then
+			for i=1,20 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
+				Mine():setPosition(x+mx,y+my)
+				angle = (angle + 18) % 360
+			end
+		end
+		if mine_width > 2 then
+			for i=1,25 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
+				Mine():setPosition(x+mx,y+my)
+				angle = angle + 14.4
+			end
+		end
+	end
+	if mine_radius == 4 then
+		for i=1,20 do
+			mx, my = vectorFromAngle(angle,mine_radius*1000)
+			Mine():setPosition(x+mx,y+my)
+			angle = (angle + 18) % 360
+		end
+		if mine_width > 1 then
+			for i=1,25 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
+				Mine():setPosition(x+mx,y+my)
+				angle = angle + 14.4
+			end
+		end
+		if mine_width > 2 then
+			for i=1,30 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
+				Mine():setPosition(x+mx,y+my)
+				angle = angle + 12
+			end
+		end
+	end
+	if mine_radius == 5 then
+		for i=1,25 do
+			mx, my = vectorFromAngle(angle,mine_radius*1000)
+			Mine():setPosition(x+mx,y+my)
+			angle = angle + 14.4
+		end
+		if mine_width > 1 then
+			for i=1,30 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
+				Mine():setPosition(x+mx,y+my)
+				angle = angle + 12
+			end
+		end
+		if mine_width > 2 then
+			for i=1,36 do
+				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
+				Mine():setPosition(x+mx,y+my)
+				angle = angle + 10
+			end
+		end
+	end
 end
 --	*												   *  --
 --	**												  **  --
