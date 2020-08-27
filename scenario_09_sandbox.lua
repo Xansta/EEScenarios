@@ -783,6 +783,27 @@ function setConstants()
 	mine_shape = "Arc"
 	mine_width = 1
 	mine_radius = 3
+	zone_rectangle_width = 5
+	zone_rectangle_height = 5
+	zone_click_type = "rectangle"
+	zone_point_count = 0
+	zone_point_max = 3
+	zone_color = "Red"
+	zone_color_list = {
+		["Red"]					= {r = 255, g =   0, b =   0},
+		["Green"]				= {r =   0, g = 255, b =   0},
+		["Blue"]				= {r =   0, g =   0, b = 255},
+		["Medium Orchid"]		= {r = 186, g =  85, b = 211},
+		["Cadet Blue"]			= {r =  95, g = 158, b = 160},
+		["Dark Gray"]			= {r =  55, g =  55, b =  55},
+		["Orange Red"]			= {r = 255, g =  69, b =   0},
+		["Coral"]				= {r = 255, g = 127, b =  80},
+		["Royal Blue"]			= {r =  65, g = 105, b = 255},
+		["Sienna"]				= {r = 160, g =  82, b =  45},
+		["Dark Olive Greeen"]	= {r =  85, g = 107, b =  47},
+		["Forest Green"]		= {r =  34, g = 139, b =  34},
+		["Firebrick Red"]		= {r = 178, g =  34, b =  34},
+	}
 	tractor_beam_string = {
 		"beam_blue.png",
 		"shield_hit_effect.png",
@@ -3221,7 +3242,7 @@ function createIcarusStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Aquarius F4m9 captured 11Jul2020
-	--local aquariusZone = squareZone(-4295, 14159, "Aquarius IV")
+	--local aquariusZone = squareZone(-4295, 14159, "Aquarius IV F4.9")
 	--aquariusZone:setColor(51,153,255)
     stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius IV"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3251,6 +3272,8 @@ function createIcarusStations()
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
 	--Borlan
+	--local borlanZone = squareZone(68808, 39300, "Borlan 2 G8")
+	--borlanZone:setColor(51,153,255)
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3280,6 +3303,8 @@ function createIcarusStations()
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
 	--Cindy's Folly
+	--local cindyZone = squareZone(81075, -1304, "Cindy's Folly 2 E9")
+	--cindyZone:setColor(51,153,255)
     stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 2"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 37 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 44 then hvliAvail = true else hvliAvail = false end
@@ -3308,7 +3333,7 @@ function createIcarusStations()
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
 	--Elysium F4m2.5 
-	--local elysiumZone = squareZone(-7504, 1384, "Elysium 2")
+	--local elysiumZone = squareZone(-7504, 1384, "Elysium 2 F4.3")
 	--elysiumZone:setColor(51,153,255)
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 2"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3336,7 +3361,7 @@ function createIcarusStations()
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
 	--Finnegan
-	--local finneganZone = squareZone(114460, 95868, "Finnegan 2")
+	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
 	--finneganZone:setColor(51,153,255)
 	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan 2"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3365,6 +3390,8 @@ function createIcarusStations()
 	station_names[stationFinnegan:getCallSign()] = {stationFinnegan:getSectorName(), stationFinnegan}
 	table.insert(stations,stationFinnegan)
 	--Gagarin
+	--local gagarinZone = squareZone(-60000, 62193, "Gagarin I2")
+	--gagarinZone:setColor(0,128,0)
 	stationGagarin = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gagarin"):setPosition(-60000, 62193):setDescription("Mining and exploring"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3394,7 +3421,7 @@ function createIcarusStations()
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Macassa
-	--local macassaZone = squareZone(16335, -18034, "Macassa 7")
+	--local macassaZone = squareZone(16335, -18034, "Macassa 7 E5")
 	--macassaZone:setColor(0,128,0)
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 7"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3425,6 +3452,8 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
+	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 3 E4")
+	--maximilianZone:setColor(51,153,255)
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3453,7 +3482,7 @@ function createIcarusStations()
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
 	--Mermaid
-	--local mermaidZone = squareZone(28889, -4417, "Mermaid 4")
+	--local mermaidZone = squareZone(28889, -4417, "Mermaid 4 E6")
 	--mermaidZone:setColor(51,153,255)
     stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 4"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3483,6 +3512,8 @@ function createIcarusStations()
 	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
 	--Mos Espa
+	--local mosEspaZone = squareZone(113941, -85822, "Mos Espa A10")
+	--mosEspaZone:setColor(51,153,255)
 	stationMosEspa = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(113941, -85822):setCallSign("Mos Espa"):setDescription("Resupply and Entertainment"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3511,7 +3542,7 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	--local nervaZone = squareZone(-9203, -2077, "Nerva 2")
+	--local nervaZone = squareZone(-9203, -2077, "Nerva 2 E4")
 	--nervaZone:setColor(51,153,255)
     stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 2"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3541,7 +3572,7 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
-	--local pistilZone = squareZone(24834, 20416, "Pistil 3")
+	--local pistilZone = squareZone(24834, 20416, "Pistil 3 G6")
 	--pistilZone:setColor(0,128,0)
     stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 3"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3570,7 +3601,7 @@ function createIcarusStations()
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
 	--Relay-13
-	--local relay13Zone = squareZone(77918, 23876, "Relay-13 C")
+	--local relay13Zone = squareZone(77918, 23876, "Relay-13 C G8")
 	--relay13Zone:setColor(0,255,0)
     stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 C"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
@@ -3594,7 +3625,7 @@ function createIcarusStations()
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
 	--Slurry
-	--local slurryZone = squareZone(100342, 27871, "Slurry V")
+	--local slurryZone = squareZone(100342, 27871, "Slurry V G10")
 	--slurryZone:setColor(51,153,255)
     stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry V"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3624,7 +3655,7 @@ function createIcarusStations()
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
 	--Sovinec
-	--local sovinecZone = squareZone(134167, 104690, "Sovinec Two")
+	--local sovinecZone = squareZone(134167, 104690, "Sovinec Two K11")
 	--sovinecZone:setColor(51,153,255)
 	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec Two"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3654,7 +3685,7 @@ function createIcarusStations()
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	--Speculator
-	--local speculatorZone = squareZone(55000,108000, "Speculator")
+	--local speculatorZone = squareZone(55000,108000, "Speculator K7")
 	--speculatorZone:setColor(51,153,255)
     stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3684,7 +3715,7 @@ function createIcarusStations()
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
 	--Stromboli
-	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3")
+	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3 F10")
 	--stromboliZone:setColor(51,153,255)
     stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli 3"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -3714,6 +3745,8 @@ function createIcarusStations()
 	station_names[stationStromboli:getCallSign()] = {stationStromboli:getSectorName(), stationStromboli}
 	table.insert(stations,stationStromboli)
 	--Transylvania
+	--local transylvaniaZone = squareZone(-95000, 111000, "Transylvania K0")
+	--transylvaniaZone:setColor(51,153,255)
     stationTransylvania = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Transylvania"):setPosition(-95000, 111000):setDescription("Abandoned science station turned haven"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -3755,7 +3788,7 @@ function createIcarusStations()
 	station_names[stationTransylvania:getCallSign()] = {stationTransylvania:getSectorName(), stationTransylvania}
 	table.insert(stations,stationTransylvania)
 	--Wookie F4m5 
-	--local wookieZone = squareZone(-11280, 7425, "Wookie-oka")
+	--local wookieZone = squareZone(-11280, 7425, "Wookie-oka F4")	-- -oka means 4
 	--wookieZone:setColor(51,153,255)
     stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-oka"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4567,6 +4600,8 @@ function createKentarStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Gamma-3
+	--local gamma3Zone = squareZone(266825, 314128, "Gamma-3 U18")
+	--gamma3Zone:setColor(0,128,0)
     stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -4597,7 +4632,7 @@ function createKentarStations()
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
 	--Katanga
-	--local katangaZone = squareZone(229513, 224048, "Katanga 2")
+	--local katangaZone = squareZone(229513, 224048, "Katanga 2 Q16")
 	--katangaZone:setColor(0,128,0)
     stationKatanga = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(229513, 224048):setCallSign("Katanga 2"):setDescription("Mining station for cobalt, gold and other minerals"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4627,7 +4662,7 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationKatanga:setSharesEnergyWithDocked(false) end
 	station_names[stationKatanga:getCallSign()] = {stationKatanga:getSectorName(), stationKatanga}
 	table.insert(stations,stationKatanga)
-	--Keyhole-23
+	--Keyhole-23 T15
 	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
 	stationKeyhole23.total_time = 0
     if random(1,100) <= 67 then tradeLuxury = true else tradeLuxury = false end
@@ -4653,6 +4688,8 @@ function createKentarStations()
 	table.insert(stations,stationKeyhole23)
 	update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Kolar
+	--local kolarZone = squareZone(165481, 272311, "Kolar S13")
+	--kolarZone:setColor(51,153,255)
     stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -4685,6 +4722,8 @@ function createKentarStations()
 	station_names[stationKolar:getCallSign()] = {stationKolar:getSectorName(), stationKolar}
 	table.insert(stations,stationKolar)
 	--Locarno
+	--local locarnoZone = squareZone(246819, 331779, "Locarno V17")
+	--locarnoZone:setColor(51,153,255)
     stationLocarno = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Locarno"):setPosition(246819, 331779):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -4717,7 +4756,7 @@ function createKentarStations()
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Nereus
-	--local NereusZone = squareZone(174288, 321668, "Nereus B")
+	--local NereusZone = squareZone(174288, 321668, "Nereus B V13")
 	--NereusZone:setColor(0,128,0)
     stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus B"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4747,7 +4786,7 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationNereus:setSharesEnergyWithDocked(false) end
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
-	--Pastern
+	--Pastern (Orbiting Ergot which orbits Rigil in N25. Look in the square bounded by Q22, K22, K28 and Q28)
 	local ergot_x, ergot_y = planet_primus:getPosition()
     stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4779,7 +4818,7 @@ function createKentarStations()
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
-	--local talosZone = squareZone(124505, 317170, "Talos 2")
+	--local talosZone = squareZone(124505, 317170, "Talos 2 U11")
 	--talosZone:setColor(0,128,0)
 	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos 2"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -4810,7 +4849,7 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationTalos:setSharesEnergyWithDocked(false) end
 	station_names[stationTalos:getCallSign()] = {stationTalos:getSectorName(), stationTalos}
 	table.insert(stations,stationTalos)
-	--Sutter
+	--Sutter (T9)
     stationSutter = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Sutter"):setPosition(84609, 293172):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7956,13 +7995,54 @@ end
 -- -MAIN			F	initialGMFunctions
 -- -SETUP			F	initialSetUp
 -- -ZONES FROM ADD	F	changeZones
--- SECTOR			F	inline
--- SMALL SQUARE		F	inline
+-- +RED				D	setZoneColor
+-- +VIA OBJECT		F	addZoneByObject
+-- +VIA CLICK		F	addZoneByClick
 function addZone()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Zones from add",changeZones)
+	addGMFunction(string.format("+%s",zone_color),setZoneColor)
+	addGMFunction("+Via Object",addZoneByObject)
+	addGMFunction("+Via Click",addZoneByClick)
+end
+-------------------------------------------------
+--	Initial Set Up > Zones > Add Zone > Color  --
+-------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -ADD ZONE		F	addZone
+-- List of colors for zones, selected has asterisk
+function setZoneColor()
+	clearGMFunctions()
+	addGMFunction("-Add Zone",addZone)
+	for color, rgb in pairs(zone_color_list) do
+		local button_label = color
+		if color == zone_color then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			zone_color = color
+			setZoneColor()
+		end)
+	end
+end
+------------------------------------------------------
+--	Initial Set Up > Zones > Add Zone > Via Object  --
+------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FRM VIA OBJ	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -ZONES				F	changeZones
+-- -ADD ZONE			F	addZone
+-- SECTOR				F	inline
+-- SMALL SQUARE			F	inline
+function addZoneByObject()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Via Obj",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones",changeZones)
+	addGMFunction("-Add Zone",addZone)
 	addGMFunction("Sector", function()
 		local object_list = getGMSelection()
 		if #object_list ~= nil and #object_list == 1 then
@@ -7972,7 +8052,8 @@ function addZone()
 			oy = math.floor(oy / 20000)
 			oy = oy * 20000
 			local zone = Zone():setPoints(ox,oy,ox+20000,oy,ox+20000,oy+20000,ox,oy+20000)
-			zone:setColor(64,64,64)
+			--zone:setColor(64,64,64)
+			zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
 			zone.name = object_list[1]:getSectorName()
 			if zone_list == nil then
 				zone_list = {}
@@ -7987,7 +8068,8 @@ function addZone()
 		if #object_list ~= nil and #object_list == 1 then
 			local ox, oy = object_list[1]:getPosition()
 			local zone = Zone():setPoints(ox+500,oy+500,ox-500,oy+500,ox-500,oy-500,ox+500,oy-500)
-			zone:setColor(255,255,128)
+			--zone:setColor(255,255,128)
+			zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
 			if square_zone_char_val == nil then
 				square_zone_char_val = 65
 			end
@@ -8003,6 +8085,269 @@ function addZone()
 			addGMMessage("You must select an object in the sector where you want the zone to appear. No action taken")
 		end
 	end)
+end
+-----------------------------------------------------
+--	Initial Set Up > Zones > Add Zone > Via Click  --
+-----------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FRM VIA CLICK	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -ZONES				F	changeZones
+-- -ADD ZONE			F	addZone
+-- +RECTANGLE W5 X H5	D	setZoneRectangleSize
+-- +POLYGON 3			D	setZonePolygonPointMax
+-- PUT RECT ZONE		D	putRectangleZone
+function addZoneByClick()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Via Click",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones",changeZones)
+	addGMFunction("-Add Zone",addZone)
+	local button_label = string.format("+Rectangle W%i x H%i",zone_rectangle_width,zone_rectangle_height)
+	if zone_click_type == "rectangle" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,setZoneRectangleSize)
+	button_label = string.format("+Polygon %i",zone_point_max)
+	if zone_click_type == "polygon" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,setZonePolygonPointMax)
+	if zone_click_type == "rectangle" then
+		if gm_click_mode == "zone rectangle" then
+			addGMFunction(">Put Rect Zone<",putRectangleZone)
+		else
+			addGMFunction("Put Rect Zone",putRectangleZone)
+		end
+	end
+	if zone_click_type == "polygon" then
+		if gm_click_mode == "zone polygon" then
+			if zone_point_count == 0 then
+				addGMFunction(">Set First Point<",putPolygonZone)
+			elseif zone_point_count == (zone_point_max - 1) then
+				addGMFunction(">Set Last Point<",putPolygonZone)
+			else
+				addGMFunction(string.format(">Set Point %i<",zone_point_count + 1),putPolygonZone)
+			end
+		else
+			addGMFunction("Set First Point",putPolygonZone)
+		end
+	end
+end
+function putRectangleZone()
+	if gm_click_mode == "zone rectangle" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "zone rectangle"
+		onGMClick(gmClickZoneRectangle)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   zone rectangle\nGM click mode.",prev_mode))
+		end
+	end
+	addZoneByClick()
+end
+function gmClickZoneRectangle(x,y)
+	local half_width = zone_rectangle_width*1000/2
+	local half_height = zone_rectangle_height*1000/2
+	local zone = Zone():setPoints(x - half_width, y - half_height, x + half_width, y - half_height, x + half_width, y + half_height, x - half_width, y + half_height)
+	zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+	if rectangle_zone_char_val == nil then
+		rectangle_zone_char_val = 65
+	end
+	zone.name = string.format("Rect %s",string.char(rectangle_zone_char_val))
+	rectangle_zone_char_val = rectangle_zone_char_val + 1
+	zone.sector_name = zone:getSectorName()
+	if zone_list == nil then
+		zone_list = {}
+	end
+	table.insert(zone_list,zone)
+	addGMMessage(string.format("Added rectangle zone %s in %s",zone.name,zone.sector_name))
+end
+function putPolygonZone()
+	if gm_click_mode == "zone polygon" then
+		gm_click_mode = nil
+		onGMClick(nil)
+		zone_point_count = 0	
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "zone polygon"
+		onGMClick(gmClickZonePolygon)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   zone polygon\nGM click mode.",prev_mode))
+		end
+	end
+	addZoneByClick()
+end
+function gmClickZonePolygon(x,y)
+	if zone_polygon_point_list_x == nil then
+		zone_polygon_point_list_x = {}
+		zone_polygon_point_list_y = {}
+	end
+	table.insert(zone_polygon_point_list_x,x)
+	table.insert(zone_polygon_point_list_y,y)
+	zone_point_count = zone_point_count + 1
+	if zone_point_count == zone_point_max then
+		local zone = Zone()
+		if zone_point_count == 3 then
+			zone:setPoints(
+				zone_polygon_point_list_x[1],zone_polygon_point_list_y[1],
+				zone_polygon_point_list_x[2],zone_polygon_point_list_y[2],
+				zone_polygon_point_list_x[3],zone_polygon_point_list_y[3]
+			)
+		elseif zone_point_count == 4 then
+			zone:setPoints(
+				zone_polygon_point_list_x[1],zone_polygon_point_list_y[1],
+				zone_polygon_point_list_x[2],zone_polygon_point_list_y[2],
+				zone_polygon_point_list_x[3],zone_polygon_point_list_y[3],
+				zone_polygon_point_list_x[4],zone_polygon_point_list_y[4]
+			)
+		elseif zone_point_count == 5 then
+			zone:setPoints(
+				zone_polygon_point_list_x[1],zone_polygon_point_list_y[1],
+				zone_polygon_point_list_x[2],zone_polygon_point_list_y[2],
+				zone_polygon_point_list_x[3],zone_polygon_point_list_y[3],
+				zone_polygon_point_list_x[4],zone_polygon_point_list_y[4],
+				zone_polygon_point_list_x[5],zone_polygon_point_list_y[5]
+			)
+		elseif zone_point_count == 6 then
+			zone:setPoints(
+				zone_polygon_point_list_x[1],zone_polygon_point_list_y[1],
+				zone_polygon_point_list_x[2],zone_polygon_point_list_y[2],
+				zone_polygon_point_list_x[3],zone_polygon_point_list_y[3],
+				zone_polygon_point_list_x[4],zone_polygon_point_list_y[4],
+				zone_polygon_point_list_x[5],zone_polygon_point_list_y[5],
+				zone_polygon_point_list_x[6],zone_polygon_point_list_y[6]
+			)
+		elseif zone_point_count == 7 then
+			zone:setPoints(
+				zone_polygon_point_list_x[1],zone_polygon_point_list_y[1],
+				zone_polygon_point_list_x[2],zone_polygon_point_list_y[2],
+				zone_polygon_point_list_x[3],zone_polygon_point_list_y[3],
+				zone_polygon_point_list_x[4],zone_polygon_point_list_y[4],
+				zone_polygon_point_list_x[5],zone_polygon_point_list_y[5],
+				zone_polygon_point_list_x[6],zone_polygon_point_list_y[6],
+				zone_polygon_point_list_x[7],zone_polygon_point_list_y[7]
+			)
+		elseif zone_point_count == 8 then
+			zone:setPoints(
+				zone_polygon_point_list_x[1],zone_polygon_point_list_y[1],
+				zone_polygon_point_list_x[2],zone_polygon_point_list_y[2],
+				zone_polygon_point_list_x[3],zone_polygon_point_list_y[3],
+				zone_polygon_point_list_x[4],zone_polygon_point_list_y[4],
+				zone_polygon_point_list_x[5],zone_polygon_point_list_y[5],
+				zone_polygon_point_list_x[6],zone_polygon_point_list_y[6],
+				zone_polygon_point_list_x[7],zone_polygon_point_list_y[7],
+				zone_polygon_point_list_x[8],zone_polygon_point_list_y[8]
+			)
+		end
+		zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+		if polygon_zone_char_val == nil then
+			polygon_zone_char_val = 65
+		end
+		zone.name = string.format("Poly %s %i",string.char(polygon_zone_char_val),zone_point_count)
+		polygon_zone_char_val = polygon_zone_char_val + 1
+		local mid_x = 0
+		for i=1,#zone_polygon_point_list_x do
+			mid_x = mid_x + zone_polygon_point_list_x[i]
+		end
+		mid_x = mid_x/#zone_polygon_point_list_x
+		local mid_y = 0
+		for i=1,#zone_polygon_point_list_y do
+			mid_y = mid_y + zone_polygon_point_list_y[i]
+		end
+		mid_y = mid_y/#zone_polygon_point_list_y
+		local reference_asteroid = VisualAsteroid():setPosition(mid_x,mid_y)
+		zone.sector_name = reference_asteroid:getSectorName()
+		reference_asteroid:destroy()
+		if zone_list == nil then
+			zone_list = {}
+		end
+		table.insert(zone_list,zone)
+		zone_point_count = 0
+		zone_polygon_point_list_x = nil
+		zone_polygon_point_list_y = nil
+		addGMMessage(string.format("Added polygon zone %s in %s",zone.name,zone.sector_name))
+	end
+	addZoneByClick()
+end
+-----------------------------------------------------------------
+--	Initial Set Up > Zones > Add Zone > Via Click > Rectangle  --
+-----------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FRM RECT SIZE	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -ZONES				F	changeZones
+-- -ADD ZONE			F	addZone
+-- -VIA CLICK			F	addZoneByClick
+-- WIDER 5 -> 6			D	inline
+-- NARROWER 5 -> 4		D	inline
+-- TALLER 5 -> 6		D	inline
+-- SHORTER 5 -> 4		D	inline
+function setZoneRectangleSize()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Rect Size",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones",changeZones)
+	addGMFunction("-Add Zone",addZone)
+	addGMFunction("-Via Click",addZoneByClick)
+	zone_click_type = "rectangle"
+	if zone_rectangle_width < 9 then
+		addGMFunction(string.format("Wider %i -> %i",zone_rectangle_width,zone_rectangle_width + 1),function()
+			zone_rectangle_width = zone_rectangle_width + 1
+			setZoneRectangleSize()
+		end)
+	end
+	if zone_rectangle_width > 1 then
+		addGMFunction(string.format("Narrower %i -> %i",zone_rectangle_width,zone_rectangle_width - 1),function()
+			zone_rectangle_width = zone_rectangle_width - 1
+			setZoneRectangleSize()
+		end)
+	end
+	if zone_rectangle_height < 9 then
+		addGMFunction(string.format("Taller %i -> %i",zone_rectangle_height,zone_rectangle_height + 1),function()
+			zone_rectangle_height = zone_rectangle_height + 1
+			setZoneRectangleSize()
+		end)
+	end
+	if zone_rectangle_height > 1 then
+		addGMFunction(string.format("Shorter %i -> %i",zone_rectangle_height,zone_rectangle_height - 1),function()
+			zone_rectangle_height = zone_rectangle_height - 1
+			setZoneRectangleSize()
+		end)
+	end
+end
+---------------------------------------------------------------
+--	Initial Set Up > Zones > Add Zone > Via Click > Polygon  --
+---------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FRM POLY MAX	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -ZONES				F	changeZones
+-- -ADD ZONE			F	addZone
+-- -VIA CLICK			F	addZoneByClick
+-- MORE 3 -> 4			D	inline
+function setZonePolygonPointMax()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Poly Max",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones",changeZones)
+	addGMFunction("-Add Zone",addZone)
+	addGMFunction("-Via Click",addZoneByClick)
+	zone_click_type = "polygon"
+	if zone_point_max < 8 then
+		addGMFunction(string.format("More %i -> %i",zone_point_max,zone_point_max + 1),function()
+			zone_point_max = zone_point_max + 1
+			setZonePolygonPointMax()
+		end)
+	end
+	if zone_point_max > 3 then
+		addGMFunction(string.format("Less %i -> %i",zone_point_max,zone_point_max - 1),function()
+			zone_point_max = zone_point_max - 1
+			setZonePolygonPointMax()
+		end)
+	end
 end
 --------------------------------------------
 --	Initial Set Up > Zones > Delete Zone  --
