@@ -380,6 +380,7 @@ function setConstants()
 		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13	},
 		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13	},
 		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9	},
+		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9	},
 		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11	},
 	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -804,6 +805,8 @@ function setConstants()
 		["Forest Green"]		= {r =  34, g = 139, b =  34},
 		["Firebrick Red"]		= {r = 178, g =  34, b =  34},
 	}
+	friendlyDefensiveFleetList = {}
+	friendly_defensive_fleet_val = 65
 	tractor_beam_string = {
 		"beam_blue.png",
 		"shield_hit_effect.png",
@@ -1843,6 +1846,8 @@ end
 -- -MAIN FROM ORDER FLT		F	initialGMFunctions
 -- +SELECT FLEET			D	selectOrderFleet
 -- +REORGANIZE FLEET		F	orderFleetChange
+-- +AVERAGE IMPULSE			F	averageImpulse
+-- SET PLAYER FLEET			F	inline
 --
 -- after fleet selected
 --
@@ -2166,6 +2171,30 @@ function orderFleet()
 	end
 	addGMFunction("+Reorganize Fleet",orderFleetChange)
 	addGMFunction("+Average Impulse",averageImpulse)
+	addGMFunction("Set Player Fleet",function()
+		local object_list = getGMSelection()
+		local fleet = {}
+		for _, temp_object in pairs(object_list) do
+			if temp_object.typeName == "CpuShip" then
+				if temp_object:getFaction() == "Human Navy" then
+					table.insert(fleet,temp_object)
+				end
+			end
+		end
+		if #fleet > 0 then
+			friendlyDefensiveFleetList[string.char(friendly_defensive_fleet_val)] = fleet
+			local ship_names = ""
+			for _, ship in ipairs(fleet) do
+				ship.fleet = string.char(friendly_defensive_fleet_val)
+				ship_names = ship_names .. ship:getCallSign() .. " "
+			end
+			addGMMessage(string.format("Fleet %s created with these ships:\n   %s\nDon't forget to add sandbox comms:\n   Select ship(s), Tweak Terrain > Sandbox Comms",string.char(friendly_defensive_fleet_val),ship_names))
+			friendly_defensive_fleet_val = friendly_defensive_fleet_val + 1
+			--no boundary check for more than 26 fleets		
+		else
+			addGMMessage("No Human Navy ships selected. No action taken")
+		end
+	end)
 end
 ------------------
 --	Order Ship  --
@@ -2529,6 +2558,35 @@ function tweakTerrain()
 				end
 			end)
 		end
+	else
+		if #objectList > 1 then
+			addGMFunction("Sandbox Comms",function()
+				local object_list = getGMSelection()
+				if #object_list > 0 then
+					local ship_names = ""
+					for _, temp_object in ipairs(object_list) do
+						if temp_object.typeName == "CpuShip" then
+							temp_object:setCommsScript(""):setCommsFunction(commsShip)
+							local p = getPlayerShip(-1)
+							if p ~= nil and not p:isEnemy(temp_object) then
+								if region_ships == nil then
+									region_ships = {}
+								end
+								table.insert(region_ships,temp_object)
+							end
+							ship_names = ship_names .. temp_object:getCallSign() .. " "
+						end
+					end
+					if ship_names ~= "" then
+						addGMMessage(string.format("These ships now have sandbox communications:\n%s",ship_names))
+					else
+						addGMMessage("You can only add sandbox comms to stations or ships. No action taken")
+					end
+				else
+					addGMMessage("Select at least one object. No action taken")
+				end
+			end)
+		end
 	end
 	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station defense",stationDefense)
@@ -2856,7 +2914,7 @@ function playerShip()
 			{"Falcon"		,"inactive"	,createPlayerShipFalcon		,"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors"},
 			{"Gabble"		,"inactive"	,createPlayerShipGabble		,"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:4   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
-			{"Guinevere"	,"active"	,createPlayerShipGuinevere	,"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
+			{"Guinevere"	,"inactive"	,createPlayerShipGuinevere	,"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
 			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	},
 			{"Hearken"		,"inactive"	,createPlayerShipHearken	,"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
@@ -2864,11 +2922,12 @@ function playerShip()
 			{"Jarvis"		,"inactive"	,createPlayerShipJarvis		,"Butler (Jarvis): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:70   Spin:12   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Front/Broadside\n   Arc:160   Direction:-80   Range:0.9   Cycle:6   Damage:6\n   Arc:160   Direction: 80   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP or Nuke Only\n   Direction:  0   Type:HVLI Only - Large\n   Direction:180   Type:Homing Only\n   Ordnance stock and type:\n      04 Homing\n      03 Nuke\n      04 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, front and side beams, fewer tubes, fewer missiles, no mines, Small Nukes, EMPs in front middle tube, large HVLI"},
 			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Knick"		,"inactive"	,createPlayerShipKnick		,"Experimental - not ready for use"},
-			{"Lancelot"		,"active"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
+			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
 			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
 			{"Nimbus"		,"inactive"	,createPlayerShipNimbus		,"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
+			{"Nusret"		,"active"	,createPlayerShipNusret		,"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Osprey"		,"inactive"	,createPlayerShipOsprey		,"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
 			{"Outcast"		,"inactive"	,createPlayerShipOutcast	,"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
 			{"Quicksilver"	,"inactive"	,createPlayerShipQuick		,"XR-Lindworm (Quicksilver): Starfighter, Bomber   Hull:75   Shield:90,30   Size:100   Repair Crew:2   Cargo:3   R.Strength:11\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400  LRS:20   SRS:6\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      02 Nuke\n      03 EMP\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, warp drive, nukes and EMPs, two shields: stronger in front, weaker in rear"},
@@ -2878,7 +2937,8 @@ function playerShip()
 			{"Yorik"		,"active"	,createPlayerShipYorik		,"Rook (Yorik): Frigate, Armored Transport   Hull:200   Shield:200,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:15\nFTL:Jump (3U-30U)   Speeds: Impulse:75   Spin:8   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:41   SRS:5.5\nBeams:2 Front 1 Turreted Speed:0.15\n   Arc:90   Direction:0   Range:0.9   Cycle:6   Damage:4\n   Arc:30   Direction:0   Range:0.9   Cycle:6   Damage:4\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      8 Homing\n      3 Nuke\n      5 Mine\n      6 EMP\n      6 HVLI\nBased on Repulse: slower spin, faster impiulse, 1 turreted beam, both beams forward, hull and shields stronger, relatively weaker rear shield, shorter and weaker beams, more missiles, stronger hull, shorter jump, longer long and short range sensors"},
 			{"Simian"		,"inactive"	,createPlayerShipSimian		,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
 			{"Sparrow"		,"inactive"	,createPlayerShipSparrow	,"Vermin (Sparrow):   Hull:60   Shield:100,60   Size:100   Repair Crew:4   Cargo:3   R.Strength:10   LRS:22   SRS:4\nFTL:Warp (400)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:500   LRS:22   SRS:4\nBeam:3 Front\n   Arc:12   Direction:  0   Range:1.0   Cycle:6   Damage:4\n   Arc:40   Direction:-10   Range:0.8   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:0.8   Cycle:6   Damage:6\nTubes:1   Load Speed:10   Rear\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Mine\nBased on player fighter: more repair crew, more energy, warp drive, stronger shields, more beams, mine laying tube"},
-			{"Phobos T2"	,"active"	,createPlayerShipPhobosT2	,"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:12U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:12U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
+			{"Phobos T2"	,"active"	,createPlayerShipPhobosT2	,"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:1.2U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:1.2U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
+			{"Safari"		,"active"	,createPlayerShipSafari		,"Safari: Frigate, Light Transport   Hull:100   Shield:100,60   Size:200   Repair Crew:8   Cargo:10   R.Strength:15\nFTL:Warp (500)   Speeds: Impulse:60   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:4.5\nBeams:2 Front 1 Turreted Speed:0.4\n   Arc:40   Direction:0   Range:1.2   Cycle:6   Damage:6\n   Arc:80   Direction:0   Range:0.6   Cycle:8   Damage:12\nTubes:3   2 small broadside load speed 8, 1 rear Load Speed:20\n   Direction:-90   Type:HVLI only - small\n   Direction: 90   Type:HVLI only - small\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      03 Mine\n      20 HVLI\nBased on Flavia P.Falcon: front beams, one long and turreted, one short and strong, weaker rear shield, stronger front shield, small, fast broadside HVLI shooters, only mines in rear, longer long range sensors, shorter short range sensors"},
 			{"Spyder"		,"inactive"	,createPlayerShipSpyder		},
 			{"Stick"		,"inactive"	,createPlayerShipStick		,"Surkov (Stick): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, stronger shields, faster impulse, add mine tube facing back, remove nukes and EMPs"},
 			{"Sting"		,"inactive"	,createPlayerShipSting		,"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs"},
@@ -3452,9 +3512,10 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 3 E4")
-	--maximilianZone:setColor(51,153,255)
-    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 3"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 4 E4")
+	maximilianZone:setColor(51,153,255)
+	--[[	Destroyed 29Aug2020
+    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 4"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -3481,6 +3542,7 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
+	--]]
 	--Mermaid
 	--local mermaidZone = squareZone(28889, -4417, "Mermaid 4 E6")
 	--mermaidZone:setColor(51,153,255)
@@ -3601,9 +3663,10 @@ function createIcarusStations()
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
 	--Relay-13
-	--local relay13Zone = squareZone(77918, 23876, "Relay-13 C G8")
-	--relay13Zone:setColor(0,255,0)
-    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 C"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+	local relay13Zone = squareZone(77918, 23876, "Relay-13 D G8")
+	relay13Zone:setColor(0,255,0)
+	--[[	Destroyed 29Aug2020
+    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 D"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
     stationRelay13.comms_data = {
     	friendlyness = 75,
@@ -3624,6 +3687,7 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
+	--]]
 	--Slurry
 	--local slurryZone = squareZone(100342, 27871, "Slurry V G10")
 	--slurryZone:setColor(51,153,255)
@@ -3770,6 +3834,15 @@ function createIcarusStations()
         general_information = "Transylvania is a refuge from those who would prejudge our cultural practices",
     	history = "Originally a science station, now it caters to a group of persecuted beings whose cultural practices offend a number of other species"
 	}
+	local leechAZone = squareZone(-93000,109000, "Leech A K0")
+	leechAZone:setColor(51,153,255)
+	local leechABZone = squareZone(-97000,109000, "Leech AB K0")
+	leechABZone:setColor(51,153,255)
+	local leechBZone = squareZone(-93000,113000, "Leech B K0")
+	leechBZone:setColor(51,153,255)
+	local leechOZone = squareZone(-97000,113000, "Leech O K0")
+	leechOZone:setColor(51,153,255)
+	--[[	Destroyed 29Aug2020
 	leechA = leech("Independent")
 	leechA:setPosition(-93000,109000):setScannedByFaction("Human Navy",true):setCallSign("A"):setDescription("Leech satellite A")
 	leechAB = leech("Independent")
@@ -3782,6 +3855,7 @@ function createIcarusStations()
 	table.insert(stations,leechAB)
 	table.insert(stations,leechB)
 	table.insert(stations,leechO)
+	--]]
 	if random(1,100) <= 43 then stationTransylvania:setRestocksScanProbes(false) end
 	if random(1,100) <= 27 then stationTransylvania:setRepairDocked(false) end
 	if random(1,100) <= 21 then stationTransylvania:setSharesEnergyWithDocked(false) end
@@ -7174,6 +7248,33 @@ function createPlayerShipGorn()
 	playerGorn:addReputationPoints(50)
 	playerShipSpawned("Gorn")
 end
+function createPlayerShipGuinevere()
+	playerGuinevere = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Guinevere")
+	playerGuinevere:setTypeName("Caretaker")
+	playerGuinevere:setWarpDrive(false)						--no warp drive (vs warp)
+	playerGuinevere:setJumpDrive(true)						--jump drive (vs warp)
+	playerGuinevere:setJumpDriveRange(4000,40000)			--shorter than typical jump drive range (vs 5-50)
+	playerGuinevere:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
+--                  			 Arc, Dir, Range, CycleTime, Dmg
+	playerGuinevere:setBeamWeapon(0, 80, -90, 900.0, 		5.0,   6)	--side beams (vs forward), faster (vs 6)
+	playerGuinevere:setBeamWeapon(1, 80,  90, 900.0, 		5.0,   6)	
+	playerGuinevere:setWeaponTubeCount(4)					--fewer (vs 6)
+	playerGuinevere:setWeaponTubeExclusiveFor(1,"EMP")		--normal sized tube allow EMPs and Nukes (vs HVLI)
+	playerGuinevere:weaponTubeAllowMissle(1,"Nuke")
+	playerGuinevere:setWeaponTubeExclusiveFor(2,"Homing")	--large tube for homing (vs HVLI)
+	playerGuinevere:setWeaponTubeExclusiveFor(3,"Mine")
+	playerGuinevere:setWeaponTubeDirection(3, 180)
+	playerGuinevere:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
+	playerGuinevere:setWeaponStorage("Homing", 6)				
+	playerGuinevere:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
+	playerGuinevere:setWeaponStorage("EMP", 3)				
+	playerGuinevere:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
+	playerGuinevere:setWeaponStorage("Nuke", 2)				
+	playerGuinevere:setWeaponStorageMax("Mine",3)			--fewer (vs 6)
+	playerGuinevere:setWeaponStorage("Mine", 3)				
+	playerGuinevere:addReputationPoints(50)
+	playerShipSpawned("Guinevere")
+end
 function createPlayerShipHalberd()
 	--destroyed 29Feb2020
 	playerHalberd = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Halberd")
@@ -7298,33 +7399,6 @@ function createPlayerShipHolmes()
 	playerHolmes:addReputationPoints(50)
 	playerShipSpawned("Holmes")
 end
-function createPlayerShipGuinevere()
-	playerGuinevere = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Guinevere")
-	playerGuinevere:setTypeName("Caretaker")
-	playerGuinevere:setWarpDrive(false)						--no warp drive (vs warp)
-	playerGuinevere:setJumpDrive(true)						--jump drive (vs warp)
-	playerGuinevere:setJumpDriveRange(4000,40000)			--shorter than typical jump drive range (vs 5-50)
-	playerGuinevere:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
---                  			 Arc, Dir, Range, CycleTime, Dmg
-	playerGuinevere:setBeamWeapon(0, 80, -90, 900.0, 		5.0,   6)	--side beams (vs forward), faster (vs 6)
-	playerGuinevere:setBeamWeapon(1, 80,  90, 900.0, 		5.0,   6)	
-	playerGuinevere:setWeaponTubeCount(4)					--fewer (vs 6)
-	playerGuinevere:setWeaponTubeExclusiveFor(1,"EMP")		--normal sized tube allow EMPs and Nukes (vs HVLI)
-	playerGuinevere:weaponTubeAllowMissle(1,"Nuke")
-	playerGuinevere:setWeaponTubeExclusiveFor(2,"Homing")	--large tube for homing (vs HVLI)
-	playerGuinevere:setWeaponTubeExclusiveFor(3,"Mine")
-	playerGuinevere:setWeaponTubeDirection(3, 180)
-	playerGuinevere:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
-	playerGuinevere:setWeaponStorage("Homing", 6)				
-	playerGuinevere:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
-	playerGuinevere:setWeaponStorage("EMP", 3)				
-	playerGuinevere:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
-	playerGuinevere:setWeaponStorage("Nuke", 2)				
-	playerGuinevere:setWeaponStorageMax("Mine",3)			--fewer (vs 6)
-	playerGuinevere:setWeaponStorage("Mine", 3)				
-	playerGuinevere:addReputationPoints(50)
-	playerShipSpawned("Guinevere")
-end
 function createPlayerShipJarvis()
 	playerJarvis = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Jarvis")
 	playerJarvis:setTypeName("Butler")
@@ -7392,36 +7466,46 @@ function createPlayerShipKnick()
 	playerKnick:addReputationPoints(50)
 	playerShipSpawned("Knick")
 end
-function createPlayerShipThelonius()
-	playerThelonius = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Thelonius")
-	playerThelonius:setTypeName("Crab")
-	playerThelonius:setWarpSpeed(450)						--slower (vs 750)
---                 				 	Arc, Dir,  Range, CycleTime, Damage
-	playerThelonius:setBeamWeapon(0, 10, 165,	1000, 		6.0, 	6.0)	--turreted, stronger (vs fixed, 5 Dmg)
-	playerThelonius:setBeamWeapon(1, 10, 195,	1000, 		6.0,	6.0)	--rear facing
---										   Arc, Dir, Rotate speed
-	playerThelonius:setBeamWeaponTurret(0,	70,	165,		 .5)		--slow turret
-	playerThelonius:setBeamWeaponTurret(1,	70,	195,		 .5)		--slow turret
-	playerThelonius:setWeaponTubeCount(5)					--fewer (vs 6), no mine tube or mines
-	playerThelonius:setTubeSize(0,"large")					--large (vs small)
-	playerThelonius:setTubeSize(1,"small")					--small (vs normal)
-	playerThelonius:setWeaponTubeDirection(1,-20)			--angled (vs zero degrees)
-	playerThelonius:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs HVLI)
-	playerThelonius:setTubeSize(2,"small")					--medium (vs large)
-	playerThelonius:setWeaponTubeDirection(2, 20)			--angled (vs zero degrees)
-	playerThelonius:setWeaponTubeExclusiveFor(2,"Homing")	--homing only (vs HVLI)
-	playerThelonius:setWeaponStorageMax("Homing",16)		--more (vs 8)
-	playerThelonius:setWeaponStorage("Homing", 16)				
-	playerThelonius:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
-	playerThelonius:setWeaponStorage("EMP", 3)				
-	playerThelonius:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
-	playerThelonius:setWeaponStorage("Nuke", 2)				
-	playerThelonius:setWeaponStorageMax("Mine",0)			--fewer (vs 6)
-	playerThelonius:setWeaponStorage("Mine", 0)				
-	playerThelonius:setWeaponStorageMax("HVLI",10)			--fewer (vs 24)
-	playerThelonius:setWeaponStorage("HVLI", 10)				
-	playerThelonius:addReputationPoints(50)
-	playerShipSpawned("Thelonius")
+function createPlayerShipLancelot()
+	playerLancelot = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Lancelot")
+	playerLancelot:setTypeName("Noble")
+	playerLancelot:setRepairCrewCount(5)							--more repair crew (vs 3)
+	playerLancelot:setMaxEnergy(850)								--less maximum energy (vs 1000)
+	playerLancelot:setEnergy(850)							
+	playerLancelot:setJumpDriveRange(3000,30000)					--shorter jump drive range (vs 5-50)
+--                 				   Arc, Dir, Range, CycleTime, Dmg
+	playerLancelot:setBeamWeapon(0, 40, -45,  1000,         6, 8)	--4 beams (vs 2)
+	playerLancelot:setBeamWeapon(1, 40,  45,  1000,         6, 8)	--weaker (vs 10 dmg)
+	playerLancelot:setBeamWeapon(2, 40,-135,  1000,         6, 8)	--4 angles (vs overlapping in front)
+	playerLancelot:setBeamWeapon(3, 40, 135,  1000,         6, 8)	--narrower (vs 90 degrees)
+	playerLancelot:setBeamWeaponEnergyPerFire(0,playerLancelot:getBeamWeaponEnergyPerFire(0)*3)
+	playerLancelot:setBeamWeaponHeatPerFire(0,playerLancelot:getBeamWeaponHeatPerFire(0)*3)
+	playerLancelot:setBeamWeaponEnergyPerFire(1,playerLancelot:getBeamWeaponEnergyPerFire(1)*3)
+	playerLancelot:setBeamWeaponHeatPerFire(1,playerLancelot:getBeamWeaponHeatPerFire(1)*3)
+	playerLancelot:setBeamWeaponEnergyPerFire(2,playerLancelot:getBeamWeaponEnergyPerFire(2)*3)
+	playerLancelot:setBeamWeaponHeatPerFire(2,playerLancelot:getBeamWeaponHeatPerFire(2)*3)
+	playerLancelot:setBeamWeaponEnergyPerFire(3,playerLancelot:getBeamWeaponEnergyPerFire(3)*3)
+	playerLancelot:setBeamWeaponHeatPerFire(3,playerLancelot:getBeamWeaponHeatPerFire(3)*3)
+	playerLancelot:setWeaponTubeCount(4)							--more (vs 2)
+	playerLancelot:setWeaponTubeDirection(0,-90)					--first tube points left (vs -5)
+	playerLancelot:setWeaponTubeDirection(1, 90)					--second tube points right (vs 5)
+	playerLancelot:setWeaponTubeDirection(2,  0)					--third tube points forward (vs rear)
+	playerLancelot:setWeaponTubeDirection(3,180)					--fourth tube points to the rear (vs none)
+	playerLancelot:weaponTubeDisallowMissle(0,"HVLI")				--no HVLI (vs all but mine)
+	playerLancelot:setWeaponTubeExclusiveFor(1,"Homing")			--only Homing, EMP, nuke (vs only mine)
+	playerLancelot:weaponTubeAllowMissle(1,"EMP")
+	playerLancelot:weaponTubeAllowMissle(1,"Nuke")
+	playerLancelot:setWeaponTubeExclusiveFor(2,"HVLI")				--only HVLI (vs all but mine)
+	playerLancelot:setWeaponTubeExclusiveFor(3,"Mine")				--only mine
+	playerLancelot:setWeaponStorageMax("Homing", 8)					--less (vs 12)
+	playerLancelot:setWeaponStorage("Homing", 8)				
+	playerLancelot:setWeaponStorageMax("Mine", 6)					--less (vs 8)
+	playerLancelot:setWeaponStorage("Mine", 6)				
+	playerLancelot:setWeaponStorageMax("HVLI", 8)					--more (vs 0)
+	playerLancelot:setWeaponStorage("HVLI", 8)				
+	playerLancelot:setCombatManeuver(200,200)						--less (vs 400,250)
+	playerLancelot:addReputationPoints(50)
+	playerShipSpawned("Lancelot")
 end
 function createPlayerShipMagnum()
 	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
@@ -7518,46 +7602,33 @@ function createPlayerShipNimbus()
 	playerNimbus:addReputationPoints(50)
 	playerShipSpawned("Nimbus")
 end
-function createPlayerShipLancelot()
-	playerLancelot = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Lancelot")
-	playerLancelot:setTypeName("Noble")
-	playerLancelot:setRepairCrewCount(5)							--more repair crew (vs 3)
-	playerLancelot:setMaxEnergy(850)								--less maximum energy (vs 1000)
-	playerLancelot:setEnergy(850)							
-	playerLancelot:setJumpDriveRange(3000,30000)					--shorter jump drive range (vs 5-50)
---                 				   Arc, Dir, Range, CycleTime, Dmg
-	playerLancelot:setBeamWeapon(0, 40, -45,  1000,         6, 8)	--4 beams (vs 2)
-	playerLancelot:setBeamWeapon(1, 40,  45,  1000,         6, 8)	--weaker (vs 10 dmg)
-	playerLancelot:setBeamWeapon(2, 40,-135,  1000,         6, 8)	--4 angles (vs overlapping in front)
-	playerLancelot:setBeamWeapon(3, 40, 135,  1000,         6, 8)	--narrower (vs 90 degrees)
-	playerLancelot:setBeamWeaponEnergyPerFire(0,playerLancelot:getBeamWeaponEnergyPerFire(0)*3)
-	playerLancelot:setBeamWeaponHeatPerFire(0,playerLancelot:getBeamWeaponHeatPerFire(0)*3)
-	playerLancelot:setBeamWeaponEnergyPerFire(1,playerLancelot:getBeamWeaponEnergyPerFire(1)*3)
-	playerLancelot:setBeamWeaponHeatPerFire(1,playerLancelot:getBeamWeaponHeatPerFire(1)*3)
-	playerLancelot:setBeamWeaponEnergyPerFire(2,playerLancelot:getBeamWeaponEnergyPerFire(2)*3)
-	playerLancelot:setBeamWeaponHeatPerFire(2,playerLancelot:getBeamWeaponHeatPerFire(2)*3)
-	playerLancelot:setBeamWeaponEnergyPerFire(3,playerLancelot:getBeamWeaponEnergyPerFire(3)*3)
-	playerLancelot:setBeamWeaponHeatPerFire(3,playerLancelot:getBeamWeaponHeatPerFire(3)*3)
-	playerLancelot:setWeaponTubeCount(4)							--more (vs 2)
-	playerLancelot:setWeaponTubeDirection(0,-90)					--first tube points left (vs -5)
-	playerLancelot:setWeaponTubeDirection(1, 90)					--second tube points right (vs 5)
-	playerLancelot:setWeaponTubeDirection(2,  0)					--third tube points forward (vs rear)
-	playerLancelot:setWeaponTubeDirection(3,180)					--fourth tube points to the rear (vs none)
-	playerLancelot:weaponTubeDisallowMissle(0,"HVLI")				--no HVLI (vs all but mine)
-	playerLancelot:setWeaponTubeExclusiveFor(1,"Homing")			--only Homing, EMP, nuke (vs only mine)
-	playerLancelot:weaponTubeAllowMissle(1,"EMP")
-	playerLancelot:weaponTubeAllowMissle(1,"Nuke")
-	playerLancelot:setWeaponTubeExclusiveFor(2,"HVLI")				--only HVLI (vs all but mine)
-	playerLancelot:setWeaponTubeExclusiveFor(3,"Mine")				--only mine
-	playerLancelot:setWeaponStorageMax("Homing", 8)					--less (vs 12)
-	playerLancelot:setWeaponStorage("Homing", 8)				
-	playerLancelot:setWeaponStorageMax("Mine", 6)					--less (vs 8)
-	playerLancelot:setWeaponStorage("Mine", 6)				
-	playerLancelot:setWeaponStorageMax("HVLI", 8)					--more (vs 0)
-	playerLancelot:setWeaponStorage("HVLI", 8)				
-	playerLancelot:setCombatManeuver(200,200)						--less (vs 400,250)
-	playerLancelot:addReputationPoints(50)
-	playerShipSpawned("Lancelot")
+function createPlayerShipNusret()
+	playerNusret = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Beowulf")
+	playerNusret:setTypeName("Nusret")
+	playerNusret:setHullMax(150)						--stronger hull (vs 100)
+	playerNusret:setHull(150)
+	playerNusret:setShieldsMax(100, 100)				--stronger shields (vs 60, 60)
+	playerNusret:setShields(100, 100)
+	playerNusret:setRepairCrewCount(6)					--more repair crew (vs 4)
+	playerNusret:setJumpDriveRange(2500,25000)			--shorter jump drive range (vs 5-50)
+--                 			      Arc, Dir, Range, CycleTime, Damage
+	playerNusret:setBeamWeapon(0,  10, -35,	1000, 		6.0, 	6.0)	
+	playerNusret:setBeamWeapon(1,  10,  35,	1000, 		6.0,    6.0)	
+	playerNusret:setBeamWeapon(2,  40,	 0,	 500,		8.0,	9.0)	--additional short, slow, stronger beam
+--										Arc,  Dir, Rotate speed
+	playerNusret:setBeamWeaponTurret(0,	 90,  -35,			 .4)		--slow turret
+	playerNusret:setBeamWeaponTurret(1,	 90,   35,			 .4)
+	playerNusret:setTubeLoadTime(2,8)					--faster (vs 10)
+	playerNusret:setWeaponTubeDirection(0,-60)			--front left facing (vs back)
+	playerNusret:setWeaponTubeDirection(1, 60)			--front right facing (vs back)
+	playerNusret:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
+	playerNusret:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
+	playerNusret:setWeaponStorageMax("Homing",8)		--more homing (vs 0)
+	playerNusret:setWeaponStorage("Homing", 8)				
+	playerNusret:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
+	playerNusret:setWeaponStorage("Mine", 8)				
+	playerNusret:addReputationPoints(50)
+	playerShipSpawned("Nusret")
 end
 function createPlayerShipOsprey()
 	--destroyed 29Feb2020
@@ -7603,6 +7674,34 @@ function createPlayerShipOutcast()
 	playerOutcast:setBeamWeaponTurret(3,	90,	180,	 .4)		--slow turret
 	playerOutcast:addReputationPoints(50)
 	playerShipSpawned("Outcast")
+end
+function createPlayerShipPhobosT2()
+	playerPhobosT2 = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Terror")
+	playerPhobosT2:setTypeName("Phobos T2")
+	playerPhobosT2:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerPhobosT2:setJumpDrive(true)						--jump drive (vs none)
+	playerPhobosT2:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
+	playerPhobosT2:setRotationMaxSpeed(20)					--faster spin (vs 10)
+	playerPhobosT2:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
+	playerPhobosT2:setShields(120,80)
+	playerPhobosT2:setMaxEnergy(800)						--less maximum energy (vs 1000)
+	playerPhobosT2:setEnergy(800)
+--                 				   Arc, Dir, Range, CycleTime, Dmg
+	playerPhobosT2:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
+	playerPhobosT2:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
+--										 Arc, Dir, Rotate speed
+	playerPhobosT2:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
+	playerPhobosT2:setBeamWeaponTurret(1, 40,  30, .2)
+	playerPhobosT2:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
+	playerPhobosT2:setWeaponTubeDirection(0,0)				--first tube points straight forward
+	playerPhobosT2:setWeaponTubeDirection(1,180)			--second tube points straight back
+	playerPhobosT2:setWeaponTubeExclusiveFor(1,"Mine")
+	playerPhobosT2:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
+	playerPhobosT2:setWeaponStorage("Homing",8)
+	playerPhobosT2:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
+	playerPhobosT2:setWeaponStorage("HVLI",16)
+	playerPhobosT2:addReputationPoints(50)
+	playerShipSpawned("Phobos T2")
 end
 function createPlayerShipQuick()
 	playerQuick = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Quicksilver")
@@ -7680,6 +7779,38 @@ function createPlayerShipRogue()
 	playerRogue:addReputationPoints(50)
 	playerShipSpawned("Rogue")
 end
+function createPlayerShipSafari()
+	playerSafari = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Florentine")
+	playerSafari:setTypeName("Safari")
+	playerSafari:setShieldsMax(100, 60)					--stronger front, weaker rear (vs 70, 70)
+	playerSafari:setShields(100, 60)
+--                 			      Arc, Dir, Range, CycleTime, Damage
+	playerSafari:setBeamWeapon(0,  10,   0,	1200, 		6.0, 	6.0)	--1 forward, 1 turret (vs 2 rear)
+	playerSafari:setBeamWeapon(1,  40,   0,	 600, 		8.0,   12.0)	--shorter (vs 1200), 1 more damage (vs 6), 1 slower (vs 6)
+--										Arc,  Dir, Rotate speed
+	playerSafari:setBeamWeaponTurret(0,	 80,    0,			 .4)		--slow turret
+	playerSafari:setWeaponTubeCount(3)									--more (vs 1)
+	playerSafari:setWeaponTubeDirection(0, -90)							--left (vs rear)
+	playerSafari:setWeaponTubeDirection(1,  90)							--right (vs none)
+	playerSafari:setWeaponTubeDirection(2, 180)							--rear (vs none)
+	playerSafari:setWeaponTubeExclusiveFor(0,"HVLI")					--HVLI only (vs any)
+	playerSafari:setWeaponTubeExclusiveFor(1,"HVLI")					--HVLI only (vs none)
+	playerSafari:setWeaponTubeExclusiveFor(2,"Mine")					--Mine only (vs none)
+	playerSafari:setTubeSize(0,"small")									--small (vs medium)
+	playerSafari:setTubeSize(1,"small")									--small (vs none)
+	playerSafari:setTubeLoadTime(0,8)									--faster (vs 20)
+	playerSafari:setTubeLoadTime(1,8)									--faster (vs none)
+	playerSafari:setWeaponStorageMax("Homing", 0)						--less (vs 3)
+	playerSafari:setWeaponStorage("Homing", 0)
+	playerSafari:setWeaponStorageMax("Nuke", 0)							--less (vs 1)
+	playerSafari:setWeaponStorage("Nuke", 0)
+	playerSafari:setWeaponStorageMax("HVLI", 20)						--more (vs 5)
+	playerSafari:setWeaponStorage("HVLI", 20)
+	playerSafari:setWeaponStorageMax("Mine", 3)							--more (vs 1)
+	playerSafari:setWeaponStorage("Mine", 3)
+	playerSafari:addReputationPoints(50)
+	playerShipSpawned("Safari")
+end
 function createPlayerShipSimian()
 	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
 	playerSimian:setTypeName("Destroyer III")
@@ -7731,34 +7862,6 @@ function createPlayerShipSparrow()
 	playerSparrow:setWeaponStorage("Mine",4)
 	playerSparrow:addReputationPoints(50)
 	playerShipSpawned("Sparrow")
-end
-function createPlayerShipPhobosT2()
-	playerPhobosT2 = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Terror")
-	playerPhobosT2:setTypeName("Phobos T2")
-	playerPhobosT2:setRepairCrewCount(4)					--more repair crew (vs 3)
-	playerPhobosT2:setJumpDrive(true)						--jump drive (vs none)
-	playerPhobosT2:setJumpDriveRange(2000,25000)			--shorter than typical jump drive range (vs 5-50)
-	playerPhobosT2:setRotationMaxSpeed(20)					--faster spin (vs 10)
-	playerPhobosT2:setShieldsMax(120,80)					--stronger front, weaker rear (vs 100,100)
-	playerPhobosT2:setShields(120,80)
-	playerPhobosT2:setMaxEnergy(800)						--less maximum energy (vs 1000)
-	playerPhobosT2:setEnergy(800)
---                 				   Arc, Dir, Range, CycleTime, Dmg
-	playerPhobosT2:setBeamWeapon(0, 10, -30,  1200,         4, 6)	--split direction (30 vs 15)
-	playerPhobosT2:setBeamWeapon(1, 10,  30,  1200,         4, 6)	--reduced cycle time (4 vs 8)
---										 Arc, Dir, Rotate speed
-	playerPhobosT2:setBeamWeaponTurret(0, 40, -30, .2)		--slow turret beams
-	playerPhobosT2:setBeamWeaponTurret(1, 40,  30, .2)
-	playerPhobosT2:setWeaponTubeCount(2)					--one fewer tube (1 forward, 1 rear vs 2 forward, 1 rear)
-	playerPhobosT2:setWeaponTubeDirection(0,0)				--first tube points straight forward
-	playerPhobosT2:setWeaponTubeDirection(1,180)			--second tube points straight back
-	playerPhobosT2:setWeaponTubeExclusiveFor(1,"Mine")
-	playerPhobosT2:setWeaponStorageMax("Homing",8)			--reduce homing storage (vs 10)
-	playerPhobosT2:setWeaponStorage("Homing",8)
-	playerPhobosT2:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
-	playerPhobosT2:setWeaponStorage("HVLI",16)
-	playerPhobosT2:addReputationPoints(50)
-	playerShipSpawned("Phobos T2")
 end
 function createPlayerShipSpyder()
 	--experimental
@@ -7838,6 +7941,37 @@ function createPlayerShipSting()
 	playerSting:addReputationPoints(50)
 	playerShipSpawned("Sting")
 end
+function createPlayerShipThelonius()
+	playerThelonius = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Thelonius")
+	playerThelonius:setTypeName("Crab")
+	playerThelonius:setWarpSpeed(450)						--slower (vs 750)
+--                 				 	Arc, Dir,  Range, CycleTime, Damage
+	playerThelonius:setBeamWeapon(0, 10, 165,	1000, 		6.0, 	6.0)	--turreted, stronger (vs fixed, 5 Dmg)
+	playerThelonius:setBeamWeapon(1, 10, 195,	1000, 		6.0,	6.0)	--rear facing
+--										   Arc, Dir, Rotate speed
+	playerThelonius:setBeamWeaponTurret(0,	70,	165,		 .5)		--slow turret
+	playerThelonius:setBeamWeaponTurret(1,	70,	195,		 .5)		--slow turret
+	playerThelonius:setWeaponTubeCount(5)					--fewer (vs 6), no mine tube or mines
+	playerThelonius:setTubeSize(0,"large")					--large (vs small)
+	playerThelonius:setTubeSize(1,"small")					--small (vs normal)
+	playerThelonius:setWeaponTubeDirection(1,-20)			--angled (vs zero degrees)
+	playerThelonius:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs HVLI)
+	playerThelonius:setTubeSize(2,"small")					--medium (vs large)
+	playerThelonius:setWeaponTubeDirection(2, 20)			--angled (vs zero degrees)
+	playerThelonius:setWeaponTubeExclusiveFor(2,"Homing")	--homing only (vs HVLI)
+	playerThelonius:setWeaponStorageMax("Homing",16)		--more (vs 8)
+	playerThelonius:setWeaponStorage("Homing", 16)				
+	playerThelonius:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
+	playerThelonius:setWeaponStorage("EMP", 3)				
+	playerThelonius:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
+	playerThelonius:setWeaponStorage("Nuke", 2)				
+	playerThelonius:setWeaponStorageMax("Mine",0)			--fewer (vs 6)
+	playerThelonius:setWeaponStorage("Mine", 0)				
+	playerThelonius:setWeaponStorageMax("HVLI",10)			--fewer (vs 24)
+	playerThelonius:setWeaponStorage("HVLI", 10)				
+	playerThelonius:addReputationPoints(50)
+	playerShipSpawned("Thelonius")
+end
 function createPlayerShipThunderbird()
 	--destroyed 29Feb2020
 	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
@@ -7902,7 +8036,6 @@ function createPlayerShipWiggy()
 	playerShipSpawned("Wiggy")
 end
 function createPlayerShipWombat()
-	--destroyed 1Feb2020
 	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(100)							--stronger hull (vs 75)
