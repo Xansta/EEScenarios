@@ -2653,6 +2653,48 @@ function customButtons()
 	addGMFunction("shields regen",shieldsRegen)
 	addGMFunction("bleed energy",bleedEnergy)
 	addGMFunction("restore energy",restoreEnergy)
+	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
+end
+-- eh this should live somewhere else, but let it be a reminder to simplify other code
+-- there also should be some similar ones for playerships, spaceships etc
+function singleCPUShipFunction(fn)
+	return function ()
+		local object_list = getGMSelection()
+		if #object_list ~= 1 then
+			addGMMessage("you must select one object")
+			return
+		end
+		if object_list[1].typeName ~= "CpuShip" then
+			addGMMessage("you must select one CPUship")
+			return
+		end
+		fn(object_list[1])
+	end
+end
+function GMmessageHackedStatus(ship)
+	-- it might be nice if there was logic to see if the systems we print exist
+	addGMMessage(
+		string.format(
+			"hacked amount\n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n",
+			"reactor",ship:getSystemHackedLevel("reactor"),
+			"beamweapons",ship:getSystemHackedLevel("beamweapons"),
+			"missilesystem",ship:getSystemHackedLevel("missilesystem"),
+			"maneuver",ship:getSystemHackedLevel("maneuver"),
+			"impulse",ship:getSystemHackedLevel("impulse"),
+			"warp",ship:getSystemHackedLevel("warp"),
+			"jumpdrive",ship:getSystemHackedLevel("jumpdrive"),
+			"frontshield",ship:getSystemHackedLevel("frontshield"),
+			"rearshield",ship:getSystemHackedLevel("rearshield")
+	))
 end
 function shieldsDegrade()
 	local object_list = getGMSelection()
