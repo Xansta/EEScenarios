@@ -2810,22 +2810,31 @@ function customButtons()
 	addGMFunction("bleed energy",bleedEnergy)
 	addGMFunction("restore energy",restoreEnergy)
 	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
+	addGMFunction("4k mine ring",singleObjectFunction(function (obj)
+		local x,y = obj:getPosition()
+			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
+		end))	-- this probably wants to be done properly with a nice fancy UI but today is not the day
 end
 -- eh this should live somewhere else, but let it be a reminder to simplify other code
 -- there also should be some similar ones for playerships, spaceships etc
-function singleCPUShipFunction(fn)
+function singleObjectFunction(fn)
 	return function ()
 		local object_list = getGMSelection()
 		if #object_list ~= 1 then
 			addGMMessage("you must select one object")
 			return
 		end
-		if object_list[1].typeName ~= "CpuShip" then
+		fn(object_list[1])
+	end
+end
+function singleCPUShipFunction(fn)
+	return singleObjectFunction(function (obj)
+		if obj.typeName ~= "CpuShip" then
 			addGMMessage("you must select one CPUship")
 			return
 		end
-		fn(object_list[1])
-	end
+		fn(obj)
+	end)
 end
 function GMmessageHackedStatus(ship)
 	-- it might be nice if there was logic to see if the systems we print exist
