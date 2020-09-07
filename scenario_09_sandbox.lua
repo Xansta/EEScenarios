@@ -1517,6 +1517,42 @@ function updateSystem()
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
+		addPatrol = function (self, obj, patrol_points, patrol_point_index, patrol_check_timer_interval)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(patrol_points)=="table")
+			assert(type(patrol_point_index)=="number")
+			assert(type(patrol_check_timer_interval)=="number")
+			local update_self = self
+			local update_data = {
+				name = "patrol",
+				patrol_points = patrol_points,
+				patrol_point_index = patrol_point_index,
+				patrol_check_timer_interval = patrol_check_timer_interval,
+				patrol_check_timer = patrol_check_timer_interval,
+				update = function (self, delta)
+					if self.patrol_points == nil then
+						self.patrol_point_index = nil
+						self.patrol_check_timer_interval = nil
+						self.patrol_check_timer = nil
+						update_self:removeThisUpdate(obj,self)
+					else
+						self.patrol_check_timer = self.patrol_check_timer - delta
+						if self.patrol_check_timer < 0 then
+							if string.find(self:getOrder(),"Defend") then
+								self.patrol_point_index = self.patrol_point_index + 1
+								if self.patrol_point_index > #self.patrol_points then
+									self.patrol_point_index = 1
+								end
+								self:orderFlyTowards(self.patrol_points[self.patrol_point_index].x,self.patrol_points[self.patrol_point_index].y)
+							end
+							self.patrol_check_timer = self.patrol_check_timer_interval
+						end
+					end
+				end
+			}
+			self:addUpdate(obj,"patrol",update_data)
+		end,
 		-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 		-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 		-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
@@ -2204,6 +2240,12 @@ end
 -- JAM RANGE 10 - 5 = 5U	D	inline
 -- JAM RANGE 10 + 5 = 15U	D	inline
 -- DROP JAMMER 10U			D	dropJammer
+-- FIX SHIELD FREQ			F	inline
+-- +ATTACH TO SHIP			F	attachAnythingToNPS
+-- +DETACH					F	detachAnythingFromNPS
+-- +PATROL					F	setPatrolPoints
+
+
 function orderShip()
 	clearGMFunctions()
 	addGMFunction("-Main from order ship",initialGMFunctions)
@@ -2245,6 +2287,99 @@ function orderShip()
 	end)
 	addGMFunction("+Attach To Ship",attachAnythingToNPS)
 	addGMFunction("+Detach",detachAnythingFromNPS)
+	addGMFunction("+Patrol",setPatrolPoints)
+end
+function setPatrolPoints()
+	clearGMFunctions()
+	addGMFunction("-Main from Patrol",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	local patrol_ship_selected = false
+	local selection_label = "+Select ship"
+	if patrol_ship ~= nil and patrol_ship:isValid() then
+		patrol_ship_selected = true
+	end
+	if patrol_ship_selected then
+		selection_label = string.format("+Change from %s",patrol_ship:getCallSign())
+	end
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local temp_object = object_list[1]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" then
+			if patrol_ship_selected then
+				if patrol_ship ~= temp_object then
+					selection_label = string.format("+Chg %s to %s",patrol_ship:getCallSign(),temp_object:getCallSign())
+				end
+			else
+				selection_label = string.format("+Select %s",temp_object:getCallSign())
+			end
+		end
+	end
+	addGMFunction(selection_label,changePatrolShip)
+	if patrol_ship_selected then
+		local add_point_label = "Add patrol point"
+		if patrol_ship.patrol_points ~= nil then
+			add_point_label = string.format("%s %i",add_point_label,#patrol_ship.patrol_points + 1)
+		end
+		if gm_click_mode == "add patrol point" then
+			addGMFunction(string.format(">%s<",add_point_label),addPatrolPoint)
+		else
+			addGMFunction(string.format("%s",add_point_label),addPatrolPoint)
+		end
+		if patrol_ship.patrol_points ~= nil then
+			addGMFunction("Del Patrol Points",function()
+				patrol_ship.patrol_points = nil
+				addGMMessage(string.format("All patrol points deleted from %s",patrol_ship:getCallSign()))
+				setPatrolPoints()
+			end)
+		end
+	end
+end
+function addPatrolPoint()
+	if gm_click_mode == "add patrol point" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "add patrol point"
+		onGMClick(gmClickAddPatrolPoint)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   add patrol point\nGM click mode.",prev_mode))
+		end
+	end
+	setPatrolPoints()
+end
+function changePatrolShip()
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local temp_object = object_list[1]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" then
+			patrol_ship = temp_object
+		else
+			addGMMessage("Select CPU ship. No action taken")
+		end
+	else
+		addGMMessage("Select one CPU ship. No action taken")
+	end
+	setPatrolPoints()
+end
+function gmClickAddPatrolPoint(x,y)
+	if patrol_ship ~= nil and patrol_ship:isValid() then
+		if patrol_ship.patrol_points ~= nil then
+			table.insert(patrol_ship.patrol_points,{x = x, y = y})
+		else
+			local px, py = patrol_ship:getPosition()
+			local patrol_points = {
+				{x = px, y = py},
+				{x = x, y = y},
+			}
+			--						obj,			patrol_points,	patrol_point_index,	patrol_check_timer_interval
+			update_system:addPatrol(patrol_ship,	patrol_points,	2,					5)
+			patrol_ship:orderFlyTowards(x,y)
+		end
+		setPatrolPoints()
+	end
 end
 function detachAnythingFromNPS()
 	clearGMFunctions()
@@ -2804,11 +2939,6 @@ function customButtons()
 	addGMFunction("+Debug",debugButtons)
 	addGMFunction("+Snippet",snippetButtons)
 	addGMFunction("+Science DB",scienceDatabase)
-	addGMFunction("shields degrade",shieldsDegrade)
-	addGMFunction("shields regen",shieldsRegen)
-	addGMFunction("bleed energy",bleedEnergy)
-	addGMFunction("restore energy",restoreEnergy)
-	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
 end
 -- eh this should live somewhere else, but let it be a reminder to simplify other code
 -- there also should be some similar ones for playerships, spaceships etc
@@ -2857,11 +2987,14 @@ function shieldsDegrade()
 		addGMMessage("Need to a ship to decay shields on")
 		return
 	end
-	if object_list[1].getShieldCount == nil then
+	if object_list[1]:getShieldCount() == nil then
 		addGMMessage("target has no shield")
 		return
 	end
-	update_system:addShieldDecayCurve(object_list[1],2*60*60,{0,0.33,0.66,1},{1.0,0.5,0.4,0.1})
+	--addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
+	--								  obj			,total_time	,curve_x			,curve_y
+	--															 table of 4 numbers	 table of 4 numbers
+	update_system:addShieldDecayCurve(object_list[1],2*60*60	,{0,0.33,0.66,1}	,{1.0,0.5,0.4,0.1})
 end
 function shieldsRegen()
 	local object_list = getGMSelection()
@@ -2869,11 +3002,14 @@ function shieldsRegen()
 		addGMMessage("Need to a ship to restore shields on")
 		return
 	end
-	if object_list[1].getShieldCount == nil then
+	if object_list[1]:getShieldCount() == nil then
 		addGMMessage("target has no shield")
 		return
 	end
-	update_system:addShieldDecayCurve(object_list[1],60*60,{0,0.33,0.66,1},{0.1,0.4,0.5,1.0})
+	--addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
+	--								  obj			,total_time	,curve_x			,curve_y
+	--															 table of 4 numbers	 table of 4 numbers
+	update_system:addShieldDecayCurve(object_list[1],60*60		,{0,0.33,0.66,1}	,{0.1,0.4,0.5,1.0})
 end
 function bleedEnergy()
 	local object_list = getGMSelection()
@@ -5416,6 +5552,7 @@ function tweakPlayerShip()
 	addGMFunction("+Cargo",changePlayerCargo)
 	addGMFunction("+Reputation",changePlayerReputation)
 	addGMFunction("+Player Message",playerMessage)
+	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
 end
 -----------------------------------------------
 --	Initial Set Up > Player Ships > Current  --
@@ -5529,6 +5666,10 @@ function tweakEngineering()
 	addGMFunction("+Coolant",changePlayerCoolant)
 	addGMFunction("+Repair Crew",changePlayerRepairCrew)
 	addGMFunction("+Max System",changePlayerMaxSystem)
+	addGMFunction("shields degrade",shieldsDegrade)
+	addGMFunction("shields regen",shieldsRegen)
+	addGMFunction("bleed energy",bleedEnergy)
+	addGMFunction("restore energy",restoreEnergy)
 end
 -----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Cool --
