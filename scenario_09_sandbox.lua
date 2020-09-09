@@ -1528,29 +1528,32 @@ function updateSystem()
 			assert(type(patrol_point_index)=="number")
 			assert(type(patrol_check_timer_interval)=="number")
 			local update_self = self
+			obj.patrol_points = patrol_points
+			obj.patrol_point_index = patrol_point_index
+			obj.patrol_check_timer_interval = patrol_check_timer_interval
+			obj.patrol_check_timer = patrol_check_timer_interval
 			local update_data = {
 				name = "patrol",
-				patrol_points = patrol_points,
-				patrol_point_index = patrol_point_index,
-				patrol_check_timer_interval = patrol_check_timer_interval,
-				patrol_check_timer = patrol_check_timer_interval,
-				update = function (self, delta)
-					if self.patrol_points == nil then
-						self.patrol_point_index = nil
-						self.patrol_check_timer_interval = nil
-						self.patrol_check_timer = nil
+				update = function (self, obj, delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					if obj.patrol_points == nil then
+						obj.patrol_point_index = nil
+						obj.patrol_check_timer_interval = nil
+						obj.patrol_check_timer = nil
 						update_self:removeThisUpdate(obj,self)
 					else
-						self.patrol_check_timer = self.patrol_check_timer - delta
-						if self.patrol_check_timer < 0 then
-							if string.find(self:getOrder(),"Defend") then
-								self.patrol_point_index = self.patrol_point_index + 1
-								if self.patrol_point_index > #self.patrol_points then
-									self.patrol_point_index = 1
+						obj.patrol_check_timer = obj.patrol_check_timer - delta
+						if obj.patrol_check_timer < 0 then
+							if string.find(obj:getOrder(),"Defend") then
+								obj.patrol_point_index = obj.patrol_point_index + 1
+								if obj.patrol_point_index > #obj.patrol_points then
+									obj.patrol_point_index = 1
 								end
-								self:orderFlyTowards(self.patrol_points[self.patrol_point_index].x,self.patrol_points[self.patrol_point_index].y)
+								obj:orderFlyTowards(obj.patrol_points[obj.patrol_point_index].x,obj.patrol_points[obj.patrol_point_index].y)
 							end
-							self.patrol_check_timer = self.patrol_check_timer_interval
+							obj.patrol_check_timer = obj.patrol_check_timer_interval
 						end
 					end
 				end
@@ -2289,7 +2292,7 @@ function orderShip()
 	end)
 	addGMFunction("+Attach To Ship",attachAnythingToNPS)
 	addGMFunction("+Detach",detachAnythingFromNPS)
---	addGMFunction("+Patrol",setPatrolPoints)	--currently broken
+	addGMFunction("+Patrol",setPatrolPoints)	--currently broken
 end
 function setPatrolPoints()
 	clearGMFunctions()
