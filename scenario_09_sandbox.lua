@@ -11331,15 +11331,16 @@ function playerPower()
 	for pidx=1,8 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
-			if p.shipScore == nil then
-				assignPlayerShipScore(p)
-			end
 			playerShipScore = playerShipScore + p.shipScore
 		end
 	end
 	return playerShipScore
 end
 function assignPlayerShipScore(p)
+	local spawn_x,spawn_y=p:getPosition()
+	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
+		p:setPosition(playerSpawnX,playerSpawnY)	--put player in the correct region when spawned
+	end
 	local tempTypeName = p:getTypeName()
 	if tempTypeName ~= nil then
 		local shipScore = playerShipStats[tempTypeName].strength
@@ -23193,11 +23194,6 @@ function updateInner(delta)
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
 			local player_name = p:getCallSign()
-			if p.spawnAdjust == nil then
-				p:setPosition(playerSpawnX,playerSpawnY)	--put player in the correct region when spawned
-				p.spawnAdjust = true
-				assignPlayerShipScore(p)
-			end
 			if warning_station ~= nil then
 				p:addToShipLog(warning_message,"Red")
 			end
@@ -24043,3 +24039,4 @@ end
 function update(delta)
 	wrapFunctionInPcall(updateInner,delta)
 end
+onNewPlayerShip(assignPlayerShipScore)
