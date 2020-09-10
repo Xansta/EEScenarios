@@ -16368,8 +16368,8 @@ end
 function marineCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	artifactCounter = artifactCounter + 1
 	artifactNumber = artifactNumber + math.random(1,5)
-	local randomPrefix = string.char(math.random(65,90))
-	local marineCallSign = string.format("%s%i",randomPrefix,artifactNumber)
+	local randomSuffix = string.char(math.random(65,90))
+	local marineCallSign = string.format("Mrn%i%s",artifactNumber,randomSuffix)
 	local unscannedDescription = string.format("Marine %s Point",dropOrExtractAction)
 	local scannedDescription = string.format("Marine %s Point %s, standing by for marine transport",dropOrExtractAction,marineCallSign)
 	if associatedObjectName ~= nil then
@@ -16432,21 +16432,33 @@ function marinePointPickupProcess(self,retriever)
 			end
 			if marinePointPrepped then
 				p:removeCustom(marineCallSign)
-				if p == retriever then
-					local completionMessage = string.format("Marine %s action successful via %s",self.action,marineCallSign)
+			end
+			local successful_action = false
+			local completionMessage = ""
+			if marinePointPrepped and p == retriever then
+				completionMessage = string.format("Marine %s action successful via %s",self.action,marineCallSign)
+				if self.action == "Drop" then
+					if p:getRepairCrewCount() > 0 then
+						successful_action = true
+						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+					end
 					if self.associatedObjectName ~= nil then
-						if self.action == "Drop" then
-							completionMessage = string.format("Marine drop action on %s successful via %s",self.associatedObjectName,marineCallSign)
-						else
-							completionMessage = string.format("Marine extract action from %s successful via %s",self.associatedObjectName,marineCallSign)
-						end
+						completionMessage = string.format("Marine drop action on %s successful via %s",self.associatedObjectName,marineCallSign)
 					end
-					retriever:addToShipLog(completionMessage,"Green")
-					if retriever:getEnergy() > 50 then
-						retriever:setEnergy(retriever:getEnergy() - 50)
-					else
-						retriever:setEnergy(0)
+				else
+					successful_action = true
+					p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+					if self.associatedObjectName ~= nil then
+						completionMessage = string.format("Marine extract action from %s successful via %s",self.associatedObjectName,marineCallSign)
 					end
+				end
+			end
+			if successful_action then
+				retriever:addToShipLog(completionMessage,"Green")
+				if retriever:getEnergy() > 50 then
+					retriever:setEnergy(retriever:getEnergy() - 50)
+				else
+					retriever:setEnergy(0)
 				end
 			else
 				local rpx, rpy = self:getPosition()
@@ -16461,7 +16473,6 @@ function marinePointPickupProcess(self,retriever)
 					redoMarinePoint.action = self.action
 					redoMarinePoint.associatedObjectName = self.associatedObjectName
 					marinePointList[marineCallSign] = redoMarinePoint
-					--table.insert(marinePointList,redoMarinePoint)
 					table.insert(rendezvousPoints,redoMarinePoint)
 				end
 			end
