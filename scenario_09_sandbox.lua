@@ -5,7 +5,6 @@
 -- Type: GM Controlled missions
 
 --Ideas
---	team members include repair crew
 --	damage probe launch
 
 require("utils.lua")
@@ -16971,8 +16970,8 @@ end
 function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	artifactCounter = artifactCounter + 1
 	artifactNumber = artifactNumber + math.random(1,5)
-	local randomPrefix = string.char(math.random(65,90))
-	local medicCallSign = string.format("%s%i",randomPrefix,artifactNumber)
+	local randomSuffix = string.char(math.random(65,90))
+	local medicCallSign = string.format("Med%i%s",artifactNumber,randomSuffix)
 	local unscannedDescription = string.format("Medical Team %s Point",dropOrExtractAction)
 	local scannedDescription = string.format("Medical Team %s Point %s, standing by for medical team transport",dropOrExtractAction,medicCallSign)
 	if associatedObjectName ~= nil then
@@ -17035,21 +17034,41 @@ function medicPointPickupProcess(self,retriever)
 			end
 			if medicPointPrepped then
 				p:removeCustom(medicCallSign)
-				if p == retriever then
-					local completionMessage = string.format("Medical team %s action successful via %s",self.action,medicCallSign)
+			end
+			local successful_action = false
+			local completionMessage = ""
+			if medicPointPrepped and p == retriever then
+				completionMessage = string.format("Medical team %s action successful via %s",self.action,medicCallSign)
+				if self.action == "Drop" then
+					if p:getRepairCrewCount() > 0 then
+						successful_action = true
+						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+					end
 					if self.associatedObjectName ~= nil then
-						if self.action == "Drop" then
-							completionMessage = string.format("Medical team drop action on %s successful via %s",self.associatedObjectName,medicCallSign)
-						else
-							completionMessage = string.format("Medical team extract action from %s successful via %s",self.associatedObjectName,medicCallSign)
-						end
+						completionMessage = string.format("Medical team drop action on %s successful via %s",self.associatedObjectName,medicCallSign)
 					end
-					retriever:addToShipLog(completionMessage,"Green")
-					if retriever:getEnergy() > 50 then
-						retriever:setEnergy(retriever:getEnergy() - 50)
-					else
-						retriever:setEnergy(0)
+				else
+					successful_action = true
+					p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+					if self.associatedObjectName ~= nil then
+						completionMessage = string.format("Medical team extract action from %s successful via %s",self.associatedObjectName,medicCallSign)
 					end
+				end
+			end			
+			if successful_action then
+				retriever:addToShipLog(completionMessage,"Green")
+				if self.action == "Drop" then
+					if retriever:hasPlayerAtPosition("Engineering") then
+						retriever:addCustomMessage("Engineering","mdprcd","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
+					end
+					if retriever:hasPlayerAtPosition("Engineering+") then
+						retriever:addCustomMessage("Engineering+","mdprcd_plus","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
+					end
+				end
+				if retriever:getEnergy() > 50 then
+					retriever:setEnergy(retriever:getEnergy() - 50)
+				else
+					retriever:setEnergy(0)
 				end
 			else
 				local rpx, rpy = self:getPosition()
