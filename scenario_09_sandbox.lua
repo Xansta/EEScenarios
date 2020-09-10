@@ -19165,7 +19165,7 @@ function setMineShape()
 	end
 	addGMFunction(button_label,function()
 		mine_shape = "Arc"
-		if gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,8) ~= "mine arc" then
+		if  gm_click_mode ~= nil and gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,8) ~= "mine arc" then
 			gm_click_mode = nil
 			onGMClick(nil)
 		end
@@ -19177,7 +19177,7 @@ function setMineShape()
 	end
 	addGMFunction(button_label,function()
 		mine_shape = "Line"
-		if gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,9) ~= "mine line" then
+		if gm_click_mode ~= nil and gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,9) ~= "mine line" then
 			gm_click_mode = nil
 			onGMClick(nil)
 		end
@@ -19189,7 +19189,7 @@ function setMineShape()
 	end
 	addGMFunction(button_label,function()
 		mine_shape = "Circle"
-		if gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,11) ~= "mine circle" then
+		if  gm_click_mode ~= nil and gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,11) ~= "mine circle" then
 			gm_click_mode = nil
 			onGMClick(nil)
 		end
