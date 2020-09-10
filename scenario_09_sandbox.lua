@@ -16455,6 +16455,14 @@ function marinePointPickupProcess(self,retriever)
 			end
 			if successful_action then
 				retriever:addToShipLog(completionMessage,"Green")
+				if self.action == "Drop" then
+					if retriever:hasPlayerAtPosition("Engineering") then
+						retriever:addCustomMessage("Engineering","mprcd","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
+					end
+					if retriever:hasPlayerAtPosition("Engineering+") then
+						retriever:addCustomMessage("Engineering+","mprcd_plus","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
+					end
+				end
 				if retriever:getEnergy() > 50 then
 					retriever:setEnergy(retriever:getEnergy() - 50)
 				else
@@ -16662,8 +16670,8 @@ end
 function engineerCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	artifactCounter = artifactCounter + 1
 	artifactNumber = artifactNumber + math.random(1,5)
-	local randomPrefix = string.char(math.random(65,90))
-	local engineerCallSign = string.format("%s%i",randomPrefix,artifactNumber)
+	local randomSuffix = string.char(math.random(65,90))
+	local engineerCallSign = string.format("Eng%i%s",artifactNumber,randomSuffix)
 	local unscannedDescription = string.format("Engineer %s Point",dropOrExtractAction)
 	local scannedDescription = string.format("Engineer %s Point %s, standing by for engineer transport",dropOrExtractAction,engineerCallSign)
 	if associatedObjectName ~= nil then
@@ -16726,21 +16734,41 @@ function engineerPointPickupProcess(self,retriever)
 			end
 			if engineerPointPrepped then
 				p:removeCustom(engineerCallSign)
-				if p == retriever then
-					local completionMessage = string.format("Engineer %s action successful via %s",self.action,engineerCallSign)
+			end
+			local successful_action = false
+			local completionMessage = ""
+			if engineerPointPrepped and p == retriever then
+				completionMessage = string.format("Engineer %s action successful via %s",self.action,engineerCallSign)
+				if self.action == "Drop" then
+					if p:getRepairCrewCount() > 0 then
+						successful_action = true
+						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+					end
 					if self.associatedObjectName ~= nil then
-						if self.action == "Drop" then
-							completionMessage = string.format("Engineer drop action on %s successful via %s",self.associatedObjectName,engineerCallSign)
-						else
-							completionMessage = string.format("Engineer extract action from %s successful via %s",self.associatedObjectName,engineerCallSign)
-						end
+						completionMessage = string.format("Engineer drop action on %s successful via %s",self.associatedObjectName,engineerCallSign)
 					end
-					retriever:addToShipLog(completionMessage,"Green")
-					if retriever:getEnergy() > 50 then
-						retriever:setEnergy(retriever:getEnergy() - 50)
-					else
-						retriever:setEnergy(0)
+				else
+					successful_action = true
+					p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+					if self.associatedObjectName ~= nil then
+						completionMessage = string.format("Engineer extract action from %s successful via %s",self.associatedObjectName,engineerCallSign)
 					end
+				end
+			end
+			if successful_action then
+				retriever:addToShipLog(completionMessage,"Green")
+				if self.action == "Drop" then
+					if retriever:hasPlayerAtPosition("Engineering") then
+						retriever:addCustomMessage("Engineering","eprcd","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
+					end
+					if retriever:hasPlayerAtPosition("Engineering+") then
+						retriever:addCustomMessage("Engineering+","eprcd_plus","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
+					end
+				end
+				if retriever:getEnergy() > 50 then
+					retriever:setEnergy(retriever:getEnergy() - 50)
+				else
+					retriever:setEnergy(0)
 				end
 			else
 				local rpx, rpy = self:getPosition()
