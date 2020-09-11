@@ -5,7 +5,7 @@
 -- Type: GM Controlled missions
 
 --Ideas
---	damage probe launch
+--	sensor buoy drop
 
 require("utils.lua")
 function init()
@@ -43,6 +43,7 @@ function createSkeletonUniverse()
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
         jump_overcharge =	true,
+        probe_launch_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -68,6 +69,7 @@ function createSkeletonUniverse()
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
         jump_overcharge =	true,
+        probe_launch_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -21630,6 +21632,9 @@ function handleDockedState()
 		if ctd.jump_overcharge then
 			service_status = string.format("%s\nMay overcharge jump drive",service_status)
 		end
+		if ctd.probe_launch_repair then
+			service_status = string.format("%s\nMay repair probe launch system",service_status)
+		end
 		setCommsMessage(service_status)
 		addCommsReply("Back", commsStation)
 	end)
@@ -21666,6 +21671,19 @@ function handleDockedState()
 					addCommsReply("Back", commsStation)
 				end)
 			end
+		end
+	end
+	if ctd.probe_launch_repair then
+		if not comms_source:getCanLaunchProbe() then
+			addCommsReply("Repair probe launch system (5 Rep)",function()
+				if comms_source:takeReputationPoints(5) then
+					comms_source:setCanLaunchProbe(true)
+					setCommsMessage("Your probe launch system has been repaired")
+				else
+					setCommsMessage("Insufficient reputation")
+				end
+				addCommsReply("Back", commsStation)
+			end)
 		end
 	end
 	if ctd.public_relations then
@@ -22444,6 +22462,9 @@ function handleUndockedState()
 			end
 			if ctd.jump_overcharge then
 				service_status = string.format("%s\nMay overcharge jump drive",service_status)
+			end
+			if ctd.probe_launch_repair then
+				service_status = string.format("%s\nMay repair probe launch system",service_status)
 			end
 			setCommsMessage(service_status)
 			addCommsReply("Back", commsStation)
@@ -23442,7 +23463,13 @@ function updateInner(delta)
 									p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
 								end
 							else
-								if random(1,100) < 50 then
+								local consequence = 0
+								if p:getCanLaunchProbe() then
+									consequence = math.random(1,3)
+								else
+									consequence = math.random(1,2)
+								end
+								if consequence == 1 then
 									p:setRepairCrewCount(p:getRepairCrewCount() - 1)
 									if p:hasPlayerAtPosition("Engineering") then
 										local repairCrewFatality = "repairCrewFatality"
@@ -23452,7 +23479,7 @@ function updateInner(delta)
 										local repairCrewFatalityPlus = "repairCrewFatalityPlus"
 										p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
 									end
-								else
+								elseif consequence == 2 then
 									local current_coolant = p:getMaxCoolant()
 									local lost_coolant = 0
 									if current_coolant >= 10 then
@@ -23472,6 +23499,14 @@ function updateInner(delta)
 									if p:hasPlayerAtPosition("Engineering+") then
 										local coolantLossPlus = "coolantLossPlus"
 										p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
+									end
+								else
+									p:setCanLaunchProbe(false)
+									if p:hasPlayerAtPosition("Engineering") then
+										p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
+									end
+									if p:hasPlayerAtPosition("Engineering+") then
+										p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
 									end
 								end	--coolant loss branch
 							end	--could lose coolant branch
