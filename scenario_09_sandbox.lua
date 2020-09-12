@@ -4006,6 +4006,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,6),	HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        jump_overcharge =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	beam =	 	{quantity = math.random(4,8),	cost = math.random(40,80)},
@@ -18081,7 +18082,7 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 	if scannedClues5[scannedClueKey5] ~= nil and scannedClues5[scannedClueKey5] ~= "None" then
 		scannedDescription = scannedDescription .. scannedClues5[scannedClueKey5] .. " "
 	end
-	local scanCluePoint = Artifact():setPosition(originx+vectorx,originy+vectory):setScanningParameters(scanComplexity,scanDepth):setRadarSignatureInfo(random(0,1),random(0,1),random(0,1)):setDescriptions(unscannedDescription,scannedDescription)
+	local scanCluePoint = Artifact():setPosition(originx+vectorx,originy+vectory):setScanningParameters(scanComplexity,scanDepth):setRadarSignatureInfo(random(0.5,1),random(0.5,1),random(0.5,1)):setDescriptions(unscannedDescription,scannedDescription)
 	if scan_clue_retrievable then
 		scanCluePoint:allowPickup(true)
 	else
