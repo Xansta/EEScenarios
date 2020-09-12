@@ -13635,7 +13635,7 @@ function waddle5(enemyFaction)
 	ship:setTypeName("Waddle 5")
 	ship:setWarpDrive(true)
 --				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(2,	70,	  -30,	 900,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
 	local waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
 	if waddle_5_db == nil then
 		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
@@ -13681,7 +13681,7 @@ function jade5(enemyFaction)
 	ship:setJumpDrive(true)
 	ship:setJumpDriveRange(5000,35000)
 --				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(2,	70,	  -30,	 900,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
 	local jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
 	if jade_5_db == nil then
 		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
