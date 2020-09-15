@@ -24184,7 +24184,6 @@ function updateInner(delta)
 	if updateDiagnostic then print("update: end of update function") end
 end
 function update(delta)
-	--wrapWithErrorHandling(updateInner,delta)
-	updateInner(delta)
+	callWithErrorHandling(updateInner,delta)
 end
 onNewPlayerShip(assignPlayerShipScore)
