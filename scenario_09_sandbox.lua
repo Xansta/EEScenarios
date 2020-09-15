@@ -22670,6 +22670,7 @@ function playerShipCargoInventory(p)
 		p:addToShipLog("     Empty","Yellow")
 	end
 	p:addToShipLog(string.format("Available space: %i",p.cargo),"Yellow")
+	p:addToShipLog(string.format("Escape pods: %i   Available slots: %i",p.max_pods - p.pods,p.pods),"Yellow")
 end
 ---------------------------------------------------
 --	Dynamic functions linked to update function  --
@@ -23361,7 +23362,7 @@ function updateInner(delta)
 						goodCount = goodCount + 1
 					end
 				end
-				if goodCount > 0 then		--add inventory button when cargo acquired
+				if goodCount > 0 or p.pods < p.max_pods then		--add inventory button when cargo or pods acquired
 					if p:hasPlayerAtPosition("Relay") then
 						if p.inventoryButton == nil then
 							local tbi = "inventory" .. player_name
@@ -24183,6 +24184,7 @@ function updateInner(delta)
 	if updateDiagnostic then print("update: end of update function") end
 end
 function update(delta)
-	wrapWithErrorHandling(updateInner,delta)
+	--wrapWithErrorHandling(updateInner,delta)
+	updateInner(delta)
 end
 onNewPlayerShip(assignPlayerShipScore)
