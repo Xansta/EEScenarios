@@ -15885,6 +15885,7 @@ end
 function podPickupProcess(self,retriever)
 	local podCallSign = self:getCallSign()
 	local podPrepped = false
+	local pod_retrieved = false
 	for epCallSign, ep in pairs(escapePodList) do
 		if epCallSign == podCallSign then
 			escapePodList[epCallSign] = nil
@@ -15909,23 +15910,45 @@ function podPickupProcess(self,retriever)
 			if podPrepped then
 				p:removeCustom(podCallSign)
 			end
-			if podPrepped and p == retriever and p.pods > 0 then
-				p.pods = p.pods - 1
-				retriever:addToShipLog(string.format("Escape pod %s retrieved. %s can carry %i more. Unload escape pods at any friendly station",podCallSign,retriever:getCallSign(),p.pods),"Green")
-				if retriever:getEnergy() > 50 then
-					retriever:setEnergy(retriever:getEnergy() - 50)
+			if p == retriever then
+				if podPrepped then
+					if p.pods > 0 then
+						p.pods = p.pods - 1
+						retriever:addToShipLog(string.format("Escape pod %s retrieved. %s can carry %i more. Unload escape pods at any friendly station",podCallSign,retriever:getCallSign(),p.pods),"Green")
+						if retriever:getEnergy() > 50 then
+							retriever:setEnergy(retriever:getEnergy() - 50)
+						else
+							retriever:setEnergy(0)
+						end
+						pod_retrieved = true
+					else
+						if p.pod_retrieval_failure_not_enough_space_message == nil then
+							p.pod_retrieval_failure_not_enough_space_message = {}
+						end
+						if p.pod_retrieval_failure_not_enough_space_message[podCallSign] == nil then
+							retriever:addToShipLog(string.format("Not enough room on %s to retrieve %s. Unload escape pods at any friendly station",retriever:getCallSign(),podCallSign),"Green")
+							p.pod_retrieval_failure_not_enough_space_message[podCallSign] = "sent"
+						end
+					end
 				else
-					retriever:setEnergy(0)
-				end
-			else
-				local rpx, rpy = self:getPosition()
-				if escapePodList[podCallSign] == nil then
-					local redoPod = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("ammo_box"):setDescriptions("Escape Pod",string.format("Escape Pod %s, life forms detected",podCallSign)):setCallSign(podCallSign)
-					redoPod:onPickUp(podPickupProcess)
-					escapePodList[podCallSign] = redoPod
-					table.insert(rendezvousPoints,redoPod)
+					if p.pod_retrieval_failure_unprepared_message == nil then
+						p.pod_retrieval_failure_unprepared_message = {}
+					end
+					if p.pod_retrieval_failure_unprepared_message[podCallSign] == nil then
+						retriever:addToShipLog(string.format("Not prepared to pick up %s",podCallSign),"Green")
+						p.pod_retrieval_failure_unprepared_message[podCallSign] = "sent"
+					end
 				end
 			end
+		end
+	end
+	if not pod_retrieved then
+		local rpx, rpy = self:getPosition()
+		if escapePodList[podCallSign] == nil then
+			local redoPod = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("ammo_box"):setDescriptions("Escape Pod",string.format("Escape Pod %s, life forms detected",podCallSign)):setCallSign(podCallSign)
+			redoPod:onPickUp(podPickupProcess)
+			escapePodList[podCallSign] = redoPod
+			table.insert(rendezvousPoints,redoPod)
 		end
 	end
 end
