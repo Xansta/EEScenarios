@@ -390,8 +390,9 @@ function setConstants()
 		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2},
 		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3},
 		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1},
-		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3},
 		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1},
+		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4},
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3},
 	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -3210,6 +3211,7 @@ function playerShip()
 			{"Thunderbird"	,"inactive"	,createPlayerShipThunderbird,"Destroyer IV (Thunderbird) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Vision"		,"inactive"	,createPlayerShipVision		,"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Wiggy"		,"inactive"	,createPlayerShipWiggy		,"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors"},
+			{"Windmill"		,"active"	,createPlayerShipWindmill	,"Windmill: Frigate, Light Transport   Hull:100   Shield:100,70   Size:200   Repair Crew:5   Cargo:11   R.Strength:19\nFTL:Warp (350)   Speeds: Impulse:100   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:5\nBeams:4 Cardinal directions, sides Turreted Speed:0.5\n   Arc: 60   Direction:  0   Range:1.0   Cycle:6   Damage:6\n   Arc: 60   Direction:180   Range:1.0   Cycle:6   Damage:6\n   Arc:140   Direction:-90   Range:1.2   Cycle:6   Damage:4\n   Arc:140   Direction: 90   Range:1.2   Cycle:6   Damage:4\nTubes:5   Load Speeds: Small:5   Normal:10   Large:15   Mine:20\n   Direction:  0   Type:Exclude Mine - small\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Exclude Mine - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      5 Homing\n      1 Nuke\n      3 Mine\n      2 EMP\n      8 HVLI\nBased on Flavia P.Falcon: faster impulse, slower warp, stronger front shield, fewer repair crew,more beams in more directions, more tubes in more directions, more missiles, longer long range sensors"},
 			{"Wombat"		,"inactive"	,createPlayerShipWombat		,"Wombat (Farrah): Starfighter, Bomber   Hull:100   Shield:80,80   Size:100   Repair Crew:4   Cargo:3   R.Strength:18\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   LRS:18   SRS:6\nBeam:2 Turreted Speed:0.3\n   Arc:80   Direction:-20   Range:0.9   Cycle:4   Damage:3\n   Arc:80   Direction: 20   Range:0.9   Cycle:4   Damage:3\nTubes:5   Load Speed:10   Rear, 2 small, 1 large, 2 normal\n   Direction:180   Type:Only HVLI - small\n   Direction:180   Type:Only HVLI or Homing - small\n   Direction:180   Type:Only HVLI or Homing - large\n   Direction:180   Type:Only HVLI, EMP or Nuke\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      08 Homing\n      01 Nuke\n      02 Mine\n      02 EMP\n      12 HVLI\nBased on Lindworm: stronger hull and shields, more repair crew, warp drive, stringer, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, more homing missiles"}
 		}
 	end
@@ -10691,6 +10693,51 @@ function createPlayerShipWiggy()
 	playerWiggy.normal_long_range_radar = 40000
 	playerWiggy:addReputationPoints(50)
 	playerShipSpawned("Wiggy")
+end
+function createPlayerShipWindmill()
+	playerWindmill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Rocinante")
+	playerWindmill:setTypeName("Windmill")
+	playerWindmill:setImpulseMaxSpeed(100)	--faster impulse max (vs 60)
+	playerWindmill:setWarpSpeed(350)		--slower (vs 500)
+	playerWindmill:setShieldsMax(100,70)	--stronger (vs 70,70)
+	playerWindmill:setShields(100,70)
+	playerWindmill:setRepairCrewCount(5)	--less repair crew (vs 8)
+--                 				   Arc, Dir,   Range, CycleTime, Damage
+	playerWindmill:setBeamWeapon(0,	60,   0,	1000, 		6.0, 	6.0)	--front (vs rear), short (vs 1200)
+	playerWindmill:setBeamWeapon(1,	60, 180,	1000, 		6.0, 	6.0)	--short (vs 1200)
+	playerWindmill:setBeamWeapon(2,	10, -90,	1200, 		6.0, 	4.0)	--left turret (vs none)
+	playerWindmill:setBeamWeapon(3,	10,  90,	1200, 		6.0, 	4.0)	--right turret (vs none)
+--											Arc,  Dir, Rotate speed
+	playerWindmill:setBeamWeaponTurret(2,	140,  -90,			 .5)		--slow turret
+	playerWindmill:setBeamWeaponTurret(3,	140,   90,			 .5)		--slow turret
+	playerWindmill:setWeaponTubeCount(5)					--more (vs 1)
+	playerWindmill:setTubeSize(0,"small")					--small (vs normal)
+	playerWindmill:setTubeLoadTime(0,5)						--fast (vs 20)
+	playerWindmill:setWeaponTubeDirection(0,0)				--forward facing
+	playerWindmill:weaponTubeDisallowMissle(0,"Mine")		--all but mine
+	playerWindmill:setTubeLoadTime(1,10)
+	playerWindmill:setWeaponTubeDirection(1,-90)			--left facing
+	playerWindmill:weaponTubeDisallowMissle(1,"Mine")		--all but mine
+	playerWindmill:setTubeLoadTime(2,10)
+	playerWindmill:setWeaponTubeDirection(2,90)				--right facing
+	playerWindmill:weaponTubeDisallowMissle(2,"Mine")		--all but mine
+	playerWindmill:setTubeSize(3,"large")					
+	playerWindmill:setTubeLoadTime(3,15)
+	playerWindmill:setWeaponTubeDirection(3,180)			--rear facing
+	playerWindmill:weaponTubeDisallowMissle(3,"Mine")		--all but mine
+	playerWindmill:setTubeLoadTime(4,20)
+	playerWindmill:setWeaponTubeDirection(4,180)			--rear facing
+	playerWindmill:setWeaponTubeExclusiveFor(4,"Mine")		--mine only
+	playerWindmill:setWeaponStorageMax("Homing", 5)			--more (vs 3)
+	playerWindmill:setWeaponStorage("Homing", 5)
+	playerWindmill:setWeaponStorageMax("Mine", 3)			--more (vs 1)
+	playerWindmill:setWeaponStorage("Mine", 3)
+	playerWindmill:setWeaponStorageMax("EMP", 2)			--more (vs 0)
+	playerWindmill:setWeaponStorage("EMP", 2)
+	playerWindmill:setWeaponStorageMax("HVLI", 8)			--more (vs 5)
+	playerWindmill:setWeaponStorage("HVLI", 8)
+	playerWindmill:addReputationPoints(50)
+	playerShipSpawned("Windmill")
 end
 function createPlayerShipWombat()
 	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
