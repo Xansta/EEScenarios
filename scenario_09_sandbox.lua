@@ -16415,7 +16415,7 @@ function marineCreation(originx, originy, vectorx, vectory, associatedObjectName
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for mpb, enabled in pairs(p.marinePointButton) do
-							if enabled then
+							if enabled and mpb == marineCallSign then
 								p:removeCustom(mpb)
 								p:addCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
 								p.marinePointButton[mpb] = false
@@ -16430,6 +16430,7 @@ end
 function marinePointPickupProcess(self,retriever)
 	local marineCallSign = self:getCallSign()
 	local marinePointPrepped = false
+	local successful_action = false
 	for mpCallSign, mp in pairs(marinePointList) do
 		if mpCallSign == marineCallSign then
 			marinePointList[mpCallSign] = nil
@@ -16454,6 +16455,90 @@ function marinePointPickupProcess(self,retriever)
 			if marinePointPrepped then
 				p:removeCustom(marineCallSign)
 			end
+			if p == retriever then
+				if marinePointPrepped then
+					if self.action == "Drop" then
+						if p:getRepairCrewCount() > 0 then
+							successful_action = true
+							p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+							if self.associatedObjectName ~= nil then
+								p:addToShipLog(string.format("Marine drop action on %s successful via %s",self.associatedObjectName,marineCallSign),"Green")
+							else
+								p:addToShipLog(string.format("Marine %s action successful via %s",self.action,marineCallSign),"Green")
+							end
+						else
+							if p.marine_drop_failure_not_enough_crew_message == nil then
+								p.marine_drop_failure_not_enough_crew_message = {}
+							end
+							if p.marine_drop_failure_not_enough_crew_message[marineCallSign] == nil then
+								p:addToShipLog(string.format("Not enough marines to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",marineCallSign,p:getCallSign()),"Green")
+								p.marine_drop_failure_not_enough_crew_message[marineCallSign] = "sent"
+							end
+						end
+					else
+						successful_action = true
+						p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+						if self.associatedObjectName ~= nil then
+							p:addToShipLog(string.format("Marine extract action from %s successful via %s",self.associatedObjectName,marineCallSign),"Green")
+						else
+							p:addToShipLog(string.format("Marine %s action successful via %s",self.action,marineCallSign),"Green")
+						end
+					end
+				else
+					if self.action == "Drop" then
+						if p.marine_drop_failure_unprepared_message == nil then
+							p.marine_drop_failure_unprepared_message = {}
+						end
+						if p.marine_drop_failure_unprepared_message[marineCallSign] == nil then
+							p:addToShipLog(string.format("Not prepared to drop marines at %s",marineCallSign),"Green")
+							p.marine_drop_failure_unprepared_message[marineCallSign] = "sent"
+						end
+					else
+						if p.marine_extract_failure_unprepared_message == nil then
+							p.marine_extract_failure_unprepared_message = {}
+						end
+						if p.marine_extract_failure_unprepared_message[marineCallSign] == nil then
+							p:addToShipLog(string.format("Not prepared to extract marines at %s",marineCallSign),"Green")
+							p.marine_extract_failure_unprepared_message[marineCallSign] = "sent"
+						end
+					end
+				end
+				if successful_action then
+					if self.action == "Drop" then
+						if retriever:hasPlayerAtPosition("Engineering") then
+							retriever:addCustomMessage("Engineering","mprcd","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
+						end
+						if retriever:hasPlayerAtPosition("Engineering+") then
+							retriever:addCustomMessage("Engineering+","mprcd_plus","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
+						end
+					end
+					if retriever:getEnergy() > 50 then
+						retriever:setEnergy(retriever:getEnergy() - 50)
+					else
+						retriever:setEnergy(0)
+					end
+				end	--successful action branch
+			end	--retriever matches player branch
+		end	--player is valid branch
+	end	--end of player loop
+	if not successful_action then
+		local rpx, rpy = self:getPosition()
+		local unscannedDescription = string.format("Marine %s Point",self.action)
+		local scannedDescription = string.format("Marine %s Point %s, standing by for marine transport",self.action,marineCallSign)
+		if self.associatedObjectName ~= nil then
+			scannedDescription = scannedDescription .. ": " .. self.associatedObjectName
+		end
+		if marinePointList[marineCallSign] == nil then
+			local redoMarinePoint = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorBuoyMKI"):setDescriptions(unscannedDescription,scannedDescription):setCallSign(marineCallSign)
+			redoMarinePoint:onPickUp(marinePointPickupProcess)
+			redoMarinePoint.action = self.action
+			redoMarinePoint.associatedObjectName = self.associatedObjectName
+			marinePointList[marineCallSign] = redoMarinePoint
+			table.insert(rendezvousPoints,redoMarinePoint)
+		end
+	end
+			
+	--[[		
 			local successful_action = false
 			local completionMessage = ""
 			if marinePointPrepped and p == retriever then
@@ -16507,6 +16592,8 @@ function marinePointPickupProcess(self,retriever)
 			end
 		end
 	end
+	
+	--]]
 end
 -------------------------------------------
 --	Drop Point > Marine Point > Near To  --
