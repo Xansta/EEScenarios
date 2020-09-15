@@ -19,9 +19,9 @@ function init()
 	runAllTests()
 --	testObject = Artifact():setPosition(100,100):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorArrayMKI"):setDescriptions("sensor","good sensor")
 end
+function createSkeletonUniverse()
 --Human navy stations that may always be reached by long range communication
 --Fixed stellar features (black holes, worm holes, nebulae)
-function createSkeletonUniverse()
 	local icx = 11756
 	local icy = 1254
 	local nukeAvail = true
@@ -16237,7 +16237,7 @@ function artifactToPod()
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for pb, enabled in pairs(p.podButton) do
-							if enabled then
+							if enabled and pb == podCallSign then
 								p:removeCustom(pb)
 								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
 								p.podButton[pb] = false
@@ -16271,7 +16271,7 @@ function podCreation(originx, originy, vectorx, vectory)
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for pb, enabled in pairs(p.podButton) do
-							if enabled then
+							if enabled and pb == podCallSign then
 								p:removeCustom(pb)
 								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
 								p.podButton[pb] = false
@@ -24183,6 +24183,6 @@ function updateInner(delta)
 	if updateDiagnostic then print("update: end of update function") end
 end
 function update(delta)
-	wrapFunctionInPcall(updateInner,delta)
+	wrapWithErrorHandling(updateInner,delta)
 end
 onNewPlayerShip(assignPlayerShipScore)
