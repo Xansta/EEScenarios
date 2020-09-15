@@ -20351,27 +20351,39 @@ function scienceDatabase()
 		end
 	end)
 end
-
-function wrapFunctionInPcall(fun, ...)
+-- returns a function which wraps the fun function in error handling logic
+-- the error handling logic for the sandbox is a popup and printing to the console
+-- this is useful for callbacks and gm buttons (as both of those don't in the current
+-- version display the red text with a line number that init code does
+-- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
+function wrapWithErrorHandling(fun)
 	assert(type(fun)=="function")
-    local status,error=pcall(fun, ...)
-    if not status then
-		print("script error : - ")
-		print(error)
-		if popupGMDebug == "once" or popupGMDebug == "always" then
-			if popupGMDebug == "once" then
-				popupGMDebug = "never"
+		return function(...)
+		local status,error=pcall(fun, ...)
+		if not status then
+			print("script error : - ")
+			print(error)
+			if popupGMDebug == "once" or popupGMDebug == "always" then
+				if popupGMDebug == "once" then
+					popupGMDebug = "never"
+				end
+				addGMMessage("script error - \n"..error)
 			end
-			addGMMessage("script error - \n"..error)
 		end
-    end
+	end
+end
+-- calls the function fun with the remaining arguments while using the common
+-- error handling logic (see wrapWithErrorHandling)
+function callWithErrorHandling(fun,...)
+	assert(type(fun)=="function")
+	return wrapWithErrorHandling(fun)(...)
 end
 -- currently EE doesn't make it easy to see if there are errors in GMbuttons
 -- this saves the old addGMFunction, and makes it so all calls to addGMFunction
--- wraps the callback in the pcall logic elsewhere
+-- are wrapped with the common error handling logic
 addGMFunctionReal=addGMFunction
 function addGMFunction(msg, fun)
-	return addGMFunctionReal(msg,function () wrapFunctionInPcall(fun) end)
+	return addGMFunctionReal(msg,wrapWithErrorHandling(fun))
 end
 function getNumberOfObjectsString(all_objects)
 	-- get a multi-line string for the number of objects at the current time
