@@ -42,8 +42,9 @@ function createSkeletonUniverse()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
-        jump_overcharge =	true,
+        jump_overcharge =		true,
         probe_launch_repair =	true,
+        hack_repair =			true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -68,8 +69,9 @@ function createSkeletonUniverse()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
-        jump_overcharge =	true,
+        jump_overcharge =		true,
         probe_launch_repair =	true,
+        hack_repair =			true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3584,6 +3586,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 5,				HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        hack_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3614,6 +3617,8 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(9,21) },
         weapon_available = 	{Homing = true,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
         sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
@@ -3645,6 +3650,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = 30,					EMP = 20 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = false,				EMP = false},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = {quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -3674,6 +3680,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        hack_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	warp =		{quantity = math.random(2,4),	cost = math.random(80,120)},
@@ -3703,6 +3710,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,6),	HVLI = math.random(1,4),Mine = math.random(5,9),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        hack_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3797,6 +3805,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2,				HVLI = math.random(2,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        probe_launch_repair =	true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3827,6 +3836,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        hack_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	luxury = 	{quantity = math.random(5,10),	cost = math.random(60,70)},
@@ -3857,6 +3867,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	impulse = 	{quantity = math.random(5,10),	cost = math.random(80,100)},
@@ -3918,6 +3929,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        probe_launch_repair =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	sensor = 	{quantity = math.random(4,8),	cost = math.random(60,70)}	},
@@ -3945,6 +3957,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,5),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = false,	HVLI = true,		Mine = false,			Nuke = false,				EMP = false},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -4033,6 +4046,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        hack_repair =			true,
         sensor_boost = {value = 10000, cost = 20},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
@@ -4065,6 +4079,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        hack_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -4095,6 +4110,8 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        hack_repair =			true,
+        probe_launch_repair =	true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -4963,6 +4980,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -4994,6 +5012,7 @@ function createKentarStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5019,6 +5038,8 @@ function createKentarStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(32,58),	EMP = 20 },
         weapon_available = 	{Homing = false,	HVLI = false,			Mine = false,			Nuke = true,				EMP = true},
         service_cost = 		{supplydrop = math.random(180,320), reinforcements = math.random(225,375)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = 	{quantity = math.random(5,10),	cost = math.random(20,30)},
@@ -5052,6 +5073,8 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(1,4),Mine = math.random(1,4),Nuke = math.random(12,18),	EMP = math.random(13,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
         sensor_boost = {value = 5000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5086,6 +5109,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        hack_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5119,6 +5143,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nickel = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
@@ -5149,6 +5174,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	circuit = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
@@ -5182,6 +5208,7 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(2,7), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(14,18),	EMP = math.random(8,12) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(2,5),	cost = math.random(50,80)},
@@ -5212,6 +5239,8 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -16619,63 +16648,6 @@ function marinePointPickupProcess(self,retriever)
 			table.insert(rendezvousPoints,redoMarinePoint)
 		end
 	end
-			
-	--[[		
-			local successful_action = false
-			local completionMessage = ""
-			if marinePointPrepped and p == retriever then
-				completionMessage = string.format("Marine %s action successful via %s",self.action,marineCallSign)
-				if self.action == "Drop" then
-					if p:getRepairCrewCount() > 0 then
-						successful_action = true
-						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-					end
-					if self.associatedObjectName ~= nil then
-						completionMessage = string.format("Marine drop action on %s successful via %s",self.associatedObjectName,marineCallSign)
-					end
-				else
-					successful_action = true
-					p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-					if self.associatedObjectName ~= nil then
-						completionMessage = string.format("Marine extract action from %s successful via %s",self.associatedObjectName,marineCallSign)
-					end
-				end
-			end
-			if successful_action then
-				retriever:addToShipLog(completionMessage,"Green")
-				if self.action == "Drop" then
-					if retriever:hasPlayerAtPosition("Engineering") then
-						retriever:addCustomMessage("Engineering","mprcd","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
-					end
-					if retriever:hasPlayerAtPosition("Engineering+") then
-						retriever:addCustomMessage("Engineering+","mprcd_plus","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
-					end
-				end
-				if retriever:getEnergy() > 50 then
-					retriever:setEnergy(retriever:getEnergy() - 50)
-				else
-					retriever:setEnergy(0)
-				end
-			else
-				local rpx, rpy = self:getPosition()
-				local unscannedDescription = string.format("Marine %s Point",self.action)
-				local scannedDescription = string.format("Marine %s Point %s, standing by for marine transport",self.action,marineCallSign)
-				if self.associatedObjectName ~= nil then
-					scannedDescription = scannedDescription .. ": " .. self.associatedObjectName
-				end
-				if marinePointList[marineCallSign] == nil then
-					local redoMarinePoint = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorBuoyMKI"):setDescriptions(unscannedDescription,scannedDescription):setCallSign(marineCallSign)
-					redoMarinePoint:onPickUp(marinePointPickupProcess)
-					redoMarinePoint.action = self.action
-					redoMarinePoint.associatedObjectName = self.associatedObjectName
-					marinePointList[marineCallSign] = redoMarinePoint
-					table.insert(rendezvousPoints,redoMarinePoint)
-				end
-			end
-		end
-	end
-	
-	--]]
 end
 -------------------------------------------
 --	Drop Point > Marine Point > Near To  --
@@ -16886,7 +16858,7 @@ function engineerCreation(originx, originy, vectorx, vectory, associatedObjectNa
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for epb, enabled in pairs(p.engineerPointButton) do
-							if enabled then
+							if enabled and epb == engineerCallSign then
 								p:removeCustom(epb)
 								p:addCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
 								p.engineerPointButton[epb] = false
@@ -16901,6 +16873,7 @@ end
 function engineerPointPickupProcess(self,retriever)
 	local engineerCallSign = self:getCallSign()
 	local engineerPointPrepped = false
+	local successful_action = false
 	for epCallSign, ep in pairs(engineerPointList) do
 		if epCallSign == engineerCallSign then
 			engineerPointList[epCallSign] = nil
@@ -16925,57 +16898,86 @@ function engineerPointPickupProcess(self,retriever)
 			if engineerPointPrepped then
 				p:removeCustom(engineerCallSign)
 			end
-			local successful_action = false
-			local completionMessage = ""
-			if engineerPointPrepped and p == retriever then
-				completionMessage = string.format("Engineer %s action successful via %s",self.action,engineerCallSign)
-				if self.action == "Drop" then
-					if p:getRepairCrewCount() > 0 then
+			if p == retriever then
+				if engineerPointPrepped then
+					if self.action == "Drop" then
+						if p:getRepairCrewCount() > 0 then
+							successful_action = true
+							p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+							if self.associatedObjectName ~= nil then
+								p:addToShipLog(string.format("Engineer drop action on %s successful via %s",self.associatedObjectName,engineerCallSign),"Green")
+							else
+								p:addToShipLog(string.format("Engineer %s action successful via %s",self.action,engineerCallSign),"Green")
+							end
+						else
+							if p.engineer_drop_failure_not_enough_crew_message == nil then
+								p.engineer_drop_failure_not_enough_crew_message = {}
+							end
+							if p.engineer_drop_failure_not_enough_crew_message[engineerCallSign] == nil then
+								p:addToShipLog(string.format("Not enough engineers to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",engineerCallSign,p:getCallSign()),"Green")
+								p.engineer_drop_failure_not_enough_crew_message[engineerCallSign] = "sent"
+							end
+						end
+					else
 						successful_action = true
-						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-					end
-					if self.associatedObjectName ~= nil then
-						completionMessage = string.format("Engineer drop action on %s successful via %s",self.associatedObjectName,engineerCallSign)
+						p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+						if self.associatedObjectName ~= nil then
+							p:addToShipLog(string.format("Engineer extract action from %s successful via %s",self.associatedObjectName,engineerCallSign),"Green")
+						else
+							p:addToShipLog(string.format("Engineer %s action successful via %s",self.action,engineerCallSign),"Green")
+						end
 					end
 				else
-					successful_action = true
-					p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-					if self.associatedObjectName ~= nil then
-						completionMessage = string.format("Engineer extract action from %s successful via %s",self.associatedObjectName,engineerCallSign)
+					if self.action == "Drop" then
+						if p.engineer_drop_failure_unprepared_message == nil then
+							p.engineer_drop_failure_unprepared_message = {}
+						end
+						if p.engineer_drop_failure_unprepared_message[engineerCallSign] == nil then
+							p:addToShipLog(string.format("Not prepared to drop engineers at %s",engineerCallSign),"Green")
+							p.engineer_drop_failure_unprepared_message[engineerCallSign] = "sent"
+						end
+					else
+						if p.engineer_extract_failure_unprepared_message == nil then
+							p.engineer_extract_failure_unprepared_message = {}
+						end
+						if p.engineer_extract_failure_unprepared_message[engineerCallSign] == nil then
+							p:addToShipLog(string.format("Not prepared to extract engineers at %s",engineerCallSign),"Green")
+							p.engineer_extract_failure_unprepared_message[engineerCallSign] = "sent"
+						end
 					end
 				end
-			end
-			if successful_action then
-				retriever:addToShipLog(completionMessage,"Green")
-				if self.action == "Drop" then
-					if retriever:hasPlayerAtPosition("Engineering") then
-						retriever:addCustomMessage("Engineering","eprcd","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
+				if successful_action then
+					if self.action == "Drop" then
+						if retriever:hasPlayerAtPosition("Engineering") then
+							retriever:addCustomMessage("Engineering","eprcd","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
+						end
+						if retriever:hasPlayerAtPosition("Engineering+") then
+							retriever:addCustomMessage("Engineering+","eprcd_plus","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
+						end
 					end
-					if retriever:hasPlayerAtPosition("Engineering+") then
-						retriever:addCustomMessage("Engineering+","eprcd_plus","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
+					if retriever:getEnergy() > 50 then
+						retriever:setEnergy(retriever:getEnergy() - 50)
+					else
+						retriever:setEnergy(0)
 					end
-				end
-				if retriever:getEnergy() > 50 then
-					retriever:setEnergy(retriever:getEnergy() - 50)
-				else
-					retriever:setEnergy(0)
-				end
-			else
-				local rpx, rpy = self:getPosition()
-				local unscannedDescription = string.format("Engineer %s Point",self.action)
-				local scannedDescription = string.format("Engineer %s Point %s, standing by for engineer transport",self.action,engineerCallSign)
-				if self.associatedObjectName ~= nil then
-					scannedDescription = scannedDescription .. ": " .. self.associatedObjectName
-				end
-				if engineerPointList[engineerCallSign] == nil then
-					local redoEngineerPoint = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorBuoyMKI"):setDescriptions(unscannedDescription,scannedDescription):setCallSign(engineerCallSign)
-					redoEngineerPoint:onPickUp(engineerPointPickupProcess)
-					redoEngineerPoint.action = self.action
-					redoEngineerPoint.associatedObjectName = self.associatedObjectName
-					engineerPointList[engineerCallSign] = redoEngineerPoint
-					table.insert(rendezvousPoints,redoEngineerPoint)
-				end
-			end
+				end	--successful action branch
+			end	--retriever matches player branch
+		end	--player is valid branch
+	end	--end of player loop
+	if not successful_action then
+		local rpx, rpy = self:getPosition()
+		local unscannedDescription = string.format("Engineer %s Point",self.action)
+		local scannedDescription = string.format("Engineer %s Point %s, standing by for engineer transport",self.action,engineerCallSign)
+		if self.associatedObjectName ~= nil then
+			scannedDescription = scannedDescription .. ": " .. self.associatedObjectName
+		end
+		if engineerPointList[engineerCallSign] == nil then
+			local redoEngineerPoint = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorBuoyMKI"):setDescriptions(unscannedDescription,scannedDescription):setCallSign(engineerCallSign)
+			redoEngineerPoint:onPickUp(engineerPointPickupProcess)
+			redoEngineerPoint.action = self.action
+			redoEngineerPoint.associatedObjectName = self.associatedObjectName
+			engineerPointList[engineerCallSign] = redoEngineerPoint
+			table.insert(rendezvousPoints,redoEngineerPoint)
 		end
 	end
 end
@@ -21836,6 +21838,9 @@ function handleDockedState()
 		if ctd.probe_launch_repair then
 			service_status = string.format("%s\nMay repair probe launch system",service_status)
 		end
+		if ctd.hack_repair then
+			service_status = string.format("%s\nMay repair hacking system",service_status)
+		end
 		setCommsMessage(service_status)
 		addCommsReply("Back", commsStation)
 	end)
@@ -21880,6 +21885,19 @@ function handleDockedState()
 				if comms_source:takeReputationPoints(5) then
 					comms_source:setCanLaunchProbe(true)
 					setCommsMessage("Your probe launch system has been repaired")
+				else
+					setCommsMessage("Insufficient reputation")
+				end
+				addCommsReply("Back", commsStation)
+			end)
+		end
+	end
+	if ctd.hack_repair then
+		if not comms_source:getCanHack() then
+			addCommsReply("Repair hacking system (5 Rep)",function()
+				if comms_source:takeReputationPoints(5) then
+					comms_source:setCanHack(true)
+					setCommsMessage("Your hack system has been repaired")
 				else
 					setCommsMessage("Insufficient reputation")
 				end
@@ -22666,6 +22684,9 @@ function handleUndockedState()
 			end
 			if ctd.probe_launch_repair then
 				service_status = string.format("%s\nMay repair probe launch system",service_status)
+			end
+			if ctd.hack_repair then
+				service_status = string.format("%s\nMay repair hacking system",service_status)
 			end
 			setCommsMessage(service_status)
 			addCommsReply("Back", commsStation)
@@ -23666,11 +23687,17 @@ function updateInner(delta)
 								end
 							else
 								local consequence = 0
+								local upper_consequence = 2
+								local consequence_list = {}
 								if p:getCanLaunchProbe() then
-									consequence = math.random(1,3)
-								else
-									consequence = math.random(1,2)
+									upper_consequence = upper_consequence + 1
+									table.insert(consequence_list,"probe")
 								end
+								if p:getCanHack() then
+									upper_consequence = upper_consequence + 1
+									table.insert(consequence_list,"hack")
+								end
+								consequence = math.random(1,upper_consequence)
 								if consequence == 1 then
 									p:setRepairCrewCount(p:getRepairCrewCount() - 1)
 									if p:hasPlayerAtPosition("Engineering") then
@@ -23703,12 +23730,23 @@ function updateInner(delta)
 										p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
 									end
 								else
-									p:setCanLaunchProbe(false)
-									if p:hasPlayerAtPosition("Engineering") then
-										p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
-									end
-									if p:hasPlayerAtPosition("Engineering+") then
-										p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
+									local named_consequence = consequence_list[consequence-2]
+									if named_consequence == "probe" then
+										p:setCanLaunchProbe(false)
+										if p:hasPlayerAtPosition("Engineering") then
+											p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
+										end
+										if p:hasPlayerAtPosition("Engineering+") then
+											p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
+										end
+									elseif named_consequence == "hack" then
+										p:setCanHack(false)
+										if p:hasPlayerAtPosition("Engineering") then
+											p:addCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
+										end
+										if p:hasPlayerAtPosition("Engineering+") then
+											p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
+										end
 									end
 								end	--coolant loss branch
 							end	--could lose coolant branch
