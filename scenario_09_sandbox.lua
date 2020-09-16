@@ -884,7 +884,6 @@ function updateSystem()
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			for index = 0,#self._update_objects do
-				assert(type(self)=="table")
 				if self._update_objects[index]==obj then
 					return
 				end
@@ -964,8 +963,9 @@ function updateSystem()
 			assert(type(obj)=="table")
 			assert(type(update_type)=="string")
 			assert(type(update_data)=="table")
-			assert(type(update_data.name)=="string")
-			assert(type(update_data.update)=="function")
+			assert(type(update_data.name)=="string","addUpdate update_data must be a table with a member name as a string update="..update_type)
+			assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_type)
+			assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_type)
 			self._eraseUpdateType(obj,update_type)
 			if obj.update_list == nil then
 				obj.update_list = {}
@@ -985,6 +985,7 @@ function updateSystem()
 				local update_name=obj.update_list[index].name
 				assert(type(update_name)=="string")
 				local edit={}
+				assert(type(obj.update_list[index].edit)=="table","each update object must have an edit table")
 				for index2 = 1,#obj.update_list[index].edit do
 					local name=obj.update_list[index].edit[index2].name
 					local array_index=obj.update_list[index].edit[index2].index
@@ -1435,6 +1436,7 @@ function updateSystem()
 				attach_target = attach_target,
 				relative_attach_x = relative_attach_x,
 				relative_attach_y = relative_attach_y,
+				edit={},
 				update = function (self,obj)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1542,6 +1544,7 @@ function updateSystem()
 			obj.patrol_check_timer = patrol_check_timer_interval
 			local update_data = {
 				name = "patrol",
+				edit = {},
 				update = function (self, obj, delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1681,16 +1684,16 @@ function updateSystem()
 			---------------------------------------------------------------------------------------------------------------
 			local testObj={}
 			assert(testObj.update_list==nil)
-			self:addUpdate(testObj,"test",{name="",update=function()end})
+			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
 			assert(testObj.update_list~=nil)
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test",{name="",update=function()end})
+			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test2",{name="",update=function()end})
+			self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test",{name="",update=function()end})
+			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test2",{name="",update=function()end})
+			self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==2)
 
 			-- reset for next test
@@ -20526,8 +20529,8 @@ end
 -- version display the red text with a line number that init code does
 -- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
 function wrapWithErrorHandling(fun)
-	assert(type(fun)=="function")
-		return function(...)
+	assert(type(fun)=="function" or fun==nil)
+	return function(...)
 		local status,error=pcall(fun, ...)
 		if not status then
 			print("script error : - ")
@@ -20544,7 +20547,7 @@ end
 -- calls the function fun with the remaining arguments while using the common
 -- error handling logic (see wrapWithErrorHandling)
 function callWithErrorHandling(fun,...)
-	assert(type(fun)=="function")
+	assert(type(fun)=="function" or fun==nil)
 	return wrapWithErrorHandling(fun)(...)
 end
 -- currently EE doesn't make it easy to see if there are errors in GMbuttons
@@ -20552,6 +20555,8 @@ end
 -- are wrapped with the common error handling logic
 addGMFunctionReal=addGMFunction
 function addGMFunction(msg, fun)
+	assert(type(msg)=="string")
+	assert(type(fun)=="function" or fun==nil)
 	return addGMFunctionReal(msg,wrapWithErrorHandling(fun))
 end
 function getNumberOfObjectsString(all_objects)
