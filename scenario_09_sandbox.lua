@@ -348,6 +348,8 @@ function setConstants()
 		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3},
 		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2},
 		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
+		["Phoenix"]			= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,	mining = false,	probes = 6,	pods = 2},
+		["Porcupine"]		= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
 		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2},
 		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1},
 		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
@@ -886,7 +888,6 @@ function updateSystem()
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			for index = 0,#self._update_objects do
-				assert(type(self)=="table")
 				if self._update_objects[index]==obj then
 					return
 				end
@@ -966,8 +967,9 @@ function updateSystem()
 			assert(type(obj)=="table")
 			assert(type(update_type)=="string")
 			assert(type(update_data)=="table")
-			assert(type(update_data.name)=="string")
-			assert(type(update_data.update)=="function")
+			assert(type(update_data.name)=="string","addUpdate update_data must be a table with a member name as a string update="..update_type)
+			assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_type)
+			assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_type)
 			self._eraseUpdateType(obj,update_type)
 			if obj.update_list == nil then
 				obj.update_list = {}
@@ -987,6 +989,7 @@ function updateSystem()
 				local update_name=obj.update_list[index].name
 				assert(type(update_name)=="string")
 				local edit={}
+				assert(type(obj.update_list[index].edit)=="table","each update object must have an edit table")
 				for index2 = 1,#obj.update_list[index].edit do
 					local name=obj.update_list[index].edit[index2].name
 					local array_index=obj.update_list[index].edit[index2].index
@@ -1437,6 +1440,7 @@ function updateSystem()
 				attach_target = attach_target,
 				relative_attach_x = relative_attach_x,
 				relative_attach_y = relative_attach_y,
+				edit={},
 				update = function (self,obj)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1544,6 +1548,7 @@ function updateSystem()
 			obj.patrol_check_timer = patrol_check_timer_interval
 			local update_data = {
 				name = "patrol",
+				edit = {},
 				update = function (self, obj, delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
@@ -1683,16 +1688,16 @@ function updateSystem()
 			---------------------------------------------------------------------------------------------------------------
 			local testObj={}
 			assert(testObj.update_list==nil)
-			self:addUpdate(testObj,"test",{name="",update=function()end})
+			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
 			assert(testObj.update_list~=nil)
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test",{name="",update=function()end})
+			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test2",{name="",update=function()end})
+			self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test",{name="",update=function()end})
+			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test2",{name="",update=function()end})
+			self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
 			assert(#testObj.update_list==2)
 
 			-- reset for next test
@@ -3167,6 +3172,8 @@ function playerShip()
 	addGMFunction("+Teleport Players",teleportPlayers)
 	if playerShipInfo == nil then
 		playerShipInfo={
+			{"Kindling"	,"active"	,createPlayerShipKindling	},
+			{"Quill"	,"active"	,createPlayerShipQuill	},
 			{"Ambition"		,"inactive"	,createPlayerShipAmbition	,"Phobos T2(Ambition): Frigate, Cruiser   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
 			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
@@ -10719,6 +10726,105 @@ function createPlayerShipThunderbird()
 	playerThunderbird:setWeaponStorage("HVLI", 6)				
 	playerThunderbird:addReputationPoints(50)
 	playerShipSpawned("Thunderbird")
+end
+function createPlayerShipKindling()
+	playerKindling = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Kindling")
+	playerKindling:setTypeName("Phoenix")
+	playerKindling.max_jump_range = 28000					--shorter than typical (vs 50)
+	playerKindling.min_jump_range = 3000						--shorter than typical (vs 5)
+	playerKindling:setJumpDriveRange(playerKindling.min_jump_range,playerKindling.max_jump_range)
+	playerKindling:setJumpDriveCharge(playerKindling.max_jump_range)
+	playerKindling:setShieldsMax(125, 75)					--stronger shields (vs 80, 80)
+	playerKindling:setShields(125, 75)
+	playerKindling:setHullMax(100)							--weaker hull (vs 200)
+	playerKindling:setHull(100)
+	playerKindling:setWeaponTubeDirection(0,-90)				--left -60 (vs -5)
+	playerKindling:setWeaponTubeDirection(1, 90)				--right 60 (vs 5)
+	playerKindling:setWeaponStorageMax("Homing",6)			--less (vs 12)
+	playerKindling:setWeaponStorage("Homing", 6)				
+	playerKindling:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
+	playerKindling:setWeaponStorage("Nuke", 1)				
+	playerKindling:setWeaponStorageMax("EMP",1)				--fewer (vs 6)
+	playerKindling:setWeaponStorage("EMP", 1)				
+	playerKindling:setWeaponStorageMax("Mine",2)				--fewer (vs 8)
+	playerKindling:setWeaponStorage("Mine", 2)				
+	playerKindling:setWeaponStorageMax("HVLI",10)				--more (vs 0)
+	playerKindling:setWeaponStorage("HVLI", 6)				
+	playerKindling:setLongRangeRadarRange(25000)
+	playerKindling.normal_long_range_radar = 25000
+	playerKindling:addReputationPoints(50)
+	playerKindling:setLongRangeRadarRange(25000)
+	playerKindling.normal_long_range_radar = 25000
+	local update_data = {
+		update = function (self, obj, delta)
+				-- in a small sign of mercy to players they get their best beams at 90% max heat rather than burning hotel
+				-- it would be kind of cool to give extra damage or something, but given how long ships last this probably wont be seen
+				local heat=math.clamp(obj:getSystemHeat("beamweapons"),0,0.90)
+				heat=heat/0.90 -- scale to that 0.90 = 1
+				obj:setBeamWeapon(0, math.lerp(120,15,heat), math.lerp(-90,5,heat), math.lerp(500,1250,heat), 6, 8)
+				obj:setBeamWeapon(1, math.lerp(120,15,heat), math.lerp(90,-5,heat), math.lerp(500,1250,heat), 6, 8)
+			end,
+		edit = {},
+		name = "dynamic kindling beams"
+	}
+	update_system:addUpdate(playerKindling,"dynamic beams",update_data)
+	playerShipSpawned("Kindling")
+end
+function createPlayerShipQuill()
+	playerQuill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Quill")
+	playerQuill:setTypeName("Porcupine")
+	-- weapons are designed from scratch, so no comparision vs stock
+	-- 5 tubes on the left side, all small
+	-- middle 3 HVLI only and are fast
+	-- first and last take homing + other
+	playerQuill:setWeaponTubeCount(5)
+	playerQuill:setWeaponTubeDirection(0,-50)
+		:setTubeSize(0,"small")
+		:setWeaponTubeExclusiveFor(0,"Homing")
+		:weaponTubeAllowMissle(0,"EMP")
+	playerQuill:setWeaponTubeDirection(1,-70)
+		:setTubeSize(1,"small")
+		:setWeaponTubeExclusiveFor(1,"HVLI")
+		:setTubeLoadTime(1,10) -- half default
+	playerQuill:setWeaponTubeDirection(2,-90)
+		:setTubeSize(2,"small")
+		:setWeaponTubeExclusiveFor(2,"HVLI")
+		:setTubeLoadTime(2,10) -- half default
+	playerQuill:setWeaponTubeDirection(3,-110)
+		:setTubeSize(3,"small")
+		:setWeaponTubeExclusiveFor(3,"HVLI")
+		:setTubeLoadTime(3,10) -- half default
+	playerQuill:setWeaponTubeDirection(4,-130)
+		:setTubeSize(4,"small")
+		:setWeaponTubeExclusiveFor(4,"Homing")
+		:weaponTubeAllowMissle(4,"Mine")
+		:weaponTubeAllowMissle(4,"Nuke")
+	playerQuill:setWeaponStorageMax("Homing",8)
+	playerQuill:setWeaponStorage("Homing", 8)
+	playerQuill:setWeaponStorageMax("Nuke",2)
+	playerQuill:setWeaponStorage("Nuke", 2)
+	playerQuill:setWeaponStorageMax("EMP",2)
+	playerQuill:setWeaponStorage("EMP", 2)
+	playerQuill:setWeaponStorageMax("Mine",1)
+	playerQuill:setWeaponStorage("Mine", 2)
+	playerQuill:setWeaponStorageMax("HVLI",20)
+	playerQuill:setWeaponStorage("HVLI", 20)
+-- 3 beam arcs on the right
+-- all slow average dps turrets
+-- there are 2 overlap points where 2 of the 3 turrets can both hit
+	playerQuill:setBeamWeapon(0, 5,   90,	1100.0, 	   6.0,   6)
+		:setBeamWeaponTurret(0,	45,   90,	.1)
+	playerQuill:setBeamWeapon(1, 5, 90-35,	1100.0, 	   6.0,   6)
+		:setBeamWeaponTurret(1,	45,   90-35,.1)
+	playerQuill:setBeamWeapon(2, 5,  90+35,1100.0, 	   6.0,   6)
+		:setBeamWeaponTurret(2,	45,   90+35,.1)
+	playerQuill:setWarpSpeed(300)
+	playerQuill:setShieldsMax(100, 100)
+	playerQuill:setShields(100, 100)
+	playerQuill:addReputationPoints(50)
+	playerQuill:setLongRangeRadarRange(25000)
+	playerQuill.normal_long_range_radar = 25000
+	playerShipSpawned("Quill")
 end
 function createPlayerShipVision()
 	playerVision = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Vision")
@@ -20528,8 +20634,8 @@ end
 -- version display the red text with a line number that init code does
 -- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
 function wrapWithErrorHandling(fun)
-	assert(type(fun)=="function")
-		return function(...)
+	assert(type(fun)=="function" or fun==nil)
+	return function(...)
 		local status,error=pcall(fun, ...)
 		if not status then
 			print("script error : - ")
@@ -20546,7 +20652,7 @@ end
 -- calls the function fun with the remaining arguments while using the common
 -- error handling logic (see wrapWithErrorHandling)
 function callWithErrorHandling(fun,...)
-	assert(type(fun)=="function")
+	assert(type(fun)=="function" or fun==nil)
 	return wrapWithErrorHandling(fun)(...)
 end
 -- currently EE doesn't make it easy to see if there are errors in GMbuttons
@@ -20554,6 +20660,8 @@ end
 -- are wrapped with the common error handling logic
 addGMFunctionReal=addGMFunction
 function addGMFunction(msg, fun)
+	assert(type(msg)=="string")
+	assert(type(fun)=="function" or fun==nil)
 	return addGMFunctionReal(msg,wrapWithErrorHandling(fun))
 end
 function getNumberOfObjectsString(all_objects)
