@@ -11431,10 +11431,29 @@ function assignPlayerShipScore(p)
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
 		p:setPosition(playerSpawnX,playerSpawnY)	--put player in the correct region when spawned
 	end
+	--set defaults for those ships not found in the list
+	p.shipScore = 24
+	p.maxCargo = 5
+	p.cargo = p.maxCargo
+	p.tractor = false
+	p.tractor_target_lock = false
+	p.mining = false
+	p.max_pods = 1
+	p.pods = p.max_pods
+	p.max_reactor = 1
+	p.max_beam = 1
+	p.max_missile = 1
+	p.max_maneuver = 1
+	p.max_impulse = 1
+	p.max_warp = 1
+	p.max_jump = 1
+	p.max_front_shield = 1
+	p.max_rear_shield = 1
 	local tempTypeName = p:getTypeName()
 	if tempTypeName ~= nil then
 		local shipScore = playerShipStats[tempTypeName].strength
 		if shipScore ~= nil and shipScore > 0 then
+			--set values from list
 			p.shipScore = shipScore
 			p.maxCargo = playerShipStats[tempTypeName].cargo
 			p.cargo = p.maxCargo
@@ -11445,30 +11464,9 @@ function assignPlayerShipScore(p)
 			p.tractor = playerShipStats[tempTypeName].tractor
 			p.tractor_target_lock = false
 			p.mining = playerShipStats[tempTypeName].mining
-			p.mining_target_lock = false
-			p.mining_in_progress = false
 			p.max_pods = playerShipStats[tempTypeName].pods
 			p.pods = p.max_pods
-			p.max_reactor = 1
-			p.max_beam = 1
-			p.max_missile = 1
-			p.max_maneuver = 1
-			p.max_impulse = 1
-			p.max_warp = 1
-			p.max_jump = 1
-			p.max_front_shield = 1
-			p.max_rear_shield = 1
-		else
-			p.shipScore = 24
-			p.maxCargo = 5
-			p.cargo = p.maxCargo
-			p.tractor = false
-			p.mining = false
 		end
-	else
-		p.shipScore = 24
-		p.maxCargo = 5
-		p.cargo = p.maxCargo
 	end
 	p.maxRepairCrew = p:getRepairCrewCount()
 	p.healthyShield = 1.0
