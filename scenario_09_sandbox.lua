@@ -45,6 +45,9 @@ function createSkeletonUniverse()
         jump_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -72,6 +75,9 @@ function createSkeletonUniverse()
         jump_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -348,8 +354,6 @@ function setConstants()
 		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3},
 		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2},
 		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
-		["Phoenix"]			= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,	mining = false,	probes = 6,	pods = 2},
-		["Porcupine"]		= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
 		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2},
 		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1},
 		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
@@ -397,6 +401,8 @@ function setConstants()
 		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1},
 		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4},
 		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
+		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2},
+		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
 		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3},
 	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -3172,8 +3178,6 @@ function playerShip()
 	addGMFunction("+Teleport Players",teleportPlayers)
 	if playerShipInfo == nil then
 		playerShipInfo={
-			{"Kindling"	,"active"	,createPlayerShipKindling	},
-			{"Quill"	,"active"	,createPlayerShipQuill	},
 			{"Ambition"		,"inactive"	,createPlayerShipAmbition	,"Phobos T2(Ambition): Frigate, Cruiser   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
 			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
@@ -3196,6 +3200,7 @@ function playerShip()
 			{"Interlock"	,"active"	,createPlayerShipInterlock	,"Interlock: Frigate, Armored Transport   Hull:250   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:19\nFTL:Jump (3.5U-35U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:35   SRS:5.5\nBeams:5 Front 1 rear Turreted Speed:1\n   Arc:100   Direction:  0   Range:0.9   Cycle:6   Damage:6   Turreted\n   Arc:180   Direction:180   Range:0.9   Cycle:6   Damage:4   Turreted\n   Arc:110   Direction:-35   Range:0.3   Cycle:6   Damage:10\n   Arc:110   Direction: 35   Range:0.3   Cycle:6   Damage:10\n   Arc: 60   Direction:-20   Range:0.6   Cycle:6   Damage:8\n   Arc: 60   Direction: 20   Range:0.6   Cycle:6   Damage:8\nTubes:3   Load Speed:20   Large Broadside, Rear\n   Direction:-90   Type:Exclude Mine - Large\n   Direction: 90   Type:Exclude Mine - Large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      4 Homing\n      4 Mine\n      6 HVLI\nBased on Repulse: 6 beams, 5 forward, 1 rear, more damage the closer the enemy gets, hull and shields significantly stronger, more missiles, shorter jump, longer long and short range sensors"},
 			{"Jarvis"		,"inactive"	,createPlayerShipJarvis		,"Butler (Jarvis): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:70   Spin:12   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Front/Broadside\n   Arc:160   Direction:-80   Range:0.9   Cycle:6   Damage:6\n   Arc:160   Direction: 80   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP or Nuke Only\n   Direction:  0   Type:HVLI Only - Large\n   Direction:180   Type:Homing Only\n   Ordnance stock and type:\n      04 Homing\n      03 Nuke\n      04 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, front and side beams, fewer tubes, fewer missiles, no mines, Small Nukes, EMPs in front middle tube, large HVLI"},
 			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
+			{"Kindling"		,"active"	,createPlayerShipKindling	},
 			{"Knick"		,"inactive"	,createPlayerShipKnick		,"Experimental - not ready for use"},
 			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
 			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
@@ -3206,6 +3211,7 @@ function playerShip()
 			{"Osprey"		,"inactive"	,createPlayerShipOsprey		,"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
 			{"Outcast"		,"active"	,createPlayerShipOutcast	,"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
 			{"Quicksilver"	,"inactive"	,createPlayerShipQuick		,"XR-Lindworm (Quicksilver): Starfighter, Bomber   Hull:75   Shield:90,30   Size:100   Repair Crew:2   Cargo:3   R.Strength:11\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400  LRS:20   SRS:6\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      02 Nuke\n      03 EMP\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, warp drive, nukes and EMPs, two shields: stronger in front, weaker in rear"},
+			{"Quill"		,"active"	,createPlayerShipQuill		},
 			{"Raptor"		,"active"	,createPlayerShipRaptor		,"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Rattler"		,"inactive"	,createPlayerShipRattler	,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
 			{"Rogue"		,"inactive"	,createPlayerShipRogue		,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
@@ -3594,6 +3600,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = true,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         hack_repair =			true,
+        scan_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3626,6 +3633,9 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
         sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
@@ -3658,6 +3668,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = false,				EMP = false},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = {quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -3688,6 +3699,8 @@ function createIcarusStations()
         weapon_available = 	{Homing = true,				HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	warp =		{quantity = math.random(2,4),	cost = math.random(80,120)},
@@ -3718,6 +3731,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         hack_repair =			true,
+        scan_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3750,6 +3764,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,6),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        scan_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3781,6 +3796,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(13,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        scan_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3813,6 +3829,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3844,6 +3861,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         hack_repair =			true,
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	luxury = 	{quantity = math.random(5,10),	cost = math.random(60,70)},
@@ -3875,6 +3893,8 @@ function createIcarusStations()
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	impulse = 	{quantity = math.random(5,10),	cost = math.random(80,100)},
@@ -3937,6 +3957,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	sensor = 	{quantity = math.random(4,8),	cost = math.random(60,70)}	},
@@ -3965,6 +3986,8 @@ function createIcarusStations()
         weapon_available = 	{Homing = false,	HVLI = true,		Mine = false,			Nuke = false,				EMP = false},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3995,6 +4018,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(1,5),	HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(11,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	tractor = 	{quantity = math.random(5,10),	cost = math.random(60,70)}	},
@@ -4024,7 +4048,10 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,6),	HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
-        jump_overcharge =	true,
+        jump_overcharge =		true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	beam =	 	{quantity = math.random(4,8),	cost = math.random(40,80)},
@@ -4054,6 +4081,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         hack_repair =			true,
+        scan_repair =			true,
         sensor_boost = {value = 10000, cost = 20},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
@@ -4119,6 +4147,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         hack_repair =			true,
         probe_launch_repair =	true,
+        scan_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -4172,6 +4201,7 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	software = 	{quantity = math.random(4,8),	cost = math.random(80,90)}	},
@@ -4988,6 +5018,7 @@ function createKentarStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5020,6 +5051,8 @@ function createKentarStations()
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
         sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5047,6 +5080,8 @@ function createKentarStations()
         service_cost = 		{supplydrop = math.random(180,320), reinforcements = math.random(225,375)},
         probe_launch_repair =	true,
         hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = 	{quantity = math.random(5,10),	cost = math.random(20,30)},
@@ -5082,6 +5117,7 @@ function createKentarStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         hack_repair =			true,
+        scan_repair =			true,
         sensor_boost = {value = 5000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5117,6 +5153,7 @@ function createKentarStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         hack_repair =			true,
+        scan_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5151,6 +5188,7 @@ function createKentarStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nickel = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
@@ -5182,6 +5220,7 @@ function createKentarStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	circuit = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
@@ -5216,6 +5255,7 @@ function createKentarStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
+        combat_maneuver_repair=	true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(2,5),	cost = math.random(50,80)},
@@ -5248,6 +5288,7 @@ function createKentarStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         hack_repair =			true,
+        scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -10134,6 +10175,49 @@ function createPlayerShipJeeves()
 	playerJeeves:addReputationPoints(50)
 	playerShipSpawned("Jeeves")
 end
+function createPlayerShipKindling()
+	playerKindling = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Kindling")
+	playerKindling:setTypeName("Phoenix")
+	playerKindling.max_jump_range = 28000					--shorter than typical (vs 50)
+	playerKindling.min_jump_range = 3000						--shorter than typical (vs 5)
+	playerKindling:setJumpDriveRange(playerKindling.min_jump_range,playerKindling.max_jump_range)
+	playerKindling:setJumpDriveCharge(playerKindling.max_jump_range)
+	playerKindling:setShieldsMax(125, 75)					--stronger shields (vs 80, 80)
+	playerKindling:setShields(125, 75)
+	playerKindling:setHullMax(100)							--weaker hull (vs 200)
+	playerKindling:setHull(100)
+	playerKindling:setWeaponTubeDirection(0,-90)				--left -60 (vs -5)
+	playerKindling:setWeaponTubeDirection(1, 90)				--right 60 (vs 5)
+	playerKindling:setWeaponStorageMax("Homing",6)			--less (vs 12)
+	playerKindling:setWeaponStorage("Homing", 6)				
+	playerKindling:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
+	playerKindling:setWeaponStorage("Nuke", 1)				
+	playerKindling:setWeaponStorageMax("EMP",1)				--fewer (vs 6)
+	playerKindling:setWeaponStorage("EMP", 1)				
+	playerKindling:setWeaponStorageMax("Mine",2)				--fewer (vs 8)
+	playerKindling:setWeaponStorage("Mine", 2)				
+	playerKindling:setWeaponStorageMax("HVLI",10)				--more (vs 0)
+	playerKindling:setWeaponStorage("HVLI", 6)				
+	playerKindling:setLongRangeRadarRange(25000)
+	playerKindling.normal_long_range_radar = 25000
+	playerKindling:addReputationPoints(50)
+	playerKindling:setLongRangeRadarRange(25000)
+	playerKindling.normal_long_range_radar = 25000
+	local update_data = {
+		update = function (self, obj, delta)
+				-- in a small sign of mercy to players they get their best beams at 90% max heat rather than burning hotel
+				-- it would be kind of cool to give extra damage or something, but given how long ships last this probably wont be seen
+				local heat=math.clamp(obj:getSystemHeat("beamweapons"),0,0.90)
+				heat=heat/0.90 -- scale to that 0.90 = 1
+				obj:setBeamWeapon(0, math.lerp(120,15,heat), math.lerp(-90,5,heat), math.lerp(500,1250,heat), 6, 8)
+				obj:setBeamWeapon(1, math.lerp(120,15,heat), math.lerp(90,-5,heat), math.lerp(500,1250,heat), 6, 8)
+			end,
+		edit = {},
+		name = "dynamic kindling beams"
+	}
+	update_system:addUpdate(playerKindling,"dynamic beams",update_data)
+	playerShipSpawned("Kindling")
+end
 function createPlayerShipKnick()
 	playerKnick = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Knick")
 	playerKnick:setTypeName("Glass Cannon")
@@ -10415,6 +10499,62 @@ function createPlayerShipQuick()
 	playerQuick:setWeaponStorage("EMP", 3)				
 	playerQuick:addReputationPoints(50)
 	playerShipSpawned("Quicksilver")
+end
+function createPlayerShipQuill()
+	playerQuill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Quill")
+	playerQuill:setTypeName("Porcupine")
+	-- weapons are designed from scratch, so no comparision vs stock
+	-- 5 tubes on the left side, all small
+	-- middle 3 HVLI only and are fast
+	-- first and last take homing + other
+	playerQuill:setWeaponTubeCount(5)
+	playerQuill:setWeaponTubeDirection(0,-50)
+		:setTubeSize(0,"small")
+		:setWeaponTubeExclusiveFor(0,"Homing")
+		:weaponTubeAllowMissle(0,"EMP")
+	playerQuill:setWeaponTubeDirection(1,-70)
+		:setTubeSize(1,"small")
+		:setWeaponTubeExclusiveFor(1,"HVLI")
+		:setTubeLoadTime(1,10) -- half default
+	playerQuill:setWeaponTubeDirection(2,-90)
+		:setTubeSize(2,"small")
+		:setWeaponTubeExclusiveFor(2,"HVLI")
+		:setTubeLoadTime(2,10) -- half default
+	playerQuill:setWeaponTubeDirection(3,-110)
+		:setTubeSize(3,"small")
+		:setWeaponTubeExclusiveFor(3,"HVLI")
+		:setTubeLoadTime(3,10) -- half default
+	playerQuill:setWeaponTubeDirection(4,-130)
+		:setTubeSize(4,"small")
+		:setWeaponTubeExclusiveFor(4,"Homing")
+		:weaponTubeAllowMissle(4,"Mine")
+		:weaponTubeAllowMissle(4,"Nuke")
+	playerQuill:setWeaponStorageMax("Homing",8)
+	playerQuill:setWeaponStorage("Homing", 8)
+	playerQuill:setWeaponStorageMax("Nuke",2)
+	playerQuill:setWeaponStorage("Nuke", 2)
+	playerQuill:setWeaponStorageMax("EMP",2)
+	playerQuill:setWeaponStorage("EMP", 2)
+	playerQuill:setWeaponStorageMax("Mine",2)
+	playerQuill:setWeaponStorage("Mine", 2)
+	playerQuill:setWeaponStorageMax("HVLI",20)
+	playerQuill:setWeaponStorage("HVLI", 20)
+-- 3 beam arcs on the right
+-- all slow average dps turrets
+-- there are 2 overlap points where 2 of the 3 turrets can both hit
+	playerQuill:setBeamWeapon(0, 5,   90,	1100.0, 	   6.0,   6)
+		:setBeamWeaponTurret(0,	45,   90,	.1)
+	playerQuill:setBeamWeapon(1, 5, 90-35,	1100.0, 	   6.0,   6)
+		:setBeamWeaponTurret(1,	45,   90-35,.1)
+	playerQuill:setBeamWeapon(2, 5,  90+35,1100.0, 	   6.0,   6)
+		:setBeamWeaponTurret(2,	45,   90+35,.1)
+	playerQuill:setWarpSpeed(300)
+	playerQuill:setShieldsMax(100, 100)
+	playerQuill:setShields(100, 100)
+	playerQuill:addReputationPoints(50)
+	playerQuill:setLongRangeRadarRange(25000)
+	playerQuill.normal_long_range_radar = 25000
+	playerShipSpawned("Quill")
 end
 function createPlayerShipRaptor()
 	playerRaptor = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Raptor")
@@ -10726,105 +10866,6 @@ function createPlayerShipThunderbird()
 	playerThunderbird:setWeaponStorage("HVLI", 6)				
 	playerThunderbird:addReputationPoints(50)
 	playerShipSpawned("Thunderbird")
-end
-function createPlayerShipKindling()
-	playerKindling = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Kindling")
-	playerKindling:setTypeName("Phoenix")
-	playerKindling.max_jump_range = 28000					--shorter than typical (vs 50)
-	playerKindling.min_jump_range = 3000						--shorter than typical (vs 5)
-	playerKindling:setJumpDriveRange(playerKindling.min_jump_range,playerKindling.max_jump_range)
-	playerKindling:setJumpDriveCharge(playerKindling.max_jump_range)
-	playerKindling:setShieldsMax(125, 75)					--stronger shields (vs 80, 80)
-	playerKindling:setShields(125, 75)
-	playerKindling:setHullMax(100)							--weaker hull (vs 200)
-	playerKindling:setHull(100)
-	playerKindling:setWeaponTubeDirection(0,-90)				--left -60 (vs -5)
-	playerKindling:setWeaponTubeDirection(1, 90)				--right 60 (vs 5)
-	playerKindling:setWeaponStorageMax("Homing",6)			--less (vs 12)
-	playerKindling:setWeaponStorage("Homing", 6)				
-	playerKindling:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
-	playerKindling:setWeaponStorage("Nuke", 1)				
-	playerKindling:setWeaponStorageMax("EMP",1)				--fewer (vs 6)
-	playerKindling:setWeaponStorage("EMP", 1)				
-	playerKindling:setWeaponStorageMax("Mine",2)				--fewer (vs 8)
-	playerKindling:setWeaponStorage("Mine", 2)				
-	playerKindling:setWeaponStorageMax("HVLI",10)				--more (vs 0)
-	playerKindling:setWeaponStorage("HVLI", 6)				
-	playerKindling:setLongRangeRadarRange(25000)
-	playerKindling.normal_long_range_radar = 25000
-	playerKindling:addReputationPoints(50)
-	playerKindling:setLongRangeRadarRange(25000)
-	playerKindling.normal_long_range_radar = 25000
-	local update_data = {
-		update = function (self, obj, delta)
-				-- in a small sign of mercy to players they get their best beams at 90% max heat rather than burning hotel
-				-- it would be kind of cool to give extra damage or something, but given how long ships last this probably wont be seen
-				local heat=math.clamp(obj:getSystemHeat("beamweapons"),0,0.90)
-				heat=heat/0.90 -- scale to that 0.90 = 1
-				obj:setBeamWeapon(0, math.lerp(120,15,heat), math.lerp(-90,5,heat), math.lerp(500,1250,heat), 6, 8)
-				obj:setBeamWeapon(1, math.lerp(120,15,heat), math.lerp(90,-5,heat), math.lerp(500,1250,heat), 6, 8)
-			end,
-		edit = {},
-		name = "dynamic kindling beams"
-	}
-	update_system:addUpdate(playerKindling,"dynamic beams",update_data)
-	playerShipSpawned("Kindling")
-end
-function createPlayerShipQuill()
-	playerQuill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Quill")
-	playerQuill:setTypeName("Porcupine")
-	-- weapons are designed from scratch, so no comparision vs stock
-	-- 5 tubes on the left side, all small
-	-- middle 3 HVLI only and are fast
-	-- first and last take homing + other
-	playerQuill:setWeaponTubeCount(5)
-	playerQuill:setWeaponTubeDirection(0,-50)
-		:setTubeSize(0,"small")
-		:setWeaponTubeExclusiveFor(0,"Homing")
-		:weaponTubeAllowMissle(0,"EMP")
-	playerQuill:setWeaponTubeDirection(1,-70)
-		:setTubeSize(1,"small")
-		:setWeaponTubeExclusiveFor(1,"HVLI")
-		:setTubeLoadTime(1,10) -- half default
-	playerQuill:setWeaponTubeDirection(2,-90)
-		:setTubeSize(2,"small")
-		:setWeaponTubeExclusiveFor(2,"HVLI")
-		:setTubeLoadTime(2,10) -- half default
-	playerQuill:setWeaponTubeDirection(3,-110)
-		:setTubeSize(3,"small")
-		:setWeaponTubeExclusiveFor(3,"HVLI")
-		:setTubeLoadTime(3,10) -- half default
-	playerQuill:setWeaponTubeDirection(4,-130)
-		:setTubeSize(4,"small")
-		:setWeaponTubeExclusiveFor(4,"Homing")
-		:weaponTubeAllowMissle(4,"Mine")
-		:weaponTubeAllowMissle(4,"Nuke")
-	playerQuill:setWeaponStorageMax("Homing",8)
-	playerQuill:setWeaponStorage("Homing", 8)
-	playerQuill:setWeaponStorageMax("Nuke",2)
-	playerQuill:setWeaponStorage("Nuke", 2)
-	playerQuill:setWeaponStorageMax("EMP",2)
-	playerQuill:setWeaponStorage("EMP", 2)
-	playerQuill:setWeaponStorageMax("Mine",1)
-	playerQuill:setWeaponStorage("Mine", 2)
-	playerQuill:setWeaponStorageMax("HVLI",20)
-	playerQuill:setWeaponStorage("HVLI", 20)
--- 3 beam arcs on the right
--- all slow average dps turrets
--- there are 2 overlap points where 2 of the 3 turrets can both hit
-	playerQuill:setBeamWeapon(0, 5,   90,	1100.0, 	   6.0,   6)
-		:setBeamWeaponTurret(0,	45,   90,	.1)
-	playerQuill:setBeamWeapon(1, 5, 90-35,	1100.0, 	   6.0,   6)
-		:setBeamWeaponTurret(1,	45,   90-35,.1)
-	playerQuill:setBeamWeapon(2, 5,  90+35,1100.0, 	   6.0,   6)
-		:setBeamWeaponTurret(2,	45,   90+35,.1)
-	playerQuill:setWarpSpeed(300)
-	playerQuill:setShieldsMax(100, 100)
-	playerQuill:setShields(100, 100)
-	playerQuill:addReputationPoints(50)
-	playerQuill:setLongRangeRadarRange(25000)
-	playerQuill.normal_long_range_radar = 25000
-	playerShipSpawned("Quill")
 end
 function createPlayerShipVision()
 	playerVision = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Vision")
@@ -21949,6 +21990,15 @@ function handleDockedState()
 		if ctd.hack_repair then
 			service_status = string.format("%s\nMay repair hacking system",service_status)
 		end
+		if ctd.scan_repair then
+			service_status = string.format("%s\nMay repair scanners",service_status)
+		end
+		if ctd.combat_maneuver_repair then
+			service_status = string.format("%s\nMay repair combat maneuver",service_status)
+		end
+		if ctd.self_destruct_repair then
+			service_status = string.format("%s\nMay repair self destruct system",service_status)
+		end
 		setCommsMessage(service_status)
 		addCommsReply("Back", commsStation)
 	end)
@@ -21987,31 +22037,92 @@ function handleDockedState()
 			end
 		end
 	end
-	if ctd.probe_launch_repair then
-		if not comms_source:getCanLaunchProbe() then
-			addCommsReply("Repair probe launch system (5 Rep)",function()
-				if comms_source:takeReputationPoints(5) then
-					comms_source:setCanLaunchProbe(true)
-					setCommsMessage("Your probe launch system has been repaired")
-				else
-					setCommsMessage("Insufficient reputation")
-				end
-				addCommsReply("Back", commsStation)
-			end)
-		end
+	local offer_repair = false
+	if ctd.probe_launch_repair and not comms_source:getCanLaunchProbe() then
+		offer_repair = true
 	end
-	if ctd.hack_repair then
-		if not comms_source:getCanHack() then
-			addCommsReply("Repair hacking system (5 Rep)",function()
-				if comms_source:takeReputationPoints(5) then
-					comms_source:setCanHack(true)
-					setCommsMessage("Your hack system has been repaired")
-				else
-					setCommsMessage("Insufficient reputation")
+	if not offer_repair and ctd.hack_repair and not comms_source:getCanHack() then
+		offer_repair = true
+	end
+	if not offer_repair and ctd.scan_repair and not comms_source:getCanScan() then
+		offer_repair = true
+	end
+	if not offer_repair and ctd.combat_maneuver_repair and not comms_source:getCanCombatManeuver() then
+		offer_repair = true
+	end
+	if not offer_repair and ctd.self_destruct_repair and not comms_source:getCanSelfDestruct() then
+		offer_repair = true
+	end
+	if offer_repair then
+		addCommsReply("Repair ship system",function()
+			setCommsMessage("What system would you like repaired?")
+			if ctd.probe_launch_repair then
+				if not comms_source:getCanLaunchProbe() then
+					addCommsReply("Repair probe launch system (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanLaunchProbe(true)
+							setCommsMessage("Your probe launch system has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
 				end
-				addCommsReply("Back", commsStation)
-			end)
-		end
+			end
+			if ctd.hack_repair then
+				if not comms_source:getCanHack() then
+					addCommsReply("Repair hacking system (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanHack(true)
+							setCommsMessage("Your hack system has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if ctd.scan_repair then
+				if not comms_source:getCanScan() then
+					addCommsReply("Repair scanners (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanScan(true)
+							setCommsMessage("Your scanners have been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if ctd.combat_maneuver_repair then
+				if not comms_source:getCanCombatManeuver() then
+					addCommsReply("Repair combat maneuver (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanCombatManeuver(true)
+							setCommsMessage("Your combat maneuver has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if ctd.self_destruct_repair then
+				if not comms_source:getCanSelfDestruct() then
+					addCommsReply("Repair self destruct system (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanSelfDestruct(true)
+							setCommsMessage("Your self destruct system has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			addCommsReply("Back", commsStation)
+		end)
 	end
 	if ctd.public_relations then
 		addCommsReply("Tell me more about your station", function()
@@ -22795,6 +22906,15 @@ function handleUndockedState()
 			end
 			if ctd.hack_repair then
 				service_status = string.format("%s\nMay repair hacking system",service_status)
+			end
+			if ctd.scan_repair then
+				service_status = string.format("%s\nMay repair scanners",service_status)
+			end
+			if ctd.combat_maneuver_repair then
+				service_status = string.format("%s\nMay repair combat maneuver",service_status)
+			end
+			if ctd.self_destruct_repair then
+				service_status = string.format("%s\nMay repair self destruct system",service_status)
 			end
 			setCommsMessage(service_status)
 			addCommsReply("Back", commsStation)
@@ -23805,6 +23925,18 @@ function updateInner(delta)
 									upper_consequence = upper_consequence + 1
 									table.insert(consequence_list,"hack")
 								end
+								if p:getCanScan() then
+									upper_consequence = upper_consequence + 1
+									table.insert(consequence_list,"scan")
+								end
+								if p:getCanCombatManeuver() then
+									upper_consequence = upper_consequence + 1
+									table.insert(consequence_list,"combat_maneuver")
+								end
+								if p:getCanSelfDestruct() then
+									upper_consequence = upper_consequence + 1
+									table.insert(consequence_list,"self_destruct")
+								end
 								consequence = math.random(1,upper_consequence)
 								if consequence == 1 then
 									p:setRepairCrewCount(p:getRepairCrewCount() - 1)
@@ -23855,6 +23987,30 @@ function updateInner(delta)
 										if p:hasPlayerAtPosition("Engineering+") then
 											p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
 										end
+									elseif named_consequence == "scan" then
+										p:setCanScan(false)
+										if p:hasPlayerAtPosition("Engineering") then
+											p:addCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
+										end
+										if p:hasPlayerAtPosition("Engineering+") then
+											p:addCustomMessage("Engineering+","scan_damage_message_plus","The scanners have been damaged")
+										end
+									elseif named_consequence == "combat_maneuver" then
+										p:setCanCombatManeuver(false)
+										if p:hasPlayerAtPosition("Engineering") then
+											p:addCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
+										end
+										if p:hasPlayerAtPosition("Engineering+") then
+											p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus","Combat maneuver has been damaged")
+										end
+									elseif named_consequence == "self_destruct" then
+										p:setCanSelfDestruct(false)
+										if p:hasPlayerAtPosition("Engineering") then
+											p:addCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
+										end
+										if p:hasPlayerAtPosition("Engineering+") then
+											p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
+										end
 									end
 								end	--coolant loss branch
 							end	--could lose coolant branch
@@ -23884,7 +24040,8 @@ function updateInner(delta)
 								p:setMaxCoolant(math.min(20,current_coolant + reclaimed_coolant))
 								p.reclaimable_coolant = p.reclaimable_coolant - reclaimed_coolant
 							end
-							if reclaimed_coolant > 0 then
+							local noticable_reclaimed_coolant = math.floor(reclaimed_coolant)
+							if noticable_reclaimed_coolant > 0 then
 								if p:hasPlayerAtPosition("Engineering") then
 									local coolant_recovery = "coolant_recovery"
 									p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
