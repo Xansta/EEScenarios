@@ -7,6 +7,21 @@
 --Ideas
 --	sensor buoy drop
 
+
+-- Starry's todo list
+-- test spliting out region and update code, understand what is necessary and consider switching away from the table returning everything if it works
+-- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
+-- getScenarioTime should allow some small simplifcations
+-- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
+-- object updates stupidly have 2 strings for names rather than 1, this should be simplified
+-- the edit I made to use onNewPlayerShip I think will be missfiring with the setTemplate type rather than the rebuilt type fix
+-- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
+-- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
+-- try to merge in a for the rift devices at long last (getting closer with the update system but still a way off)
+-- look at how onGMClick has been used and pick one of improve on gm click | improve sandbox code
+-- eris at long last
+
+
 require("utils.lua")
 function init()
 	updateDiagnostic = false
@@ -1035,6 +1050,25 @@ function updateSystem()
 				})
 			end
 			return ret
+		end,
+		-- when the owner is destroyed the owned objects is also destroyed
+		addOwned = function (self, owned, owner)
+			assert(type(self)=="table")
+			assert(type(owned)=="table")
+			assert(type(owner)=="table")
+			local update_data = {
+				name = "owned",
+				edit = {},
+				owner = owner,
+				update = function (self, obj, delta)
+					assert(type(self)=="table")
+					assert(type(owned)=="table")
+					if self.owner == nil or not self.owner:isValid() then
+						obj:destroy()
+					end
+				end
+			}
+			self:addUpdate(owned,"owned",update_data)
 		end,
 		 -- addShieldDecayCurve and addEnergyDecayCurve are mostly the same, they probably should be merged in some way
 		addEnergyDecayCurve = function (self, obj, total_time, curve_x, curve_y)
@@ -3033,6 +3067,49 @@ function customButtons()
 		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("CCN25"):setPosition(590869, 602565):orderRoaming():setWeaponStorage("Homing", 968)
 		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("VS26"):setPosition(591360, 594996):orderRoaming():setWeaponStorage("Homing", 968)
 	end)
+	addGMFunction("subspace rift",function () onGMClick(function (x,y)
+		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+		local all_objs = {}
+		local number_in_ring = 20
+		local clockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#clockwise_objs,1,-1 do
+			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
+			update_system:addOwned(clockwise_objs[i],artifact)
+			table.insert(all_objs,clockwise_objs[i])
+		end
+		local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#counterclockwise_objs,1,-1 do
+			createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
+			update_system:addOwned(counterclockwise_objs[i],artifact)
+			table.insert(all_objs,counterclockwise_objs[i])
+		end
+		local update_data = {
+			all_objs = all_objs,
+			current_radius = 0,
+			max_radius = 3000,
+			max_time = 120,
+			update = function (self, obj, delta)
+				self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+				for i=#all_objs,1,-1 do
+					update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+				end
+				local x,y=obj:getPosition()
+				local objs = getObjectsInRadius(x,y,self.current_radius)
+				for i=#objs,1,-1 do
+					if objs[i].typeName=="PlayerSpaceship" then
+						local player_x,player_y = objs[i]:getPosition()
+						local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
+						setCirclePos(objs[i],x,y,-angle,self.current_radius)
+					end
+				end
+			end,
+			edit = {{name = "max_time", fixedAdjAmount=1}}, -- this really should have more edit controls but I'm feeling lazy
+			name = "subspace rift"
+		}
+		update_system:addUpdate(artifact,"subspace rift",update_data)
+	end)end)
 end
 -- eh this should live somewhere else, but let it be a reminder to simplify other code
 -- there also should be some similar ones for playerships, spaceships etc
@@ -20597,9 +20674,13 @@ function createObjectCircle(args)
 	assert(type(number)=="number")
 	assert(type(start_angle)=="number")
 	assert(type(callback)=="function")
+	local ret={}
 	for i=1,number do
-		setCirclePos(callback{count=i},x,y,(360/number*i)+start_angle,radius)
+		local obj=callback{count=i}
+		table.insert(ret,obj)
+		setCirclePos(obj,x,y,(360/number*i)+start_angle,radius)
 	end
+	return ret
 end
 function mineRingShim(args)
 	local angle=args.angle or random(0,360)
@@ -20736,6 +20817,12 @@ function addGMFunction(msg, fun)
 	assert(type(msg)=="string")
 	assert(type(fun)=="function" or fun==nil)
 	return addGMFunctionReal(msg,wrapWithErrorHandling(fun))
+end
+-- we have the same issue with onGMClick, wrap that as well
+onGMClickReal=onGMClick
+function onGMClick(fun)
+	assert(type(fun)=="function" or fun==nil)
+	return onGMClickReal(wrapWithErrorHandling(fun))
 end
 function getNumberOfObjectsString(all_objects)
 	-- get a multi-line string for the number of objects at the current time
