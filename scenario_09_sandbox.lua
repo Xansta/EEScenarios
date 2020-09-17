@@ -1051,6 +1051,25 @@ function updateSystem()
 			end
 			return ret
 		end,
+		-- when the owner is destroyed the owned objects is also destroyed
+		addOwned = function (self, owned, owner)
+			assert(type(self)=="table")
+			assert(type(owned)=="table")
+			assert(type(owner)=="table")
+			local update_data = {
+				name = "owned",
+				edit = {},
+				owner = owner,
+				update = function (self, obj, delta)
+					assert(type(self)=="table")
+					assert(type(owned)=="table")
+					if self.owner == nil or not self.owner:isValid() then
+						obj:destroy()
+					end
+				end
+			}
+			self:addUpdate(owned,"owned",update_data)
+		end,
 		 -- addShieldDecayCurve and addEnergyDecayCurve are mostly the same, they probably should be merged in some way
 		addEnergyDecayCurve = function (self, obj, total_time, curve_x, curve_y)
 			assert(type(self)=="table")
