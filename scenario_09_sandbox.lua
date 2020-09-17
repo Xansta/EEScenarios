@@ -7,6 +7,21 @@
 --Ideas
 --	sensor buoy drop
 
+
+-- Starry's todo list
+-- test spliting out region and update code, understand what is necessary and consider switching away from the table returning everything if it works
+-- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
+-- getScenarioTime should allow some small simplifcations
+-- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
+-- object updates stupidly have 2 strings for names rather than 1, this should be simplified
+-- the edit I made to use onNewPlayerShip I think will be missfiring with the setTemplate type rather than the rebuilt type fix
+-- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
+-- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
+-- try to merge in a for the rift devices at long last (getting closer with the update system but still a way off)
+-- look at how onGMClick has been used and pick one of improve on gm click | improve sandbox code
+-- eris at long last
+
+
 require("utils.lua")
 function init()
 	updateDiagnostic = false
