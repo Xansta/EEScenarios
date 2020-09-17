@@ -3067,6 +3067,49 @@ function customButtons()
 		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("CCN25"):setPosition(590869, 602565):orderRoaming():setWeaponStorage("Homing", 968)
 		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("VS26"):setPosition(591360, 594996):orderRoaming():setWeaponStorage("Homing", 968)
 	end)
+	addGMFunction("subspace rift",function () onGMClick(function (x,y)
+		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+		local all_objs = {}
+		local number_in_ring = 20
+		local clockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#clockwise_objs,1,-1 do
+			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
+			update_system:addOwned(clockwise_objs[i],artifact)
+			table.insert(all_objs,clockwise_objs[i])
+		end
+		local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#counterclockwise_objs,1,-1 do
+			createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
+			update_system:addOwned(counterclockwise_objs[i],artifact)
+			table.insert(all_objs,counterclockwise_objs[i])
+		end
+		local update_data = {
+			all_objs = all_objs,
+			current_radius = 0,
+			max_radius = 3000,
+			max_time = 120,
+			update = function (self, obj, delta)
+				self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+				for i=#all_objs,1,-1 do
+					update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+				end
+				local x,y=obj:getPosition()
+				local objs = getObjectsInRadius(x,y,self.current_radius)
+				for i=#objs,1,-1 do
+					if objs[i].typeName=="PlayerSpaceship" then
+						local player_x,player_y = objs[i]:getPosition()
+						local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
+						setCirclePos(objs[i],x,y,-angle,self.current_radius)
+					end
+				end
+			end,
+			edit = {{name = "max_time", fixedAdjAmount=1}}, -- this really should have more edit controls but I'm feeling lazy
+			name = "subspace rift"
+		}
+		update_system:addUpdate(artifact,"subspace rift",update_data)
+	end)end)
 end
 -- eh this should live somewhere else, but let it be a reminder to simplify other code
 -- there also should be some similar ones for playerships, spaceships etc
