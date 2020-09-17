@@ -1,7 +1,7 @@
 -- Name: Sandbox
 -- Description: GM controlled missions
---- Regions defined: Icarus and Kentar
---- Version 1
+--- Regions defined: Icarus, Kentar, Ghost region
+--- Version 2
 -- Type: GM Controlled missions
 
 --Ideas
@@ -10179,30 +10179,28 @@ function createPlayerShipKindling()
 	playerKindling = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Kindling")
 	playerKindling:setTypeName("Phoenix")
 	playerKindling.max_jump_range = 28000					--shorter than typical (vs 50)
-	playerKindling.min_jump_range = 3000						--shorter than typical (vs 5)
+	playerKindling.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerKindling:setJumpDriveRange(playerKindling.min_jump_range,playerKindling.max_jump_range)
 	playerKindling:setJumpDriveCharge(playerKindling.max_jump_range)
 	playerKindling:setShieldsMax(125, 75)					--stronger shields (vs 80, 80)
 	playerKindling:setShields(125, 75)
 	playerKindling:setHullMax(100)							--weaker hull (vs 200)
 	playerKindling:setHull(100)
-	playerKindling:setWeaponTubeDirection(0,-90)				--left -60 (vs -5)
-	playerKindling:setWeaponTubeDirection(1, 90)				--right 60 (vs 5)
+	playerKindling:setWeaponTubeDirection(0,-90)			--left -60 (vs -5)
+	playerKindling:setWeaponTubeDirection(1, 90)			--right 60 (vs 5)
 	playerKindling:setWeaponStorageMax("Homing",6)			--less (vs 12)
 	playerKindling:setWeaponStorage("Homing", 6)				
-	playerKindling:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
+	playerKindling:setWeaponStorageMax("Nuke",1)			--fewer (vs 4)
 	playerKindling:setWeaponStorage("Nuke", 1)				
 	playerKindling:setWeaponStorageMax("EMP",1)				--fewer (vs 6)
 	playerKindling:setWeaponStorage("EMP", 1)				
-	playerKindling:setWeaponStorageMax("Mine",2)				--fewer (vs 8)
+	playerKindling:setWeaponStorageMax("Mine",2)			--fewer (vs 8)
 	playerKindling:setWeaponStorage("Mine", 2)				
-	playerKindling:setWeaponStorageMax("HVLI",10)				--more (vs 0)
-	playerKindling:setWeaponStorage("HVLI", 6)				
+	playerKindling:setWeaponStorageMax("HVLI",10)			--more (vs 0)
+	playerKindling:setWeaponStorage("HVLI", 10)				
 	playerKindling:setLongRangeRadarRange(25000)
 	playerKindling.normal_long_range_radar = 25000
 	playerKindling:addReputationPoints(50)
-	playerKindling:setLongRangeRadarRange(25000)
-	playerKindling.normal_long_range_radar = 25000
 	local update_data = {
 		update = function (self, obj, delta)
 				-- in a small sign of mercy to players they get their best beams at 90% max heat rather than burning hotel
@@ -10548,8 +10546,8 @@ function createPlayerShipQuill()
 		:setBeamWeaponTurret(1,	45,   90-35,.1)
 	playerQuill:setBeamWeapon(2, 5,  90+35,1100.0, 	   6.0,   6)
 		:setBeamWeaponTurret(2,	45,   90+35,.1)
-	playerQuill:setWarpSpeed(300)
-	playerQuill:setShieldsMax(100, 100)
+	playerQuill:setWarpSpeed(300)			--slower (vs 500)
+	playerQuill:setShieldsMax(100, 100)		--stronger (vs 70,70)
 	playerQuill:setShields(100, 100)
 	playerQuill:addReputationPoints(50)
 	playerQuill:setLongRangeRadarRange(25000)
@@ -11627,21 +11625,23 @@ function assignPlayerShipScore(p)
 	p.max_rear_shield = 1
 	local tempTypeName = p:getTypeName()
 	if tempTypeName ~= nil then
-		local shipScore = playerShipStats[tempTypeName].strength
-		if shipScore ~= nil and shipScore > 0 then
-			--set values from list
-			p.shipScore = shipScore
-			p.maxCargo = playerShipStats[tempTypeName].cargo
-			p.cargo = p.maxCargo
-			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
-			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
-			p:setMaxScanProbeCount(playerShipStats[tempTypeName].probes)
-			p:setScanProbeCount(p:getMaxScanProbeCount())
-			p.tractor = playerShipStats[tempTypeName].tractor
-			p.tractor_target_lock = false
-			p.mining = playerShipStats[tempTypeName].mining
-			p.max_pods = playerShipStats[tempTypeName].pods
-			p.pods = p.max_pods
+		if playerShipStats[tempTypeName] ~= nil then
+			local shipScore = playerShipStats[tempTypeName].strength
+			if shipScore ~= nil and shipScore > 0 then
+				--set values from list
+				p.shipScore = shipScore
+				p.maxCargo = playerShipStats[tempTypeName].cargo
+				p.cargo = p.maxCargo
+				p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
+				p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
+				p:setMaxScanProbeCount(playerShipStats[tempTypeName].probes)
+				p:setScanProbeCount(p:getMaxScanProbeCount())
+				p.tractor = playerShipStats[tempTypeName].tractor
+				p.tractor_target_lock = false
+				p.mining = playerShipStats[tempTypeName].mining
+				p.max_pods = playerShipStats[tempTypeName].pods
+				p.pods = p.max_pods
+			end
 		end
 	end
 	p.maxRepairCrew = p:getRepairCrewCount()
