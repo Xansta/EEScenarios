@@ -17321,6 +17321,7 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	medicPoint:onPickUp(medicPointPickupProcess)
 	medicPoint.action = dropOrExtractAction
 	medicPoint.associatedObjectName = associatedObjectName
+	medicPoint.initial_rotation = medicPoint:getRotation()
 	medicPointList[medicCallSign] = medicPoint
 	table.insert(rendezvousPoints,medicPoint)
 	for pidx=1,8 do
@@ -17336,7 +17337,7 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for mpb, enabled in pairs(p.medicPointButton) do
-							if enabled then
+							if enabled and mpb == medicCallSign then
 								p:removeCustom(mpb)
 								p:addCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
 								p.medicPointButton[mpb] = false
@@ -17351,6 +17352,7 @@ end
 function medicPointPickupProcess(self,retriever)
 	local medicCallSign = self:getCallSign()
 	local medicPointPrepped = false
+	local successful_action = false
 	for mpCallSign, mp in pairs(medicPointList) do
 		if mpCallSign == medicCallSign then
 			medicPointList[medicCallSign] = nil
@@ -17375,57 +17377,87 @@ function medicPointPickupProcess(self,retriever)
 			if medicPointPrepped then
 				p:removeCustom(medicCallSign)
 			end
-			local successful_action = false
-			local completionMessage = ""
-			if medicPointPrepped and p == retriever then
-				completionMessage = string.format("Medical team %s action successful via %s",self.action,medicCallSign)
-				if self.action == "Drop" then
-					if p:getRepairCrewCount() > 0 then
+			if p == retriever then
+				if medicPointPrepped then
+					if self.action == "Drop" then
+						if p:getRepairCrewCount() > 0 then
+							successful_action = true
+							p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+							if self.associatedObjectName ~= nil then
+								p:addToShipLog(string.format("Medical team drop action on %s successful via %s",self.associatedObjectName,medicCallSign),"Green")
+							else
+								p:addToShipLog(string.format("Medical team %s action successful via %s",self.action,medicCallSign),"Green")
+							end
+						else
+							if p.medic_drop_failure_not_enough_crew_message == nil then
+								p.medic_drop_failure_not_enough_crew_message = {}
+							end
+							if p.medic_drop_failure_not_enough_crew_message[medicCallSign] == nil then
+								p:addToShipLog(string.format("Not enough medics to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",medicCallSign,p:getCallSign()),"Green")
+								p.medic_drop_failure_not_enough_crew_message[medicCallSign] = "sent"
+							end
+						end
+					else
 						successful_action = true
-						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-					end
-					if self.associatedObjectName ~= nil then
-						completionMessage = string.format("Medical team drop action on %s successful via %s",self.associatedObjectName,medicCallSign)
+						p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+						if self.associatedObjectName ~= nil then
+							p:addToShipLog(string.format("Medical team extract action from %s successful via %s",self.associatedObjectName,medicCallSign),"Green")
+						else
+							p:addToShipLog(string.format("Medical team %s action successful via %s",self.action,medicCallSign),"Green")
+						end
 					end
 				else
-					successful_action = true
-					p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-					if self.associatedObjectName ~= nil then
-						completionMessage = string.format("Medical team extract action from %s successful via %s",self.associatedObjectName,medicCallSign)
+					if self.action == "Drop" then
+						if p.medic_drop_failure_unprepared_message == nil then
+							p.medic_drop_failure_unprepared_message = {}
+						end
+						if p.medic_drop_failure_unprepared_message[medicCallSign] == nil then
+							p:addToShipLog(string.format("Not prepared to drop medics at %s",medicCallSign),"Green")
+							p.medic_drop_failure_unprepared_message[medicCallSign] = "sent"
+						end
+					else
+						if p.medic_extract_failure_unprepared_message == nil then
+							p.medic_extract_failure_unprepared_message = {}
+						end
+						if p.medic_extract_failure_unprepared_message[medicCallSign] == nil then
+							p:addToShipLog(string.format("Not prepared to pick up medics at %s",medicCallSign),"Green")
+							p.medic_extract_failure_unprepared_message[medicCallSign] = "sent"
+						end
 					end
 				end
-			end			
-			if successful_action then
-				retriever:addToShipLog(completionMessage,"Green")
-				if self.action == "Drop" then
-					if retriever:hasPlayerAtPosition("Engineering") then
-						retriever:addCustomMessage("Engineering","mdprcd","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
+				if successful_action then
+					if self.action == "Drop" then
+						if retriever:hasPlayerAtPosition("Engineering") then
+							retriever:addCustomMessage("Engineering","mdprcd","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
+						end
+						if retriever:hasPlayerAtPosition("Engineering+") then
+							retriever:addCustomMessage("Engineering+","mdprcd_plus","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
+						end
 					end
-					if retriever:hasPlayerAtPosition("Engineering+") then
-						retriever:addCustomMessage("Engineering+","mdprcd_plus","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
+					if retriever:getEnergy() > 50 then
+						retriever:setEnergy(retriever:getEnergy() - 50)
+					else
+						retriever:setEnergy(0)
 					end
-				end
-				if retriever:getEnergy() > 50 then
-					retriever:setEnergy(retriever:getEnergy() - 50)
-				else
-					retriever:setEnergy(0)
-				end
-			else
-				local rpx, rpy = self:getPosition()
-				local unscannedDescription = string.format("Medical team %s Point",self.action)
-				local scannedDescription = string.format("Medical team %s Point %s, standing by for medical team transport",self.action,medicCallSign)
-				if self.associatedObjectName ~= nil then
-					scannedDescription = scannedDescription .. ": " .. self.associatedObjectName
-				end
-				if medicPointList[medicCallSign] == nil then
-					local redoMedicalPoint = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorBuoyMKI"):setDescriptions(unscannedDescription,scannedDescription):setCallSign(medicCallSign)
-					redoMedicalPoint:onPickUp(medicPointPickupProcess)
-					redoMedicalPoint.action = self.action
-					redoMedicalPoint.associatedObjectName = self.associatedObjectName
-					medicPointList[medicCallSign] = redoMedicalPoint
-					table.insert(rendezvousPoints,redoMedicalPoint)
 				end
 			end
+		end	--player valid branch
+	end	--player loop
+	if not successful_action then
+		local rpx, rpy = self:getPosition()
+		local unscannedDescription = string.format("Medical team %s Point",self.action)
+		local scannedDescription = string.format("Medical team %s Point %s, standing by for medical team transport",self.action,medicCallSign)
+		if self.associatedObjectName ~= nil then
+			scannedDescription = scannedDescription .. ": " .. self.associatedObjectName
+		end
+		if medicPointList[medicCallSign] == nil then
+			local redoMedicalPoint = Artifact():setModel("SensorBuoyMKI"):setRotation(self.initial_rotation):setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setDescriptions(unscannedDescription,scannedDescription):setCallSign(medicCallSign)
+			redoMedicalPoint:onPickUp(medicPointPickupProcess)
+			redoMedicalPoint.action = self.action
+			redoMedicalPoint.associatedObjectName = self.associatedObjectName
+			redoMedicalPoint.initial_rotation = self.initial_rotation
+			medicPointList[medicCallSign] = redoMedicalPoint
+			table.insert(rendezvousPoints,redoMedicalPoint)
 		end
 	end
 end
