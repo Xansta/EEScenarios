@@ -20612,9 +20612,13 @@ function createObjectCircle(args)
 	assert(type(number)=="number")
 	assert(type(start_angle)=="number")
 	assert(type(callback)=="function")
+	local ret={}
 	for i=1,number do
-		setCirclePos(callback{count=i},x,y,(360/number*i)+start_angle,radius)
+		local obj=callback{count=i}
+		table.insert(ret,obj)
+		setCirclePos(obj,x,y,(360/number*i)+start_angle,radius)
 	end
+	return ret
 end
 function mineRingShim(args)
 	local angle=args.angle or random(0,360)
