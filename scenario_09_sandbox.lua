@@ -20737,6 +20737,12 @@ function addGMFunction(msg, fun)
 	assert(type(fun)=="function" or fun==nil)
 	return addGMFunctionReal(msg,wrapWithErrorHandling(fun))
 end
+-- we have the same issue with onGMClick, wrap that as well
+onGMClickReal=onGMClick
+function onGMClick(fun)
+	assert(type(fun)=="function" or fun==nil)
+	return onGMClickReal(wrapWithErrorHandling(fun))
+end
 function getNumberOfObjectsString(all_objects)
 	-- get a multi-line string for the number of objects at the current time
 	-- intended to be used via addGMMessage or print, but there may be other uses
