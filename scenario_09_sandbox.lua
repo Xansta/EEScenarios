@@ -8076,6 +8076,7 @@ end
 -- -PLAYER SHIP		F	playerShip
 -- +ENGINEERING		F	tweakEngineering
 -- +CARGO			F	changePlayerCargo
+-- +PROBES			F	changePlayerProbes
 -- +REPUTATION		F	changePlayerReputation
 -- +PLAYER MESSAGE	F	playerMessage
 function tweakPlayerShip()
@@ -8085,6 +8086,7 @@ function tweakPlayerShip()
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("+Engineering",tweakEngineering)
 	addGMFunction("+Cargo",changePlayerCargo)
+	addGMFunction("+Probes",changePlayerProbes)
 	addGMFunction("+Reputation",changePlayerReputation)
 	addGMFunction("+Player Message",playerMessage)
 	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
@@ -8507,6 +8509,41 @@ function playerShipSelected()
 		return p
 	end
 	return nil
+end
+-------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Probes  --
+-------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PROBES	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- DEL PROBE 8 -> 7		D	inline
+function changePlayerProbes()
+	clearGMFunctions()
+	addGMFunction("-Main from Probes",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local probe_count = p:getScanProbeCount()
+		local max_probe_count = p:getMaxScanProbeCount()
+		if probe_count < max_probe_count then
+			addGMFunction(string.format("Add Probe %i -> %i",probe_count,probe_count + 1),function()
+				p:setScanProbeCount(probe_count + 1)
+				changePlayerProbes()
+			end)
+		end
+		if probe_count > 0 then
+			addGMFunction(string.format("Del Probe %i -> %i",probe_count,probe_count - 1),function()
+				p:setScanProbeCount(probe_count - 1)
+				changePlayerProbes()
+			end)
+		end
+	else
+		addGMFunction("+Select player ship",function()
+			changePlayerProbes()
+		end)
+	end
 end
 ---------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Cargo > Remove Cargo  --
