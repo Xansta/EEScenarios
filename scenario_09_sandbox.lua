@@ -851,7 +851,7 @@ function setConstants()
 	outside_mine_orbit = "No"
 	mine_shape = "Arc"
 	mine_width = 1
-	mine_radius = 3
+	mine_radius = 8
 	zone_rectangle_width = 5
 	zone_rectangle_height = 5
 	zone_click_type = "rectangle"
@@ -19886,13 +19886,15 @@ function setMineRadius()
 	addGMFunction("-Main From Radius",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("-Minefield",mineField)
-	for i=1,5 do
-		local button_label = string.format("Radius %i",i)
-		if mine_radius == i then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			mine_radius = i
+	if mine_radius > 1 then
+		addGMFunction(string.format("Radius %i -> %i",mine_radius,mine_radius - 1),function()
+			mine_radius = mine_radius - 1
+			setMineRadius()
+		end)
+	end
+	if mine_radius < 25 then
+		addGMFunction(string.format("Radius %i -> %i",mine_radius,mine_radius + 1),function()
+			mine_radius = mine_radius + 1
 			setMineRadius()
 		end)
 	end
@@ -20121,109 +20123,50 @@ function gmClickMineCircle(x,y)
 	local angle = random(0,360)
 	local mx = 0
 	local my = 0
-	if mine_radius == 1 then
-		for i=1,4 do
-			mx, my = vectorFromAngle(angle,mine_radius*1000)
+	local mine_circle = {
+		{inner_count = 4,	mid_count = 10,		outer_count = 15},	--1
+		{inner_count = 9,	mid_count = 15,		outer_count = 20},	--2
+		{inner_count = 15,	mid_count = 20,		outer_count = 25},	--3
+		{inner_count = 20,	mid_count = 25,		outer_count = 30},	--4
+		{inner_count = 25,	mid_count = 30,		outer_count = 36},	--5
+		{inner_count = 30,	mid_count = 36,		outer_count = 40},	--6
+		{inner_count = 36,	mid_count = 40,		outer_count = 45},	--7
+		{inner_count = 40,	mid_count = 45,		outer_count = 50},	--8
+		{inner_count = 45,	mid_count = 50,		outer_count = 55},	--9
+		{inner_count = 50,	mid_count = 55,		outer_count = 60},	--10
+		{inner_count = 55,	mid_count = 60,		outer_count = 66},	--11
+		{inner_count = 60,	mid_count = 66,		outer_count = 72},	--12
+		{inner_count = 66,	mid_count = 72,		outer_count = 78},	--13
+		{inner_count = 72,	mid_count = 78,		outer_count = 84},	--14
+		{inner_count = 78,	mid_count = 84,		outer_count = 90},	--15
+		{inner_count = 84,	mid_count = 90,		outer_count = 95},	--16
+		{inner_count = 90,	mid_count = 95,		outer_count = 100},	--17
+		{inner_count = 95,	mid_count = 100,	outer_count = 105},	--18
+		{inner_count = 100,	mid_count = 105,	outer_count = 110},	--19
+		{inner_count = 105,	mid_count = 110,	outer_count = 115},	--20
+		{inner_count = 110,	mid_count = 115,	outer_count = 120},	--21
+		{inner_count = 115,	mid_count = 120,	outer_count = 125},	--22
+		{inner_count = 120,	mid_count = 125,	outer_count = 130},	--23
+		{inner_count = 125,	mid_count = 130,	outer_count = 135},	--24
+		{inner_count = 130,	mid_count = 135,	outer_count = 140},	--25
+	}
+	for i=1,mine_circle[mine_radius].inner_count do
+		mx, my = vectorFromAngle(angle,mine_radius*1000)
+		Mine():setPosition(x+mx,y+my)
+		angle = (angle + (360/mine_circle[mine_radius].inner_count)) % 360
+	end
+	if mine_width > 1 then
+		for i=1,mine_circle[mine_radius].mid_count do
+			mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
 			Mine():setPosition(x+mx,y+my)
-			angle = (angle + 90) % 360
-		end
-		if mine_width > 1 then
-			for i=1,10 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
-				Mine():setPosition(x+mx,y+my)
-				angle = (angle + 36) % 360
-			end
-		end
-		if mine_width > 2 then
-			for i=1,15 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
-				Mine():setPosition(x+mx,y+my)
-				angle = (angle + 24) % 360
-			end
+			angle = (angle + (360/mine_circle[mine_radius].mid_count)) % 360
 		end
 	end
-	if mine_radius == 2 then
-		for i=1,9 do
-			mx, my = vectorFromAngle(angle,mine_radius*1000)
+	if mine_width > 2 then
+		for i=1,mine_circle[mine_radius].outer_count do
+			mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
 			Mine():setPosition(x+mx,y+my)
-			angle = (angle + 40) % 360
-		end
-		if mine_width > 1 then
-			for i=1,15 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
-				Mine():setPosition(x+mx,y+my)
-				angle = (angle + 24) % 360
-			end
-		end
-		if mine_width > 2 then
-			for i=1,20 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
-				Mine():setPosition(x+mx,y+my)
-				angle = (angle + 18) % 360
-			end
-		end
-	end
-	if mine_radius == 3 then
-		for i=1,15 do
-			mx, my = vectorFromAngle(angle,mine_radius*1000)
-			Mine():setPosition(x+mx,y+my)
-			angle = (angle + 24) % 360
-		end
-		if mine_width > 1 then
-			for i=1,20 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
-				Mine():setPosition(x+mx,y+my)
-				angle = (angle + 18) % 360
-			end
-		end
-		if mine_width > 2 then
-			for i=1,25 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
-				Mine():setPosition(x+mx,y+my)
-				angle = angle + 14.4
-			end
-		end
-	end
-	if mine_radius == 4 then
-		for i=1,20 do
-			mx, my = vectorFromAngle(angle,mine_radius*1000)
-			Mine():setPosition(x+mx,y+my)
-			angle = (angle + 18) % 360
-		end
-		if mine_width > 1 then
-			for i=1,25 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
-				Mine():setPosition(x+mx,y+my)
-				angle = angle + 14.4
-			end
-		end
-		if mine_width > 2 then
-			for i=1,30 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
-				Mine():setPosition(x+mx,y+my)
-				angle = angle + 12
-			end
-		end
-	end
-	if mine_radius == 5 then
-		for i=1,25 do
-			mx, my = vectorFromAngle(angle,mine_radius*1000)
-			Mine():setPosition(x+mx,y+my)
-			angle = angle + 14.4
-		end
-		if mine_width > 1 then
-			for i=1,30 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 1200)
-				Mine():setPosition(x+mx,y+my)
-				angle = angle + 12
-			end
-		end
-		if mine_width > 2 then
-			for i=1,36 do
-				mx, my = vectorFromAngle(angle,mine_radius*1000 + 2400)
-				Mine():setPosition(x+mx,y+my)
-				angle = angle + 10
-			end
+			angle = (angle + (360/mine_circle[mine_radius].outer_count)) % 360
 		end
 	end
 end
