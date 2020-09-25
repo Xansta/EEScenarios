@@ -2723,6 +2723,7 @@ end
 -- +STATION OPERATIONS	F	stationOperations
 -- +STATION DEFENSE		F	stationDefense
 -- +MINEFIELD			F	mineField
+-- +MOVE SELECTED		D	moveSelectedObjects
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -2817,8 +2818,61 @@ function tweakTerrain()
 	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station defense",stationDefense)
 	addGMFunction("+Minefield",mineField)
+	if #objectList > 0 then
+		if gm_click_mode ~= nil then
+			if gm_click_mode == "move selected" then
+				addGMFunction(">Click Move Pos<",moveSelectedObjects)
+			else
+				addGMFunction("+Move selected",moveSelectedObjects)
+			end
+		else
+			addGMFunction("+Move Selected",moveSelectedObjects)
+		end
+	end
 end
-
+function moveSelectedObjects()
+	if gm_click_mode == "move selected" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "move selected"
+		onGMClick(gmClickMoveSelected)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   move selected\nGM click mode.",prev_mode))
+		end
+	end
+	tweakTerrain()
+end
+function gmClickMoveSelected(x,y)
+	local object_list = getGMSelection()
+	if #object_list > 0 then
+		if #object_list > 1 then
+			local center_x = 0
+			local center_y = 0
+			local current_object_x, current_object_y = object_list[1]:getPosition()
+			for i=1,#object_list do
+				current_object_x, current_object_y = object_list[i]:getPosition()
+				center_x = center_x + current_object_x
+				center_y = center_y + current_object_y
+			end
+			center_x = center_x / #object_list
+			center_y = center_y / #object_list
+			for i=1,#object_list do
+				current_object_x, current_object_y = object_list[i]:getPosition()
+				current_object_x = current_object_x - center_x
+				current_object_y = current_object_y - center_y
+				object_list[i]:setPosition(x + current_object_x, y + current_object_y)
+			end
+		else
+			object_list[1]:setPosition(x,y)
+		end
+	else
+		gm_click_mode = nil
+		onGMClick(nil)
+		addGMMessage("Nothing selected. Move selected mode cancelled")
+	end
+end
 function explodeSelectedArtifact()
 	local objectList = getGMSelection()
 	if #objectList ~= 1 then
