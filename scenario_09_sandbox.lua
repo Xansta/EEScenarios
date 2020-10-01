@@ -8115,6 +8115,50 @@ function ghostNebulaSector()
 	table.insert(wip.all_objects,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Resource Processing Gamma"):setPosition(572772, 281978))
 	table.insert(wip.all_objects,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Resource Processing Alpha"):setPosition(603272, 309987))
 	table.insert(wip.all_objects,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Resource Processing Beta"):setPosition(573352, 309694))
+	--local stations = {}
+	local nukeAvail = true
+	local empAvail = true
+	local mineAvail = true
+	local homeAvail = true
+	local hvliAvail = true
+	local tradeFood = true
+	local tradeMedicine = true
+	local tradeLuxury = true
+	--Brillo
+    stationBrillo = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Brillo"):setPosition(466525, 301218):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationBrillo.comms_data = {
+    	friendlyness = 68,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        scan_repair =			true,
+        sensor_boost = {value = 10000, cost = 10},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	sensor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
+        			nickel = 	{quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We coordinate mining nearby asteroids",
+    	history = "Shortly after Astron was established, a group of entrepreneurs wanted to take advantage of the proximity of mineral laden asteroids. Astron agreed under the stipulation that mining activity be kept hidden from the Ghosts in the area"
+	}
+	if random(1,100) <= 22 then stationBrillo:setRestocksScanProbes(false) end
+	if random(1,100) <= 31 then stationBrillo:setRepairDocked(false) end
+	if random(1,100) <= 17 then stationBrillo:setSharesEnergyWithDocked(false) end
+	--station_names[stationBrillo:getCallSign()] = {stationBrillo:getSectorName(), stationBrillo}
+	--table.insert(stations,stationBrillo)
+	table.insert(wip.all_objects,stationBrillo)
+
+
 	return wip
 end
 ----------------------------------------------------
