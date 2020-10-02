@@ -151,8 +151,8 @@ end
 --	Initialization  --
 ----------------------
 function init()
-	setConstants()
 	setVariations()
+	setConstants()
 	diagnostic = false
 	wfv = "nowhere"		--wolf fence value - used for debugging
 	setPlayers()
@@ -168,12 +168,50 @@ function init()
 	addGMFunction("Skip to defend U.P.",skipToDefendUP)
 	addGMFunction("Skip to destroy S.C.",skipToDestroySC)
 end
-function setConstants()
+function setVariations()
 	-- Difficulty setting: 1 = normal, .5 is easy, 2 is hard, 5 is ridiculously hard
 	difficultyList = {.5, 1, 2, 5}
 	difficultySettingList = {"Easy", "Normal", "Hard", "Self-Destructive"}
 	difficultyIndex = 2		--default to normal difficulty
 	difficulty = difficultyList[difficultyIndex]
+	if string.find(getScenarioVariation(),"Short") or string.find(getScenarioVariation(),"Timed") then
+		patrolGoal = 6			--short and timed missions get a patrol goal of 6
+		missionLength = 1		--short and timed missions are categorized as mission length 1
+	else
+		patrolGoal = 9			--normal, long and extended get a patrol goal of 9
+		if string.find(getScenarioVariation(),"Long") then
+			missionLength = 3	--long missions are categorized as mission length 3
+		elseif string.find(getScenarioVariation(),"Extended") then
+			missionLength = 4	--extended missions are categorized as mission length 4
+		else
+			missionLength = 2	--normal missions are categorized as mission length 2
+		end
+	end
+	if string.find(getScenarioVariation(),"Easy") then
+		difficulty = .5			--easy missions get a .5 difficulty
+	elseif string.find(getScenarioVariation(),"Hard") then
+		difficulty = 2			--hard missions get a difficulty of 2
+	elseif string.find(getScenarioVariation(),"Self-destructive") then
+		difficulty = 5			--self destructive missions get a difficulty of 5
+	else
+		difficulty = 1			--default: normal mission difficulty of 1
+	end
+	playWithTimeLimit = false	--assume no time limit
+	if string.find(getScenarioVariation(),"15") then
+		gameTimeLimit = 15		--set 15 minute time limit
+	elseif string.find(getScenarioVariation(),"30") then
+		gameTimeLimit = 30		--set 30 minute time limit
+	else
+		gameTimeLimit = 0		--default: set no time limit
+	end
+	if gameTimeLimit > 0 then
+		gameTimeLimit = gameTimeLimit*60	--convert minutes to seconds for time limit countdown
+		ambushTime = gameTimeLimit/2		--set halfway point for ambush in timed scenarios
+		playWithTimeLimit = true			--set time limit boolean
+		plot7 = beforeAmbush				--use time limit plot
+	end
+end
+function setConstants()
 	prefix_length = 0
 	suffix_index = 0
 	--Ship Template Name List
@@ -244,6 +282,144 @@ function setConstants()
 	playerShipNamesFor["Maverick"] = {"Angel", "Thunderbird", "Roaster", "Magnifier", "Hedge"}
 	playerShipNamesFor["Leftovers"] = {"Foregone","Righteous","Masher"}
 	posseShipNames = {"Bubba","George","Winifred","Daniel","Darla","Stephen","Bob","Porky","Sally","Tommy","Jenny","Johnny","Lizzy","Billy"}
+	station_pool = {
+		["Science"] = {
+			["Asimov"] = {
+		        weapon_available = 	{
+		        	Homing =			true,
+		        	HVLI =				random(1,13)<=(9-difficulty),
+		        	Mine =				true,
+		        	Nuke =				random(1,13)<=(5-difficulty),
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 			1.0, 
+		        	neutral = 			3.0,
+		        },
+        		goods = {	
+        			tractor = {
+        				quantity =	5,	
+        				cost =		48,
+        			},
+        			repulsor = {
+        				quantity =	5,
+        				cost =		48,
+        			},
+        		},
+		        trade = {	
+		        	food =			false, 
+		        	medicine =		false, 
+		        	luxury =		false,
+		        },
+				description = "Training and Coordination", 
+				general = "We train naval cadets in routine and specialized functions aboard space vessels and coordinate naval activity throughout the sector", 
+				history = "The original station builders were fans of the late 20th century scientist and author Isaac Asimov. The station was initially named Foundation, but was later changed simply to Asimov. It started off as a stellar observatory, then became a supply stop and as it has grown has become an educational and coordination hub for the region",
+			},
+			["Armstrong"] =	{goods = {"warp", "impulse"}, description = "Warp and Impulse engine manufacturing", general = "We manufacture warp, impulse and jump engines for the human navy fleet as well as other independent clients on a contract basis", history = "The station is named after the late 19th century astronaut as well as the fictionlized stations that followed. The station initially constructed entire space worthy vessels. In time, it transitioned into specializeing in propulsion systems."},
+			["Broeck"] =	{goods = {"warp"}, description = "Warp drive components", general = "We provide warp drive engines and components", history = "This station is named after Chris Van Den Broeck who did some initial research into the possibility of warp drive in the late 20th century on Earth"},
+			["Coulomb"] =	{goods = {"circuit"}, description = "Shielded circuitry fabrication", general = "We make a large variety of circuits for numerous ship systems shielded from sensor detection and external control interference", history = "Our station is named after the law which quantifies the amount of force with which stationary electrically charged particals repel or attact each other - a fundamental principle in the design of our circuits"},
+			["Heyes"] =		{goods = {"sensor"}, description = "Sensor components", general = "We research and manufacture sensor components and systems", history = "The station is named after Tony Heyes the inventor of some of the earliest electromagnetic sensors in the mid 20th century on Earth in the United Kingdom to assist blind human mobility"},
+			["Hossam"] =	{goods = {"nanites"}, description = "Nanite supplier", general = "We provide nanites for various organic and non-organic systems", history = "This station is named after the nanotechnologist Hossam Haick from the early 21st century on Earth in Israel"},
+			["Maiman"] =	{goods = {"beam"}, description = "Energy beam components", general = "We research and manufacture energy beam components and systems", history = "The station is named after Theodore Maiman who researched and built the first laser in the mid 20th century on Earth"},
+			["Marconi"] =	{goods = {"beam"}, description = "Energy Beam Components", general = "We manufacture energy beam components", history = "Station named after Guglielmo Marconi an Italian inventor from early 20th century Earth who, along with Nicolo Tesla, claimed to have invented a death ray or particle beam weapon"},
+			["Miller"] =	{goods = {"optic"}, description = "Exobiology research", general = "We study recently discovered life forms not native to Earth", history = "This station was named after one of the early exobiologists from mid 20th century Earth, Dr. Stanley Miller"},
+			["Shawyer"] =	{goods = {"impulse"}, description = "Impulse engine components", general = "We research and manufacture impulse engine components and systems", history = "The station is named after Roger Shawyer who built the first prototype impulse engine in the early 21st century"},
+		},
+		["History"] = {
+			["Archimedes"] = {goods = {"beam"}, description = "Energy and particle beam components", general = "We fabricate general and specialized components for ship beam systems", history = "This station was named after Archimedes who, according to legend, used a series of adjustable focal length mirrors to focus sunlight on a Roman naval fleet invading Syracuse, setting fire to it"},
+			["Chatuchak"] =	{goods = {"luxury"}, description = "Trading station", general = "Only the largest market and trading location in twenty sectors. You can find your heart's desire here", history = "Modeled after the early 21st century bazaar on Earth in Bangkok, Thailand. Designed and built with trade and commerce in mind"},
+			["Grasberg"] =	{goods = {"luxury"}, description = "Mining", general ="We mine nearby asteroids for precious minerals and process them for sale", history = "This station's name is inspired by a large gold mine on Earth in Indonesia. The station builders hoped to have a similar amount of minerals found amongst these asteroids"},
+			["Hayden"] =	{goods = {"nanites"}, description = "Observatory and stellar mapping", general = "We study the cosmos and map stellar phenomena. We also track moving asteroids. Look out! Just kidding", history = "Station named in honor of Charles Hayden whose philanthropy continued astrophysical research and education on Earth in the early 20th century"},
+			["Lipkin"] =	{goods = {"autodoc"}, description = "Autodoc components", general = "", history = "The station is named after Dr. Lipkin who pioneered some of the research and application around robot assisted surgery in the area of partial nephrectomy for renal tumors in the early 21st century on Earth"},
+			["Madison"] =	{goods = {"luxury"}, description = "Zero gravity sports and entertainment", general = "Come take in a game or two or perhaps see a show", history = "Named after Madison Square Gardens from 21st century Earth, this station was designed to serve similar purposes in space - a venue for sports and entertainment"},
+			["Rutherford"] = {goods = {"shield"}, description = "Shield components and research", general = "We research and fabricate components for ship shield systems", history = "This station was named after the national research institution Rutherford Appleton Laboratory in the United Kingdom which conducted some preliminary research into the feasability of generating an energy shield in the late 20th century"},
+			["Toohie"] =	{goods = {"shield"}, description = "Shield and armor components and research", general = "We research and make general and specialized components for ship shield and ship armor systems", history = "This station was named after one of the earliest researchers in shield technology, Alexander Toohie back when it was considered impractical to construct shields due to the physics involved."},
+		},
+		["Pop Sci Fi"] = {
+			["Anderson"] =	{goods = {"software", "battery"}, description = "Battery and software engineering", general = "We provide high quality high capacity batteries and specialized software for all shipboard systems", history = "The station is named after a fictional software engineer in a late 20th century movie depicting humanity unknowingly conquered by aliens and kept docile by software generated illusion"},
+			["Archer"] =	{goods = {"shield"}, description = "Shield and Armor Research", general = "The finest shield and armor manufacturer in the quadrant", history = "We named this station for the pioneering spirit of the 22nd century Starfleet explorer, Captain Jonathan Archer"},
+			["Barclay"] =	{goods = {"communication"}, description = "Communication components", general = "We provide a range of communication equipment and software for use aboard ships", history = "The station is named after Reginald Barclay who established the first transgalactic com link through the creative application of a quantum singularity. Station personnel often refer to the station as the Broccoli station"},
+			["Calvin"] =	{goods = {"robotic"}, description = "Robotic research", general = "We research and provide robotic systems and components", history = "This station is named after Dr. Susan Calvin who pioneered robotic behavioral research and programming"},
+			["Cavor"] =		{goods = {"filament"}, description = "Advanced Material components", general = "We fabricate several different kinds of materials critical to various space industries like ship building, station construction and mineral extraction", history = "We named our station after Dr. Cavor, the physicist that invented a barrier material for gravity waves - Cavorite"},
+			["Cyrus"] =		{goods = {"impulse"}, description = "Impulse engine components", general = "We supply high quality impulse engines and parts for use aboard ships", history = "This station was named after the fictional engineer, Cyrus Smith created by 19th century author Jules Verne"},
+			["Deckard"] =	{goods = {"android"}, description = "Android components", general = "Supplier of android components, programming and service", history = "Named for Richard Deckard who inspired many of the sophisticated safety security algorithms now required for all androids"},
+			["Erickson"] =	{goods = {"transporter"}, description = "Transporter components", general = "We provide transporters used aboard ships as well as the components for repair and maintenance", history = "The station is named after the early 22nd century inventor of the transporter, Dr. Emory Erickson. This station is proud to have received the endorsement of Admiral Leonard McCoy"},
+			["Komov"] =		{goods = {"filament"}, description = "Xenopsychology training", general = "We provide classes and simulation to help train diverse species in how to relate to each other", history = "A continuation of the research initially conducted by Dr. Gennady Komov in the early 22nd century on Venus, supported by the application of these principles"},
+			["Muddville"] = {goods = {"luxury"}, description = "Trading station", general = "Come to Muddvile for all your trade and commerce needs and desires", history = "Upon retirement, Harry Mudd started this commercial venture using his leftover inventory and extensive connections obtained while he traveled the stars as a salesman"},
+			["Nexus-6"] =	{goods = {"android"}, description = "Android components", general = "Androids, their parts, maintenance and recylcling", history = "We named the station after the ground breaking android model produced by the Tyrell corporation"},
+			["O'Brien"] =	{goods = {"transporter"}, description = "Transporter components", general = "We research and fabricate high quality transporters and transporter components for use aboard ships", history = "Miles O'Brien started this business after his experience as a transporter chief"},
+			["Organa"] =	{goods = {"luxury"}, description = "Diplomatic training", general = "The premeire academy for leadership and diplomacy training in the region", history = "Established by the royal family so critical during the political upheaval era"},
+			["Owen"] =		{goods = {"lifter"}, description = "Load lifters and components", general = "We provide load lifters and components for various ship systems", history = "Owens started off in the moisture vaporator business on Tattooine then branched out into load lifters based on acquisition of proprietary software and protocols. The station name recognizes the tragic loss of our founder to Imperial violence"},
+			["Ripley"] =	{goods = {"lifter"}, description = "Load lifters and components", general = "We provide load lifters and components", history = "The station is named after Ellen Ripley who made creative and effective use of one of our load lifters when defending her ship"},
+			["Soong"] =		{goods = {"android"}, description = "Android components", general = "We create androids and android components", history = "The station is named after Dr. Noonian Soong, the famous android researcher and builder"},
+			["Tiberius"] =	{goods = {"food"}, description = "Logistics coordination", general = "We support the stations and ships in the area with planning and communication services", history = "We recognize the influence of Starfleet Captain James Tiberius Kirk in the 23rd century in our station name"},
+			["Tokra"] =		{goods = {"filament"}, description = "Advanced material components", general = "", history = "We learned several of our critical industrial processes from the Tokra race, so we honor our fortune by naming the station after them"},
+			["Utopia Planitia"] = {goods = {"warp"}, description = "Ship building and maintenance facility", general = "We work on all aspects of naval ship building and maintenance. Many of the naval models are researched, designed and built right here on this station. Our design goals seek to make the space faring experience as simple as possible given the tremendous capabilities of the modern naval vessel", history = ""},
+			["Zefram"] =	{goods = {"warp"}, description = "Warp engine components", general = "We specialize in the esoteric components necessary to make warp drives function properly", history = "Zefram Cochrane constructed the first warp drive in human history. We named our station after him because of the specialized warp systems work we do"},
+			["Jabba"] =		{goods = {"luxury"}, description = "Commerce and gambling", general = "Come play some games and shop. House take does not exceed 4 percent", history = ""},
+			["Lando"] =		{goods = {"shield"}, description = "Casino and Gambling", general = "", history = ""},
+			["Skandar"] =	{goods = {"luxury"}, description = "Routine maintenance and entertainment", general = "Stop by for repairs. Take in one of our juggling shows featuring the four-armed Skandars", history = "The nomadic Skandars have set up at this station to practice their entertainment and maintenance skills as well as build a community where Skandars can relax"},
+			["Starnet"] =	{goods = {"software"}, description = "Automated weapons systems", general = "We research and create automated weapons systems to improve ship combat capability", history = "Lost the history memory bank. Recovery efforts only brought back the phrase, 'I'll be back'"},
+			["Vaiken"] =	{goods = {"food","impulse"}, description = "Ship building and maintenance facility", general = "", history = ""},
+		},
+		["Spec Sci Fi"] = {
+			["Alcaleica"] =	{goods = {"optic"}, description = "Optical Components", general = "We make and supply optic components for various station and ship systems", history = "This station continues the businesses from Earth based on the merging of several companies including Leica from Switzerland, the lens manufacturer and the Japanese advanced low carbon (ALCA) electronic and optic research and development company"},
+			["Bethesda"] =	{goods = {"autodoc", "medicine"}, description = "Medical research", general = "We research and treat exotic medical conditions", history = "The station is named after the United States national medical research center based in Bethesda, Maryland on earth which was established in the mid 20th century"},
+			["Deer"] =		{goods = {"tractor","repulsor"}, description = "Repulsor and Tractor Beam Components", general = "We can meet all your pushing and pulling needs with specialized equipment custom made", history = "The station name comes from a short story by the 20th century author Clifford D. Simak as well as from the 19th century developer John Deere who inspired a company that makes the Earth bound equivalents of our products"},
+			["Evondos"] =	{goods = {"autodoc"}, description = "Autodoc components", general = "We provide components for automated medical machinery", history = "The station is the evolution of the company that started automated pharmaceutical dispensing in the early 21st century on Earth in Finland"},
+			["Feynman"] =	{goods = {"nanites","software"}, description = "Nanotechnology research", general = "We provide nanites and software for a variety of ship-board systems", history = "This station's name recognizes one of the first scientific researchers into nanotechnology, physicist Richard Feynman"},
+			["Mayo"] =		{goods = {"autodoc","medicine","food"}, description = "Medical Research", general = "We research exotic diseases and other human medical conditions", history = "We continue the medical work started by William Worrall Mayo in the late 19th century on Earth"},
+			["Olympus"] =	{goods = {"optic"}, description = "Optical components", general = "We fabricate optical lenses and related equipment as well as fiber optic cabling and components", history = "This station grew out of the Olympus company based on earth in the early 21st century. It merged with Infinera, then bought several software comapnies before branching out into space based industry"},
+			["Panduit"] =	{goods = {"optic"}, description = "Optic components", general = "We provide optic components for various ship systems", history = "This station is an outgrowth of the Panduit corporation started in the mid 20th century on Earth in the United States"},
+			["Shree"] =		{goods = {"tractor"}, description = "Repulsor and tractor beam components", general = "We make ship systems designed to push or pull other objects around in space", history = "Our station is named Shree after one of many tugboat manufacturers in the early 21st century on Earth in India. Tugboats serve a similar purpose for ocean-going vessels on earth as tractor and repulsor beams serve for space-going vessels today"},
+			["Vactel"] =	{goods = {"circuit"}, description = "Shielded Circuitry Fabrication", general = "We specialize in circuitry shielded from external hacking suitable for ship systems", history = "We started as an expansion from the lunar based chip manufacturer of Earth legacy Intel electronic chips"},
+			["Veloquan"] =	{goods = {"sensor"}, description = "Sensor components", general = "We research and construct components for the most powerful and accurate sensors used aboard ships along with the software to make them easy to use", history = "The Veloquan company has its roots in the manufacturing of LIDAR sensors in the early 21st century on Earth in the United States for autonomous ground-based vehicles. They expanded research and manufacturing operations to include various sensors for space vehicles. Veloquan was the result of numerous mergers and acquisitions of several companies including Velodyne and Quanergy"},
+			["Tandon"] =	{goods = {"medicine","autodoc"}, description = "Biotechnology research", general = "Merging the organic and inorganic through research", history = "Continued from the Tandon school of engineering started on Earth in the early 21st century"},
+		},
+		["Generic"] = {
+			["California"] = {goods = {"gold", "dilithium"}, description = "Mining station", general = "", history = ""},
+			["Impala"] = 	{goods = {"luxury"}, description = "Mining", general = "We mine nearby asteroids for precious minerals", history = ""},
+			["Krak"] =		{goods = {"nickel","platinum"}, description = "Mining station", general = "", history = ""},
+			["Krik"] =		{goods = {"nickel","cobalt"}, description = "Mining station", general = "", history = ""},
+			["Kruk"] =		{goods = {"nickel","tritanium"}, description = "Mining station", general = "", history = ""},
+			["Outpost-15"] = {goods = {"luxury"}, description = "Mining and trade", general = "", history = ""},
+			["Outpost-21"] = {goods = {"luxury"}, description = "Mining and gambling", general = "", history = ""},
+			["Science-7"] = {goods = {"food"}, description = "Observatory", general = "", history = ""},
+			["Maverick"] =	{goods = {"luxury"}, description = "Gambling and resupply", general = "Relax and meet some interesting players", history = ""},
+			["Nefatha"] =	{goods = {"luxury"}, description = "Commerce and recreation", general = "", history = ""},
+			["Okun"] =		{goods = {"medicine"}, description = "Xenopsychology research", general = "", history = ""},
+			["Outpost-7"] = {goods = {"luxury"}, description = "Resupply", general = "", history = ""},
+			["Outpost-8"] = {goods = {"food"}, description = "", general = "", history = ""},
+			["Outpost-33"] = {goods = {"luxury"}, description = "Resupply", general = "", history = ""},
+			["Prada"] =		{goods = {"luxury"}, description = "Textiles and fashion", general = "", history = ""},
+			["Research-11"] = {goods = {"medicine"}, description = "Stress Psychology Research", general = "", history = ""},
+			["Research-19"] = {goods = {"sensor"}, description = "Low gravity research", general = "", history = ""},
+			["Rubis"] =		{goods = {"luxury"}, description = "Resupply", general = "Get your energy here! Grab a drink before you go!", history = ""},
+			["Science-2"] = {goods = {"circuit"}, description = "Research Lab and Observatory", general = "", history = ""},
+			["Science-4"] = {goods = {"medicine","autodoc"}, description = "Biotech research", general = "", history = ""},
+			["Spot"] =		{goods = {"food"}, description = "Observatory", general = "", history = ""},
+			["Valero"] =	{goods = {"luxury"}, description = "Resupply", general = "", history = ""},
+		},
+		["Sinister"] = {
+			["Aramanth"] =	{goods = {}, description = "", general = "", history = ""},
+			["Empok Nor"] =	{goods = {}, description = "", general = "", history = ""},
+			["Gandala"] =	{goods = {}, description = "", general = "", history = ""},
+			["Hassenstadt"] =	{goods = {}, description = "", general = "", history = ""},
+			["Kaldor"] =	{goods = {}, description = "", general = "", history = ""},
+			["Magenta Mesra"] =	{goods = {}, description = "", general = "", history = ""},
+			["Mos Eisley"] =	{goods = {}, description = "", general = "", history = ""},
+			["Questa Verde"] =	{goods = {}, description = "", general = "", history = ""},
+			["R'lyeh"] =	{goods = {}, description = "", general = "", history = ""},
+			["Scarlet Citadel"] =	{goods = {}, description = "", general = "", history = ""},
+			["Stahlstadt"] =	{goods = {}, description = "", general = "", history = ""},
+			["Ticonderoga"] =	{goods = {}, description = "", general = "", history = ""},
+		},
+	}
+	
 	primaryOrders = "Patrol Asimov, Utopia Planitia and Armstrong stations. Defend if enemies attack. Dock with each station at the end of each patrol leg"
 	secondaryOrders = ""
 	optionalOrders = ""
@@ -264,44 +440,6 @@ function setConstants()
 	patrolComplete = false
 	sporadicHarassInterval = 360
 	sporadicHarassTimer = 360
-end
-function setVariations()
-	if string.find(getScenarioVariation(),"Short") or string.find(getScenarioVariation(),"Timed") then
-		patrolGoal = 6			--short and timed missions get a patrol goal of 6
-		missionLength = 1		--short and timed missions are categorized as mission length 1
-	else
-		patrolGoal = 9			--normal, long and extended get a patrol goal of 9
-		if string.find(getScenarioVariation(),"Long") then
-			missionLength = 3	--long missions are categorized as mission length 3
-		elseif string.find(getScenarioVariation(),"Extended") then
-			missionLength = 4	--extended missions are categorized as mission length 4
-		else
-			missionLength = 2	--normal missions are categorized as mission length 2
-		end
-	end
-	if string.find(getScenarioVariation(),"Easy") then
-		difficulty = .5			--easy missions get a .5 difficulty
-	elseif string.find(getScenarioVariation(),"Hard") then
-		difficulty = 2			--hard missions get a difficulty of 2
-	elseif string.find(getScenarioVariation(),"Self-destructive") then
-		difficulty = 5			--self destructive missions get a difficulty of 5
-	else
-		difficulty = 1			--default: normal mission difficulty of 1
-	end
-	playWithTimeLimit = false	--assume no time limit
-	if string.find(getScenarioVariation(),"15") then
-		gameTimeLimit = 15		--set 15 minute time limit
-	elseif string.find(getScenarioVariation(),"30") then
-		gameTimeLimit = 30		--set 30 minute time limit
-	else
-		gameTimeLimit = 0		--default: set no time limit
-	end
-	if gameTimeLimit > 0 then
-		gameTimeLimit = gameTimeLimit*60	--convert minutes to seconds for time limit countdown
-		ambushTime = gameTimeLimit/2		--set halfway point for ambush in timed scenarios
-		playWithTimeLimit = true			--set time limit boolean
-		plot7 = beforeAmbush				--use time limit plot
-	end
 end
 function setPlayers()
 	concurrentPlayerCount = 0
@@ -533,6 +671,74 @@ function randomComponent(exclude)
 		return good
 	end
 end
+function placeStation(x,y,name,faction,size)
+	--x and y are the position of the station
+	--name should be the name of the station or the name of the station group
+	--		omit name to get random station from groups in priority order
+	--faction is the faction of the station
+	--		omit and stationFaction will be used
+	--size is the name of the station template to use
+	--		omit and station template will be chosen at random via szt function
+	if x == nil then return nil end
+	if y == nil then return nil end
+	local group, station = pickStation(name)
+	if group == nil then return nil end
+	station:setPosition(x,y)
+	if faction ~= nil then
+		station:setFaction(faction)
+	else
+		station:setFaction(stationFaction)
+	end
+	if size == nil then
+		station:setTemplate(szt())
+		return station
+	end
+	local function Set(list)
+		local set = {}
+		for _, item in ipairs(list) do
+			set[item] = true
+		end
+		return set
+	end
+	local station_size_templates = Set{"Small Station","Medium Station","Large Station","Huge Station"}
+	if station_size_templates[size] then
+		station:setTemplate(size)
+	else
+		station:setTemplate(szt())
+	end
+	return station
+end
+function pickStation(name)
+	if name == nil then
+		--default to random in priority order
+		print("Select random in group priority order not yet implemented")
+		return nil
+	else
+		if name == "Random" then
+			--random across all groups
+			print("Select random across all groups not yet implemented")
+			return nil
+		else
+			if station_pool[name] ~= nil then
+				--name is a group name
+				print("Select random from group not yet implemented")
+				return nil
+			else
+				for group, list in pairs(station_pool) do
+					if station_pool[group][name] ~= nil then
+						local station = SpaceStation():setCommsScript(""):setCommsFunction(commsStation):setCallSign(name):setDescription(station_pool[group][name].description)
+						station.comms_data = station_pool[group][name]
+						station_pool[group][name] = nil
+						return group, station
+					end
+				end
+				--name not found in any group
+				print("Name provided not found in groups or stations")
+				return nil
+			end
+		end
+	end
+end
 function generateStaticWorld()
 	stationList = {}
 	patrolStationList = {}
@@ -564,9 +770,10 @@ function generateStaticWorld()
 	--Asimov
 	asimovx = random(500,9500)
 	asimovy = random(-19500,19500)
-	psx = asimovx
-	psy = asimovy
-	stationAsimov = placeAsimov()
+	stationAsimov = placeStation(asimovx,asimovy,"Asimov","Human Navy","Medium Station")
+--	psx = asimovx
+--	psy = asimovy
+--	stationAsimov = placeAsimov()
 	table.insert(stationList,stationAsimov)
 	table.insert(patrolStationList,stationAsimov)
 	friendlyStations = friendlyStations + 1
@@ -575,9 +782,10 @@ function generateStaticWorld()
 	stationSize = "Large Station"
 	utopiaPlanitiax = random(120500,139500)
 	utopiaPlanitiay = random(-4500,44500)
-	psx = utopiaPlanitiax
-	psy = utopiaPlanitiay
-	stationUtopiaPlanitia = placeUtopiaPlanitia()
+	stationUtopiaPlanitia = placeStation(utopiaPlanitiax,utopiaPlanitiay,"Utopia Planitia","Human Navy","Large Station")
+--	psx = utopiaPlanitiax
+--	psy = utopiaPlanitiay
+--	stationUtopiaPlanitia = placeUtopiaPlanitia()
 	table.insert(stationList,stationUtopiaPlanitia)
 	table.insert(patrolStationList,stationUtopiaPlanitia)
 	friendlyStations = friendlyStations + 1
@@ -2920,11 +3128,14 @@ function handleDockedState()
 			end)
 		end
 	end
-	if ctd.public_relations then
+	local has_gossip = random(1,100) < (100 - (30 * (difficulty - .5)))
+	if (ctd.general ~= nil and ctd.general ~= "") or 
+		(ctd.history ~= nil and ctd.history ~= "") or 
+		(comms_source:isFriendly(comms_target) and ctd.gossip ~= nil and has_gossip) then
 		addCommsReply("Tell me more about your station", function()
 			setCommsMessage("What would you like to know?")
 			addCommsReply("General information", function()
-				setCommsMessage(ctd.general_information)
+				setCommsMessage(ctd.general)
 				addCommsReply("Back", commsStation)
 			end)
 			if ctd.history ~= nil then
@@ -2935,7 +3146,7 @@ function handleDockedState()
 			end
 			if comms_source:isFriendly(comms_target) then
 				if ctd.gossip ~= nil then
-					if random(1,100) < (100 - (30 * (difficulty - .5))) then
+					if has_gossip then
 						addCommsReply("Gossip", function()
 							setCommsMessage(ctd.gossip)
 							addCommsReply("Back", commsStation)
@@ -2944,7 +3155,7 @@ function handleDockedState()
 				end
 			end
 		end)	--end station info comms reply branch
-	end	--end public relations if branch
+	end
 	addCommsReply("Where can I find particular goods?", function()
 		local ctd = comms_target.comms_data
 		gkMsg = "Friendly stations often have food or medicine or both. Neutral stations may trade their goods for food, medicine or luxury."
@@ -3926,11 +4137,14 @@ function handleUndockedState()
 			setCommsMessage(gkMsg)
 			addCommsReply("Back", commsStation)
 		end)
-		if ctd.public_relations then
+		local has_gossip = random(1,100) < 50
+		if (ctd.general ~= nil and ctd.general ~= "") or 
+			(ctd.history ~= nil and ctd.history ~= "") or 
+			(comms_source:isFriendly(comms_target) and ctd.gossip ~= nil and has_gossip) then
 			addCommsReply("Tell me more about your station", function()
 				setCommsMessage("What would you like to know?")
 				addCommsReply("General information", function()
-					setCommsMessage(ctd.general_information)
+					setCommsMessage(ctd.general)
 					addCommsReply("Back", commsStation)
 				end)
 				if ctd.history ~= nil then
@@ -3941,7 +4155,7 @@ function handleUndockedState()
 				end
 				if comms_source:isFriendly(comms_target) then
 					if ctd.gossip ~= nil then
-						if random(1,100) < 50 then
+						if has_gossip then
 							addCommsReply("Gossip", function()
 								setCommsMessage(ctd.gossip)
 								addCommsReply("Back", commsStation)
@@ -3950,7 +4164,7 @@ function handleUndockedState()
 					end
 				end
 			end)	--end station info comms reply branch
-		end	--end public relations if branch
+		end
 	end)
 	if comms_source:isFriendly(comms_target) then
 		addCommsReply("What are my current orders?", function()
