@@ -29,20 +29,18 @@
 
 require("utils.lua")
 
---- Remove random element from array and return it.
---
--- The function returns `nil` if the array is empty,
--- analogously to `table.remove`.
-function tableremoverandom(array)
-    local n = #array
-    if n == 0 then
+function tableRemoveRandom(array)
+--	Remove random element from array and return it.
+	-- Returns nil if the array is empty,
+	-- analogous to `table.remove`.
+    local array_item_count = #array
+    if array_item_count == 0 then
         return nil
     end
-    local i = math.random(n)
-    array[i], array[n] = array[n], array[i]
+    local selected_item = math.random(array_item_count)
+    array[selected_item], array[array_item_count] = array[array_item_count], array[selected_item]
     return table.remove(array)
 end
-
 function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 -- Create amount of objects of type object_type along arc
 -- Center defined by x and y
@@ -87,6 +85,9 @@ function createRandomAsteroidAlongArc(amount, x, y, distance, startArc, endArcCl
 -- Use randomize to vary the distance from the center point. Omit to keep distance constant
 -- Example:
 --   createRandomAsteroidAlongArc(100, 500, 3000, 65, 120, 450)
+	local function asteroidSize()
+		return random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
+	end
 	if randomize == nil then randomize = 0 end
 	if amount == nil then amount = 1 end
 	local arcLen = endArcClockwise - startArc
@@ -94,26 +95,22 @@ function createRandomAsteroidAlongArc(amount, x, y, distance, startArc, endArcCl
 		endArcClockwise = endArcClockwise + 360
 		arcLen = arcLen + 360
 	end
-    local asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
 	if amount > arcLen then
 		for ndex=1,arcLen do
 			local radialPoint = startArc+ndex
 			local pointDist = distance + random(-randomize,randomize)
-		    asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
-			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroid_size)
+			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroidSize())
 		end
 		for ndex=1,amount-arcLen do
 			radialPoint = random(startArc,endArcClockwise)
 			pointDist = distance + random(-randomize,randomize)
-		    asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
-			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroid_size)
+			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroidSize())
 		end
 	else
 		for ndex=1,amount do
 			radialPoint = random(startArc,endArcClockwise)
 			pointDist = distance + random(-randomize,randomize)
-		    asteroid_size = random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20)
-			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroid_size)
+			Asteroid():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist):setSize(asteroidSize())
 		end
 	end
 end
@@ -128,7 +125,6 @@ function placeRandomAsteroidsAroundPoint(amount, dist_min, dist_max, x0, y0)
         Asteroid():setPosition(x, y):setSize(asteroid_size)
     end
 end
-
 function closestPlayerTo(obj)
 -- Return the player ship closest to passed object parameter
 -- Return nil if no valid result
@@ -155,6 +151,24 @@ end
 --	Initialization  --
 ----------------------
 function init()
+	setConstants()
+	setVariations()
+	diagnostic = false
+	wfv = "nowhere"		--wolf fence value - used for debugging
+	setPlayers()
+	generateStaticWorld()
+	--these are to facilitate testing
+	addGMFunction("Start plot 2 sick Kojak",initiatePlot2)
+	addGMFunction("Start p 3 McNabbit ride",initiatePlot3)
+	addGMFunction("St p4 Lisbon's stowaway",initiatePlot4)
+	addGMFunction("Start plot 5",initiatePlot5)
+	addGMFunction("Strt plot 8 Sheila dies",initiatePlot8)
+	addGMFunction("Start plot 9 ambush",initiatePlot9)
+	addGMFunction("Start plot 10 ambush",initiatePlot10)
+	addGMFunction("Skip to defend U.P.",skipToDefendUP)
+	addGMFunction("Skip to destroy S.C.",skipToDestroySC)
+end
+function setConstants()
 	-- Difficulty setting: 1 = normal, .5 is easy, 2 is hard, 5 is ridiculously hard
 	difficultyList = {.5, 1, 2, 5}
 	difficultySettingList = {"Easy", "Normal", "Hard", "Self-Destructive"}
@@ -162,8 +176,6 @@ function init()
 	difficulty = difficultyList[difficultyIndex]
 	prefix_length = 0
 	suffix_index = 0
-	setVariations()
-	playerCount = 0
 	--Ship Template Name List
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
 	--Ship Template Score List
@@ -208,8 +220,7 @@ function init()
 					{"software",0},
 					{"circuit",0},
 					{"battery",0}	}
-	diagnostic = false
-	wfv = "nowhere"		--wolf fence value - used for debugging
+	goods = {}
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesFor = {}
 	-- TODO switch to spelling with space or dash matching the type name
@@ -233,15 +244,14 @@ function init()
 	playerShipNamesFor["Maverick"] = {"Angel", "Thunderbird", "Roaster", "Magnifier", "Hedge"}
 	playerShipNamesFor["Leftovers"] = {"Foregone","Righteous","Masher"}
 	posseShipNames = {"Bubba","George","Winifred","Daniel","Darla","Stephen","Bob","Porky","Sally","Tommy","Jenny","Johnny","Lizzy","Billy"}
-	goods = {}
-	setPlayers()
-	generateStaticWorld()
 	primaryOrders = "Patrol Asimov, Utopia Planitia and Armstrong stations. Defend if enemies attack. Dock with each station at the end of each patrol leg"
 	secondaryOrders = ""
 	optionalOrders = ""
 	highestPatrolLeg = 0
+	playerCount = 0
 	highestConcurrentPlayerCount = 0
 	setConcurrentPlayerCount = 0
+
 	plot1 = initialOrderMessage
 	plotT = transportPlot
 	plotTname = "transportPlot"
@@ -254,24 +264,6 @@ function init()
 	patrolComplete = false
 	sporadicHarassInterval = 360
 	sporadicHarassTimer = 360
-	GMInitiatePlot2 = "Start plot 2 sick Kojak"
-	GMInitiatePlot3 = "Start p 3 McNabbit ride"
-	GMInitiatePlot4 = "St p4 Lisbon's stowaway"
-	GMInitiatePlot5 = "Start plot 5"
-	GMInitiatePlot8 = "Strt plot 8 Sheila dies"
-	GMInitiatePlot9 = "Start plot 9 ambush"
-	GMInitiatePlot10 = "Start plot 10 ambush"
-	GMSkipToDefend = "Skip to defend U.P."
-	GMSkipToDestroy = "Skip to destroy S.C."
-	addGMFunction(GMInitiatePlot2,initiatePlot2)
-	addGMFunction(GMInitiatePlot3,initiatePlot3)
-	addGMFunction(GMInitiatePlot4,initiatePlot4)
-	addGMFunction(GMInitiatePlot5,initiatePlot5)
-	addGMFunction(GMInitiatePlot8,initiatePlot8)
-	addGMFunction(GMInitiatePlot9,initiatePlot9)
-	addGMFunction(GMInitiatePlot10,initiatePlot10)
-	addGMFunction(GMSkipToDefend,skipToDefendUP)
-	addGMFunction(GMSkipToDestroy,skipToDestroySC)
 end
 function setVariations()
 	if string.find(getScenarioVariation(),"Short") or string.find(getScenarioVariation(),"Timed") then
@@ -332,51 +324,51 @@ function setPlayers()
 				tempPlayerType = pobj:getTypeName()
 				if tempPlayerType == "MP52 Hornet" then
 					if #playerShipNamesFor["MP52Hornet"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["MP52Hornet"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["MP52Hornet"]))
 					end
 					pobj.shipScore = 7
 					pobj.maxCargo = 3
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Piranha" then
 					if #playerShipNamesFor["Piranha"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Piranha"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Piranha"]))
 					end
 					pobj.shipScore = 16
 					pobj.maxCargo = 8
 				elseif tempPlayerType == "Flavia P.Falcon" then
 					if #playerShipNamesFor["FlaviaPFalcon"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["FlaviaPFalcon"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["FlaviaPFalcon"]))
 					end
 					pobj.shipScore = 13
 					pobj.maxCargo = 15
 				elseif tempPlayerType == "Phobos M3P" then
 					if #playerShipNamesFor["PhobosM3P"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["PhobosM3P"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["PhobosM3P"]))
 					end
 					pobj.shipScore = 19
 					pobj.maxCargo = 10
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Atlantis" then
 					if #playerShipNamesFor["Atlantis"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Atlantis"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Atlantis"]))
 					end
 					pobj.shipScore = 52
 					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Cruiser" then
 					if #playerShipNamesFor["Cruiser"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Cruiser"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Cruiser"]))
 					end
 					pobj.shipScore = 40
 					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Missile Cr." then
 					if #playerShipNamesFor["MissileCruiser"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["MissileCruiser"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["MissileCruiser"]))
 					end
 					pobj.shipScore = 45
 					pobj.maxCargo = 8
 				elseif tempPlayerType == "Player Fighter" then
 					if #playerShipNamesFor["Fighter"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Fighter"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Fighter"]))
 					end
 					pobj.shipScore = 7
 					pobj.maxCargo = 3
@@ -384,19 +376,19 @@ function setPlayers()
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "Benedict" then
 					if #playerShipNamesFor["Benedict"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Benedict"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Benedict"]))
 					end
 					pobj.shipScore = 10
 					pobj.maxCargo = 9
 				elseif tempPlayerType == "Kiriya" then
 					if #playerShipNamesFor["Kiriya"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Kiriya"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Kiriya"]))
 					end
 					pobj.shipScore = 10
 					pobj.maxCargo = 9
 				elseif tempPlayerType == "Striker" then
 					if #playerShipNamesFor["Striker"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Striker"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Striker"]))
 					end
 					if pobj:getImpulseMaxSpeed() == 45 then
 						pobj:setImpulseMaxSpeed(90)
@@ -418,7 +410,7 @@ function setPlayers()
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "ZX-Lindworm" then
 					if #playerShipNamesFor["Lindworm"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Lindworm"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Lindworm"]))
 					end
 					pobj.shipScore = 8
 					pobj.maxCargo = 3
@@ -426,43 +418,43 @@ function setPlayers()
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Repulse" then
 					if #playerShipNamesFor["Repulse"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Repulse"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Repulse"]))
 					end
 					pobj.shipScore = 14
 					pobj.maxCargo = 12
 				elseif tempPlayerType == "Ender" then
 					if #playerShipNamesFor["Ender"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Ender"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Ender"]))
 					end
 					pobj.shipScore = 100
 					pobj.maxCargo = 20
 				elseif tempPlayerType == "Nautilus" then
 					if #playerShipNamesFor["Nautilus"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Nautilus"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Nautilus"]))
 					end
 					pobj.shipScore = 12
 					pobj.maxCargo = 7
 				elseif tempPlayerType == "Hathcock" then
 					if #playerShipNamesFor["Hathcock"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Hathcock"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Hathcock"]))
 					end
 					pobj.shipScore = 30
 					pobj.maxCargo = 6
 				elseif tempPlayerType == "Maverick" then
 					if #playerShipNamesFor["Maverick"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Maverick"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Maverick"]))
 					end
 					pobj.shipScore = 45
 					pobj.maxCargo = 5
 				elseif tempPlayerType == "Crucible" then
 					if #playerShipNamesFor["Crucible"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Crucible"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Crucible"]))
 					end
 					pobj.shipScore = 45
 					pobj.maxCargo = 5
 				else
 					if #playerShipNamesFor["Leftovers"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Leftovers"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Leftovers"]))
 					end
 					pobj.shipScore = 24
 					pobj.maxCargo = 5
@@ -5003,7 +4995,7 @@ function patrolAsimovUtopiaPlanitiaArmstrong(delta)
 				nuisanceSpawned = "ready"
 				nuisanceTimer = random(30,90)
 				plot2 = nuisance
-				removeGMFunction(GMInitiatePlot2)
+				removeGMFunction("Start plot 2 sick Kojak")
 			end
 		end
 		if highestPatrolLeg == 3 and missionLength > 1 then
@@ -5011,7 +5003,7 @@ function patrolAsimovUtopiaPlanitiaArmstrong(delta)
 				attack3spawned = "ready"
 				attack3Timer = random(15,40)
 				plot8 = attack3
-				removeGMFunction(GMInitiatePlot8)
+				removeGMFunction("Strt plot 8 Sheila dies")
 			end
 		end
 		if highestPatrolLeg == 4 and missionLength > 1 then
@@ -5019,7 +5011,7 @@ function patrolAsimovUtopiaPlanitiaArmstrong(delta)
 				attack4spawned = "ready"
 				attack4Timer = random(20,50)
 				plot9 = attack4
-				removeGMFunction(GMInitiatePlot9)
+				removeGMFunction("Start plot 9 ambush")
 			end
 		end
 		if highestPatrolLeg == 5 then
@@ -5027,7 +5019,7 @@ function patrolAsimovUtopiaPlanitiaArmstrong(delta)
 				incursionSpawned = "ready"
 				incursionTimer = random(30,90)
 				plot3 = incursion
-				removeGMFunction(GMInitiatePlot3)
+				removeGMFunction("Start p 3 McNabbit ride")
 			end
 		end
 		if highestPatrolLeg == 6 and missionLength > 1 then
@@ -5035,7 +5027,7 @@ function patrolAsimovUtopiaPlanitiaArmstrong(delta)
 				attack5spawned = "ready"
 				attack5Timer = random(20,50)
 				plot10 = attack5
-				removeGMFunction(GMInitiatePlot10)
+				removeGMFunction("Start plot 10 ambush")
 			end
 		end
 		if highestPatrolLeg == 7 then
@@ -5043,14 +5035,14 @@ function patrolAsimovUtopiaPlanitiaArmstrong(delta)
 				attack1spawned = "ready"
 				attack1Timer = random(40,120)
 				plot4 = attack1
-				removeGMFunction(GMInitiatePlot4)
+				removeGMFunction("St p4 Lisbon's stowaway")
 			end
 		end
 		if highestPatrolLeg == 8 then
 			if attack2spawned == nil then
 				attack2spawned = "ready"
 				plot5 = attack2
-				removeGMFunction(GMInitiatePlot5)
+				removeGMFunction("Start plot 5")
 			end		
 		end
 		if patrolComplete then
@@ -5164,7 +5156,7 @@ function afterPatrol(delta)
 			waveDelayTimer = 120
 			longWave = 0
 			plot1 = defendUtopia
-			removeGMFunction(GMSkipToDefend)
+			removeGMFunction("Skip to defend U.P.")
 		else
 			playSoundFile("sa_54_AuthMBVictory.wav")
 			victory("Human Navy")
@@ -5296,7 +5288,7 @@ function defendUtopia(delta)
 			if wave3count + wave4count + wave5count == 0 then
 				if difficulty > 1 then
 					plot1 = destroyEnemyStronghold
-					removeGMFunction(GMSkipToDestroy)
+					removeGMFunction("Skip to destroy S.C.")
 				else
 					victory("Human Navy")
 				end
@@ -5675,7 +5667,7 @@ function minerWeaponsDecide(delta)
 		end
 		plot2 = nil
 		minerUpgrade = true
-		removeGMFunction(GMInitiatePlot2)
+		removeGMFunction("Start plot 2 sick Kojak")
 	end
 end
 function insightToBase()
@@ -5760,7 +5752,7 @@ function nabbitRideRequest()
 		plot3 = getNabbit
 	else
 		plot3 = nil
-		removeGMFunction(GMInitiatePlot3)
+		removeGMFunction("Start p 3 McNabbit ride")
 	end
 end
 
@@ -5780,7 +5772,7 @@ function getNabbit(delta)
 			else
 				plot3 = nil
 				plot3reminder = nil
-				removeGMFunction(GMInitiatePlot3)
+				removeGMFunction("Start p 3 McNabbit ride")
 			end
 		end
 	end
@@ -5804,7 +5796,7 @@ function dropNabbit(delta)
 			nabbitShip:addReputationPoints(5)
 			plot3 = nil
 			plot3reminder = nil
-			removeGMFunction(GMInitiatePlot3)
+			removeGMFunction("Start p 3 McNabbit ride")
 			if playNabbitTuneMsgButton == nil then
 				playNabbitTuneMsgButton = "playNabbitTuneMsgButton"
 				nabbitShip:addCustomButton("Relay",playNabbitTuneMsgButton,"|> ASTGDN038",playNabbitTune)
@@ -6480,39 +6472,39 @@ function initiatePlot2()
 	nuisanceSpawned = "ready"
 	nuisanceTimer = random(30,90)
 	plot2 = nuisance
-	removeGMFunction(GMInitiatePlot2)
+	removeGMFunction("Start plot 2 sick Kojak")
 end
 function initiatePlot3()
 	incursionSpawned = "ready"
 	incursionTimer = random(30,90)
 	plot3 = incursion
-	removeGMFunction(GMInitiatePlot3)
+	removeGMFunction("Start p 3 McNabbit ride")
 end
 function initiatePlot4()
 	attack1spawned = "ready"
 	attack1Timer = random(40,120)
 	plot4 = attack1
-	removeGMFunction(GMInitiatePlot4)
+	removeGMFunction("St p4 Lisbon's stowaway")
 end
 function initiatePlot5()
 	attack2spawned = "ready"
 	plot5 = attack2
-	removeGMFunction(GMInitiatePlot5)
+	removeGMFunction("Start plot 5")
 end
 function initiatePlot8()
 	attack3spawned = "ready"
 	plot8 = attack3
-	removeGMFunction(GMInitiatePlot8)
+	removeGMFunction("Strt plot 8 Sheila dies")
 end
 function initiatePlot9()
 	attack4spawned = "ready"
 	plot9 = attack4
-	removeGMFunction(GMInitiatePlot9)
+	removeGMFunction("Start plot 9 ambush")
 end
 function initiatePlot10()
 	attack5spawned = "ready"
 	plot10 = attack5
-	removeGMFunction(GMInitiatePlot10)
+	removeGMFunction("Start plot 10 ambush")
 end
 function skipToDefendUP()
 	artAnchorUpgrade = true
@@ -6522,7 +6514,7 @@ function skipToDefendUP()
 	lisbonUpgrade = true
 	waveDelayTimer = 120
 	plot1 = defendUtopia	
-	removeGMFunction(GMSkipToDefend)
+	removeGMFunction("Skip to defend U.P.")
 end
 function skipToDestroySC()
 	artAnchorUpgrade = true
@@ -6532,7 +6524,7 @@ function skipToDestroySC()
 	lisbonUpgrade = true
 	waveDelayTimer = 120
 	plot1 = destroyEnemyStronghold	
-	removeGMFunction(GMSkipToDestroy)
+	removeGMFunction("Skip to destroy S.C.")
 end
 ------------------------------------
 --	Generic or utility functions  --
