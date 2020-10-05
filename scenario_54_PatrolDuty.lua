@@ -292,9 +292,15 @@ function setConstants()
 		        	Nuke =				random(1,13)<=(5-difficulty),
 		        	EMP =				random(1,13)<=(6-difficulty),
 		        },
+				services = {
+					supplydrop = "friend",
+					reinforcements = "friend",
+					jumpsupplydrop = "friend",
+				},
 		        service_cost = {
 		        	supplydrop =		math.random(80,120), 
 		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
 		        },
 		        reputation_cost_multipliers = {
 		        	friend = 			1.0, 
@@ -319,9 +325,122 @@ function setConstants()
 				general = "We train naval cadets in routine and specialized functions aboard space vessels and coordinate naval activity throughout the sector", 
 				history = "The original station builders were fans of the late 20th century scientist and author Isaac Asimov. The station was initially named Foundation, but was later changed simply to Asimov. It started off as a stellar observatory, then became a supply stop and as it has grown has become an educational and coordination hub for the region",
 			},
-			["Armstrong"] =	{goods = {"warp", "impulse"}, description = "Warp and Impulse engine manufacturing", general = "We manufacture warp, impulse and jump engines for the human navy fleet as well as other independent clients on a contract basis", history = "The station is named after the late 19th century astronaut as well as the fictionlized stations that followed. The station initially constructed entire space worthy vessels. In time, it transitioned into specializeing in propulsion systems."},
-			["Broeck"] =	{goods = {"warp"}, description = "Warp drive components", general = "We provide warp drive engines and components", history = "This station is named after Chris Van Den Broeck who did some initial research into the possibility of warp drive in the late 20th century on Earth"},
-			["Coulomb"] =	{goods = {"circuit"}, description = "Shielded circuitry fabrication", general = "We make a large variety of circuits for numerous ship systems shielded from sensor detection and external control interference", history = "Our station is named after the law which quantifies the amount of force with which stationary electrically charged particals repel or attact each other - a fundamental principle in the design of our circuits"},
+			["Armstrong"] =	{
+		        weapon_available = {
+		        	Homing = 			random(1,13)<=(8-difficulty),	
+		        	HVLI = 				true,		
+		        	Mine = 				random(1,13)<=(7-difficulty),	
+		        	Nuke = 				random(1,13)<=(5-difficulty),	
+		        	EMP = 				true
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+				goods = {	
+					warp = {
+						quantity =	5,	
+						cost =		77,
+					},
+					impulse = {
+						quantity =	5,	
+						cost =		62,
+					},
+				},
+				trade = {	
+					food = false, 
+					medicine = false, 
+					luxury = false,
+				},
+				buy = {
+					[randomMineral()] = math.random(40,200),
+				},
+				description = "Warp and Impulse engine manufacturing", 
+				general = "We manufacture warp, impulse and jump engines for the human navy fleet as well as other independent clients on a contract basis", 
+				history = "The station is named after the late 19th century astronaut as well as the fictionlized stations that followed. The station initially constructed entire space worthy vessels. In time, it transitioned into specializeing in propulsion systems.",
+			},
+			["Broeck"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+				goods = {
+					warp = {
+						quantity =	5,
+						cost =		36,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = random(1,100) < 62,
+				},
+				buy = {
+					[randomMineral()] = math.random(40,200),
+				},
+				description = "Warp drive components", 
+				general = "We provide warp drive engines and components", 
+				history = "This station is named after Chris Van Den Broeck who did some initial research into the possibility of warp drive in the late 20th century on Earth",
+			},
+			["Coulomb"] = {
+		        weapon_available = 	{
+		        	Homing = random(1,13)<=(8-difficulty),	
+		        	HVLI = random(1,13)<=(9-difficulty),	
+		        	Mine = random(1,13)<=(7-difficulty),	
+		        	Nuke = random(1,13)<=(5-difficulty),	
+		        	EMP = random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+        		goods = {	
+        			circuit =	{
+        				quantity =	5,	
+        				cost =		50,
+        			},
+        		},
+        		trade = {	
+        			food = false, 
+        			medicine = false, 
+        			luxury = random(1,100) < 82,
+        		},
+				buy =	{
+					[randomMineral()] = math.random(40,200),
+				},
+				description = "Shielded circuitry fabrication", 
+				general = "We make a large variety of circuits for numerous ship systems shielded from sensor detection and external control interference", 
+				history = "Our station is named after the law which quantifies the amount of force with which stationary electrically charged particals repel or attact each other - a fundamental principle in the design of our circuits",
+			},
 			["Heyes"] =		{goods = {"sensor"}, description = "Sensor components", general = "We research and manufacture sensor components and systems", history = "The station is named after Tony Heyes the inventor of some of the earliest electromagnetic sensors in the mid 20th century on Earth in the United Kingdom to assist blind human mobility"},
 			["Hossam"] =	{goods = {"nanites"}, description = "Nanite supplier", general = "We provide nanites for various organic and non-organic systems", history = "This station is named after the nanotechnologist Hossam Haick from the early 21st century on Earth in Israel"},
 			["Maiman"] =	{goods = {"beam"}, description = "Energy beam components", general = "We research and manufacture energy beam components and systems", history = "The station is named after Theodore Maiman who researched and built the first laser in the mid 20th century on Earth"},
@@ -336,14 +455,125 @@ function setConstants()
 			["Hayden"] =	{goods = {"nanites"}, description = "Observatory and stellar mapping", general = "We study the cosmos and map stellar phenomena. We also track moving asteroids. Look out! Just kidding", history = "Station named in honor of Charles Hayden whose philanthropy continued astrophysical research and education on Earth in the early 20th century"},
 			["Lipkin"] =	{goods = {"autodoc"}, description = "Autodoc components", general = "", history = "The station is named after Dr. Lipkin who pioneered some of the research and application around robot assisted surgery in the area of partial nephrectomy for renal tumors in the early 21st century on Earth"},
 			["Madison"] =	{goods = {"luxury"}, description = "Zero gravity sports and entertainment", general = "Come take in a game or two or perhaps see a show", history = "Named after Madison Square Gardens from 21st century Earth, this station was designed to serve similar purposes in space - a venue for sports and entertainment"},
-			["Rutherford"] = {goods = {"shield"}, description = "Shield components and research", general = "We research and fabricate components for ship shield systems", history = "This station was named after the national research institution Rutherford Appleton Laboratory in the United Kingdom which conducted some preliminary research into the feasability of generating an energy shield in the late 20th century"},
+			["Rutherford"] = {
+		        weapon_available = {
+		        	Homing = random(1,13)<=(8-difficulty),	
+		        	HVLI = random(1,13)<=(9-difficulty),	
+		        	Mine = random(1,13)<=(7-difficulty),	
+		        	Nuke = random(1,13)<=(5-difficulty),	
+		        	EMP = random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 2.0,
+		        },
+				goods = {
+					shield = {
+						quantity =	5,	
+						cost =		90,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = random(1,100) < 43,
+				},
+				description = "Shield components and research", 
+				general = "We research and fabricate components for ship shield systems", 
+				history = "This station was named after the national research institution Rutherford Appleton Laboratory in the United Kingdom which conducted some preliminary research into the feasability of generating an energy shield in the late 20th century",
+			},
 			["Toohie"] =	{goods = {"shield"}, description = "Shield and armor components and research", general = "We research and make general and specialized components for ship shield and ship armor systems", history = "This station was named after one of the earliest researchers in shield technology, Alexander Toohie back when it was considered impractical to construct shields due to the physics involved."},
 		},
 		["Pop Sci Fi"] = {
-			["Anderson"] =	{goods = {"software", "battery"}, description = "Battery and software engineering", general = "We provide high quality high capacity batteries and specialized software for all shipboard systems", history = "The station is named after a fictional software engineer in a late 20th century movie depicting humanity unknowingly conquered by aliens and kept docile by software generated illusion"},
+			["Anderson"] = {
+		        weapon_available = {
+		        	Homing = false,		
+		        	HVLI = random(1,13)<=(9-difficulty),	
+		        	Mine = random(1,13)<=(7-difficulty),	
+		        	Nuke = random(1,13)<=(5-difficulty),	
+		        	EMP = random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 2.0,
+		        },
+				goods = {
+					battery = {
+						quantity =	5,
+						cost =		66,
+					},
+        			software = {
+        				quantity =	5,
+        				cost =		115,
+        			},
+        		},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = true,
+				},
+				description = "Battery and software engineering", 
+				general = "We provide high quality high capacity batteries and specialized software for all shipboard systems", 
+				history = "The station is named after a fictional software engineer in a late 20th century movie depicting humanity unknowingly conquered by aliens and kept docile by software generated illusion",
+			},
 			["Archer"] =	{goods = {"shield"}, description = "Shield and Armor Research", general = "The finest shield and armor manufacturer in the quadrant", history = "We named this station for the pioneering spirit of the 22nd century Starfleet explorer, Captain Jonathan Archer"},
 			["Barclay"] =	{goods = {"communication"}, description = "Communication components", general = "We provide a range of communication equipment and software for use aboard ships", history = "The station is named after Reginald Barclay who established the first transgalactic com link through the creative application of a quantum singularity. Station personnel often refer to the station as the Broccoli station"},
-			["Calvin"] =	{goods = {"robotic"}, description = "Robotic research", general = "We research and provide robotic systems and components", history = "This station is named after Dr. Susan Calvin who pioneered robotic behavioral research and programming"},
+			["Calvin"] = {
+		        weapon_available = {
+		        	Homing =			false,		
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+				goods = {	
+					robotic = {
+						quantity =	5,	
+						cost = 		90,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = true,
+				},
+				buy =	{
+					[randomComponent("robotic")] = math.random(40,200)
+				},
+				description = "Robotic research", 
+				general = "We research and provide robotic systems and components", 
+				history = "This station is named after Dr. Susan Calvin who pioneered robotic behavioral research and programming",
+			},
 			["Cavor"] =		{goods = {"filament"}, description = "Advanced Material components", general = "We fabricate several different kinds of materials critical to various space industries like ship building, station construction and mineral extraction", history = "We named our station after Dr. Cavor, the physicist that invented a barrier material for gravity waves - Cavorite"},
 			["Cyrus"] =		{goods = {"impulse"}, description = "Impulse engine components", general = "We supply high quality impulse engines and parts for use aboard ships", history = "This station was named after the fictional engineer, Cyrus Smith created by 19th century author Jules Verne"},
 			["Deckard"] =	{goods = {"android"}, description = "Android components", general = "Supplier of android components, programming and service", history = "Named for Richard Deckard who inspired many of the sophisticated safety security algorithms now required for all androids"},
@@ -354,31 +584,470 @@ function setConstants()
 			["O'Brien"] =	{goods = {"transporter"}, description = "Transporter components", general = "We research and fabricate high quality transporters and transporter components for use aboard ships", history = "Miles O'Brien started this business after his experience as a transporter chief"},
 			["Organa"] =	{goods = {"luxury"}, description = "Diplomatic training", general = "The premeire academy for leadership and diplomacy training in the region", history = "Established by the royal family so critical during the political upheaval era"},
 			["Owen"] =		{goods = {"lifter"}, description = "Load lifters and components", general = "We provide load lifters and components for various ship systems", history = "Owens started off in the moisture vaporator business on Tattooine then branched out into load lifters based on acquisition of proprietary software and protocols. The station name recognizes the tragic loss of our founder to Imperial violence"},
-			["Ripley"] =	{goods = {"lifter"}, description = "Load lifters and components", general = "We provide load lifters and components", history = "The station is named after Ellen Ripley who made creative and effective use of one of our load lifters when defending her ship"},
-			["Soong"] =		{goods = {"android"}, description = "Android components", general = "We create androids and android components", history = "The station is named after Dr. Noonian Soong, the famous android researcher and builder"},
+			["Ripley"] = {
+		        weapon_available = {
+		        	Homing =			false,		
+		        	HVLI =				true,		
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {
+					lifter = {
+						quantity =	5,
+						cost =		82,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = random(1,100) < 47,
+				},
+				description = "Load lifters and components", 
+				general = "We provide load lifters and components", 
+				history = "The station is named after Ellen Ripley who made creative and effective use of one of our load lifters when defending her ship",
+			},
+			["Soong"] = {
+		        weapon_available = {
+		        	Homing = random(1,13)<=(8-difficulty),	
+		        	HVLI = random(1,13)<=(9-difficulty),	
+		        	Mine = random(1,13)<=(7-difficulty),	
+		        	Nuke = random(1,13)<=(5-difficulty),	
+		        	EMP = random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {
+					android = {
+						quantity =	5,
+						cost = 73,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = true,
+				},
+				description = "Android components", 
+				general = "We create androids and android components", 
+				history = "The station is named after Dr. Noonian Soong, the famous android researcher and builder",
+			},
 			["Tiberius"] =	{goods = {"food"}, description = "Logistics coordination", general = "We support the stations and ships in the area with planning and communication services", history = "We recognize the influence of Starfleet Captain James Tiberius Kirk in the 23rd century in our station name"},
 			["Tokra"] =		{goods = {"filament"}, description = "Advanced material components", general = "", history = "We learned several of our critical industrial processes from the Tokra race, so we honor our fortune by naming the station after them"},
-			["Utopia Planitia"] = {goods = {"warp"}, description = "Ship building and maintenance facility", general = "We work on all aspects of naval ship building and maintenance. Many of the naval models are researched, designed and built right here on this station. Our design goals seek to make the space faring experience as simple as possible given the tremendous capabilities of the modern naval vessel", history = ""},
-			["Zefram"] =	{goods = {"warp"}, description = "Warp engine components", general = "We specialize in the esoteric components necessary to make warp drives function properly", history = "Zefram Cochrane constructed the first warp drive in human history. We named our station after him because of the specialized warp systems work we do"},
+			["Utopia Planitia"] = {
+		        weapon_available = 	{
+		        	Homing = 			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				true,		
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        goods = {	
+		        	warp =	{
+		        		quantity =	5,	
+		        		cost =		167,
+		        	},
+		        },
+		        trade = {	
+		        	food = false, 
+		        	medicine = false, 
+		        	luxury = false 
+		        },
+				description = "Ship building and maintenance facility", 
+				general = "We work on all aspects of naval ship building and maintenance. Many of the naval models are researched, designed and built right here on this station. Our design goals seek to make the space faring experience as simple as possible given the tremendous capabilities of the modern naval vessel", 
+				history = ""
+			},
+			["Zefram"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+		        goods = {	
+		        	warp =	{
+		        		quantity =	5,	
+		        		cost =		140,
+		        	},
+		        },
+		        trade = {	
+		        	food = false, 
+		        	medicine = false, 
+		        	luxury = true,
+		        },
+				description = "Warp engine components", 
+				general = "We specialize in the esoteric components necessary to make warp drives function properly", 
+				history = "Zefram Cochrane constructed the first warp drive in human history. We named our station after him because of the specialized warp systems work we do",
+			},
 			["Jabba"] =		{goods = {"luxury"}, description = "Commerce and gambling", general = "Come play some games and shop. House take does not exceed 4 percent", history = ""},
 			["Lando"] =		{goods = {"shield"}, description = "Casino and Gambling", general = "", history = ""},
 			["Skandar"] =	{goods = {"luxury"}, description = "Routine maintenance and entertainment", general = "Stop by for repairs. Take in one of our juggling shows featuring the four-armed Skandars", history = "The nomadic Skandars have set up at this station to practice their entertainment and maintenance skills as well as build a community where Skandars can relax"},
-			["Starnet"] =	{goods = {"software"}, description = "Automated weapons systems", general = "We research and create automated weapons systems to improve ship combat capability", history = "Lost the history memory bank. Recovery efforts only brought back the phrase, 'I'll be back'"},
+			["Starnet"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+		        goods = {	
+		        	software =	{
+		        		quantity =	5,	
+		        		cost =		140,
+		        	},
+		        },
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = false,
+				},
+				description = "Automated weapons systems", 
+				general = "We research and create automated weapons systems to improve ship combat capability", 
+				history = "Lost the history memory bank. Recovery efforts only brought back the phrase, 'I'll be back'",
+			},
 			["Vaiken"] =	{goods = {"food","impulse"}, description = "Ship building and maintenance facility", general = "", history = ""},
 		},
 		["Spec Sci Fi"] = {
 			["Alcaleica"] =	{goods = {"optic"}, description = "Optical Components", general = "We make and supply optic components for various station and ship systems", history = "This station continues the businesses from Earth based on the merging of several companies including Leica from Switzerland, the lens manufacturer and the Japanese advanced low carbon (ALCA) electronic and optic research and development company"},
-			["Bethesda"] =	{goods = {"autodoc", "medicine"}, description = "Medical research", general = "We research and treat exotic medical conditions", history = "The station is named after the United States national medical research center based in Bethesda, Maryland on earth which was established in the mid 20th century"},
+			["Bethesda"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+				reputation_cost_multipliers = {
+					friend = 1.0, 
+					neutral = 3.0,
+				},
+				goods = {	
+					autodoc = {
+						quantity =	5,
+						cost =		36,
+					},
+					medicine = {
+						quantity =	5,					
+						cost = 		5,
+					},
+					food = {
+						quantity =	math.random(5,10),	
+						cost = 		1,
+					},
+				},
+				trade = {	
+					food = false, 
+					medicine = false, 
+					luxury = false,
+				},
+				description = "Medical research", 
+				general = "We research and treat exotic medical conditions", 
+				history = "The station is named after the United States national medical research center based in Bethesda, Maryland on earth which was established in the mid 20th century",
+			},
 			["Deer"] =		{goods = {"tractor","repulsor"}, description = "Repulsor and Tractor Beam Components", general = "We can meet all your pushing and pulling needs with specialized equipment custom made", history = "The station name comes from a short story by the 20th century author Clifford D. Simak as well as from the 19th century developer John Deere who inspired a company that makes the Earth bound equivalents of our products"},
-			["Evondos"] =	{goods = {"autodoc"}, description = "Autodoc components", general = "We provide components for automated medical machinery", history = "The station is the evolution of the company that started automated pharmaceutical dispensing in the early 21st century on Earth in Finland"},
-			["Feynman"] =	{goods = {"nanites","software"}, description = "Nanotechnology research", general = "We provide nanites and software for a variety of ship-board systems", history = "This station's name recognizes one of the first scientific researchers into nanotechnology, physicist Richard Feynman"},
+			["Evondos"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				true,		
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+				reputation_cost_multipliers = {
+					friend = 1.0, 
+					neutral = 3.0,
+				},
+				goods = {
+					autodoc = {
+						quantity =	5,
+						cost =		56,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = random(1,100) < 41,
+				},
+				description = "Autodoc components", 
+				general = "We provide components for automated medical machinery", 
+				history = "The station is the evolution of the company that started automated pharmaceutical dispensing in the early 21st century on Earth in Finland",
+			},
+			["Feynman"] = {
+		        weapon_available = 	{
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				true,		
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+        		goods = {	
+        			software = {
+        				quantity = 	5,	
+        				cost =		115,
+        			},
+        			nanites = {
+        				quantity =	5,	
+        				cost =		79,
+        			},
+        		},
+		        trade = {	
+		        	food = false, 
+		        	medicine = false, 
+		        	luxury = true,
+		        },
+				description = "Nanotechnology research", 
+				general = "We provide nanites and software for a variety of ship-board systems", 
+				history = "This station's name recognizes one of the first scientific researchers into nanotechnology, physicist Richard Feynman",
+			},
 			["Mayo"] =		{goods = {"autodoc","medicine","food"}, description = "Medical Research", general = "We research exotic diseases and other human medical conditions", history = "We continue the medical work started by William Worrall Mayo in the late 19th century on Earth"},
 			["Olympus"] =	{goods = {"optic"}, description = "Optical components", general = "We fabricate optical lenses and related equipment as well as fiber optic cabling and components", history = "This station grew out of the Olympus company based on earth in the early 21st century. It merged with Infinera, then bought several software comapnies before branching out into space based industry"},
-			["Panduit"] =	{goods = {"optic"}, description = "Optic components", general = "We provide optic components for various ship systems", history = "This station is an outgrowth of the Panduit corporation started in the mid 20th century on Earth in the United States"},
-			["Shree"] =		{goods = {"tractor"}, description = "Repulsor and tractor beam components", general = "We make ship systems designed to push or pull other objects around in space", history = "Our station is named Shree after one of many tugboat manufacturers in the early 21st century on Earth in India. Tugboats serve a similar purpose for ocean-going vessels on earth as tractor and repulsor beams serve for space-going vessels today"},
+			["Panduit"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {
+					optic =	{
+						quantity =	5,
+						cost =		79,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = true,
+				},
+				description = "Optic components", 
+				general = "We provide optic components for various ship systems", 
+				history = "This station is an outgrowth of the Panduit corporation started in the mid 20th century on Earth in the United States",
+			},
+			["Shree"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {	
+					tractor = {
+						quantity =	5,	
+						cost =		90,
+					},
+        			repulsor = {
+        				quantity =	5,
+        				cost =		math.random(85,95),
+        			},
+        		},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = true,
+				},
+				description = "Repulsor and tractor beam components", 
+				general = "We make ship systems designed to push or pull other objects around in space", 
+				history = "Our station is named Shree after one of many tugboat manufacturers in the early 21st century on Earth in India. Tugboats serve a similar purpose for ocean-going vessels on earth as tractor and repulsor beams serve for space-going vessels today",
+			},
 			["Vactel"] =	{goods = {"circuit"}, description = "Shielded Circuitry Fabrication", general = "We specialize in circuitry shielded from external hacking suitable for ship systems", history = "We started as an expansion from the lunar based chip manufacturer of Earth legacy Intel electronic chips"},
-			["Veloquan"] =	{goods = {"sensor"}, description = "Sensor components", general = "We research and construct components for the most powerful and accurate sensors used aboard ships along with the software to make them easy to use", history = "The Veloquan company has its roots in the manufacturing of LIDAR sensors in the early 21st century on Earth in the United States for autonomous ground-based vehicles. They expanded research and manufacturing operations to include various sensors for space vehicles. Veloquan was the result of numerous mergers and acquisitions of several companies including Velodyne and Quanergy"},
-			["Tandon"] =	{goods = {"medicine","autodoc"}, description = "Biotechnology research", general = "Merging the organic and inorganic through research", history = "Continued from the Tandon school of engineering started on Earth in the early 21st century"},
+			["Veloquan"] = {
+		        weapon_available = {
+		        	Homing = random(1,13)<=(8-difficulty),	
+		        	HVLI = random(1,13)<=(9-difficulty),	
+		        	Mine = random(1,13)<=(7-difficulty),	
+		        	Nuke = random(1,13)<=(5-difficulty),	
+		        	EMP = random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {
+					sensor = {
+						quantity =	5,
+						cost =		68,
+					},
+				},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = false,
+				},
+				description = "Sensor components", 
+				general = "We research and construct components for the most powerful and accurate sensors used aboard ships along with the software to make them easy to use", 
+				history = "The Veloquan company has its roots in the manufacturing of LIDAR sensors in the early 21st century on Earth in the United States for autonomous ground-based vehicles. They expanded research and manufacturing operations to include various sensors for space vehicles. Veloquan was the result of numerous mergers and acquisitions of several companies including Velodyne and Quanergy",
+			},
+			["Tandon"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = false,
+				},
+				description = "Biotechnology research",
+				general = "Merging the organic and inorganic through research", 
+				history = "Continued from the Tandon school of engineering started on Earth in the early 21st century",
+			},
 		},
 		["Generic"] = {
 			["California"] = {goods = {"gold", "dilithium"}, description = "Mining station", general = "", history = ""},
@@ -386,22 +1055,146 @@ function setConstants()
 			["Krak"] =		{goods = {"nickel","platinum"}, description = "Mining station", general = "", history = ""},
 			["Krik"] =		{goods = {"nickel","cobalt"}, description = "Mining station", general = "", history = ""},
 			["Kruk"] =		{goods = {"nickel","tritanium"}, description = "Mining station", general = "", history = ""},
-			["Outpost-15"] = {goods = {"luxury"}, description = "Mining and trade", general = "", history = ""},
-			["Outpost-21"] = {goods = {"luxury"}, description = "Mining and gambling", general = "", history = ""},
-			["Science-7"] = {goods = {"food"}, description = "Observatory", general = "", history = ""},
 			["Maverick"] =	{goods = {"luxury"}, description = "Gambling and resupply", general = "Relax and meet some interesting players", history = ""},
 			["Nefatha"] =	{goods = {"luxury"}, description = "Commerce and recreation", general = "", history = ""},
-			["Okun"] =		{goods = {"medicine"}, description = "Xenopsychology research", general = "", history = ""},
+			["Okun"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				false,		
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = false,
+				},
+				description = "Xenopsychology research", 
+				general = "", 
+				history = "",
+			},
+			["Outpost-15"] = {goods = {"luxury"}, description = "Mining and trade", general = "", history = ""},
+			["Outpost-21"] = {goods = {"luxury"}, description = "Mining and gambling", general = "", history = ""},
 			["Outpost-7"] = {goods = {"luxury"}, description = "Resupply", general = "", history = ""},
 			["Outpost-8"] = {goods = {"food"}, description = "", general = "", history = ""},
 			["Outpost-33"] = {goods = {"luxury"}, description = "Resupply", general = "", history = ""},
-			["Prada"] =		{goods = {"luxury"}, description = "Textiles and fashion", general = "", history = ""},
+			["Prada"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				false,		
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 2.0,
+		        },
+				goods = {},
+				trade = {
+					food = false, 
+					medicine = false, 
+					luxury = false,
+				},
+				description = "Textiles and fashion", 
+				general = "", 
+				history = "",
+			},
 			["Research-11"] = {goods = {"medicine"}, description = "Stress Psychology Research", general = "", history = ""},
-			["Research-19"] = {goods = {"sensor"}, description = "Low gravity research", general = "", history = ""},
+			["Research-19"] = {
+		        weapon_available ={
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 2.0,
+		        },
+		        goods = {},
+		        trade = {
+		        	food = false, 
+		        	medicine = false, 
+		        	luxury = false,
+		        },
+				description = "Low gravity research", 
+				general = "", 
+				history = "",
+			},
 			["Rubis"] =		{goods = {"luxury"}, description = "Resupply", general = "Get your energy here! Grab a drink before you go!", history = ""},
 			["Science-2"] = {goods = {"circuit"}, description = "Research Lab and Observatory", general = "", history = ""},
 			["Science-4"] = {goods = {"medicine","autodoc"}, description = "Biotech research", general = "", history = ""},
-			["Spot"] =		{goods = {"food"}, description = "Observatory", general = "", history = ""},
+			["Science-7"] = {goods = {"food"}, description = "Observatory", general = "", history = ""},
+			["Spot"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+		        goods = {},
+		        trade = {
+		        	food = false, 
+		        	medicine = false, 
+		        	luxury = false,
+		        },
+				description = "Observatory", 
+				general = "", 
+				history = "",
+			},
 			["Valero"] =	{goods = {"luxury"}, description = "Resupply", general = "", history = ""},
 		},
 		["Sinister"] = {
@@ -764,138 +1557,129 @@ function generateStaticWorld()
 --	artTube = Artifact():setPosition(random(-50000,-20500),random(100000,199500)):setScanningParameters(1,4):setRadarSignatureInfo(random(30,100),random(5,25),random(40,60))
 --	artTube:setModeel("artifact6"):allowPickup(false):setDescriptions("Strange looking object","Object with unusual subatomic characteristics")
 
-	stationFaction = "Human Navy"
-	stationSize = "Medium Station"
-
 	--Asimov
 	asimovx = random(500,9500)
 	asimovy = random(-19500,19500)
 	stationAsimov = placeStation(asimovx,asimovy,"Asimov","Human Navy","Medium Station")
---	psx = asimovx
---	psy = asimovy
---	stationAsimov = placeAsimov()
+	stationAsimov.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
+	if random(1,5) <= 1 then stationAsimov.comms_data.goods.medicine = {quantity = 5, cost = 5}	end
 	table.insert(stationList,stationAsimov)
 	table.insert(patrolStationList,stationAsimov)
 	friendlyStations = friendlyStations + 1
-	--Utopia Planitia
 	
-	stationSize = "Large Station"
+	--Utopia Planitia
 	utopiaPlanitiax = random(120500,139500)
 	utopiaPlanitiay = random(-4500,44500)
 	stationUtopiaPlanitia = placeStation(utopiaPlanitiax,utopiaPlanitiay,"Utopia Planitia","Human Navy","Large Station")
---	psx = utopiaPlanitiax
---	psy = utopiaPlanitiay
---	stationUtopiaPlanitia = placeUtopiaPlanitia()
+	stationUtopiaPlanitia.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
+	if random(1,5) <= 1 then stationUtopiaPlanitia.comms_data.goods.medicine = {quantity = 5, cost = 5}	end
 	table.insert(stationList,stationUtopiaPlanitia)
 	table.insert(patrolStationList,stationUtopiaPlanitia)
 	friendlyStations = friendlyStations + 1
+
 	--Armstrong
-	
-	stationSize = "Huge Station"
 	armstrongx = random(10500,69500)
 	armstrongy = random(140500,159500)
-	psx = armstrongx
-	psy = armstrongy
-	stationArmstrong = placeArmstrong()
+	stationArmstrong = placeStation(armstrongx,armstrongy,"Armstrong","Human Navy","Huge Station")
+	stationArmstrong.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
+	stationArmstrong.comms_data.goods.medicine = {quantity = 5, cost = 5}
 	table.insert(stationList,stationArmstrong)
 	table.insert(patrolStationList,stationArmstrong)
 	friendlyStations = friendlyStations + 1
 
-	stationSize = "Medium Station"
-
 	--Bethesda (first of three around larger secondary circle of stations)
-	bethesdaAngle = random(0,360)
-	xBethesda, yBethesda = vectorFromAngle(bethesdaAngle, random(35000,40000))
-	psx = 40000+xBethesda
-	psy = 150000+yBethesda
-	stationBethesda = placeBethesda()
+	local bethesdaAngle = random(0,360)
+	local xBethesda, yBethesda = vectorFromAngle(bethesdaAngle, random(35000,40000))
+	stationBethesda = placeStation(40000+xBethesda,150000+yBethesda,"Bethesda","Human Navy","Medium Station")
 	table.insert(stationList,stationBethesda)
 	friendlyStations = friendlyStations + 1
 	
-	stationSize = "Small Station"
-	stationFaction = "Independent"
 	--Feynman (second of three around larger secondary circle of stations)
-	feynmanAngle = bethesdaAngle + random(60,180)
-	xFeynman, yFeynman = vectorFromAngle(feynmanAngle, random(35000,40000))
-	psx = 40000+xFeynman
-	psy = 150000+yFeynman
-	stationFeynman = placeFeynman()
+	local feynmanAngle = bethesdaAngle + random(60,180)
+	local xFeynman, yFeynman = vectorFromAngle(feynmanAngle, random(35000,40000))
+	stationFeynman = placeStation(xFeynman,yFeynman,"Feynman","Independent","Small Station")
+	stationFeynman.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
+	if random(1,5) <= 1 then stationFeynman.comms_data.goods.medicine = {quantity = 5, cost = 5} end
 	table.insert(stationList,stationFeynman)
 	neutralStations = neutralStations + 1
 
-	stationSize = "Medium Station"
 	--Calvin (third of three around larger secondary circle of stations)
-	calvinAngle = feynmanAngle + random(60,120)
-	xCalvin, yCalvin = vectorFromAngle(calvinAngle, random(35000,40000))
-	psx = 40000+xCalvin
-	psy = 150000+yCalvin
-	stationCalvin = placeCalvin()
+	local calvinAngle = feynmanAngle + random(60,120)
+	local xCalvin, yCalvin = vectorFromAngle(calvinAngle, random(35000,40000))
+	stationCalvin = placeStation(40000+xCalvin,150000+yCalvin,"Calvin","Independent","Medium Station")
+	stationCalvin.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
+	if random(1,5) <= 1 then stationCalvin.comms_data.goods.medicine = {quantity = 5, cost = 5}	end
 	table.insert(stationList,stationCalvin)
 	neutralStations = neutralStations + 1
 	
-	stationSize = "Small Station"
-
 	--Zefram (first of four around the zero-centered circle of stations)
-	zeframAngle = random(0,360)
-	xZefram, yZefram = vectorFromAngle(zeframAngle,random(42000,50000))
-	psx = xZefram
-	psy = yZefram
-	stationZefram = placeZefram()
+	local zeframAngle = random(0,360)
+	local xZefram, yZefram = vectorFromAngle(zeframAngle,random(42000,50000))
+	stationZefram = placeStation(xZefram,yZefram,"Zefram","Independent","Small Station")
+	stationZefram.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
+	if random(1,5) <= 1 then
+		stationZefram.comms_data.goods.medicine = {quantity = 5, cost = 5}
+	else
+		stationZefram.comms_data.trade.medicine = random(1,100) < 27
+	end
 	table.insert(stationList,stationZefram)
 	friendlyStations = friendlyStations + 1
 	
-	stationFaction = "Independent"
 	--Coulomb (second of four around the zero-centered circle of stations)
-	coulombAngle = zeframAngle + random(60,120)
-	xCoulomb, yCoulomb = vectorFromAngle(coulombAngle,random(42000,50000))
-	psx = xCoulomb
-	psy = yCoulomb
-	stationCoulomb = placeCoulomb()
+	local coulombAngle = zeframAngle + random(60,120)
+	local xCoulomb, yCoulomb = vectorFromAngle(coulombAngle,random(42000,50000))
+	stationCoulomb = placeStation(xCoulomb,yCoulomb,"Coulomb","Independent","Small Station")
+	stationCoulomb.comms_data.trade.medicine = random(1,100) < 27
+	stationCoulomb.comms_data.trade.food = random(1,100) < 16
 	table.insert(stationList,stationCoulomb)
 	neutralStations = neutralStations + 1
+	
 	--Shree (third of four around the zero-centered circle of stations)
-	shreeAngle = coulombAngle + random(60,120)
-	xShree, yShree = vectorFromAngle(shreeAngle,random(42000,50000))
-	psx = xShree
-	psy = yShree
-	stationShree = placeShree()
+	local shreeAngle = coulombAngle + random(60,120)
+	local xShree, yShree = vectorFromAngle(shreeAngle,random(42000,50000))
+	stationShree = placeStation(xShree,yShree,"Shree","Independent","Small Station")
+	stationShree.comms_data.trade.medicine = true
+	stationShree.comms_data.trade.food = true
 	table.insert(stationList,stationShree)
 	neutralStations = neutralStations + 1
+	
 	--Veloquan (fourth of four around the zero-centered circle of stations)
-	veloquanAngle = shreeAngle + random(60,90)
-	xVeloquan, yVeloquan = vectorFromAngle(veloquanAngle,random(42000,50000))
-	psx = xVeloquan
-	psy = yVeloquan
-	stationVeloquan = placeVeloquan()
+	local veloquanAngle = shreeAngle + random(60,90)
+	local xVeloquan, yVeloquan = vectorFromAngle(veloquanAngle,random(42000,50000))
+	stationVeloquan = placeStation(xVeloquan,yVeloquan,"Veloquan","Independent","Small Station")
+	stationVeloquan.comms_data.trade.medicine = true
+	stationVeloquan.comms_data.trade.food = true
 	table.insert(stationList,stationVeloquan)
 	neutralStations = neutralStations + 1
 
-	stationFaction = "Human Navy"
-	
 	--Soong (first of three around smaller secondary circle of stations)
-	soongAngle = random(0,360)
-	xSoong, ySoong = vectorFromAngle(soongAngle, random(30000,35000))
-	psx = 130000+xSoong
-	psy = 20000+ySoong
-	stationSoong = placeSoong()
+	local soongAngle = random(0,360)
+	local xSoong, ySoong = vectorFromAngle(soongAngle, random(30000,35000))
+	stationSoong = placeStation(130000+xSoong,20000+ySoong,"Soong","Human Navy","Small Station")
+	stationSoong.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
+	if random(1,5) <= 1 then stationSoong.comms_data.goods.medicine = {quantity = 5, cost = 5} end
 	table.insert(stationList,stationSoong)
 	friendlyStations = friendlyStations + 1
 	
-	stationFaction = "Independent"
 	--Starnet (second of three around smaller secondary circle of stations)
-	starnetAngle = soongAngle + random(60,180)
-	xStarnet, yStarnet = vectorFromAngle(starnetAngle, random(30000,35000))
-	psx = 130000+xStarnet
-	psy = 20000+yStarnet
-	stationStarnet = placeStarnet()
+	local starnetAngle = soongAngle + random(60,180)
+	local xStarnet, yStarnet = vectorFromAngle(starnetAngle, random(30000,35000))
+	stationStarnet = placeStation(130000+xStarnet,20000+yStarnet,"Starnet","Independent","Small Station")
+	local stationGoodChoice = math.random(1,3)
+	if stationGoodChoice == 1 then
+		stationStarnet.comms_data.goods.shield = {quantity = 5, cost = math.random(85,94)}
+	elseif stationGoodChoice == 2 then
+		stationStarnet.comms_data.goods.beam = {quantity = 5, cost = math.random(62,75)}
+	else
+		stationStarnet.comms_data.goods.lifter = {quantity = 5, cost = math.random(55,89)}
+	end
 	table.insert(stationList,stationStarnet)
 	neutralStations = neutralStations + 1
+	
 	--Anderson (third of three around smaller secondary circle of stations)
-	andersonAngle = starnetAngle + random(60,120)
-	xAnderson, yAnderson = vectorFromAngle(andersonAngle, random(30000,35000))
-	psx = 130000+xAnderson
-	psy = 20000+yAnderson
-	stationAnderson = placeAnderson()
+	local andersonAngle = starnetAngle + random(60,120)
+	local xAnderson, yAnderson = vectorFromAngle(andersonAngle, random(30000,35000))
+	stationAnderson = placeStation(130000+xAnderson,20000+yAnderson,"Anderson","Independent","Small Station")
 	table.insert(stationList,stationAnderson)
 	neutralStations = neutralStations + 1
 	
@@ -903,65 +1687,106 @@ function generateStaticWorld()
 	stationSize = "Small Station"
 	
 	--Spot
-	psx = random(-50000,9500)
-	psy = random(200500,210000)
-	stationSpot = placeSpot()
+	stationSpot = placeStation(random(-50000,9500),random(200500,210000),"Spot","Independent","Small Station")
+	if stationGoodChoice == 1 then
+		stationSpot.comms_data.goods.optic = {quantity = 5, cost = math.random(85,94)}
+	elseif stationGoodChoice == 2 then
+		stationSpot.comms_data.goods.software = {quantity = 5, cost = math.random(62,75)}
+	else
+		stationSpot.comms_data.goods.sensor = {quantity = 5, cost = math.random(55,89)}
+	end
 	table.insert(stationList,stationSpot)
 	neutralStations = neutralStations + 1
+	
 	--Rutherford
-	psx = random(-9500,9500)
-	psy = random(175000,199500)
-	stationRutherford = placeRutherford()
+	stationRutherford = placeStation(random(-9500,9500),random(175000,199500),"Rutherford","Independent","Small Station")
+	stationRutherford.comms_data.trade.food = true
+	stationRutherford.comms_data.trade.medicine = true
 	table.insert(stationList,stationRutherford)
 	neutralStations = neutralStations + 1
+	
 	--Evondos
-	psx = random(10500,29500)
-	psy = random(190000,210000)
-	stationEvondos = placeEvondos()
+	stationEvondos = placeStation(random(10500,29500),random(190000,210000),"Evondos","Independent","Small Station")
+	stationEvondos.comms_data.trade.medicine = true
 	table.insert(stationList,stationEvondos)
 	neutralStations = neutralStations + 1
+	
 	--Tandon
-	psx = random(30500,100000)
-	psy = random(200500,220000)
-	stationTandon = placeTandon()
+	stationTandon = placeStation(random(30500,100000),random(200500,220000),"Tandon","Independent","Small Station")
+	local stationGoodChoice = math.random(1,3)
+	if stationGoodChoice == 1 then
+		stationTandon.comms_data.goods.autodoc = {quantity = 5, cost = math.random(85,94)}
+	elseif stationGoodChoice == 2 then
+		stationTandon.comms_data.goods.robotic = {quantity = 5, cost = math.random(62,75)}
+	else
+		stationTandon.comms_data.goods.android = {quantity = 5, cost = math.random(55,89)}
+	end
 	table.insert(stationList,stationTandon)
 	neutralStations = neutralStations + 1
+	
 	--Ripley
-	psx = random(70000,110000)
-	psy = random(180500,199500)
-	stationRipley = placeRipley()
+	stationRipley = placeStation(random(70000,110000),random(180500,199500),"Ripley","Independent","Small Station")
+	stationRipley.comms_data.trade.food = random(1,100) < 17
+	stationRipley.comms_data.trade.medicine = true
 	table.insert(stationList,stationRipley)
 	neutralStations = neutralStations + 1
+	
 	--Okun
-	psx = random(80500,100000)
-	psy = random(120000,179500)
-	stationOkun = placeOkun()
+	stationOkun = placeStation(random(80500,100000),random(120000,179500),"Okun","Independent","Small Station")
+	local stationGoodChoice = math.random(1,3)
+	if stationGoodChoice == 1 then
+		stationOkun.comms_data.goods.optic = {quantity = 5, cost = math.random(52,65)}
+	elseif stationGoodChoice == 2 then
+		stationOkun.comms_data.goods.filament = {quantity = 5, cost = math.random(55,67)}
+	else
+		stationOkun.comms_data.goods.lifter = {quantity = 5, cost = math.random(48,69)}
+	end
 	table.insert(stationList,stationOkun)
 	neutralStations = neutralStations + 1
+	
 	--Prada
-	psx = random(110000,120000)
-	psy = random(60000,100000)
-	stationPrada = placePrada()
+	stationPrada = placeStation(random(110000,120000),random(60000,100000),"Prada","Independent","Small Station")
+	local stationGoodChoice = math.random(1,3)
+	if stationGoodChoice == 1 then
+		stationPrada.comms_data.goods.luxury = {quantity = 5, cost = math.random(69,75)}
+	elseif stationGoodChoice == 2 then
+		stationPrada.comms_data.goods.cobalt = {quantity = 5, cost = math.random(55,67)}
+	else
+		stationPrada.comms_data.goods.dilithium = {quantity = 5, cost = math.random(61,69)}
+	end	
 	table.insert(stationList,stationPrada)
 	neutralStations = neutralStations + 1
+	
 	--Broeck
-	psx = random(130000,149500)
-	psy = random(60000,100000)
-	stationBroeck = placeBroeck()
+	stationBroeck = placeStation(random(130000,149500),random(60000,100000),"Broeck","Independent","Small Station")
+	stationBroeck.comms_data.trade.medicine = random(1,100) < 53
+	stationBroeck.comms_data.trade.food = random(1,100) < 14
 	table.insert(stationList,stationBroeck)
 	neutralStations = neutralStations + 1
+	
 	--Panduit
-	psx = random(150500,200000)
-	psy = random(50500,70000)
-	stationPanduit = placePanduit()
+	stationPanduit = placeStation(random(150500,200000),random(50500,70000),"Panduit","Independent","Small Station")
+	stationPanduit.comms_data.trade.medicine = random(1,100) < 33
+	stationPanduit.comms_data.trade.food = random(1,100) < 27
 	table.insert(stationList,stationPanduit)
 	neutralStations = neutralStations + 1
+	
 	--Research-19
-	psx = random(100000,170000)
-	psy = random(-9500,49500)
-	stationResearch19 = placeResearch19()
+	stationResearch19 = placeStation(random(100000,170000),random(-9500,49500),"Research-19","Independent","Small Station")
+	local stationGoodChoice = math.random(1,3)
+	if stationGoodChoice == 1 then
+		stationResearch19.comms_data.goods.transporter = {quantity = 5, cost = math.random(85,94)}
+	elseif stationGoodChoice == 2 then
+		stationResearch19.comms_data.goods.sensor = {quantity = 5, cost = math.random(62,75)}
+	else
+		stationResearch19.comms_data.goods.communication = {quantity = 5, cost = math.random(55,89)}
+	end
+--	psx = random(100000,170000)
+--	psy = random(-9500,49500)
+--	stationResearch19 = placeResearch19()
 	table.insert(stationList,stationResearch19)
 	neutralStations = neutralStations + 1
+	
 	--Grasberg
 	psx = random(100000,149500)
 	psy = random(-60000,-20000)
@@ -1227,32 +2052,7 @@ function generateStaticWorld()
 		neb2y = nebAy
 	end	
 end
-function placeAnderson()
-	--Anderson 
-	stationAnderson = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationAnderson:setPosition(psx,psy):setCallSign("Anderson"):setDescription("Battery and software engineering")
-    stationAnderson.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",	HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = false,		HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	battery =	{quantity = 5,	cost = 66},
-        			software =	{quantity = 5,	cost = 115} },
-        trade = {	food = false, medicine = false, luxury = true },
-        public_relations = true,
-        general_information = "We provide high quality high capacity batteries and specialized software for all shipboard systems",
-    	history = "The station is named after a fictional software engineer in a late 20th century movie depicting humanity unknowingly conquered by aliens and kept docile by software generated illusion"
-	}
-	if stationFaction == "Human Navy" then
-		stationAnderson.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationAnderson.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		end
-	end
-	return stationAnderson
-end
+--	Station placement functions
 function placeArchimedes()
 	--Archimedes
 	stationArchimedes = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -1281,56 +2081,6 @@ function placeArchimedes()
 		stationArchimedes.comms_data.trade.food = true
 	end
 	return stationArchimedes
-end
-function placeArmstrong()
-	--Armstrong
-	stationArmstrong = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationArmstrong:setPosition(psx,psy):setCallSign("Armstrong"):setDescription("Warp and Impulse engine manufacturing")
-    stationArmstrong.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 	Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = true,		Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = true},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	warp =		{quantity = 5,	cost = 77},
-        			impulse =	{quantity = 5,	cost = 62} },
-        trade = {	food = false, medicine = false, luxury = false },
-		buy =	{	[randomMineral()] = math.random(40,200)	},
-        public_relations = true,
-        general_information = "We manufacture warp, impulse and jump engines for the human navy fleet as well as other independent clients on a contract basis",
-    	history = "The station is named after the late 19th century astronaut as well as the fictionlized stations that followed. The station initially constructed entire space worthy vessels. In time, it transitioned into specializeing in propulsion systems."
-	}
-	if stationFaction == "Human Navy" then
-		stationArmstrong.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		stationArmstrong.comms_data.goods.medicine = {quantity = 5, cost = 5}
-	end
-	return stationArmstrong
-end
-function placeAsimov()
-	--Asimov
-	stationAsimov = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationAsimov:setCallSign("Asimov"):setDescription("Training and Coordination"):setPosition(psx,psy)
-    stationAsimov.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",	HVLI = "neutral", 						Mine = "neutral",	Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = true,			HVLI = random(1,13)<=(9-difficulty),	Mine = true,		Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	tractor =	{quantity = 5,	cost = 48} },
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "We train naval cadets in routine and specialized functions aboard space vessels and coordinate naval activity throughout the sector",
-    	history = "The original station builders were fans of the late 20th century scientist and author Isaac Asimov. The station was initially named Foundation, but was later changed simply to Asimov. It started off as a stellar observatory, then became a supply stop and as it has grown has become an educational and coordination hub for the region"
-	}
-	if stationFaction == "Human Navy" then
-		stationAsimov.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationAsimov.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		end
-	end
-	return stationAsimov
 end
 function placeBarclay()
 	--Barclay
@@ -1362,86 +2112,6 @@ function placeBarclay()
 	end
 	return stationBarclay
 end
-function placeBethesda()
-	--Bethesda 
-	stationBethesda = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationBethesda:setPosition(psx,psy):setCallSign("Bethesda"):setDescription("Medical research")
-    stationBethesda.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	autodoc =	{quantity = 5,					cost = 36},
-        			medicine =	{quantity = 5,					cost = 5},
-        			food =		{quantity = math.random(5,10),	cost = 1} },
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "We research and treat exotic medical conditions",
-    	history = "The station is named after the United States national medical research center based in Bethesda, Maryland on earth which was established in the mid 20th century"
-	}
-	return stationBethesda
-end
-function placeBroeck()
-	--Broeck
-	stationBroeck = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationBroeck:setPosition(psx,psy):setCallSign("Broeck"):setDescription("Warp drive components")
-    stationBroeck.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	warp =	{quantity = 5,	cost = 36} },
-        trade = {	food = false, medicine = false, luxury = random(1,100) < 62 },
-		buy =	{	[randomMineral()] = math.random(40,200)	},
-        public_relations = true,
-        general_information = "We provide warp drive engines and components",
-    	history = "This station is named after Chris Van Den Broeck who did some initial research into the possibility of warp drive in the late 20th century on Earth"
-	}
-	if stationFaction == "Human Navy" then
-		stationBroeck.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationBroeck.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationBroeck.comms_data.trade.medicine = random(1,100) < 53
-		end
-	else
-		stationBroeck.comms_data.trade.medicine = random(1,100) < 53
-		stationBroeck.comms_data.trade.food = random(1,100) < 14
-	end
-	return stationBroeck
-end
-function placeCalvin()
-	--Calvin 
-	stationCalvin = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationCalvin:setPosition(psx,psy):setCallSign("Calvin"):setDescription("Robotic research")
-    stationCalvin.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",	HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = false,		HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	robotic =	{quantity = 5,	cost = 90} },
-        trade = {	food = false, medicine = false, luxury = true },
-		buy =	{	[randomComponent("robotic")] = math.random(40,200)	},
-        public_relations = true,
-        general_information = "We research and provide robotic systems and components",
-    	history = "This station is named after Dr. Susan Calvin who pioneered robotic behavioral research and programming"
-	}
-	if stationFaction == "Human Navy" then
-		stationCalvin.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationCalvin.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		end
-	else
-		stationCalvin.comms_data.trade.food = random(1,100) < 8
-	end
-	return stationCalvin
-end
 function placeChatuchak()
 	--Chatuchak
 	stationChatuchak = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -1466,37 +2136,6 @@ function placeChatuchak()
 		end
 	end
 	return stationChatuchak
-end
-function placeCoulomb()
-	--Coulomb
-	stationCoulomb = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationCoulomb:setPosition(psx,psy):setCallSign("Coulomb"):setDescription("Shielded circuitry fabrication")
-    stationCoulomb.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	circuit =	{quantity = 5,	cost = 50} },
-        trade = {	food = false, medicine = false, luxury = random(1,100) < 82 },
-		buy =	{	[randomMineral()] = math.random(40,200)	},
-        public_relations = true,
-        general_information = "We make a large variety of circuits for numerous ship systems shielded from sensor detection and external control interference",
-    	history = "Our station is named after the law which quantifies the amount of force with which stationary electrically charged particals repel or attact each other - a fundamental principle in the design of our circuits"
-	}
-	if stationFaction == "Human Navy" then
-		stationCoulomb.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationCoulomb.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationCoulomb.comms_data.trade.medicine = random(1,100) < 27
-		end
-	else
-		stationCoulomb.comms_data.trade.medicine = random(1,100) < 27
-		stationCoulomb.comms_data.trade.food = random(1,100) < 16
-	end
-	return stationCoulomb
 end
 function placeCyrus()
 	--Cyrus
@@ -1557,64 +2196,6 @@ function placeErickson()
 		stationErickson.comms_data.trade.food = true
 	end
 	return stationErickson
-end
-function placeEvondos()
-	--Evondos
-	stationEvondos = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationEvondos:setPosition(psx,psy):setCallSign("Evondos"):setDescription("Autodoc components")
-    stationEvondos.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral",	Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = true,		Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	autodoc =	{quantity = 5,	cost = 56} },
-        trade = {	food = false, medicine = false, luxury = random(1,100) < 41 },
-        public_relations = true,
-        general_information = "We provide components for automated medical machinery",
-    	history = "The station is the evolution of the company that started automated pharmaceutical dispensing in the early 21st century on Earth in Finland"
-	}
-	if stationFaction == "Human Navy" then
-		stationEvondos.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationEvondos.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationEvondos.comms_data.trade.medicine = true
-		end
-	else
-		stationEvondos.comms_data.trade.medicine = true
-	end
-	return stationEvondos
-end
-function placeFeynman()
-	--Feynman 
-	stationFeynman = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationFeynman:setPosition(psx,psy):setCallSign("Feynman"):setDescription("Nanotechnology research")
-    stationFeynman.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",	Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = true,		Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	software =	{quantity = 5,	cost = 115},
-        			nanites =	{quantity = 5,	cost = 79} },
-        trade = {	food = false, medicine = false, luxury = true },
-        public_relations = true,
-        general_information = "We provide nanites and software for a variety of ship-board systems",
-    	history = "This station's name recognizes one of the first scientific researchers into nanotechnology, physicist Richard Feynman"
-	}
-	if stationFaction == "Human Navy" then
-		stationFeynman.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationFeynman.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		end
-	else
-		stationFeynman.comms_data.trade.medicine = true
-		stationFeynman.comms_data.trade.food = random(1,100) < 26
-	end
-	return stationFeynman
 end
 function placeGrasberg()
 	--Grasberg
@@ -2170,31 +2751,6 @@ function placeOBrien()
 	stationOBrien.comms_data.trade.luxury = random(1,100) < 43
 	return stationOBrien
 end
-function placeOkun()
-	--Okun
-	stationOkun = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOkun:setPosition(psx,psy):setCallSign("Okun"):setDescription("Xenopsychology research")
-    stationOkun.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",	Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = false,		Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = false
-	}
-	local stationGoodChoice = math.random(1,3)
-	if stationGoodChoice == 1 then
-		stationOkun.comms_data.goods.optic = {quantity = 5, cost = math.random(52,65)}
-	elseif stationGoodChoice == 2 then
-		stationOkun.comms_data.goods.filament = {quantity = 5, cost = math.random(55,67)}
-	else
-		stationOkun.comms_data.goods.lifter = {quantity = 5, cost = math.random(48,69)}
-	end
-	return stationOkun
-end
 function placeOlympus()
 	--Olympus
 	stationOlympus = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -2252,60 +2808,6 @@ function placeOwen()
 	end
 	return stationOwen
 end
-function placePanduit()
-	--Panduit
-	stationPanduit = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationPanduit:setPosition(psx,psy):setCallSign("Panduit"):setDescription("Optic components")
-    stationPanduit.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	optic =	{quantity = 5,	cost = 79} },
-        trade = {	food = false, medicine = false, luxury = true },
-        public_relations = true,
-        general_information = "We provide optic components for various ship systems",
-    	history = "This station is an outgrowth of the Panduit corporation started in the mid 20th century on Earth in the United States"
-	}
-	if stationFaction == "Human Navy" then
-		stationPanduit.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationPanduit.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationPanduit.comms_data.trade.medicine = random(1,100) < 33
-		end
-	else
-		stationPanduit.comms_data.trade.medicine = random(1,100) < 33
-		stationPanduit.comms_data.trade.food = random(1,100) < 27
-	end
-	return stationPanduit
-end
-function placePrada()
-	--Prada
-	stationPrada = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationPrada:setPosition(psx,psy):setCallSign("Prada"):setDescription("Textiles and fashion")
-    stationPrada.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",	Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = false,		Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {},
-        trade = {	food = false, medicine = false, luxury = false }
-	}
-	local stationGoodChoice = math.random(1,3)
-	if stationGoodChoice == 1 then
-		stationPrada.comms_data.goods.luxury = {quantity = 5, cost = math.random(69,75)}
-	elseif stationGoodChoice == 2 then
-		stationPrada.comms_data.goods.cobalt = {quantity = 5, cost = math.random(55,67)}
-	else
-		stationPrada.comms_data.goods.dilithium = {quantity = 5, cost = math.random(61,69)}
-	end
-	return stationPrada
-end
 function placeResearch19()
 	--Research-19
 	stationResearch19 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -2330,36 +2832,6 @@ function placeResearch19()
 	end
 	return stationResearch19
 end
-function placeRipley()
-	--Ripley
-	stationRipley = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationRipley:setPosition(psx,psy):setCallSign("Ripley"):setDescription("Load lifters and components")
-    stationRipley.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",	HVLI = "neutral",	Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = false,		HVLI = true,		Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	lifter =	{quantity = 5,	cost = 82} },
-        trade = {	food = false, medicine = false, luxury = random(1,100) < 47 },
-        public_relations = true,
-        general_information = "We provide load lifters and components",
-    	history = "The station is named after Ellen Ripley who made creative and effective use of one of our load lifters when defending her ship"
-	}
-	if stationFaction == "Human Navy" then
-		stationRipley.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationRipley.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationRipley.comms_data.trade.medicine = true
-		end
-	else
-		stationRipley.comms_data.trade.food = random(1,100) < 17
-		stationRipley.comms_data.trade.medicine = true
-	end
-	return stationRipley
-end
 function placeRubis()
 	--Rubis
 	stationRubis = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -2377,36 +2849,6 @@ function placeRubis()
         general_information = "Get your energy here! Grab a drink before you go!"
 	}
 	return stationRubis
-end
-function placeRutherford()
-	--Rutherford
-	stationRutherford = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationRutherford:setPosition(psx,psy):setCallSign("Rutherford"):setDescription("Shield components and research")
-    stationRutherford.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	shield =	{quantity = 5,	cost = 90} },
-        trade = {	food = false, medicine = false, luxury = random(1,100) < 43 },
-        public_relations = true,
-        general_information = "We research and fabricate components for ship shield systems",
-    	history = "This station was named after the national research institution Rutherford Appleton Laboratory in the United Kingdom which conducted some preliminary research into the feasability of generating an energy shield in the late 20th century"
-	}
-	if stationFaction == "Human Navy" then
-		stationRutherford.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationRutherford.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationRutherford.comms_data.trade.medicine = true
-		end
-	else
-		stationRutherford.comms_data.trade.food = true
-		stationRutherford.comms_data.trade.medicine = true
-	end
-	return stationRutherford
 end
 function placeShawyer()
 	--Shawyer
@@ -2437,37 +2879,6 @@ function placeShawyer()
 	end
 	return stationShawyer
 end
-function placeShree()
-	--Shree
-	stationShree = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationShree:setPosition(psx,psy):setCallSign("Shree"):setDescription("Repulsor and tractor beam components")
-    stationShree.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	tractor =	{quantity = 5,	cost = 90},
-        			repulsor =	{quantity = 5,	cost = math.random(85,95)} },
-        trade = {	food = false, medicine = false, luxury = true },
-        public_relations = true,
-        general_information = "We make ship systems designed to push or pull other objects around in space",
-    	history = "Our station is named Shree after one of many tugboat manufacturers in the early 21st century on Earth in India. Tugboats serve a similar purpose for ocean-going vessels on earth as tractor and repulsor beams serve for space-going vessels today"
-	}
-	if stationFaction == "Human Navy" then
-		stationShree.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationShree.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationShree.comms_data.trade.medicine = true
-		end
-	else
-		stationShree.comms_data.trade.medicine = true
-		stationShree.comms_data.trade.food = true
-	end
-	return stationShree
-end
 function placeSkandar()
 	--Skandar
 	stationSkandar = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
@@ -2486,111 +2897,6 @@ function placeSkandar()
     	history = "The nomadic Skandars have set up at this station to practice their entertainment and maintenance skills as well as build a community where Skandars can relax"
 	}
 	return stationSkandar
-end
-function placeSoong()
-	--Soong 
-	stationSoong = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationSoong:setPosition(psx,psy):setCallSign("Soong"):setDescription("Android components")
-    stationSoong.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	android =	{quantity = 5,	cost = 73} },
-        trade = {	food = false, medicine = false, luxury = true },
-        public_relations = true,
-        general_information = "We create androids and android components",
-    	history = "The station is named after Dr. Noonian Soong, the famous android researcher and builder"
-	}
-	if stationFaction == "Human Navy" then
-		stationSoong.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationSoong.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		end
-	else
-		stationSoong.comms_data.trade.medicine = true
-		stationSoong.comms_data.trade.food = true
-	end
-	return stationSoong
-end
-function placeSpot()
-	--Spot
-	stationSpot = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationSpot:setPosition(psx,psy):setCallSign("Spot"):setDescription("Observatory")
-    stationSpot.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {},
-        trade = {	food = false, medicine = false, luxury = false }
-	}
-	local stationGoodChoice = math.random(1,3)
-	if stationGoodChoice == 1 then
-		stationSpot.comms_data.goods.optic = {quantity = 5, cost = math.random(85,94)}
-	elseif stationGoodChoice == 2 then
-		stationSpot.comms_data.goods.software = {quantity = 5, cost = math.random(62,75)}
-	else
-		stationSpot.comms_data.goods.sensor = {quantity = 5, cost = math.random(55,89)}
-	end
-	return stationSpot
-end
-function placeStarnet()
-	--Starnet 
-	stationStarnet = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationStarnet:setPosition(psx,psy):setCallSign("Starnet"):setDescription("Automated weapons systems")
-    stationStarnet.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "We research and create automated weapons systems to improve ship combat capability"
-	}
-	local stationGoodChoice = math.random(1,3)
-	if stationGoodChoice == 1 then
-		stationStarnet.comms_data.goods.shield = {quantity = 5, cost = math.random(85,94)}
-	elseif stationGoodChoice == 2 then
-		stationStarnet.comms_data.goods.beam = {quantity = 5, cost = math.random(62,75)}
-	else
-		stationStarnet.comms_data.goods.lifter = {quantity = 5, cost = math.random(55,89)}
-	end
-	return stationStarnet
-end
-function placeTandon()
-	--Tandon
-	stationTandon = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationTandon:setPosition(psx,psy):setCallSign("Tandon"):setDescription("Biotechnology research")
-    stationTandon.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "Merging the organic and inorganic through research",
-    	history = "Continued from the Tandon school of engineering started on Earth in the early 21st century"
-	}
-	local stationGoodChoice = math.random(1,3)
-	if stationGoodChoice == 1 then
-		stationTandon.comms_data.goods.autodoc = {quantity = 5, cost = math.random(85,94)}
-	elseif stationGoodChoice == 2 then
-		stationTandon.comms_data.goods.robotic = {quantity = 5, cost = math.random(62,75)}
-	else
-		stationTandon.comms_data.goods.android = {quantity = 5, cost = math.random(55,89)}
-	end
-	return stationTandon
 end
 function placeTokra()
 	--Tokra
@@ -2661,90 +2967,6 @@ function placeToohie()
 		stationToohie.comms_data.trade.medicine = random(1,100) < 25
 	end
 	return stationToohie
-end
-function placeUtopiaPlanitia()
-	--Utopia Planitia
-	stationUtopiaPlanitia = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationUtopiaPlanitia:setPosition(psx,psy):setCallSign("Utopia Planitia"):setDescription("Ship building and maintenance facility")
-    stationUtopiaPlanitia.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend",	EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = true,		EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	warp =	{quantity = 5,	cost = 167} },
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "We work on all aspects of naval ship building and maintenance. Many of the naval models are researched, designed and built right here on this station. Our design goals seek to make the space faring experience as simple as possible given the tremendous capabilities of the modern naval vessel"
-	}
-	if stationFaction == "Human Navy" then
-		stationUtopiaPlanitia.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationUtopiaPlanitia.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		end
-	end
-	return stationUtopiaPlanitia
-end
-function placeVeloquan()
-	--Veloquan
-	stationVeloquan = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationVeloquan:setPosition(psx,psy):setCallSign("Veloquan"):setDescription("Sensor components")
-    stationVeloquan.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	sensor =	{quantity = 5,	cost = 68} },
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "We research and construct components for the most powerful and accurate sensors used aboard ships along with the software to make them easy to use",
-    	history = "The Veloquan company has its roots in the manufacturing of LIDAR sensors in the early 21st century on Earth in the United States for autonomous ground-based vehicles. They expanded research and manufacturing operations to include various sensors for space vehicles. Veloquan was the result of numerous mergers and acquisitions of several companies including Velodyne and Quanergy"
-	}
-	if stationFaction == "Human Navy" then
-		stationVeloquan.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationVeloquan.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationVeloquan.comms_data.trade.medicine = true
-		end
-	else
-		stationVeloquan.comms_data.trade.medicine = true
-		stationVeloquan.comms_data.trade.food = true
-	end
-	return stationVeloquan
-end
-function placeZefram()
-	--Zefram
-	stationZefram = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationZefram:setPosition(psx,psy):setCallSign("Zefram"):setDescription("Warp engine components")
-    stationZefram.comms_data = {
-    	friendlyness = random(0,100),
-        weapons = 			{Homing = "neutral",					HVLI = "neutral", 						Mine = "neutral",						Nuke = "friend", 						EMP = "friend"},
-        weapon_available = 	{Homing = random(1,13)<=(8-difficulty),	HVLI = random(1,13)<=(9-difficulty),	Mine = random(1,13)<=(7-difficulty),	Nuke = random(1,13)<=(5-difficulty),	EMP = random(1,13)<=(6-difficulty)},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	warp =	{quantity = 5,	cost = 140} },
-        trade = {	food = false, medicine = false, luxury = true },
-        public_relations = true,
-        general_information = "We specialize in the esoteric components necessary to make warp drives function properly",
-    	history = "Zefram Cochrane constructed the first warp drive in human history. We named our station after him because of the specialized warp systems work we do"
-	}
-	if stationFaction == "Human Navy" then
-		stationZefram.comms_data.goods.food = {quantity = math.random(5,10), cost = 1}
-		if random(1,5) <= 1 then
-			stationZefram.comms_data.goods.medicine = {quantity = 5, cost = 5}
-		else
-			stationZefram.comms_data.trade.medicine = random(1,100) < 27
-		end
-	else
-		stationZefram.comms_data.trade.medicine = random(1,100) < 27
-		stationZefram.comms_data.trade.food = random(1,100) < 16
-	end
-	return stationZefram
 end
 ----------------------------------------------
 --	Transport ship generation and handling  --
