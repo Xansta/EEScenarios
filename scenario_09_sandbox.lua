@@ -1891,8 +1891,7 @@ end
 -- +SPAWN SHIP(S)		F	spawnGMShips
 -- +ORDER FLEET			F	orderFleet
 -- +ORDER SHIP			F	orderShip
--- +DROP POINT			F	dropPoint
--- +SCAN CLUE			F	scanClue
+-- +ARTIFACTS			F	fiddleWithArtifacts
 -- +TWEAK TERRAIN		F	tweakTerrain
 -- +COUNTDOWN TIMER		F	countdownTimer
 -- +CUSTOM				F	customButtons
@@ -1903,12 +1902,907 @@ function initialGMFunctions()
 	addGMFunction("+Spawn Ship(s)",spawnGMShips)
 	addGMFunction("+Order Fleet",orderFleet)
 	addGMFunction("+Order Ship",orderShip)
-	addGMFunction("+Drop Point",dropPoint)
-	addGMFunction("+Scan Clue",scanClue)
+	addGMFunction("+Artifacts",fiddleWithArtifacts)
 	addGMFunction("+Tweak Terrain",tweakTerrain)
 	addGMFunction("+Countdown Timer",countdownTimer)
 	addGMFunction("+Custom",customButtons)
 	addGMFunction("+End Session",endSession)
+end
+-----------------
+--	Artifacts  --
+-----------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM ARTIFACTS	F	initialGMFunctions
+-- +DROP POINT			F	dropPoint
+-- +SCAN CLUE			F	scanClue
+-- +SELECT ARTIFACT		D	fiddleWithArtifacts
+--    or
+-- +SET MODEL			D	setArtifactModel
+function fiddleWithArtifacts()
+	clearGMFunctions()
+	addGMFunction("-Main from Artifacts",initialGMFunctions)
+	addGMFunction("+Drop Point",dropPoint)
+	addGMFunction("+Scan Clue",scanClue)
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		addGMFunction("+Select Artifact",fiddleWithArtifacts)
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			addGMFunction("+Select Artifact",fiddleWithArtifacts)
+		else
+			addGMFunction("+Set Model",setArtifactModel)
+			addGMFunction("+Set Spin",setArtifactSpin)
+		end
+	end
+end
+function setArtifactSpin()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Spin",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("Spin 0.5",function()
+		setGivenSpin(0.5)
+	end)
+	addGMFunction("Spin 1",function()
+		setGivenSpin(1)
+	end)
+	addGMFunction("Spin 1.5",function()
+		setGivenSpin(1.5)
+	end)
+	addGMFunction("Spin 2",function()
+		setGivenSpin(2)
+	end)
+end
+function setGivenSpin(spin)
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	object_list[1]:setSpin(spin)
+end
+-----------------------------
+--	Artifacts > Set Model  --
+-----------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM MODEL		F	initialGMFunctions
+-- -ARTIFACTS			F	fiddleWithArtifacts
+-- +NORMAL				F	normalArtifactModels
+-- +UTILITY				F	utilityArtifactModels
+-- +STATION				F	stationArtifactModels
+-- +SHIP				F	shipArtifactModels
+function setArtifactModel()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Model",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("+Normal",normalArtifactModels)
+	addGMFunction("+Utility",utilityArtifactModels)
+	addGMFunction("+Station",stationArtifactModels)
+	addGMFunction("+Ship",shipArtifactModels)
+end
+--------------------------------------
+--	Artifacts > Set Model > Normal  --
+--------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM NORMAL			F	setArtifactModel
+-- ARTIFACT1			D	inline
+-- ARTIFACT2			D	inline
+-- ARTIFACT3			D	inline
+-- ARTIFACT4			D	inline
+-- ARTIFACT5			D	inline
+-- ARTIFACT6			D	inline
+-- ARTIFACT7			D	inline
+-- ARTIFACT8			D	inline
+function normalArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Normal",setArtifactModel)
+	local normal_models = {
+		"artifact1",
+		"artifact2",
+		"artifact3",
+		"artifact4",
+		"artifact5",
+		"artifact6",
+		"artifact7",
+		"artifact8",		
+	}
+	for _, model_name in ipairs(normal_models) do
+		addGMFunction(model_name,function()
+			local object_list = getGMSelection()
+			if object_list == nil or #object_list ~= 1 then
+				fiddleWithArtifacts()
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+				end
+			end
+			object_list[1]:setModel(model_name)
+			addGMMessage(string.format("Artifact model set to %s",model_name))
+			setArtifactModel()
+		end)
+	end
+end
+---------------------------------------
+--	Artifacts > Set Model > Utility  --
+---------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM UTILITY		F	setArtifactModel
+-- SENSORBUOYMKI		D	inline
+-- SENSORBUOYMKII		D	inline
+-- SENSORBUOYMKIII		D	inline
+-- AMMO_BOX				D	inline
+-- SHIELD_GENERATOR		D	inline
+function utilityArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Utility",setArtifactModel)
+	local utility_models = {
+		"SensorBuoyMKI",
+		"SensorBuoyMKII",
+		"SensorBuoyMKIII",
+		"ammo_box",
+		"shield_generator",
+	}
+	for _, model_name in ipairs(utility_models) do
+		addGMFunction(model_name,function()
+			local object_list = getGMSelection()
+			if object_list == nil or #object_list ~= 1 then
+				fiddleWithArtifacts()
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+				end
+			end
+			object_list[1]:setModel(model_name)
+			addGMMessage(string.format("Artifact model set to %s",model_name))
+			setArtifactModel()
+		end)
+	end
+end
+---------------------------------------
+--	Artifacts > Set Model > Station  --
+---------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM STATION		F	setArtifactModel
+-- SPACE_STATION_4		D	inline
+-- SPACE_STATION_3		D	inline
+-- SPACE_STATION_2		D	inline
+-- SPACE_STATION_1		D	inline
+function stationArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Station",setArtifactModel)
+	local station_models = {
+		"space_station_4",
+		"space_station_3",
+		"space_station_2",
+		"space_station_1",
+	}
+	for _, model_name in ipairs(station_models) do
+		addGMFunction(model_name,function()
+			local object_list = getGMSelection()
+			if #object_list ~= 1 then
+				fiddleWithArtifacts()
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+				end
+			end
+			object_list[1]:setModel(model_name)
+			addGMMessage(string.format("Artifact model set to %s",model_name))
+			setArtifactModel()
+		end)
+	end
+end
+------------------------------------
+--	Artifacts > Set Model > Ship  --
+------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM SHIP			F	setArtifactModel
+-- +MISC				F	miscShipModels
+-- +BATTLESHIPS			F	battleshipShipModels
+-- +KTLITANS			F	ktlitanShipModels
+-- +SMALL FRIGATES		F	smallFrigateShipModels
+-- +COLOR GROUPS		F	colorGroupShipModels
+-- +TRANSPORTS			F	transportShipModels
+function shipArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Ship",setArtifactModel)
+	addGMFunction("+Misc",miscShipModels)
+	addGMFunction("+Battleships",battleshipShipModels)
+	addGMFunction("+Ktlitans",ktlitanShipModels)
+	addGMFunction("+Small Frigates",smallFrigateShipModels)
+	addGMFunction("+Color Groups",colorGroupShipModels)
+	addGMFunction("+Transports",transportShipModels)
+end
+-------------------------------------------
+--	Artifacts > Set Model > Ship > Misc  --
+-------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM MISC			F	shipArtifactModels
+-- PLAYER FIGHTER		D	inline
+-- ADV. STRIKER			D	inline
+-- TUG					D	inline
+-- SPACE_FRIGATE_6		D	inline
+-- MISSILE CRUISER		D	inline
+function miscShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Misc",shipArtifactModels)
+	local misc_ship_models = {
+		{model_name = "small_fighter_1", game_name = {"Player Fighter"}},
+		{model_name = "dark_fighter_6", game_name = {"Adv. Striker"}},
+		{model_name = "space_tug", game_name = {"Tug"}},
+		{model_name = "space_frigate_6", game_name = {"Not Used"}},
+		{model_name = "space_cruiser_4", game_name = {"Missile Cruiser","Weapons platfrom","Player Missile Cr."}},
+	}
+	addShipModelButtons(misc_ship_models)
+end
+--------------------------------------------------
+--	Artifacts > Set Model > Ship > Battleships  --
+--------------------------------------------------
+-- Button Text					   FD*	Related Function(s)
+-- -FROM BATTLESHIPS				F	shipArtifactModels
+-- ATLANTIS X23						D	inline
+-- BATTLESHIP_DESTROYER_2_UPGRADED	D	inline
+-- BLOCKADE RUNNER					D	inline
+-- GUNSHIP							D	inline
+-- PLAYER CRUISER					D	inline
+-- BATTLESTATION					D	inline
+function battleshipShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Battleships",shipArtifactModels)
+	local battleship_ship_models = {
+		{model_name = "battleship_destroyer_1_upgraded", game_name = {"Atlantis X23","Atlantis","Dreadnought"}},
+		{model_name = "battleship_destroyer_2_upgraded", game_name = {"Not Used"}},
+		{model_name = "battleship_destroyer_3_upgraded", game_name = {"Blockade Runner"}},
+		{model_name = "battleship_destroyer_4_upgraded", game_name = {"Gunship","Starhammer II"}},
+		{model_name = "battleship_destroyer_5_upgraded", game_name = {"Player Cruiser"}},
+		{model_name = "Ender Battlecruiser", game_name = {"Battlestation","Ender"}},
+	}
+	addShipModelButtons(battleship_ship_models)
+end
+-----------------------------------------------
+--	Artifacts > Set Model > Ship > Ktlitans  --
+-----------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM KTLITANS		F	shipArtifactModels
+-- KTLITAN FIGHTER		D	inline
+-- KTLITAN BREAKER		D	inline
+-- KTLITAN WORKER		D	inline
+-- KTLITAN DRONE		D	inline
+-- KTLITAN FEEDER		D	inline
+-- KTLITAN SCOUT		D	inline
+-- KTLITAN DESTROYER	D	inline
+-- KTLITAN QUEEN		D	inline
+function ktlitanShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Ktlitans",shipArtifactModels)
+	local ktlitan_ship_models = {
+		{model_name = "sci_fi_alien_ship_1", game_name = {"Ktlitan Fighter"}},
+		{model_name = "sci_fi_alien_ship_2", game_name = {"Ktlitan Breaker"}},
+		{model_name = "sci_fi_alien_ship_3", game_name = {"Ktlitan Worker"}},
+		{model_name = "sci_fi_alien_ship_4", game_name = {"Ktlitan Drone"}},
+		{model_name = "sci_fi_alien_ship_5", game_name = {"Ktlitan Feeder"}},
+		{model_name = "sci_fi_alien_ship_6", game_name = {"Ktlitan Scout"}},
+		{model_name = "sci_fi_alien_ship_7", game_name = {"Ktlitan Destroyer"}},
+		{model_name = "sci_fi_alien_ship_8", game_name = {"Ktlitan Queen"}},
+	}
+	addShipModelButtons(ktlitan_ship_models)
+end
+-----------------------------------------------------
+--	Artifacts > Set Model > Ship > Small Frigates  --
+-----------------------------------------------------
+-- Button Text				   FD*	Related Function(s)
+-- -MAIN FROM SMALL FRIGATES	F	shipArtifactModels
+-- SMALL_FRIGATE_1				D	inline
+-- SMALL_FRIGATE_2				D	inline
+-- STRIKESHIP					D	inline
+-- KARNACK						D	inline
+-- NIRVANA R5					D	inline
+function smallFrigateShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Small Frigates",shipArtifactModels)
+	local small_frigate_ship_models = {
+		{model_name = "small_frigate_1", game_name = {"Not Used"}},
+		{model_name = "small_frigate_2", game_name = {"Not Used"}},
+		{model_name = "small_frigate_3", game_name = {"Strikeship"}},
+		{model_name = "small_frigate_4", game_name = {"Karnack","Cruiser"}},
+		{model_name = "small_frigate_5", game_name = {"Nirvana R5","Nirvana R5A","Nirvana R3"}},
+	}
+	addShipModelButtons(small_frigate_ship_models)
+end
+---------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups  --
+---------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM COLOR GROUPS	F	shipArtifactModels
+-- +ADLERS				F	adlerShipModels
+-- +ATLAS				F	atlasShipModels
+-- +LINDWORMS			F	lindwormShipModels
+-- +WESPE SCOUTS		F	wespeShipModels
+-- +CORVETTES			F	corvetteShipModels
+function colorGroupShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Color Groups",shipArtifactModels)
+	addGMFunction("+Adlers",adlerShipModels)
+	addGMFunction("+Atlas",atlasShipModels)
+	addGMFunction("+Lindworms",lindwormShipModels)
+	addGMFunction("+Wespe Scouts",wespeShipModels)
+	addGMFunction("+Corvettes",corvetteShipModels)
+end
+---------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes  --
+---------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -FROM CORVETTES	F	colorGroupShipModels
+-- +HEAVY			F	heavyCorvetteShipModels
+-- +LASER			F	laserCorvetteShipModels
+-- +LIGHT			F	lightCorvetteShipModels
+-- +MINE LAYER		F	mineLayerCorvetteShipModels
+-- +MISSILE			F	missileCorvetteShipModels
+-- +MULTIGUN		F	multiGunCorvetteShipModels
+function corvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Corvettes",colorGroupShipModels)
+	addGMFunction("+Heavy",heavyCorvetteShipModels)
+	addGMFunction("+Laser",laserCorvetteShipModels)
+	addGMFunction("+Light",lightCorvetteShipModels)
+	addGMFunction("+Mine Layer",mineLayerCorvetteShipModels)
+	addGMFunction("+Missile",missileCorvetteShipModels)
+	addGMFunction("+Multigun",multiGunCorvetteShipModels)
+end
+------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Adlers  --
+------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM ADLERS				F	colorGroupShipModels
+-- ADDER MK4				D	inline
+-- ADDER MK7				D	inline
+-- ADLERLONGRANGESCOUTGREY	D	inline
+-- ADDER MK6				D	inline
+-- ADLERLONGRANGESCOUTWHITE	D	inline
+-- ADDER MK5				D	inline
+function adlerShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Adlers",colorGroupShipModels)
+	local adler_ship_models = {
+		{model_name = "AdlerLongRangeScoutBlue", game_name = {"Adder MK4","Adder MK3"}},
+		{model_name = "AdlerLongRangeScoutGreen", game_name = {"Adder MK7","Adder MK8"}},
+		{model_name = "AdlerLongRangeScoutGrey", game_name = {"Not Used"}},
+		{model_name = "AdlerLongRangeScoutRed", game_name = {"Adder MK6","Adder MK9"}},
+		{model_name = "AdlerLongRangeScoutWhite", game_name = {"Not Used"}},
+		{model_name = "AdlerLongRangeScoutYellow", game_name = {"Adder MK5"}},
+	}
+	addShipModelButtons(adler_ship_models)
+end
+-----------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Atlas  --
+-----------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM ATLAS				F	colorGroupShipModels
+-- ATLASHEAVYFIGHTERBLUE	D	inline
+-- ATLASHEAVYFIGHTERGREEN	D	inline
+-- ATLASHEAVYFIGHTERGREY	D	inline
+-- PHOBOS M3				D	inline
+-- ATLASHEAVYFIGHTERWHITE	D	inline
+-- PHOBOS T3				D	inline
+function atlasShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Atlas",colorGroupShipModels)
+	local atlas_ship_models = {
+		{model_name = "AtlasHeavyFighterBlue", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterGreen", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterGrey", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterRed", game_name = {"Phobos M3"}},
+		{model_name = "AtlasHeavyFighterWhite", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterYellow", game_name = {"Phobos T3","Elara P2","Phobos M3P"}},
+	}
+	addShipModelButtons(atlas_ship_models)
+end
+--------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Lindworm  --
+--------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM LINDWORM			F	colorGroupShipModels
+-- ZX-LINDWORM				D	inline
+-- LINDWURMFIGHTERGREEN		D	inline
+-- LINDWURMFIGHTERGREY		D	inline
+-- LINDWURMFIGHTERRED		D	inline
+-- LINDWURMFIGHTERWHITE		D	inline
+-- WX-LINDWORM				D	inline
+function lindwormShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Lindworms",colorGroupShipModels)
+	local lindworm_ship_models = {
+		{model_name = "LindwurmFighterBlue", game_name = {"ZX-Lindworm"}},
+		{model_name = "LindwurmFighterGreen", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterGrey", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterRed", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterWhite", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterYellow", game_name = {"WX-Lindworm"}},
+	}
+	addShipModelButtons(lindworm_ship_models)
+end
+function addShipModelButtons(list)
+	for _, model in ipairs(list) do
+		local button_name = model.game_name[1]
+		if button_name == "Not Used" then
+			button_name = model.model_name
+		end
+		addGMFunction(button_name,function()
+			local object_list = getGMSelection()
+			if #object_list ~= 1 then
+				fiddleWithArtifacts()
+				return
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+					return
+				end
+			end
+			object_list[1]:setModel(model.model_name)
+			local out = string.format("Artifact model set to %s which is used in game for:",model.model_name)
+			for _, used_name in ipairs(model.game_name) do
+				out = out .. "\n" .. used_name
+			end
+			addGMMessage(out)
+			setArtifactModel()
+		end)
+	end
+end
+------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Wespe Scouts  --
+------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM WESPE SCOUTS	F	colorGroupShipModels
+-- WESPESCOUTBLUE		D	inline
+-- WESPESCOUTGREEN		D	inline
+-- WESPESCOUTGREY		D	inline
+-- MU52 HORNET			D	inline
+-- WESPESCOUTWHITE		D	inline
+-- MT52 HORNET			D	inline
+function wespeShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Wespe Scouts",colorGroupShipModels)
+	local wespe_ship_models = {
+		{model_name = "WespeScoutBlue", game_name = {"Not Used"}},
+		{model_name = "WespeScoutGreen", game_name = {"Not Used"}},
+		{model_name = "WespeScoutGrey", game_name = {"Not Used"}},
+		{model_name = "WespeScoutRed", game_name = {"MU52 Hornet","MP52 Hornet"}},
+		{model_name = "WespeScoutWhite", game_name = {"Not Used"}},
+		{model_name = "WespeScoutYellow", game_name = {"MT52 Hornet"}},
+	}
+	addShipModelButtons(wespe_ship_models)
+end
+-----------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Heavy  --
+-----------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM HEAVY CORVETTES	F	corvetteShipModels
+-- HEAVYCORVETTEBLUE		D	inline
+-- HATHCOCK					D	inline
+-- HEAVYCORVETTEGREY		D	inline
+-- PIRANHA F12				D	inline
+-- HEAVYCORVETTEWHITE		D	inline
+-- STORM					D	inline
+function heavyCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Heavy Corvettes",corvetteShipModels)
+	local heavy_corvette_ship_models = {
+		{model_name = "HeavyCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "HeavyCorvetteGreen", game_name = {"Hathcock"}},
+		{model_name = "HeavyCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "HeavyCorvetteRed", game_name = {"Piranha F12","Piranha F12.M","Piranha F8","Piranha"}},
+		{model_name = "HeavyCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "HeavyCorvetteYellow", game_name = {"Storm"}},
+	}
+	addShipModelButtons(heavy_corvette_ship_models)
+end
+-----------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Laser  --
+-----------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM LASER CORVETTES	F	corvetteShipModels
+-- LASERCORVETTEBLUE		D	inline
+-- MAVERICK					D	inline
+-- LASERCORVETTEGREY		D	inline
+-- CRUCIBLE					D	inline
+-- LASERCORVETTEWHITE		D	inline
+-- LASERCORVETTEYELLOW		D	inline
+function laserCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Laser Corvettes",corvetteShipModels)
+	local laser_corvette_ship_models = {
+		{model_name = "LaserCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "LaserCorvetteGreen", game_name = {"Maverick"}},
+		{model_name = "LaserCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "LaserCorvetteRed", game_name = {"Crucible"}},
+		{model_name = "LaserCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "LaserCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(laser_corvette_ship_models)
+end
+-----------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Light  --
+-----------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM LIGHT CORVETTES	F	corvetteShipModels
+-- LIGHTCORVETTEBLUE		D	inline
+-- LIGHTCORVETTEGREEN		D	inline
+-- FLAVIA					D	inline
+-- REPULSE					D	inline
+-- LIGHTCORVETTEWHITE		D	inline
+-- LIGHTCORVETTEYELLOW		D	inline
+function lightCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Light Corvettes",corvetteShipModels)
+	local light_corvette_ship_models = {
+		{model_name = "LightCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "LightCorvetteGreen", game_name = {"Not Used"}},
+		{model_name = "LightCorvetteGrey", game_name = {"Flavia","Flavia Falcon","Flavia P.Falcon"}},
+		{model_name = "LightCorvetteRed", game_name = {"Repulse"}},
+		{model_name = "LightCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "LightCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(light_corvette_ship_models)
+end
+----------------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Mine Layer  --
+----------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM MINE LAYER			F	corvetteShipModels
+-- MINELAYERCORVETTEBLUE	D	inline
+-- MINELAYERCORVETTEGREEN	D	inline
+-- MINELAYERCORVETTEGREY	D	inline
+-- MINELAYERCORVETTERED		D	inline
+-- MINELAYERCORVETTEWHITE	D	inline
+-- MINELAYERCORVETTEYELLOW	D	inline
+function mineLayerCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Mine Layer",corvetteShipModels)
+	local mine_layer_corvette_ship_models = {
+		{model_name = "MineLayerCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteGreen", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteRed", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(mine_layer_corvette_ship_models)
+end
+-------------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Missile  --
+-------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM MISSILE			F	corvetteShipModels
+-- MISSILECORVETTEBLUE		D	inline
+-- RANUS U					D	inline
+-- MISSILECORVETTEGREY		D	inline
+-- MISSILECORVETTERED		D	inline
+-- MISSILECORVETTEWHITE		D	inline
+-- MISSILECORVETTEYELLOW	D	inline
+function missileCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Missile",corvetteShipModels)
+	local missile_corvette_ship_models = {
+		{model_name = "MissileCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteGreen", game_name = {"Ranus U"}},
+		{model_name = "MissileCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteRed", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(missile_corvette_ship_models)
+end
+---------------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Multi Gun  --
+---------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM MULTIGUN			F	corvetteShipModels
+-- MULTIGUNCORVETTEBLUE		D	inline
+-- MULTIGUNCORVETTEGREEN	D	inline
+-- MULTIGUNCORVETTEGREY		D	inline
+-- MULTIGUNCORVETTERED		D	inline
+-- MULTIGUNCORVETTEWHITE	D	inline
+-- MULTIGUNCORVETTEYELLOW	D	inline
+function multiGunCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Multigun",corvetteShipModels)
+	local multi_gun_corvette_ship_models = {
+		{model_name = "MultiGunCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteGreen", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteRed", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(multi_gun_corvette_ship_models)
+end
+-------------------------------------------------
+--	Artifacts > Set Model > Ship > Transports  --
+-------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM TRANSPORTS			F	shipArtifactModels
+-- PERSONNEL FREIGHTER 1	D	inline
+-- PERSONNEL FREIGHTER 2	D	inline
+-- PERSONNEL FREIGHTER 3	D	inline
+-- PERSONNEL FREIGHTER 4	D	inline
+-- PERSONNEL FREIGHTER 5	D	inline
+-- GOODS FREIGHTER 1		D	inline
+-- GOODS FREIGHTER 2		D	inline
+-- GOODS FREIGHTER 3		D	inline
+-- GOODS FREIGHTER 4		D	inline
+-- GOODS FREIGHTER 5		D	inline
+-- GARBAGE FREIGHTER 1		D	inline
+-- GARBAGE FREIGHTER 2		D	inline
+-- GARBAGE FREIGHTER 3		D	inline
+-- GARBAGE FREIGHTER 4		D	inline
+-- GARBAGE FREIGHTER 5		D	inline
+-- EQUIPMENT FREIGHTER 1	D	inline
+-- EQUIPMENT FREIGHTER 2	D	inline
+-- EQUIPMENT FREIGHTER 3	D	inline
+-- EQUIPMENT FREIGHTER 4	D	inline
+-- EQUIPMENT FREIGHTER 5	D	inline
+-- FUEL FREIGHTER 1			D	inline
+-- FUEL FREIGHTER 2			D	inline
+-- FUEL FREIGHTER 3			D	inline
+-- FUEL FREIGHTER 4			D	inline
+-- FUEL FREIGHTER 5			D	inline
+function transportShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Transports",shipArtifactModels)
+	local transport_ship_models = {
+		{model_name = "transport_1_1", game_name = {"Personnel Freighter 1","Transport1x1"}},
+		{model_name = "transport_1_2", game_name = {"Personnel Freighter 2","Transport1x2"}},
+		{model_name = "transport_1_3", game_name = {"Personnel Freighter 3","Personnel Jump Freighter 3","Transport1x3"}},
+		{model_name = "transport_1_4", game_name = {"Personnel Freighter 4","Personnel Jump Freighter 4","Transport1x4"}},
+		{model_name = "transport_1_5", game_name = {"Personnel Freighter 5","Personnel Jump Freighter 5","Transport1x5"}},
+		{model_name = "transport_2_1", game_name = {"Goods Freighter 1","Transport2x1"}},
+		{model_name = "transport_2_2", game_name = {"Goods Freighter 2","Transport2x2"}},
+		{model_name = "transport_2_3", game_name = {"Goods Freighter 3","Goods Jump Freighter 3","Transport2x3"}},
+		{model_name = "transport_2_4", game_name = {"Goods Freighter 4","Goods Jump Freighter 4","Transport2x4"}},
+		{model_name = "transport_2_5", game_name = {"Goods Freighter 5","Goods Jump Freighter 5","Transport2x5"}},
+		{model_name = "transport_3_1", game_name = {"Garbage Freighter 1","Transport3x1"}},
+		{model_name = "transport_3_2", game_name = {"Garbage Freighter 2","Transport3x2"}},
+		{model_name = "transport_3_3", game_name = {"Garbage Freighter 3","Garbage Jump Freighter 3","Transport3x3"}},
+		{model_name = "transport_3_4", game_name = {"Garbage Freighter 4","Garbage Jump Freighter 4","Transport3x4"}},
+		{model_name = "transport_3_5", game_name = {"Garbage Freighter 5","Garbage Jump Freighter 5","Transport3x5"}},
+		{model_name = "transport_4_1", game_name = {"Equipment Freighter 1","Transport4x1"}},
+		{model_name = "transport_4_2", game_name = {"Equipment Freighter 2","Transport4x2"}},
+		{model_name = "transport_4_3", game_name = {"Equipment Freighter 3","Equipment Jump Freighter 3","Transport4x3"}},
+		{model_name = "transport_4_4", game_name = {"Equipment Freighter 4","Equipment Jump Freighter 4","Transport4x4"}},
+		{model_name = "transport_4_5", game_name = {"Equipment Freighter 5","Equipment Jump Freighter 5","Transport4x5"}},
+		{model_name = "transport_5_1", game_name = {"Fuel Freighter 1","Transport5x1"}},
+		{model_name = "transport_5_2", game_name = {"Fuel Freighter 2","Transport5x2"}},
+		{model_name = "transport_5_3", game_name = {"Fuel Freighter 3","Equipment Jump Freighter 3","Transport5x3"}},
+		{model_name = "transport_5_4", game_name = {"Fuel Freighter 4","Equipment Jump Freighter 4","Transport5x4"}},
+		{model_name = "transport_5_5", game_name = {"Fuel Freighter 5","Equipment Jump Freighter 5","Transport5x5"}},
+	}
+	addShipModelButtons(transport_ship_models)
 end
 ----------------------
 --  Initial set up  --
@@ -3367,13 +4261,13 @@ function playerShip()
 			{"Kindling"		,"inactive"	,createPlayerShipKindling	},
 			{"Knick"		,"inactive"	,createPlayerShipKnick		,"Experimental - not ready for use"},
 			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
-			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
+			{"Magnum"		,"active"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
 			{"Nimbus"		,"inactive"	,createPlayerShipNimbus		,"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
 			{"Nusret"		,"inactive"	,createPlayerShipNusret		,"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Osprey"		,"inactive"	,createPlayerShipOsprey		,"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
-			{"Outcast"		,"active"	,createPlayerShipOutcast	,"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
+			{"Outcast"		,"inactive"	,createPlayerShipOutcast	,"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
 			{"Quicksilver"	,"inactive"	,createPlayerShipQuick		,"XR-Lindworm (Quicksilver): Starfighter, Bomber   Hull:75   Shield:90,30   Size:100   Repair Crew:2   Cargo:3   R.Strength:11\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400  LRS:20   SRS:6\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      02 Nuke\n      03 EMP\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, warp drive, nukes and EMPs, two shields: stronger in front, weaker in rear"},
 			{"Quill"		,"inactive"	,createPlayerShipQuill		},
 			{"Raptor"		,"active"	,createPlayerShipRaptor		,"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
@@ -3390,7 +4284,7 @@ function playerShip()
 			{"Sting"		,"inactive"	,createPlayerShipSting		,"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs"},
 			{"Thelonius"	,"inactive"	,createPlayerShipThelonius	,"Crab (Thelonius): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Rear Turreted Speed:0.5\n   Arc:70   Direction:170   Range:1   Cycle:6   Damage:6\n   Arc:70   Direction:190   Range:1   Cycle:6   Damage:6\nTubes:5   Load Speed:8   Front:3   Side:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-20   Type:Homing Only - Small\n   Direction: 20   Type:Homing Only - Small\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      16 Homing\n      02 Nuke\n      03 EMP\n      10 HVLI\nBased on Crucible: Slower warp, rear turreted beams, fewer tubes, fewer missiles, except for more homing missiles, large HVLI in front, small homing in two of the front tubes"},
 			{"Thunderbird"	,"inactive"	,createPlayerShipThunderbird,"Destroyer IV (Thunderbird) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
-			{"Vision"		,"inactive"	,createPlayerShipVision		,"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
+			{"Vision"		,"active"	,createPlayerShipVision		,"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Wiggy"		,"inactive"	,createPlayerShipWiggy		,"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors"},
 			{"Windmill"		,"active"	,createPlayerShipWindmill	,"Windmill: Frigate, Light Transport   Hull:100   Shield:100,70   Size:200   Repair Crew:5   Cargo:11   R.Strength:19\nFTL:Warp (350)   Speeds: Impulse:100   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:5\nBeams:4 Cardinal directions, sides Turreted Speed:0.5\n   Arc: 60   Direction:  0   Range:1.0   Cycle:6   Damage:6\n   Arc: 60   Direction:180   Range:1.0   Cycle:6   Damage:6\n   Arc:140   Direction:-90   Range:1.2   Cycle:6   Damage:4\n   Arc:140   Direction: 90   Range:1.2   Cycle:6   Damage:4\nTubes:5   Load Speeds: Small:5   Normal:10   Large:15   Mine:20\n   Direction:  0   Type:Exclude Mine - small\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Exclude Mine - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      5 Homing\n      1 Nuke\n      3 Mine\n      2 EMP\n      8 HVLI\nBased on Flavia P.Falcon: faster impulse, slower warp, stronger front shield, fewer repair crew,more beams in more directions, more tubes in more directions, more missiles, longer long range sensors"},
 			{"Wombat"		,"inactive"	,createPlayerShipWombat		,"Wombat (Farrah): Starfighter, Bomber   Hull:100   Shield:80,80   Size:100   Repair Crew:4   Cargo:3   R.Strength:18\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   LRS:18   SRS:6\nBeam:2 Turreted Speed:0.3\n   Arc:80   Direction:-20   Range:0.9   Cycle:4   Damage:3\n   Arc:80   Direction: 20   Range:0.9   Cycle:4   Damage:3\nTubes:5   Load Speed:10   Rear, 2 small, 1 large, 2 normal\n   Direction:180   Type:Only HVLI - small\n   Direction:180   Type:Only HVLI or Homing - small\n   Direction:180   Type:Only HVLI or Homing - large\n   Direction:180   Type:Only HVLI, EMP or Nuke\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      08 Homing\n      01 Nuke\n      02 Mine\n      02 EMP\n      12 HVLI\nBased on Lindworm: stronger hull and shields, more repair crew, warp drive, stringer, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, more homing missiles"}
@@ -3622,17 +4516,17 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 5 then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
-			dp5Zone:setColor(0,128,0)
+--		if i == 5 then
+--			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
+--			dp5Zone:setColor(0,128,0)
 --		elseif i == 6 then
 --			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
 --			dp6Zone:setColor(0,128,0)
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
