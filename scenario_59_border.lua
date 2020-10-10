@@ -5596,7 +5596,7 @@ function shrinkBeamCycle()
 							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng,tempCyc * .75,tempDmg)
 							bi = bi + 1
 						until(comms_source:getBeamWeaponRange(bi) < 1)
-						setCommsMessage("After accepting your gift, he reduced your Beam cycle time by 25%%")
+						setCommsMessage("After accepting your gift, he reduced your Beam cycle time by 25%")
 					else
 						setCommsMessage(string.format("%s requires %s for the upgrade",ctd.character,ctd.characterGood))
 					end
@@ -5706,7 +5706,7 @@ function coolBeam()
 							comms_source:setBeamWeaponHeatPerFire(bi,comms_source:getBeamWeaponHeatPerFire(bi) * 0.5)
 							bi = bi + 1
 						until(comms_source:getBeamWeaponRange(bi) < 1)
-						setCommsMessage("Beam heat generation reduced by 50%%")
+						setCommsMessage("Beam heat generation reduced by 50%")
 					else
 						setCommsMessage(string.format("%s says she needs %s before she can cool your beams",ctd.character,ctd.characterGood))
 					end
