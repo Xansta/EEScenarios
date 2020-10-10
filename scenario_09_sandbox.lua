@@ -1908,902 +1908,7 @@ function initialGMFunctions()
 	addGMFunction("+Custom",customButtons)
 	addGMFunction("+End Session",endSession)
 end
------------------
---	Artifacts  --
------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM ARTIFACTS	F	initialGMFunctions
--- +DROP POINT			F	dropPoint
--- +SCAN CLUE			F	scanClue
--- +SELECT ARTIFACT		D	fiddleWithArtifacts
---    or
--- +SET MODEL			D	setArtifactModel
-function fiddleWithArtifacts()
-	clearGMFunctions()
-	addGMFunction("-Main from Artifacts",initialGMFunctions)
-	addGMFunction("+Drop Point",dropPoint)
-	addGMFunction("+Scan Clue",scanClue)
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		addGMFunction("+Select Artifact",fiddleWithArtifacts)
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			addGMFunction("+Select Artifact",fiddleWithArtifacts)
-		else
-			addGMFunction("+Set Model",setArtifactModel)
-			addGMFunction("+Set Spin",setArtifactSpin)
-		end
-	end
-end
-function setArtifactSpin()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Spin",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction("Spin 0.5",function()
-		setGivenSpin(0.5)
-	end)
-	addGMFunction("Spin 1",function()
-		setGivenSpin(1)
-	end)
-	addGMFunction("Spin 1.5",function()
-		setGivenSpin(1.5)
-	end)
-	addGMFunction("Spin 2",function()
-		setGivenSpin(2)
-	end)
-end
-function setGivenSpin(spin)
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	object_list[1]:setSpin(spin)
-end
------------------------------
---	Artifacts > Set Model  --
------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM MODEL		F	initialGMFunctions
--- -ARTIFACTS			F	fiddleWithArtifacts
--- +NORMAL				F	normalArtifactModels
--- +UTILITY				F	utilityArtifactModels
--- +STATION				F	stationArtifactModels
--- +SHIP				F	shipArtifactModels
-function setArtifactModel()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Model",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction("+Normal",normalArtifactModels)
-	addGMFunction("+Utility",utilityArtifactModels)
-	addGMFunction("+Station",stationArtifactModels)
-	addGMFunction("+Ship",shipArtifactModels)
-end
---------------------------------------
---	Artifacts > Set Model > Normal  --
---------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM NORMAL			F	setArtifactModel
--- ARTIFACT1			D	inline
--- ARTIFACT2			D	inline
--- ARTIFACT3			D	inline
--- ARTIFACT4			D	inline
--- ARTIFACT5			D	inline
--- ARTIFACT6			D	inline
--- ARTIFACT7			D	inline
--- ARTIFACT8			D	inline
-function normalArtifactModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Normal",setArtifactModel)
-	local normal_models = {
-		"artifact1",
-		"artifact2",
-		"artifact3",
-		"artifact4",
-		"artifact5",
-		"artifact6",
-		"artifact7",
-		"artifact8",		
-	}
-	for _, model_name in ipairs(normal_models) do
-		addGMFunction(model_name,function()
-			local object_list = getGMSelection()
-			if object_list == nil or #object_list ~= 1 then
-				fiddleWithArtifacts()
-			else
-				if object_list[1].typeName ~= "Artifact" then
-					fiddleWithArtifacts()
-				end
-			end
-			object_list[1]:setModel(model_name)
-			addGMMessage(string.format("Artifact model set to %s",model_name))
-			setArtifactModel()
-		end)
-	end
-end
----------------------------------------
---	Artifacts > Set Model > Utility  --
----------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM UTILITY		F	setArtifactModel
--- SENSORBUOYMKI		D	inline
--- SENSORBUOYMKII		D	inline
--- SENSORBUOYMKIII		D	inline
--- AMMO_BOX				D	inline
--- SHIELD_GENERATOR		D	inline
-function utilityArtifactModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Utility",setArtifactModel)
-	local utility_models = {
-		"SensorBuoyMKI",
-		"SensorBuoyMKII",
-		"SensorBuoyMKIII",
-		"ammo_box",
-		"shield_generator",
-	}
-	for _, model_name in ipairs(utility_models) do
-		addGMFunction(model_name,function()
-			local object_list = getGMSelection()
-			if object_list == nil or #object_list ~= 1 then
-				fiddleWithArtifacts()
-			else
-				if object_list[1].typeName ~= "Artifact" then
-					fiddleWithArtifacts()
-				end
-			end
-			object_list[1]:setModel(model_name)
-			addGMMessage(string.format("Artifact model set to %s",model_name))
-			setArtifactModel()
-		end)
-	end
-end
----------------------------------------
---	Artifacts > Set Model > Station  --
----------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM STATION		F	setArtifactModel
--- SPACE_STATION_4		D	inline
--- SPACE_STATION_3		D	inline
--- SPACE_STATION_2		D	inline
--- SPACE_STATION_1		D	inline
-function stationArtifactModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Station",setArtifactModel)
-	local station_models = {
-		"space_station_4",
-		"space_station_3",
-		"space_station_2",
-		"space_station_1",
-	}
-	for _, model_name in ipairs(station_models) do
-		addGMFunction(model_name,function()
-			local object_list = getGMSelection()
-			if #object_list ~= 1 then
-				fiddleWithArtifacts()
-			else
-				if object_list[1].typeName ~= "Artifact" then
-					fiddleWithArtifacts()
-				end
-			end
-			object_list[1]:setModel(model_name)
-			addGMMessage(string.format("Artifact model set to %s",model_name))
-			setArtifactModel()
-		end)
-	end
-end
-------------------------------------
---	Artifacts > Set Model > Ship  --
-------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM SHIP			F	setArtifactModel
--- +MISC				F	miscShipModels
--- +BATTLESHIPS			F	battleshipShipModels
--- +KTLITANS			F	ktlitanShipModels
--- +SMALL FRIGATES		F	smallFrigateShipModels
--- +COLOR GROUPS		F	colorGroupShipModels
--- +TRANSPORTS			F	transportShipModels
-function shipArtifactModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Ship",setArtifactModel)
-	addGMFunction("+Misc",miscShipModels)
-	addGMFunction("+Battleships",battleshipShipModels)
-	addGMFunction("+Ktlitans",ktlitanShipModels)
-	addGMFunction("+Small Frigates",smallFrigateShipModels)
-	addGMFunction("+Color Groups",colorGroupShipModels)
-	addGMFunction("+Transports",transportShipModels)
-end
--------------------------------------------
---	Artifacts > Set Model > Ship > Misc  --
--------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM MISC			F	shipArtifactModels
--- PLAYER FIGHTER		D	inline
--- ADV. STRIKER			D	inline
--- TUG					D	inline
--- SPACE_FRIGATE_6		D	inline
--- MISSILE CRUISER		D	inline
-function miscShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Misc",shipArtifactModels)
-	local misc_ship_models = {
-		{model_name = "small_fighter_1", game_name = {"Player Fighter"}},
-		{model_name = "dark_fighter_6", game_name = {"Adv. Striker"}},
-		{model_name = "space_tug", game_name = {"Tug"}},
-		{model_name = "space_frigate_6", game_name = {"Not Used"}},
-		{model_name = "space_cruiser_4", game_name = {"Missile Cruiser","Weapons platfrom","Player Missile Cr."}},
-	}
-	addShipModelButtons(misc_ship_models)
-end
---------------------------------------------------
---	Artifacts > Set Model > Ship > Battleships  --
---------------------------------------------------
--- Button Text					   FD*	Related Function(s)
--- -FROM BATTLESHIPS				F	shipArtifactModels
--- ATLANTIS X23						D	inline
--- BATTLESHIP_DESTROYER_2_UPGRADED	D	inline
--- BLOCKADE RUNNER					D	inline
--- GUNSHIP							D	inline
--- PLAYER CRUISER					D	inline
--- BATTLESTATION					D	inline
-function battleshipShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Battleships",shipArtifactModels)
-	local battleship_ship_models = {
-		{model_name = "battleship_destroyer_1_upgraded", game_name = {"Atlantis X23","Atlantis","Dreadnought"}},
-		{model_name = "battleship_destroyer_2_upgraded", game_name = {"Not Used"}},
-		{model_name = "battleship_destroyer_3_upgraded", game_name = {"Blockade Runner"}},
-		{model_name = "battleship_destroyer_4_upgraded", game_name = {"Gunship","Starhammer II"}},
-		{model_name = "battleship_destroyer_5_upgraded", game_name = {"Player Cruiser"}},
-		{model_name = "Ender Battlecruiser", game_name = {"Battlestation","Ender"}},
-	}
-	addShipModelButtons(battleship_ship_models)
-end
------------------------------------------------
---	Artifacts > Set Model > Ship > Ktlitans  --
------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM KTLITANS		F	shipArtifactModels
--- KTLITAN FIGHTER		D	inline
--- KTLITAN BREAKER		D	inline
--- KTLITAN WORKER		D	inline
--- KTLITAN DRONE		D	inline
--- KTLITAN FEEDER		D	inline
--- KTLITAN SCOUT		D	inline
--- KTLITAN DESTROYER	D	inline
--- KTLITAN QUEEN		D	inline
-function ktlitanShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Ktlitans",shipArtifactModels)
-	local ktlitan_ship_models = {
-		{model_name = "sci_fi_alien_ship_1", game_name = {"Ktlitan Fighter"}},
-		{model_name = "sci_fi_alien_ship_2", game_name = {"Ktlitan Breaker"}},
-		{model_name = "sci_fi_alien_ship_3", game_name = {"Ktlitan Worker"}},
-		{model_name = "sci_fi_alien_ship_4", game_name = {"Ktlitan Drone"}},
-		{model_name = "sci_fi_alien_ship_5", game_name = {"Ktlitan Feeder"}},
-		{model_name = "sci_fi_alien_ship_6", game_name = {"Ktlitan Scout"}},
-		{model_name = "sci_fi_alien_ship_7", game_name = {"Ktlitan Destroyer"}},
-		{model_name = "sci_fi_alien_ship_8", game_name = {"Ktlitan Queen"}},
-	}
-	addShipModelButtons(ktlitan_ship_models)
-end
------------------------------------------------------
---	Artifacts > Set Model > Ship > Small Frigates  --
------------------------------------------------------
--- Button Text				   FD*	Related Function(s)
--- -MAIN FROM SMALL FRIGATES	F	shipArtifactModels
--- SMALL_FRIGATE_1				D	inline
--- SMALL_FRIGATE_2				D	inline
--- STRIKESHIP					D	inline
--- KARNACK						D	inline
--- NIRVANA R5					D	inline
-function smallFrigateShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Small Frigates",shipArtifactModels)
-	local small_frigate_ship_models = {
-		{model_name = "small_frigate_1", game_name = {"Not Used"}},
-		{model_name = "small_frigate_2", game_name = {"Not Used"}},
-		{model_name = "small_frigate_3", game_name = {"Strikeship"}},
-		{model_name = "small_frigate_4", game_name = {"Karnack","Cruiser"}},
-		{model_name = "small_frigate_5", game_name = {"Nirvana R5","Nirvana R5A","Nirvana R3"}},
-	}
-	addShipModelButtons(small_frigate_ship_models)
-end
----------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups  --
----------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM COLOR GROUPS	F	shipArtifactModels
--- +ADLERS				F	adlerShipModels
--- +ATLAS				F	atlasShipModels
--- +LINDWORMS			F	lindwormShipModels
--- +WESPE SCOUTS		F	wespeShipModels
--- +CORVETTES			F	corvetteShipModels
-function colorGroupShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Color Groups",shipArtifactModels)
-	addGMFunction("+Adlers",adlerShipModels)
-	addGMFunction("+Atlas",atlasShipModels)
-	addGMFunction("+Lindworms",lindwormShipModels)
-	addGMFunction("+Wespe Scouts",wespeShipModels)
-	addGMFunction("+Corvettes",corvetteShipModels)
-end
----------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Corvettes  --
----------------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -FROM CORVETTES	F	colorGroupShipModels
--- +HEAVY			F	heavyCorvetteShipModels
--- +LASER			F	laserCorvetteShipModels
--- +LIGHT			F	lightCorvetteShipModels
--- +MINE LAYER		F	mineLayerCorvetteShipModels
--- +MISSILE			F	missileCorvetteShipModels
--- +MULTIGUN		F	multiGunCorvetteShipModels
-function corvetteShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Corvettes",colorGroupShipModels)
-	addGMFunction("+Heavy",heavyCorvetteShipModels)
-	addGMFunction("+Laser",laserCorvetteShipModels)
-	addGMFunction("+Light",lightCorvetteShipModels)
-	addGMFunction("+Mine Layer",mineLayerCorvetteShipModels)
-	addGMFunction("+Missile",missileCorvetteShipModels)
-	addGMFunction("+Multigun",multiGunCorvetteShipModels)
-end
-------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Adlers  --
-------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM ADLERS				F	colorGroupShipModels
--- ADDER MK4				D	inline
--- ADDER MK7				D	inline
--- ADLERLONGRANGESCOUTGREY	D	inline
--- ADDER MK6				D	inline
--- ADLERLONGRANGESCOUTWHITE	D	inline
--- ADDER MK5				D	inline
-function adlerShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Adlers",colorGroupShipModels)
-	local adler_ship_models = {
-		{model_name = "AdlerLongRangeScoutBlue", game_name = {"Adder MK4","Adder MK3"}},
-		{model_name = "AdlerLongRangeScoutGreen", game_name = {"Adder MK7","Adder MK8"}},
-		{model_name = "AdlerLongRangeScoutGrey", game_name = {"Not Used"}},
-		{model_name = "AdlerLongRangeScoutRed", game_name = {"Adder MK6","Adder MK9"}},
-		{model_name = "AdlerLongRangeScoutWhite", game_name = {"Not Used"}},
-		{model_name = "AdlerLongRangeScoutYellow", game_name = {"Adder MK5"}},
-	}
-	addShipModelButtons(adler_ship_models)
-end
------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Atlas  --
------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM ATLAS				F	colorGroupShipModels
--- ATLASHEAVYFIGHTERBLUE	D	inline
--- ATLASHEAVYFIGHTERGREEN	D	inline
--- ATLASHEAVYFIGHTERGREY	D	inline
--- PHOBOS M3				D	inline
--- ATLASHEAVYFIGHTERWHITE	D	inline
--- PHOBOS T3				D	inline
-function atlasShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Atlas",colorGroupShipModels)
-	local atlas_ship_models = {
-		{model_name = "AtlasHeavyFighterBlue", game_name = {"Not Used"}},
-		{model_name = "AtlasHeavyFighterGreen", game_name = {"Not Used"}},
-		{model_name = "AtlasHeavyFighterGrey", game_name = {"Not Used"}},
-		{model_name = "AtlasHeavyFighterRed", game_name = {"Phobos M3"}},
-		{model_name = "AtlasHeavyFighterWhite", game_name = {"Not Used"}},
-		{model_name = "AtlasHeavyFighterYellow", game_name = {"Phobos T3","Elara P2","Phobos M3P"}},
-	}
-	addShipModelButtons(atlas_ship_models)
-end
---------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Lindworm  --
---------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM LINDWORM			F	colorGroupShipModels
--- ZX-LINDWORM				D	inline
--- LINDWURMFIGHTERGREEN		D	inline
--- LINDWURMFIGHTERGREY		D	inline
--- LINDWURMFIGHTERRED		D	inline
--- LINDWURMFIGHTERWHITE		D	inline
--- WX-LINDWORM				D	inline
-function lindwormShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Lindworms",colorGroupShipModels)
-	local lindworm_ship_models = {
-		{model_name = "LindwurmFighterBlue", game_name = {"ZX-Lindworm"}},
-		{model_name = "LindwurmFighterGreen", game_name = {"Not Used"}},
-		{model_name = "LindwurmFighterGrey", game_name = {"Not Used"}},
-		{model_name = "LindwurmFighterRed", game_name = {"Not Used"}},
-		{model_name = "LindwurmFighterWhite", game_name = {"Not Used"}},
-		{model_name = "LindwurmFighterYellow", game_name = {"WX-Lindworm"}},
-	}
-	addShipModelButtons(lindworm_ship_models)
-end
-function addShipModelButtons(list)
-	for _, model in ipairs(list) do
-		local button_name = model.game_name[1]
-		if button_name == "Not Used" then
-			button_name = model.model_name
-		end
-		addGMFunction(button_name,function()
-			local object_list = getGMSelection()
-			if #object_list ~= 1 then
-				fiddleWithArtifacts()
-				return
-			else
-				if object_list[1].typeName ~= "Artifact" then
-					fiddleWithArtifacts()
-					return
-				end
-			end
-			object_list[1]:setModel(model.model_name)
-			local out = string.format("Artifact model set to %s which is used in game for:",model.model_name)
-			for _, used_name in ipairs(model.game_name) do
-				out = out .. "\n" .. used_name
-			end
-			addGMMessage(out)
-			setArtifactModel()
-		end)
-	end
-end
-------------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Wespe Scouts  --
-------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -FROM WESPE SCOUTS	F	colorGroupShipModels
--- WESPESCOUTBLUE		D	inline
--- WESPESCOUTGREEN		D	inline
--- WESPESCOUTGREY		D	inline
--- MU52 HORNET			D	inline
--- WESPESCOUTWHITE		D	inline
--- MT52 HORNET			D	inline
-function wespeShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Wespe Scouts",colorGroupShipModels)
-	local wespe_ship_models = {
-		{model_name = "WespeScoutBlue", game_name = {"Not Used"}},
-		{model_name = "WespeScoutGreen", game_name = {"Not Used"}},
-		{model_name = "WespeScoutGrey", game_name = {"Not Used"}},
-		{model_name = "WespeScoutRed", game_name = {"MU52 Hornet","MP52 Hornet"}},
-		{model_name = "WespeScoutWhite", game_name = {"Not Used"}},
-		{model_name = "WespeScoutYellow", game_name = {"MT52 Hornet"}},
-	}
-	addShipModelButtons(wespe_ship_models)
-end
------------------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Corvettes > Heavy  --
------------------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM HEAVY CORVETTES	F	corvetteShipModels
--- HEAVYCORVETTEBLUE		D	inline
--- HATHCOCK					D	inline
--- HEAVYCORVETTEGREY		D	inline
--- PIRANHA F12				D	inline
--- HEAVYCORVETTEWHITE		D	inline
--- STORM					D	inline
-function heavyCorvetteShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Heavy Corvettes",corvetteShipModels)
-	local heavy_corvette_ship_models = {
-		{model_name = "HeavyCorvetteBlue", game_name = {"Not Used"}},
-		{model_name = "HeavyCorvetteGreen", game_name = {"Hathcock"}},
-		{model_name = "HeavyCorvetteGrey", game_name = {"Not Used"}},
-		{model_name = "HeavyCorvetteRed", game_name = {"Piranha F12","Piranha F12.M","Piranha F8","Piranha"}},
-		{model_name = "HeavyCorvetteWhite", game_name = {"Not Used"}},
-		{model_name = "HeavyCorvetteYellow", game_name = {"Storm"}},
-	}
-	addShipModelButtons(heavy_corvette_ship_models)
-end
------------------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Corvettes > Laser  --
------------------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM LASER CORVETTES	F	corvetteShipModels
--- LASERCORVETTEBLUE		D	inline
--- MAVERICK					D	inline
--- LASERCORVETTEGREY		D	inline
--- CRUCIBLE					D	inline
--- LASERCORVETTEWHITE		D	inline
--- LASERCORVETTEYELLOW		D	inline
-function laserCorvetteShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Laser Corvettes",corvetteShipModels)
-	local laser_corvette_ship_models = {
-		{model_name = "LaserCorvetteBlue", game_name = {"Not Used"}},
-		{model_name = "LaserCorvetteGreen", game_name = {"Maverick"}},
-		{model_name = "LaserCorvetteGrey", game_name = {"Not Used"}},
-		{model_name = "LaserCorvetteRed", game_name = {"Crucible"}},
-		{model_name = "LaserCorvetteWhite", game_name = {"Not Used"}},
-		{model_name = "LaserCorvetteYellow", game_name = {"Not Used"}},
-	}
-	addShipModelButtons(laser_corvette_ship_models)
-end
------------------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Corvettes > Light  --
------------------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM LIGHT CORVETTES	F	corvetteShipModels
--- LIGHTCORVETTEBLUE		D	inline
--- LIGHTCORVETTEGREEN		D	inline
--- FLAVIA					D	inline
--- REPULSE					D	inline
--- LIGHTCORVETTEWHITE		D	inline
--- LIGHTCORVETTEYELLOW		D	inline
-function lightCorvetteShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Light Corvettes",corvetteShipModels)
-	local light_corvette_ship_models = {
-		{model_name = "LightCorvetteBlue", game_name = {"Not Used"}},
-		{model_name = "LightCorvetteGreen", game_name = {"Not Used"}},
-		{model_name = "LightCorvetteGrey", game_name = {"Flavia","Flavia Falcon","Flavia P.Falcon"}},
-		{model_name = "LightCorvetteRed", game_name = {"Repulse"}},
-		{model_name = "LightCorvetteWhite", game_name = {"Not Used"}},
-		{model_name = "LightCorvetteYellow", game_name = {"Not Used"}},
-	}
-	addShipModelButtons(light_corvette_ship_models)
-end
-----------------------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Corvettes > Mine Layer  --
-----------------------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM MINE LAYER			F	corvetteShipModels
--- MINELAYERCORVETTEBLUE	D	inline
--- MINELAYERCORVETTEGREEN	D	inline
--- MINELAYERCORVETTEGREY	D	inline
--- MINELAYERCORVETTERED		D	inline
--- MINELAYERCORVETTEWHITE	D	inline
--- MINELAYERCORVETTEYELLOW	D	inline
-function mineLayerCorvetteShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Mine Layer",corvetteShipModels)
-	local mine_layer_corvette_ship_models = {
-		{model_name = "MineLayerCorvetteBlue", game_name = {"Not Used"}},
-		{model_name = "MineLayerCorvetteGreen", game_name = {"Not Used"}},
-		{model_name = "MineLayerCorvetteGrey", game_name = {"Not Used"}},
-		{model_name = "MineLayerCorvetteRed", game_name = {"Not Used"}},
-		{model_name = "MineLayerCorvetteWhite", game_name = {"Not Used"}},
-		{model_name = "MineLayerCorvetteYellow", game_name = {"Not Used"}},
-	}
-	addShipModelButtons(mine_layer_corvette_ship_models)
-end
--------------------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Corvettes > Missile  --
--------------------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM MISSILE			F	corvetteShipModels
--- MISSILECORVETTEBLUE		D	inline
--- RANUS U					D	inline
--- MISSILECORVETTEGREY		D	inline
--- MISSILECORVETTERED		D	inline
--- MISSILECORVETTEWHITE		D	inline
--- MISSILECORVETTEYELLOW	D	inline
-function missileCorvetteShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Missile",corvetteShipModels)
-	local missile_corvette_ship_models = {
-		{model_name = "MissileCorvetteBlue", game_name = {"Not Used"}},
-		{model_name = "MissileCorvetteGreen", game_name = {"Ranus U"}},
-		{model_name = "MissileCorvetteGrey", game_name = {"Not Used"}},
-		{model_name = "MissileCorvetteRed", game_name = {"Not Used"}},
-		{model_name = "MissileCorvetteWhite", game_name = {"Not Used"}},
-		{model_name = "MissileCorvetteYellow", game_name = {"Not Used"}},
-	}
-	addShipModelButtons(missile_corvette_ship_models)
-end
----------------------------------------------------------------------------
---	Artifacts > Set Model > Ship > Color Groups > Corvettes > Multi Gun  --
----------------------------------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM MULTIGUN			F	corvetteShipModels
--- MULTIGUNCORVETTEBLUE		D	inline
--- MULTIGUNCORVETTEGREEN	D	inline
--- MULTIGUNCORVETTEGREY		D	inline
--- MULTIGUNCORVETTERED		D	inline
--- MULTIGUNCORVETTEWHITE	D	inline
--- MULTIGUNCORVETTEYELLOW	D	inline
-function multiGunCorvetteShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Multigun",corvetteShipModels)
-	local multi_gun_corvette_ship_models = {
-		{model_name = "MultiGunCorvetteBlue", game_name = {"Not Used"}},
-		{model_name = "MultiGunCorvetteGreen", game_name = {"Not Used"}},
-		{model_name = "MultiGunCorvetteGrey", game_name = {"Not Used"}},
-		{model_name = "MultiGunCorvetteRed", game_name = {"Not Used"}},
-		{model_name = "MultiGunCorvetteWhite", game_name = {"Not Used"}},
-		{model_name = "MultiGunCorvetteYellow", game_name = {"Not Used"}},
-	}
-	addShipModelButtons(multi_gun_corvette_ship_models)
-end
--------------------------------------------------
---	Artifacts > Set Model > Ship > Transports  --
--------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM TRANSPORTS			F	shipArtifactModels
--- PERSONNEL FREIGHTER 1	D	inline
--- PERSONNEL FREIGHTER 2	D	inline
--- PERSONNEL FREIGHTER 3	D	inline
--- PERSONNEL FREIGHTER 4	D	inline
--- PERSONNEL FREIGHTER 5	D	inline
--- GOODS FREIGHTER 1		D	inline
--- GOODS FREIGHTER 2		D	inline
--- GOODS FREIGHTER 3		D	inline
--- GOODS FREIGHTER 4		D	inline
--- GOODS FREIGHTER 5		D	inline
--- GARBAGE FREIGHTER 1		D	inline
--- GARBAGE FREIGHTER 2		D	inline
--- GARBAGE FREIGHTER 3		D	inline
--- GARBAGE FREIGHTER 4		D	inline
--- GARBAGE FREIGHTER 5		D	inline
--- EQUIPMENT FREIGHTER 1	D	inline
--- EQUIPMENT FREIGHTER 2	D	inline
--- EQUIPMENT FREIGHTER 3	D	inline
--- EQUIPMENT FREIGHTER 4	D	inline
--- EQUIPMENT FREIGHTER 5	D	inline
--- FUEL FREIGHTER 1			D	inline
--- FUEL FREIGHTER 2			D	inline
--- FUEL FREIGHTER 3			D	inline
--- FUEL FREIGHTER 4			D	inline
--- FUEL FREIGHTER 5			D	inline
-function transportShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-From Transports",shipArtifactModels)
-	local transport_ship_models = {
-		{model_name = "transport_1_1", game_name = {"Personnel Freighter 1","Transport1x1"}},
-		{model_name = "transport_1_2", game_name = {"Personnel Freighter 2","Transport1x2"}},
-		{model_name = "transport_1_3", game_name = {"Personnel Freighter 3","Personnel Jump Freighter 3","Transport1x3"}},
-		{model_name = "transport_1_4", game_name = {"Personnel Freighter 4","Personnel Jump Freighter 4","Transport1x4"}},
-		{model_name = "transport_1_5", game_name = {"Personnel Freighter 5","Personnel Jump Freighter 5","Transport1x5"}},
-		{model_name = "transport_2_1", game_name = {"Goods Freighter 1","Transport2x1"}},
-		{model_name = "transport_2_2", game_name = {"Goods Freighter 2","Transport2x2"}},
-		{model_name = "transport_2_3", game_name = {"Goods Freighter 3","Goods Jump Freighter 3","Transport2x3"}},
-		{model_name = "transport_2_4", game_name = {"Goods Freighter 4","Goods Jump Freighter 4","Transport2x4"}},
-		{model_name = "transport_2_5", game_name = {"Goods Freighter 5","Goods Jump Freighter 5","Transport2x5"}},
-		{model_name = "transport_3_1", game_name = {"Garbage Freighter 1","Transport3x1"}},
-		{model_name = "transport_3_2", game_name = {"Garbage Freighter 2","Transport3x2"}},
-		{model_name = "transport_3_3", game_name = {"Garbage Freighter 3","Garbage Jump Freighter 3","Transport3x3"}},
-		{model_name = "transport_3_4", game_name = {"Garbage Freighter 4","Garbage Jump Freighter 4","Transport3x4"}},
-		{model_name = "transport_3_5", game_name = {"Garbage Freighter 5","Garbage Jump Freighter 5","Transport3x5"}},
-		{model_name = "transport_4_1", game_name = {"Equipment Freighter 1","Transport4x1"}},
-		{model_name = "transport_4_2", game_name = {"Equipment Freighter 2","Transport4x2"}},
-		{model_name = "transport_4_3", game_name = {"Equipment Freighter 3","Equipment Jump Freighter 3","Transport4x3"}},
-		{model_name = "transport_4_4", game_name = {"Equipment Freighter 4","Equipment Jump Freighter 4","Transport4x4"}},
-		{model_name = "transport_4_5", game_name = {"Equipment Freighter 5","Equipment Jump Freighter 5","Transport4x5"}},
-		{model_name = "transport_5_1", game_name = {"Fuel Freighter 1","Transport5x1"}},
-		{model_name = "transport_5_2", game_name = {"Fuel Freighter 2","Transport5x2"}},
-		{model_name = "transport_5_3", game_name = {"Fuel Freighter 3","Equipment Jump Freighter 3","Transport5x3"}},
-		{model_name = "transport_5_4", game_name = {"Fuel Freighter 4","Equipment Jump Freighter 4","Transport5x4"}},
-		{model_name = "transport_5_5", game_name = {"Fuel Freighter 5","Equipment Jump Freighter 5","Transport5x5"}},
-	}
-	addShipModelButtons(transport_ship_models)
-end
+
 ----------------------
 --  Initial set up  --
 ----------------------
@@ -3275,6 +2380,35 @@ function orderShip()
 	addGMFunction("+Detach",detachAnythingFromNPS)
 	addGMFunction("+Patrol",setPatrolPoints)	--currently broken
 end
+-----------------
+--	Artifacts  --
+-----------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM ARTIFACTS	F	initialGMFunctions
+-- +DROP POINT			F	dropPoint
+-- +SCAN CLUE			F	scanClue
+-- +SELECT ARTIFACT		D	fiddleWithArtifacts
+--    or
+-- +SET MODEL			D	setArtifactModel
+-- +SET SPIN			D	setArtifactSpin
+function fiddleWithArtifacts()
+	clearGMFunctions()
+	addGMFunction("-Main from Artifacts",initialGMFunctions)
+	addGMFunction("+Drop Point",dropPoint)
+	addGMFunction("+Scan Clue",scanClue)
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		addGMFunction("+Select Artifact",fiddleWithArtifacts)
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			addGMFunction("+Select Artifact",fiddleWithArtifacts)
+		else
+			addGMFunction("+Set Model",setArtifactModel)
+			addGMFunction("+Set Spin",setArtifactSpin)
+		end
+	end
+end
+
 function setPatrolPoints()
 	clearGMFunctions()
 	addGMFunction("-Main from Patrol",initialGMFunctions)
@@ -3451,9 +2585,9 @@ function dropJammer()
 		end
 	end
 end
--------------------
---	Drop Points  --
--------------------
+-------------------------------
+--	Artifacts > Drop Points  --
+-------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FROM DROP PNT		F	initialGMFunctions
 -- +ESCAPE POD				F	setEscapePod
@@ -3476,9 +2610,9 @@ function dropPoint()
 	addGMFunction("+Detach",detachArtifact)
 	addGMFunction("Artifact To Pod",artifactToPod)
 end
------------------
---	Scan Clue  --
------------------
+-----------------------------
+--	Artifacts > Scan Clue  --
+-----------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FROM SCAN CLUE		F	initialGMFunctions
 -- +UNSCANNED DESC			F	setUnscannedDescription
@@ -3604,6 +2738,85 @@ function numericEditControl(params)
 			end)
 	end
 	return ret.fun
+end
+-----------------------------
+--	Artifacts > Set Model  --
+-----------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM MODEL		F	initialGMFunctions
+-- -ARTIFACTS			F	fiddleWithArtifacts
+-- +NORMAL				F	normalArtifactModels
+-- +UTILITY				F	utilityArtifactModels
+-- +STATION				F	stationArtifactModels
+-- +SHIP				F	shipArtifactModels
+function setArtifactModel()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Model",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("+Normal",normalArtifactModels)
+	addGMFunction("+Utility",utilityArtifactModels)
+	addGMFunction("+Station",stationArtifactModels)
+	addGMFunction("+Ship",shipArtifactModels)
+end
+----------------------------
+--	Artifacts > Set Spin  --
+----------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN FROM SPIN	F	initialGMFunctions
+-- -ARTIFACTS		F	fiddleWithArtifacts
+-- SPIN 0.5			F	inline
+-- SPIN 1			F	inline
+-- SPIN 1.5			F	inline
+-- SPIN 2			F	inline
+function setArtifactSpin()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Spin",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("Spin 0.5",function()
+		setGivenSpin(0.5)
+	end)
+	addGMFunction("Spin 1",function()
+		setGivenSpin(1)
+	end)
+	addGMFunction("Spin 1.5",function()
+		setGivenSpin(1.5)
+	end)
+	addGMFunction("Spin 2",function()
+		setGivenSpin(2)
+	end)
+end
+function setGivenSpin(spin)
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	object_list[1]:setSpin(spin)
 end
 ---------------------
 --	Tweak Terrain  --
@@ -19625,6 +18838,806 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 	if scan_clue_expire then
 		update_system:addTimeToLiveUpdate(scanCluePoint)
 	end
+end
+--------------------------------------
+--	Artifacts > Set Model > Normal  --
+--------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM NORMAL			F	setArtifactModel
+-- ARTIFACT1			D	inline
+-- ARTIFACT2			D	inline
+-- ARTIFACT3			D	inline
+-- ARTIFACT4			D	inline
+-- ARTIFACT5			D	inline
+-- ARTIFACT6			D	inline
+-- ARTIFACT7			D	inline
+-- ARTIFACT8			D	inline
+function normalArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Normal",setArtifactModel)
+	local normal_models = {
+		"artifact1",
+		"artifact2",
+		"artifact3",
+		"artifact4",
+		"artifact5",
+		"artifact6",
+		"artifact7",
+		"artifact8",		
+	}
+	for _, model_name in ipairs(normal_models) do
+		addGMFunction(model_name,function()
+			local object_list = getGMSelection()
+			if object_list == nil or #object_list ~= 1 then
+				fiddleWithArtifacts()
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+				end
+			end
+			object_list[1]:setModel(model_name)
+			addGMMessage(string.format("Artifact model set to %s",model_name))
+			setArtifactModel()
+		end)
+	end
+end
+---------------------------------------
+--	Artifacts > Set Model > Utility  --
+---------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM UTILITY		F	setArtifactModel
+-- SENSORBUOYMKI		D	inline
+-- SENSORBUOYMKII		D	inline
+-- SENSORBUOYMKIII		D	inline
+-- AMMO_BOX				D	inline
+-- SHIELD_GENERATOR		D	inline
+function utilityArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Utility",setArtifactModel)
+	local utility_models = {
+		"SensorBuoyMKI",
+		"SensorBuoyMKII",
+		"SensorBuoyMKIII",
+		"ammo_box",
+		"shield_generator",
+	}
+	for _, model_name in ipairs(utility_models) do
+		addGMFunction(model_name,function()
+			local object_list = getGMSelection()
+			if object_list == nil or #object_list ~= 1 then
+				fiddleWithArtifacts()
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+				end
+			end
+			object_list[1]:setModel(model_name)
+			addGMMessage(string.format("Artifact model set to %s",model_name))
+			setArtifactModel()
+		end)
+	end
+end
+---------------------------------------
+--	Artifacts > Set Model > Station  --
+---------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM STATION		F	setArtifactModel
+-- SPACE_STATION_4		D	inline
+-- SPACE_STATION_3		D	inline
+-- SPACE_STATION_2		D	inline
+-- SPACE_STATION_1		D	inline
+function stationArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Station",setArtifactModel)
+	local station_models = {
+		"space_station_4",
+		"space_station_3",
+		"space_station_2",
+		"space_station_1",
+	}
+	for _, model_name in ipairs(station_models) do
+		addGMFunction(model_name,function()
+			local object_list = getGMSelection()
+			if #object_list ~= 1 then
+				fiddleWithArtifacts()
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+				end
+			end
+			object_list[1]:setModel(model_name)
+			addGMMessage(string.format("Artifact model set to %s",model_name))
+			setArtifactModel()
+		end)
+	end
+end
+------------------------------------
+--	Artifacts > Set Model > Ship  --
+------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM SHIP			F	setArtifactModel
+-- +MISC				F	miscShipModels
+-- +BATTLESHIPS			F	battleshipShipModels
+-- +KTLITANS			F	ktlitanShipModels
+-- +SMALL FRIGATES		F	smallFrigateShipModels
+-- +COLOR GROUPS		F	colorGroupShipModels
+-- +TRANSPORTS			F	transportShipModels
+function shipArtifactModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Ship",setArtifactModel)
+	addGMFunction("+Misc",miscShipModels)
+	addGMFunction("+Battleships",battleshipShipModels)
+	addGMFunction("+Ktlitans",ktlitanShipModels)
+	addGMFunction("+Small Frigates",smallFrigateShipModels)
+	addGMFunction("+Color Groups",colorGroupShipModels)
+	addGMFunction("+Transports",transportShipModels)
+end
+-------------------------------------------
+--	Artifacts > Set Model > Ship > Misc  --
+-------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM MISC			F	shipArtifactModels
+-- PLAYER FIGHTER		D	inline
+-- ADV. STRIKER			D	inline
+-- TUG					D	inline
+-- SPACE_FRIGATE_6		D	inline
+-- MISSILE CRUISER		D	inline
+function miscShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Misc",shipArtifactModels)
+	local misc_ship_models = {
+		{model_name = "small_fighter_1", game_name = {"Player Fighter"}},
+		{model_name = "dark_fighter_6", game_name = {"Adv. Striker"}},
+		{model_name = "space_tug", game_name = {"Tug"}},
+		{model_name = "space_frigate_6", game_name = {"Not Used"}},
+		{model_name = "space_cruiser_4", game_name = {"Missile Cruiser","Weapons platfrom","Player Missile Cr."}},
+	}
+	addShipModelButtons(misc_ship_models)
+end
+--------------------------------------------------
+--	Artifacts > Set Model > Ship > Battleships  --
+--------------------------------------------------
+-- Button Text					   FD*	Related Function(s)
+-- -FROM BATTLESHIPS				F	shipArtifactModels
+-- ATLANTIS X23						D	inline
+-- BATTLESHIP_DESTROYER_2_UPGRADED	D	inline
+-- BLOCKADE RUNNER					D	inline
+-- GUNSHIP							D	inline
+-- PLAYER CRUISER					D	inline
+-- BATTLESTATION					D	inline
+function battleshipShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Battleships",shipArtifactModels)
+	local battleship_ship_models = {
+		{model_name = "battleship_destroyer_1_upgraded", game_name = {"Atlantis X23","Atlantis","Dreadnought"}},
+		{model_name = "battleship_destroyer_2_upgraded", game_name = {"Not Used"}},
+		{model_name = "battleship_destroyer_3_upgraded", game_name = {"Blockade Runner"}},
+		{model_name = "battleship_destroyer_4_upgraded", game_name = {"Gunship","Starhammer II"}},
+		{model_name = "battleship_destroyer_5_upgraded", game_name = {"Player Cruiser"}},
+		{model_name = "Ender Battlecruiser", game_name = {"Battlestation","Ender"}},
+	}
+	addShipModelButtons(battleship_ship_models)
+end
+-----------------------------------------------
+--	Artifacts > Set Model > Ship > Ktlitans  --
+-----------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM KTLITANS		F	shipArtifactModels
+-- KTLITAN FIGHTER		D	inline
+-- KTLITAN BREAKER		D	inline
+-- KTLITAN WORKER		D	inline
+-- KTLITAN DRONE		D	inline
+-- KTLITAN FEEDER		D	inline
+-- KTLITAN SCOUT		D	inline
+-- KTLITAN DESTROYER	D	inline
+-- KTLITAN QUEEN		D	inline
+function ktlitanShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Ktlitans",shipArtifactModels)
+	local ktlitan_ship_models = {
+		{model_name = "sci_fi_alien_ship_1", game_name = {"Ktlitan Fighter"}},
+		{model_name = "sci_fi_alien_ship_2", game_name = {"Ktlitan Breaker"}},
+		{model_name = "sci_fi_alien_ship_3", game_name = {"Ktlitan Worker"}},
+		{model_name = "sci_fi_alien_ship_4", game_name = {"Ktlitan Drone"}},
+		{model_name = "sci_fi_alien_ship_5", game_name = {"Ktlitan Feeder"}},
+		{model_name = "sci_fi_alien_ship_6", game_name = {"Ktlitan Scout"}},
+		{model_name = "sci_fi_alien_ship_7", game_name = {"Ktlitan Destroyer"}},
+		{model_name = "sci_fi_alien_ship_8", game_name = {"Ktlitan Queen"}},
+	}
+	addShipModelButtons(ktlitan_ship_models)
+end
+-----------------------------------------------------
+--	Artifacts > Set Model > Ship > Small Frigates  --
+-----------------------------------------------------
+-- Button Text				   FD*	Related Function(s)
+-- -MAIN FROM SMALL FRIGATES	F	shipArtifactModels
+-- SMALL_FRIGATE_1				D	inline
+-- SMALL_FRIGATE_2				D	inline
+-- STRIKESHIP					D	inline
+-- KARNACK						D	inline
+-- NIRVANA R5					D	inline
+function smallFrigateShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Small Frigates",shipArtifactModels)
+	local small_frigate_ship_models = {
+		{model_name = "small_frigate_1", game_name = {"Not Used"}},
+		{model_name = "small_frigate_2", game_name = {"Not Used"}},
+		{model_name = "small_frigate_3", game_name = {"Strikeship"}},
+		{model_name = "small_frigate_4", game_name = {"Karnack","Cruiser"}},
+		{model_name = "small_frigate_5", game_name = {"Nirvana R5","Nirvana R5A","Nirvana R3"}},
+	}
+	addShipModelButtons(small_frigate_ship_models)
+end
+---------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups  --
+---------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM COLOR GROUPS	F	shipArtifactModels
+-- +ADLERS				F	adlerShipModels
+-- +ATLAS				F	atlasShipModels
+-- +LINDWORMS			F	lindwormShipModels
+-- +WESPE SCOUTS		F	wespeShipModels
+-- +CORVETTES			F	corvetteShipModels
+function colorGroupShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Color Groups",shipArtifactModels)
+	addGMFunction("+Adlers",adlerShipModels)
+	addGMFunction("+Atlas",atlasShipModels)
+	addGMFunction("+Lindworms",lindwormShipModels)
+	addGMFunction("+Wespe Scouts",wespeShipModels)
+	addGMFunction("+Corvettes",corvetteShipModels)
+end
+---------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes  --
+---------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -FROM CORVETTES	F	colorGroupShipModels
+-- +HEAVY			F	heavyCorvetteShipModels
+-- +LASER			F	laserCorvetteShipModels
+-- +LIGHT			F	lightCorvetteShipModels
+-- +MINE LAYER		F	mineLayerCorvetteShipModels
+-- +MISSILE			F	missileCorvetteShipModels
+-- +MULTIGUN		F	multiGunCorvetteShipModels
+function corvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Corvettes",colorGroupShipModels)
+	addGMFunction("+Heavy",heavyCorvetteShipModels)
+	addGMFunction("+Laser",laserCorvetteShipModels)
+	addGMFunction("+Light",lightCorvetteShipModels)
+	addGMFunction("+Mine Layer",mineLayerCorvetteShipModels)
+	addGMFunction("+Missile",missileCorvetteShipModels)
+	addGMFunction("+Multigun",multiGunCorvetteShipModels)
+end
+------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Adlers  --
+------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM ADLERS				F	colorGroupShipModels
+-- ADDER MK4				D	inline
+-- ADDER MK7				D	inline
+-- ADLERLONGRANGESCOUTGREY	D	inline
+-- ADDER MK6				D	inline
+-- ADLERLONGRANGESCOUTWHITE	D	inline
+-- ADDER MK5				D	inline
+function adlerShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Adlers",colorGroupShipModels)
+	local adler_ship_models = {
+		{model_name = "AdlerLongRangeScoutBlue", game_name = {"Adder MK4","Adder MK3"}},
+		{model_name = "AdlerLongRangeScoutGreen", game_name = {"Adder MK7","Adder MK8"}},
+		{model_name = "AdlerLongRangeScoutGrey", game_name = {"Not Used"}},
+		{model_name = "AdlerLongRangeScoutRed", game_name = {"Adder MK6","Adder MK9"}},
+		{model_name = "AdlerLongRangeScoutWhite", game_name = {"Not Used"}},
+		{model_name = "AdlerLongRangeScoutYellow", game_name = {"Adder MK5"}},
+	}
+	addShipModelButtons(adler_ship_models)
+end
+-----------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Atlas  --
+-----------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM ATLAS				F	colorGroupShipModels
+-- ATLASHEAVYFIGHTERBLUE	D	inline
+-- ATLASHEAVYFIGHTERGREEN	D	inline
+-- ATLASHEAVYFIGHTERGREY	D	inline
+-- PHOBOS M3				D	inline
+-- ATLASHEAVYFIGHTERWHITE	D	inline
+-- PHOBOS T3				D	inline
+function atlasShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Atlas",colorGroupShipModels)
+	local atlas_ship_models = {
+		{model_name = "AtlasHeavyFighterBlue", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterGreen", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterGrey", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterRed", game_name = {"Phobos M3"}},
+		{model_name = "AtlasHeavyFighterWhite", game_name = {"Not Used"}},
+		{model_name = "AtlasHeavyFighterYellow", game_name = {"Phobos T3","Elara P2","Phobos M3P"}},
+	}
+	addShipModelButtons(atlas_ship_models)
+end
+--------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Lindworm  --
+--------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM LINDWORM			F	colorGroupShipModels
+-- ZX-LINDWORM				D	inline
+-- LINDWURMFIGHTERGREEN		D	inline
+-- LINDWURMFIGHTERGREY		D	inline
+-- LINDWURMFIGHTERRED		D	inline
+-- LINDWURMFIGHTERWHITE		D	inline
+-- WX-LINDWORM				D	inline
+function lindwormShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Lindworms",colorGroupShipModels)
+	local lindworm_ship_models = {
+		{model_name = "LindwurmFighterBlue", game_name = {"ZX-Lindworm"}},
+		{model_name = "LindwurmFighterGreen", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterGrey", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterRed", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterWhite", game_name = {"Not Used"}},
+		{model_name = "LindwurmFighterYellow", game_name = {"WX-Lindworm"}},
+	}
+	addShipModelButtons(lindworm_ship_models)
+end
+function addShipModelButtons(list)
+	for _, model in ipairs(list) do
+		local button_name = model.game_name[1]
+		if button_name == "Not Used" then
+			button_name = model.model_name
+		end
+		addGMFunction(button_name,function()
+			local object_list = getGMSelection()
+			if #object_list ~= 1 then
+				fiddleWithArtifacts()
+				return
+			else
+				if object_list[1].typeName ~= "Artifact" then
+					fiddleWithArtifacts()
+					return
+				end
+			end
+			object_list[1]:setModel(model.model_name)
+			local out = string.format("Artifact model set to %s which is used in game for:",model.model_name)
+			for _, used_name in ipairs(model.game_name) do
+				out = out .. "\n" .. used_name
+			end
+			addGMMessage(out)
+			setArtifactModel()
+		end)
+	end
+end
+------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Wespe Scouts  --
+------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM WESPE SCOUTS	F	colorGroupShipModels
+-- WESPESCOUTBLUE		D	inline
+-- WESPESCOUTGREEN		D	inline
+-- WESPESCOUTGREY		D	inline
+-- MU52 HORNET			D	inline
+-- WESPESCOUTWHITE		D	inline
+-- MT52 HORNET			D	inline
+function wespeShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Wespe Scouts",colorGroupShipModels)
+	local wespe_ship_models = {
+		{model_name = "WespeScoutBlue", game_name = {"Not Used"}},
+		{model_name = "WespeScoutGreen", game_name = {"Not Used"}},
+		{model_name = "WespeScoutGrey", game_name = {"Not Used"}},
+		{model_name = "WespeScoutRed", game_name = {"MU52 Hornet","MP52 Hornet"}},
+		{model_name = "WespeScoutWhite", game_name = {"Not Used"}},
+		{model_name = "WespeScoutYellow", game_name = {"MT52 Hornet"}},
+	}
+	addShipModelButtons(wespe_ship_models)
+end
+-----------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Heavy  --
+-----------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM HEAVY CORVETTES	F	corvetteShipModels
+-- HEAVYCORVETTEBLUE		D	inline
+-- HATHCOCK					D	inline
+-- HEAVYCORVETTEGREY		D	inline
+-- PIRANHA F12				D	inline
+-- HEAVYCORVETTEWHITE		D	inline
+-- STORM					D	inline
+function heavyCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Heavy Corvettes",corvetteShipModels)
+	local heavy_corvette_ship_models = {
+		{model_name = "HeavyCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "HeavyCorvetteGreen", game_name = {"Hathcock"}},
+		{model_name = "HeavyCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "HeavyCorvetteRed", game_name = {"Piranha F12","Piranha F12.M","Piranha F8","Piranha"}},
+		{model_name = "HeavyCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "HeavyCorvetteYellow", game_name = {"Storm"}},
+	}
+	addShipModelButtons(heavy_corvette_ship_models)
+end
+-----------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Laser  --
+-----------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM LASER CORVETTES	F	corvetteShipModels
+-- LASERCORVETTEBLUE		D	inline
+-- MAVERICK					D	inline
+-- LASERCORVETTEGREY		D	inline
+-- CRUCIBLE					D	inline
+-- LASERCORVETTEWHITE		D	inline
+-- LASERCORVETTEYELLOW		D	inline
+function laserCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Laser Corvettes",corvetteShipModels)
+	local laser_corvette_ship_models = {
+		{model_name = "LaserCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "LaserCorvetteGreen", game_name = {"Maverick"}},
+		{model_name = "LaserCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "LaserCorvetteRed", game_name = {"Crucible"}},
+		{model_name = "LaserCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "LaserCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(laser_corvette_ship_models)
+end
+-----------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Light  --
+-----------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM LIGHT CORVETTES	F	corvetteShipModels
+-- LIGHTCORVETTEBLUE		D	inline
+-- LIGHTCORVETTEGREEN		D	inline
+-- FLAVIA					D	inline
+-- REPULSE					D	inline
+-- LIGHTCORVETTEWHITE		D	inline
+-- LIGHTCORVETTEYELLOW		D	inline
+function lightCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Light Corvettes",corvetteShipModels)
+	local light_corvette_ship_models = {
+		{model_name = "LightCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "LightCorvetteGreen", game_name = {"Not Used"}},
+		{model_name = "LightCorvetteGrey", game_name = {"Flavia","Flavia Falcon","Flavia P.Falcon"}},
+		{model_name = "LightCorvetteRed", game_name = {"Repulse"}},
+		{model_name = "LightCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "LightCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(light_corvette_ship_models)
+end
+----------------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Mine Layer  --
+----------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM MINE LAYER			F	corvetteShipModels
+-- MINELAYERCORVETTEBLUE	D	inline
+-- MINELAYERCORVETTEGREEN	D	inline
+-- MINELAYERCORVETTEGREY	D	inline
+-- MINELAYERCORVETTERED		D	inline
+-- MINELAYERCORVETTEWHITE	D	inline
+-- MINELAYERCORVETTEYELLOW	D	inline
+function mineLayerCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Mine Layer",corvetteShipModels)
+	local mine_layer_corvette_ship_models = {
+		{model_name = "MineLayerCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteGreen", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteRed", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "MineLayerCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(mine_layer_corvette_ship_models)
+end
+-------------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Missile  --
+-------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM MISSILE			F	corvetteShipModels
+-- MISSILECORVETTEBLUE		D	inline
+-- RANUS U					D	inline
+-- MISSILECORVETTEGREY		D	inline
+-- MISSILECORVETTERED		D	inline
+-- MISSILECORVETTEWHITE		D	inline
+-- MISSILECORVETTEYELLOW	D	inline
+function missileCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Missile",corvetteShipModels)
+	local missile_corvette_ship_models = {
+		{model_name = "MissileCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteGreen", game_name = {"Ranus U"}},
+		{model_name = "MissileCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteRed", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "MissileCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(missile_corvette_ship_models)
+end
+---------------------------------------------------------------------------
+--	Artifacts > Set Model > Ship > Color Groups > Corvettes > Multi Gun  --
+---------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM MULTIGUN			F	corvetteShipModels
+-- MULTIGUNCORVETTEBLUE		D	inline
+-- MULTIGUNCORVETTEGREEN	D	inline
+-- MULTIGUNCORVETTEGREY		D	inline
+-- MULTIGUNCORVETTERED		D	inline
+-- MULTIGUNCORVETTEWHITE	D	inline
+-- MULTIGUNCORVETTEYELLOW	D	inline
+function multiGunCorvetteShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Multigun",corvetteShipModels)
+	local multi_gun_corvette_ship_models = {
+		{model_name = "MultiGunCorvetteBlue", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteGreen", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteGrey", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteRed", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteWhite", game_name = {"Not Used"}},
+		{model_name = "MultiGunCorvetteYellow", game_name = {"Not Used"}},
+	}
+	addShipModelButtons(multi_gun_corvette_ship_models)
+end
+-------------------------------------------------
+--	Artifacts > Set Model > Ship > Transports  --
+-------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM TRANSPORTS			F	shipArtifactModels
+-- PERSONNEL FREIGHTER 1	D	inline
+-- PERSONNEL FREIGHTER 2	D	inline
+-- PERSONNEL FREIGHTER 3	D	inline
+-- PERSONNEL FREIGHTER 4	D	inline
+-- PERSONNEL FREIGHTER 5	D	inline
+-- GOODS FREIGHTER 1		D	inline
+-- GOODS FREIGHTER 2		D	inline
+-- GOODS FREIGHTER 3		D	inline
+-- GOODS FREIGHTER 4		D	inline
+-- GOODS FREIGHTER 5		D	inline
+-- GARBAGE FREIGHTER 1		D	inline
+-- GARBAGE FREIGHTER 2		D	inline
+-- GARBAGE FREIGHTER 3		D	inline
+-- GARBAGE FREIGHTER 4		D	inline
+-- GARBAGE FREIGHTER 5		D	inline
+-- EQUIPMENT FREIGHTER 1	D	inline
+-- EQUIPMENT FREIGHTER 2	D	inline
+-- EQUIPMENT FREIGHTER 3	D	inline
+-- EQUIPMENT FREIGHTER 4	D	inline
+-- EQUIPMENT FREIGHTER 5	D	inline
+-- FUEL FREIGHTER 1			D	inline
+-- FUEL FREIGHTER 2			D	inline
+-- FUEL FREIGHTER 3			D	inline
+-- FUEL FREIGHTER 4			D	inline
+-- FUEL FREIGHTER 5			D	inline
+function transportShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Transports",shipArtifactModels)
+	local transport_ship_models = {
+		{model_name = "transport_1_1", game_name = {"Personnel Freighter 1","Transport1x1"}},
+		{model_name = "transport_1_2", game_name = {"Personnel Freighter 2","Transport1x2"}},
+		{model_name = "transport_1_3", game_name = {"Personnel Freighter 3","Personnel Jump Freighter 3","Transport1x3"}},
+		{model_name = "transport_1_4", game_name = {"Personnel Freighter 4","Personnel Jump Freighter 4","Transport1x4"}},
+		{model_name = "transport_1_5", game_name = {"Personnel Freighter 5","Personnel Jump Freighter 5","Transport1x5"}},
+		{model_name = "transport_2_1", game_name = {"Goods Freighter 1","Transport2x1"}},
+		{model_name = "transport_2_2", game_name = {"Goods Freighter 2","Transport2x2"}},
+		{model_name = "transport_2_3", game_name = {"Goods Freighter 3","Goods Jump Freighter 3","Transport2x3"}},
+		{model_name = "transport_2_4", game_name = {"Goods Freighter 4","Goods Jump Freighter 4","Transport2x4"}},
+		{model_name = "transport_2_5", game_name = {"Goods Freighter 5","Goods Jump Freighter 5","Transport2x5"}},
+		{model_name = "transport_3_1", game_name = {"Garbage Freighter 1","Transport3x1"}},
+		{model_name = "transport_3_2", game_name = {"Garbage Freighter 2","Transport3x2"}},
+		{model_name = "transport_3_3", game_name = {"Garbage Freighter 3","Garbage Jump Freighter 3","Transport3x3"}},
+		{model_name = "transport_3_4", game_name = {"Garbage Freighter 4","Garbage Jump Freighter 4","Transport3x4"}},
+		{model_name = "transport_3_5", game_name = {"Garbage Freighter 5","Garbage Jump Freighter 5","Transport3x5"}},
+		{model_name = "transport_4_1", game_name = {"Equipment Freighter 1","Transport4x1"}},
+		{model_name = "transport_4_2", game_name = {"Equipment Freighter 2","Transport4x2"}},
+		{model_name = "transport_4_3", game_name = {"Equipment Freighter 3","Equipment Jump Freighter 3","Transport4x3"}},
+		{model_name = "transport_4_4", game_name = {"Equipment Freighter 4","Equipment Jump Freighter 4","Transport4x4"}},
+		{model_name = "transport_4_5", game_name = {"Equipment Freighter 5","Equipment Jump Freighter 5","Transport4x5"}},
+		{model_name = "transport_5_1", game_name = {"Fuel Freighter 1","Transport5x1"}},
+		{model_name = "transport_5_2", game_name = {"Fuel Freighter 2","Transport5x2"}},
+		{model_name = "transport_5_3", game_name = {"Fuel Freighter 3","Equipment Jump Freighter 3","Transport5x3"}},
+		{model_name = "transport_5_4", game_name = {"Fuel Freighter 4","Equipment Jump Freighter 4","Transport5x4"}},
+		{model_name = "transport_5_5", game_name = {"Fuel Freighter 5","Equipment Jump Freighter 5","Transport5x5"}},
+	}
+	addShipModelButtons(transport_ship_models)
 end
 --	*												   *  --
 --	**												  **  --
