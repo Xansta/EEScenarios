@@ -12806,3 +12806,18 @@ function update(delta)
 		end
     end
 end
+
+-- Make the createPlayerShip... functions accessible from other scripts (including exec.lua)
+
+local scenario = {}
+scenario.createPlayerShipBlazon = createPlayerShipBlazon
+scenario.createPlayerShipHeadhunter = createPlayerShipHeadhunter
+scenario.createPlayerShipNarsil = createPlayerShipNarsil
+scenario.createPlayerShipSimian = createPlayerShipSimian
+scenario.createPlayerShipSpinstar = createPlayerShipSpinstar
+scenario.createPlayerShipSpyder = createPlayerShipSpyder
+scenario.createPlayerShipSting = createPlayerShipSting
+
+print([[Usage: curl --data "getScriptStorage().scenario.createPlayerShipSting()" http://localhost:8080/exec.lua]])
+local storage = getScriptStorage()
+storage.scenario = scenario
