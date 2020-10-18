@@ -127,7 +127,7 @@ function createSkeletonUniverse()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        service_cost = 		{supplydrop = math.random(100,140), reinforcements = math.random(140,180)},
         jump_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
@@ -147,6 +147,35 @@ function createSkeletonUniverse()
 	}
 	table.insert(skeleton_stations,stationAstron)
 	station_names[stationAstron:getCallSign()] = {stationAstron:getSectorName(), stationAstron}
+	--Lafrina
+	lafrina_x = -250369
+	lafrina_y = 293390
+	stationLafrina = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(lafrina_x,lafrina_y):setCallSign("Lafrina"):setDescription("Black hole observation and research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationLafrina.comms_data = {
+    	friendlyness = 86,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = math.random(13,20),	EMP = 9 },
+        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        jump_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        sensor_boost = {value = 5000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5},
+        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Black hole research conducted in conjunction with Arlenian scientists",
+    	history = "The Arlenians built this station to observe the black hole. When Arlenian government funding started running short, they entered into a mutual research sharing agreement with the Human Navy and turned over primary administration of the station to the Human Navy. The CUF has taken over that protection and support contract to facilitate the scientific research and to have a convenient contact point for Arlenain/Human correspondence"
+	}
+	table.insert(skeleton_stations,stationLafrina)
+	station_names[stationLafrina:getCallSign()] = {stationLafrina:getSectorName(), stationLafrina}
 end
 function createFleurNebula()
     Nebula():setPosition(22028, 25793):setCallSign("Fleur")
@@ -174,6 +203,7 @@ function setConstants()
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(390000,210000) end,-390000, 210000)
 	--Original in the midst of the ghosts near Astron spawn point: 586367, 296408
 	universe:addAvailableRegion("Astron (U33)",function() return ghostNebulaSector() end, 460500, 320500) -- there was an alternate spawn location of 545336,292452, inital spawn location seems to not work eh I will look at it later - starry
+	universe:addAvailableRegion("Lafrina (T93)",lafrinaSector,-237666,296975)
 	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
@@ -3476,7 +3506,7 @@ function playerShip()
 			{"Outcast"		,"inactive"	,createPlayerShipOutcast	,"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
 			{"Quicksilver"	,"inactive"	,createPlayerShipQuick		,"XR-Lindworm (Quicksilver): Starfighter, Bomber   Hull:75   Shield:90,30   Size:100   Repair Crew:2   Cargo:3   R.Strength:11\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400  LRS:20   SRS:6\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      02 Nuke\n      03 EMP\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, warp drive, nukes and EMPs, two shields: stronger in front, weaker in rear"},
 			{"Quill"		,"inactive"	,createPlayerShipQuill		},
-			{"Raptor"		,"active"	,createPlayerShipRaptor		,"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
+			{"Raptor"		,"inactive"	,createPlayerShipRaptor		,"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Rattler"		,"inactive"	,createPlayerShipRattler	,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
 			{"Rogue"		,"inactive"	,createPlayerShipRogue		,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
 			{"Rotor"		,"active"	,createPlayerShipRotor		,"Rotor: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:30\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:4\nBeams:5, 2 Turreted Speed:1\n   Arc:190   Direction:  0   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc:190   Direction:180   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc: 60   Direction:-25   Range:0.8   Cycle:6   Damage:6\n   Arc: 60   Direction: 25   Range:0.8   Cycle:6   Damage:6\n   Arc: 40   Direction:  0   Range:0.6   Cycle:6   Damage:8\nTubes:1   Load Speed:8   Rear:1\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      6 Mine\nBased on Maverick: Fewer beams, one rear tube, slower warp, shorter sensors"},
@@ -8259,6 +8289,464 @@ function ghostNebulaSector()
 
 
 	return wip
+end
+--	Lafrina area stations, asteroids, planets, etc.
+function lafrinaSector()
+	lafrina_color = true
+	lafrina_planets = createLafrinaPlanets()
+	lafrina_asteroids = createLafrinaAsteroids()
+	lafrina_stations = createLafrinaStations()
+	regionStations = lafrina_stations
+end
+function createLafrinaStations()
+	local stations = {}
+	local nukeAvail = true
+	local empAvail = true
+	local mineAvail = true
+	local homeAvail = true
+	local hvliAvail = true
+	local tradeFood = true
+	local tradeMedicine = true
+	local tradeLuxury = true
+	--Borie
+	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 52 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 32 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 42 then tradeMedicine = true else tradeMedicine = false end
+    stationBorie.comms_data = {
+    	friendlyness = 45,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = false,			HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 63,
+        hack_repair =			true,
+        scan_repair =			true,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine asteroids for minerals and we've got facilities for miners and others to try their hand at games of chance... for a price",
+    	history = "Mining alone could not pay the bills for station maintenance, so we added a gambling facility to help. The gambling revenue pays about half of the bills now"
+	}
+	if random(1,100) <= 14 then stationBorie:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationBorie:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationBorie:setSharesEnergyWithDocked(false) end
+	station_names[stationBorie:getCallSign()] = {stationBorie:getSectorName(), stationBorie}
+	table.insert(stations,stationBorie)
+	--Ilorea	
+	stationIlorea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Ilorea"):setPosition(-381821, 316064):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 42 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 32 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 52 then tradeMedicine = true else tradeMedicine = false end
+    stationIlorea.comms_data = {
+    	friendlyness = 62,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = false,			HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			random(1,100) < 83,
+        scan_repair =			true,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			tritanium =	{quantity = math.random(5,9),	cost = math.random(43,70)},
+        			platinum =	{quantity = math.random(5,9),	cost = math.random(63,70)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine for nickel, dilithium and cobalt. With these minerals we build components for ships as well as entire ships for exploration, mining and research",
+    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. Materials experts and manufacturing experts are employed to convert local resources into completed ships and ship systems. This was one of the first bases established in the area to take advantage of asteroids here filled with rich deposits of valuable resources"
+	}
+	if random(1,100) <= 14 then stationIlorea:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationIlorea:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationIlorea:setSharesEnergyWithDocked(false) end
+	station_names[stationIlorea:getCallSign()] = {stationIlorea:getSectorName(), stationIlorea}
+	table.insert(stations,stationIlorea)
+	--Lurive
+	stationLurive = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Lurive"):setPosition(-294864, 225704):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 62 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 22 then tradeMedicine = true else tradeMedicine = false end
+    stationLurive.comms_data = {
+    	friendlyness = 45,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = false,			Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			random(1,100) < 63,
+        scan_repair =			true,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	tritanium = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine and study the asteroids nearby",
+    	history = "We started out as just a research station, but as time went on, we found our research could be applied to efficiently mine the asteroids for valuable minerals. As it happens, we needed that money when the grant funds ran dry"
+	}
+	if random(1,100) <= 14 then stationLurive:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationLurive:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationLurive:setSharesEnergyWithDocked(false) end
+	station_names[stationLurive:getCallSign()] = {stationLurive:getSectorName(), stationLurive}
+	table.insert(stations,stationLurive)
+	--Marielle
+	stationMarielle = SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("Marielle"):setPosition(-436074, 287708):setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 32 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 52 then tradeMedicine = true else tradeMedicine = false end
+    stationMarielle.comms_data = {
+    	friendlyness = 82,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "neutral", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = false,			Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 83,
+        hack_repair =			true,
+        scan_repair =			true,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			dilithium =	{quantity = math.random(5,9),	cost = math.random(43,70)},
+        			cobalt =	{quantity = math.random(5,9),	cost = math.random(63,70)}	},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine for nickel, dilithium and cobalt. With these minerals we build components for ships as well as entire ships for exploration, mining and research",
+    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. Materials experts and manufacturing experts are employed to convert local resources into completed ships and ship systems. This was one of the first bases established in the area to take advantage of asteroids here filled with rich deposits of valuable resources"
+	}
+	if random(1,100) <= 14 then stationMarielle:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationMarielle:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationMarielle:setSharesEnergyWithDocked(false) end
+	station_names[stationMarielle:getCallSign()] = {stationMarielle:getSectorName(), stationMarielle}
+	table.insert(stations,stationMarielle)
+	--Rivelle
+    stationRivelle = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Rivelle"):setPosition(-359704, 375988):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 52 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 32 then tradeMedicine = true else tradeMedicine = false end
+    stationRivelle.comms_data = {
+    	friendlyness = 45,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = false,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			random(1,100) < 83,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We mine asteroids for minerals",
+    	history = "We wanted in on the mining rush. So far, we have not had much luck"
+	}
+	if random(1,100) <= 14 then stationRivelle:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationRivelle:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationRivelle:setSharesEnergyWithDocked(false) end
+	station_names[stationRivelle:getCallSign()] = {stationRivelle:getSectorName(), stationRivelle}
+	table.insert(stations,stationRivelle)
+	--Vilairre
+    stationVilairre = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Vilairre"):setDescription("Communications and administration"):setCommsScript(""):setCommsFunction(commsStation)
+	update_system:addOrbitTargetUpdate(stationVilairre,planet_wilaux,4300,23*2*math.pi,0)
+    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+    if random(1,100) <= 40 then empAvail = true else empAvail = false end
+    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+    if random(1,100) <= 52 then tradeLuxury = true else tradeLuxury = false end
+    if random(1,100) <= 42 then tradeFood = true else tradeFood = false end
+    if random(1,100) <= 32 then tradeMedicine = true else tradeMedicine = false end
+    stationVilairre.comms_data = {
+    	friendlyness = 45,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = false,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			random(1,100) < 83,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	sensor = 		{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			communication = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			transporter = 	{quantity = math.random(5,9),	cost = math.random(50,80)},},
+        trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "We handle planetary and station communications as well as administering the sale and transfer of minerals to and from planetary industries and manufacturing",
+    	history = "This staiton was established when the Arlenians first arrived in this system. It was used as a convenient point to interact with Wilaux and gradually started handling administration as well as inter-station communication"
+	}
+	if random(1,100) <= 14 then stationVilairre:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationVilairre:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationVilairre:setSharesEnergyWithDocked(false) end
+	station_names[stationVilairre:getCallSign()] = {stationVilairre:getSectorName(), stationVilairre}
+	table.insert(stations,stationVilairre)
+	return stations
+end
+function createLafrinaPlanets()
+	local planet_list = {}
+	balinor_x = -343904
+	balinor_y = 295274
+    planet_balinor = Planet():setPosition(balinor_x,balinor_y):setPlanetRadius(1200):setDistanceFromMovementPlane(-2400):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(0.8,1.0,0.8):setCallSign("Balinor")
+	table.insert(planet_list,planet_balinor)
+	wilaux_primus_angle = random(0,360)
+	wilaux_primus_distance = distance(-343904,295274,-388328,337618)
+	local wilaux_x, wilaux_y = vectorFromAngle(wilaux_primus_angle,wilaux_primus_distance)
+	planet_wilaux = Planet():setPosition(balinor_x+wilaux_x,balinor_y+wilaux_y):setPlanetRadius(4100):setDistanceFromMovementPlane(-2000)
+	planet_wilaux:setPlanetSurfaceTexture("planets/planet-1.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.1,0.2,0.3)
+	planet_wilaux:setCallSign("Wilaux"):setOrbit(planet_balinor,2000)
+	table.insert(planet_list,planet_wilaux)
+    local lafrina_black_hole = BlackHole():setPosition(-262247, 289530)
+	table.insert(planet_list,lafrina_black_hole)
+	return planet_list
+end
+function createLafrinaAsteroids()
+	local asteroid_list = {}
+	local asteroid_data = {
+    	{-445984, 278639, 187},
+    	{-444282, 277127, 241},
+    	{-446362, 272779, 233},
+    	{-447685, 278828, 133},
+    	{-449386, 279206, 249},
+    	{-447118, 280151, 192},
+    	{-445227, 280529, 204},
+    	{-446551, 284877, 136},
+    	{-443526, 279962, 168},
+    	{-435209, 311909, 234},
+    	{-437666, 310397, 149},
+    	{-445795, 313800, 227},
+    	{-448252, 290926, 197},
+    	{-439178, 294518, 280},
+    	{-449575, 292439, 251},
+    	{-449953, 290926, 246},
+    	{-446551, 293195, 255},
+    	{-445606, 289036, 174},
+    	{-453545, 295841, 192},
+    	{-452789, 287524, 78},
+    	{-455624, 310775, 182},
+    	{-453167, 306616, 177},
+    	{-450710, 299055, 196},
+    	{-444660, 299433, 241},
+    	{-428025, 274102, 217},
+    	{-423677, 282420, 211},
+    	{-431428, 292060, 212},
+    	{-427647, 296975, 253},
+    	{-428592, 292250, 210},
+    	{-411201, 299244, 168},
+    	{-413280, 299244, 271},
+    	{-415738, 302836, 117},
+    	{-419519, 298488, 154},
+    	{-424434, 312098, 163},
+    	{-420653, 308129, 202},
+    	{-425190, 309263, 149},
+    	{-426324, 298866, 209},
+    	{-425757, 297164, 209},
+    	{-420842, 303970, 161},
+    	{-424244, 305293, 250},
+    	{-423866, 296408, 273},
+    	{-440312, 304726, 232},
+    	{-429159, 304726, 229},
+    	{-433696, 296219, 259},
+    	{-422921, 295652, 244},
+    	{-425001, 294896, 247},
+    	{-430861, 297164, 248},
+    	{-429159, 297921, 220},
+    	{-440880, 270888, 243},
+    	{-436721, 269943, 206},
+    	{-452978, 261437, 157},
+    	{-445606, 262382, 163},
+    	{-439745, 260680, 161},
+    	{-431617, 274480, 288},
+    	{-430483, 260680, 221},
+    	{-435587, 254064, 200},
+    	{-440691, 286200, 252},
+    	{-431995, 284121, 121},
+    	{-419140, 275803, 201},
+    	{-434830, 277694, 173},
+    	{-410256, 287902, 240},
+    	{-414037, 288469, 103},
+    	{-412524, 291304, 167},
+    	{-416305, 285822, 137},
+    	{-419140, 289414, 186},
+    	{-415549, 295841, 206},
+    	{-419519, 293951, 158},
+    	{-414982, 293951, 212},
+    	{-415360, 291493, 300},
+    	{-412335, 295841, 219},
+    	{-411012, 293006, 216},
+    	{-409878, 305104, 206},
+    	{-375473, 329112, 231},
+    	{-381900, 330813, 243},
+    	{-384358, 309452, 225},
+    	{-387950, 310964, 213},
+    	{-383980, 312854, 201},
+    	{-374339, 325898, 183},
+    	{-362808, 364083, 241},
+    	{-363186, 362193, 142},
+    	{-365643, 362760, 197},
+    	{-367534, 361248, 246},
+    	{-364887, 346314, 301},
+    	{-367345, 343478, 89},
+    	{-390974, 308696, 205},
+    	{-393432, 307183, 187},
+    	{-361106, 380907, 197},
+    	{-359594, 382609, 136},
+    	{-360728, 384310, 189},
+    	{-362619, 376370, 182},
+    	{-361296, 377883, 223},
+    	{-357515, 381664, 258},
+    	{-358460, 379962, 293},
+    	{-354490, 381285, 210},
+    	{-358649, 377883, 243},
+    	{-363186, 373913, 248},
+    	{-357704, 374669, 176},
+    	{-361296, 374291, 163},
+    	{-360350, 371456, 227},
+    	{-363942, 371267, 260},
+    	{-358649, 368998, 238},
+    	{-362052, 369376, 135},
+    	{-363753, 366352, 166},
+    	{-390029, 314745, 239},
+    	{-387950, 316635, 194},
+    	{-391730, 311531, 166},
+    	{-370936, 339320, 133},
+    	{-368479, 340454, 165},
+    	{-369235, 342344, 280},
+    	{-374528, 336862, 297},
+    	{-384547, 317013, 163},
+    	{-384358, 319093, 188},
+    	{-385681, 317391, 230},
+    	{-387950, 314556, 245},
+    	{-383980, 317769, 162},
+    	{-382089, 320227, 167},
+    	{-382846, 324197, 158},
+    	{-383980, 321361, 291},
+    	{-373394, 334215, 182},
+    	{-367912, 335161, 174},
+    	{-379443, 318715, 309},
+    	{-367723, 337240, 168},
+    	{-371503, 333459, 137},
+    	{-372827, 329868, 228},
+    	{-370369, 337240, 127},
+    	{-373394, 332892, 178},
+    	{-377174, 328544, 195},
+    	{-376229, 327410, 206},
+    	{-376607, 333270, 274},
+    	{-376418, 331191, 268},
+    	{-376985, 323251, 178},
+    	{-380577, 323062, 279},
+    	{-377742, 325331, 177},
+    	{-379821, 326654, 165},
+--second swath    	
+    	{-327227, 257143, 277},
+    	{-326976, 260568, 233},
+    	{-323495, 270225, 267},
+    	{-324251, 268523, 181},
+    	{-333874, 284725, 312},
+    	{-332698, 286986, 204},
+    	{-326189, 281922, 210},
+    	{-329986, 282646, 245},
+    	{-328992, 279662, 207},
+    	{-331342, 281922, 261},
+    	{-331071, 283098, 273},
+    	{-332066, 282917, 296},
+    	{-291548, 228448, 303},
+    	{-288145, 225612, 196},
+    	{-300622, 238089, 357},
+    	{-297597, 234497, 333},
+    	{-294951, 236387, 275},
+    	{-292304, 232228, 212},
+    	{-295140, 229393, 279},
+    	{-329896, 275593, 274},
+    	{-326731, 274960, 372},
+    	{-338395, 294761, 283},
+    	{-338666, 295756, 390},
+    	{-336677, 293676, 245},
+    	{-325007, 271548, 328},
+    	{-323684, 265121, 322},
+    	{-321227, 268145, 246},
+    	{-316690, 265877, 249},
+    	{-312720, 263797, 119},
+    	{-294453, 229753, 338},
+    	{-293730, 229029, 210},
+    	{-293910, 231199, 264},
+    	{-289480, 222519, 248},
+    	{-294001, 224056, 412},
+    	{-285321, 216823, 298},
+    	{-295086, 220892, 301},
+    	{-298574, 210530, 250},
+    	{-302667, 210447, 276},
+    	{-299075, 216879, 384},
+    	{-296261, 221706, 199},
+    	{-297572, 218717, 285},
+    	{-297708, 221887, 259},
+    	{-296080, 223243, 294},
+    	{-297437, 225594, 271},
+    	{-325194, 267004, 219},
+    	{-325465, 269083, 318},
+    	{-336750, 298995, 219},
+    	{-317257, 262474, 345},
+    	{-312531, 258882, 175},
+    	{-315178, 257181, 282},
+    	{-313665, 253968, 427},
+    	{-309695, 254346, 319},
+    	{-298920, 241113, 282},
+    	{-296463, 241302, 318},
+	}
+    for i=1,#asteroid_data do
+    	local static_asteroid = Asteroid():setPosition(asteroid_data[i][1],asteroid_data[i][2]):setSize(asteroid_data[i][3])
+    	table.insert(asteroid_list,static_asteroid)
+    end
+    return asteroid_list
+end
+function removeLafrinaColor()
+	lafrina_color = false
+	if lafrina_planets ~= nil then
+		for _, lp in pairs(lafrina_planets) do
+			lp:destroy()
+		end
+	end
+	lafrina_planets = nil
+	
+	if lafrina_asteroids ~= nil then
+		for _, la in pairs(lafrina_asteroids) do
+			la:destroy()
+		end
+	end
+	lafrina_asteroids = nil
+	
+	if lafrina_stations ~= nil then
+		for _, ls in pairs(lafrina_stations) do
+			ls:destroy()
+		end
+	end
+	lafrina_stations = nil
 end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
@@ -23406,17 +23894,38 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
-	if comms_source:isFriendly(comms_target) then
-		if comms_source.pods ~= comms_source.max_pods then
-			addCommsReply("Unload retrieved escape pods",function()
-				comms_source.pods = comms_source.max_pods
-				if comms_source.pods > 1 then
-					setCommsMessage(string.format("Escape pods unloaded and placed in the care of station %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods))
-				else
-					setCommsMessage(string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()))
-				end
-			end)
+	if not comms_source:isEnemy(comms_target) then
+		if comms_source:isFriendly(comms_target) then
+			if comms_source.pods ~= comms_source.max_pods then
+				addCommsReply("Unload retrieved escape pods",function()
+					comms_source.pods = comms_source.max_pods
+					if comms_source.pods > 1 then
+						setCommsMessage(string.format("Escape pods unloaded and placed in the care of station %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods))
+					else
+						setCommsMessage(string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()))
+					end
+					addCommsReply("Back", commsStation)
+				end)
+			end
+		else	--neutral
+			if comms_source.pods ~= comms_source.max_pods then
+				addCommsReply("Unload retrieved escape pods (10 rep per pod)",function()
+					if comms_source:takeReputationPoints(10*(comms_source.max_pods - comms_source.pods)) then
+						comms_source.pods = comms_source.max_pods
+						if comms_source.pods > 1 then
+							setCommsMessage(string.format("Escape pods unloaded and placed in the care of station %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods))
+						else
+							setCommsMessage(string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()))
+						end
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back", commsStation)
+				end)
+			end
 		end
+	end
+	if comms_source:isFriendly(comms_target) then
 		if random(1,100) <= 20 then
 			if comms_source:getRepairCrewCount() < comms_source.maxRepairCrew then
 				hireCost = math.random(30,60)
@@ -23549,16 +24058,18 @@ function handleDockedState()
 			end
 			if ctd.buy ~= nil then
 				for good, price in pairs(ctd.buy) do
-					if comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
-						addCommsReply(string.format("Sell one %s for %i reputation",good,price), function()
-							local goodTransactionMessage = string.format("Type: %s,  Reputation price: %i",good,price)
-							comms_source.goods[good] = comms_source.goods[good] - 1
-							comms_source:addReputationPoints(price)
-							goodTransactionMessage = goodTransactionMessage .. "\nOne sold"
-							comms_source.cargo = comms_source.cargo + 1
-							setCommsMessage(goodTransactionMessage)
-							addCommsReply("Back", commsStation)
-						end)
+					if comms_source.goods ~= nil then
+						if comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
+							addCommsReply(string.format("Sell one %s for %i reputation",good,price), function()
+								local goodTransactionMessage = string.format("Type: %s,  Reputation price: %i",good,price)
+								comms_source.goods[good] = comms_source.goods[good] - 1
+								comms_source:addReputationPoints(price)
+								goodTransactionMessage = goodTransactionMessage .. "\nOne sold"
+								comms_source.cargo = comms_source.cargo + 1
+								setCommsMessage(goodTransactionMessage)
+								addCommsReply("Back", commsStation)
+							end)
+						end
 					end
 				end
 			end
@@ -23635,7 +24146,7 @@ function handleDockedState()
 		end)
 	end
 	if jump_corridor then
-		if comms_target == stationIcarus or comms_target == stationKentar then
+		if comms_target == stationIcarus or comms_target == stationKentar or comms_target == stationAstron or comms_target == stationLafrina then
 			local all_docked = true
 			for pidx=1,8 do
 				local p = getPlayerShip(pidx)
@@ -23683,6 +24194,24 @@ function handleDockedState()
 						universe:removeRegion(universe.available_regions[1])
 						setCommsMessage("Transferred to Astron")
 					end)
+					addCommsReply("Take jump corridor to Lafrina",function()
+						local region = universe.available_regions[5]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						universe:removeRegion(universe.available_regions[1])
+						setCommsMessage("Transferred to Lafrina")
+					end)
 				elseif comms_target == stationKentar then
 					addCommsReply("Take jump corridor to Icarus", function()
 						playerSpawnX = 0
@@ -23716,8 +24245,26 @@ function handleDockedState()
 						if not universe:hasRegionSpawned(region) then
 							universe:spawnRegion(region)
 						end
-						universe:removeRegion(universe.available_regions[2])
+						removeKentarColor()
 						setCommsMessage("Transferred to Astron")
+					end)
+					addCommsReply("Take jump corridor to Lafrina",function()
+						local region = universe.available_regions[5]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						removeKentarColor()
+						setCommsMessage("Transferred to Lafrina")
 					end)
 				elseif comms_target == stationAstron then
 					addCommsReply("Take jump corridor to Icarus", function()
@@ -23753,6 +24300,77 @@ function handleDockedState()
 						end
 						universe:removeRegion(universe.available_regions[4])
 						setCommsMessage("Transferred to Kentar")
+					end)
+					addCommsReply("Take jump corridor to Lafrina",function()
+						local region = universe.available_regions[5]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						universe:removeRegion(universe.available_regions[4])
+						setCommsMessage("Transferred to Lafrina")
+					end)
+				elseif comms_target == stationLafrina then
+					addCommsReply("Take jump corridor to Icarus", function()
+						playerSpawnX = 0
+						playerSpawnY = 0
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = "Icarus (F5)"
+						if not icarus_color then
+							createIcarusColor()
+						end
+						removeLafrinaColor()
+						setCommsMessage("Transferred to Icarus")
+					end)
+					addCommsReply("Take jump corridor to Kentar",function()
+						playerSpawnX = 250000
+						playerSpawnY = 250000
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = "Kentar (R17)"
+						if not kentar_color then
+							createKentarColor()
+						end
+						removeLafrinaColor()
+						setCommsMessage("Transferred to Kentar")
+					end)
+					addCommsReply("Take jump corridor to Astron",function()
+						local region = universe.available_regions[4]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						removeLafrinaColor()
+						setCommsMessage("Transferred to Astron")
 					end)
 				end
 			end
