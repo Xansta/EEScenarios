@@ -20389,6 +20389,126 @@ function stationOperations()
 					addGMMessage("Select only one object. No action taken")
 				end
 			end)
+			if first_object.comms_data.probe_launch_repair then
+				button_label = "Fix Probes On"
+			else
+				button_label = "Fix Probes Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object.comms_data.probe_launch_repair then
+							first_object.comms_data.probe_launch_repair = false
+						else
+							first_object.comms_data.probe_launch_repair = true
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
+			if first_object.comms_data.hack_repair then
+				button_label = "Fix Hack On"
+			else
+				button_label = "Fix Hack Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object.comms_data.hack_repair then
+							first_object.comms_data.hack_repair = false
+						else
+							first_object.comms_data.hack_repair = true
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
+			if first_object.comms_data.scan_repair then
+				button_label = "Fix Scan On"
+			else
+				button_label = "Fix Scan Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object.comms_data.scan_repair then
+							first_object.comms_data.scan_repair = false
+						else
+							first_object.comms_data.scan_repair = true
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
+			if first_object.comms_data.combat_maneuver_repair then
+				button_label = "Fix C.Maneuver On"
+			else
+				button_label = "Fix C.Maneuver Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object.comms_data.combat_maneuver_repair then
+							first_object.comms_data.combat_maneuver_repair = false
+						else
+							first_object.comms_data.combat_maneuver_repair = true
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
+			if first_object.comms_data.self_destruct_repair then
+				button_label = "Fix Destruct On"
+			else
+				button_label = "Fix Destruct Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object.comms_data.self_destruct_repair then
+							first_object.comms_data.self_destruct_repair = false
+						else
+							first_object.comms_data.self_destruct_repair = true
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
 		end
 	end
 end
