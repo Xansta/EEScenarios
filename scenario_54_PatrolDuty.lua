@@ -1,7 +1,7 @@
 -- Name: Delta quadrant patrol duty
 -- Description: Patrol between three stations in the Delta quadrant to protect from enemies
 ---
---- Version 7
+--- Version 8
 -- Type: Mission
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
@@ -4467,7 +4467,23 @@ function handleDockedState()
 						comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
 						setCommsMessage("Repair crew member hired")
 					end
+					addCommsReply("Back", commsStation)
 				end)
+			end
+			if random(1,10) <= (6 - difficulty) then
+				if comms_target == stationAsimov or comms_target == stationUtopiaPlanitia or comms_target == stationArmstrong then
+					if comms_target.telemetry == nil then
+						addCommsReply("Establish defensive telemetry link (5 rep)",function()
+							if comms_source:takeReputationPoints(5) then
+								comms_target.telemetry = true
+								setCommsMessage("Automated telemetry for shields and hull established. Damage summary should appear on Relay when damage taken")
+							else
+								setCommsMessage("Insufficient reputation")
+							end
+							addCommsReply("Back", commsStation)
+						end)
+					end
+				end
 			end
 		else
 			if math.random(1,8) <= (6 - difficulty) then
@@ -8372,6 +8388,108 @@ function relayStatus(delta)
 					if p:hasPlayerAtPosition("Operations") then
 						p.mission_status_ops = "mission_status_ops"
 						p:addCustomInfo("Operations",p.mission_status_ops,mission_status)
+					end
+					local shield_percentage = nil
+					if stationAsimov ~= nil and stationAsimov:isValid() then
+						if stationAsimov.telemetry then
+							shield_percentage =  stationAsimov:getShieldLevel(0) / stationAsimov:getShieldMax(0)
+							if shield_percentage < 1 then
+								local asimov_health = string.format("Asimov S:%i%% H:%i%%",math.floor(shield_percentage*100),math.floor(stationAsimov:getHull()/stationAsimov:getHullMax()*100))
+								if p:hasPlayerAtPosition("Relay") then
+									p.asimov_status = "asimov_status"
+									p:addCustomInfo("Relay",p.asimov_status,asimov_health)
+								end
+								if p:hasPlayerAtPosition("Operations") then
+									p.asimov_status_ops = "asimov_status_ops"
+									p:addCustomInfo("Operations",p.asimov_status_ops,asimov_health)
+								end
+							else
+								if p.asimov_status ~= nil then
+									p:removeCustom(p.asimov_status)
+									p.asimov_status = nil
+								end
+								if p.asimov_status_ops ~= nil then
+									p:removeCustom(p.asimov_status_ops)
+									p.asimov_status_ops = nil
+								end
+							end
+						end
+					end
+					local shield_index = 0
+					local weakened_shield = false
+					local weakest_shield = 1000
+					if stationUtopiaPlanitia ~= nil and stationUtopiaPlanitia:isValid() then
+						if stationUtopiaPlanitia.telemetry then
+							repeat
+								local current_shield_level = stationUtopiaPlanitia:getShieldLevel(shield_index)
+								shield_percentage =  current_shield_level / stationUtopiaPlanitia:getShieldMax(shield_index)
+								if shield_percentage < 1 then
+									weakened_shield = true
+									if current_shield_level < weakest_shield then
+										weakest_shield = current_shield_level
+									end
+								end
+								shield_index = shield_index + 1
+							until shield_index >= 3
+							if weakened_shield then
+								local up_health = string.format("U.P. WS:%i%% H:%i%%",math.floor(weakest_shield/1000*100),math.floor(stationUtopiaPlanitia:getHull()/stationUtopiaPlanitia:getHullMax()*100))
+								if p:hasPlayerAtPosition("Relay") then
+									p.up_status = "up_status"
+									p:addCustomInfo("Relay",p.up_status,up_health)
+								end
+								if p:hasPlayerAtPosition("Operations") then
+									p.up_status_ops = "up_status_ops"
+									p:addCustomInfo("Operations",p.up_status_ops,up_health)
+								end
+							else
+								if p.up_status ~= nil then
+									p:removeCustom(p.up_status)
+									p.up_status = nil
+								end
+								if p.up_status_ops ~= nil then
+									p:removeCustom(p.up_status_ops)
+									p.up_status_ops = nil
+								end
+							end
+						end
+					end
+					shield_index = 0
+					weakened_shield = false
+					weakest_shield = 1200
+					if stationArmstrong ~= nil and stationArmstrong:isValid() then
+						if stationArmstrong.telemetry then
+							repeat
+								local current_shield_level = stationArmstrong:getShieldLevel(shield_index)
+								shield_percentage =  current_shield_level / stationArmstrong:getShieldMax(shield_index)
+								if shield_percentage < 1 then
+									weakened_shield = true
+									if current_shield_level < weakest_shield then
+										weakest_shield = current_shield_level
+									end
+								end
+								shield_index = shield_index + 1
+							until shield_index >= 4
+							if weakened_shield then
+								local armstrong_health = string.format("U.P. WS:%i%% H:%i%%",math.floor(weakest_shield/1000*100),math.floor(stationArmstrong:getHull()/stationArmstrong:getHullMax()*100))
+								if p:hasPlayerAtPosition("Relay") then
+									p.armstrong_status = "armstrong_status"
+									p:addCustomInfo("Relay",p.armstrong_status,armstrong_health)
+								end
+								if p:hasPlayerAtPosition("Operations") then
+									p.armstrong_status_ops = "armstrong_status_ops"
+									p:addCustomInfo("Operations",p.armstrong_status_ops,armstrong_health)
+								end
+							else
+								if p.armstrong_status ~= nil then
+									p:removeCustom(p.armstrong_status)
+									p.armstrong_status = nil
+								end
+								if p.armstrong_status_ops ~= nil then
+									p:removeCustom(p.armstrong_status_ops)
+									p.armstrong_status_ops = nil
+								end
+							end
+						end
 					end
 				end
 			end
