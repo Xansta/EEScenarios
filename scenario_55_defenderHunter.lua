@@ -84,16 +84,221 @@ function init()
 	wfv = "end of init"
 end
 function setConstants()
-	--Ship Template Name List
-	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	--Ship Template Score List
-	stsl = {5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,25       ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,18       ,14               ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	-- square grid deployment
-	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1}
-	fleetPosDelta1y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2}
-	-- rough hexagonal deployment
-	fleetPosDelta2x = {0,2,-2,1,-1, 1, 1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5}
-	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1}
+	player_ship_stats = {	--ordered by name
+		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000},
+		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500},
+	}	
+	ship_template = {	--ordered by relative strength
+		["Gnat"] =				{strength = 2,	create = gnat},
+		["Lite Drone"] =		{strength = 3,	create = droneLite},
+		["Jacket Drone"] =		{strength = 4,	create = droneJacket},
+		["Ktlitan Drone"] =		{strength = 4,	create = stockTemplate},
+		["Heavy Drone"] =		{strength = 5,	create = droneHeavy},
+		["Adder MK3"] =			{strength = 5,	create = adderMk3},
+		["MT52 Hornet"] =		{strength = 5,	create = stockTemplate},
+		["MU52 Hornet"] =		{strength = 5,	create = stockTemplate},
+		["MV52 Hornet"] =		{strength = 6,	create = hornetMV52},
+		["Adder MK4"] =			{strength = 6,	create = stockTemplate},
+		["Fighter"] =			{strength = 6,	create = stockTemplate},
+		["Ktlitan Fighter"] =	{strength = 6,	create = stockTemplate},
+		["K2 Fighter"] =		{strength = 7,	create = k2fighter},
+		["Adder MK5"] =			{strength = 7,	create = stockTemplate},
+		["WX-Lindworm"] =		{strength = 7,	create = stockTemplate},
+		["K3 Fighter"] =		{strength = 8,	create = k3fighter},
+		["Adder MK6"] =			{strength = 8,	create = stockTemplate},
+		["Ktlitan Scout"] =		{strength = 8,	create = stockTemplate},
+		["WZ-Lindworm"] =		{strength = 9,	create = wzLindworm},
+		["Adder MK7"] =			{strength = 9,	create = adderMk7},
+		["Adder MK8"] =			{strength = 10,	create = adderMk8},
+		["Adder MK9"] =			{strength = 11,	create = adderMk9},
+		["Nirvana R3"] =		{strength = 12,	create = nirvanaR3},
+		["Phobos R2"] =			{strength = 13,	create = phobosR2},
+		["Missile Cruiser"] =	{strength = 14,	create = stockTemplate},
+		["Waddle 5"] =			{strength = 15,	create = waddle5},
+		["Jade 5"] =			{strength = 15,	create = jade5},
+		["Phobos T3"] =			{strength = 15,	create = stockTemplate},
+		["Piranha F8"] =		{strength = 15,	create = stockTemplate},
+		["Piranha F12"] =		{strength = 15,	create = stockTemplate},
+		["Phobos M3"] =			{strength = 16,	create = stockTemplate},
+		["Cruiser"] =			{strength = 18,	create = stockTemplate},
+		["Nirvana R5A"] =		{strength = 20,	create = stockTemplate},
+		["Ktlitan Worker"] =	{strength = 21,	create = stockTemplate},
+		["Storm"] =				{strength = 22,	create = stockTemplate},
+		["Stalker R5"] =		{strength = 22,	create = stalkerR5},
+		["Stalker Q5"] =		{strength = 22,	create = stalkerQ5},
+		["Ranus U"] =			{strength = 25,	create = stockTemplate},
+		["Stalker Q7"] =		{strength = 25,	create = stockTemplate},
+		["Stalker R7"] =		{strength = 25,	create = stockTemplate},
+		["Adv. Striker"] =		{strength = 27,	create = stockTemplate},
+		["Elara P2"] =			{strength = 28,	create = elaraP2},
+		["Tempest"] =			{strength = 30,	create = tempest},
+		["Strikeship"] =		{strength = 30,	create = stockTemplate},
+		["Fiend G3"] =			{strength = 33,	create = fiendG3},
+		["Fiend G4"] =			{strength = 35,	create = fiendG4},
+		["Fiend G5"] =			{strength = 37,	create = fiendG5},
+		["Fiend G6"] =			{strength = 39,	create = fiendG6},
+		["Predator"] =			{strength = 42,	create = predator},
+		["Ktlitan Breaker"] =	{strength = 45,	create = stockTemplate},
+		["Ktlitan Feeder"] =	{strength = 48,	create = stockTemplate},
+		["Atlantis X23"] =		{strength = 50,	create = stockTemplate},
+		["Ktlitan Destroyer"] =	{strength = 50,	create = stockTemplate},
+		["Atlantis Y42"] =		{strength = 60,	create = atlantisY42},
+		["Blockade Runner"] =	{strength = 65,	create = stockTemplate},
+		["Starhammer II"] =		{strength = 70,	create = stockTemplate},
+		["Enforcer"] =			{strength = 75,	create = enforcer},
+		["Dreadnought"] =		{strength = 80,	create = stockTemplate},
+		["Starhammer V"] =		{strength = 90,	create = starhammerV},
+		["Battlestation"] =		{strength = 100,create = stockTemplate},
+		["Tyr"] =				{strength = 150,create = tyr},
+		["Odin"] =				{strength = 250,create = stockTemplate},
+	}
+	formation_delta = {
+		["square"] = {
+			x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4},
+			y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2,3,-3,0, 0,3,-3,1, 1, 3,-3,-1,-1,3,-3,2, 2, 3,-3,-2,-2,3,-3, 3,-3,0,4, 0,-4,4,-4,-4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4,0, 0,5,-5,5,-5, 5,-5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5},
+		},
+		["hexagonal"] = {
+			x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0},
+			y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6},
+		},
+		["pyramid"] = {
+			[1] = {
+				{angle =  0, distance = 0},
+			},
+			[2] = {
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+			},
+			[3] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},				
+			},
+			[4] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle =  0, distance = 2},	
+			},
+			[5] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+			},
+			[6] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+			},
+			[7] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[8] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[9] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -4, distance = 4},
+				{angle =  4, distance = 4},
+			},
+			[10] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -2, distance = 3},
+				{angle =  2, distance = 3},
+			},
+			[11] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -4, distance = 4},
+				{angle =  4, distance = 4},
+				{angle = -3, distance = 4},
+				{angle =  3, distance = 4},
+			},
+			[12] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -2, distance = 3},
+				{angle =  2, distance = 3},
+				{angle = -1, distance = 3},
+				{angle =  1, distance = 3},
+			},
+			[13] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 3},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+		},
+	}		
+	prefix_length = 0
+	suffix_index = 0
 	--list of goods available to buy, sell or trade (sell still under development)
 	goodsList = {	{"food",0},
 					{"medicine",0},
@@ -4420,6 +4625,352 @@ function randomComponent(exclude)
 		return good
 	end
 end
+--------------------------
+--	Create Enemy Ships  --
+--------------------------
+function stockTemplate(enemyFaction,template)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming()
+	return ship
+end
+--	Non-standard ships
+function adderMk3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK4"):orderRoaming()
+	ship:setTypeName("Adder MK3")
+	ship:setHullMax(35)				--weaker hull (vs 40)
+	ship:setHull(35)
+	ship:setShieldsMax(15)			--weaker shield (vs 20)
+	ship:setShields(15)
+	ship:setRotationMaxSpeed(35)	--faster maneuver (vs 20)
+	return ship
+end
+function adderMk7(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK6"):orderRoaming()
+	ship:setTypeName("Adder MK7")
+	ship:setShieldsMax(40)					--stronger shields (vs 30)
+	ship:setShields(40)
+	ship:setBeamWeapon(0,30,0,900,5.0,2.0)	--narrower (30 vs 35) but longer (900 vs 800) beam
+	return ship
+end
+function adderMk8(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:setTypeName("Adder MK8")
+	ship:setShieldsMax(50)					--stronger shields (vs 30)
+	ship:setShields(50)
+	ship:setBeamWeapon(0,30,0,900,5.0,2.3)	--narrower (30 vs 35) but longer (900 vs 800) and stronger (2.3 vs 2.0) beam
+	ship:setRotationMaxSpeed(30)			--faster maneuver (vs 25)
+	return ship
+end
+function adderMk9(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:setTypeName("Adder MK9")
+	ship:setShieldsMax(50)					--stronger shields (vs 30)
+	ship:setShields(50)
+	ship:setBeamWeapon(0,30,0,900,4.5,2.5)	--narrower (30 vs 35) but longer (900 vs 800), faster (4.5 vs 5.0) and stronger (2.5 vs 2.0) beam
+	ship:setRotationMaxSpeed(30)			--faster maneuver (vs 25)
+	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
+	ship:setWeaponStorage("Nuke",2)
+	return ship
+end
+function atlantisY42(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming()
+	ship:setTypeName("Atlantis Y42")
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 3.5)
+	ship:setShieldsMax(300,200,300,200)							--stronger shields (vs 200,200,200,200)
+	ship:setShields(300,200,300,200)					
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)		
+	return ship		
+end
+function droneHeavy(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Heavy Drone")
+	ship:setHullMax(40)					--stronger hull (vs 30)
+	ship:setHull(40)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,8)	--stronger (vs 6) beam
+	return ship
+end
+function droneJacket(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Jacket Drone")
+	ship:setShieldsMax(20)				--stronger shields (vs none)
+	ship:setShields(20)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	return ship
+end
+function droneLite(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Lite Drone")
+	ship:setHullMax(20)					--weaker hull (vs 30)
+	ship:setHull(20)
+	ship:setImpulseMaxSpeed(130)		--faster impulse (vs 120)
+	ship:setRotationMaxSpeed(20)		--faster maneuver (vs 10)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	return ship
+end
+function elaraP2(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:setTypeName("Elara P2")
+	ship:setWarpDrive(true)			--warp drive (vs none)
+	ship:setShieldsMax(70,40)		--stronger front shield (vs 50,40)
+	ship:setShields(70,40)
+	return ship
+end
+function enforcer(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming()
+	ship:setTypeName("Enforcer")
+	ship:setRadarTrace("radar_ktlitan_destroyer.png")			--different radar trace
+	ship:setWarpDrive(true)										--warp (vs none)
+	ship:setWarpSpeed(600)
+	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
+	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 15)
+	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
+	ship:setShields(200,100,100)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	30,	  -15,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
+	ship:setBeamWeapon(1,	30,	   15,	1500,		6,		10)
+	ship:setBeamWeapon(2,	 0,	    0,	   0,		0,		 0)	--fewer (vs 4)
+	ship:setBeamWeapon(3,	 0,	    0,	   0,		0,		 0)
+	ship:setWeaponTubeCount(3)									--more (vs 0)
+	ship:setWeaponTubeDirection(1,-30)				
+	ship:setWeaponTubeDirection(2, 30)				
+	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
+	ship:setWeaponStorage("Homing", 18)		
+	return ship		
+end
+function fiendG3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	ship:setTypeName("Fiend G3")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)			
+	return ship
+end
+function fiendG4(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	ship:setTypeName("Fiend G4")
+	ship:setWarpDrive(true)
+	return ship
+end
+function fiendG5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	ship:setTypeName("Fiend G5")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)			
+	return ship
+end
+function fiendG6(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	ship:setTypeName("Fiend G6")
+	ship:setWarpDrive(true)
+	return ship
+end
+function gnat(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Gnat")
+	ship:setHullMax(15)					--weaker hull (vs 30)
+	ship:setHull(15)
+	ship:setImpulseMaxSpeed(140)		--faster impulse (vs 120)
+	ship:setRotationMaxSpeed(25)		--faster maneuver (vs 10)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,   40,		0,	 600,		4,		 3)	--weaker (vs 6) beam
+	return ship
+end
+function hornetMV52(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming()
+	ship:setTypeName("MV52 Hornet")
+	ship:setBeamWeapon(0, 30, 0, 1000.0, 4.0, 4.0)	--longer and stronger beam (vs 700 & 3)
+	ship:setRotationMaxSpeed(30)					--faster maneuver (vs 25)
+	ship:setImpulseMaxSpeed(130)					--faster impulse (vs 120)
+	return ship
+end
+function jade5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:setTypeName("Jade 5")
+	ship:setJumpDrive(true)				--added jump drive
+	ship:setJumpDriveRange(5000,35000)			
+	return ship
+end
+function k2fighter(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	ship:setTypeName("K2 Fighter")
+	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 6)	--beams cycle faster (vs 4.0)
+	ship:setHullMax(65)								--weaker hull (vs 70)
+	ship:setHull(65)
+	return ship
+end	
+function k3fighter(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	ship:setTypeName("K3 Fighter")
+	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 9)	--beams cycle faster and damage more (vs 4.0 & 6)
+	ship:setHullMax(60)								--weaker hull (vs 70)
+	ship:setHull(60)
+	return ship
+end	
+function nirvanaR3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Nirvana R5"):orderRoaming()
+	ship:setTypeName("Nirvana R3")
+	ship:setBeamWeapon(0, 90, -15, 1000.0, 3, 1)	--shorter beams (vs 1200)
+	ship:setBeamWeapon(1, 90,  15, 1000.0, 3, 1)	--shorter beams
+	ship:setBeamWeapon(2, 90, -50, 1000.0, 3, 1)	--shorter beams
+	ship:setBeamWeapon(3, 90,  50, 1000.0, 3, 1)	--shorter beams
+	ship:setHullMax(60)								--weaker hull (vs 70)
+	ship:setHull(60)
+	ship:setShields(40,30)							--weaker shields (vs 50,40)
+	ship:setImpulseMaxSpeed(65)						--slower impulse (vs 70)
+	return ship
+end
+function phobosR2(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:setTypeName("Phobos R2")
+	ship:setWeaponTubeCount(1)			--one tube (vs 2)
+	ship:setWeaponTubeDirection(0,0)	
+	ship:setImpulseMaxSpeed(55)			--slower impulse (vs 60)
+	ship:setRotationMaxSpeed(15)		--faster maneuver (vs 10)
+	return ship
+end
+function predator(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	ship:setTypeName("Predator")
+	ship:setRadarTrace("radar_missile_cruiser.png")				--different radar trace
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)			
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 40)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 6)
+	ship:setShieldsMax(100,100)									--stronger shields (vs 30,30)
+	ship:setShields(100,100)					
+	ship:setHullMax(80)											--stronger hull (vs 70)
+	ship:setHull(80)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	    0,	1000,		6,		 4)	--more (vs 0)
+	ship:setBeamWeapon(1,	90,	  180,	1000,		6,		 4)	
+	ship:setWeaponTubeCount(8)									--more (vs 3)
+	ship:setWeaponTubeDirection(0,-60)				
+	ship:setWeaponTubeDirection(1,-90)				
+	ship:setWeaponTubeDirection(2,-90)				
+	ship:setWeaponTubeDirection(3, 60)				
+	ship:setWeaponTubeDirection(4, 90)				
+	ship:setWeaponTubeDirection(5, 90)				
+	ship:setWeaponTubeDirection(6,-120)				
+	ship:setWeaponTubeDirection(7, 120)				
+	ship:setWeaponTubeExclusiveFor(0,"Homing")
+	ship:setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setWeaponTubeExclusiveFor(2,"Homing")
+	ship:setWeaponTubeExclusiveFor(3,"Homing")
+	ship:setWeaponTubeExclusiveFor(4,"Homing")
+	ship:setWeaponTubeExclusiveFor(5,"Homing")
+	ship:setWeaponTubeExclusiveFor(6,"Homing")
+	ship:setWeaponTubeExclusiveFor(7,"Homing")
+	ship:setWeaponStorageMax("Homing",32)						--more (vs 5)
+	ship:setWeaponStorage("Homing", 32)		
+	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
+	ship:setWeaponStorage("HVLI", 0)		
+	return ship		
+end
+function stalkerQ5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming()
+	ship:setTypeName("Stalker Q5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	return ship
+end
+function stalkerR5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming()
+	ship:setTypeName("Stalker R5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	return ship
+end
+function starhammerV(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	ship:setTypeName("Starhammer V")
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 35)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 6)
+	ship:setShieldsMax(450, 350, 250, 250, 350)					--stronger shields (vs 450, 350, 150, 150, 350)
+	ship:setShields(450, 350, 250, 250, 350)					
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 36)		
+	return ship		
+end
+function tempest(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming()
+	ship:setTypeName("Tempest")
+	ship:setWeaponTubeCount(10)						--four more tubes (vs 6)
+	ship:setWeaponTubeDirection(0, -88)				--5 per side
+	ship:setWeaponTubeDirection(1, -89)				--slight angle spread
+	ship:setWeaponTubeDirection(3,  88)				--3 for HVLI each side
+	ship:setWeaponTubeDirection(4,  89)				--2 for homing and nuke each side
+	ship:setWeaponTubeDirection(6, -91)				
+	ship:setWeaponTubeDirection(7, -92)				
+	ship:setWeaponTubeDirection(8,  91)				
+	ship:setWeaponTubeDirection(9,  92)				
+	ship:setWeaponTubeExclusiveFor(7,"HVLI")
+	ship:setWeaponTubeExclusiveFor(9,"HVLI")
+	ship:setWeaponStorageMax("Homing",16)			--more (vs 6)
+	ship:setWeaponStorage("Homing", 16)				
+	ship:setWeaponStorageMax("Nuke",8)				--more (vs 0)
+	ship:setWeaponStorage("Nuke", 8)				
+	ship:setWeaponStorageMax("HVLI",34)				--more (vs 20)
+	ship:setWeaponStorage("HVLI", 34)				
+	return ship
+end
+function tyr(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming()
+	ship:setTypeName("Tyr")
+	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
+	ship:setShieldsMax(400, 300, 300, 400, 300, 300)			--stronger shields (vs 300, 300, 300, 300, 300)
+	ship:setShields(400, 300, 300, 400, 300, 300)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	  -60,	2500,		6,		 8)	--stronger beams, broader coverage
+	ship:setBeamWeapon(1,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(2,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(3,	90,	  120,	2500,		6,		 8)
+	ship:setBeamWeapon(4,	90,	  -60,	2500,		6,		 8)
+	ship:setBeamWeapon(5,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(6,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(7,	90,	  120,	2500,		6,		 8)
+	ship:setBeamWeapon(8,	90,	  -60,	2500,		6,		 8)
+	ship:setBeamWeapon(9,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(10,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(11,	90,	  120,	2500,		6,		 8)
+	return ship
+end
+function waddle5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:setTypeName("Waddle 5")
+	ship:setWarpDrive(true)				--added warp drive
+	return ship
+end
+function wzLindworm(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming()
+	ship:setTypeName("WZ-Lindworm")
+	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
+	ship:setWeaponStorage("Nuke",2)
+	ship:setWeaponStorageMax("Homing",4)	--more homing (vs 1)
+	ship:setWeaponStorage("Homing",4)
+	ship:setWeaponStorageMax("HVLI",12)		--more HVLI (vs 6)
+	ship:setWeaponStorage("HVLI",12)
+	ship:setRotationMaxSpeed(12)			--slower maneuver (vs 15)
+	ship:setHullMax(45)						--weaker hull (vs 50)
+	ship:setHull(45)
+	return ship
+end
 ----------------------------------------------
 --	Transport ship generation and handling  --
 ----------------------------------------------
@@ -4535,6 +5086,7 @@ function transportPlot(delta)
 				name = name .. " Freighter " .. irandom(1, 5)
 			end
 			obj = CpuShip():setTemplate(name):setFaction('Independent'):setCommsScript(""):setCommsFunction(commsShip)
+			obj:setCallSign(generateCallSign(nil,"Independent"))
 			obj.target = target
 			obj.undock_delay = irandom(1,4)
 			rifl = math.floor(random(1,#goodsList))	-- random item from list
@@ -6263,14 +6815,17 @@ function threadedPursuit(delta)
 		plot2 = destroyef2
 	end
 	if ef3 == nil then
-		scx, scy = homeStation:getPosition()
-		cpx, cpy = vectorFromAngle(random(0,360),random(30000,40000))
-		ef3 = spawnEnemies(scx+cpx,scy+cpy,.8)
+		ef3 = vectorOn(homeStation,.8,random(30000,40000))
+		local avg_impulse = 0
 		for _, enemy in ipairs(ef3) do
-			if diagnostic then
+			avg_impulse = avg_impulse + enemy:getImpulseMaxSpeed()
+			if plot_1_diagnostic then
 				enemy:setCallSign(enemy:getCallSign() .. "ef3")
 			end
-			enemy:orderFlyTowards(scx,scy)
+		end
+		avg_impulse = avg_impulse/#ef3
+		for _, enemy in ipairs(ef3) do
+			enemy:setImpulseMaxSpeed(avg_impulse)
 		end
 		plot3 = destroyef3
 	end
@@ -6384,15 +6939,22 @@ function pressureWaves(delta)
 			end
 		end
 		if random(1,5) <= 1 then
-			hsx, hsy = homeStation:getPosition()
-			spx, spy = vectorFromAngle(random(0,360),random(30000,40000))
-			ntf = spawnEnemies(hsx+spx,hsy+spy,dangerValue,targetEnemyStation:getFaction())
-			waveSpawned = true
 			if random(1,5) <= 3 then
+				ntf = vectorOn(homeStation,dangerValue,random(30000,40000))
+				local avg_impulse = 0
 				for _, enemy in ipairs(ntf) do
-					enemy:orderFlyTowards(hsx,hsy)
+					avg_impulse = avg_impulse + enemy:getImpulseMaxSpeed()
 				end
+				avg_impulse = avg_impulse/#ntf
+				for _, enemy in ipairs(ntf) do
+					enemy:setImpulseMaxSpeed(avg_impulse)
+				end
+			else
+				hsx, hsy = homeStation:getPosition()
+				spx, spy = vectorFromAngle(random(0,360),random(30000,40000))
+				ntf = spawnEnemies(hsx+spx,hsy+spy,dangerValue,targetEnemyStation:getFaction())
 			end
+			waveSpawned = true
 		end
 		if random(1,5) <= 1 then
 			p = closestPlayerTo(targetEnemyStation)
@@ -8050,35 +8612,115 @@ end
 ------------------------------------
 --	Generic or utility functions  --
 ------------------------------------
-function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction)
-	if enemyFaction == nil then
-		enemyFaction = "Kraylor"
+function vectorOn(obj,danger,radius,angle,list)
+	if obj == nil then
+		return
 	end
+	if danger == nil then
+		danger = 1
+	end
+	if radius == nil then
+		if obj.typeName == "PlayerSpaceship" then
+			radius = obj:getLongRangeRadarRange()
+		else
+			radius = 30000
+		end
+	end
+	if angle == nil then
+		angle = random(0,360)
+	end
+	local enemy_list = {}
+	local vx, vy = vectorFromAngle(angle,radius)
+	local px, py = obj:getPosition()
+	if list == nil then
+		enemy_list = spawnEnemies(px+vx,py+vy,danger,"Kraylor",nil,10,"none")
+	else
+		enemy_list = list
+	end
+	local tier_max = 13
+	local pyramid_tier = math.min(#enemy_list,tier_max)
+	for index, ship in ipairs(enemy_list) do
+		if index <= tier_max then
+			local pyramid_angle = angle + formation_delta.pyramid[pyramid_tier][index].angle
+			if pyramid_angle < 0 then 
+				pyramid_angle = pyramid_angle + 360
+			end
+			pyramid_angle = pyramid_angle % 360
+			rx, ry = vectorFromAngle(pyramid_angle,radius + formation_delta.pyramid[pyramid_tier][index].distance * 800)
+			ship:setPosition(px+rx,py+ry)
+		else
+			ship:setPosition(px+vx,py+vy)
+		end
+		ship:setHeading((angle + 270) % 360)
+		ship:orderFlyTowards(px,py)
+	end
+	return enemy_list
+end
+function spawnEnemies(origin_x, origin_y, danger, faction, strength, pool_size, shape)
+	local function getStrengthSort(tbl, sortFunction)
+		local keys = {}
+		for key in pairs(tbl) do
+			table.insert(keys,key)
+		end
+		table.sort(keys, function(a,b)
+			return sortFunction(tbl[a], tbl[b])
+		end)
+		return keys
+	end
+	local ship_template_by_strength = getStrengthSort(ship_template, function(a,b)
+		return a.strength > b.strength
+	end)
 	if danger == nil then 
 		danger = 1
 	end
-	enemyStrength = math.max(danger * difficulty * playerPower(),5)
-	enemyPosition = 0
-	sp = irandom(300,500)			--random spacing of spawned group
-	deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
-	enemyList = {}
-	-- Reminder: stsl and stnl are ship template score and name list
-	while enemyStrength > 0 do
-		shipTemplateType = irandom(1,#stsl)
-		while stsl[shipTemplateType] > enemyStrength * 1.1 + 5 do
-			shipTemplateType = irandom(1,#stsl)
-		end		
-		ship = CpuShip():setFaction(enemyFaction):setTemplate(stnl[shipTemplateType]):orderRoaming()
-		enemyPosition = enemyPosition + 1
-		if deployConfig < 50 then
-			ship:setPosition(xOrigin+fleetPosDelta1x[enemyPosition]*sp,yOrigin+fleetPosDelta1y[enemyPosition]*sp)
-		else
-			ship:setPosition(xOrigin+fleetPosDelta2x[enemyPosition]*sp,yOrigin+fleetPosDelta2y[enemyPosition]*sp)
-		end
-		table.insert(enemyList, ship)
-		enemyStrength = enemyStrength - stsl[shipTemplateType]
+	if faction == nil then
+		faction = "Exuari"
 	end
-	return enemyList
+--	print("danger in spawnEnemies: " .. danger)
+	if strength == nil then
+		strength = math.max(danger * difficulty * playerPower(), 5)
+	end
+	if pool_size == nil then
+		pool_size = 5
+	end
+	if shape == nil then
+		shape = "square"
+		if random(1,100) < 50 then
+			shape = "hexagonal"
+		end
+	end
+--	print("shape: " .. shape)
+	local enemy_position = 0
+	local sp = irandom(500,1000)			--random spacing of spawned group
+	local enemy_list = {}
+	while strength > 0 do
+		local template_pool = {}
+		for _, current_ship_template in ipairs(ship_template_by_strength) do
+			if ship_template[current_ship_template].strength <= strength then
+				table.insert(template_pool,current_ship_template)
+			end
+			if #template_pool >= pool_size then
+				break
+			end
+		end
+		if #template_pool > 0 then
+			local selected_template = template_pool[math.random(1,#template_pool)]
+			local ship = ship_template[selected_template].create(faction,selected_template)
+			enemy_position = enemy_position + 1
+			if shape == "none" then
+				ship:setPosition(origin_x,origin_y)
+			else
+				ship:setPosition(origin_x + formation_delta[shape].x[enemy_position] * sp, origin_y + formation_delta[shape].y[enemy_position] * sp)
+			end
+			ship:setCommsScript(""):setCommsFunction(commsShip)
+			table.insert(enemy_list, ship)
+			ship:setCallSign(generateCallSign(nil,faction))
+			strength = strength - ship_template[selected_template].strength
+		else
+			break
+		end
+	end
+	return enemy_list
 end
 --evaluate the players for enemy strength and size spawning purposes
 function playerPower()
@@ -8095,6 +8737,716 @@ function playerPower()
 	end
 	return playerShipScore
 end
+--	Generate call sign functions
+function generateCallSign(prefix,faction)
+	if faction == nil then
+		if prefix == nil then
+			prefix = generateCallSignPrefix()
+		end
+	else
+		if prefix == nil then
+			prefix = getFactionPrefix(faction)
+		else
+			prefix = string.format("%s %s",getFactionPrefix(faction),prefix)
+		end
+	end
+	suffix_index = suffix_index + math.random(1,3)
+	if suffix_index > 999 then 
+		suffix_index = 1
+	end
+	return string.format("%s%i",prefix,suffix_index)
+end
+function generateCallSignPrefix(length)
+	if call_sign_prefix_pool == nil then
+		call_sign_prefix_pool = {}
+		prefix_length = prefix_length + 1
+		if prefix_length > 3 then
+			prefix_length = 1
+		end
+		fillPrefixPool()
+	end
+	if length == nil then
+		length = prefix_length
+	end
+	local prefix_index = 0
+	local prefix = ""
+	for i=1,length do
+		if #call_sign_prefix_pool < 1 then
+			fillPrefixPool()
+		end
+		prefix_index = math.random(1,#call_sign_prefix_pool)
+		prefix = prefix .. call_sign_prefix_pool[prefix_index]
+		table.remove(call_sign_prefix_pool,prefix_index)
+	end
+	return prefix
+end
+function fillPrefixPool()
+	for i=1,26 do
+		table.insert(call_sign_prefix_pool,string.char(i+64))
+	end
+end
+function getFactionPrefix(faction)
+	local faction_prefix = nil
+	if faction == "Kraylor" then
+		if kraylor_names == nil then
+			setKraylorNames()
+		else
+			if #kraylor_names < 1 then
+				setKraylorNames()
+			end
+		end
+		local kraylor_name_choice = math.random(1,#kraylor_names)
+		faction_prefix = kraylor_names[kraylor_name_choice]
+		table.remove(kraylor_names,kraylor_name_choice)
+	end
+	if faction == "Exuari" then
+		if exuari_names == nil then
+			setExuariNames()
+		else
+			if #exuari_names < 1 then
+				setExuariNames()
+			end
+		end
+		local exuari_name_choice = math.random(1,#exuari_names)
+		faction_prefix = exuari_names[exuari_name_choice]
+		table.remove(exuari_names,exuari_name_choice)
+	end
+	if faction == "Ghosts" then
+		if ghosts_names == nil then
+			setGhostsNames()
+		else
+			if #ghosts_names < 1 then
+				setGhostsNames()
+			end
+		end
+		local ghosts_name_choice = math.random(1,#ghosts_names)
+		faction_prefix = ghosts_names[ghosts_name_choice]
+		table.remove(ghosts_names,ghosts_name_choice)
+	end
+	if faction == "Independent" then
+		if independent_names == nil then
+			setIndependentNames()
+		else
+			if #independent_names < 1 then
+				setIndependentNames()
+			end
+		end
+		local independent_name_choice = math.random(1,#independent_names)
+		faction_prefix = independent_names[independent_name_choice]
+		table.remove(independent_names,independent_name_choice)
+	end
+	if faction == "Human Navy" then
+		if human_names == nil then
+			setHumanNames()
+		else
+			if #human_names < 1 then
+				setHumanNames()
+			end
+		end
+		local human_name_choice = math.random(1,#human_names)
+		faction_prefix = human_names[human_name_choice]
+		table.remove(human_names,human_name_choice)
+	end
+	if faction == "Arlenians" then
+		if arlenian_names == nil then
+			setArlenianNames()
+		else
+			if #arlenian_names < 1 then
+				setArlenianNames()
+			end
+		end
+		local arlenian_name_choice = math.random(1,#arlenian_names)
+		faction_prefix = arlenian_names[arlenian_name_choice]
+		table.remove(arlenian_names,arlenian_name_choice)
+	end
+	if faction_prefix == nil then
+		faction_prefix = generateCallSignPrefix()
+	end
+	return faction_prefix
+end
+function setGhostsNames()
+	ghosts_names = {}
+	table.insert(ghosts_names,"Abstract")
+	table.insert(ghosts_names,"Ada")
+	table.insert(ghosts_names,"Assemble")
+	table.insert(ghosts_names,"Assert")
+	table.insert(ghosts_names,"Backup")
+	table.insert(ghosts_names,"BASIC")
+	table.insert(ghosts_names,"Big Iron")
+	table.insert(ghosts_names,"BigEndian")
+	table.insert(ghosts_names,"Binary")
+	table.insert(ghosts_names,"Bit")
+	table.insert(ghosts_names,"Block")
+	table.insert(ghosts_names,"Boot")
+	table.insert(ghosts_names,"Branch")
+	table.insert(ghosts_names,"BTree")
+	table.insert(ghosts_names,"Bubble")
+	table.insert(ghosts_names,"Byte")
+	table.insert(ghosts_names,"Capacitor")
+	table.insert(ghosts_names,"Case")
+	table.insert(ghosts_names,"Chad")
+	table.insert(ghosts_names,"Charge")
+	table.insert(ghosts_names,"COBOL")
+	table.insert(ghosts_names,"Collate")
+	table.insert(ghosts_names,"Compile")
+	table.insert(ghosts_names,"Control")
+	table.insert(ghosts_names,"Construct")
+	table.insert(ghosts_names,"Cycle")
+	table.insert(ghosts_names,"Data")
+	table.insert(ghosts_names,"Debug")
+	table.insert(ghosts_names,"Decimal")
+	table.insert(ghosts_names,"Decision")
+	table.insert(ghosts_names,"Default")
+	table.insert(ghosts_names,"DIMM")
+	table.insert(ghosts_names,"Displacement")
+	table.insert(ghosts_names,"Edge")
+	table.insert(ghosts_names,"Exit")
+	table.insert(ghosts_names,"Factor")
+	table.insert(ghosts_names,"Flag")
+	table.insert(ghosts_names,"Float")
+	table.insert(ghosts_names,"Flow")
+	table.insert(ghosts_names,"FORTRAN")
+	table.insert(ghosts_names,"Fullword")
+	table.insert(ghosts_names,"GIGO")
+	table.insert(ghosts_names,"Graph")
+	table.insert(ghosts_names,"Hack")
+	table.insert(ghosts_names,"Hash")
+	table.insert(ghosts_names,"Halfword")
+	table.insert(ghosts_names,"Hertz")
+	table.insert(ghosts_names,"Hexadecimal")
+	table.insert(ghosts_names,"Indicator")
+	table.insert(ghosts_names,"Initialize")
+	table.insert(ghosts_names,"Integer")
+	table.insert(ghosts_names,"Integrate")
+	table.insert(ghosts_names,"Interrupt")
+	table.insert(ghosts_names,"Java")
+	table.insert(ghosts_names,"Lisp")
+	table.insert(ghosts_names,"List")
+	table.insert(ghosts_names,"Logic")
+	table.insert(ghosts_names,"Loop")
+	table.insert(ghosts_names,"Lua")
+	table.insert(ghosts_names,"Magnetic")
+	table.insert(ghosts_names,"Mask")
+	table.insert(ghosts_names,"Memory")
+	table.insert(ghosts_names,"Mnemonic")
+	table.insert(ghosts_names,"Micro")
+	table.insert(ghosts_names,"Model")
+	table.insert(ghosts_names,"Nibble")
+	table.insert(ghosts_names,"Octal")
+	table.insert(ghosts_names,"Order")
+	table.insert(ghosts_names,"Operator")
+	table.insert(ghosts_names,"Parameter")
+	table.insert(ghosts_names,"Pascal")
+	table.insert(ghosts_names,"Pattern")
+	table.insert(ghosts_names,"Pixel")
+	table.insert(ghosts_names,"Point")
+	table.insert(ghosts_names,"Polygon")
+	table.insert(ghosts_names,"Port")
+	table.insert(ghosts_names,"Process")
+	table.insert(ghosts_names,"RAM")
+	table.insert(ghosts_names,"Raster")
+	table.insert(ghosts_names,"Rate")
+	table.insert(ghosts_names,"Redundant")
+	table.insert(ghosts_names,"Reference")
+	table.insert(ghosts_names,"Refresh")
+	table.insert(ghosts_names,"Register")
+	table.insert(ghosts_names,"Resistor")
+	table.insert(ghosts_names,"ROM")
+	table.insert(ghosts_names,"Routine")
+	table.insert(ghosts_names,"Ruby")
+	table.insert(ghosts_names,"SAAS")
+	table.insert(ghosts_names,"Sequence")
+	table.insert(ghosts_names,"Share")
+	table.insert(ghosts_names,"Silicon")
+	table.insert(ghosts_names,"SIMM")
+	table.insert(ghosts_names,"Socket")
+	table.insert(ghosts_names,"Sort")
+	table.insert(ghosts_names,"Structure")
+	table.insert(ghosts_names,"Switch")
+	table.insert(ghosts_names,"Symbol")
+	table.insert(ghosts_names,"Trace")
+	table.insert(ghosts_names,"Transistor")
+	table.insert(ghosts_names,"Value")
+	table.insert(ghosts_names,"Vector")
+	table.insert(ghosts_names,"Version")
+	table.insert(ghosts_names,"View")
+	table.insert(ghosts_names,"WYSIWYG")
+	table.insert(ghosts_names,"XOR")
+end
+function setExuariNames()
+	exuari_names = {}
+	table.insert(exuari_names,"Astonester")
+	table.insert(exuari_names,"Ametripox")
+	table.insert(exuari_names,"Bakeltevex")
+	table.insert(exuari_names,"Baropledax")
+	table.insert(exuari_names,"Batongomox")
+	table.insert(exuari_names,"Bekilvimix")
+	table.insert(exuari_names,"Benoglopok")
+	table.insert(exuari_names,"Bilontipur")
+	table.insert(exuari_names,"Bolictimik")
+	table.insert(exuari_names,"Bomagralax")
+	table.insert(exuari_names,"Buteldefex")
+	table.insert(exuari_names,"Catondinab")
+	table.insert(exuari_names,"Chatorlonox")
+	table.insert(exuari_names,"Culagromik")
+	table.insert(exuari_names,"Dakimbinix")
+	table.insert(exuari_names,"Degintalix")
+	table.insert(exuari_names,"Dimabratax")
+	table.insert(exuari_names,"Dokintifix")
+	table.insert(exuari_names,"Dotandirex")
+	table.insert(exuari_names,"Dupalgawax")
+	table.insert(exuari_names,"Ekoftupex")
+	table.insert(exuari_names,"Elidranov")
+	table.insert(exuari_names,"Fakobrovox")
+	table.insert(exuari_names,"Femoplabix")
+	table.insert(exuari_names,"Fibatralax")
+	table.insert(exuari_names,"Fomartoran")
+	table.insert(exuari_names,"Gateldepex")
+	table.insert(exuari_names,"Gamutrewal")
+	table.insert(exuari_names,"Gesanterux")
+	table.insert(exuari_names,"Gimardanax")
+	table.insert(exuari_names,"Hamintinal")
+	table.insert(exuari_names,"Holangavak")
+	table.insert(exuari_names,"Igolpafik")
+	table.insert(exuari_names,"Inoklomat")
+	table.insert(exuari_names,"Jamewtibex")
+	table.insert(exuari_names,"Jepospagox")
+	table.insert(exuari_names,"Kajortonox")
+	table.insert(exuari_names,"Kapogrinix")
+	table.insert(exuari_names,"Kelitravax")
+	table.insert(exuari_names,"Kipaldanax")
+	table.insert(exuari_names,"Kodendevex")
+	table.insert(exuari_names,"Kotelpedex")
+	table.insert(exuari_names,"Kutandolak")
+	table.insert(exuari_names,"Lakirtinix")
+	table.insert(exuari_names,"Lapoldinek")
+	table.insert(exuari_names,"Lavorbonox")
+	table.insert(exuari_names,"Letirvinix")
+	table.insert(exuari_names,"Lowibromax")
+	table.insert(exuari_names,"Makintibix")
+	table.insert(exuari_names,"Makorpohox")
+	table.insert(exuari_names,"Matoprowox")
+	table.insert(exuari_names,"Mefinketix")
+	table.insert(exuari_names,"Motandobak")
+	table.insert(exuari_names,"Nakustunux")
+	table.insert(exuari_names,"Nequivonax")
+	table.insert(exuari_names,"Nitaldavax")
+	table.insert(exuari_names,"Nobaldorex")
+	table.insert(exuari_names,"Obimpitix")
+	table.insert(exuari_names,"Owaklanat")
+	table.insert(exuari_names,"Pakendesik")
+	table.insert(exuari_names,"Pazinderix")
+	table.insert(exuari_names,"Pefoglamuk")
+	table.insert(exuari_names,"Pekirdivix")
+	table.insert(exuari_names,"Potarkadax")
+	table.insert(exuari_names,"Pulendemex")
+	table.insert(exuari_names,"Quatordunix")
+	table.insert(exuari_names,"Rakurdumux")
+	table.insert(exuari_names,"Ralombenik")
+	table.insert(exuari_names,"Regosporak")
+	table.insert(exuari_names,"Retordofox")
+	table.insert(exuari_names,"Rikondogox")
+	table.insert(exuari_names,"Rokengelex")
+	table.insert(exuari_names,"Rutarkadax")
+	table.insert(exuari_names,"Sakeldepex")
+	table.insert(exuari_names,"Setiftimix")
+	table.insert(exuari_names,"Siparkonal")
+	table.insert(exuari_names,"Sopaldanax")
+	table.insert(exuari_names,"Sudastulux")
+	table.insert(exuari_names,"Takeftebex")
+	table.insert(exuari_names,"Taliskawit")
+	table.insert(exuari_names,"Tegundolex")
+	table.insert(exuari_names,"Tekintipix")
+	table.insert(exuari_names,"Tiposhomox")
+	table.insert(exuari_names,"Tokaldapax")
+	table.insert(exuari_names,"Tomuglupux")
+	table.insert(exuari_names,"Tufeldepex")
+	table.insert(exuari_names,"Unegremek")
+	table.insert(exuari_names,"Uvendipax")
+	table.insert(exuari_names,"Vatorgopox")
+	table.insert(exuari_names,"Venitribix")
+	table.insert(exuari_names,"Vobalterix")
+	table.insert(exuari_names,"Wakintivix")
+	table.insert(exuari_names,"Wapaltunix")
+	table.insert(exuari_names,"Wekitrolax")
+	table.insert(exuari_names,"Wofarbanax")
+	table.insert(exuari_names,"Xeniplofek")
+	table.insert(exuari_names,"Yamaglevik")
+	table.insert(exuari_names,"Yakildivix")
+	table.insert(exuari_names,"Yegomparik")
+	table.insert(exuari_names,"Zapondehex")
+	table.insert(exuari_names,"Zikandelat")
+end
+function setKraylorNames()		
+	kraylor_names = {}
+	table.insert(kraylor_names,"Abroten")
+	table.insert(kraylor_names,"Ankwar")
+	table.insert(kraylor_names,"Bakrik")
+	table.insert(kraylor_names,"Belgor")
+	table.insert(kraylor_names,"Benkop")
+	table.insert(kraylor_names,"Blargvet")
+	table.insert(kraylor_names,"Bloktarg")
+	table.insert(kraylor_names,"Bortok")
+	table.insert(kraylor_names,"Bredjat")
+	table.insert(kraylor_names,"Chankret")
+	table.insert(kraylor_names,"Chatork")
+	table.insert(kraylor_names,"Chokarp")
+	table.insert(kraylor_names,"Cloprak")
+	table.insert(kraylor_names,"Coplek")
+	table.insert(kraylor_names,"Cortek")
+	table.insert(kraylor_names,"Daltok")
+	table.insert(kraylor_names,"Darpik")
+	table.insert(kraylor_names,"Dastek")
+	table.insert(kraylor_names,"Dotark")
+	table.insert(kraylor_names,"Drambok")
+	table.insert(kraylor_names,"Duntarg")
+	table.insert(kraylor_names,"Earklat")
+	table.insert(kraylor_names,"Ekmit")
+	table.insert(kraylor_names,"Fakret")
+	table.insert(kraylor_names,"Fapork")
+	table.insert(kraylor_names,"Fawtrik")
+	table.insert(kraylor_names,"Fenturp")
+	table.insert(kraylor_names,"Feplik")
+	table.insert(kraylor_names,"Figront")
+	table.insert(kraylor_names,"Floktrag")
+	table.insert(kraylor_names,"Fonkack")
+	table.insert(kraylor_names,"Fontreg")
+	table.insert(kraylor_names,"Foondrap")
+	table.insert(kraylor_names,"Frotwak")
+	table.insert(kraylor_names,"Gastonk")
+	table.insert(kraylor_names,"Gentouk")
+	table.insert(kraylor_names,"Gonpruk")
+	table.insert(kraylor_names,"Gortak")
+	table.insert(kraylor_names,"Gronkud")
+	table.insert(kraylor_names,"Hewtang")
+	table.insert(kraylor_names,"Hongtag")
+	table.insert(kraylor_names,"Hortook")
+	table.insert(kraylor_names,"Indrut")
+	table.insert(kraylor_names,"Iprant")
+	table.insert(kraylor_names,"Jakblet")
+	table.insert(kraylor_names,"Jonket")
+	table.insert(kraylor_names,"Jontot")
+	table.insert(kraylor_names,"Kandarp")
+	table.insert(kraylor_names,"Kantrok")
+	table.insert(kraylor_names,"Kiptak")
+	table.insert(kraylor_names,"Kortrant")
+	table.insert(kraylor_names,"Krontgat")
+	table.insert(kraylor_names,"Lobreck")
+	table.insert(kraylor_names,"Lokrant")
+	table.insert(kraylor_names,"Lomprok")
+	table.insert(kraylor_names,"Lutrank")
+	table.insert(kraylor_names,"Makrast")
+	table.insert(kraylor_names,"Moklahft")
+	table.insert(kraylor_names,"Morpug")
+	table.insert(kraylor_names,"Nagblat")
+	table.insert(kraylor_names,"Nokrat")
+	table.insert(kraylor_names,"Nomek")
+	table.insert(kraylor_names,"Notark")
+	table.insert(kraylor_names,"Ontrok")
+	table.insert(kraylor_names,"Orkpent")
+	table.insert(kraylor_names,"Peechak")
+	table.insert(kraylor_names,"Plogrent")
+	table.insert(kraylor_names,"Pokrint")
+	table.insert(kraylor_names,"Potarg")
+	table.insert(kraylor_names,"Prangtil")
+	table.insert(kraylor_names,"Quagbrok")
+	table.insert(kraylor_names,"Quimprill")
+	table.insert(kraylor_names,"Reekront")
+	table.insert(kraylor_names,"Ripkort")
+	table.insert(kraylor_names,"Rokust")
+	table.insert(kraylor_names,"Rontrait")
+	table.insert(kraylor_names,"Saknep")
+	table.insert(kraylor_names,"Sengot")
+	table.insert(kraylor_names,"Skitkard")
+	table.insert(kraylor_names,"Skopgrek")
+	table.insert(kraylor_names,"Sletrok")
+	table.insert(kraylor_names,"Slorknat")
+	table.insert(kraylor_names,"Spogrunk")
+	table.insert(kraylor_names,"Staklurt")
+	table.insert(kraylor_names,"Stonkbrant")
+	table.insert(kraylor_names,"Swaktrep")
+	table.insert(kraylor_names,"Tandrok")
+	table.insert(kraylor_names,"Takrost")
+	table.insert(kraylor_names,"Tonkrut")
+	table.insert(kraylor_names,"Torkrot")
+	table.insert(kraylor_names,"Trablok")
+	table.insert(kraylor_names,"Trokdin")
+	table.insert(kraylor_names,"Unkelt")
+	table.insert(kraylor_names,"Urjop")
+	table.insert(kraylor_names,"Vankront")
+	table.insert(kraylor_names,"Vintrep")
+	table.insert(kraylor_names,"Volkerd")
+	table.insert(kraylor_names,"Vortread")
+	table.insert(kraylor_names,"Wickurt")
+	table.insert(kraylor_names,"Xokbrek")
+	table.insert(kraylor_names,"Yeskret")
+	table.insert(kraylor_names,"Zacktrope")
+end
+function setIndependentNames()
+	independent_names = {}
+	table.insert(independent_names,"Akdroft")	--faux Kraylor
+	table.insert(independent_names,"Bletnik")	--faux Kraylor
+	table.insert(independent_names,"Brogfent")	--faux Kraylor
+	table.insert(independent_names,"Cruflech")	--faux Kraylor
+	table.insert(independent_names,"Dengtoct")	--faux Kraylor
+	table.insert(independent_names,"Fiklerg")	--faux Kraylor
+	table.insert(independent_names,"Groftep")	--faux Kraylor
+	table.insert(independent_names,"Hinkflort")	--faux Kraylor
+	table.insert(independent_names,"Irklesht")	--faux Kraylor
+	table.insert(independent_names,"Jotrak")	--faux Kraylor
+	table.insert(independent_names,"Kargleth")	--faux Kraylor
+	table.insert(independent_names,"Lidroft")	--faux Kraylor
+	table.insert(independent_names,"Movrect")	--faux Kraylor
+	table.insert(independent_names,"Nitrang")	--faux Kraylor
+	table.insert(independent_names,"Poklapt")	--faux Kraylor
+	table.insert(independent_names,"Raknalg")	--faux Kraylor
+	table.insert(independent_names,"Stovtuk")	--faux Kraylor
+	table.insert(independent_names,"Trongluft")	--faux Kraylor
+	table.insert(independent_names,"Vactremp")	--faux Kraylor
+	table.insert(independent_names,"Wunklesp")	--faux Kraylor
+	table.insert(independent_names,"Yentrilg")	--faux Kraylor
+	table.insert(independent_names,"Zeltrag")	--faux Kraylor
+	table.insert(independent_names,"Avoltojop")		--faux Exuari
+	table.insert(independent_names,"Bimartarax")	--faux Exuari
+	table.insert(independent_names,"Cidalkapax")	--faux Exuari
+	table.insert(independent_names,"Darongovax")	--faux Exuari
+	table.insert(independent_names,"Felistiyik")	--faux Exuari
+	table.insert(independent_names,"Gopendewex")	--faux Exuari
+	table.insert(independent_names,"Hakortodox")	--faux Exuari
+	table.insert(independent_names,"Jemistibix")	--faux Exuari
+	table.insert(independent_names,"Kilampafax")	--faux Exuari
+	table.insert(independent_names,"Lokuftumux")	--faux Exuari
+	table.insert(independent_names,"Mabildirix")	--faux Exuari
+	table.insert(independent_names,"Notervelex")	--faux Exuari
+	table.insert(independent_names,"Pekolgonex")	--faux Exuari
+	table.insert(independent_names,"Rifaltabax")	--faux Exuari
+	table.insert(independent_names,"Sobendeyex")	--faux Exuari
+	table.insert(independent_names,"Tinaftadax")	--faux Exuari
+	table.insert(independent_names,"Vadorgomax")	--faux Exuari
+	table.insert(independent_names,"Wilerpejex")	--faux Exuari
+	table.insert(independent_names,"Yukawvalak")	--faux Exuari
+	table.insert(independent_names,"Zajiltibix")	--faux Exuari
+	table.insert(independent_names,"Alter")		--faux Ghosts
+	table.insert(independent_names,"Assign")	--faux Ghosts
+	table.insert(independent_names,"Brain")		--faux Ghosts
+	table.insert(independent_names,"Break")		--faux Ghosts
+	table.insert(independent_names,"Boundary")	--faux Ghosts
+	table.insert(independent_names,"Code")		--faux Ghosts
+	table.insert(independent_names,"Compare")	--faux Ghosts
+	table.insert(independent_names,"Continue")	--faux Ghosts
+	table.insert(independent_names,"Core")		--faux Ghosts
+	table.insert(independent_names,"CRUD")		--faux Ghosts
+	table.insert(independent_names,"Decode")	--faux Ghosts
+	table.insert(independent_names,"Decrypt")	--faux Ghosts
+	table.insert(independent_names,"Device")	--faux Ghosts
+	table.insert(independent_names,"Encode")	--faux Ghosts
+	table.insert(independent_names,"Encrypt")	--faux Ghosts
+	table.insert(independent_names,"Event")		--faux Ghosts
+	table.insert(independent_names,"Fetch")		--faux Ghosts
+	table.insert(independent_names,"Frame")		--faux Ghosts
+	table.insert(independent_names,"Go")		--faux Ghosts
+	table.insert(independent_names,"IO")		--faux Ghosts
+	table.insert(independent_names,"Interface")	--faux Ghosts
+	table.insert(independent_names,"Kilo")		--faux Ghosts
+	table.insert(independent_names,"Modify")	--faux Ghosts
+	table.insert(independent_names,"Pin")		--faux Ghosts
+	table.insert(independent_names,"Program")	--faux Ghosts
+	table.insert(independent_names,"Purge")		--faux Ghosts
+	table.insert(independent_names,"Retrieve")	--faux Ghosts
+	table.insert(independent_names,"Store")		--faux Ghosts
+	table.insert(independent_names,"Unit")		--faux Ghosts
+	table.insert(independent_names,"Wire")		--faux Ghosts
+end
+function setHumanNames()
+	human_names = {}
+	table.insert(human_names,"Andromeda")
+	table.insert(human_names,"Angelica")
+	table.insert(human_names,"Artemis")
+	table.insert(human_names,"Barrier")
+	table.insert(human_names,"Beauteous")
+	table.insert(human_names,"Bliss")
+	table.insert(human_names,"Bonita")
+	table.insert(human_names,"Bounty Hunter")
+	table.insert(human_names,"Bueno")
+	table.insert(human_names,"Capitol")
+	table.insert(human_names,"Castigator")
+	table.insert(human_names,"Centurion")
+	table.insert(human_names,"Chakalaka")
+	table.insert(human_names,"Charity")
+	table.insert(human_names,"Christmas")
+	table.insert(human_names,"Chutzpah")
+	table.insert(human_names,"Constantine")
+	table.insert(human_names,"Crystal")
+	table.insert(human_names,"Dauntless")
+	table.insert(human_names,"Defiant")
+	table.insert(human_names,"Discovery")
+	table.insert(human_names,"Dorcas")
+	table.insert(human_names,"Elite")
+	table.insert(human_names,"Empathy")
+	table.insert(human_names,"Enlighten")
+	table.insert(human_names,"Enterprise")
+	table.insert(human_names,"Escape")
+	table.insert(human_names,"Exclamatory")
+	table.insert(human_names,"Faith")
+	table.insert(human_names,"Felicity")
+	table.insert(human_names,"Firefly")
+	table.insert(human_names,"Foresight")
+	table.insert(human_names,"Forthright")
+	table.insert(human_names,"Fortitude")
+	table.insert(human_names,"Frankenstein")
+	table.insert(human_names,"Gallant")
+	table.insert(human_names,"Gladiator")
+	table.insert(human_names,"Glider")
+	table.insert(human_names,"Godzilla")
+	table.insert(human_names,"Grind")
+	table.insert(human_names,"Happiness")
+	table.insert(human_names,"Hearken")
+	table.insert(human_names,"Helena")
+	table.insert(human_names,"Heracles")
+	table.insert(human_names,"Honorable Intentions")
+	table.insert(human_names,"Hope")
+	table.insert(human_names,"Hurricane")
+	table.insert(human_names,"Inertia")
+	table.insert(human_names,"Ingenius")
+	table.insert(human_names,"Injurious")
+	table.insert(human_names,"Insight")
+	table.insert(human_names,"Insufferable")
+	table.insert(human_names,"Insurmountable")
+	table.insert(human_names,"Intractable")
+	table.insert(human_names,"Intransigent")
+	table.insert(human_names,"Jenny")
+	table.insert(human_names,"Juice")
+	table.insert(human_names,"Justice")
+	table.insert(human_names,"Jurassic")
+	table.insert(human_names,"Karma Cast")
+	table.insert(human_names,"Knockout")
+	table.insert(human_names,"Leila")
+	table.insert(human_names,"Light Fantastic")
+	table.insert(human_names,"Livid")
+	table.insert(human_names,"Lolita")
+	table.insert(human_names,"Mercury")
+	table.insert(human_names,"Moira")
+	table.insert(human_names,"Mona Lisa")
+	table.insert(human_names,"Nancy")
+	table.insert(human_names,"Olivia")
+	table.insert(human_names,"Ominous")
+	table.insert(human_names,"Oracle")
+	table.insert(human_names,"Orca")
+	table.insert(human_names,"Pandemic")
+	table.insert(human_names,"Parsimonious")
+	table.insert(human_names,"Personal Prejudice")
+	table.insert(human_names,"Porpoise")
+	table.insert(human_names,"Pristine")
+	table.insert(human_names,"Purple Passion")
+	table.insert(human_names,"Renegade")
+	table.insert(human_names,"Revelation")
+	table.insert(human_names,"Rosanna")
+	table.insert(human_names,"Rozelle")
+	table.insert(human_names,"Sainted Gramma")
+	table.insert(human_names,"Shazam")
+	table.insert(human_names,"Starbird")
+	table.insert(human_names,"Stargazer")
+	table.insert(human_names,"Stile")
+	table.insert(human_names,"Streak")
+	table.insert(human_names,"Take Flight")
+	table.insert(human_names,"Taskmaster")
+	table.insert(human_names,"Tempest")
+	table.insert(human_names,"The Way")
+	table.insert(human_names,"Tornado")
+	table.insert(human_names,"Trailblazer")
+	table.insert(human_names,"Trident")
+	table.insert(human_names,"Triple Threat")
+	table.insert(human_names,"Turnabout")
+	table.insert(human_names,"Undulator")
+	table.insert(human_names,"Urgent")
+	table.insert(human_names,"Victoria")
+	table.insert(human_names,"Wee Bit")
+	table.insert(human_names,"Wet Willie")
+end
+function setArlenianNames()
+	arlenian_names = {}
+	table.insert(arlenian_names,"Balura")
+	table.insert(arlenian_names,"Baminda")
+	table.insert(arlenian_names,"Belarne")
+	table.insert(arlenian_names,"Bilanna")
+	table.insert(arlenian_names,"Calonda")
+	table.insert(arlenian_names,"Carila")
+	table.insert(arlenian_names,"Carulda")
+	table.insert(arlenian_names,"Charma")
+	table.insert(arlenian_names,"Choralle")
+	table.insert(arlenian_names,"Corlune")
+	table.insert(arlenian_names,"Damilda")
+	table.insert(arlenian_names,"Dilenda")
+	table.insert(arlenian_names,"Dorla")
+	table.insert(arlenian_names,"Elena")
+	table.insert(arlenian_names,"Emerla")
+	table.insert(arlenian_names,"Famelda")
+	table.insert(arlenian_names,"Finelle")
+	table.insert(arlenian_names,"Fontaine")
+	table.insert(arlenian_names,"Forlanne")
+	table.insert(arlenian_names,"Gendura")
+	table.insert(arlenian_names,"Gilarne")
+	table.insert(arlenian_names,"Grizelle")
+	table.insert(arlenian_names,"Hilerna")
+	table.insert(arlenian_names,"Homella")
+	table.insert(arlenian_names,"Jarille")
+	table.insert(arlenian_names,"Jindarre")
+	table.insert(arlenian_names,"Juminde")
+	table.insert(arlenian_names,"Kalena")
+	table.insert(arlenian_names,"Kimarna")
+	table.insert(arlenian_names,"Kolira")
+	table.insert(arlenian_names,"Lanerra")
+	table.insert(arlenian_names,"Lamura")
+	table.insert(arlenian_names,"Lavila")
+	table.insert(arlenian_names,"Lavorna")
+	table.insert(arlenian_names,"Lendura")
+	table.insert(arlenian_names,"Limala")
+	table.insert(arlenian_names,"Lorelle")
+	table.insert(arlenian_names,"Mavelle")
+	table.insert(arlenian_names,"Menola")
+	table.insert(arlenian_names,"Merla")
+	table.insert(arlenian_names,"Mitelle")
+	table.insert(arlenian_names,"Mivelda")
+	table.insert(arlenian_names,"Morainne")
+	table.insert(arlenian_names,"Morda")
+	table.insert(arlenian_names,"Morlena")
+	table.insert(arlenian_names,"Nadela")
+	table.insert(arlenian_names,"Naminda")
+	table.insert(arlenian_names,"Nilana")
+	table.insert(arlenian_names,"Nurelle")
+	table.insert(arlenian_names,"Panela")
+	table.insert(arlenian_names,"Pelnare")
+	table.insert(arlenian_names,"Pilera")
+	table.insert(arlenian_names,"Povelle")
+	table.insert(arlenian_names,"Quilarre")
+	table.insert(arlenian_names,"Ramila")
+	table.insert(arlenian_names,"Renatha")
+	table.insert(arlenian_names,"Rendelle")
+	table.insert(arlenian_names,"Rinalda")
+	table.insert(arlenian_names,"Riderla")
+	table.insert(arlenian_names,"Rifalle")
+	table.insert(arlenian_names,"Samila")
+	table.insert(arlenian_names,"Salura")
+	table.insert(arlenian_names,"Selinda")
+	table.insert(arlenian_names,"Simanda")
+	table.insert(arlenian_names,"Sodila")
+	table.insert(arlenian_names,"Talinda")
+	table.insert(arlenian_names,"Tamierre")
+	table.insert(arlenian_names,"Telorre")
+	table.insert(arlenian_names,"Terila")
+	table.insert(arlenian_names,"Turalla")
+	table.insert(arlenian_names,"Valerna")
+	table.insert(arlenian_names,"Vilanda")
+	table.insert(arlenian_names,"Vomera")
+	table.insert(arlenian_names,"Wanelle")
+	table.insert(arlenian_names,"Warenda")
+	table.insert(arlenian_names,"Wilena")
+	table.insert(arlenian_names,"Wodarla")
+	table.insert(arlenian_names,"Yamelda")
+	table.insert(arlenian_names,"Yelanda")
+end
+
+function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 -- Create amount of objects of type object_type along arc
 -- Center defined by x and y
 -- Radius defined by distance
@@ -8102,7 +9454,6 @@ end
 -- Use randomize to vary the distance from the center point. Omit to keep distance constant
 -- Example:
 --   createRandomAlongArc(Asteroid, 100, 500, 3000, 65, 120, 450)
-function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 	if randomize == nil then randomize = 0 end
 	if amount == nil then amount = 1 end
 	arcLen = endArcClockwise - startArc
@@ -8178,10 +9529,11 @@ function createRandomAsteroidAlongArc(amount, x, y, distance, startArc, endArcCl
 		end
 	end
 end
+function closestPlayerTo(obj)
 -- Return the player ship closest to passed object parameter
 -- Return nil if no valid result
 -- Assumes a maximum of 8 player ships
-function closestPlayerTo(obj)
+
 	if obj ~= nil and obj:isValid() then
 		local closestDistance = 9999999
 		closestPlayer = nil
@@ -8200,8 +9552,8 @@ function closestPlayerTo(obj)
 		return nil
 	end
 end
--- Return the player ship farthest from the passed object parameter
 function farthestPlayerFrom(obj)
+-- Return the player ship farthest from the passed object parameter
 	if obj ~= nil and obj:isValid() then
 		local farthestDistance = 0
 		farthestPlayer = nil
@@ -8220,8 +9572,8 @@ function farthestPlayerFrom(obj)
 		return nil
 	end
 end
--- Return station closest to object
 function closestStationTo(obj)
+-- Return station closest to object
 	if obj ~= nil and obj :isValid() then
 		local closestDistance = 9999999
 		closestStation = nil
@@ -8240,8 +9592,8 @@ function closestStationTo(obj)
 		return nil
 	end
 end
--- Return the station farthest from object
 function farthestStationTo(obj)
+-- Return the station farthest from object
 	if obj ~= nil and obj :isValid() then
 		local farthestDistance = 0
 		farthestStation = nil
@@ -8260,8 +9612,8 @@ function farthestStationTo(obj)
 		return nil
 	end
 end
---set up players with name, goods, cargo space, reputation and either a warp drive or a jump drive if applicable
 function setPlayers()
+--set up players with name, goods, cargo space, reputation and either a warp drive or a jump drive if applicable
 	concurrentPlayerCount = 0
 	for p1idx=1,8 do
 		pobj = getPlayerShip(p1idx)
@@ -8279,58 +9631,46 @@ function setPlayers()
 				pobj.spinUpgrade = false
 				pobj.beamTimeUpgrade = false
 				pobj.hullUpgrade = false
-				tempPlayerType = pobj:getTypeName()
+				local tempPlayerType = pobj:getTypeName()
+				pobj.shipScore = player_ship_stats[tempPlayerType].strength
+				pobj.maxCargo = player_ship_stats[tempPlayerType].cargo
+				pobj:setLongRangeRadarRange(player_ship_stats[tempPlayerType].long_range_radar)
+				pobj:setShortRangeRadarRange(player_ship_stats[tempPlayerType].short_range_radar)
 				if tempPlayerType == "MP52 Hornet" then
 					if #playerShipNamesFor["MP52Hornet"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["MP52Hornet"]))
 					end
-					pobj.shipScore = 7
-					pobj.maxCargo = 3
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Piranha" then
 					if #playerShipNamesFor["Piranha"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Piranha"]))
 					end
-					pobj.shipScore = 16
-					pobj.maxCargo = 8
 				elseif tempPlayerType == "Flavia P.Falcon" then
 					if #playerShipNamesFor["FlaviaPFalcon"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["FlaviaPFalcon"]))
 					end
-					pobj.shipScore = 13
-					pobj.maxCargo = 15
 				elseif tempPlayerType == "Phobos M3P" then
 					if #playerShipNamesFor["PhobosM3P"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["PhobosM3P"]))
 					end
-					pobj.shipScore = 19
-					pobj.maxCargo = 10
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Atlantis" then
 					if #playerShipNamesFor["Atlantis"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Atlantis"]))
 					end
-					pobj.shipScore = 52
-					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Cruiser" then
 					if #playerShipNamesFor["Cruiser"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Cruiser"]))
 					end
-					pobj.shipScore = 40
-					pobj.maxCargo = 6
 				elseif tempPlayerType == "Player Missile Cr." then
 					if #playerShipNamesFor["MissileCruiser"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["MissileCruiser"]))
 					end
-					pobj.shipScore = 45
-					pobj.maxCargo = 8
 				elseif tempPlayerType == "Player Fighter" then
 					if #playerShipNamesFor["Fighter"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Fighter"]))
 					end
-					pobj.shipScore = 7
-					pobj.maxCargo = 3
 					pobj.autoCoolant = false
 					pobj:setJumpDrive(true)
 					pobj:setJumpDriveRange(3000,40000)
@@ -8338,66 +9678,46 @@ function setPlayers()
 					if #playerShipNamesFor["Benedict"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Benedict"]))
 					end
-					pobj.shipScore = 10
-					pobj.maxCargo = 9
 				elseif tempPlayerType == "Kiriya" then
 					if #playerShipNamesFor["Kiriya"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Kiriya"]))
 					end
-					pobj.shipScore = 10
-					pobj.maxCargo = 9
 				elseif tempPlayerType == "Striker" then
 					if #playerShipNamesFor["Striker"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Striker"]))
 					end
-					pobj.shipScore = 8
-					pobj.maxCargo = 4
 					pobj:setJumpDrive(true)
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "ZX-Lindworm" then
 					if #playerShipNamesFor["Lindworm"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Lindworm"]))
 					end
-					pobj.shipScore = 8
-					pobj.maxCargo = 3
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Repulse" then
 					if #playerShipNamesFor["Repulse"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Repulse"]))
 					end
-					pobj.shipScore = 14
-					pobj.maxCargo = 12
 				elseif tempPlayerType == "Ender" then
 					if #playerShipNamesFor["Ender"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Ender"]))
 					end
-					pobj.shipScore = 100
-					pobj.maxCargo = 20
 				elseif tempPlayerType == "Nautilus" then
 					if #playerShipNamesFor["Nautilus"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Nautilus"]))
 					end
-					pobj.shipScore = 12
-					pobj.maxCargo = 7
 				elseif tempPlayerType == "Hathcock" then
 					if #playerShipNamesFor["Hathcock"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Hathcock"]))
 					end
-					pobj.shipScore = 30
-					pobj.maxCargo = 6
 				elseif tempPlayerType == "Maverick" then
 					if #playerShipNamesFor["Maverick"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Maverick"]))
 					end
-					pobj.shipScore = 45
-					pobj.maxCargo = 5
 				elseif tempPlayerType == "Crucible" then
 					if #playerShipNamesFor["Crucible"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Crucible"]))
 					end
-					pobj.shipScore = 45
-					pobj.maxCargo = 5
 				else
 					if #playerShipNamesFor["Leftovers"] > 0 then
 						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Leftovers"]))
