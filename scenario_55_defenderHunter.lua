@@ -3423,6 +3423,28 @@ function placeStation(x,y,name,faction,size)
 			station:setTemplate(szt())
 		end
 	end
+	local size_matters = 0
+	local station_size = station:getTypeName()
+	if station_size == "Medium Station" then
+		size_matters = 20
+	elseif station_size == "Large Station" then
+		size_matters = 30
+	elseif station_size == "Huge Station" then
+		size_matters = 40
+	end
+	local faction_matters = 0
+	if station:getFaction() == "Human Navy" then
+		faction_matters = 20
+	end
+	station.comms_data.probe_launch_repair =	random(1,100) <= (20 + size_matters + faction_matters)
+	station.comms_data.scan_repair =			random(1,100) <= (30 + size_matters + faction_matters)
+	station.comms_data.hack_repair =			random(1,100) <= (10 + size_matters + faction_matters)
+	station.comms_data.combat_maneuver_repair =	random(1,100) <= (15 + size_matters + faction_matters)
+	station.comms_data.self_destruct_repair =	random(1,100) <= (25 + size_matters + faction_matters)
+	station.comms_data.jump_overcharge =		random(1,100) <= (5 + size_matters + faction_matters)
+	station:setSharesEnergyWithDocked(random(1,100) <= (50 + size_matters + faction_matters))
+	station:setRepairDocked(random(1,100) <= (55 + size_matters + faction_matters))
+	station:setRestocksScanProbes(random(1,100) <= (45 + size_matters + faction_matters))
 	--specialized code for particular stations
 	local station_name = station:getCallSign()
 	print("station name:",station_name)
@@ -3890,6 +3912,13 @@ function buildStations()
 		table.insert(friendlyStationList,pStation)	--save station in friendly station list
 		if j == 1 then								--identify first station as home station
 			homeStation = pStation
+			homeStation.comms_data.probe_launch_repair =	true
+			homeStation.comms_data.scan_repair =			true
+			homeStation.comms_data.hack_repair =			true
+			homeStation.comms_data.combat_maneuver_repair =	true
+			homeStation:setRestocksScanProbes(true)
+			homeStation:setRepairDocked(true)
+			homeStation:setSharesEnergyWithDocked(true)
 		end
 		if #gossipSnippets > 0 then
 			if gp % 2 == 0 then
@@ -5270,6 +5299,174 @@ function handleDockedState()
 			end)
 		end
 	end
+	addCommsReply("Docking services status", function()
+		local service_status = string.format("Station %s docking services status:",comms_target:getCallSign())
+		if comms_target:getRestocksScanProbes() then
+			service_status = string.format("%s\nReplenish scan probes.",service_status)
+		else
+			if comms_target.probe_fail_reason == nil then
+				local reason_list = {
+					"Cannot replenish scan probes due to fabrication unit failure.",
+					"Parts shortage prevents scan probe replenishment.",
+					"Station management has curtailed scan probe replenishment for cost cutting reasons.",
+				}
+				comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
+			end
+			service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
+		end
+		if comms_target:getRepairDocked() then
+			service_status = string.format("%s\nShip hull repair.",service_status)
+		else
+			if comms_target.repair_fail_reason == nil then
+				reason_list = {
+					"We're out of the necessary materials and supplies for hull repair.",
+					"Hull repair automation unavailable while it is undergoing maintenance.",
+					"All hull repair technicians quarantined to quarters due to illness.",
+				}
+				comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
+			end
+			service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
+		end
+		if comms_target:getSharesEnergyWithDocked() then
+			service_status = string.format("%s\nRecharge ship energy stores.",service_status)
+		else
+			if comms_target.energy_fail_reason == nil then
+				reason_list = {
+					"A recent reactor failure has put us on auxiliary power, so we cannot recharge ships.",
+					"A damaged power coupling makes it too dangerous to recharge ships.",
+					"An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now.",
+				}
+				comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
+			end
+			service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
+		end
+		if comms_target.comms_data.jump_overcharge then
+			service_status = string.format("%s\nMay overcharge jump drive",service_status)
+		end
+		if comms_target.comms_data.probe_launch_repair then
+			service_status = string.format("%s\nMay repair probe launch system",service_status)
+		end
+		if comms_target.comms_data.hack_repair then
+			service_status = string.format("%s\nMay repair hacking system",service_status)
+		end
+		if comms_target.comms_data.scan_repair then
+			service_status = string.format("%s\nMay repair scanners",service_status)
+		end
+		if comms_target.comms_data.combat_maneuver_repair then
+			service_status = string.format("%s\nMay repair combat maneuver",service_status)
+		end
+		if comms_target.comms_data.self_destruct_repair then
+			service_status = string.format("%s\nMay repair self destruct system",service_status)
+		end
+		setCommsMessage(service_status)
+		addCommsReply("Back", commsStation)
+	end)
+	if comms_target.comms_data.jump_overcharge then
+		if comms_source:hasJumpDrive() then
+			local max_charge = comms_source.max_jump_range
+			if max_charge == nil then
+				max_charge = 50000
+			end
+			if comms_source:getJumpDriveCharge() >= max_charge then
+				addCommsReply("Overcharge Jump Drive (10 Rep)",function()
+					if comms_source:takeReputationPoints(10) then
+						comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
+						setCommsMessage(string.format("Your jump drive has been overcharged to %ik",math.floor(comms_source:getJumpDriveCharge()/1000)))
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back", commsStation)
+				end)
+			end
+		end
+	end
+	local offer_repair = false
+	if comms_target.comms_data.probe_launch_repair and not comms_source:getCanLaunchProbe() then
+		offer_repair = true
+	end
+	if not offer_repair and comms_target.comms_data.hack_repair and not comms_source:getCanHack() then
+		offer_repair = true
+	end
+	if not offer_repair and comms_target.comms_data.scan_repair and not comms_source:getCanScan() then
+		offer_repair = true
+	end
+	if not offer_repair and comms_target.comms_data.combat_maneuver_repair and not comms_source:getCanCombatManeuver() then
+		offer_repair = true
+	end
+	if not offer_repair and comms_target.comms_data.self_destruct_repair and not comms_source:getCanSelfDestruct() then
+		offer_repair = true
+	end
+	if offer_repair then
+		addCommsReply("Repair ship system",function()
+			setCommsMessage("What system would you like repaired?")
+			if comms_target.comms_data.probe_launch_repair then
+				if not comms_source:getCanLaunchProbe() then
+					addCommsReply("Repair probe launch system (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanLaunchProbe(true)
+							setCommsMessage("Your probe launch system has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if comms_target.comms_data.hack_repair then
+				if not comms_source:getCanHack() then
+					addCommsReply("Repair hacking system (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanHack(true)
+							setCommsMessage("Your hack system has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if comms_target.comms_data.scan_repair then
+				if not comms_source:getCanScan() then
+					addCommsReply("Repair scanners (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanScan(true)
+							setCommsMessage("Your scanners have been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if comms_target.comms_data.combat_maneuver_repair then
+				if not comms_source:getCanCombatManeuver() then
+					addCommsReply("Repair combat maneuver (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanCombatManeuver(true)
+							setCommsMessage("Your combat maneuver has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if comms_target.comms_data.self_destruct_repair then
+				if not comms_source:getCanSelfDestruct() then
+					addCommsReply("Repair self destruct system (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source:setCanSelfDestruct(true)
+							setCommsMessage("Your self destruct system has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			addCommsReply("Back", commsStation)
+		end)
+	end
 	if comms_source:isFriendly(comms_target) then
 		addCommsReply("What are my current orders?", function()
 			setOptionalOrders()
@@ -5844,6 +6041,7 @@ function rotateStation()
 					comms_source.goods[rotateGood] = comms_source.goods[rotateGood] - 1
 					comms_source.cargo = comms_source.cargo + 1
 					setCommsMessage(string.format("%s was just what we needed. The technical details have been transmitted to %s. The auto-rotation has begun",rotateGood,homeStation:getCallSign()))
+					plot4reminder = nil
 				else
 					setCommsMessage(string.format("You need to bring some %s for the upgrade",rotateGood))
 				end
@@ -6012,9 +6210,9 @@ function setOptionalOrders()
 			elseif rotateReveal == 2 then
 				optionalOrders = optionalOrders .. ifs .. string.format("Upgrade %s to auto-rotate by taking %s to %s in %s",homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName()) 
 			elseif rotateReveal == 3 then
-				optionalOrders = optionalOrders .. ifs .. string.format("Upgrade %s to auto-rotate by taking %s to %s in %s.\n    %s may bave %s",homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName(),rotateGoodBase:getCallSign(),rotateGood)
+				optionalOrders = optionalOrders .. ifs .. string.format("Upgrade %s to auto-rotate by taking %s to %s in %s.\n    %s may have %s",homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName(),rotateGoodBase:getCallSign(),rotateGood)
 			else
-				optionalOrders = optionalOrders .. ifs .. string.format("Upgrade %s to auto-rotate by taking %s to %s in %s.\n    %s in %s may bave %s",homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName(),rotateGoodBase:getCallSign(),rotateGoodBase:getSectorName(),rotateGood)
+				optionalOrders = optionalOrders .. ifs .. string.format("Upgrade %s to auto-rotate by taking %s to %s in %s.\n    %s in %s may have %s",homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName(),rotateGoodBase:getCallSign(),rotateGoodBase:getSectorName(),rotateGood)
 			end
 		elseif plot4reminder == "Get beam cycle time upgrade" then
 			if beamTimeReveal == 0 then
@@ -6186,6 +6384,69 @@ function handleUndockedState()
 				addCommsReply("Back", commsStation)
 			end)
 		end
+		addCommsReply("Docking services status", function()
+	 		local ctd = comms_target.comms_data
+			local service_status = string.format("Station %s docking services status:",comms_target:getCallSign())
+			if comms_target:getRestocksScanProbes() then
+				service_status = string.format("%s\nReplenish scan probes.",service_status)
+			else
+				if comms_target.probe_fail_reason == nil then
+					local reason_list = {
+						"Cannot replenish scan probes due to fabrication unit failure.",
+						"Parts shortage prevents scan probe replenishment.",
+						"Station management has curtailed scan probe replenishment for cost cutting reasons.",
+					}
+					comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
+			end
+			if comms_target:getRepairDocked() then
+				service_status = string.format("%s\nShip hull repair.",service_status)
+			else
+				if comms_target.repair_fail_reason == nil then
+					reason_list = {
+						"We're out of the necessary materials and supplies for hull repair.",
+						"Hull repair automation unavailable whie it is undergoing maintenance.",
+						"All hull repair technicians quarantined to quarters due to illness.",
+					}
+					comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
+			end
+			if comms_target:getSharesEnergyWithDocked() then
+				service_status = string.format("%s\nRecharge ship energy stores.",service_status)
+			else
+				if comms_target.energy_fail_reason == nil then
+					reason_list = {
+						"A recent reactor failure has put us on auxiliary power, so we cannot recharge ships.",
+						"A damaged power coupling makes it too dangerous to recharge ships.",
+						"An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now.",
+					}
+					comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
+			end
+			if comms_target.comms_data.jump_overcharge then
+				service_status = string.format("%s\nMay overcharge jump drive",service_status)
+			end
+			if comms_target.comms_data.probe_launch_repair then
+				service_status = string.format("%s\nMay repair probe launch system",service_status)
+			end
+			if comms_target.comms_data.hack_repair then
+				service_status = string.format("%s\nMay repair hacking system",service_status)
+			end
+			if comms_target.comms_data.scan_repair then
+				service_status = string.format("%s\nMay repair scanners",service_status)
+			end
+			if comms_target.comms_data.combat_maneuver_repair then
+				service_status = string.format("%s\nMay repair combat maneuver",service_status)
+			end
+			if comms_target.comms_data.self_destruct_repair then
+				service_status = string.format("%s\nMay repair self destruct system",service_status)
+			end
+			setCommsMessage(service_status)
+			addCommsReply("Back", commsStation)
+		end)
 		addCommsReply("See any enemies in your area?", function()
 			if comms_source:isFriendly(comms_target) then
 				enemiesInRange = 0
@@ -7861,7 +8122,9 @@ function cleanUpHullers(delta)
 		plot4delay = 100
 		plot4 = delayef4v2
 		p = closestPlayerTo(targetEnemyStation)
-		p:addReputationPoints(20)
+		if p ~= nil and p:isValid() then
+			p:addReputationPoints(20)
+		end
 	end	
 end
 
@@ -9759,7 +10022,7 @@ function setPlayers()
 	end
 	setConcurrenetPlayerCount = concurrentPlayerCount
 end
-
+--Player ship health related functions
 function healthCheck(delta)
 	healthCheckTimer = healthCheckTimer - delta
 	if healthCheckTimer < 0 then
@@ -9835,17 +10098,25 @@ function healthCheck(delta)
 					end
 				end
 				if p.initialCoolant ~= nil then
-					local current_coolant = p:getMaxCoolant()
-					if current_coolant < 10 then
+					current_coolant = p:getMaxCoolant()
+					if current_coolant < 20 then
 						if random(1,100) <= 4 then
-							p:setMaxCoolant(current_coolant + ((current_coolant + 10)/2))
-							if p:hasPlayerAtPosition("Engineering") then
-								local coolant_recovery = "coolant_recovery"
-								p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
+							local reclaimed_coolant = 0
+							if p.reclaimable_coolant ~= nil and p.reclaimable_coolant > 0 then
+								reclaimed_coolant = p.reclaimable_coolant*random(.1,.5)	--get back 10 to 50 percent of reclaimable coolant
+								p:setMaxCoolant(math.min(20,current_coolant + reclaimed_coolant))
+								p.reclaimable_coolant = p.reclaimable_coolant - reclaimed_coolant
 							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								local coolant_recovery_plus = "coolant_recovery_plus"
-								p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
+							local noticable_reclaimed_coolant = math.floor(reclaimed_coolant)
+							if noticable_reclaimed_coolant > 0 then
+								if p:hasPlayerAtPosition("Engineering") then
+									local coolant_recovery = "coolant_recovery"
+									p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
+								end
+								if p:hasPlayerAtPosition("Engineering+") then
+									local coolant_recovery_plus = "coolant_recovery_plus"
+									p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
+								end
 							end
 							resetPreviousSystemHealth(p)
 						end
@@ -9880,16 +10151,106 @@ function resetPreviousSystemHealth(p)
 end
 function crewFate(p, fatalityChance)
 	if math.random() < (fatalityChance) then
-		p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-		if p:hasPlayerAtPosition("Engineering") then
-			repairCrewFatality = "repairCrewFatality"
-			p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
+		local consequence = 0
+		local upper_consequence = 2
+		local consequence_list = {}
+		if p:getCanLaunchProbe() then
+			upper_consequence = upper_consequence + 1
+			table.insert(consequence_list,"probe")
 		end
-		if p:hasPlayerAtPosition("Engineering+") then
-			repairCrewFatalityPlus = "repairCrewFatalityPlus"
-			p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
+		if p:getCanHack() then
+			upper_consequence = upper_consequence + 1
+			table.insert(consequence_list,"hack")
 		end
-	end
+		if p:getCanScan() then
+			upper_consequence = upper_consequence + 1
+			table.insert(consequence_list,"scan")
+		end
+		if p:getCanCombatManeuver() then
+			upper_consequence = upper_consequence + 1
+			table.insert(consequence_list,"combat_maneuver")
+		end
+		if p:getCanSelfDestruct() then
+			upper_consequence = upper_consequence + 1
+			table.insert(consequence_list,"self_destruct")
+		end
+		consequence = math.random(1,upper_consequence)
+		if consequence == 1 then
+			p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+			if p:hasPlayerAtPosition("Engineering") then
+				local repairCrewFatality = "repairCrewFatality"
+				p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				local repairCrewFatalityPlus = "repairCrewFatalityPlus"
+				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
+			end
+		elseif consequence == 2 then
+			local current_coolant = p:getMaxCoolant()
+			local lost_coolant = 0
+			if current_coolant >= 10 then
+				lost_coolant = current_coolant*random(.25,.5)	--lose between 25 and 50 percent
+			else
+				lost_coolant = current_coolant*random(.15,.35)	--lose between 15 and 35 percent
+			end
+			p:setMaxCoolant(current_coolant - lost_coolant)
+			if p.reclaimable_coolant == nil then
+				p.reclaimable_coolant = 0
+			end
+			p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
+			if p:hasPlayerAtPosition("Engineering") then
+				local coolantLoss = "coolantLoss"
+				p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				local coolantLossPlus = "coolantLossPlus"
+				p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
+			end
+		else
+			local named_consequence = consequence_list[consequence-2]
+			if named_consequence == "probe" then
+				p:setCanLaunchProbe(false)
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
+				end
+			elseif named_consequence == "hack" then
+				p:setCanHack(false)
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
+				end
+			elseif named_consequence == "scan" then
+				p:setCanScan(false)
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","scan_damage_message_plus","The scanners have been damaged")
+				end
+			elseif named_consequence == "combat_maneuver" then
+				p:setCanCombatManeuver(false)
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus","Combat maneuver has been damaged")
+				end
+			elseif named_consequence == "self_destruct" then
+				p:setCanSelfDestruct(false)
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
+				end
+			end
+		end	--coolant loss branch
+	end	--bad consequences of damage branch
 end
 
 function autoCoolant(delta)
