@@ -93,6 +93,7 @@ function init()
 	transportPlot = transportSpawn
 	plot1 = chasePlayer		-- Start main plot line
 	plotAudioButton = audioButtonTimers
+	allowNewPlayerShips(false)
 end
 function audioButtonTimers(delta)
 	if playMsgMichaelButton ~= nil then
@@ -594,7 +595,11 @@ function getFromNingling(delta)
 	if player:isDocked(ningling) then
 		ningling:sendCommsMessage(player, "Audio message received. Auto-transcribed into log. Stored for playback: AMBGREMUS021")
 		player:addToShipLog("[AMBGREMUS021](Ambassador Gremus) Thank you for waiting and then for coming back and getting me. I needed the information provided by liaison Fordina to facilitate negotiations at Goltin 7. Let us away!","Yellow")
-		player:addToShipLog("Reconfigured beam weapons: pointed one forward, increased range and narrowed focus of rearward","Magenta")
+		player:addToShipLog("Reconfigured beam weapons: pointed one forward and increased its range and narrowed its focus","Magenta")
+		if getScenarioVariation() ~= "Hard" then
+			player:setImpulseMaxSpeed(75)
+			player:addToShipLog("Also increased the top speed of your impulse engine","Magenta")
+		end
 		if playMsgGremus4Button == nil then
 			playMsgGremus4Button = "play"
 			player:addCustomButton("Relay",playMsgGremus4Button,"|> AMBGREMUS021",playMsgGremus4)
