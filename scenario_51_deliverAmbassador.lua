@@ -5,7 +5,7 @@
 ---
 --- Player ship: Template model: Flavia P. Falcon. Suggest turning music volume to 10% and sound volume to 100% on server
 ---
---- Version 3 added expiration timers to relay buttons that trigger audio playback, added a visible mob action timer, converted .wav files to .ogg files to reduce size of download
+--- Version 4
 -- Type: Mission
 -- Variation[Hard]: More enemies
 -- Variation[Easy]: Fewer enemies
@@ -436,7 +436,6 @@ function ambassadorAboard(delta)
 			playMsgGremus2Button = "play"
 			player:addCustomButton("Relay",playMsgGremus2Button,"|> AMBGREMUS004",playMsgGremus2)
 		end		
-		playSoundFile("sa_51_Gremus2.ogg")
 		ningling = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
 		ningling:setPosition(12200,-62600):setCallSign("Ningling")
 		stationFranklin:addReputationPoints(25.0)
@@ -524,7 +523,6 @@ function gotoNingling(delta)
 			playMsgProtocolButton = "play"
 			player:addCustomButton("Relay",playMsgProtocolButton,"|> NINGPCLO002",playMsgProtocol)
 		end
-		playSoundFile("sa_51_Protocol.ogg")
 		plot1 = waitForAmbassador
 		meetingTimer = 0.0
 		plot3 = ningWait
@@ -627,7 +625,6 @@ function artifactResearch(delta)
 			playMsgFordinaButton = "play"
 			player:addCustomButton("Relay",playMsgFordinaButton,"|> LSNFRDNA009",playMsgFordina)
 		end
-		playSoundFile("sa_51_Fordina.ogg")
 		askForPangoraLocation = "ready"
 		askForNakorLocation = "ready"
 		askForScience37Location = "ready"
@@ -696,7 +693,7 @@ function artifactByStation(delta)
 		end
 		askForScience37ArtifactLocation = "ready"
 	end
-	if nPangora:isValid() then
+	if nPangora ~= nil and nPangora:isValid() then
 		if nPangora:isScannedBy(player) then
 			artifactResearchCount = artifactResearchCount + 1
 		end
@@ -711,12 +708,12 @@ function artifactByStation(delta)
 			plot4 = pangoraArtifactChange
 		end
 	end
-	if nNakor:isValid() then
+	if nNakor ~= nil and nNakor:isValid() then
 		if nNakor:isScannedBy(player) then
 			artifactResearchCount = artifactResearchCount + 1
 		end
 	end
-	if nScience37:isValid() then
+	if nScience37 ~= nil and nScience37:isValid() then
 		if nScience37:isScannedBy(player) then
 			artifactResearchCount = artifactResearchCount + 1
 		end
@@ -724,7 +721,10 @@ function artifactByStation(delta)
 end
 
 function pangoraArtifactChange(delta)
-	player:addCustomMessage("Science", "Warning", "The readings on the Pangora artifact have changed") --not working
+	if player.pangora_reading_change_message == nil then
+		player:addCustomMessage("Science", "Warning", "The readings on the Pangora artifact have changed")
+		player.pangora_reading_change_message = "sent"
+	end
 	plot4 = pangoraArtifactExplode
 end
 
@@ -743,7 +743,6 @@ function pangoraArtifactExplode(delta)
 			player:setSystemHealth("rearshield", player:getSystemHealth("rearshield") - random(0.0, 0.5))
 		end
 		nPangora:explode()
-		player:removeCustom("Warning")
 		plot4 = nil
 	end
 end
@@ -938,48 +937,82 @@ function handleDockedState()
 	-- Include helpful location waypoint providers for handling large map
 	if isAllowedTo(askForBalindorLocation) then
 		addCommsReply("Where is Balindor Prime?", function()
+			local replace_waypoint = false
+			if player:getWaypointCount() >= 9 then
+				player:commandRemoveWaypoint(9)
+				replace_waypoint = true
+			end
 			player:commandAddWaypoint(-50500,84000)
-			setCommsMessage(string.format("Added waypoint %i to your navigation system for Balindor Prime",player:getWaypointCount()))
+			if replace_waypoint then
+				setCommsMessage("Replaced former waypoint 9 with new waypoint 9 for Balindor Prime.\nYou reached the 9 waypoint maximum.")
+			else
+				setCommsMessage(string.format("Added waypoint %i to your navigation system for Balindor Prime",player:getWaypointCount()))
+			end
 			askForBalindorLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForNingLocation) then
 		addCommsReply("Where is Ningling?", function()
-			player:commandAddWaypoint(12200,-62600)
-			setCommsMessage(string.format("Added waypoint %i for Ningling station",player:getWaypointCount()))
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Ningling station is in sector %s",ningling:getSectorName()))
+			else
+				player:commandAddWaypoint(12200,-62600)
+				setCommsMessage(string.format("Added waypoint %i for Ningling station",player:getWaypointCount()))
+			end
 			askForNingLocation = "complete"
 			addCommsReply("Back", commsStation)			
 		end)
 	end
 	if isAllowedTo(askForGoltinLocation) then
 		addCommsReply("Where is Goltin 7?", function()
+			local replace_waypoint = false
+			if player:getWaypointCount() >= 9 then
+				player:commandRemoveWaypoint(9)
+				replace_waypoint = true
+			end
 			player:commandAddWaypoint(93150,21387)
-			setCommsMessage(string.format("Added waypoint %i for Goltin 7",player:getWaypointCount()))
+			if replace_waypoint then
+				setCommsMessage("Replaced former waypoint 9 with new waypoint 9 for Goltin 7.\nYou reached the 9 waypoint maximum.")
+			else
+				setCommsMessage(string.format("Added waypoint %i for Goltin 7",player:getWaypointCount()))
+			end
 			askForGoltinLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForPangoraLocation) then
 		addCommsReply("Where is Pangora?", function()
-			player:commandAddWaypoint(stationPangora:getPosition())
-			setCommsMessage(string.format("Added waypoint %i for Pangora station",player:getWaypointCount()))
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Pangora is in sector %s",stationPangora:getSectorName()))
+			else
+				player:commandAddWaypoint(stationPangora:getPosition())
+				setCommsMessage(string.format("Added waypoint %i for Pangora station",player:getWaypointCount()))
+			end
 			askForPangoraLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForNakorLocation) then
 		addCommsReply("Where is Nakor?", function()
-			player:commandAddWaypoint(stationNakor:getPosition())
-			setCommsMessage(string.format("Added waypoint %i for Nakor station",player:getWaypointCount()))
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Nakor is in sector %s",stationNakor:getSectorName()))
+			else
+				player:commandAddWaypoint(stationNakor:getPosition())
+				setCommsMessage(string.format("Added waypoint %i for Nakor station",player:getWaypointCount()))
+			end
 			askForNakorLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForScience37Location) then
 		addCommsReply("Where is Science-37?", function()
-			player:commandAddWaypoint(science37:getPosition())
-			setCommsMessage(string.format("Added a waypoint %i for station Science-37",player:getWaypointCount()))
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Science-37 is in sector %s",science37:getSectorName()))
+			else
+				player:commandAddWaypoint(science37:getPosition())
+				setCommsMessage(string.format("Added a waypoint %i for station Science-37",player:getWaypointCount()))
+			end
 			askForScience37Location = "complete"
 			addCommsReply("Back", commsStation)
 		end)
@@ -1122,48 +1155,82 @@ function handleUndockedState()
 	-- Add helpful waypoint creation messages
 	if isAllowedTo(askForBalindorLocation) then
 		addCommsReply("Where is Balindor Prime?", function()
+			local replace_waypoint = false
+			if player:getWaypointCount() >= 9 then
+				player:commandRemoveWaypoint(9)
+				replace_waypoint = true
+			end
 			player:commandAddWaypoint(-50500,84000)
-			setCommsMessage("Added a waypoint to your navigation system for Balindor Prime")
+			if replace_waypoint then
+				setCommsMessage("Replaced former waypoint 9 with new waypoint 9 for Balindor Prime.\nYou reached the 9 waypoint maximum.")
+			else
+				setCommsMessage("Added a waypoint to your navigation system for Balindor Prime")
+			end
 			askForBalindorLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForNingLocation) then
 		addCommsReply("Where is Ningling?", function()
-			player:commandAddWaypoint(12200,-62600)
-			setCommsMessage("Added a waypoint for Ningling station")
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Ningling station is in sector %s",ningling:getSectorName()))
+			else
+				player:commandAddWaypoint(12200,-62600)
+				setCommsMessage(string.format("Added waypoint %i for Ningling station",player:getWaypointCount()))
+			end
 			askForNingLocation = "complete"
 			addCommsReply("Back", commsStation)			
 		end)
 	end
 	if isAllowedTo(askForGoltinLocation) then
 		addCommsReply("Where is Goltin 7?", function()
+			local replace_waypoint = false
+			if player:getWaypointCount() >= 9 then
+				player:commandRemoveWaypoint(9)
+				replace_waypoint = true
+			end
 			player:commandAddWaypoint(93150,21387)
-			setCommsMessage("Added a waypoint for Goltin 7")
+			if replace_waypoint then
+				setCommsMessage("Replaced former waypoint 9 with new waypoint 9 for Goltin 7.\nYou reached the 9 waypoint maximum.")
+			else
+				setCommsMessage(string.format("Added waypoint %i for Goltin 7",player:getWaypointCount()))
+			end
 			askForGoltinLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForPangoraLocation) then
 		addCommsReply("Where is Pangora?", function()
-			player:commandAddWaypoint(stationPangora:getPosition())
-			setCommsMessage("Added a waypoint for Pangora station")
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Pangora is in sector %s",stationPangora:getSectorName()))
+			else
+				player:commandAddWaypoint(stationPangora:getPosition())
+				setCommsMessage(string.format("Added waypoint %i for Pangora station",player:getWaypointCount()))
+			end
 			askForPangoraLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForNakorLocation) then
 		addCommsReply("Where is Nakor?", function()
-			player:commandAddWaypoint(stationNakor:getPosition())
-			setCommsMessage("Added a waypoint for Nakor station")
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Nakor is in sector %s",stationNakor:getSectorName()))
+			else
+				player:commandAddWaypoint(stationNakor:getPosition())
+				setCommsMessage(string.format("Added waypoint %i for Nakor station",player:getWaypointCount()))
+			end
 			askForNakorLocation = "complete"
 			addCommsReply("Back", commsStation)
 		end)
 	end
 	if isAllowedTo(askForScience37Location) then
 		addCommsReply("Where is Science-37?", function()
-			player:commandAddWaypoint(science37:getPosition())
-			setCommsMessage("Added a waypoint for station Science-37")
+			if player:getWaypointCount() >= 9 then
+				setCommsMessage(string.format("Science-37 is in sector %s",science37:getSectorName()))
+			else
+				player:commandAddWaypoint(science37:getPosition())
+				setCommsMessage(string.format("Added a waypoint %i for station Science-37",player:getWaypointCount()))
+			end
 			askForScience37Location = "complete"
 			addCommsReply("Back", commsStation)
 		end)
