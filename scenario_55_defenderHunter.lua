@@ -295,10 +295,52 @@ function setConstants()
 				{angle =  1, distance = 5},
 				{angle =  0, distance = 6},
 			},
+			[14] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 4},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+			[15] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 3},
+				{angle =  0, distance = 4},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
 		},
 	}		
 	prefix_length = 0
 	suffix_index = 0
+	get_coolant_function = {}
+	table.insert(get_coolant_function,getCoolant1)
+	table.insert(get_coolant_function,getCoolant2)
+	table.insert(get_coolant_function,getCoolant3)
+	table.insert(get_coolant_function,getCoolant4)
+	table.insert(get_coolant_function,getCoolant5)
+	table.insert(get_coolant_function,getCoolant6)
+	table.insert(get_coolant_function,getCoolant7)
+	table.insert(get_coolant_function,getCoolant8)
 	--list of goods available to buy, sell or trade (sell still under development)
 	goodsList = {	{"food",0},
 					{"medicine",0},
@@ -409,10 +451,19 @@ function setVariations()
 --translate variations into a numeric difficulty value
 	if string.find(getScenarioVariation(),"Easy") then
 		difficulty = .5
+		adverseEffect = .999
+		coolant_loss = .99999
+		coolant_gain = .005
 	elseif string.find(getScenarioVariation(),"Hard") then
 		difficulty = 2
+		adverseEffect = .99
+		coolant_loss = .9999
+		coolant_gain = .0001
 	else
 		difficulty = 1		--default (normal)
+		adverseEffect = .995
+		coolant_loss = .99995
+		coolant_gain = .001
 	end
 	gameTimeLimit = 0
 	if string.find(getScenarioVariation(),"Timed") then
@@ -4158,7 +4209,41 @@ function buildStations()
 	end
 	--]]--
 	if not diagnostic then
-		placeRandomAroundPoint(Nebula,math.random(10,30),1,150000,0,0)
+		--placeRandomAroundPoint(Nebula,math.random(10,30),1,150000,0,0)
+		local nebula_count = math.random(10,30)
+		local nebula_list = placeRandomListAroundPoint(Nebula,nebula_count,1,150000,0,0)
+		local nebula_index = 0
+		for i=1,#nebula_list do
+			nebula_list[i].lose = false
+			nebula_list[i].gain = false
+		end
+		coolant_nebula = {}
+		for i=1,math.random(math.floor(nebula_count/2)) do
+			nebula_index = math.random(1,#nebula_list)
+			table.insert(coolant_nebula,nebula_list[nebula_index])
+			table.remove(nebula_list,nebula_index)
+			if math.random(1,100) < 50 then
+				coolant_nebula[#coolant_nebula].lose = true
+			else
+				coolant_nebula[#coolant_nebula].gain = true
+			end
+		end
+		nebula_list = {}
+		for i=1,#movingNebulae do
+			movingNebulae[i].lose = false
+			movingNebulae[i].gain = false
+			table.insert(nebula_list,movingNebulae[i])
+		end
+		for i=1,math.random(math.floor(#nebula_list/2)) do
+			nebula_index = math.random(1,#nebula_list)
+			table.insert(coolant_nebula,nebula_list[nebula_index])
+			table.remove(nebula_list,nebula_index)
+			if math.random(1,100) < 50 then
+				coolant_nebula[#coolant_nebula].lose = true
+			else
+				coolant_nebula[#coolant_nebula].gain = true
+			end
+		end
 	end
 	fx, fy = homeStation:getPosition()
 	ex, ey = targetEnemyStation:getPosition()
@@ -4169,6 +4254,19 @@ function buildStations()
 	startingNeutralStations = #stationList - #friendlyStationList
 	startingEnemyStations = #enemyStationList
 	originalStationList = stationList	--save for statistics
+end
+function placeRandomListAroundPoint(object_type, amount, dist_min, dist_max, x0, y0)
+-- create amount of object_type, at a distance between dist_min and dist_max around the point (x0, y0) 
+-- save in a list that is returned to caller
+	local object_list = {}
+    for n=1,amount do
+        local r = random(0, 360)
+        local distance = random(dist_min, dist_max)
+        x = x0 + math.cos(r / 180 * math.pi) * distance
+        y = y0 + math.sin(r / 180 * math.pi) * distance
+        table.insert(object_list,object_type():setPosition(x, y))
+    end
+    return object_list
 end
 function getFactionAdjacentGridLocations(lx,ly)
 --adjacent empty grid locations around the grid locations of the currently building faction
@@ -5015,7 +5113,6 @@ function randomStation()
 	sidx = math.floor(random(1, #stationList + 0.99))
 	return stationList[sidx]
 end
-
 function nearStations(station, compareStationList)
 	remainingStations = {}
 	if compareStationList[1]:isValid() then
@@ -5046,7 +5143,6 @@ function nearStations(station, compareStationList)
 	end
 	return closest, remainingStations
 end
-
 function randomNearStation5(nobj)
 	distanceStations = {}
 	cs, rs1 = nearStations(nobj,stationList)
@@ -5061,7 +5157,6 @@ function randomNearStation5(nobj)
 	table.insert(distanceStations,cs)
 	return distanceStations[irandom(1,5)]
 end
-
 function transportPlot(delta)
 	if transportSpawnDelay > 0 then
 		transportSpawnDelay = transportSpawnDelay - delta
@@ -5609,21 +5704,26 @@ function handleDockedState()
 	if comms_target == shieldExpertStation then
 		shieldExpertBase()
 	end
-	if comms_target.comms_data.public_relations then
+	local has_gossip = random(1,100) < (100 - (30 * (difficulty - .5)))
+	if (comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "") or
+		(comms_target.comms_data.history ~= nil and comms_target.comms_data.history ~= "") or
+		(comms_source:isFriendly(comms_target) and comms_target.comms_data.gossip ~= nil and comms_target.comms_data.gossip ~= "" and has_gossip) then
 		addCommsReply("Tell me more about your station", function()
 			setCommsMessage("What would you like to know?")
-			addCommsReply("General information", function()
-				setCommsMessage(comms_target.comms_data.general_information)
-				addCommsReply("Back", commsStation)
-			end)
-			if comms_target.comms_data.history ~= nil then
+			if comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "" then
+				addCommsReply("General information", function()
+					setCommsMessage(comms_target.comms_data.general_information)
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			if comms_target.comms_data.history ~= nil and comms_target.comms_data.history ~= "" then
 				addCommsReply("Station history", function()
 					setCommsMessage(comms_target.comms_data.history)
 					addCommsReply("Back", commsStation)
 				end)
 			end
 			if comms_source:isFriendly(comms_target) then
-				if comms_target.comms_data.gossip ~= nil then
+				if comms_target.comms_data.gossip ~= nil and comms_target.comms_data.gossip ~= "" then
 					if random(1,100) < 50 then
 						addCommsReply("Gossip", function()
 							setCommsMessage(comms_target.comms_data.gossip)
@@ -5838,7 +5938,6 @@ function homeStationEasyDelivery()
 		end)
 	end)
 end
-
 function homeStationRandomDelivery()
 	addCommsReply(string.format("Give %s as requested",randomDeliverGood), function()
 		comms_source.goods[randomDeliverGood] = comms_source.goods[randomDeliverGood] - 1
@@ -5859,7 +5958,6 @@ function homeStationRandomDelivery()
 		end)
 	end)
 end
-
 function homeStationSpinUpgrade()
 	addCommsReply("What about that maneuver upgrade information you promised?", function()
 		setCommsMessage(string.format("I hear %s can upgrade your maneuverability, but they need %s to do the job",spinBase:getCallSign(),spinGood))
@@ -5884,7 +5982,6 @@ function homeStationSpinUpgrade()
 		addCommsReply("Back", commsStation)
 	end)
 end
-
 function homeStationBeamTimeUpgrade()
 	addCommsReply("You mentioned a beam weapon cycle time upgrade...", function()
 		setCommsMessage(string.format("Station %s can do that for %s",beamTimeBase:getCallSign(),beamTimeGood))
@@ -5909,7 +6006,6 @@ function homeStationBeamTimeUpgrade()
 		addCommsReply("Back", commsStation)
 	end)
 end
-
 function homeStationRotateUpgrade()
 	addCommsReply("Where's that station rotation upgrade information?", function()
 		setCommsMessage(string.format("station %s has the technical knowledge but lacks the %s",rotateBase:getCallSign(),rotateGood))
@@ -5936,7 +6032,6 @@ function homeStationRotateUpgrade()
 		addCommsReply("Back", commsStation)
 	end)
 end
-
 function homeStationBaseIntelligence()
 	addCommsReply("What about that intelligence information you promised?", function()
 		setCommsMessage(string.format("I hear Marcy Sorenson just got back from an enemy scouting expedition. She was talking about enemy bases. She can probably tell you where some of these bases are located. She's based on %s",baseInt1:getCallSign()))
@@ -5944,7 +6039,6 @@ function homeStationBaseIntelligence()
 		addCommsReply("Back", commsStation)
 	end)
 end
-
 function homeStationHullUpgrade()
 	addCommsReply("Remember, you promised some ship hull upgrade information?", function()
 		setCommsMessage(string.format("Oh yes, %s can upgrade your hull, but they want %s to do the job",hullBase:getCallSign(),hullGood))
@@ -5969,7 +6063,6 @@ function homeStationHullUpgrade()
 		addCommsReply("Back", commsStation)
 	end)
 end
-
 function spinStation()
 	if spinUpgradeAvailable then
 		if not comms_source.spinUpgrade then
@@ -5992,7 +6085,6 @@ function spinStation()
 		end
 	end
 end
-
 function beamTimeStation()
 	if beamTimeUpgradeAvailable then
 		if not comms_source.beamTimeUpgrade then
@@ -6027,7 +6119,6 @@ function beamTimeStation()
 		end
 	end
 end
-
 function rotateStation()
 	if rotateUpgradeAvailable then
 		if not homeStationRotationEnabled then
@@ -6050,7 +6141,6 @@ function rotateStation()
 		end
 	end
 end
-
 function intelligenceStation()
 	addCommsReply("May I speak with Marcy Sorenson?", function()
 		baseInt1Visit = true
@@ -6084,7 +6174,6 @@ function intelligenceStation()
 		end
 	end)
 end
-
 function secondIntelligenceStation()
 	if baseInt1Visit then
 		addCommsReply("May I speak with Marcy Sorenson, please?", function()
@@ -6109,7 +6198,6 @@ function secondIntelligenceStation()
 		end)
 	end
 end
-
 function hullStation()
 	if hullUpgradeAvailable then
 		if not comms_source.hullUpgrade then
@@ -6132,7 +6220,6 @@ function hullStation()
 		end
 	end
 end
-
 function shieldExpertBase()
 	if plot4 == giftForBeau then
 		addCommsReply("Offer gift on behalf of Maria Shrivner", function()
@@ -6173,7 +6260,6 @@ function shieldExpertBase()
 		end)
 	end
 end
-
 function setOptionalOrders()
 	optionalOrders = ""
 	optionalOrdersPresent = false
@@ -6243,7 +6329,6 @@ function setOptionalOrders()
 		end
 	end
 end
-
 function isAllowedTo(state)
     if state == "friend" and comms_source:isFriendly(comms_target) then
         return true
@@ -6253,7 +6338,6 @@ function isAllowedTo(state)
     end
     return false
 end
-
 function handleWeaponRestock(weapon)
     if not comms_source:isDocked(comms_target) then 
 		setCommsMessage("You need to stay docked for that action.")
@@ -6288,11 +6372,9 @@ function handleWeaponRestock(weapon)
         addCommsReply("Back", commsStation)
     end
 end
-
 function getWeaponCost(weapon)
     return math.ceil(comms_data.weapon_cost[weapon] * comms_data.reputation_cost_multipliers[getFriendStatus()])
 end
-
 function handleUndockedState()
     --Handle communications when we are not docked with the station.
     if comms_source:isFriendly(comms_target) then
@@ -6525,9 +6607,9 @@ function handleUndockedState()
 			setCommsMessage(gkMsg)
 			addCommsReply("Back", commsStation)
 		end)
-		if comms_target.comms_data.public_relations then
+		if comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "" then
 			addCommsReply("General station information", function()
-				setCommsMessage(comms_target.comms_data.general_information)
+				setCommsMessage(comms_target.comms_data.general)
 				addCommsReply("Back", commsStation)
 			end)
 		end
@@ -6656,7 +6738,6 @@ function handleUndockedState()
         end)
     end
 end
-
 function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for
 -- the current player.
@@ -6689,7 +6770,6 @@ function commsShip()
 	end
 	return neutralComms(comms_data)
 end
-
 function friendlyComms(comms_data)
 	if comms_data.friendlyness < 20 then
 		setCommsMessage("What do you want?");
@@ -6752,7 +6832,6 @@ function friendlyComms(comms_data)
 	end
 	return true
 end
-
 function enemyComms(comms_data)
 	if comms_data.friendlyness > 50 then
 		faction = comms_target:getFaction()
@@ -6791,7 +6870,6 @@ function enemyComms(comms_data)
 	end
 	return false
 end
-
 function neutralComms(comms_data)
 	shipType = comms_target:getTypeName()
 	if shipType:find("Freighter") ~= nil then
@@ -6805,64 +6883,67 @@ function neutralComms(comms_data)
 			-- Offer to trade goods if goods or equipment freighter
 			if distance(comms_source,comms_target) < 5000 then
 				if shipType:find("Goods") ~= nil or shipType:find("Equipment") ~= nil then
-					gi = 1
-					luxuryQuantity = 0
-					repeat
-						if goods[comms_source][gi][1] == "luxury" then
-							luxuryQuantity = goods[comms_source][gi][2]
+					local goodCount = 0
+					if comms_source.goods ~= nil then
+						for good, goodQuantity in pairs(comms_source.goods) do
+							goodCount = goodCount + 1
 						end
-						gi = gi + 1
-					until(gi > #goods[comms_source])
-					if luxuryQuantity > 0 then
-						gi = 1
-						repeat
-							local goodsType = goods[comms_target][gi][1]
-							local goodsQuantity = goods[comms_target][gi][2]
-							addCommsReply(string.format("Trade luxury for %s",goods[comms_target][gi][1]), function()
-								if goodsQuantity < 1 then
-									setCommsMessage("Insufficient inventory on freighter for trade")
-								else
-									decrementShipGoods(goodsType)
-									incrementPlayerGoods(goodsType)
-									decrementPlayerGoods("luxury")
-									setCommsMessage("Traded")
-								end
-								addCommsReply("Back", commsShip)
-							end)
-							gi = gi + 1
-						until(gi > #goods[comms_target])
-					else
-						setCommsMessage("Insufficient luxury to trade")
 					end
-					addCommsReply("Back", commsShip)
-				else
-					-- Offer to sell goods
-					gi = 1
-					repeat
-						local goodsType = goods[comms_target][gi][1]
-						local goodsQuantity = goods[comms_target][gi][2]
-						local goodsRep = goods[comms_target][gi][3]
-						addCommsReply(string.format("Buy one %s for %i reputation",goods[comms_target][gi][1],goods[comms_target][gi][3]), function()
-							if comms_source.cargo < 1 then
-								setCommsMessage("Insufficient cargo space for purchase")
-							elseif goodsQuantity < 1 then
-								setCommsMessage("Insufficient inventory on freighter")
-							else
-								if not comms_source:takeReputationPoints(goodsRep) then
-									setCommsMessage("Insufficient reputation for purchase")
-								else
-									comms_source.cargo = comms_source.cargo - 1
-									decrementShipGoods(goodsType)
-									incrementPlayerGoods(goodsType)
-									setCommsMessage("Purchased")
+					if goodCount > 0 then
+						addCommsReply("Jettison cargo", function()
+							setCommsMessage(string.format("Available space: %i\nWhat would you like to jettison?",comms_source.cargo))
+							for good, good_quantity in pairs(comms_source.goods) do
+								if good_quantity > 0 then
+									addCommsReply(good, function()
+										comms_source.goods[good] = comms_source.goods[good] - 1
+										comms_source.cargo = comms_source.cargo + 1
+										setCommsMessage(string.format("One %s jettisoned",good))
+										addCommsReply("Back", commsShip)
+									end)
 								end
 							end
 							addCommsReply("Back", commsShip)
 						end)
-						gi = gi + 1
-					until(gi > #goods[comms_target])
+					end
+					if comms_source.goods ~= nil and comms_source.goods["luxury"] ~= nil and comms_source.goods["luxury"] > 0 then
+						for good, goodData in pairs(comms_data.goods) do
+							if goodData.quantity > 0 then
+								addCommsReply(string.format("Trade luxury for %s",good), function()
+									goodData.quantity = goodData.quantity - 1
+									comms_source.goods["luxury"] = comms_source.goods["luxury"] - 1
+									comms_source.goods[good] = comms_source.goods[good] + 1
+									setCommsMessage(string.format("Traded luxury for %s",good))
+									addCommsReply("Back", commsShip)
+								end)
+							end
+						end	
+					end
 				end
-			end
+				-- Offer to sell goods
+				if comms_source.cargo > 0 then
+					for good, good_data in pairs(comms_data.goods) do
+						if good_data.quantity > 0 then
+							addCommsReply(string.format("Buy one %s for %i reputation",good,math.floor(good_data.cost)), function()
+								if comms_source:takeReputationPoints(good_data.cost) then
+									good_data.quantity = good_data.quantity - 1
+									if comms_source.goods == nil then
+										comms_source.goods = {}
+									end
+									if comms_source.goods[good] == nil then
+										comms_source.goods[good] = 0
+									end
+									comms_source.goods[good] = comms_source.goods[good] + 1
+									comms_source.cargo = comms_source.cargo - 1
+									setCommsMessage(string.format("Purchased %s from %s",good,comms_target:getCallSign()))
+								else
+									setCommsMessage("Insufficient reputation for purchase")
+								end
+								addCommsReply("Back", commsShip)
+							end)
+						end	--some on freighter
+					end	--freighter good loop
+				end	--room on player ship
+			end	--within 5 units
 		elseif comms_data.friendlyness > 33 then
 			setCommsMessage("What do you want?")
 			-- Offer to sell destination information
@@ -8542,7 +8623,7 @@ function visitShieldExpertStation(delta)
 			p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if p:isDocked(shieldExpertStation) then
-					p:addToShipLog(string.format("We heard you were looking for our former shield maintenance technician, Maria Shrivner who's been publishing hints about advances in shield technology. We've been looking for her. We only just found out that she left the station after a severe romantic breakup with her supervisor. She took a job on a freighter %s which was last reported in %s",shieldExpertTransport:getCallSign(),shieldExpertTransport:getSectorName()),"#ba55d3")
+					p:addToShipLog(string.format("We heard you were looking for our former shield maintenance technician, Maria Shrivner who's been publishing hints about advances in shield technology. We've been looking for her. We only just found out that she left the station after a severe romantic breakup with her supervisor. She took a job on a freighter %s which was last reported in %s",shieldExpertTransport:getCallSign(),shieldExpertTransport:getSectorName()),"186,85,211")
 					plot4 = meetShieldExportTransportHeartbroken
 					plot4reminder = string.format("Meet transport %s last reported in %s to find Maria Shrivner",shieldExpertTransport:getCallSign(),shieldExpertTransport:getSectorName())
 					playSoundFile("sa_55_BaseChief.wav")
@@ -8900,7 +8981,7 @@ function vectorOn(obj,danger,radius,angle,list)
 	else
 		enemy_list = list
 	end
-	local tier_max = 13
+	local tier_max = 15
 	local pyramid_tier = math.min(#enemy_list,tier_max)
 	for index, ship in ipairs(enemy_list) do
 		if index <= tier_max then
@@ -10018,6 +10099,7 @@ function setPlayers()
 					end
 				end
 			end
+			pobj.initialCoolant = pobj:getMaxCoolant()
 		end
 	end
 	setConcurrenetPlayerCount = concurrentPlayerCount
@@ -10216,6 +10298,12 @@ function crewFate(p, fatalityChance)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
 				end
+				if p:hasPlayerAtPosition("Relay") then
+					p:addCustomMessage("Relay","probe_launch_damage_message_relay","The probe launch system has been damaged")
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p:addCustomMessage("Operations","probe_launch_damage_message_ops","The probe launch system has been damaged")
+				end
 			elseif named_consequence == "hack" then
 				p:setCanHack(false)
 				if p:hasPlayerAtPosition("Engineering") then
@@ -10223,6 +10311,12 @@ function crewFate(p, fatalityChance)
 				end
 				if p:hasPlayerAtPosition("Engineering+") then
 					p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
+				end
+				if p:hasPlayerAtPosition("Relay") then
+					p:addCustomMessage("Relay","hack_damage_message_relay","The hacking system has been damaged")
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p:addCustomMessage("Operations","hack_damage_message_ops","The hacking system has been damaged")
 				end
 			elseif named_consequence == "scan" then
 				p:setCanScan(false)
@@ -10232,6 +10326,12 @@ function crewFate(p, fatalityChance)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p:addCustomMessage("Engineering+","scan_damage_message_plus","The scanners have been damaged")
 				end
+				if p:hasPlayerAtPosition("Science") then
+					p:addCustomMessage("Science","scan_damage_message_science","The scanners have been damaged")
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p:addCustomMessage("Operations","scan_damage_message_ops","The scanners have been damaged")
+				end
 			elseif named_consequence == "combat_maneuver" then
 				p:setCanCombatManeuver(false)
 				if p:hasPlayerAtPosition("Engineering") then
@@ -10239,6 +10339,12 @@ function crewFate(p, fatalityChance)
 				end
 				if p:hasPlayerAtPosition("Engineering+") then
 					p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus","Combat maneuver has been damaged")
+				end
+				if p:hasPlayerAtPosition("Helms") then
+					p:addCustomMessage("Helms","combat_maneuver_damage_message_helm","Combat maneuver has been damaged")
+				end
+				if p:hasPlayerAtPosition("Tactical") then
+					p:addCustomMessage("Tactical","combat_maneuver_damage_message_tac","Combat maneuver has been damaged")
 				end
 			elseif named_consequence == "self_destruct" then
 				p:setCanSelfDestruct(false)
@@ -10399,6 +10505,96 @@ function disableAutoCool8()
 	p:commandSetAutoRepair(false)
 	p.autoCoolant = false
 end
+--gain/lose coolant from nebula functions
+function updateCoolantGivenPlayer(p, delta)
+	if p.configure_coolant_timer == nil then
+		p.configure_coolant_timer = delta + 5
+	end
+	p.configure_coolant_timer = p.configure_coolant_timer - delta
+	if p.configure_coolant_timer < 0 then
+		if p.deploy_coolant_timer == nil then
+			p.deploy_coolant_timer = delta + 5
+		end
+		p.deploy_coolant_timer = p.deploy_coolant_timer - delta
+		if p.deploy_coolant_timer < 0 then
+			gather_coolant_status = "Gathering Coolant"
+			p:setMaxCoolant(p:getMaxCoolant() + coolant_gain)
+			if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
+				local engine_choice = math.random(1,3)
+				if engine_choice == 1 then
+					p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
+				elseif engine_choice == 2 then
+					if p:hasWarpDrive() then
+						p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
+					end
+				else
+					if p:hasJumpDrive() then
+						p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
+					end
+				end
+			end
+		else
+			gather_coolant_status = string.format("Deploying Collectors %i",math.ceil(p.deploy_coolant_timer - delta))
+		end
+	else
+		gather_coolant_status = string.format("Configuring Collectors %i",math.ceil(p.configure_coolant_timer - delta))
+	end
+	if p:hasPlayerAtPosition("Engineering") then
+		p.gather_coolant = "gather_coolant"
+		p:addCustomInfo("Engineering",p.gather_coolant,gather_coolant_status)
+	end
+	if p:hasPlayerAtPosition("Engineering+") then
+		p.gather_coolant_plus = "gather_coolant_plus"
+		p:addCustomInfo("Engineering",p.gather_coolant_plus,gather_coolant_status)
+	end
+end
+function getCoolantGivenPlayer(p)
+	if p:hasPlayerAtPosition("Engineering") then
+		if p.get_coolant_button ~= nil then
+			p:removeCustom(p.get_coolant_button)
+			p.get_coolant_button = nil
+		end
+	end
+	if p:hasPlayerAtPosition("Engineering+") then
+		if p.get_coolant_button_plus ~= nil then
+			p:removeCustom(p.get_coolant_button_plus)
+			p.get_coolant_button_plus = nil
+		end
+	end
+	p.coolant_trigger = true
+end
+function getCoolant1()
+	local p = getPlayerShip(1)
+	getCoolantGivenPlayer(p)
+end
+function getCoolant2()
+	local p = getPlayerShip(2)
+	getCoolantGivenPlayer(p)
+end
+function getCoolant3()
+	local p = getPlayerShip(3)
+	getCoolantGivenPlayer(p)
+end
+function getCoolant4()
+	local p = getPlayerShip(4)
+	getCoolantGivenPlayer(p)
+end
+function getCoolant5()
+	local p = getPlayerShip(5)
+	getCoolantGivenPlayer(p)
+end
+function getCoolant6()
+	local p = getPlayerShip(6)
+	getCoolantGivenPlayer(p)
+end
+function getCoolant7()
+	local p = getPlayerShip(7)
+	getCoolantGivenPlayer(p)
+end
+function getCoolant8()
+	local p = getPlayerShip(8)
+	getCoolantGivenPlayer(p)
+end
 --final page for victory or defeat on main streen. Station stats only for now
 function endStatistics()
 	destroyedStations = 0
@@ -10507,6 +10703,7 @@ function update(delta)
 		if p ~= nil then
 			concurrentPlayerCount = concurrentPlayerCount + 1
 			if p:isValid() then
+				--home station telemetry
 				if home_station_health ~= nil then
 					if p:hasPlayerAtPosition("Relay") then
 						p.home_station_status = "home_station_status"
@@ -10526,6 +10723,77 @@ function update(delta)
 						p.home_station_status_ops = nil
 					end
 				end
+				--nebula/coolant interaction
+				local inside_gain_coolant_nebula = false
+				for i=1,#coolant_nebula do
+					if distance(p,coolant_nebula[i]) < 5000 then
+						if coolant_nebula[i].lose then
+							p:setMaxCoolant(p:getMaxCoolant()*coolant_loss)
+							if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
+								local engine_choice = math.random(1,3)
+								if engine_choice == 1 then
+									p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
+								elseif engine_choice == 2 then
+									if p:hasWarpDrive() then
+										p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
+									end
+								else
+									if p:hasJumpDrive() then
+										p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
+									end
+								end
+							end
+						end
+						if coolant_nebula[i].gain then
+							inside_gain_coolant_nebula = true
+						end
+					end
+				end
+				if inside_gain_coolant_nebula then
+					if p.get_coolant then
+						if p.coolant_trigger then
+							updateCoolantGivenPlayer(p, delta)
+						end
+					else
+						if p:hasPlayerAtPosition("Engineering") then
+							p.get_coolant_button = "get_coolant_button"
+							p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",get_coolant_function[pidx])
+							p.get_coolant = true
+						end
+						if p:hasPlayerAtPosition("Engineering+") then
+							p.get_coolant_button_plus = "get_coolant_button_plus"
+							p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",get_coolant_function[pidx])
+							p.get_coolant = true
+						end
+					end
+				else
+					p.get_coolant = false
+					p.coolant_trigger = false
+					p.configure_coolant_timer = nil
+					p.deploy_coolant_timer = nil
+					if p:hasPlayerAtPosition("Engineering") then
+						if p.get_coolant_button ~= nil then
+							p:removeCustom(p.get_coolant_button)
+							p.get_coolant_button = nil
+						end
+						if p.gather_coolant ~= nil then
+							p:removeCustom(p.gather_coolant)
+							p.gather_coolant = nil
+						end
+					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						if p.get_coolant_button_plus ~= nil then
+							p:removeCustom(p.get_coolant_button_plus)
+							p.get_coolant_button_plus = nil
+						end
+						if p.gather_coolant_plus ~= nil then
+							p:removeCustom(p.gather_coolant_plus)
+							p.gather_coolant_plus = nil
+						end
+					end
+				end
+				
+				
 			end
 		end
 	end
