@@ -131,7 +131,7 @@ function closestPlayerTo(obj)
 -- Assumes a maximum of 8 player ships
 	if obj ~= nil and obj:isValid() then
 		local closestDistance = 9999999
-		closestPlayer = nil
+		local closestPlayer = nil
 		for pidx=1,8 do
 			p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
@@ -214,6 +214,7 @@ end
 function setConstants()
 	prefix_length = 0
 	suffix_index = 0
+	play_button_expire_time = 180
 	--Ship Template Name List
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
 	--Ship Template Score List
@@ -6686,6 +6687,7 @@ function playDefendUtopiaMsg()
 	playSoundFile("sa_54_AuthMBDefend.wav")
 	closestUtopiaPlayer:removeCustom(defendUtopiaMsgButton)
 	closestUtopiaPlayer:removeCustom(defendUtopiaMsgButtonOps)
+	closestUtopiaPlayer = nil
 end
 
 function afterPatrol(delta)
@@ -6756,6 +6758,7 @@ function afterPatrol(delta)
 			end
 			closestUtopiaPlayer = closestPlayerTo(stationUtopiaPlanitia)
 			if closestUtopiaPlayer ~= nil then
+				closestUtopiaPlayer_timer = play_button_expire_time
 				stationUtopiaPlanitia:sendCommsMessage(closestUtopiaPlayer, "Audio message received, auto-transcribed to log, stored for playback: UTPLNT441")
 				closestUtopiaPlayer:addToShipLog("[UTPLNT441](Utopia Planitia) Our long range sensors show a number of enemy ships approaching. Cease patrolling other stations and defend station Utopia Planitia","Yellow")
 				if defendUtopiaMsgButton == nil then
@@ -6765,7 +6768,7 @@ function afterPatrol(delta)
 					closestUtopiaPlayer:addCustomButton("Operations",defendUtopiaMsgButtonOps,"|> UTPLNT441",playDefendUtopiaMsg)
 				end
 			end
-			stationUtopiaPlanitia:sendCommsMessage(closestPlayer, "Our long range sensors show a number of enemy ships approaching. Cease patrolling other stations and defend station Utopia Planitia")
+			stationUtopiaPlanitia:sendCommsMessage(closestUtopiaPlayer, "Our long range sensors show a number of enemy ships approaching. Cease patrolling other stations and defend station Utopia Planitia")
 			primaryOrders = "Defend Utopia Planitia"
 			waveDelayTimer = 120
 			longWave = 0
@@ -6782,6 +6785,7 @@ function playUtopiaBreakMsg()
 	playSoundFile("sa_54_AuthMBBreak.wav")
 	closestMidWaveUtopiaPlayer:removeCustom(utopiaBreakMsgButton)
 	closestMidWaveUtopiaPlayer:removeCustom(utopiaBreakMsgButtonOps)
+	closestMidWaveUtopiaPlayer = nil
 end
 
 function defendUtopia(delta)
@@ -6829,6 +6833,7 @@ function defendUtopia(delta)
 			if wave1count + wave2count == 0 then
 				closestMidWaveUtopiaPlayer = closestPlayerTo(stationUtopiaPlanitia)
 				if closestMidWaveUtopiaPlayer ~= nil then
+					closestMidWaveUtopiaPlayer_timer = play_button_expire_time
 					stationUtopiaPlanitia:sendCommsMessage(closestMidWaveUtopiaPlayer, "Audio message received, auto-transcribed to log, stored for playback: UTPLNT477")
 					closestMidWaveUtopiaPlayer:addToShipLog("[UTPLNT477](Utopia Planitia) You have taken care of the closest enemies. Our extreme range sensors show more, but they should not arrive for a couple of minutes","Yellow")
 					if utopiaBreakMsgButton == nil then
@@ -6999,6 +7004,7 @@ function playAsimovSensorTechMessage()
 	playSoundFile("sa_54_TorrinSensorTech.wav")
 	closestPlayer:removeCustom(playMsgFromAsimovButton)
 	closestPlayer:removeCustom(playMsgFromAsimovButtonOps)
+	closestPlayer = nil
 end
 
 function nuisance(delta)
@@ -7020,6 +7026,7 @@ function nuisance(delta)
 			nuisanceHelp = "complete"
 			closestPlayer = closestPlayerTo(stationAsimov)
 			if closestPlayer ~= nil then
+				closestPlayer_timer = play_button_expire_time
 				stationAsimov:sendCommsMessage(closestPlayer, "Audio message received, auto-transcribed into log, stored for playback: ASMVSNSR003")
 				closestPlayer:addToShipLog("[ASMVSNSR003](Asimov sensor technician) Our long range sensors show enemies approaching","Yellow")
 				if playMsgFromAsimovButton == nil then
@@ -7040,7 +7047,8 @@ function nuisance(delta)
 	if enemy_count == 0 then
 		if nuisanceAward == nil then
 			nuisanceAward = "done"
-			closestPlayer:addReputationPoints(25.0)
+			local p = getPlayerShip(-1)
+			p:addReputationPoints(25.0)
 			sickMinerTimer = random(90,120)
 			plot2 = sickMiner
 		end
@@ -7051,6 +7059,7 @@ function playSickStationMessage()
 	playSoundFile("sa_54_MinerSickRequest.wav")
 	closestSickMinerPlayer:removeCustom(playMsgFromSickStationButton)
 	closestSickMinerPlayer:removeCustom(playMsgFromSickStationButtonOps)
+	closestSickMinerPlayer = nil
 end
 
 function sickMiner(delta)
@@ -7074,6 +7083,7 @@ function sickMiner(delta)
 			plot2reminder = string.format("Pick up Joshua Kojack from %s in sector %s and take him to Bethesda",sickMinerStation:getCallSign(),sickMinerStation:getSectorName())
 			closestSickMinerPlayer = closestPlayerTo(sickMinerStation)
 			if closestSickMinerPlayer ~= nil then
+				closestSickMinerPlayer_timer = play_button_expire_time
 				sickMinerStation:sendCommsMessage(closestSickMinerPlayer, "Audio message received, auto-transcribed into log, stored for playback: MINSTN014")
 				closestSickMinerPlayer:addToShipLog(string.format("[MINSTN014](%s in sector %s) Joshua Kojak has come down with something our autodoc can't handle. He's supposed to be helping us mine these asteroids, but he can't do us any good while he's sick. Can you transport him to Bethesda station? I hear they've got some clever doctors there that might help.",sickMinerStation:getCallSign(),sickMinerStation:getSectorName()),"Yellow")
 				if playMsgFromSickStationButton == nil then
@@ -7150,6 +7160,7 @@ function playKojakThanksMessage()
 	playSoundFile("sa_54_KojakThanks.wav")
 	closestBethesdaPlayer:removeCustom(playMsgKojakButton)
 	closestBethesdaPlayer:removeCustom(playMsgKojakButtonOps)
+	closestBethesdaPlayer = nil
 end
 function minerRecovering(delta)
 	plot2name = "minerRecovering"
@@ -7163,6 +7174,7 @@ function minerRecovering(delta)
 			stationBethesda:sendCommsMessage(closestBethesdaPlayer, "Audio message received, auto-transcribed into log, stored for playback: BTHSDA034")
 			closestBethesdaPlayer:addToShipLog("[BTHSDA034](Joshua Kojak) Thanks for bringing me to Bethesda. I'm feeling much better. I'm transmitting my research on power systems and exotic metals. You may find it interesting. Mining leaves me lots of time for thinking","Yellow")
 			if playMsgKojakButton == nil then
+				closestBethesdaPlayer_timer = play_button_expire_time
 				playMsgKojakButton = "playMsgKojakButton"
 				closestBethesdaPlayer:addCustomButton("Relay",playMsgKojakButton,"|> BTHSDA034",playKojakThanksMessage)
 				playMsgKojakButtonOps = "playMsgKojakButtonOps"
@@ -7298,6 +7310,7 @@ function playUtopiaPlanitiaSensorTechMessage()
 	playSoundFile("sa_54_DuncanSensorTech.wav")
 	closestIncursionPlayer:removeCustom(playUtopiaPlanitiaSensorMsgButton)
 	closestIncursionPlayer:removeCustom(playUtopiaPlanitiaSensorMsgButtonOps)
+	closestIncursionPlayer = nil
 end
 
 function incursion(delta)
@@ -7320,6 +7333,7 @@ function incursion(delta)
 			stationUtopiaPlanitia:sendCommsMessage(closestIncursionPlayer, "Audio message received, auto-transcribed into log, stored for playback: UTPLNT103")
 			closestIncursionPlayer:addToShipLog("[UTPLNT103](Utopia Planitia sensor technician) Our long range sensors show enemies approaching","Yellow")
 			if playUtopiaPlanitiaSensorMsgButton == nil then
+				closestIncursionPlayer_timer = play_button_expire_time
 				playUtopiaPlanitiaSensorMsgButton = "playUtopiaPlanitiaSensorMsgButton"
 				closestIncursionPlayer:addCustomButton("Relay",playUtopiaPlanitiaSensorMsgButton,"|> UTPLNT103",playUtopiaPlanitiaSensorTechMessage)
 				playUtopiaPlanitiaSensorMsgButtonOps = "playUtopiaPlanitiaSensorMsgButtonOps"
@@ -7462,6 +7476,7 @@ function playLisbonRequestMessage()
 	playSoundFile("sa_54_BethesdaAdmin.wav")
 	closestLisbonPlayer:removeCustom(playLisbonMsgButton)
 	closestLisbonPlayer:removeCustom(playLisbonMsgButtonOps)
+	closestLisbonPlayer = nil
 end
 
 function stowawayMessage()
@@ -7484,6 +7499,7 @@ function stowawayMessage()
 		stationBethesda:sendCommsMessage(closestLisbonPlayer,"Audio message received, auto-transcribed into log, stored for playback: BTHSDA271")
 		closestLisbonPlayer:addToShipLog(string.format("[BTHSDA271] Commander Lisbon reports her child stowed away on a freighter. After extensive investigation, she believes Francis is aboard %s currently in sector %s\nShe requests a rendezvous with the freighter to bring back her child",stowawayName,stowawayTransport:getSectorName()),"Yellow")
 		if playLisbonMsgButton == nil then
+			closestLisbonPlayer_timer = play_button_expire_time
 			playLisbonMsgButton = "playLisbonMsgButton"
 			closestLisbonPlayer:addCustomButton("Relay",playLisbonMsgButton,"|> BTHSDA271",playLisbonRequestMessage)
 			playLisbonMsgButtonOps = "playLisbonMsgButtonOps"
@@ -8161,6 +8177,64 @@ end
 ------------------------------------
 --	Generic or utility functions  --
 ------------------------------------
+function expirePlayButtons(delta)
+	if closestUtopiaPlayer ~= nil then
+		closestUtopiaPlayer_timer = closestUtopiaPlayer_timer - delta
+		if closestUtopiaPlayer_timer < 0 then
+			closestUtopiaPlayer:removeCustom(defendUtopiaMsgButton)
+			closestUtopiaPlayer:removeCustom(defendUtopiaMsgButtonOps)
+			closestUtopiaPlayer = nil
+		end
+	end
+	if closestMidWaveUtopiaPlayer ~= nil then
+		closestMidWaveUtopiaPlayer_timer = closestMidWaveUtopiaPlayer_timer - delta
+		if closestMidWaveUtopiaPlayer_timer < 0 then
+			closestMidWaveUtopiaPlayer:removeCustom(utopiaBreakMsgButton)
+			closestMidWaveUtopiaPlayer:removeCustom(utopiaBreakMsgButtonOps)
+			closestMidWaveUtopiaPlayer = nil
+		end
+	end
+	if closestPlayer ~= nil then
+		closestPlayer_timer = closestPlayer_timer - delta
+		if closestPlayer_timer < 0 then
+			closestPlayer:removeCustom(playMsgFromAsimovButton)
+			closestPlayer:removeCustom(playMsgFromAsimovButtonOps)
+			closestPlayer = nil
+		end
+	end
+	if closestSickMinerPlayer ~= nil then
+		closestSickMinerPlayer_timer = closestSickMinerPlayer_timer - delta
+		if closestSickMinerPlayer_timer < 0 then
+			closestSickMinerPlayer:removeCustom(playMsgFromSickStationButton)
+			closestSickMinerPlayer:removeCustom(playMsgFromSickStationButtonOps)
+			closestSickMinerPlayer = nil
+		end
+	end
+	if closestBethesdaPlayer ~= nil then
+		closestBethesdaPlayer_timer = closestBethesdaPlayer_timer - delta
+		if closestBethesdaPlayer_timer < 0 then
+			closestBethesdaPlayer:removeCustom(playMsgKojakButton)
+			closestBethesdaPlayer:removeCustom(playMsgKojakButtonOps)
+			closestBethesdaPlayer = nil
+		end
+	end
+	if closestIncursionPlayer ~= nil then
+		closestIncursionPlayer_timer = closestIncursionPlayer_timer - delta
+		if closestIncursionPlayer_timer < 0 then
+			closestIncursionPlayer:removeCustom(playUtopiaPlanitiaSensorMsgButton)
+			closestIncursionPlayer:removeCustom(playUtopiaPlanitiaSensorMsgButtonOps)
+			closestIncursionPlayer = nil
+		end
+	end
+	if closestLisbonPlayer ~= nil then
+		closestLisbonPlayer_timer = closestLisbonPlayer_timer - delta
+		if closestLisbonPlayer_timer < 0 then
+			closestLisbonPlayer:removeCustom(playLisbonMsgButton)
+			closestLisbonPlayer:removeCustom(playLisbonMsgButtonOps)
+			closestLisbonPlayer = nil
+		end
+	end
+end
 function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
@@ -8559,4 +8633,5 @@ function update(delta)
 	if plotRS ~= nil then			--relay status
 		plotRS(delta)
 	end
+	expirePlayButtons(delta)
 end
