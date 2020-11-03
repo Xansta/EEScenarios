@@ -1,7 +1,7 @@
 -- Name: Borderline Fever
 -- Description: War temperature rises along the border between Human Navy space and Kraylor space. The treaty holds for now, but the diplomats and intelligence operatives fear the Kraylors are about to break the treaty. We must maintain the treaty despite provocation until war is formally declared.
 ---
---- Version 4 updated enemy ship interactions including continuum weapon
+--- Version 5
 -- Type: Replayable Mission
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
@@ -10,68 +10,9 @@
 -- Variation[Timed Hard]: Victory if some human navy stations and player ships survive for 30 minutes, Hard goals and/or enemies
 
 -- to do items:
-
 -- Station warning of enemies in area (helpful warnings - shuffle stations)
 
 require("utils.lua")
-
---- Remove random element from array and return it.
---
--- The function returns `nil` if the array is empty,
--- analogously to `table.remove`.
-function tableremoverandom(array)
-    local n = #array
-    if n == 0 then
-        return nil
-    end
-    local i = math.random(n)
-    array[i], array[n] = array[n], array[i]
-    return table.remove(array)
-end
-
--- starryUtil v2
-starryUtil={
-	math={
-		-- linear interpolation
-		-- mostly intended as an aid to make code more readable
-		lerp=function(a,b,t)
-			assert(type(a)=="number")
-			assert(type(b)=="number")
-			assert(type(t)=="number")
-			return a + t * (b - a);
-		end
-	},
-	debug={
-		-- get a multi-line string for the number of objects at the current time
-		-- intended to be used via addGMMessage or print, but there may be other uses
-		-- it may be worth considering adding a function which would return an array rather than a string
-		getNumberOfObjectsString=function()
-			local all_objects=getAllObjects()
-			local object_counts={}
-			--first up we accumulate the number of each type of object
-			for i=1,#all_objects do
-				local object_type=all_objects[i].typeName
-				local current_count=object_counts[object_type]
-				if current_count==nil then
-					current_count=0
-				end
-				object_counts[object_type]=current_count+1
-			end
-			-- we want the ordering to be stable so we build a key list
-			local sorted_counts={}
-			for type in pairs(object_counts) do
-				table.insert(sorted_counts, type)
-			end
-			table.sort(sorted_counts)
-			--lastly we build the output
-			local output=""
-			for _,object_type in ipairs(sorted_counts) do
-				output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
-			end
-			return output..string.format("\nTotal: %i",#all_objects)
-		end
-	},
-}
 
 --------------------
 -- Initialization --
@@ -79,6 +20,49 @@ starryUtil={
 function init()
 	popupGMDebug = "once"
 	print(_VERSION)
+	-- starryUtil v2
+	starryUtil={
+		math={
+			-- linear interpolation
+			-- mostly intended as an aid to make code more readable
+			lerp=function(a,b,t)
+				assert(type(a)=="number")
+				assert(type(b)=="number")
+				assert(type(t)=="number")
+				return a + t * (b - a);
+			end
+		},
+		debug={
+			-- get a multi-line string for the number of objects at the current time
+			-- intended to be used via addGMMessage or print, but there may be other uses
+			-- it may be worth considering adding a function which would return an array rather than a string
+			getNumberOfObjectsString=function()
+				local all_objects=getAllObjects()
+				local object_counts={}
+				--first up we accumulate the number of each type of object
+				for i=1,#all_objects do
+					local object_type=all_objects[i].typeName
+					local current_count=object_counts[object_type]
+					if current_count==nil then
+						current_count=0
+					end
+					object_counts[object_type]=current_count+1
+				end
+				-- we want the ordering to be stable so we build a key list
+				local sorted_counts={}
+				for type in pairs(object_counts) do
+					table.insert(sorted_counts, type)
+				end
+				table.sort(sorted_counts)
+				--lastly we build the output
+				local output=""
+				for _,object_type in ipairs(sorted_counts) do
+					output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
+				end
+				return output..string.format("\nTotal: %i",#all_objects)
+			end
+		},
+	}
 	banner = {}
 	banner["number_of_players"] = 0
 	banner["player_strength"] = 0
@@ -260,16 +244,244 @@ function setVariations()
 end
 function setConstants()
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
-	--Ship Template Name List
-	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	--Ship Template Score List
-	stsl = {5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,25       ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,18       ,14               ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	-- square grid deployment
-	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4}
-	fleetPosDelta1y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2,3,-3,0, 0,3,-3,1, 1, 3,-3,-1,-1,3,-3,2, 2, 3,-3,-2,-2,3,-3, 3,-3,0,4, 0,-4,4,-4,-4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4,0, 0,5,-5,5,-5, 5,-5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5}
-	-- rough hexagonal deployment
-	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
-	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
+	pool_selectivity = "full"
+	template_pool_size = 5
+	ship_template = {	--ordered by relative strength
+		["Gnat"] =				{strength = 2,		create = gnat},
+		["Lite Drone"] =		{strength = 3,		create = droneLite},
+		["Jacket Drone"] =		{strength = 4,		create = droneJacket},
+		["Ktlitan Drone"] =		{strength = 4,		create = stockTemplate},
+		["Heavy Drone"] =		{strength = 5,		create = droneHeavy},
+		["Adder MK3"] =			{strength = 5,		create = adderMk3},
+		["MT52 Hornet"] =		{strength = 5,		create = stockTemplate},
+		["MU52 Hornet"] =		{strength = 5,		create = stockTemplate},
+		["MV52 Hornet"] =		{strength = 6,		create = hornetMV52},
+		["Adder MK4"] =			{strength = 6,		create = stockTemplate},
+		["Fighter"] =			{strength = 6,		create = stockTemplate},
+		["Ktlitan Fighter"] =	{strength = 6,		create = stockTemplate},
+		["K2 Fighter"] =		{strength = 7,		create = k2fighter},
+		["Adder MK5"] =			{strength = 7,		create = stockTemplate},
+		["WX-Lindworm"] =		{strength = 7,		create = stockTemplate},
+		["K3 Fighter"] =		{strength = 8,		create = k3fighter},
+		["Adder MK6"] =			{strength = 8,		create = stockTemplate},
+		["Ktlitan Scout"] =		{strength = 8,		create = stockTemplate},
+		["WZ-Lindworm"] =		{strength = 9,		create = wzLindworm},
+		["Adder MK7"] =			{strength = 9,		create = adderMk7},
+		["Adder MK8"] =			{strength = 10,		create = adderMk8},
+		["Adder MK9"] =			{strength = 11,		create = adderMk9},
+		["Nirvana R3"] =		{strength = 12,		create = nirvanaR3},
+		["Phobos R2"] =			{strength = 13,		create = phobosR2},
+		["Missile Cruiser"] =	{strength = 14,		create = stockTemplate},
+		["Waddle 5"] =			{strength = 15,		create = waddle5},
+		["Jade 5"] =			{strength = 15,		create = jade5},
+		["Phobos T3"] =			{strength = 15,		create = stockTemplate},
+		["Piranha F8"] =		{strength = 15,		create = stockTemplate},
+		["Piranha F12"] =		{strength = 15,		create = stockTemplate},
+		["Piranha F12.M"] =		{strength = 16,		create = stockTemplate},
+		["Phobos M3"] =			{strength = 16,		create = stockTemplate},
+		["Karnack"] =			{strength = 17,		create = stockTemplate},
+		["Gunship"] =			{strength = 17,		create = stockTemplate},
+		["Cruiser"] =			{strength = 18,		create = stockTemplate},
+		["Nirvana R5"] =		{strength = 19,		create = stockTemplate},
+		["Nirvana R5A"] =		{strength = 20,		create = stockTemplate},
+		["Adv. Gunship"] =		{strength = 20,		create = stockTemplate},
+		["Ktlitan Worker"] =	{strength = 21,		create = stockTemplate},
+		["Storm"] =				{strength = 22,		create = stockTemplate},
+		["Stalker R5"] =		{strength = 22,		create = stalkerR5},
+		["Stalker Q5"] =		{strength = 22,		create = stalkerQ5},
+		["Ranus U"] =			{strength = 25,		create = stockTemplate},
+		["Stalker Q7"] =		{strength = 25,		create = stockTemplate},
+		["Stalker R7"] =		{strength = 25,		create = stockTemplate},
+		["Adv. Striker"] =		{strength = 27,		create = stockTemplate},
+		["Elara P2"] =			{strength = 28,		create = elaraP2},
+		["Tempest"] =			{strength = 30,		create = tempest},
+		["Strikeship"] =		{strength = 30,		create = stockTemplate},
+		["Fiend G3"] =			{strength = 33,		create = fiendG3},
+		["Fiend G4"] =			{strength = 35,		create = fiendG4},
+		["Cucaracha"] =			{strength = 36,		create = cucaracha},
+		["Fiend G5"] =			{strength = 37,		create = fiendG5},
+		["Fiend G6"] =			{strength = 39,		create = fiendG6},
+		["Predator"] =			{strength = 42,		create = predator},
+		["Ktlitan Breaker"] =	{strength = 45,		create = stockTemplate},
+		["Hurricane"] =			{strength = 46,		create = hurricane},
+		["Ktlitan Feeder"] =	{strength = 48,		create = stockTemplate},
+		["Atlantis X23"] =		{strength = 50,		create = stockTemplate},
+		["K2 Breaker"] =		{strength = 55,		create = k2breaker},
+		["Ktlitan Destroyer"] =	{strength = 50,		create = stockTemplate},
+		["Atlantis Y42"] =		{strength = 60,		create = atlantisY42},
+		["Blockade Runner"] =	{strength = 65,		create = stockTemplate},
+		["Starhammer II"] =		{strength = 70,		create = stockTemplate},
+		["Enforcer"] =			{strength = 75,		create = enforcer},
+		["Dreadnought"] =		{strength = 80,		create = stockTemplate},
+		["Starhammer III"] =	{strength = 85,		create = starhammerIII},
+		["Starhammer V"] =		{strength = 90,		create = starhammerV},
+		["Battlestation"] =		{strength = 100,	create = stockTemplate},
+		["Tyr"] =				{strength = 150,	create = tyr},
+		["Odin"] =				{strength = 250,	create = stockTemplate},
+	}
+	formation_delta = {
+		["square"] = {
+			x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4},
+			y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2,3,-3,0, 0,3,-3,1, 1, 3,-3,-1,-1,3,-3,2, 2, 3,-3,-2,-2,3,-3, 3,-3,0,4, 0,-4,4,-4,-4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4,0, 0,5,-5,5,-5, 5,-5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5},
+		},
+		["hexagonal"] = {
+			x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0},
+			y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6},
+		},
+		["pyramid"] = {
+			[1] = {
+				{angle =  0, distance = 0},
+			},
+			[2] = {
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+			},
+			[3] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},				
+			},
+			[4] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle =  0, distance = 2},	
+			},
+			[5] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+			},
+			[6] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+			},
+			[7] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[8] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[9] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -4, distance = 4},
+				{angle =  4, distance = 4},
+			},
+			[10] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -2, distance = 3},
+				{angle =  2, distance = 3},
+			},
+			[11] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -4, distance = 4},
+				{angle =  4, distance = 4},
+				{angle = -3, distance = 4},
+				{angle =  3, distance = 4},
+			},
+			[12] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -2, distance = 3},
+				{angle =  2, distance = 3},
+				{angle = -1, distance = 3},
+				{angle =  1, distance = 3},
+			},
+			[13] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 3},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+			[14] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 4},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+			[15] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 3},
+				{angle =  0, distance = 4},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+		},
+	}		
+	max_pyramid_tier = 15	
 	playerShipStats = {	["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false	},
 						["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false	},
 						["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true	},
@@ -4947,7 +5159,7 @@ function setFleets()
 	table.insert(friendlyFleetList,friendlyFleet5)
 	friendlyDefensiveFleetList[fleetName] = friendlyFleet5
 end
-function spawnEnemyFleet(xOrigin, yOrigin, power, danger, enemyFaction, fleetName)
+function spawnEnemyFleet(xOrigin, yOrigin, power, danger, enemyFaction, fleetName, shape)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
 	end
@@ -4955,32 +5167,41 @@ function spawnEnemyFleet(xOrigin, yOrigin, power, danger, enemyFaction, fleetNam
 		danger = 1
 	end
 	local enemyStrength = math.max(power * danger * difficulty, 5)
-	local enemyPosition = 0
+	local enemy_position = 0
 	local sp = irandom(400,900)			--random spacing of spawned group
-	local deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
+	if shape == nil then
+		shape = "square"
+		if random(1,100) < 50 then
+			shape = "hexagonal"
+		end
+	end
 	local enemyList = {}
+	template_pool_size = 10
+	local template_pool = getTemplatePool(enemyStrength)
+	if #template_pool < 1 then
+		addGMMessage("Empty Template pool: fix excludes or other criteria")
+		return enemyList
+	end
+	template_pool_size = 5
 	local fleetPower = 0
 	local prefix = generateCallSignPrefix(1)
 	while enemyStrength > 0 do
-		local shipTemplateType = irandom(1,#stsl)
-		while stsl[shipTemplateType] > enemyStrength * 1.1 + 5 do
-			shipTemplateType = irandom(1,#stsl)
-		end
-		fleetPower = fleetPower + stsl[shipTemplateType]
-		local ship = CpuShip():setFaction(enemyFaction):setTemplate(stnl[shipTemplateType]):orderRoaming()
+		local selected_template = template_pool[math.random(1,#template_pool)]
+		fleetPower = fleetPower + ship_template[selected_template].strength
+		local ship = ship_template[selected_template].create(enemyFaction,selected_template)
 		ship:setCallSign(generateCallSign(nil,enemyFaction))
 		if enemyFaction == "Kraylor" then
-			rawKraylorShipStrength = rawKraylorShipStrength + stsl[shipTemplateType]
+			rawKraylorShipStrength = rawKraylorShipStrength + ship_template[selected_template].strength
 			ship:onDestruction(enemyVesselDestroyed)
 		elseif enemyFaction == "Human Navy" then
-			rawHumanShipStrength = rawHumanShipStrength + stsl[shipTemplateType]
+			rawHumanShipStrength = rawHumanShipStrength + ship_template[selected_template].strength
 			ship:onDestruction(friendlyVesselDestroyed)
 		end
-		enemyPosition = enemyPosition + 1
-		if deployConfig < 50 then
-			ship:setPosition(xOrigin+fleetPosDelta1x[enemyPosition]*sp,yOrigin+fleetPosDelta1y[enemyPosition]*sp)
+		enemy_position = enemy_position + 1
+		if shape == "none" or shape == "pyramid" or shape == "ambush" then
+			ship:setPosition(xOrigin,yOrigin)
 		else
-			ship:setPosition(xOrigin+fleetPosDelta2x[enemyPosition]*sp,yOrigin+fleetPosDelta2y[enemyPosition]*sp)
+			ship:setPosition(xOrigin + formation_delta[shape].x[enemy_position] * sp, yOrigin + formation_delta[shape].y[enemy_position] * sp)
 		end
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		if fleetName ~= nil then
@@ -4988,7 +5209,14 @@ function spawnEnemyFleet(xOrigin, yOrigin, power, danger, enemyFaction, fleetNam
 		end
 		table.insert(enemyList, ship)
 		ship:setCallSign(generateCallSign(nil,enemyFaction))
-		enemyStrength = enemyStrength - stsl[shipTemplateType]
+		enemyStrength = enemyStrength - ship_template[selected_template].strength
+	end
+	local increment = 360/#enemyList
+	local angle = random(0,360)
+	for _, enemy in ipairs(enemyList) do
+		setCirclePos(enemy,xOrigin,yOrigin,angle,1500)
+		enemy:setRotation(angle)
+		angle = angle + increment
 	end
 	fleetPower = math.max(fleetPower/danger/difficulty, 5)
 	return enemyList, fleetPower
@@ -8635,6 +8863,18 @@ end	--end neutral communications function
 -----------------------
 -- Utility functions --
 -----------------------
+function tableRemoveRandom(array)
+--	Remove random element from array and return it.
+	-- Returns nil if the array is empty,
+	-- analogous to `table.remove`.
+    local array_item_count = #array
+    if array_item_count == 0 then
+        return nil
+    end
+    local selected_item = math.random(array_item_count)
+    array[selected_item], array[array_item_count] = array[array_item_count], array[selected_item]
+    return table.remove(array)
+end
 function placeRandomAsteroidsAroundPoint(amount, dist_min, dist_max, x0, y0)
 -- create amount of asteroid, at a distance between dist_min and dist_max around the point (x0, y0)
     for n=1,amount do
@@ -8776,7 +9016,7 @@ function nearStations(nobj, compareStationList)
 	end
 	return closestObj, remainingStations
 end
-function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, enemyStrength)
+function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, enemyStrength, shape, spawn_distance, spawn_angle, px, py)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
 	end
@@ -8786,37 +9026,132 @@ function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, enemyStrength)
 	if enemyStrength == nil then
 		enemyStrength = math.max(danger * difficulty * playerPower(),5)
 	end
-	local enemyPosition = 0
+	local enemy_position = 0
 	local sp = irandom(400,900)			--random spacing of spawned group
+	if shape == nil then
+		shape = "square"
+		if random(1,100) < 50 then
+			shape = "hexagonal"
+		end
+	end
 	local deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
 	local enemyList = {}
+	template_pool_size = 10
+	local template_pool = getTemplatePool(enemyStrength)
+	if #template_pool < 1 then
+		addGMMessage("Empty Template pool: fix excludes or other criteria")
+		return enemyList
+	end
 	local prefix = generateCallSignPrefix(1)
-	-- Reminder: stsl and stnl are ship template score and name list
 	while enemyStrength > 0 do
-		local shipTemplateType = irandom(1,#stsl)
-		while stsl[shipTemplateType] > enemyStrength * 1.1 + 5 do
-			shipTemplateType = irandom(1,#stsl)
-		end		
-		local ship = CpuShip():setFaction(enemyFaction):setTemplate(stnl[shipTemplateType]):orderRoaming()
+		local selected_template = template_pool[math.random(1,#template_pool)]
+		local ship = ship_template[selected_template].create(enemyFaction,selected_template)
 		if enemyFaction == "Kraylor" then
-			rawKraylorShipStrength = rawKraylorShipStrength + stsl[shipTemplateType]
+			rawKraylorShipStrength = rawKraylorShipStrength + ship_template[selected_template].strength
 			ship:onDestruction(enemyVesselDestroyed)
 		elseif enemyFaction == "Human Navy" then
-			rawHumanShipStrength = rawHumanShipStrength + stsl[shipTemplateType]
+			rawHumanShipStrength = rawHumanShipStrength + ship_template[selected_template].strength
 			ship:onDestruction(friendlyVesselDestroyed)
 		end
-		enemyPosition = enemyPosition + 1
-		if deployConfig < 50 then
-			ship:setPosition(xOrigin+fleetPosDelta1x[enemyPosition]*sp,yOrigin+fleetPosDelta1y[enemyPosition]*sp)
+		enemy_position = enemy_position + 1
+		if shape == "none" or shape == "pyramid" or shape == "ambush" then
+			ship:setPosition(xOrigin,yOrigin)
 		else
-			ship:setPosition(xOrigin+fleetPosDelta2x[enemyPosition]*sp,yOrigin+fleetPosDelta2y[enemyPosition]*sp)
+			ship:setPosition(xOrigin + formation_delta[shape].x[enemy_position] * sp, yOrigin + formation_delta[shape].y[enemy_position] * sp)
 		end
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		table.insert(enemyList, ship)
 		ship:setCallSign(generateCallSign(nil,enemyFaction))
-		enemyStrength = enemyStrength - stsl[shipTemplateType]
+		enemyStrength = enemyStrength - ship_template[selected_template].strength
+	end
+	if shape == "pyramid" then
+		if spawn_distance == nil then
+			spawn_distance = 30
+		end
+		if spawn_angle == nil then
+			spawn_angle = random(0,360)
+		end
+		if px == nil then
+			px = 0
+		end
+		if py == nil then
+			py = 0
+		end
+		local pyramid_tier = math.min(#enemyList,max_pyramid_tier)
+		for index, ship in ipairs(enemyList) do
+			if index <= max_pyramid_tier then
+				local pyramid_angle = spawn_angle + formation_delta.pyramid[pyramid_tier][index].angle
+				if pyramid_angle < 0 then 
+					pyramid_angle = pyramid_angle + 360
+				end
+				pyramid_angle = pyramid_angle % 360
+				rx, ry = vectorFromAngle(pyramid_angle,spawn_distance*1000 + formation_delta.pyramid[pyramid_tier][index].distance * 800)
+				ship:setPosition(px+rx,py+ry)
+			else
+				ship:setPosition(px+vx,py+vy)
+			end
+			ship:setHeading((spawn_angle + 270) % 360)
+			ship:orderFlyTowards(px,py)
+		end
+	end
+	if shape == "ambush" then
+		if spawn_distance == nil then
+			spawn_distance = 5
+		end
+		if spawn_angle == nil then
+			spawn_angle = random(0,360)
+		end
+		local circle_increment = 360/#enemyList
+		for _, enemy in ipairs(enemyList) do
+			local dex, dey = vectorFromAngle(spawn_angle,spawn_distance*1000)
+			enemy:setPosition(xOrigin+dex,yOrigin+dey):setRotation(spawn_angle+180)
+			spawn_angle = spawn_angle + circle_increment
+		end
 	end
 	return enemyList
+end
+function getTemplatePool(max_strength)
+	local function getStrengthSort(tbl, sortFunction)
+		local keys = {}
+		for key in pairs(tbl) do
+			table.insert(keys,key)
+		end
+		table.sort(keys, function(a,b)
+			return sortFunction(tbl[a], tbl[b])
+		end)
+		return keys
+	end
+	local ship_template_by_strength = getStrengthSort(ship_template, function(a,b)
+		return a.strength > b.strength
+	end)
+	local template_pool = {}
+	if pool_selectivity == "less/heavy" then
+		for _, current_ship_template in ipairs(ship_template_by_strength) do
+			if ship_template[current_ship_template].strength <= max_strength then
+				table.insert(template_pool,current_ship_template)
+			end
+			if #template_pool >= template_pool_size then
+				break
+			end
+		end
+	elseif pool_selectivity == "more/light" then
+		for i=#ship_template_by_strength,1,-1 do
+			local current_ship_template = ship_template_by_strength[i]
+			if ship_template[current_ship_template].strength <= max_strength then
+				table.insert(template_pool,current_ship_template)
+			end
+			if #template_pool >= template_pool_size then
+				break
+			end
+		end
+	else	--full
+		for current_ship_template, details in pairs(ship_template) do
+			if details.strength <= max_strength then
+				table.insert(template_pool,current_ship_template)
+			end
+		end
+	end
+	return template_pool
 end
 function playerPower()
 --evaluate the players for enemy strength and size spawning purposes
@@ -8860,54 +9195,54 @@ function setPlayers()
 				pobj.mining_in_progress = false
 				if tempPlayerType == "MP52 Hornet" then
 					if #playerShipNamesFor["MP52Hornet"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["MP52Hornet"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["MP52Hornet"]))
 					end
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Piranha" then
 					if #playerShipNamesFor["Piranha"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Piranha"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Piranha"]))
 					end
 				elseif tempPlayerType == "Flavia P.Falcon" then
 					if #playerShipNamesFor["FlaviaPFalcon"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["FlaviaPFalcon"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["FlaviaPFalcon"]))
 					end
 				elseif tempPlayerType == "Phobos M3P" then
 					if #playerShipNamesFor["PhobosM3P"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["PhobosM3P"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["PhobosM3P"]))
 					end
 					pobj:setWarpDrive(true)
 					pobj:setWarpSpeed(500)
 				elseif tempPlayerType == "Atlantis" then
 					if #playerShipNamesFor["Atlantis"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Atlantis"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Atlantis"]))
 					end
 				elseif tempPlayerType == "Player Cruiser" then
 					if #playerShipNamesFor["Cruiser"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Cruiser"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Cruiser"]))
 					end
 				elseif tempPlayerType == "Player Missile Cr." then
 					if #playerShipNamesFor["MissileCruiser"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["MissileCruiser"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["MissileCruiser"]))
 					end
 				elseif tempPlayerType == "Player Fighter" then
 					if #playerShipNamesFor["Fighter"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Fighter"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Fighter"]))
 					end
 					pobj.autoCoolant = false
 					pobj:setJumpDrive(true)
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "Benedict" then
 					if #playerShipNamesFor["Benedict"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Benedict"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Benedict"]))
 					end
 				elseif tempPlayerType == "Kiriya" then
 					if #playerShipNamesFor["Kiriya"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Kiriya"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Kiriya"]))
 					end
 				elseif tempPlayerType == "Striker" then
 					if #playerShipNamesFor["Striker"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Striker"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Striker"]))
 					end
 					if pobj:getImpulseMaxSpeed() == 45 then
 						pobj:setImpulseMaxSpeed(90)
@@ -8927,61 +9262,61 @@ function setPlayers()
 					pobj:setJumpDriveRange(3000,40000)
 				elseif tempPlayerType == "ZX-Lindworm" then
 					if #playerShipNamesFor["Lindworm"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Lindworm"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Lindworm"]))
 					end
 					pobj.autoCoolant = false
 					pobj:setWarpDrive(true)
 				elseif tempPlayerType == "Repulse" then
 					if #playerShipNamesFor["Repulse"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Repulse"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Repulse"]))
 					end
 				elseif tempPlayerType == "Ender" then
 					if #playerShipNamesFor["Ender"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Ender"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Ender"]))
 					end
 				elseif tempPlayerType == "Nautilus" then
 					if #playerShipNamesFor["Nautilus"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Nautilus"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Nautilus"]))
 					end
 				elseif tempPlayerType == "Hathcock" then
 					if #playerShipNamesFor["Hathcock"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Hathcock"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Hathcock"]))
 					end
 				elseif tempPlayerType == "Proto-Atlantis" then
 					if #playerShipNamesFor["ProtoAtlantis"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["ProtoAtlantis"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["ProtoAtlantis"]))
 					end
 				elseif tempPlayerType == "Maverick" then
 					if #playerShipNamesFor["Maverick"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Maverick"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Maverick"]))
 					end
 				elseif tempPlayerType == "Crucible" then
 					if #playerShipNamesFor["Crucible"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Crucible"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Crucible"]))
 					end
 				elseif tempPlayerType == "Atlantis II" then
 					if #playerShipNamesFor["AtlantisII"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["AtlantisII"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["AtlantisII"]))
 					end
 				elseif tempPlayerType == "Surkov" then
 					if #playerShipNamesFor["Surkov"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Surkov"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Surkov"]))
 					end
 				elseif tempPlayerType == "Stricken" then
 					if #playerShipNamesFor["Stricken"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Stricken"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Stricken"]))
 					end
 				elseif tempPlayerType == "Redhook" then
 					if #playerShipNamesFor["Redhook"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Redhook"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Redhook"]))
 					end
 				elseif tempPlayerType == "Destroyer III" then
 					if #playerShipNamesFor["DestroyerIII"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["DestroyerIII"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["DestroyerIII"]))
 					end
 				else
 					if #playerShipNamesFor["Leftovers"] > 0 then
-						pobj:setCallSign(tableremoverandom(playerShipNamesFor["Leftovers"]))
+						pobj:setCallSign(tableRemoveRandom(playerShipNamesFor["Leftovers"]))
 					end
 					pobj.shipScore = 24
 					pobj.maxCargo = 5
@@ -10369,6 +10704,1647 @@ function setHumanNames()
 	table.insert(human_names,"Wet Willie")
 end
 
+function stockTemplate(enemyFaction,template)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	return ship
+end
+--------------------------------------------------------------------------------------------
+--	Additional enemy ships with some modifications from the original template parameters  --
+--------------------------------------------------------------------------------------------
+function adderMk3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK4"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Adder MK3")
+	ship:setHullMax(35)		--weaker hull (vs 40)
+	ship:setHull(35)
+	ship:setShieldsMax(15)	--weaker shield (vs 20)
+	ship:setShields(15)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	ship:setRotationMaxSpeed(35)	--faster maneuver (vs 20)
+	local adder_mk3_db = queryScienceDatabase("Ships","Starfighter","Adder MK3")
+	if adder_mk3_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Adder MK3")
+		adder_mk3_db = queryScienceDatabase("Ships","Starfighter","Adder MK3")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK4"),	--base ship database entry
+			adder_mk3_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Adder MK3 is one of the first of the Adder line to meet with some success. A large number of them were made before the manufacturer went through its first bankruptcy. There has been a recent surge of purchases of the Adder MK3 in the secondary market due to its low price and its similarity to subsequent models. Compared to the Adder MK4, the Adder MK3 has weaker shields and hull, but a faster turn speed",
+			{
+				{key = "Small tube 0", value = "20 sec"},	--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		adder_mk3_db:setLongDescription("One of the first of the Adder line to meet with some success. A large number of them were made before the manufacturer went through its first bankruptcy. There has been a recent surge of purchases in the secondary market due to its low price and its similarity to subsequent models")
+		adder_mk3_db:setKeyValue("Class","Starfighter")
+		adder_mk3_db:setKeyValue("Sub-class","Gunship")
+		adder_mk3_db:setKeyValue("Size","30")
+		adder_mk3_db:setKeyValue("Shield","15")
+		adder_mk3_db:setKeyValue("Hull","35")
+		adder_mk3_db:setKeyValue("Move speed","3.6 U/min")
+		adder_mk3_db:setKeyValue("Turn speed","35 deg/sec")
+		adder_mk3_db:setKeyValue("Beam weapon 0:30","2.0 Dmg / 5.0 sec")
+		adder_mk3_db:setKeyValue("Small tube 0","20 sec")
+		adder_mk3_db:setKeyValue("Storage HVLI","2")
+		adder_mk3_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function adderMk7(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK6"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Adder MK7")
+	ship:setShieldsMax(40)	--stronger shields (vs 30)
+	ship:setShields(40)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	30,		0,	 900,	5.0,	2.0)	--narrower (30 vs 35) but longer (900 vs 800) beam
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	local adder_mk7_db = queryScienceDatabase("Ships","Starfighter","Adder MK7")
+	if adder_mk7_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Adder MK7")
+		adder_mk7_db = queryScienceDatabase("Ships","Starfighter","Adder MK7")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK6"),	--base ship database entry
+			adder_mk7_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The release of the Adder Mark 7 sent the manufacturer into a second bankruptcy. They made improvements to the Mark 7 over the Mark 6 like stronger shields and longer beams, but the popularity of their previous models, especially the Mark 5, prevented them from raising the purchase price enough to recoup the development and manufacturing costs of the Mark 7",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		adder_mk7_db:setLongDescription("The release of the Adder Mark 7 sent the manufacturer into a second bankruptcy. They made improvements over the Mark 6 like stronger shields and longer beams, but the popularity of their previous models prevented them from raising the purchase price enough to recoup the development and manufacturing costs of the Mark 7")
+		adder_mk7_db:setKeyValue("Class","Starfighter")
+		adder_mk7_db:setKeyValue("Sub-class","Gunship")
+		adder_mk7_db:setKeyValue("Size","30")
+		adder_mk7_db:setKeyValue("Shield","40")
+		adder_mk7_db:setKeyValue("Hull","50")
+		adder_mk7_db:setKeyValue("Move speed","4.8 U/min")
+		adder_mk7_db:setKeyValue("Turn speed","28.0 deg/sec")
+		adder_mk7_db:setKeyValue("Beam weapon 0:30","2.0 Dmg / 5.0 sec")
+		adder_mk7_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+		adder_mk7_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+		adder_mk7_db:setKeyValue("Beam weapon 180:35","2.0 Dmg / 6.0 sec")
+		adder_mk7_db:setKeyValue("Front small tube","15 sec")
+		adder_mk7_db:setKeyValue("Storage HVLI","8")
+		adder_mk7_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function adderMk8(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Adder MK8")
+	ship:setShieldsMax(50)					--stronger shields (vs 30)
+	ship:setShields(50)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	30,		0,	 900,	5.0,	2.3)	--narrower (30 vs 35) but longer (900 vs 800) and stronger (2.3 vs 2.0) beam
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	ship:setRotationMaxSpeed(30)			--faster maneuver (vs 25)
+	local adder_mk8_db = queryScienceDatabase("Ships","Starfighter","Adder MK8")
+	if adder_mk8_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Adder MK8")
+		adder_mk8_db = queryScienceDatabase("Ships","Starfighter","Adder MK8")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			adder_mk8_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"New management after bankruptcy revisited their most popular Adder Mark 5 model with improvements: stronger shields, longer and stronger beams and a faster turn speed. Thus was born the Adder Mark 8 model. Targeted to the practical but nostalgic buyer who must purchase replacements for their Adder Mark 5 fleet",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		adder_mk8_db:setLongDescription("New management after bankruptcy revisited their most popular Adder Mark 5 model with improvements: stronger shields, longer and stronger beams and a faster turn speed. Thus was born the Adder Mark 8 model. Targeted to the practical but nostalgic buyer who must purchase replacements for their Adder Mark 5 fleet")
+		adder_mk8_db:setKeyValue("Class","Starfighter")
+		adder_mk8_db:setKeyValue("Sub-class","Gunship")
+		adder_mk8_db:setKeyValue("Size","30")
+		adder_mk8_db:setKeyValue("Shield","50")
+		adder_mk8_db:setKeyValue("Hull","50")
+		adder_mk8_db:setKeyValue("Move speed","4.8 U/min")
+		adder_mk8_db:setKeyValue("Turn speed","30.0 deg/sec")
+		adder_mk8_db:setKeyValue("Beam weapon 0:30","2.3 Dmg / 5.0 sec")
+		adder_mk8_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+		adder_mk8_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+		adder_mk8_db:setKeyValue("Small tube 0","15 sec")
+		adder_mk8_db:setKeyValue("Storage HVLI","4")
+		adder_mk8_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function adderMk9(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Adder MK9")
+	ship:setShieldsMax(50)					--stronger shields (vs 30)
+	ship:setShields(50)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	30,		0,	 900,	4.5,	2.5)	--narrower (30 vs 35) but longer (900 vs 800), faster (4.5 vs 5.0) and stronger (2.5 vs 2.0) beam
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	ship:setRotationMaxSpeed(30)			--faster maneuver (vs 25)
+	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
+	ship:setWeaponStorage("Nuke",2)
+	local adder_mk9_db = queryScienceDatabase("Ships","Starfighter","Adder MK9")
+	if adder_mk9_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Adder MK9")
+		adder_mk9_db = queryScienceDatabase("Ships","Starfighter","Adder MK9")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			adder_mk9_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Hot on the heels of the Adder Mark 8 comes the Adder Mark 9. Still using the Adder Mark 5 as a base, the designers provided stronger shields, stronger, longer and faster beams, faster turn speed and for that extra special touch, two nuclear missiles. As their ad says, 'You'll feel better in an Adder Mark 9.'",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		adder_mk9_db:setLongDescription("Hot on the heels of the Adder Mark 8 comes the Adder Mark 9. Still using the Adder Mark 5 as a base, the designers provided stronger shields, stronger, longer and faster beams, faster turn speed and for that extra special touch, two nuclear missiles. As their ad says, 'You'll feel better in an Adder Mark 9.'")
+		adder_mk9_db:setKeyValue("Class","Starfighter")
+		adder_mk9_db:setKeyValue("Sub-class","Gunship")
+		adder_mk9_db:setKeyValue("Size","30")
+		adder_mk9_db:setKeyValue("Shield","50")
+		adder_mk9_db:setKeyValue("Hull","50")
+		adder_mk9_db:setKeyValue("Move speed","4.8 U/min")
+		adder_mk9_db:setKeyValue("Turn speed","30.0 deg/sec")
+		adder_mk8_db:setKeyValue("Beam weapon 0:30","2.5 Dmg / 4.5 sec")
+		adder_mk8_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+		adder_mk8_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+		adder_mk9_db:setKeyValue("Front small tube","15 sec")
+		adder_mk9_db:setKeyValue("Storage HVLI","4")
+		adder_mk9_db:setKeyValue("Storage Nuke","2")
+		adder_mk9_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function phobosR2(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Phobos R2")
+	ship:setWeaponTubeCount(1)			--one tube (vs 2)
+	ship:setWeaponTubeDirection(0,0)	
+	ship:setImpulseMaxSpeed(55)			--slower impulse (vs 60)
+	ship:setRotationMaxSpeed(15)		--faster maneuver (vs 10)
+	local phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
+	if phobos_r2_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Phobos R2")
+		phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			phobos_r2_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube",
+			{
+				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		phobos_r2_db:setLongDescription("The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube")
+		phobos_r2_db:setKeyValue("Class","Frigate")
+		phobos_r2_db:setKeyValue("Sub-class","Cruiser")
+		phobos_r2_db:setKeyValue("Size","80")
+		phobos_r2_db:setKeyValue("Shield","50/40")
+		phobos_r2_db:setKeyValue("Hull","70")
+		phobos_r2_db:setKeyValue("Move speed","3.3 U/min")
+		phobos_r2_db:setKeyValue("Turn speed","15.0 deg/sec")
+		phobos_r2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
+		phobos_r2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
+		phobos_r2_db:setKeyValue("Tube 0","60 sec")
+		phobos_r2_db:setKeyValue("Storage Homing","6")
+		phobos_r2_db:setKeyValue("Storage HVLI","20")
+		phobos_r2_db:setImage("radar_cruiser.png")
+		--]]
+	end
+	return ship
+end
+function hornetMV52(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("MV52 Hornet")
+	ship:setBeamWeapon(0, 30, 0, 1000.0, 4.0, 3.0)	--longer and stronger beam (vs 700 & 3)
+	ship:setRotationMaxSpeed(31)					--faster maneuver (vs 30)
+	ship:setImpulseMaxSpeed(130)					--faster impulse (vs 120)
+	local hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+	if hornet_mv52_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("MV52 Hornet")
+		hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+			hornet_mv52_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52",
+			nil,
+			nil
+		)
+		--[[
+		hornet_mv52_db:setLongDescription("The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52")
+		hornet_mv52_db:setKeyValue("Class","Starfighter")
+		hornet_mv52_db:setKeyValue("Sub-class","Interceptor")
+		hornet_mv52_db:setKeyValue("Size","30")
+		hornet_mv52_db:setKeyValue("Shield","20")
+		hornet_mv52_db:setKeyValue("Hull","30")
+		hornet_mv52_db:setKeyValue("Move speed","7.8 U/min")
+		hornet_mv52_db:setKeyValue("Turn speed","31.0 deg/sec")
+		hornet_mv52_db:setKeyValue("Beam weapon 0:30","3.0 Dmg / 4.0 sec")
+		hornet_mv52_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function nirvanaR3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Nirvana R5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Nirvana R3")
+	ship:setBeamWeapon(0, 90, -15, 1000.0, 3, 1)	--shorter beams (vs 1200)
+	ship:setBeamWeapon(1, 90,  15, 1000.0, 3, 1)	--shorter beams
+	ship:setBeamWeapon(2, 90, -50, 1000.0, 3, 1)	--shorter beams
+	ship:setBeamWeapon(3, 90,  50, 1000.0, 3, 1)	--shorter beams
+	ship:setHullMax(60)								--weaker hull (vs 70)
+	ship:setHull(60)
+	ship:setShields(40,30)							--weaker shields (vs 50,40)
+	ship:setImpulseMaxSpeed(65)						--slower impulse (vs 70)
+	local nirvana_r3_db = queryScienceDatabase("Ships","Frigate","Nirvana R3")
+	if nirvana_r3_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Nirvana R3")
+		nirvana_r3_db = queryScienceDatabase("Ships","Frigate","Nirvana R3")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Nirvana R5"),	--base ship database entry
+			nirvana_r3_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"One of the earliest mass produced Nirvana models, the Nirvana R3 is designed to be used against fighters. It's got several fast, low damage, point defense beam weapons. Compared to the later, more common Nirvana R5, it has shorter beams, weaker shields and hull and a slower impulse drive.",
+			nil,
+			nil
+		)
+	end
+	return ship
+end
+function fiendG3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Fiend G3")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)
+	local fiend_g3_db = queryScienceDatabase("Ships","Frigate","Fiend G3")
+	if fiend_g3_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Fiend G3")
+		fiend_g3_db = queryScienceDatabase("Ships","Frigate","Fiend G3")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Gunship"),	--base ship database entry
+			fiend_g3_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Fiend G3 was the first model produced by Conversions R Us. They got a good deal on a number of used Gunships. They added a cheap jump drive to the Gunship and viola! they made the Fiend G3. Like the Gunship, it has a homing missile tube and beams to readily take down weaker ships. With the jump drive, it becomes quite a bit more dangerous than the stock Gunship.",
+			{
+				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 35 U"		--jump range
+		)
+		--[[
+		fiend_g3_db:setLongDescription("The Fiend G3 was the first model produced by Conversions R Us. They got a good deal on a number of used Gunships. They added a cheap jump drive to the Gunship and viola! they made the Fiend G3. Like the Gunship, it has a homing missile tube and beams to readily take down weaker ships. With the jump drive, it becomes quite a bit more dangerous than the stock Gunship.")
+		fiend_g3_db:setKeyValue("Class","Frigate")
+		fiend_g3_db:setKeyValue("Sub-class","Gunship")
+		fiend_g3_db:setKeyValue("Size","200")
+		fiend_g3_db:setKeyValue("Shield","100/80/80")
+		fiend_g3_db:setKeyValue("Hull","100")
+		fiend_g3_db:setKeyValue("Move speed","3.6 U/min")
+		fiend_g3_db:setKeyValue("Turn speed","5.0 deg/sec")
+		fiend_g3_db:setKeyValue("Jump Range","5 - 35 U")
+		fiend_g3_db:setKeyValue("Beam weapon -15:50","8.0 Dmg / 6.0 sec")
+		fiend_g3_db:setKeyValue("Beam weapon 15:50","8.0 Dmg / 6.0 sec")
+		fiend_g3_db:setKeyValue("Tube 0","8 sec")
+		fiend_g3_db:setKeyValue("Storage Homing","4")
+		fiend_g3_db:setImage("radar_adv_gunship.png")
+		--]]
+	end
+	return ship
+end
+function fiendG4(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Fiend G4")
+	ship:setWarpDrive(true)
+	ship:setWarpSpeed(800)
+	local fiend_g4_db = queryScienceDatabase("Ships","Frigate","Fiend G4")
+	if fiend_g4_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Fiend G4")
+		fiend_g4_db = queryScienceDatabase("Ships","Frigate","Fiend G4")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Gunship"),	--base ship database entry
+			fiend_g4_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Fiend G4 was among the first models produced by Conversions R Us. They got a good deal on a number of used Gunships. They added a cheap warp drive to the Gunship and viola! they made the Fiend G4. Like the Gunship, it has a homing missile tube and beams to readily take down weaker ships. With the warp drive, it becomes quite a bit more dangerous than the stock Gunship.",
+			{
+				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+		--[[
+		fiend_g4_db:setLongDescription("The Fiend G4 was among the first models produced by Conversions R Us. They got a good deal on a number of used Gunships. They added a cheap warp drive to the Gunship and viola! they made the Fiend G4. Like the Gunship, it has a homing missile tube and beams to readily take down weaker ships. With the warp drive, it becomes quite a bit more dangerous than the stock Gunship.")
+		fiend_g4_db:setKeyValue("Class","Frigate")
+		fiend_g4_db:setKeyValue("Sub-class","Gunship")
+		fiend_g4_db:setKeyValue("Size","200")
+		fiend_g4_db:setKeyValue("Shield","100/80/80")
+		fiend_g4_db:setKeyValue("Hull","100")
+		fiend_g4_db:setKeyValue("Move speed","3.6 U/min")
+		fiend_g4_db:setKeyValue("Turn speed","5.0 deg/sec")
+		fiend_g4_db:setKeyValue("Warp Speed","48.0 U/min")
+		fiend_g4_db:setKeyValue("Beam weapon -15:50","8.0 Dmg / 6.0 sec")
+		fiend_g4_db:setKeyValue("Beam weapon 15:50","8.0 Dmg / 6.0 sec")
+		fiend_g4_db:setKeyValue("Tube 0","8 sec")
+		fiend_g4_db:setKeyValue("Storage Homing","4")
+		fiend_g4_db:setImage("radar_adv_gunship.png")
+		--]]
+	end
+	return ship
+end
+function fiendG5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Fiend G5")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)
+	local fiend_g5_db = queryScienceDatabase("Ships","Frigate","Fiend G5")
+	if fiend_g5_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Fiend G5")
+		fiend_g5_db = queryScienceDatabase("Ships","Frigate","Fiend G5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Gunship"),	--base ship database entry
+			fiend_g5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"With the success of the Fiend G3 and G4 models, Conversions R Us continued their streak with the Fiend G5. They acquired some used Advanced Gunships and added cheap jump drives to them and made the Fiend G5. Like the Advanced Gunship, it has two homing missile tubes and beams to readily take down weaker ships. The jump drive makes it all the more dangerous.",
+			{
+				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
+				{key = " Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 35 U"		--jump range
+		)
+		--[[
+		fiend_g5_db:setLongDescription("With the success of the Fiend G3 and G4 models, Conversions R Us continued their streak with the Fiend G5. They acquired some used Advanced Gunships and added cheap jump drives to them and made the Fiend G5. Like the Advanced Gunship, it has two homing missile tubes and beams to readily take down weaker ships. The jump drive makes it all the more dangerous.")
+		fiend_g5_db:setKeyValue("Class","Frigate")
+		fiend_g5_db:setKeyValue("Sub-class","Gunship")
+		fiend_g5_db:setKeyValue("Size","200")
+		fiend_g5_db:setKeyValue("Shield","100/80/80")
+		fiend_g5_db:setKeyValue("Hull","100")
+		fiend_g5_db:setKeyValue("Move speed","3.6 U/min")
+		fiend_g5_db:setKeyValue("Turn speed","5.0 deg/sec")
+		fiend_g5_db:setKeyValue("Jump Range","5 - 35 U")
+		fiend_g5_db:setKeyValue("Beam weapon -15:50","8.0 Dmg / 6.0 sec")
+		fiend_g5_db:setKeyValue("Beam weapon 15:50","8.0 Dmg / 6.0 sec")
+		fiend_g5_db:setKeyValue("Tube 0","8 sec")
+		fiend_g5_db:setKeyValue(" Tube 0","8 sec")
+		fiend_g5_db:setKeyValue("Storage Homing","4")
+		fiend_g5_db:setImage("radar_adv_gunship.png")
+		--]]
+	end
+	return ship
+end
+function fiendG6(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Fiend G6")
+	ship:setWarpDrive(true)
+	ship:setWarpSpeed(800)
+	local fiend_g6_db = queryScienceDatabase("Ships","Frigate","Fiend G6")
+	if fiend_g6_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Fiend G6")
+		fiend_g6_db = queryScienceDatabase("Ships","Frigate","Fiend G6")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Gunship"),	--base ship database entry
+			fiend_g6_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"With the success of the Fiend G3 and G4 models, Conversions R Us continued their streak with the Fiend G6. They acquired some used Advanced Gunships and added cheap warp drives to them and made the Fiend G6. Like the Advanced Gunship, it has two homing missile tubes and beams to readily take down weaker ships. The warp drive makes it all the more dangerous.",
+			{
+				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
+				{key = " Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+		--[[
+		fiend_g6_db:setLongDescription("With the success of the Fiend G3 and G4 models, Conversions R Us continued their streak with the Fiend G6. They acquired some used Advanced Gunships and added cheap warp drives to them and made the Fiend G6. Like the Advanced Gunship, it has two homing missile tubes and beams to readily take down weaker ships. The warp drive makes it all the more dangerous.")
+		fiend_g6_db:setKeyValue("Class","Frigate")
+		fiend_g6_db:setKeyValue("Sub-class","Gunship")
+		fiend_g6_db:setKeyValue("Size","200")
+		fiend_g6_db:setKeyValue("Shield","100/80/80")
+		fiend_g6_db:setKeyValue("Hull","100")
+		fiend_g6_db:setKeyValue("Move speed","3.6 U/min")
+		fiend_g6_db:setKeyValue("Turn speed","5.0 deg/sec")
+		fiend_g6_db:setKeyValue("Warp Speed","48.0 U/min")
+		fiend_g6_db:setKeyValue("Beam weapon -15:50","8.0 Dmg / 6.0 sec")
+		fiend_g6_db:setKeyValue("Beam weapon 15:50","8.0 Dmg / 6.0 sec")
+		fiend_g6_db:setKeyValue("Tube 0","8 sec")
+		fiend_g6_db:setKeyValue(" Tube 0","8 sec")
+		fiend_g6_db:setKeyValue("Storage Homing","4")
+		fiend_g6_db:setImage("radar_adv_gunship.png")
+		--]]
+	end
+	return ship
+end
+function k2fighter(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	ship:setTypeName("K2 Fighter")
+	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 6)	--beams cycle faster (vs 4.0)
+	ship:setHullMax(65)								--weaker hull (vs 70)
+	ship:setHull(65)
+	local k2_fighter_db = queryScienceDatabase("Ships","No Class","K2 Fighter")
+	if k2_fighter_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("K2 Fighter")
+		k2_fighter_db = queryScienceDatabase("Ships","No Class","K2 Fighter")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
+			k2_fighter_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.",
+			nil,
+			nil		--jump range
+		)
+		--[[
+		k2_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.")
+		k2_fighter_db:setKeyValue("Class","No Class")
+		k2_fighter_db:setKeyValue("Sub-class","No Sub-Class")
+		k2_fighter_db:setKeyValue("Size","180")
+		k2_fighter_db:setKeyValue("Hull","65")
+		k2_fighter_db:setKeyValue("Move speed","8.4 U/min")
+		k2_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
+		k2_fighter_db:setKeyValue("Beam weapon 0:60","6.0 Dmg / 2.5 sec")
+		k2_fighter_db:setImage("radar_ktlitan_fighter.png")
+		--]]
+	end
+	return ship
+end	
+function k3fighter(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	ship:setTypeName("K3 Fighter")
+	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 9)	--beams cycle faster and damage more (vs 4.0 & 6)
+	ship:setHullMax(60)								--weaker hull (vs 70)
+	ship:setHull(60)
+	local k3_fighter_db = queryScienceDatabase("Ships","No Class","K3 Fighter")
+	if k3_fighter_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("K3 Fighter")
+		k3_fighter_db = queryScienceDatabase("Ships","No Class","K3 Fighter")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
+			k3_fighter_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that are stronger and that cycle faster, but the hull is weaker.",
+			nil,
+			nil		--jump range
+		)
+		--[[
+		k3_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is weaker.")
+		k3_fighter_db:setKeyValue("Class","No Class")
+		k3_fighter_db:setKeyValue("Sub-class","No Sub-Class")
+		k3_fighter_db:setKeyValue("Size","180")
+		k3_fighter_db:setKeyValue("Hull","60")
+		k3_fighter_db:setKeyValue("Move speed","8.4 U/min")
+		k3_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
+		k3_fighter_db:setKeyValue("Beam weapon 0:60","9.0 Dmg / 2.5 sec")
+		k3_fighter_db:setImage("radar_ktlitan_fighter.png")
+		--]]
+	end
+	return ship
+end	
+function stalkerQ5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Stalker Q5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	local stalker_q5_db = queryScienceDatabase("Ships","Frigate","Stalker Q5")
+	if stalker_q5_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Stalker Q5")
+		stalker_q5_db = queryScienceDatabase("Ships","Frigate","Stalker Q5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Stalker Q7"),	--base ship database entry
+			stalker_q5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed",
+			nil,
+			nil		--jump range
+		)
+		--[[
+		stalker_q5_db:setLongDescription("The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed")
+		stalker_q5_db:setKeyValue("Class","Frigate")
+		stalker_q5_db:setKeyValue("Sub-class","Cruiser: Strike Ship")
+		stalker_q5_db:setKeyValue("Size","80")
+		stalker_q5_db:setKeyValue("Shield","50/50")
+		stalker_q5_db:setKeyValue("Hull","45")
+		stalker_q5_db:setKeyValue("Move speed","4.2 U/min")
+		stalker_q5_db:setKeyValue("Turn speed","15.0 deg/sec")
+		stalker_q5_db:setKeyValue("Warp Speed","42.0 U/min")
+		stalker_q5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
+		stalker_q5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
+		stalker_q5_db:setImage("radar_cruiser.png")
+		--]]
+	end
+	return ship
+end
+function stalkerR5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Stalker R5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	local stalker_r5_db = queryScienceDatabase("Ships","Frigate","Stalker R5")
+	if stalker_r5_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Stalker R5")
+		stalker_r5_db = queryScienceDatabase("Ships","Frigate","Stalker R5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Stalker R7"),	--base ship database entry
+			stalker_r5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed",
+			nil,
+			nil		--jump range
+		)
+		--[[
+		stalker_r5_db:setLongDescription("The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed")
+		stalker_r5_db:setKeyValue("Class","Frigate")
+		stalker_r5_db:setKeyValue("Sub-class","Cruiser: Strike Ship")
+		stalker_r5_db:setKeyValue("Size","80")
+		stalker_r5_db:setKeyValue("Shield","50/50")
+		stalker_r5_db:setKeyValue("Hull","45")
+		stalker_r5_db:setKeyValue("Move speed","4.2 U/min")
+		stalker_r5_db:setKeyValue("Turn speed","15.0 deg/sec")
+		stalker_r5_db:setKeyValue("Jump Range","5 - 50 U")
+		stalker_r5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
+		stalker_r5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
+		stalker_r5_db:setImage("radar_cruiser.png")
+		--]]
+	end
+	return ship
+end
+function waddle5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Waddle 5")
+	ship:setWarpDrive(true)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	local waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+	if waddle_5_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Waddle 5")
+		waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			waddle_5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+		--[[
+		waddle_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5")
+		waddle_5_db:setKeyValue("Class","Starfighter")
+		waddle_5_db:setKeyValue("Sub-class","Gunship")
+		waddle_5_db:setKeyValue("Size","80")
+		waddle_5_db:setKeyValue("Shield","30")
+		waddle_5_db:setKeyValue("Hull","50")
+		waddle_5_db:setKeyValue("Move speed","4.8 U/min")
+		waddle_5_db:setKeyValue("Turn speed","28.0 deg/sec")
+		waddle_5_db:setKeyValue("Warp Speed","60.0 U/min")
+		waddle_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
+		waddle_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+		waddle_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+		waddle_5_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function jade5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Jade 5")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	local jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+	if jade_5_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Jade 5")
+		jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			jade_5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 35 U"		--jump range
+		)
+		--[[
+		jade_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5")
+		jade_5_db:setKeyValue("Class","Starfighter")
+		jade_5_db:setKeyValue("Sub-class","Gunship")
+		jade_5_db:setKeyValue("Size","80")
+		jade_5_db:setKeyValue("Shield","30")
+		jade_5_db:setKeyValue("Hull","50")
+		jade_5_db:setKeyValue("Move speed","4.8 U/min")
+		jade_5_db:setKeyValue("Turn speed","28.0 deg/sec")
+		jade_5_db:setKeyValue("Jump Range","5 - 35 U")
+		jade_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
+		jade_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+		jade_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+		jade_5_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function droneLite(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Lite Drone")
+	ship:setHullMax(20)					--weaker hull (vs 30)
+	ship:setHull(20)
+	ship:setImpulseMaxSpeed(130)		--faster impulse (vs 120)
+	ship:setRotationMaxSpeed(20)		--faster maneuver (vs 10)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	local drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
+	if drone_lite_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Lite Drone")
+		drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+			drone_lite_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed",
+			nil,
+			nil
+		)
+		--[[
+		drone_lite_db:setLongDescription("The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed")
+		drone_lite_db:setKeyValue("Class","No Class")
+		drone_lite_db:setKeyValue("Sub-class","No Sub-Class")
+		drone_lite_db:setKeyValue("Size","150")
+		drone_lite_db:setKeyValue("Hull","20")
+		drone_lite_db:setKeyValue("Move speed","7.8 U/min")
+		drone_lite_db:setKeyValue("Turn speed","20 deg/sec")
+		drone_lite_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
+		drone_lite_db:setImage("radar_ktlitan_drone.png")
+		--]]
+	end
+	return ship
+end
+function droneHeavy(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Heavy Drone")
+	ship:setHullMax(40)					--stronger hull (vs 30)
+	ship:setHull(40)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,8)	--stronger (vs 6) beam
+	local drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
+	if drone_heavy_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Heavy Drone")
+		drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+			drone_heavy_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower",
+			nil,
+			nil
+		)
+		--[[
+		drone_heavy_db:setLongDescription("The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower")
+		drone_heavy_db:setKeyValue("Class","No Class")
+		drone_heavy_db:setKeyValue("Sub-class","No Sub-Class")
+		drone_heavy_db:setKeyValue("Size","150")
+		drone_heavy_db:setKeyValue("Hull","40")
+		drone_heavy_db:setKeyValue("Move speed","6.6 U/min")
+		drone_heavy_db:setKeyValue("Turn speed","10 deg/sec")
+		drone_heavy_db:setKeyValue("Beam weapon 0:40","8.0 Dmg / 4.0 sec")
+		drone_heavy_db:setImage("radar_ktlitan_drone.png")
+		--]]
+	end
+	return ship
+end
+function droneJacket(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Jacket Drone")
+	ship:setShieldsMax(20)				--stronger shields (vs none)
+	ship:setShields(20)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	local drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
+	if drone_jacket_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Jacket Drone")
+		drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+			drone_jacket_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield",
+			nil,
+			nil
+		)
+		--[[
+		drone_jacket_db:setLongDescription("The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield")
+		drone_jacket_db:setKeyValue("Class","No Class")
+		drone_jacket_db:setKeyValue("Sub-class","No Sub-Class")
+		drone_jacket_db:setKeyValue("Size","150")
+		drone_jacket_db:setKeyValue("Shield","20")
+		drone_jacket_db:setKeyValue("Hull","40")
+		drone_jacket_db:setKeyValue("Move speed","6.6 U/min")
+		drone_jacket_db:setKeyValue("Turn speed","10 deg/sec")
+		drone_jacket_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
+		drone_jacket_db:setImage("radar_ktlitan_drone.png")
+		--]]
+	end
+	return ship
+end
+function elaraP2(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:setTypeName("Elara P2")
+	ship:setWarpDrive(true)			--warp drive (vs none)
+	ship:setWarpSpeed(800)
+	ship:setShieldsMax(70,40)		--stronger front shield (vs 50,40)
+	ship:setShields(70,40)
+	local elara_p2_db = queryScienceDatabase("Ships","Frigate","Elara P2")
+	if elara_p2_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Elara P2")
+		elara_p2_db = queryScienceDatabase("Ships","Frigate","Elara P2")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			elara_p2_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Inspired by the Phobos T3, the Elara P2 is nearly identical. With the addition of a warp drive and stronger front shields, the Elara P2 poses a greater threat than the Phobos",
+			{
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		elara_p2_db:setLongDescription("Inspired by the Phobos T3, the Elara P2 is nearly identical. With the addition of a warp drive and stronger front shields, the Elara P2 poses a greater threat than the Phobos")
+		elara_p2_db:setKeyValue("Class","Frigate")
+		elara_p2_db:setKeyValue("Sub-class","Cruiser")
+		elara_p2_db:setKeyValue("Size","80")
+		elara_p2_db:setKeyValue("Shield","70/40")
+		elara_p2_db:setKeyValue("Hull","70")
+		elara_p2_db:setKeyValue("Move speed","3.6 U/min")
+		elara_p2_db:setKeyValue("Turn speed","10.0 deg/sec")
+		elara_p2_db:setKeyValue("Warp Speed","48.0 U/min")
+		elara_p2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
+		elara_p2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
+		elara_p2_db:setKeyValue("Tube -1","60 sec")
+		elara_p2_db:setKeyValue("Tube 1","60 sec")
+		elara_p2_db:setKeyValue("Storage Homing","6")
+		elara_p2_db:setKeyValue("Storage HVLI","20")
+		elara_p2_db:setImage("radar_cruiser.png")
+		--]]
+	end
+	return ship
+end
+function wzLindworm(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming()
+	ship:setTypeName("WZ-Lindworm")
+	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
+	ship:setWeaponStorage("Nuke",2)
+	ship:setWeaponStorageMax("Homing",4)	--more homing (vs 1)
+	ship:setWeaponStorage("Homing",4)
+	ship:setWeaponStorageMax("HVLI",12)		--more HVLI (vs 6)
+	ship:setWeaponStorage("HVLI",12)
+	ship:setRotationMaxSpeed(12)			--slower maneuver (vs 15)
+	ship:setHullMax(45)						--weaker hull (vs 50)
+	ship:setHull(45)
+	local wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
+	if wz_lindworm_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("WZ-Lindworm")
+		wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","WX-Lindworm"),	--base ship database entry
+			wz_lindworm_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		wz_lindworm_db:setLongDescription("The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.")
+		wz_lindworm_db:setKeyValue("Class","Starfighter")
+		wz_lindworm_db:setKeyValue("Sub-class","Bomber")
+		wz_lindworm_db:setKeyValue("Size","30")
+		wz_lindworm_db:setKeyValue("Shield","20")
+		wz_lindworm_db:setKeyValue("Hull","45")
+		wz_lindworm_db:setKeyValue("Move speed","3.0 U/min")
+		wz_lindworm_db:setKeyValue("Turn speed","12 deg/sec")
+		wz_lindworm_db:setKeyValue("Small tube 0","15 sec")
+		wz_lindworm_db:setKeyValue("Small tube 1","15 sec")
+		wz_lindworm_db:setKeyValue("Small tube -1","15 sec")
+		wz_lindworm_db:setKeyValue("Storage Homing","4")
+		wz_lindworm_db:setKeyValue("Storage Nuke","2")
+		wz_lindworm_db:setKeyValue("Storage HVLI","12")
+		wz_lindworm_db:setImage("radar_fighter.png")
+		--]]
+	end
+	return ship
+end
+function tempest(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Tempest")
+	ship:setWeaponTubeCount(10)						--four more tubes (vs 6)
+	ship:setWeaponTubeDirection(0, -88)				--5 per side
+	ship:setWeaponTubeDirection(1, -89)				--slight angle spread
+	ship:setWeaponTubeDirection(3,  88)				--3 for HVLI each side
+	ship:setWeaponTubeDirection(4,  89)				--2 for homing and nuke each side
+	ship:setWeaponTubeDirection(6, -91)				
+	ship:setWeaponTubeDirection(7, -92)				
+	ship:setWeaponTubeDirection(8,  91)				
+	ship:setWeaponTubeDirection(9,  92)				
+	ship:setWeaponTubeExclusiveFor(7,"HVLI")
+	ship:setWeaponTubeExclusiveFor(9,"HVLI")
+	ship:setWeaponStorageMax("Homing",16)			--more (vs 6)
+	ship:setWeaponStorage("Homing", 16)				
+	ship:setWeaponStorageMax("Nuke",8)				--more (vs 0)
+	ship:setWeaponStorage("Nuke", 8)				
+	ship:setWeaponStorageMax("HVLI",34)				--more (vs 20)
+	ship:setWeaponStorage("HVLI", 34)
+	local tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
+	if tempest_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Tempest")
+		tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Piranha F12"),	--base ship database entry
+			tempest_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!",
+			{
+				{key = "Large tube -88", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -89", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube -90", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Large tube 88", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 89", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube 90", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -91", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Tube -92", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		tempest_db:setLongDescription("Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!")
+		tempest_db:setKeyValue("Class","Frigate")
+		tempest_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+		tempest_db:setKeyValue("Size","80")
+		tempest_db:setKeyValue("Shield","30/30")
+		tempest_db:setKeyValue("Hull","70")
+		tempest_db:setKeyValue("Move speed","2.4 U/min")
+		tempest_db:setKeyValue("Turn speed","6.0 deg/sec")
+		tempest_db:setKeyValue("Large Tube -88","15 sec")
+		tempest_db:setKeyValue("Tube -89","15 sec")
+		tempest_db:setKeyValue("Large Tube -90","15 sec")
+		tempest_db:setKeyValue("Large Tube 88","15 sec")
+		tempest_db:setKeyValue("Tube 89","15 sec")
+		tempest_db:setKeyValue("Large Tube 90","15 sec")
+		tempest_db:setKeyValue("Tube -91","15 sec")
+		tempest_db:setKeyValue("Tube -92","15 sec")
+		tempest_db:setKeyValue("Tube 91","15 sec")
+		tempest_db:setKeyValue("Tube 92","15 sec")
+		tempest_db:setKeyValue("Storage Homing","16")
+		tempest_db:setKeyValue("Storage Nuke","8")
+		tempest_db:setKeyValue("Storage HVLI","34")
+		tempest_db:setImage("radar_piranha.png")
+		--]]
+	end
+	return ship
+end
+function enforcer(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Enforcer")
+	ship:setRadarTrace("radar_ktlitan_destroyer.png")			--different radar trace
+	ship:setWarpDrive(true)										--warp (vs none)
+	ship:setWarpSpeed(600)
+	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
+	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 15)
+	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
+	ship:setShields(200,100,100)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	30,	  -15,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
+	ship:setBeamWeapon(1,	30,	   15,	1500,		6,		10)
+	ship:setBeamWeapon(2,	 0,	    0,	   0,		0,		 0)	--fewer (vs 4)
+	ship:setBeamWeapon(3,	 0,	    0,	   0,		0,		 0)
+	ship:setWeaponTubeCount(3)									--more (vs 0)
+	ship:setTubeSize(0,"large")									--large (vs normal)
+	ship:setWeaponTubeDirection(1,-30)				
+	ship:setWeaponTubeDirection(2, 30)				
+	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
+	ship:setWeaponStorage("Homing", 18)
+	local enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
+	if enforcer_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Enforcer")
+		enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+			enforcer_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams.",
+			{
+				{key = "Large tube 0", value = "20 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -30", value = "20 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 30", value = "20 sec"},		--torpedo tube direction and load speed
+			},
+			nil
+		)
+		--[[
+		enforcer_db:setLongDescription("The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and stengthened front beams.")
+		enforcer_db:setKeyValue("Class","Frigate")
+		enforcer_db:setKeyValue("Sub-class","High Punch")
+		enforcer_db:setKeyValue("Size","200")
+		enforcer_db:setKeyValue("Shield","200/100/100")
+		enforcer_db:setKeyValue("Hull","100")
+		enforcer_db:setKeyValue("Move speed","6.0 U/min")
+		enforcer_db:setKeyValue("Turn speed","20.0 deg/sec")
+		enforcer_db:setKeyValue("Warp Speed","36.0 U/min")
+		enforcer_db:setKeyValue("Beam weapon -15:30","10.0 Dmg / 6.0 sec")
+		enforcer_db:setKeyValue("Beam weapon 15:30","10.0 Dmg / 6.0 sec")
+		enforcer_db:setKeyValue("Large Tube 0","20 sec")
+		enforcer_db:setKeyValue("Tube -30","20 sec")
+		enforcer_db:setKeyValue("Tube 30","20 sec")
+		enforcer_db:setKeyValue("Storage Homing","18")
+		--]]
+		enforcer_db:setImage("radar_ktlitan_destroyer.png")		--override default radar image
+	end
+	return ship		
+end
+function predator(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Predator")
+	ship:setShieldsMax(100,100)									--stronger shields (vs 30,30)
+	ship:setShields(100,100)					
+	ship:setHullMax(80)											--stronger hull (vs 70)
+	ship:setHull(80)
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 40)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 6)
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)			
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	    0,	1000,		6,		 4)	--more (vs 0)
+	ship:setBeamWeapon(1,	90,	  180,	1000,		6,		 4)	
+	ship:setWeaponTubeCount(8)									--more (vs 3)
+	ship:setWeaponTubeDirection(0,-60)				
+	ship:setWeaponTubeDirection(1,-90)				
+	ship:setWeaponTubeDirection(2,-90)				
+	ship:setWeaponTubeDirection(3, 60)				
+	ship:setWeaponTubeDirection(4, 90)				
+	ship:setWeaponTubeDirection(5, 90)				
+	ship:setWeaponTubeDirection(6,-120)				
+	ship:setWeaponTubeDirection(7, 120)				
+	ship:setWeaponTubeExclusiveFor(0,"Homing")
+	ship:setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setWeaponTubeExclusiveFor(2,"Homing")
+	ship:setWeaponTubeExclusiveFor(3,"Homing")
+	ship:setWeaponTubeExclusiveFor(4,"Homing")
+	ship:setWeaponTubeExclusiveFor(5,"Homing")
+	ship:setWeaponTubeExclusiveFor(6,"Homing")
+	ship:setWeaponTubeExclusiveFor(7,"Homing")
+	ship:setWeaponStorageMax("Homing",32)						--more (vs 5)
+	ship:setWeaponStorage("Homing", 32)		
+	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
+	ship:setWeaponStorage("HVLI", 0)
+	ship:setRadarTrace("radar_missile_cruiser.png")				--different radar trace
+	local predator_db = queryScienceDatabase("Ships","Frigate","Predator")
+	if predator_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Predator")
+		predator_db = queryScienceDatabase("Ships","Frigate","Predator")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Piranha F8"),	--base ship database entry
+			predator_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.",
+			{
+				{key = "Large tube -60", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -90", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Large tube 60", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 90", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -120", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 120", value = "12 sec"},		--torpedo tube direction and load speed
+			},
+			"5 - 35 U"		--jump range
+		)
+		--[[
+		predator_db:setLongDescription("The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.")
+		predator_db:setKeyValue("Class","Frigate")
+		predator_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+		predator_db:setKeyValue("Size","80")
+		predator_db:setKeyValue("Shield","100/100")
+		predator_db:setKeyValue("Hull","80")
+		predator_db:setKeyValue("Move speed","3.9 U/min")
+		predator_db:setKeyValue("Turn speed","15.0 deg/sec")
+		predator_db:setKeyValue("Jump Range","5 - 35 U")
+		predator_db:setKeyValue("Beam weapon 0:90","4.0 Dmg / 6.0 sec")
+		predator_db:setKeyValue("Beam weapon 180:90","4.0 Dmg / 6.0 sec")
+		predator_db:setKeyValue("Large Tube -60","12 sec")
+		predator_db:setKeyValue("Tube -90","12 sec")
+		predator_db:setKeyValue("Large Tube -90","12 sec")
+		predator_db:setKeyValue("Large Tube 60","12 sec")
+		predator_db:setKeyValue("Tube 90","12 sec")
+		predator_db:setKeyValue("Large Tube 90","12 sec")
+		predator_db:setKeyValue("Tube -120","12 sec")
+		predator_db:setKeyValue("Tube 120","12 sec")
+		predator_db:setKeyValue("Storage Homing","32")
+		--]]
+		predator_db:setImage("radar_missile_cruiser.png")		--override default radar image
+	end
+	return ship		
+end
+function atlantisY42(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Atlantis Y42")
+	ship:setShieldsMax(300,200,300,200)							--stronger shields (vs 200,200,200,200)
+	ship:setShields(300,200,300,200)					
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 3.5)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(2,	80,	  190,	1500,		6,		 8)	--narrower (vs 100)
+	ship:setBeamWeapon(3,	80,	  170,	1500,		6,		 8)	--extra (vs 3 beams)
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)
+	local atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
+	if atlantis_y42_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		corvette_db:addEntry("Atlantis Y42")
+		atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
+			atlantis_y42_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock",
+			{
+				{key = "Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = " Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 50 U"		--jump range
+		)
+		--[[
+		atlantis_y42_db:setLongDescription("The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock")
+		atlantis_y42_db:setKeyValue("Class","Corvette")
+		atlantis_y42_db:setKeyValue("Sub-class","Destroyer")
+		atlantis_y42_db:setKeyValue("Size","200")
+		atlantis_y42_db:setKeyValue("Shield","300/200/300/200")
+		atlantis_y42_db:setKeyValue("Hull","100")
+		atlantis_y42_db:setKeyValue("Move speed","3.9 U/min")
+		atlantis_y42_db:setKeyValue("Turn speed","15.0 deg/sec")
+		atlantis_y42_db:setKeyValue("Jump Range","5 - 50 U")
+		atlantis_y42_db:setKeyValue("Beam weapon -20:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Beam weapon 20:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Beam weapon 190:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Beam weapon 170:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Tube -90","10 sec")
+		atlantis_y42_db:setKeyValue(" Tube -90","10 sec")
+		atlantis_y42_db:setKeyValue("Tube 90","10 sec")
+		atlantis_y42_db:setKeyValue(" Tube 90","10 sec")
+		atlantis_y42_db:setKeyValue("Storage Homing","4")
+		atlantis_y42_db:setKeyValue("Storage HVLI","20")
+		atlantis_y42_db:setImage("radar_dread.png")
+		--]]
+	end
+	return ship		
+end
+function starhammerV(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Starhammer V")
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 35)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 6)
+	ship:setShieldsMax(450, 350, 250, 250, 350)					--stronger shields (vs 450, 350, 150, 150, 350)
+	ship:setShields(450, 350, 250, 250, 350)					
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 36)
+	local starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
+	if starhammer_v_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		corvette_db:addEntry("Starhammer V")
+		starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
+			starhammer_v_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.",
+			{
+				{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 50 U"		--jump range
+		)
+		--[[
+		starhammer_v_db:setLongDescription("The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.")
+		starhammer_v_db:setKeyValue("Class","Corvette")
+		starhammer_v_db:setKeyValue("Sub-class","Destroyer")
+		starhammer_v_db:setKeyValue("Size","200")
+		starhammer_v_db:setKeyValue("Shield","450/350/250/250/350")
+		starhammer_v_db:setKeyValue("Hull","200")
+		starhammer_v_db:setKeyValue("Move speed","3.9 U/min")
+		starhammer_v_db:setKeyValue("Turn speed","15.0 deg/sec")
+		starhammer_v_db:setKeyValue("Jump Range","5 - 50 U")
+		starhammer_v_db:setKeyValue("Beam weapon -10:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon 10:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon -20:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon 20:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon 180:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Tube 0","10 sec")
+		starhammer_v_db:setKeyValue(" Tube 0","10 sec")
+		starhammer_v_db:setKeyValue("Storage Homing","16")
+		starhammer_v_db:setKeyValue("Storage EMP","2")
+		starhammer_v_db:setKeyValue("Storage HVLI","36")
+		starhammer_v_db:setImage("radar_dread.png")
+		--]]
+	end
+	return ship		
+end
+function tyr(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Tyr")
+	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
+	ship:setShieldsMax(400, 300, 300, 400, 300, 300)			--stronger shields (vs 300, 300, 300, 300, 300)
+	ship:setShields(400, 300, 300, 400, 300, 300)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	  -60,	2500,		6,		 8)	--stronger beams, broader coverage
+	ship:setBeamWeapon(1,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(2,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(3,	90,	  120,	2500,		6,		 8)
+	ship:setBeamWeapon(4,	90,	  -60,	2500,		6,		 8)
+	ship:setBeamWeapon(5,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(6,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(7,	90,	  120,	2500,		6,		 8)
+	ship:setBeamWeapon(8,	90,	  -60,	2500,		6,		 8)
+	ship:setBeamWeapon(9,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(10,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(11,	90,	  120,	2500,		6,		 8)
+	local tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
+	if tyr_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Dreadnought")
+		corvette_db:addEntry("Tyr")
+		tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
+			tyr_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could",
+			nil,
+			"5 - 50 U"		--jump range
+		)
+		--[[
+		tyr_db:setLongDescription("The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could")
+		tyr_db:setKeyValue("Class","Dreadnought")
+		tyr_db:setKeyValue("Sub-class","Assault")
+		tyr_db:setKeyValue("Size","200")
+		tyr_db:setKeyValue("Shield","400/300/300/400/300/300")
+		tyr_db:setKeyValue("Hull","100")
+		tyr_db:setKeyValue("Move speed","3.0 U/min")
+		tyr_db:setKeyValue("Turn speed","10.0 deg/sec")
+		tyr_db:setKeyValue("Jump Range","5 - 50 U")
+		tyr_db:setKeyValue("Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setImage("radar_battleship.png")
+		--]]
+	end
+	return ship
+end
+function gnat(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	ship:setTypeName("Gnat")
+	ship:setHullMax(15)					--weaker hull (vs 30)
+	ship:setHull(15)
+	ship:setImpulseMaxSpeed(140)		--faster impulse (vs 120)
+	ship:setRotationMaxSpeed(25)		--faster maneuver (vs 10)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,   40,		0,	 600,		4,		 3)	--weaker (vs 6) beam
+	local gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
+	if gnat_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Gnat")
+		gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Gnat"),	--base ship database entry
+			gnat_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
+			nil,
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function cucaracha(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Cucaracha")
+	ship:setShieldsMax(200, 50, 50, 50, 50, 50)		--stronger shields (vs 20)
+	ship:setShields(200, 50, 50, 50, 50, 50)					
+	ship:setHullMax(100)							--stronger hull (vs 50)
+	ship:setHull(100)
+	ship:setRotationMaxSpeed(20)					--faster maneuver (vs 10)
+	ship:setAcceleration(30)						--faster acceleration (vs 15)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	60,	    0,	1500,		6,		10)	--extra rear facing beam
+	local cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+	if cucaracha_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Cucaracha")
+		cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Cucaracha"),	--base ship database entry
+			cucaracha_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
+			nil,
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function starhammerIII(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Starhammer III")
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
+	ship:setTubeSize(0,"large")
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 36)
+	local starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+	if starhammer_iii_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		corvette_db:addEntry("Starhammer III")
+		starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Starhammer III"),	--base ship database entry
+			starhammer_iii_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire",
+			{
+				{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
+			},
+			"5 - 50 U"		--jump range
+		)
+	end
+	return ship
+end
+function k2breaker(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("K2 Breaker")
+	ship:setHullMax(200)							--stronger hull (vs 120)
+	ship:setHull(200)
+	ship:setWeaponTubeCount(3)						--more (vs 1)
+	ship:setTubeSize(0,"large")						--large (vs normal)
+	ship:setWeaponTubeDirection(1,-30)				
+	ship:setWeaponTubeDirection(2, 30)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponStorageMax("Homing",16)			--more (vs 0)
+	ship:setWeaponStorage("Homing", 16)
+	ship:setWeaponStorageMax("HVLI",8)				--more (vs 5)
+	ship:setWeaponStorage("HVLI", 8)
+	local k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+	if k2_breaker_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("K2 Breaker")
+		k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","K2 Breaker"),	--base ship database entry
+			k2_breaker_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships",
+			{
+				{key = "Large tube 0", value = "13 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
+			},
+			nil
+		)
+	end
+	return ship
+end
+function hurricane(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Hurricane")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,40000)			
+	ship:setWeaponTubeCount(8)						--more (vs 3)
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponTubeDirection(1,  0)				--forward (vs -90)
+	ship:setTubeSize(3,"large")						
+	ship:setWeaponTubeDirection(3,-90)
+	ship:setTubeSize(4,"small")
+	ship:setWeaponTubeExclusiveFor(4,"Homing")
+	ship:setWeaponTubeDirection(4,-15)
+	ship:setTubeSize(5,"small")
+	ship:setWeaponTubeExclusiveFor(5,"Homing")
+	ship:setWeaponTubeDirection(5, 15)
+	ship:setWeaponTubeExclusiveFor(6,"Homing")
+	ship:setWeaponTubeDirection(6,-30)
+	ship:setWeaponTubeExclusiveFor(7,"Homing")
+	ship:setWeaponTubeDirection(7, 30)
+	ship:setWeaponStorageMax("Homing",24)			--more (vs 5)
+	ship:setWeaponStorage("Homing", 24)
+	local hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+	if hurricane_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Hurricane")
+		hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Hurricane"),	--base ship database entry
+			hurricane_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot",
+			{
+				{key = "Large tube 0", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "12 sec"},			--torpedo tube direction and load speed
+				{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube -15", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube 15", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
+			},
+			"5 - 40 U"		--jump range
+		)
+	end
+	return ship
+end
+function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range)
+	modified_db:setLongDescription(description)
+	modified_db:setImage(base_db:getImage())
+	modified_db:setKeyValue("Class",base_db:getKeyValue("Class"))
+	modified_db:setKeyValue("Sub-class",base_db:getKeyValue("Sub-class"))
+	modified_db:setKeyValue("Size",base_db:getKeyValue("Size"))
+	local shields = ship:getShieldCount()
+	if shields > 0 then
+		local shield_string = ""
+		for i=1,shields do
+			if shield_string == "" then
+				shield_string = string.format("%i",math.floor(ship:getShieldMax(i-1)))
+			else
+				shield_string = string.format("%s/%i",shield_string,math.floor(ship:getShieldMax(i-1)))
+			end
+		end
+		modified_db:setKeyValue("Shield",shield_string)
+	end
+	modified_db:setKeyValue("Hull",string.format("%i",math.floor(ship:getHullMax())))
+	modified_db:setKeyValue("Move speed",string.format("%.1f u/min",ship:getImpulseMaxSpeed()*60/1000))
+	modified_db:setKeyValue("Turn speed",string.format("%.1f deg/sec",ship:getRotationMaxSpeed()))
+	if ship:hasJumpDrive() then
+		if jump_range == nil then
+			local base_jump_range = base_db:getKeyValue("Jump range")
+			if base_jump_range ~= nil and base_jump_range ~= "" then
+				modified_db:setKeyValue("Jump range",base_jump_range)
+			else
+				modified_db:setKeyValue("Jump range","5 - 50 u")
+			end
+		else
+			modified_db:setKeyValue("Jump range",jump_range)
+		end
+	end
+	if ship:hasWarpDrive() then
+		modified_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
+	end
+	local key = ""
+	if ship:getBeamWeaponRange(0) > 0 then
+		local bi = 0
+		repeat
+			local beam_direction = ship:getBeamWeaponDirection(bi)
+			if beam_direction > 315 and beam_direction < 360 then
+				beam_direction = beam_direction - 360
+			end
+			key = string.format("Beam weapon %i:%i",ship:getBeamWeaponDirection(bi),ship:getBeamWeaponArc(bi))
+			while(modified_db:getKeyValue(key) ~= "") do
+				key = " " .. key
+			end
+			modified_db:setKeyValue(key,string.format("%.1f Dmg / %.1f sec",ship:getBeamWeaponDamage(bi),ship:getBeamWeaponCycleTime(bi)))
+			bi = bi + 1
+		until(ship:getBeamWeaponRange(bi) < 1)
+	end
+	local tubes = ship:getWeaponTubeCount()
+	if tubes > 0 then
+		if tube_directions ~= nil then
+			for i=1,#tube_directions do
+				modified_db:setKeyValue(tube_directions[i].key,tube_directions[i].value)
+			end
+		end
+		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
+		for _, missile_type in ipairs(missile_types) do
+			local max_storage = ship:getWeaponStorageMax(missile_type)
+			if max_storage > 0 then
+				modified_db:setKeyValue(string.format("Storage %s",missile_type),string.format("%i",max_storage))
+			end
+		end
+	end
+end
+
 --------------------
 -- Plot functions --
 --------------------
@@ -11024,7 +13000,7 @@ function setEnemyStationDefenses()
 		if curEStation ~= enemyFleet1base and curEStation ~= enemyFleet2base and curEStation ~= enemyFleet3base and curEStation ~= enemyFleet4base and curEStation ~= enemyFleet5base then
 			curEStation.defenseDeployed = false
 			local defensiveChoice = random(1,100)
-			--local defensiveChoice = 75	--test jammer fleet
+			--local defensiveChoice = 85	--test ambush
 			if defensiveChoice < 10 then		--	fighter fleet
 				curEStation.defenseType = "fighterFleet"
 				curEStation.defenseTriggerDistance = random(2000,5000)
@@ -11048,6 +13024,9 @@ function setEnemyStationDefenses()
 				curEStation.defenseTriggerDistance = random(2000,5000)
 			elseif defensiveChoice < 80 then	--	jammer fleet
 				curEStation.defenseType = "jammerFleet"
+				curEStation.defenseTriggerDistance = random(2000,5000)
+			elseif defensiveChoice < 90 then
+				curEStation.defenseType = "ambush"
 				curEStation.defenseTriggerDistance = random(2000,5000)
 			else								--	drone fleet
 				curEStation.defenseType = "droneFleet"
@@ -11134,6 +13113,11 @@ function enemyDefenseCheck(delta)
 							for _, enemy in ipairs(ef) do
 								enemy:orderAttack(p)
 							end
+							table.insert(enemyFleetList,ef)
+							enemyStation.defenseDeployed = true
+						elseif enemyStation.defenseType == "ambush" then
+							local apx, apy = p:getPosition()
+							local ef = spawnEnemies(apx, apy, 1, "Kraylor", nil, "ambush", (enemyStation.defenseTriggerDistance - 500)/1000)
 							table.insert(enemyFleetList,ef)
 							enemyStation.defenseDeployed = true
 						elseif enemyStation.defenseType == "minefield" then
@@ -12364,12 +14348,9 @@ function detailedStats()
 		tempFleet = friendlyFleetList[j]
 		for _, tempFriend in ipairs(tempFleet) do
 			if tempFriend ~= nil and tempFriend:isValid() then
-				for k=1,#stnl do
-					if tempFriend:getTypeName() == stnl[k] then
-						print(string.format("      %3d %s %s",stsl[k],tempFriend:getCallSign(),tempFriend:getTypeName()))
-						friendlyShipSurvivedValue = friendlyShipSurvivedValue + stsl[k]
-					end
-				end
+				local friend_type = tempFriend:getTypeName()
+				print(string.format("      %3d %s %s",ship_template[friend_type].strength,tempFriend:getCallSign(),friend_type))
+				friendlyShipSurvivedValue = friendlyShipSurvivedValue + ship_template[friend_type].strength
 			end
 		end
 	end
@@ -12428,12 +14409,9 @@ function detailedStats()
 		tempFleet = enemyFleetList[j]
 		for _, tempEnemy in ipairs(tempFleet) do
 			if tempEnemy ~= nil and tempEnemy:isValid() then
-				for k=1,#stnl do
-					if tempEnemy:getTypeName() == stnl[k] then
-						print(string.format("      %3d %s %s",stsl[k],tempEnemy:getCallSign(),tempEnemy:getTypeName()))
-						enemyShipSurvivedValue = enemyShipSurvivedValue + stsl[k]
-					end
-				end
+				local enemy_type = tempEnemy:getTypeName()
+				print(string.format("      %3d %s %s",ship_template[enemy_type].strength,tempEnemy:getCallSign(),enemy_type))
+				enemyShipSurvivedValue = enemyShipSurvivedValue + ship_template[enemy_type].strength
 			end
 		end
 	end
@@ -12450,21 +14428,13 @@ function enemyVesselDestroyed(self, instigator)
 	tempShipType = self:getTypeName()
 	table.insert(enemyVesselDestroyedNameList,self:getCallSign())
 	table.insert(enemyVesselDestroyedType,tempShipType)
-	for k=1,#stnl do
-		if tempShipType == stnl[k] then
-			table.insert(enemyVesselDestroyedValue,stsl[k])
-		end
-	end
+	table.insert(enemyVesselDestroyedValue,ship_template[tempShipType].strength)
 end
 function friendlyVesselDestroyed(self, instigator)
 	tempShipType = self:getTypeName()
 	table.insert(friendlyVesselDestroyedNameList,self:getCallSign())
 	table.insert(friendlyVesselDestroyedType,tempShipType)
-	for k=1,#stnl do
-		if tempShipType == stnl[k] then
-			table.insert(friendlyVesselDestroyedValue,stsl[k])
-		end
-	end
+	table.insert(friendlyVesselDestroyedValue,ship_template[tempShipType].strength)
 end
 function friendlyStationDestroyed(self, instigator)
 	table.insert(friendlyStationDestroyedNameList,self:getCallSign())
@@ -12491,11 +14461,8 @@ function listStatuses()
 		for _, tempEnemy in ipairs(tempFleet) do
 			if tempEnemy ~= nil and tempEnemy:isValid() then
 				enemyShipSurvivedCount = enemyShipSurvivedCount + 1
-				for k=1,#stnl do
-					if tempEnemy:getTypeName() == stnl[k] then
-						enemyShipSurvivedValue = enemyShipSurvivedValue + stsl[k]
-					end
-				end
+				local temp_type = tempEnemy:getTypeName()
+				enemyShipSurvivedValue = enemyShipSurvivedValue + ship_template[temp_type].strength
 			end
 		end
 	end
@@ -12506,11 +14473,8 @@ function listStatuses()
 		for _, tempFriend in ipairs(tempFleet) do
 			if tempFriend ~= nil and tempFriend:isValid() then
 				friendlyShipSurvivedCount = friendlyShipSurvivedCount + 1
-				for k=1,#stnl do
-					if tempFriend:getTypeName() == stnl[k] then
-						friendlyShipSurvivedValue = friendlyShipSurvivedValue + stsl[k]
-					end
-				end
+				local temp_type = tempFriend:getTypeName()
+				friendlyShipSurvivedValue = friendlyShipSurvivedValue + ship_template[temp_type].strength
 			end
 		end
 	end
@@ -12806,9 +14770,7 @@ function update(delta)
 		end
     end
 end
-
 -- Make the createPlayerShip... functions accessible from other scripts (including exec.lua)
-
 local scenario = {}
 scenario.createPlayerShipBlazon = createPlayerShipBlazon
 scenario.createPlayerShipHeadhunter = createPlayerShipHeadhunter
@@ -12817,7 +14779,7 @@ scenario.createPlayerShipSimian = createPlayerShipSimian
 scenario.createPlayerShipSpinstar = createPlayerShipSpinstar
 scenario.createPlayerShipSpyder = createPlayerShipSpyder
 scenario.createPlayerShipSting = createPlayerShipSting
-
 print([[Usage: curl --data "getScriptStorage().scenario.createPlayerShipSting()" http://localhost:8080/exec.lua]])
 local storage = getScriptStorage()
 storage.scenario = scenario
+
