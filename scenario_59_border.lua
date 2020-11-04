@@ -7492,7 +7492,7 @@ function handleDockedState()
 			setCommsMessage("What would you like to know?")
 			if comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "" then
 				addCommsReply("General information", function()
-					setCommsMessage(ctd.general_information)
+					setCommsMessage(ctd.general)
 					addCommsReply("Back", commsStation)
 				end)
 			end
@@ -7801,8 +7801,8 @@ function handleDockedState()
 											station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
 										end
 									end
-									if obj.comms_data.general_information ~= nil then
-										station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+									if obj.comms_data.general ~= nil then
+										station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general)
 									end
 									if obj.comms_data.history ~= nil then
 										station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
@@ -7850,8 +7850,8 @@ function handleDockedState()
 									station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
 								end
 							end
-							if obj.comms_data.general_information ~= nil then
-								station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+							if obj.comms_data.general ~= nil then
+								station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general)
 							end
 							if obj.comms_data.history ~= nil then
 								station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
@@ -7891,8 +7891,8 @@ function handleDockedState()
 													station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
 												end
 											end
-											if obj.comms_data.general_information ~= nil then
-												station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+											if obj.comms_data.general ~= nil then
+												station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general)
 											end
 											if obj.comms_data.history ~= nil then
 												station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
@@ -8150,8 +8150,8 @@ function masterCartographer()
 										station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
 									end
 								end
-								if obj.comms_data.general_information ~= nil then
-									station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+								if obj.comms_data.general ~= nil then
+									station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general)
 								end
 								if obj.comms_data.history ~= nil then
 									station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
@@ -8205,8 +8205,8 @@ function masterCartographer()
 							station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
 						end
 					end
-					if obj.comms_data.general_information ~= nil then
-						station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+					if obj.comms_data.general ~= nil then
+						station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general)
 					end
 					if obj.comms_data.history ~= nil then
 						station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
@@ -8240,8 +8240,8 @@ function masterCartographer()
 								station_details = string.format("%s\n   %s, %i, %i",station_details,good,good_data["quantity"],good_data["cost"])
 							end
 						end
-						if obj.comms_data.general_information ~= nil then
-							station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general_information)
+						if obj.comms_data.general ~= nil then
+							station_details = string.format("%s\nGeneral Information:\n   %s",station_details,obj.comms_data.general)
 						end
 						if obj.comms_data.history ~= nil then
 							station_details = string.format("%s\nHistory:\n   %s",station_details,obj.comms_data.history)
@@ -8639,7 +8639,7 @@ function handleUndockedState()
 				setCommsMessage("What would you like to know?")
 				if comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "" then
 					addCommsReply("General information", function()
-						setCommsMessage(ctd.general_information)
+						setCommsMessage(ctd.general)
 						addCommsReply("Back", commsStation)
 					end)
 				end
