@@ -277,6 +277,7 @@ function setConstants()
 		["Phobos M3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
+		["Phobos T4"] =			{strength = 18,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = phobosT4},
 		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
 		["Nirvana R5A"] =		{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
@@ -15723,6 +15724,40 @@ function hurricane(enemyFaction)
 				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
 			},
 			"5 - 40 U"		--jump range
+		)
+	end
+	return ship
+end
+function phobosT4(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Phobos T4")
+	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 10)
+	ship:setShieldsMax(80,30)									--stronger shields (vs 50,40)
+	ship:setShields(80,30)					
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	  -15,	1500,		6,		6)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	   15,	1500,		6,		6)	
+	local phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
+	if phobos_t4_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Phobos T4")
+		phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T4"),	--base ship database entry
+			phobos_t4_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Phobos T4 makes some simple improvements on the Phobos T3: faster maneuver, stronger front shields, though weaker rear shields and longer and faster beam weapons",
+			{
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+			},
+			nil		--jump range
 		)
 	end
 	return ship
