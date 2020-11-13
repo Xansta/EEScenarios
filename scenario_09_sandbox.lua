@@ -234,87 +234,89 @@ function setConstants()
 	plotRevert = revertWait
 	
 	ship_template = {	--ordered by relative strength
-		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = beamOverclocker},
-		["OClock Engine"] = 	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = engineOverclocker},
-		["OClock Shield"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = shieldOverclocker},
---		["OClock Orbit"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = orbiterOverclocker},
-		["OClock Boss"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = overclockOptimizer},
---		["Orbit Rock"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = asteroidOrbiter},
---		["Orbit Mine"] = 		{strength = 30,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = mineOrbiter},
-		["Leech Sat"] =		 	{strength = 80,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		create = leech},
+		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = beamOverclocker},
+		["OClock Engine"] = 	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = engineOverclocker},
+		["OClock Shield"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = shieldOverclocker},
+--		["OClock Orbit"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = orbiterOverclocker},
+		["OClock Boss"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = overclockOptimizer},
+--		["Orbit Rock"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = asteroidOrbiter},
+--		["Orbit Mine"] = 		{strength = 30,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = mineOrbiter},
+		["Leech Sat"] =		 	{strength = 80,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = leech},
+		["Command Base"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = commandBase},
+		["Military Outpost"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = militaryOutpost},
 		-- normal ships that are part of the fleet spawn process
-		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	create = gnat},
-		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	create = droneLite},
-		["Jacket Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	create = droneJacket},
-		["Ktlitan Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	create = stockTemplate},
-		["Heavy Drone"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	create = droneHeavy},
-		["Adder MK3"] =			{strength = 5,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = adderMk3},
-		["MT52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = stockTemplate},
-		["MU52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = stockTemplate},
-		["MV52 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = hornetMV52},
-		["Adder MK4"] =			{strength = 6,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Fighter"] =			{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = stockTemplate},
-		["Ktlitan Fighter"] =	{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = stockTemplate},
-		["K2 Fighter"] =		{strength = 7,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = k2fighter},
-		["Adder MK5"] =			{strength = 7,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["WX-Lindworm"] =		{strength = 7,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = stockTemplate},
-		["K3 Fighter"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = k3fighter},
-		["Adder MK6"] =			{strength = 8,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Ktlitan Scout"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["WZ-Lindworm"] =		{strength = 9,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	create = wzLindworm},
-		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = adderMk7},
-		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = adderMk8},
-		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = adderMk9},
-		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = nirvanaR3},
-		["Phobos R2"] =			{strength = 13,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = phobosR2},
-		["Missile Cruiser"] =	{strength = 14,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = waddle5},
-		["Jade 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = jade5},
-		["Phobos T3"] =			{strength = 15,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Piranha F8"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Piranha F12"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Piranha F12.M"] =		{strength = 16,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Phobos M3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Phobos T4"] =			{strength = 18,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = phobosT4},
-		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Nirvana R5A"] =		{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Adv. Gunship"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Storm"] =				{strength = 22,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Stalker R5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stalkerR5},
-		["Stalker Q5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stalkerQ5},
-		["Ranus U"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Stalker Q7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Stalker R7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Adv. Striker"] =		{strength = 27,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Elara P2"] =			{strength = 28,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = elaraP2},
-		["Tempest"] =			{strength = 30,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = tempest},
-		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG3},
-		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG4},
-		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = cucaracha},
-		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG5},
-		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = fiendG6},
-		["Ktlitan Worker"] =	{strength = 40,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = predator},
-		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = hurricane},
-		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = k2breaker},
-		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = atlantisY42},
-		["Blockade Runner"] =	{strength = 65,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Starhammer II"] =		{strength = 70,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Enforcer"] =			{strength = 75,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = enforcer},
-		["Dreadnought"] =		{strength = 80,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = starhammerIII},
-		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = starhammerV},
-		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
-		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = tyr},
-		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	create = stockTemplate},
+		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	base = false,	create = gnat},
+		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneLite},
+		["Jacket Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneJacket},
+		["Ktlitan Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = stockTemplate},
+		["Heavy Drone"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneHeavy},
+		["Adder MK3"] =			{strength = 5,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk3},
+		["MT52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["MU52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["MV52 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = hornetMV52},
+		["Adder MK4"] =			{strength = 6,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Fighter"] =			{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Ktlitan Fighter"] =	{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["K2 Fighter"] =		{strength = 7,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = k2fighter},
+		["Adder MK5"] =			{strength = 7,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["WX-Lindworm"] =		{strength = 7,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["K3 Fighter"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = k3fighter},
+		["Adder MK6"] =			{strength = 8,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Ktlitan Scout"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["WZ-Lindworm"] =		{strength = 9,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = wzLindworm},
+		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk7},
+		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk8},
+		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk9},
+		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = nirvanaR3},
+		["Phobos R2"] =			{strength = 13,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = phobosR2},
+		["Missile Cruiser"] =	{strength = 14,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = waddle5},
+		["Jade 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = jade5},
+		["Phobos T3"] =			{strength = 15,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Piranha F8"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Piranha F12"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Piranha F12.M"] =		{strength = 16,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Phobos M3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Phobos T4"] =			{strength = 18,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = phobosT4},
+		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Nirvana R5A"] =		{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Adv. Gunship"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Storm"] =				{strength = 22,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Stalker R5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stalkerR5},
+		["Stalker Q5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stalkerQ5},
+		["Ranus U"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Stalker Q7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Stalker R7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Adv. Striker"] =		{strength = 27,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Elara P2"] =			{strength = 28,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = elaraP2},
+		["Tempest"] =			{strength = 30,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = tempest},
+		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG3},
+		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG4},
+		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = cucaracha},
+		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG5},
+		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG6},
+		["Ktlitan Worker"] =	{strength = 40,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = predator},
+		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = hurricane},
+		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = k2breaker},
+		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = atlantisY42},
+		["Blockade Runner"] =	{strength = 65,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Starhammer II"] =		{strength = 70,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Enforcer"] =			{strength = 75,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = enforcer},
+		["Dreadnought"] =		{strength = 80,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = starhammerIII},
+		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = starhammerV},
+		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = tyr},
+		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 	}
 	fleet_group = {
 		["adder"] = "Adders",
@@ -2900,15 +2902,34 @@ function tweakTerrain()
 						}
 						addGMMessage(string.format("Station %s now has sandbox communications",tempObject:getCallSign()))
 					elseif tempType == "CpuShip" then
-						tempObject:setCommsScript(""):setCommsFunction(commsShip)
-						local p = getPlayerShip(-1)
-						if p ~= nil and not p:isEnemy(tempObject) then
-							if region_ships == nil then
-								region_ships = {}
+						local type_name = tempObject:getTypeName()
+						if type_name == "Command Base" or type_name == "Military Outpost" then
+							tempObject:setCommsScript(""):setCommsFunction(commsStation)
+							tempObject.comms_data = {
+								friendlyness = random(50,100),
+								weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+								weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
+								weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
+								service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+								reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
+								max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+								goods = {	[componentGoods[math.random(1,#componentGoods)]]	=	{quantity = math.random(1,5),	cost = math.random(60,95)},
+											[mineralGoods[math.random(1,#mineralGoods)]]		=	{quantity = math.random(1,5),	cost = math.random(30,60)} },
+								trade = {	food = false, medicine = false, luxury = true },
+								public_relations = false
+							}
+							addGMMessage(string.format("Faux Station %s now has sandbox communications",tempObject:getCallSign()))
+						else
+							tempObject:setCommsScript(""):setCommsFunction(commsShip)
+							local p = getPlayerShip(-1)
+							if p ~= nil and not p:isEnemy(tempObject) then
+								if region_ships == nil then
+									region_ships = {}
+								end
+								table.insert(region_ships,tempObject)
 							end
-							table.insert(region_ships,tempObject)
+							addGMMessage(string.format("Ship %s now has sandbox communications",tempObject:getCallSign()))
 						end
-						addGMMessage(string.format("Ship %s now has sandbox communications",tempObject:getCallSign()))
 					else
 						addGMMessage("You can only add sandbox comms to stations or ships. No action taken")
 					end
@@ -2925,15 +2946,34 @@ function tweakTerrain()
 					local ship_names = ""
 					for _, temp_object in ipairs(object_list) do
 						if temp_object.typeName == "CpuShip" then
-							temp_object:setCommsScript(""):setCommsFunction(commsShip)
-							local p = getPlayerShip(-1)
-							if p ~= nil and not p:isEnemy(temp_object) then
-								if region_ships == nil then
-									region_ships = {}
+							local type_name = tempObject:getTypeName()
+							if type_name == "Command Base" or type_name == "Military Outpost" then
+								tempObject:setCommsScript(""):setCommsFunction(commsStation)
+								tempObject.comms_data = {
+									friendlyness = random(50,100),
+									weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+									weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
+									weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
+									service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+									reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
+									max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+									goods = {	[componentGoods[math.random(1,#componentGoods)]]	=	{quantity = math.random(1,5),	cost = math.random(60,95)},
+												[mineralGoods[math.random(1,#mineralGoods)]]		=	{quantity = math.random(1,5),	cost = math.random(30,60)} },
+									trade = {	food = false, medicine = false, luxury = true },
+									public_relations = false
+								}
+								addGMMessage(string.format("Faux Station %s now has sandbox communications",tempObject:getCallSign()))
+							else
+								temp_object:setCommsScript(""):setCommsFunction(commsShip)
+								local p = getPlayerShip(-1)
+								if p ~= nil and not p:isEnemy(temp_object) then
+									if region_ships == nil then
+										region_ships = {}
+									end
+									table.insert(region_ships,temp_object)
 								end
-								table.insert(region_ships,temp_object)
+								ship_names = ship_names .. temp_object:getCallSign() .. " "
 							end
-							ship_names = ship_names .. temp_object:getCallSign() .. " "
 						end
 					end
 					if ship_names ~= "" then
@@ -3479,7 +3519,7 @@ function playerShip()
 			{"Blaire"		,"inactive"	,createPlayerShipBlaire		,"Kludge (Blaire), Corvette, Gunner... incomplete description"},
 			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
 			{"Cobra"		,"inactive"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:100   Shield:100,100   Size:200   Repair Crew:3   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:600   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.2\n   Arc:100   Direction:-15   Range:1.1   Cycle:6   Damage:6.5\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6.5\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
-			{"Darkstar"		,"inactive"	,createPlayerShipDarkstar	,"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
+			{"Darkstar"		,"active"	,createPlayerShipDarkstar	,"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Eagle"		,"inactive"	,createPlayerShipEagle		,"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Endeavor"		,"active"	,createPlayerShipEndeavor	,"Bermuda (Endeavor): Corvette, Destroyer   Hull:150   Shield:150,150   Size:400   Repair Crew:5   Cargo:4   R.Strength:25\nFTL:Jump (3.5U - 35U)   Speeds: Impulse:70   Spin:10   Accelerate:30   C.Maneuver: Boost:400 Strafe:250   SRS:4.5\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:3   Load Speed:8   Left Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      04 Nuke\n      06 EMP\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, no right tubes, slower impulse, faster acceleration, weaker hull, weaker shields, less energy"},
 			{"Enola"		,"inactive"	,createPlayerShipEnola		,"Fray (Enola): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:22\nFTL:Jump (2U - 20U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:23   SRS:4.5\nBeams:3 1 front, 2 sides Turreted speed:0.3\n   Arc:110   Direction:  0   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction:-90   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction: 90   Range:0.9   Cycle:6   Damage:4\nTubes:4 rear   Load Speed:8\n   Direction:180   Type:HVLI Only - small\n   Direction:180   Type:Homing or EMP\n   Direction:180   Type:Nuke only - Large\n   Ordnance stock and type:\n      05 Homing\n      03 Mine\n      02 Nuke\n      04 EMP\n      12 HVLI\nBased on Crucible: jump instead of warp, 3 turreted beams (weaker, more coverage), tubes facing rear, fewer missiles, large nukes, shorter sensors, fewer probes"},
@@ -3497,6 +3537,7 @@ function playerShip()
 			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Kindling"		,"inactive"	,createPlayerShipKindling	},
 			{"Knick"		,"inactive"	,createPlayerShipKnick		,"Experimental - not ready for use"},
+			{"Knuckle Drag"	,"active"	,createPlayerShipSimian		,"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower"},
 			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
 			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
@@ -3512,7 +3553,6 @@ function playerShip()
 			{"Rogue"		,"inactive"	,createPlayerShipRogue		,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
 			{"Rotor"		,"active"	,createPlayerShipRotor		,"Rotor: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:30\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:4\nBeams:5, 2 Turreted Speed:1\n   Arc:190   Direction:  0   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc:190   Direction:180   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc: 60   Direction:-25   Range:0.8   Cycle:6   Damage:6\n   Arc: 60   Direction: 25   Range:0.8   Cycle:6   Damage:6\n   Arc: 40   Direction:  0   Range:0.6   Cycle:6   Damage:8\nTubes:1   Load Speed:8   Rear:1\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      6 Mine\nBased on Maverick: Fewer beams, one rear tube, slower warp, shorter sensors"},
 			{"Yorik"		,"inactive"	,createPlayerShipYorik		,"Rook (Yorik): Frigate, Armored Transport   Hull:200   Shield:200,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:15\nFTL:Jump (3U-30U)   Speeds: Impulse:75   Spin:8   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:41   SRS:5.5\nBeams:2 Front 1 Turreted Speed:0.15\n   Arc:90   Direction:0   Range:0.9   Cycle:6   Damage:4\n   Arc:30   Direction:0   Range:0.9   Cycle:6   Damage:4\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      8 Homing\n      3 Nuke\n      5 Mine\n      6 EMP\n      6 HVLI\nBased on Repulse: slower spin, faster impiulse, 1 turreted beam, both beams forward, hull and shields stronger, relatively weaker rear shield, shorter and weaker beams, more missiles, stronger hull, shorter jump, longer long and short range sensors"},
-			{"Simian"		,"inactive"	,createPlayerShipSimian		,"Destroyer III(Simian):   Hull:100   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:8   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI"},
 			{"Skray"		,"inactive"	,createplayerShipSneak      ,"Skray: Frigate, Armored Transport   Hull:120   Shield:80,80   Size:200   Repair Crew:8   Cargo:3   R.Strength:15\nFTL:Jump (5U - 50U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   SRS:7.5\nBeams:2 Turreted Speed:5\n   Arc:30   Direction:-70   Range:1.2   Cycle:6   Damage:5\n   Arc:30   Direction: 70   Range:1.2   Cycle:6   Damage:5\nTubes:2   Load Speed:20   Front, Rear\n   Direction:  0   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      10 Homing\n      10 HVLI\nBased on Repulse: more missiles, non-overlapping beams, longer short range sensors"},
 			{"Sparrow"		,"inactive"	,createPlayerShipSparrow	,"Vermin (Sparrow):   Hull:60   Shield:100,60   Size:100   Repair Crew:4   Cargo:3   R.Strength:10   LRS:22   SRS:4\nFTL:Warp (400)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:500   LRS:22   SRS:4\nBeam:3 Front\n   Arc:12   Direction:  0   Range:1.0   Cycle:6   Damage:4\n   Arc:40   Direction:-10   Range:0.8   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:0.8   Cycle:6   Damage:6\nTubes:1   Load Speed:10   Rear\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Mine\nBased on player fighter: more repair crew, more energy, warp drive, stronger shields, more beams, mine laying tube"},
 			{"Phobos T2"	,"inactive"	,createPlayerShipPhobosT2	,"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:1.2U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:1.2U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
@@ -3906,7 +3946,15 @@ function createIcarusStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = false },
         public_relations = true,
         general_information = "Facilitate mining the nearby asteroids",
-    	history = "Station named after the platinum mine on ancient Earth on the African continent"
+    	history = "Station named after the platinum mine on ancient Earth on the African continent",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "Adder MK5",
+			DF4 = "Adder MK5",
+			DF5 = "Phobos T3",
+			DF6 = "Phobos T3",
+    	},
 	}
 	if random(1,100) <= 72 then stationAquarius:setRestocksScanProbes(false) end
 	if random(1,100) <= 61 then stationAquarius:setRepairDocked(false) end
@@ -3943,7 +3991,19 @@ function createIcarusStations()
         trade = {	food = false, medicine = tradeMedicine, luxury = false },
         public_relations = true,
         general_information = "Mining and resupply, New and improved",
-    	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich"
+    	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "MU52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Adder MK5",
+			DF6 = "Adder MK5",
+			DF7 = "Adder MK6",
+			DF8 = "Adder MK6",
+			DF9 = "Phobos T3",
+			DF10 = "Phobos T3",
+    	},
 	}
 	if random(1,100) <= 42 then stationBorlan:setRestocksScanProbes(false) end
 	if random(1,100) <= 21 then stationBorlan:setRepairDocked(false) end
@@ -3975,7 +4035,7 @@ function createIcarusStations()
         trade = {	food = false, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "Mine nearby asteroids",
-    	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes"
+    	history = "A mining operation often on the brink of failure due to the loss of spacecraft in the nearby black holes",
 	}
 	if random(1,100) <= 89 then stationCindyFolly:setRestocksScanProbes(false) end
 	if random(1,100) <= 72 then stationCindyFolly:setRepairDocked(false) end
@@ -4006,7 +4066,14 @@ function createIcarusStations()
         trade = {	food = false, medicine = false, luxury = tradeLuxury },
         public_relations = true,
         general_information = "This is where all the wealthy species shop and stay when traveling",
-    	history = "Named after a fictional station from early 21st century literature as a reminder of what can happen if people don't pay attention to what goes on in all levels of the society in which they live"
+    	history = "Named after a fictional station from early 21st century literature as a reminder of what can happen if people don't pay attention to what goes on in all levels of the society in which they live",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "Ktlitan Drone",
+			DF3 = "MU52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Adder MK6",
+    	},
 	}
 	if random(1,100) <= 86 then stationElysium:setRestocksScanProbes(false) end
 	if random(1,100) <= 35 then stationElysium:setRepairDocked(false) end
@@ -4037,7 +4104,18 @@ function createIcarusStations()
         trade = {	food = true, medicine = tradeMedicine, luxury = false },
         public_relations = true,
         general_information = "We mine the asteroids and the nebula and use these to manufacture various specialized circuits",
-    	history = "The Finnegan family set up this station here to take advantage of the readily available resources"
+    	history = "The Finnegan family set up this station here to take advantage of the readily available resources",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "Ktlitan Drone",
+			DF3 = "MU52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Adder MK6",
+			DF6 = "Phobos T3",
+			DF7 = "Stalker Q7",
+			DF8 = "Nirvana R5A",
+			DF9 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 63 then stationFinnegan:setRestocksScanProbes(false) end
 	if random(1,100) <= 46 then stationFinnegan:setRepairDocked(false) end
@@ -4133,7 +4211,13 @@ function createIcarusStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = true },
         public_relations = true,
         general_information = "Observe and measure black hole for scientific understanding purposes",
-    	history = "One of the researchers also develops software and watches ancient films. He was put in charge of naming the station so he named it after a mute evil robot depicted in an old movie about a black hole from the late 1970s"
+    	history = "One of the researchers also develops software and watches ancient films. He was put in charge of naming the station so he named it after a mute evil robot depicted in an old movie about a black hole from the late 1970s",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+    	},
 	}
 	if random(1,100) <= 81 then stationMaximilian:setRestocksScanProbes(false) end
 	if random(1,100) <= 68 then stationMaximilian:setRepairDocked(false) end
@@ -4165,7 +4249,16 @@ function createIcarusStations()
         trade = {	food = true, medicine = false, luxury = tradeLuxury },
         public_relations = true,
         general_information = "Rest stop, refueling and convenience shopping",
-    	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop\n\nFree drinks for the crew of the freighter Gamma Hydra"
+    	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop\n\nFree drinks for the crew of the freighter Gamma Hydra",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "Ktlitan Drone",
+			DF3 = "MU52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Adder MK6",
+			DF6 = "Nirvana R5A",
+			DF7 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 36 then stationMermaid:setRestocksScanProbes(false) end
 	if random(1,100) <= 22 then stationMermaid:setRepairDocked(false) end
@@ -4198,7 +4291,16 @@ function createIcarusStations()
         trade = {	food = tradeFood, medicine = true, luxury = false },
         public_relations = true,
         general_information = "Relax, maybe observe a scheduled race",
-    	history = "You will never find a more wretched hive of scum and villainy... except in Mos Eisley space port. Mos Espa is a much better place"
+    	history = "You will never find a more wretched hive of scum and villainy... except in Mos Eisley space port. Mos Espa is a much better place",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "Ktlitan Drone",
+			DF3 = "MU52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Adder MK6",
+			DF6 = "Nirvana R5A",
+			DF7 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 28 then stationMosEspa:setRestocksScanProbes(false) end
 	if random(1,100) <= 15 then stationMosEspa:setRepairDocked(false) end
@@ -4228,7 +4330,17 @@ function createIcarusStations()
         trade = {	food = false, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "Observatory of stellar phenomena and space ship traffic",
-    	history = "A combination of science and military staff share the various delicate instruments on this station. Originally designed to watch for incoming Kraylor and Exuari ships, other stations now share the early warning military purpose and these sensors double as research resources"
+    	history = "A combination of science and military staff share the various delicate instruments on this station. Originally designed to watch for incoming Kraylor and Exuari ships, other stations now share the early warning military purpose and these sensors double as research resources",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "Ktlitan Drone",
+			DF3 = "MU52 Hornet",
+			DF4 = "WX-Lindworm",
+			DF5 = "MT52 Hornet",
+			DF6 = "Ktlitan Drone",
+			DF7 = "MU52 Hornet",
+			DF8 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 13 then stationNerva:setRestocksScanProbes(false) end
 	if random(1,100) <= 42 then stationNerva:setRepairDocked(false) end
@@ -4259,7 +4371,17 @@ function createIcarusStations()
         			dilithium = math.random(40,200)	},
         public_relations = true,
         general_information = "Studying, observing, measuring the Fleur nebula",
-    	history = "The station naming continued in the vein of the nebula which we study. Station personnel have started paying closer attention to readings indicating enemy vessels in the area after some stray Exuari got past the defensive patrols and destroyed the station."
+    	history = "The station naming continued in the vein of the nebula which we study. Station personnel have started paying closer attention to readings indicating enemy vessels in the area after some stray Exuari got past the defensive patrols and destroyed the station.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "Ktlitan Drone",
+			DF3 = "MU52 Hornet",
+			DF4 = "WX-Lindworm",
+			DF5 = "Phobos T3",
+			DF6 = "Nirvana R5A",
+			DF7 = "Phobos T3",
+			DF8 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 4  then stationPistil:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationPistil:setRepairDocked(false) end
@@ -4286,7 +4408,16 @@ function createIcarusStations()
         goods = {	communication = {quantity = math.random(5,10),	cost = math.random(40,70)}	},
         trade = {	food = false, medicine = tradeMedicine, luxury = false },
         public_relations = true,
-        general_information = "Communication traffic relay and coordination"
+        general_information = "Communication traffic relay and coordination",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "WX-Lindworm",
+			DF4 = "Phobos T3",
+			DF5 = "Nirvana R5A",
+			DF6 = "Phobos T3",
+			DF7 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 22 then stationRelay13:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationRelay13:setRepairDocked(false) end
@@ -4316,8 +4447,17 @@ function createIcarusStations()
         goods = {	tractor = 	{quantity = math.random(5,10),	cost = math.random(60,70)}	},
         trade = {	food = false, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
-        general_information = "Mining and research of neaby stellar phenomena",
-    	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research"
+        general_information = "Mining and research of nearby stellar phenomena",
+    	history = "Joint effort between miners and scientists to establish station to research and to provide resources to support research",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "WX-Lindworm",
+			DF4 = "Phobos T3",
+			DF5 = "Nirvana R5A",
+			DF6 = "Piranha F8",
+			DF7 = "Stalker R7",
+    	},
 	}
 	if random(1,100) <= 43 then stationSlurry:setRestocksScanProbes(false) end
 	if random(1,100) <= 34 then stationSlurry:setRepairDocked(false) end
@@ -4351,7 +4491,17 @@ function createIcarusStations()
         trade = {	food = false, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We manufacture beam components from the resources gathered from the nearby asteroids. We specialize in plasma based beam systems",
-    	history = "Our station recognizes Sovinec, an early computer simulation researcher in plasma based weaponry in the late 20th century on Earth"
+    	history = "Our station recognizes Sovinec, an early computer simulation researcher in plasma based weaponry in the late 20th century on Earth",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "WX-Lindworm",
+			DF4 = "Phobos T3",
+			DF5 = "Nirvana R5A",
+			DF6 = "Piranha F8",
+			DF7 = "Stalker R7",
+			DF8 = "Atlantis X23",
+    	},
 	}
 	if random(1,100) <= 63 then stationSovinec:setRestocksScanProbes(false) end
 	if random(1,100) <= 34 then stationSovinec:setRepairDocked(false) end
@@ -4383,7 +4533,16 @@ function createIcarusStations()
         trade = {	food = false, medicine = tradeMedicine, luxury = true },
         public_relations = true,
         general_information = "Mining operations are the primary purpose, but there are scientists here conducting research on the mobile nebula in the area",
-    	history = "A consorium of mining interests and scientists banded together to create this station. It was considered a risk for both groups, but they undertook it anyway."
+    	history = "A consorium of mining interests and scientists banded together to create this station. It was considered a risk for both groups, but they undertook it anyway.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "WX-Lindworm",
+			DF4 = "Phobos T3",
+			DF5 = "Nirvana R5A",
+			DF6 = "Piranha F8",
+			DF7 = "Stalker R7",
+    	},
 	}
 	if random(1,100) <= 13 then stationSpeculator:setRestocksScanProbes(false) end
 	if random(1,100) <= 24 then stationSpeculator:setRepairDocked(false) end
@@ -4414,7 +4573,18 @@ function createIcarusStations()
         trade = {	food = false, medicine = tradeMedicine, luxury = false },
         public_relations = true,
         general_information = "A remote station location for the Stromboli family and gusts to get away from the pressures of modern life",
-    	history = "The Stromboli family picked this station up cheap from the Human Navy when this sector was practically empty. Now it serves as a nice place for the family to escape to when they are stressed out"
+    	history = "The Stromboli family picked this station up cheap from the Human Navy when this sector was practically empty. Now it serves as a nice place for the family to escape to when they are stressed out",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "WX-Lindworm",
+			DF6 = "Phobos T3",
+			DF7 = "Nirvana R5A",
+			DF8 = "Piranha F8",
+			DF9 = "Piranha F12",
+    	},
 	}
 	if random(1,100) <= 53 then stationStromboli:setRestocksScanProbes(false) end
 	if random(1,100) <= 17 then stationStromboli:setRepairDocked(false) end
@@ -4448,7 +4618,13 @@ function createIcarusStations()
         trade = {	food = tradeFood, medicine = false, luxury = false },
         public_relations = true,
         general_information = "Transylvania is a refuge from those who would prejudge our cultural practices",
-    	history = "Originally a science station, now it caters to a group of persecuted beings whose cultural practices offend a number of other species"
+    	history = "Originally a science station, now it caters to a group of persecuted beings whose cultural practices offend a number of other species",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+    	},
 	}
 	--local leechAZone = squareZone(-93000,109000, "Leech A K0")
 	--leechAZone:setColor(51,153,255)
@@ -4497,7 +4673,14 @@ function createIcarusStations()
         trade = {	food = false, medicine = tradeMedicine, luxury = false },
         public_relations = true,
         general_information = "Researchers here study the Wookie language as well as several other languages of intelligent species. -Oka is a Wookie language suffix meaning 4",
-    	history = "The first language studied when the station was founded was Wookie. Wookie language and culture is still a major focus of study"
+    	history = "The first language studied when the station was founded was Wookie. Wookie language and culture is still a major focus of study",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 83 then stationWookie:setRestocksScanProbes(false) end
 	if random(1,100) <= 47 then stationWookie:setRepairDocked(false) end
@@ -5316,7 +5499,16 @@ function createKentarStations()
         trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We watch and report on enemy vessel movement. We also run a small tractor and repulsor component machine shop",
-    	history = "The Human Navy set this station up as a strategic observation post"
+    	history = "The Human Navy set this station up as a strategic observation post",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "WX-Lindworm",
+			DF6 = "Phobos T3",
+			DF7 = "Nirvana R5A",
+    	},
 	}
 	if random(1,100) <= 22 then stationGamma3:setRestocksScanProbes(false) end
 	if random(1,100) <= 31 then stationGamma3:setRepairDocked(false) end
@@ -5350,7 +5542,18 @@ function createKentarStations()
         trade = {	food = true, medicine = false, luxury = tradeLuxury },
         public_relations = true,
         general_information = "Extracting minerals from these asteroids is our job",
-    	history = "Based on the scans showing cobalt in many of these asteroids, we named this station after an ancient earth mining operation that was part of the Glencore Public Limited Comany"
+    	history = "Based on the scans showing cobalt in many of these asteroids, we named this station after an ancient earth mining operation that was part of the Glencore Public Limited Comany",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+			DF6 = "Phobos T3",
+			DF7 = "Nirvana R5A",
+			DF8 = "Piranha F8",
+			DF9 = "Piranha F12",
+    	},
 	}
 	if random(1,100) <= 22 then stationKatanga:setRestocksScanProbes(false) end
 	if random(1,100) <= 38 then stationKatanga:setRepairDocked(false) end
@@ -5416,7 +5619,15 @@ function createKentarStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine gold, we make and sell autodoc and circuit",
-    	history = "We said, 'thar's gold in them there rocks' and we just had to get some"
+    	history = "We said, 'thar's gold in them there rocks' and we just had to get some",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+			DF6 = "Nirvana R5A",
+    	},
 	}
 	if random(1,100) <= 62 then stationKolar:setRestocksScanProbes(false) end
 	if random(1,100) <= 48 then stationKolar:setRepairDocked(false) end
@@ -5452,7 +5663,14 @@ function createKentarStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine, we trade, we sell nanites and android components",
-    	history = "It looked like a good location for resupply and mining and it's served us well"
+    	history = "It looked like a good location for resupply and mining and it's served us well",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "Piranha F12",
+    	},
 	}
 	if random(1,100) <= 32 then stationLocarno:setRestocksScanProbes(false) end
 	if random(1,100) <= 28 then stationLocarno:setRepairDocked(false) end
@@ -5485,7 +5703,14 @@ function createKentarStations()
         trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine primarily for nickel, watch for enemy vessels and manufacture lifter components",
-    	history = "These asteroids provide a good nearby source for nickel, so a station was placed to facilitate mining. One of the original station members had lifter experience and over time built up a lifter manufacturing facility"
+    	history = "These asteroids provide a good nearby source for nickel, so a station was placed to facilitate mining. One of the original station members had lifter experience and over time built up a lifter manufacturing facility",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 12 then stationNereus:setRestocksScanProbes(false) end
 	if random(1,100) <= 18 then stationNereus:setRepairDocked(false) end
@@ -5552,7 +5777,14 @@ function createKentarStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine primarily for platinum and gold and watch for enemy vessels",
-    	history = "These asteroids provide a good nearby source for gold and platinum, so a station was placed to facilitate mining. It also serves as a good early warning post for enemy vessels"
+    	history = "These asteroids provide a good nearby source for gold and platinum, so a station was placed to facilitate mining. It also serves as a good early warning post for enemy vessels",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 14 then stationTalos:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationTalos:setRepairDocked(false) end
@@ -5586,7 +5818,14 @@ function createKentarStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine for nickel, dilithium and cobalt. A science team researches some extraordinarily rare minerals found here",
-    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. A scientific research team is also based herer to investigate unusual readings on some of the asteroids"
+    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. A scientific research team is also based herer to investigate unusual readings on some of the asteroids",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+    	},
 	}
 	if random(1,100) <= 14 then stationSutter:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationSutter:setRepairDocked(false) end
@@ -8336,7 +8575,13 @@ function createLafrinaStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine asteroids for minerals and we've got facilities for miners and others to try their hand at games of chance... for a price",
-    	history = "Mining alone could not pay the bills for station maintenance, so we added a gambling facility to help. The gambling revenue pays about half of the bills now"
+    	history = "Mining alone could not pay the bills for station maintenance, so we added a gambling facility to help. The gambling revenue pays about half of the bills now",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
 	}
 	if random(1,100) <= 14 then stationBorie:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationBorie:setRepairDocked(false) end
@@ -8370,7 +8615,16 @@ function createLafrinaStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine for nickel, dilithium and cobalt. With these minerals we build components for ships as well as entire ships for exploration, mining and research",
-    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. Materials experts and manufacturing experts are employed to convert local resources into completed ships and ship systems. This was one of the first bases established in the area to take advantage of asteroids here filled with rich deposits of valuable resources"
+    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. Materials experts and manufacturing experts are employed to convert local resources into completed ships and ship systems. This was one of the first bases established in the area to take advantage of asteroids here filled with rich deposits of valuable resources",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+			DF6 = "Phobos T3",
+			DF7 = "Nirvana R5A",
+    	},
 	}
 	if random(1,100) <= 14 then stationIlorea:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationIlorea:setRepairDocked(false) end
@@ -8402,7 +8656,12 @@ function createLafrinaStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine and study the asteroids nearby",
-    	history = "We started out as just a research station, but as time went on, we found our research could be applied to efficiently mine the asteroids for valuable minerals. As it happens, we needed that money when the grant funds ran dry"
+    	history = "We started out as just a research station, but as time went on, we found our research could be applied to efficiently mine the asteroids for valuable minerals. As it happens, we needed that money when the grant funds ran dry",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Nirvana R5A",
+    	},
 	}
 	if random(1,100) <= 14 then stationLurive:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationLurive:setRepairDocked(false) end
@@ -8436,7 +8695,18 @@ function createLafrinaStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine for nickel, dilithium and cobalt. With these minerals we build components for ships as well as entire ships for exploration, mining and research",
-    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. Materials experts and manufacturing experts are employed to convert local resources into completed ships and ship systems. This was one of the first bases established in the area to take advantage of asteroids here filled with rich deposits of valuable resources"
+    	history = "These asteroids provide a good nearby source for nickel, dilithium and cobalt, so a station was placed to facilitate mining. Materials experts and manufacturing experts are employed to convert local resources into completed ships and ship systems. This was one of the first bases established in the area to take advantage of asteroids here filled with rich deposits of valuable resources",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+			DF6 = "Phobos T3",
+			DF7 = "Nirvana R5A",
+			DF8 = "Piranha F8",
+			DF9 = "Piranha F12",
+    	},
 	}
 	if random(1,100) <= 14 then stationMarielle:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationMarielle:setRepairDocked(false) end
@@ -8468,7 +8738,15 @@ function createLafrinaStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We mine asteroids for minerals",
-    	history = "We wanted in on the mining rush. So far, we have not had much luck"
+    	history = "We wanted in on the mining rush. So far, we have not had much luck",
+    	idle_defense_fleet = {
+			DF1 = "Adder MK4",
+			DF2 = "Adder MK5",
+			DF3 = "WX-Lindworm",
+			DF4 = "Phobos T3",
+			DF5 = "Piranha F8",
+			DF6 = "Piranha F12",
+    	},
 	}
 	if random(1,100) <= 14 then stationRivelle:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationRivelle:setRepairDocked(false) end
@@ -8503,7 +8781,13 @@ function createLafrinaStations()
         trade = {	food = tradeFood, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We handle planetary and station communications as well as administering the sale and transfer of minerals to and from planetary industries and manufacturing",
-    	history = "This staiton was established when the Arlenians first arrived in this system. It was used as a convenient point to interact with Wilaux and gradually started handling administration as well as inter-station communication"
+    	history = "This staiton was established when the Arlenians first arrived in this system. It was used as a convenient point to interact with Wilaux and gradually started handling administration as well as inter-station communication",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
 	}
 	if random(1,100) <= 14 then stationVilairre:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationVilairre:setRepairDocked(false) end
@@ -11601,7 +11885,7 @@ function createPlayerShipSafari()
 	playerShipSpawned("Safari")
 end
 function createPlayerShipSimian()
-	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Simian")
+	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Knuckle Drag")
 	playerSimian:setTypeName("Destroyer III")
 	playerSimian:setWarpDrive(false)
 	playerSimian:setJumpDrive(true)
@@ -11609,8 +11893,8 @@ function createPlayerShipSimian()
 	playerSimian.min_jump_range = 2000						--shorter than typical (vs 5)
 	playerSimian:setJumpDriveRange(playerSimian.min_jump_range,playerSimian.max_jump_range)
 	playerSimian:setJumpDriveCharge(playerSimian.max_jump_range)
-	playerSimian:setHullMax(100)									--weaker hull (vs 200)
-	playerSimian:setHull(100)
+	playerSimian:setHullMax(120)									--weaker hull (vs 200)
+	playerSimian:setHull(120)
 --                 				 Arc, Dir, Range, CycleTime, Damage
 	playerSimian:setBeamWeapon(0,  8,   0, 900.0,         5, 6)		--turreted beam (vs none)
 --									    Arc, Dir, Rotate speed
@@ -11618,6 +11902,9 @@ function createPlayerShipSimian()
 	playerSimian:setWeaponTubeCount(5)								--fewer (vs 7)
 	playerSimian:setWeaponTubeDirection(2, -90)						--left (vs right)
 	playerSimian:setWeaponTubeDirection(4, 180)						--rear (vs left)
+	playerSimian:setWeaponTubeExclusiveFor(0,"HVLI")				--only HVLI
+	playerSimian:setTubeSize(0,"large")								--large (vs medium)
+	playerSimian:setTubeLoadTime(0,20)								--slower (vs 8)
 	playerSimian:setWeaponTubeExclusiveFor(4,"Mine")
 	playerSimian:setWeaponStorageMax("Homing",10)					--less (vs 30)
 	playerSimian:setWeaponStorage("Homing", 10)				
@@ -11631,7 +11918,7 @@ function createPlayerShipSimian()
 	playerSimian:setWeaponStorage("HVLI", 10)				
 	playerSimian:setLongRangeRadarRange(20000)				--shorter longer range sensors (vs 30000)
 	playerSimian:addReputationPoints(50)
-	playerShipSpawned("Simian")
+	playerShipSpawned("Knuckle Drag")
 end
 function createplayerShipSneak()
 	playerSneak = PlayerSpaceship():setTemplate("Repulse"):setTypeName("Skray"):setFaction("Human Navy"):setCallSign("5N3AK-E")
@@ -13562,6 +13849,9 @@ function centerOfSelected(objectList)
 end
 function gmClickShipSpawn(x,y)
 	local ship = ship_template[individual_ship].create(fleetSpawnFaction,individual_ship)
+	if ship_template[individual_ship].base then
+		ship:setCommsScript(""):setCommsFunction(commsStation)
+	end
 	ship:setPosition(x,y)
 	if fleetOrders == "Roaming" then
 		ship:orderRoaming()
@@ -14035,7 +14325,6 @@ function modifyShip(ship)
 		until(ship:getBeamWeaponRange(beamIndex) < 1)
 	end
 end
---function spawnRandomArmed(x, y, fleetIndex, sl, nl, bl, ambush_distance, spawn_angle)
 function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, px, py)
 --x and y are central spawn coordinates
 --fleetIndex is the number of the fleet to be spawned
@@ -14065,9 +14354,16 @@ function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, 
 	end
 	while enemyStrength > 0 do
 		local selected_template = template_pool[math.random(1,#template_pool)]
-		--print("selected template:",selected_template)
+		print("selected template:",selected_template)
+		print("base:",ship_template[selected_template].base)
 		local ship = ship_template[selected_template].create(fleetSpawnFaction,selected_template)
-		ship:setCommsScript(""):setCommsFunction(commsShip):orderRoaming()
+		if ship_template[selected_template].base then
+			print("setting faux station comms")
+			ship:setCommsScript(""):setCommsFunction(commsStation)
+		else
+			ship:setCommsScript(""):setCommsFunction(commsShip)
+		end
+		ship:orderRoaming()
 		if fleetOrders == "Roaming" then
 			ship:orderRoaming()
 		elseif fleetOrders == "Idle" then
@@ -15918,6 +16214,152 @@ function asteroidOrbiter(enemyFaction)
 	local ship = orbiter(enemyFaction)
 	update_system:addOverclockableTractor(ship,Asteroid)
 	return ship
+end
+--ships that serve as stations
+function commandBase(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Jump Carrier"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setScanned(true)
+	ship:setTypeName("Command Base")
+	ship:setRadarTrace("radartrace_smallstation.png")			--different radar trace
+	ship:setJumpDrive(false)						--no jump drive
+	ship:setImpulseMaxSpeed(0)						--slower impulse (vs 50)
+	ship:setRotationMaxSpeed(0.5)					--slower maneuver (vs 6)
+	ship:setAcceleration(0)							--slower acceleration (vs 10)
+	ship:setShieldsMax(500)							--stronger shields (vs 50)
+	ship:setShields(500)					
+	ship:setHullMax(300)							--stronger hull (vs 100)
+	ship:setHull(300)
+	ship:setSharesEnergyWithDocked(true)
+	ship:setRepairDocked(true)
+	ship:setRestocksScanProbes(true)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	10,	   45,	2000,		1,		5)
+	ship:setBeamWeapon(1,	10,	  135,	2000,		1,		5)
+	ship:setBeamWeapon(2,	10,	  225,	2000,		1,		5)
+	ship:setBeamWeapon(3,	10,	  315,	2000,		1,		5)
+--							   Arc, Dir, Rotate speed
+	ship:setBeamWeaponTurret(0,	70,	 45,		 .5)
+	ship:setBeamWeaponTurret(1,	70,	135,		 .5)
+	ship:setBeamWeaponTurret(2,	70,	225,		 .5)
+	ship:setBeamWeaponTurret(3,	70,	315,		 .5)
+	ship:setWeaponTubeCount(4)						--more (vs 0)
+	ship:setWeaponTubeDirection(0,0)				
+	ship:setWeaponTubeDirection(1,90)				
+	ship:setWeaponTubeDirection(2,180)				
+	ship:setWeaponTubeDirection(3,270)				
+	ship:setTubeLoadTime(0,10)						
+	ship:setTubeLoadTime(1,10)						
+	ship:setTubeLoadTime(2,10)						
+	ship:setTubeLoadTime(3,10)						
+	ship:setWeaponStorageMax("Homing",400)			--more (vs 0)
+	ship:setWeaponStorage("Homing", 400)	
+    ship.comms_data = {
+    	friendlyness = random(1,100),
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 93,
+        hack_repair =			random(1,100) < 87,
+        scan_repair =			random(1,100) < 83,
+        combat_maneuver_repair=	random(1,100) < 73,
+        self_destruct_repair=	random(1,100) < 63,
+        sensor_boost = {value = math.random(5,10)*1000, cost = math.random(5,10)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = math.random(5,9),	cost = 1},},
+        trade = {	food = false, medicine = random(1,10)<3, luxury = random(1,10)<5 },
+        public_relations = false,
+        general_information = "",
+    	history = "",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "Adder MK5",
+			DF4 = "Adder MK5",
+			DF5 = "Phobos T3",
+			DF6 = "Phobos T3",
+    	},
+	}
+	return ship	
+end
+function militaryOutpost(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setScanned(true)
+	ship:setTypeName("Military Outpost")
+	ship:setShieldsMax(150,150,150,150)				--weaker shields (vs 120,120,120,120,120,120)
+	ship:setShields(150,150,150,150)					
+	ship:setHullMax(300)							--stronger hull (vs 150)
+	ship:setHull(300)
+	ship:setSharesEnergyWithDocked(true)
+	ship:setRepairDocked(true)
+	ship:setRestocksScanProbes(true)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	10,	   45,	3000,		2,		8)
+	ship:setBeamWeapon(1,	10,	  135,	3000,		2,		8)
+	ship:setBeamWeapon(2,	10,	  225,	3000,		2,		8)
+	ship:setBeamWeapon(3,	10,	  315,	3000,		2,		8)
+	ship:setBeamWeapon(4,	 0,	    0,	   0,		0,		0)
+	ship:setBeamWeapon(5,	 0,	    0,	   0,		0,		0)
+--							   Arc, Dir, Rotate speed
+	ship:setBeamWeaponTurret(0,	80,	 45,		 .5)
+	ship:setBeamWeaponTurret(1,	80,	135,		 .5)
+	ship:setBeamWeaponTurret(2,	80,	225,		 .5)
+	ship:setBeamWeaponTurret(3,	80,	315,		 .5)
+	ship:setWeaponTubeCount(4)						--more (vs 0)
+	ship:setWeaponTubeDirection(0,0)				
+	ship:setWeaponTubeDirection(1,90)				
+	ship:setWeaponTubeDirection(2,180)				
+	ship:setWeaponTubeDirection(3,270)				
+	ship:setTubeLoadTime(0,10)						
+	ship:setTubeLoadTime(1,10)						
+	ship:setTubeLoadTime(2,10)						
+	ship:setTubeLoadTime(3,10)						
+	ship:setWeaponStorageMax("HVLI",400)			--more (vs 0)
+	ship:setWeaponStorage("HVLI", 400)	
+    ship.comms_data = {
+    	friendlyness = random(1,100),
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 83,
+        hack_repair =			random(1,100) < 77,
+        scan_repair =			random(1,100) < 73,
+        combat_maneuver_repair=	random(1,100) < 63,
+        self_destruct_repair=	random(1,100) < 53,
+        sensor_boost = {value = math.random(5,10)*1000, cost = math.random(5,10)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = math.random(5,9),	cost = 1},},
+        trade = {	food = false, medicine = random(1,10)<3, luxury = random(1,10)<5 },
+        public_relations = false,
+        general_information = "",
+    	history = "",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Adder MK5",
+			DF4 = "Adder MK6",
+			DF5 = "Nirvana R5",
+			DF6 = "Nirvana R5A",
+			DF7 = "Piranha F12",
+			DF8 = "Piranha F8",
+    	},
+	}
+	return ship	
 end
 --	*											   *  --
 --	**											  **  --
@@ -23696,32 +24138,34 @@ function commsStation()
             HVLI = "neutral",
             Mine = "neutral",
             Nuke = "friend",
-            EMP = "friend"
+            EMP = "friend",
         },
         weapon_cost = {
             Homing = math.random(1,4),
             HVLI = math.random(1,3),
             Mine = math.random(2,5),
             Nuke = math.random(12,18),
-            EMP = math.random(7,13)
+            EMP = math.random(7,13),
         },
         services = {
             supplydrop = "friend",
             reinforcements = "friend",
             sensor_boost = "neutral",
-			preorder = "friend"
+			preorder = "friend",
+            activatedefensefleet = "neutral",
         },
         service_cost = {
             supplydrop = math.random(80,120),
-            reinforcements = math.random(125,175)
+            reinforcements = math.random(125,175),
+            activatedefensefleet = 20,
         },
         reputation_cost_multipliers = {
             friend = 1.0,
-            neutral = 3.0
+            neutral = 3.0,
         },
         max_weapon_refill_amount = {
             friend = 1.0,
-            neutral = 0.5
+            neutral = 0.5,
         }
     })
     comms_data = comms_target.comms_data
@@ -24016,6 +24460,38 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
+    if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) and 
+    	comms_target.comms_data.idle_defense_fleet ~= nil then
+    	local defense_fleet_count = 0
+    	for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
+    		defense_fleet_count = defense_fleet_count + 1
+    	end
+    	if defense_fleet_count > 0 then
+    		addCommsReply("Activate station defense fleet (" .. getServiceCost("activatedefensefleet") .. " rep)",function()
+    			if comms_source:takeReputationPoints(getServiceCost("activatedefensefleet")) then
+    				local out = string.format("%s defense fleet\n",comms_target:getCallSign())
+    				for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
+    					local script = Script()
+						local position_x, position_y = comms_target:getPosition()
+						local station_name = comms_target:getCallSign()
+						script:setVariable("position_x", position_x):setVariable("position_y", position_y)
+						script:setVariable("station_name",station_name)
+    					script:setVariable("name",name)
+    					script:setVariable("template",template)
+    					script:setVariable("faction_id",comms_target:getFactionId())
+    					script:run("border_defend_station.lua")
+    					out = out .. " " .. name
+    					comms_target.comms_data.idle_defense_fleet[name] = nil
+    				end
+    				out = out .. "\nactivated"
+    				setCommsMessage(out)
+    			else
+    				setCommsMessage("Insufficient reputation")
+    			end
+				addCommsReply("Back", mainMenu)
+    		end)
+		end
+    end
 	if ctd.public_relations then
 		addCommsReply("Tell me more about your station", function()
 			setCommsMessage("What would you like to know?")
@@ -25156,6 +25632,38 @@ function handleUndockedState()
             end
             addCommsReply("Back", commsStation)
         end)
+    end
+    if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) and 
+    	comms_target.comms_data.idle_defense_fleet ~= nil then
+    	local defense_fleet_count = 0
+    	for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
+    		defense_fleet_count = defense_fleet_count + 1
+    	end
+    	if defense_fleet_count > 0 then
+    		addCommsReply("Activate station defense fleet (" .. getServiceCost("activatedefensefleet") .. " rep)",function()
+    			if comms_source:takeReputationPoints(getServiceCost("activatedefensefleet")) then
+    				local out = string.format("%s defense fleet\n",comms_target:getCallSign())
+    				for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
+    					local script = Script()
+						local position_x, position_y = comms_target:getPosition()
+						local station_name = comms_target:getCallSign()
+						script:setVariable("position_x", position_x):setVariable("position_y", position_y)
+						script:setVariable("station_name",station_name)
+    					script:setVariable("name",name)
+    					script:setVariable("template",template)
+    					script:setVariable("faction_id",comms_target:getFactionId())
+    					script:run("border_defend_station.lua")
+    					out = out .. " " .. name
+    					comms_target.comms_data.idle_defense_fleet[name] = nil
+    				end
+    				out = out .. "\nactivated"
+    				setCommsMessage(out)
+    			else
+    				setCommsMessage("Insufficient reputation")
+    			end
+				addCommsReply("Back", mainMenu)
+    		end)
+		end
     end
 end
 function getServiceCost(service)
