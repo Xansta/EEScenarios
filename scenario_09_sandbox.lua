@@ -350,16 +350,21 @@ function setConstants()
 		["Piranha F12"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Piranha F12.M"] =		{strength = 16,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Phobos M3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Farco 3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco3},
+		["Farco 5"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco5},
 		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Phobos T4"] =			{strength = 18,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = phobosT4},
 		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Farco 8"] =			{strength = 19,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco8},
 		["Nirvana R5A"] =		{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Adv. Gunship"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Farco 11"] =			{strength = 21,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco11},
 		["Storm"] =				{strength = 22,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Stalker R5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stalkerR5},
 		["Stalker Q5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stalkerQ5},
+		["Farco 13"] =			{strength = 24,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco13},
 		["Ranus U"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Stalker Q7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Stalker R7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
@@ -16224,6 +16229,182 @@ function whirlwind(enemyFaction)
 				{key = "Tube   0", value = "15 sec"},	--torpedo tube direction and load speed
 				{key = "Tube   2", value = "15 sec"},	--torpedo tube direction and load speed
 				{key = "Tube  -2", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function farco3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Farco 3")
+	ship:setShieldsMax(60, 40)									--stronger shields (vs 50, 40)
+	ship:setShields(60, 40)					
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	local farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
+	if farco_3_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 3")
+		farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Farco 3"),	--base ship database entry
+			farco_3_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 3, the beams are longer and faster and the shields are slightly stronger.",
+			{
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function farco5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Farco 5")
+	ship:setShieldsMax(60, 40)				--stronger shields (vs 50, 40)
+	ship:setShields(60, 40)	
+	ship:setTubeLoadTime(0,30)				--faster (vs 60)
+	ship:setTubeLoadTime(0,30)				
+	local farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
+	if farco_5_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 5")
+		farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Farco 5"),	--base ship database entry
+			farco_5_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 5, the tubes load faster and the shields are slightly stronger.",
+			{
+				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function farco8(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Farco 8")
+	ship:setShieldsMax(80, 50)				--stronger shields (vs 50, 40)
+	ship:setShields(80, 50)	
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	ship:setTubeLoadTime(0,30)				--faster (vs 60)
+	ship:setTubeLoadTime(0,30)				
+	local farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
+	if farco_8_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 8")
+		farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Farco 8"),	--base ship database entry
+			farco_8_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 8, the beams are longer and faster, the tubes load faster and the shields are stronger.",
+			{
+				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function farco11(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Farco 11")
+	ship:setShieldsMax(80, 50)				--stronger shields (vs 50, 40)
+	ship:setShields(80, 50)	
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 10)
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	ship:setBeamWeapon(2,	20,	  0,	 1800,	5.0,	4.0)	--additional sniping beam
+	local farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
+	if farco_11_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 11")
+		farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Farco 11"),	--base ship database entry
+			farco_11_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 11, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam and the shields are stronger.",
+			{
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+			},
+			nil		--jump range
+		)
+	end
+	return ship
+end
+function farco13(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Farco 13")
+	ship:setShieldsMax(90, 70)				--stronger shields (vs 50, 40)
+	ship:setShields(90, 70)	
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 10)
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	ship:setBeamWeapon(2,	20,	  0,	 1800,	5.0,	4.0)	--additional sniping beam
+	ship:setTubeLoadTime(0,30)				--faster (vs 60)
+	ship:setTubeLoadTime(0,30)				
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 6)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",30)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 30)
+	local farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
+	if farco_13_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 13")
+		farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Farco 13"),	--base ship database entry
+			farco_13_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 13, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam, the tubes load faster, there are more missiles and the shields are stronger.",
+			{
+				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
 			},
 			nil		--jump range
 		)
