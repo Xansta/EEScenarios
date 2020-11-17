@@ -1687,11 +1687,12 @@ function updateSystem()
 		end,
 		addOrbitTargetUpdate = function (self, obj, orbit_target, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(orbit_target)=="table")
-			assert(type(distance)=="number")
-			assert(type(orbit_time)=="number")
-			assert(type(initial_angle)=="number" or initial_angle == nil)
+			assert(type(obj)=="table")			--generally another reference to self that is orbiting
+			assert(type(orbit_target)=="table")	--the thing that self is orbiting
+			assert(type(distance)=="number")	--how far away self is orbiting orbit_target
+			assert(type(orbit_time)=="number")	--how long to complete one orbit
+			assert(type(initial_angle)=="number" or 
+				initial_angle == nil)			--angle at which to start the orbit
 			initial_angle = initial_angle or 0
 			local update_data = {
 				name = "orbit target",
@@ -1720,6 +1721,57 @@ function updateSystem()
 				end
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
+		end,
+		addOrbitTargetWithInfluenceUpdate = function (self, obj, orbit_target, orbit_radius, slow_orbit_speed, fast_orbit_speed, orbit_influencer, slow_distance, fast_distance)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")				--generally another reference to self that is orbiting
+			assert(type(orbit_target)=="table")		--the thing that self is orbiting
+			assert(type(orbit_radius)=="number")	--how far away self is orbiting orbit_target
+			assert(type(slow_orbit_speed)=="number")	--how fast to orbit while in slow region; deg/sec
+			assert(type(fast_orbit_speed)=="number")	--how fast to orbit while in fast region; deg/sec
+			assert(type(orbit_influencer)=="table")	--the thing that influences how fast self orbits orbit_target
+			assert(type(slow_distance)=="number")	--boundary distance between slow and transition speed
+			assert(type(fast_distance)=="number")	--boundary distance between fast and transition speed
+			local ot_x, ot_y = orbit_target:getPosition()
+			local obj_x, obj_y = obj:getPosition()
+			local orbit_angle = angleFromVectorNorth(ot_x,ot_y,obj_x,obj_y)
+			local update_data = {
+				name = "orbit target with influence",
+				orbit_target = orbit_target,
+				orbit_radius = orbit_radius,
+				slow_orbit_speed = slow_orbit_speed,
+				fast_orbit_speed = fast_orbit_speed,
+				orbit_influencer = orbit_influencer,
+				slow_distance = slow_distance,
+				fast_distance = fast_distance,
+				orbit_angle = orbit_angle,
+				edit = {
+					{name = "orbit_radius" , fixedAdjAmount=100},
+				},
+				update = function (self,obj,delta)
+					if self.orbit_target ~= nil and self.orbit_target:isValid() then
+						local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+						local orbit_speed = 0
+						if self.orbit_influencer ~= nil and self.orbit_influencer:isValid() then
+							local orbit_influencer_x, orbit_influencer_y = self.orbit_influencer:getPosition()
+							local influence_distance = distance(obj,obj.orbit_influencer)
+							if influence_distance < self.slow_distance then
+								orbit_speed = self.slow_orbit_speed
+							elseif influence_distance > self.fast_distance then
+								orbit_speed = self.fast_orbit_speed
+							else
+								orbit_speed = influence_distance/self.fast_distance*self.fast_orbit_speed
+							end
+						else
+							orbit_speed = self.fast_orbit_speed
+						end
+						self.orbit_angle = (self.orbit_angle + (orbit_speed*delta)) % 360
+						local new_pos_x, new_pos_y = vectorFromAngleNorth(self.orbit_angle,self.orbit_radius)
+						obj:setPosition(orbit_target_x + new_pos_x,orbit_target_y + new_pos_y)
+					end
+				end
+			}
+			self:addUpdate(obj,"absoluteVariablePosition",update_data)
 		end,
 		addPatrol = function (self, obj, patrol_points, patrol_point_index, patrol_check_timer_interval)
 			assert(type(self)=="table")
@@ -5523,6 +5575,7 @@ function createKentarColor()
 	kentar_defense_platforms = {}
 	kentar_planets = createKentarPlanets()
 	kentar_asteroids = createKentarAsteroids()
+	kentar_moving_asteroids = createKentarOrbitingAsteroids()
 	kentar_nebula = createKentarNebula()
 	kentar_mines = createKentarMines()
 	kentar_stations = createKentarStations()
@@ -5932,6 +5985,224 @@ function createKentarPlanets()
 	table.insert(planet_list,black_hole_k2)
 	return planet_list
 end
+function createKentarOrbitingAsteroids()
+	local asteroid_list = {}
+	local asteroid_details = {
+		{438202, 106939,179},
+		{439406, 108631,244},
+		{439556, 110404,255},
+		{445151, 115994,234},
+		{446075, 110491,267},
+		{447353, 107336,188},
+		{443965, 104266,251},
+		{443846, 101072,288},
+		{420298, 100935,177},
+		{422742, 99380,204},
+		{426465, 103303,179},
+		{428234, 96320,172},
+		{433853, 100713,223},
+		{436062, 104991,199},
+		{434632, 106705,284},
+		{475853, 142935,183},
+		{475631, 136046,125},
+		{466924, 137718,261},
+		{468606, 137287,263},
+		{476803, 148254,172},
+		{476853, 150890,249},
+		{484298, 152935,215},
+		{480340, 154309,285},
+		{476462, 155769,179},
+		{476465, 202473,206},
+		{481853, 192269,245},
+		{482056, 187312,147},
+		{479631, 177158,264},
+		{482712, 176455,184},
+		{480419, 183944,212},
+		{482490, 183557,168},
+		{489409, 166935,245},
+		{483187, 164269,195},
+		{478175, 169012,208},
+		{464711, 124665,226},
+		{465849, 123165,149},
+		{467409, 131158,213},
+		{462081, 129193,220},
+		{460076, 125201,99},
+		{456533, 127512,214},
+		{456743, 116285,151},
+		{451294, 116868,239},
+		{453409, 113824,140},
+		{457262, 108972,169},
+		{458742, 121602,156},
+		{453991, 123866,111},
+		{451631, 243158,174},
+		{457409, 235824,225},
+		{449409, 235602,219},
+		{442520, 241824,166},
+		{451409, 232046,246},
+		{462742, 220713,215},
+		{461187, 223380,186},
+		{415853, 252491,181},
+		{420520, 244046,164},
+		{434964, 253158,192},
+		{427187, 254491,129},
+		{428075, 238046,225},
+		{433187, 242269,243},
+		{473409, 208269,207},
+		{470742, 217602,205},
+		{468520, 211380,263},
+		{420075, 239158,228},
+		{430298, 241380,142},
+		{449409, 230713,223},
+		{391631, 240491,204},
+		{388964, 254491,196},
+		{394742, 250713,263},
+		{401853, 245158,169},
+		{401853, 250491,281},
+		{408742, 246935,214},
+		{385631, 236713,162},
+		{392742, 235158,179},
+		{400964, 239380,221},
+		{407853, 243158,220},
+		{410520, 103158,176},
+		{409384, 107200,158},
+		{408292, 97682,134},
+		{413880, 101053,198},
+		{403853, 99824,199},
+		{406695, 100545,173},
+		{396199, 104603,144},
+		{395902, 102635,256},
+		{394016, 107213,115},
+		{397227, 105327,178},
+		{397511, 106332,232},
+		{397501, 107461,185},
+		{399834, 98489,110},
+		{400109, 98032,155},
+		{390956, 103875,140},
+		{391159, 106602,201},
+		{387302, 105046,198},
+		{383187, 107824,161},
+		{382227, 105381,173},
+		{350742, 133158,198},
+		{351409, 137158,236},
+		{355064, 124956,121},
+		{353821, 129744,221},
+		{360742, 127158,137},
+		{364822, 124480,237},
+		{357552, 129346,143},
+		{358964, 123380,119},
+		{362560, 121821,253},
+		{347187, 138491,196},
+		{343187, 143824,175},
+		{348964, 146269,167},
+		{343853, 153158,196},
+		{338964, 172046,230},
+		{340075, 158935,191},
+		{342075, 167602,138},
+		{364298, 114713,145},
+		{368075, 117380,120},
+		{368928, 113308,212},
+		{371631, 118046,221},
+		{371962, 114999,213},
+		{370469, 110794,248},
+		{375631, 108269,184},
+		{377990, 112614,138},
+		{342075, 178046,247},
+		{333187, 194935,156},
+		{333631, 186269,135},
+		{340298, 186269,190},
+		{335853, 211158,138},
+		{339853, 206491,194},
+		{341187, 193602,173},
+		{370964, 245380,213},
+		{369409, 238491,214},
+		{377631, 240935,229},
+		{381187, 247158,218},
+		{362520, 230713,253},
+		{363631, 225158,114},
+		{352520, 220269,202},
+		{357409, 235380,199},
+		{345409, 219158,220},
+		{348298, 209602,295},
+		{350520, 227602,132},
+		{374964, 230935,150},
+		{346520, 200046,263},    
+    }
+    for i=1,#asteroid_details do
+    	local static_asteroid = Asteroid():setPosition(asteroid_details[i][1],asteroid_details[i][2]):setSize(asteroid_details[i][3])
+    	local orbit_distance = distance(static_asteroid,planet_rigil)
+    	local s_orbit = 1.5
+    	local f_orbit = 3.2
+    	static_asteroid.orbit_influencer = planet_primus
+    	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_primus,10000,30000)
+    	table.insert(asteroid_list,static_asteroid)
+    end
+	local asteroid_details = {
+		{414667, 120222,205},
+		{422222, 118889,200},
+		{443778, 127111,133},
+		{426444, 121778,239},
+		{426444, 118000,129},
+		{442000, 130444,201},
+		{438444, 131333,207},
+		{435556, 124444,283},
+		{431111, 126000,170},
+		{448889, 136222,179},
+		{448444, 141111,216},
+		{445556, 134444,141},
+		{443556, 135556,237},
+		{453111, 137778,246},
+		{454222, 148000,244},
+		{453333, 143556,90},
+		{458000, 181778,179},
+		{458667, 173333,189},
+		{463111, 172444,202},
+		{460667, 176889,224},
+		{464000, 174889,154},
+		{461111, 162667,166},
+		{462667, 165778,175},
+		{460667, 171556,202},
+		{462667, 168222,184},
+		{460222, 166667,188},
+		{458889, 160667,207},
+		{460444, 159111,200},
+		{456667, 158222,119},
+		{456222, 146000,235},
+		{455556, 183556,139},
+		{457111, 151111,218},
+		{459333, 155778,230},
+		{441556, 202222,191},
+		{443556, 199333,268},
+		{446667, 198444,186},
+		{447556, 195778,156},
+		{451556, 186667,159},
+		{451556, 190000,216},
+		{450222, 197556,294},
+		{444444, 203111,185},
+		{403556, 217333,196},
+		{406889, 215556,193},
+		{397778, 219111,235},
+		{397333, 212000,138},
+		{412889, 215111,142},
+		{409111, 213778,251},
+		{420667, 212222,260},
+		{420444, 214667,244},
+		{426222, 211778,143},
+		{434444, 208889,282},
+		{432889, 208889,234},
+		{435111, 205556,121},
+		{438444, 206889,244},    
+    }
+    for i=1,#asteroid_details do
+    	local static_asteroid = Asteroid():setPosition(asteroid_details[i][1],asteroid_details[i][2]):setSize(asteroid_details[i][3])
+    	local orbit_distance = distance(static_asteroid,planet_rigil)
+    	local s_orbit = 1.8
+    	local f_orbit = 3.9
+    	static_asteroid.orbit_influencer = planet_primus
+    	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_primus,10000,30000)
+    	table.insert(asteroid_list,static_asteroid)
+    end
+    return asteroid_list
+end
 function createKentarMines()
 	local mine_list = {}
 	local mine_coordinates = {
@@ -6245,6 +6516,13 @@ function removeKentarColor()
 		end
 	end
 	kentar_asteroids = nil
+	
+	if kentar_moving_asteroids ~= nil then
+		for _,ka in pairs(kentar_moving_asteroids) do
+			ka:destroy()
+		end
+	end
+	kentar_moving_asteroids = nil
 	
 	if kentar_nebula ~= nil then
 		for _,kn in pairs(kentar_nebula) do
