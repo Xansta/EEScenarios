@@ -3937,6 +3937,22 @@ function changeTerrain()
 			end)
 		end
 	end
+	if kentar_moving_asteroids == nil then
+		addGMFunction("Add Kentar Whirlpool",function()
+			kentar_moving_asteroids = createKentarOrbitingAsteroids()
+			changeTerrain()
+		end)
+	else
+		addGMFunction("Del Kentar Whirlpool",function()
+			if kentar_moving_asteroids ~= nil then
+				for _,ka in pairs(kentar_moving_asteroids) do
+					ka:destroy()
+				end
+			end
+			kentar_moving_asteroids = nil
+			changeTerrain()
+		end)
+	end
 end
 -- Icarus area stations, asteroids, mines, etc. 
 function icarusSector()
@@ -6187,8 +6203,8 @@ function createKentarOrbitingAsteroids()
     for i=1,#asteroid_details do
     	local static_asteroid = Asteroid():setPosition(asteroid_details[i][1],asteroid_details[i][2]):setSize(asteroid_details[i][3])
     	local orbit_distance = distance(static_asteroid,planet_rigil)
-    	local s_orbit = 1.5
-    	local f_orbit = 3.2
+    	local s_orbit = .8
+    	local f_orbit = 1.5
     	static_asteroid.orbit_influencer = planet_primus
     	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_primus,10000,30000)
     	table.insert(asteroid_list,static_asteroid)
@@ -6252,8 +6268,8 @@ function createKentarOrbitingAsteroids()
     for i=1,#asteroid_details do
     	local static_asteroid = Asteroid():setPosition(asteroid_details[i][1],asteroid_details[i][2]):setSize(asteroid_details[i][3])
     	local orbit_distance = distance(static_asteroid,planet_rigil)
-    	local s_orbit = 1.8
-    	local f_orbit = 3.9
+    	local s_orbit = 1.1
+    	local f_orbit = 1.7
     	static_asteroid.orbit_influencer = planet_primus
     	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_primus,10000,30000)
     	table.insert(asteroid_list,static_asteroid)
@@ -26920,6 +26936,20 @@ function movingObjects(delta)
 			end
 		end
 	end
+end
+--------------------------
+--	External functions  --
+--------------------------
+function activePlayerShips()
+	local return_list = ""
+	for i=1,32 do
+		local ship = getPlayerShip(i)
+		if ship ~= nil and ship:isValid() then
+			return_list = return_list .. ship:getCallSign()
+		end
+		return_list = return_list .. "\n"
+	end
+	return return_list
 end
 -------------------------
 --	Testing functions  --
