@@ -24476,7 +24476,7 @@ function enemyComms(comms_data)
 end
 function neutralComms(comms_data)
 	local shipType = comms_target:getTypeName()
-	if shipType:find("Freighter") ~= nil then
+	if shipType:find("Freighter") ~= nil or shipType:find("Transport") ~= nil or shipType:find("Cargo") ~= nil then
 		setCommsMessage("Yes?")
 		local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
 		local gm_name = gm_ship_names[math.random(1,#gm_ship_names)]
