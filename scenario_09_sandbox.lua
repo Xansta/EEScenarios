@@ -9538,6 +9538,9 @@ function activePlayerShip()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("Ship Butt Info",function()
+		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
+	end)
 	for shipNum = 1, #playerShipInfo do
 		if playerShipInfo[shipNum][2] == "active" then
 			local desc = playerShipInfo[shipNum][1]
@@ -9558,6 +9561,9 @@ function inactivePlayerShip()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("Ship Butt Info",function()
+		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
+	end)
 	for shipNum = 1, #playerShipInfo do
 		if playerShipInfo[shipNum][2] == "inactive" then
 			local desc = playerShipInfo[shipNum][1]
@@ -24050,6 +24056,9 @@ function friendlyComms(comms_data)
 			if comms_target:getWeaponStorageMax(missile_type) > 0 then
 					msg = msg .. missile_type .. " Missiles: " .. math.floor(comms_target:getWeaponStorage(missile_type)) .. "/" .. math.floor(comms_target:getWeaponStorageMax(missile_type)) .. "\n"
 			end
+		end
+		if comms_target:hasJumpDrive() then
+			msg = msg .. "Jump drive charge: " .. comms_target:getJumpDriveCharge()
 		end
 		setCommsMessage(msg);
 		addCommsReply("Back", commsShip)
