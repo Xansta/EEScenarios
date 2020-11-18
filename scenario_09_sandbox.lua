@@ -1002,6 +1002,11 @@ function setConstants()
 		"fire_sphere_texture.png"
 	}
 	mining_drain = .00025
+	gm_ship_names = {
+		"Ship Liaison",
+		"Communication Officer",
+		"Relay Runt",
+	}
 	gm_names = {
 		"Administrative Assistant",
 		"General Manager",
@@ -5747,7 +5752,7 @@ function createKentarStations()
         trade = {	food = true, medicine = false, luxury = tradeLuxury },
         public_relations = true,
         general_information = "Extracting minerals from these asteroids is our job",
-    	history = "Based on the scans showing cobalt in many of these asteroids, we named this station after an ancient earth mining operation that was part of the Glencore Public Limited Comany",
+    	history = "Based on the scans showing cobalt in many of these asteroids, we named this station after an ancient earth mining operation that was part of the Glencore Public Limited Company",
     	idle_defense_fleet = {
 			DF1 = "MT52 Hornet",
 			DF2 = "MU52 Hornet",
@@ -24032,6 +24037,12 @@ function friendlyComms(comms_data)
 	else
 		setCommsMessage("Sir, how can we assist?");
 	end
+	local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
+	local gm_name = gm_ship_names[math.random(1,#gm_ship_names)]
+	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+		commsSwitchToGM()
+		addCommsReply("Back", commsShip)
+	end)
 	addCommsReply("Defend a waypoint", function()
 		if comms_source:getWaypointCount() == 0 then
 			setCommsMessage("No waypoints set. Please set a waypoint first.");
@@ -24467,6 +24478,12 @@ function neutralComms(comms_data)
 	local shipType = comms_target:getTypeName()
 	if shipType:find("Freighter") ~= nil then
 		setCommsMessage("Yes?")
+		local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
+		local gm_name = gm_ship_names[math.random(1,#gm_ship_names)]
+		addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+			commsSwitchToGM()
+			addCommsReply("Back", commsShip)
+		end)
 		addCommsReply("Do you have cargo you might sell?", function()
 			local goodCount = 0
 			local cargoMsg = "We've got "
