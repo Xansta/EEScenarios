@@ -292,7 +292,7 @@ function setConstants()
 	fleetStrengthFixedValue = 250
 	fleetStrengthByPlayerStrength = 1
 	fleetComposition = "Random"
-	fleetOrders = "Idle"
+	fleetOrders = "Stand Ground"
 	fleetSpawnLocation = "At Click"
 	fleetSpawnRelativeDirection = "Random Direction"
 	fleetSpawnAwayDirection = "90"
@@ -320,6 +320,12 @@ function setConstants()
 		["Leech Sat"] =		 	{strength = 80,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = leech},
 		["Command Base"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = commandBase},
 		["Military Outpost"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = militaryOutpost},
+		["Missile Pod D1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD1},
+		["Missile Pod D2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD2},
+		["Missile Pod D4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD4},
+		["Missile Pod T2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodT2},
+		["Missile Pod S1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS1},
+		["Missile Pod S4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS4},
 		-- normal ships that are part of the fleet spawn process
 		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	base = false,	create = gnat},
 		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneLite},
@@ -17220,6 +17226,87 @@ function asteroidOrbiter(enemyFaction)
 	update_system:addOverclockableTractor(ship,Asteroid)
 	return ship
 end
+function missilePod(enemyFaction)
+	-- common shared between all the missile pods
+	-- the AI behaves more sensibly with order stand ground in testing
+	local ship=CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderStandGround():setTypeName("Missile Pod")
+	-- no beams for missile platforms
+	ship:setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0)
+	ship:setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0)
+	ship:setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0)
+	ship:setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0)
+	ship:setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0)
+	ship:setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	-- much weaker shields / hull than normal
+	ship:setHullMax(35):setHull(35):setShieldsMax(50):setShields(50)
+	ship:setRotationMaxSpeed(5)
+	-- note no missiles - that is done in the individual type of platforms
+	return ship
+end
+-- the extra bit of the callsign after missile pod indicates the type of missile
+-- I wanted to avoid H=NVLI N=Nuke etc
+-- as it feels to obvious
+-- however dear reader of this code, I provide you with a decoder ring
+-- D=Dumb fire AKA HVLI
+-- T=Tracking AKA homing
+-- S=Shields AKA shields
+-- E=Explosive AKA nukes (not implemented yet due to expecations regarding extreme friendly fire)
+-- the digit is weighted such that small=1, medium=2, large=4
+-- all of the tubes are added together if multiple are present
+-- load time is not in there
+function missilePodD1(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D1")
+	ship:setHullMax(15):setHull(15):setShieldsMax(20):setShields(20)
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,7)
+	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"HVLI")
+	return ship
+end
+function missilePodD2(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D2")
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,13)
+	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
+	ship:setTubeSize(0,"Medium"):setWeaponTubeExclusiveFor(0,"HVLI")
+	return ship
+end
+function missilePodD4(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D4")
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,17)
+	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
+	ship:setTubeSize(0,"Large"):setWeaponTubeExclusiveFor(0,"HVLI")
+	return ship
+end
+function missilePodT2(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod T2")
+	ship:setWeaponTubeCount(2)
+	ship:setTubeLoadTime(0,15):setWeaponTubeDirection(0,-90)
+	ship:setTubeLoadTime(1,15):setWeaponTubeDirection(1,90)
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
+	ship:setTubeSize(1,"small"):setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	return ship
+end
+function missilePodS1(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod S1")
+	ship:setHullMax(55):setHull(55):setShieldsMax(50):setShields(50)
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,20)
+	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 100)
+	ship:setTubeSize(0,"Small"):setWeaponTubeExclusiveFor(0,"EMP")
+	return ship
+end
+function missilePodS4(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod S4")
+	ship:setHullMax(70):setHull(70):setShieldsMax(80):setShields(80)
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,60)
+	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 100)
+	ship:setTubeSize(0,"Large"):setWeaponTubeExclusiveFor(0,"EMP")
+	return ship
+end
 --ships that serve as stations
 function commandBase(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Jump Carrier"):orderRoaming()
@@ -24055,6 +24142,9 @@ end
 -- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
 function wrapWithErrorHandling(fun)
 	assert(type(fun)=="function" or fun==nil)
+	if fun == nil then
+		return nil
+	end
 	return function(...)
 		local status,error=pcall(fun, ...)
 		if not status then
@@ -24079,7 +24169,6 @@ end
 -- this saves the old addGMFunction, and makes it so all calls to addGMFunction
 -- are wrapped with the common error handling logic
 addGMFunctionReal=addGMFunction
---[[	Seems to have broken the gm click mode paradigm
 function addGMFunction(msg, fun)
 	assert(type(msg)=="string")
 	assert(type(fun)=="function" or fun==nil)
@@ -24091,7 +24180,6 @@ function onGMClick(fun)
 	assert(type(fun)=="function" or fun==nil)
 	return onGMClickReal(wrapWithErrorHandling(fun))
 end
---]]
 function getNumberOfObjectsString(all_objects)
 	-- get a multi-line string for the number of objects at the current time
 	-- intended to be used via addGMMessage or print, but there may be other uses
@@ -24185,6 +24273,37 @@ function math.CosineInterpolateTable(tbl,t)
 		end
 	end
 	return math._CosineInterpolateTableInner(tbl,#tbl-1,t)
+end
+function math.CubicInterpolate(y0,y1,y2,y3,mu)
+	-- see http://paulbourke.net/miscellaneous/interpolation/
+	assert(type(y0)=="number")
+	assert(type(y1)=="number")
+	assert(type(y2)=="number")
+	assert(type(y3)=="number")
+	assert(type(mu)=="number")
+	local mu2 = mu*mu;
+	local a0 = y3 - y2 - y0 + y1;
+	local a1 = y0 - y1 - a0;
+	local a2 = y2 - y0;
+	local a3 = y1;
+	return(a0*mu*mu2+a1*mu2+a2*mu+a3);
+end
+function math.CubicInterpolate2DTable(tbl,t)
+	-- this takes an array with 2 elements each (x and y)
+	-- and returns the Cubic interpolation for the (floating point) element t
+	-- it would be tricky and not very useful allowing a table with 3 elements and t==1
+	-- likewise caluclation at exactly 1 smaller than the length of the array is slightly tricky for the code
+	-- fixing these wouldnt be hard, just branchy and needing a lot of looking at to confirm it all works as expected
+	-- currently they will just fail asserts, which in turn allows it to be fixed at a later date without breaking old code
+	assert(type(tbl)=="table")
+	assert(type(t)=="number")
+	assert(t>=1,"CubicInterpolate2DTable t must be >= 1")
+	assert(math.ceil(t)+1<=#tbl,"CubicInterpolate2DTable tbl must have one one more element than the size of t")
+	local i = math.floor(t)
+	local mu = t - i
+	local x = math.CubicInterpolate(tbl[i].x,tbl[i+1].x,tbl[i+2].x,tbl[i+3].x,mu)
+	local y = math.CubicInterpolate(tbl[i].y,tbl[i+1].y,tbl[i+2].y,tbl[i+3].y,mu)
+	return x,y
 end
 function math.lerpTest()
 	assert(math.lerp(1,2,0)==1)
