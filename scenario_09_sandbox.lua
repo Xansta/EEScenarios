@@ -23905,6 +23905,37 @@ function math.CosineInterpolateTable(tbl,t)
 	end
 	return math._CosineInterpolateTableInner(tbl,#tbl-1,t)
 end
+function math.CubicInterpolate(y0,y1,y2,y3,mu)
+	-- see http://paulbourke.net/miscellaneous/interpolation/
+	assert(type(y0)=="number")
+	assert(type(y1)=="number")
+	assert(type(y2)=="number")
+	assert(type(y3)=="number")
+	assert(type(mu)=="number")
+	local mu2 = mu*mu;
+	local a0 = y3 - y2 - y0 + y1;
+	local a1 = y0 - y1 - a0;
+	local a2 = y2 - y0;
+	local a3 = y1;
+	return(a0*mu*mu2+a1*mu2+a2*mu+a3);
+end
+function math.CubicInterpolate2DTable(tbl,t)
+	-- this takes an array with 2 elements each (x and y)
+	-- and returns the Cubic interpolation for the (floating point) element t
+	-- it would be tricky and not very useful allowing a table with 3 elements and t==1
+	-- likewise caluclation at exactly 1 smaller than the length of the array is slightly tricky for the code
+	-- fixing these wouldnt be hard, just branchy and needing a lot of looking at to confirm it all works as expected
+	-- currently they will just fail asserts, which in turn allows it to be fixed at a later date without breaking old code
+	assert(type(tbl)=="table")
+	assert(type(t)=="number")
+	assert(t>=1,"CubicInterpolate2DTable t must be >= 1")
+	assert(math.ceil(t)+1<=#tbl,"CubicInterpolate2DTable tbl must have one one more element than the size of t")
+	local i = math.floor(t)
+	local mu = t - i
+	local x = math.CubicInterpolate(tbl[i].x,tbl[i+1].x,tbl[i+2].x,tbl[i+3].x,mu)
+	local y = math.CubicInterpolate(tbl[i].y,tbl[i+1].y,tbl[i+2].y,tbl[i+3].y,mu)
+	return x,y
+end
 function math.lerpTest()
 	assert(math.lerp(1,2,0)==1)
 	assert(math.lerp(1,2,1)==2)
