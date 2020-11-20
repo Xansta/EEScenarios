@@ -289,7 +289,7 @@ function setConstants()
 	fleetStrengthFixedValue = 250
 	fleetStrengthByPlayerStrength = 1
 	fleetComposition = "Random"
-	fleetOrders = "Idle"
+	fleetOrders = "Stand Ground"
 	fleetSpawnLocation = "At Click"
 	fleetSpawnRelativeDirection = "Random Direction"
 	fleetSpawnAwayDirection = "90"
