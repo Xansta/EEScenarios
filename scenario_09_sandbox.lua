@@ -317,6 +317,12 @@ function setConstants()
 		["Leech Sat"] =		 	{strength = 80,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = leech},
 		["Command Base"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = commandBase},
 		["Military Outpost"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = militaryOutpost},
+		["Missile Pod D1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD1},
+		["Missile Pod D2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD2},
+		["Missile Pod D4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD4},
+		["Missile Pod T2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodT2},
+		["Missile Pod S1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS1},
+		["Missile Pod S4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS4},
 		-- normal ships that are part of the fleet spawn process
 		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	base = false,	create = gnat},
 		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneLite},
@@ -16936,6 +16942,87 @@ function asteroidOrbiter(enemyFaction)
 	print("in asteroid orbiter function")
 	local ship = orbiter(enemyFaction)
 	update_system:addOverclockableTractor(ship,Asteroid)
+	return ship
+end
+function missilePod(enemyFaction)
+	-- common shared between all the missile pods
+	-- the AI behaves more sensibly with order stand ground in testing
+	local ship=CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderStandGround():setTypeName("Missile Pod")
+	-- no beams for missile platforms
+	ship:setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0)
+	ship:setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0)
+	ship:setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0)
+	ship:setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0)
+	ship:setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0)
+	ship:setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	-- much weaker shields / hull than normal
+	ship:setHullMax(35):setHull(35):setShieldsMax(50):setShields(50)
+	ship:setRotationMaxSpeed(5)
+	-- note no missiles - that is done in the individual type of platforms
+	return ship
+end
+-- the extra bit of the callsign after missile pod indicates the type of missile
+-- I wanted to avoid H=NVLI N=Nuke etc
+-- as it feels to obvious
+-- however dear reader of this code, I provide you with a decoder ring
+-- D=Dumb fire AKA HVLI
+-- T=Tracking AKA homing
+-- S=Shields AKA shields
+-- E=Explosive AKA nukes (not implemented yet due to expecations regarding extreme friendly fire)
+-- the digit is weighted such that small=1, medium=2, large=4
+-- all of the tubes are added together if multiple are present
+-- load time is not in there
+function missilePodD1(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D1")
+	ship:setHullMax(15):setHull(15):setShieldsMax(20):setShields(20)
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,7)
+	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"HVLI")
+	return ship
+end
+function missilePodD2(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D2")
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,13)
+	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
+	ship:setTubeSize(0,"Medium"):setWeaponTubeExclusiveFor(0,"HVLI")
+	return ship
+end
+function missilePodD4(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D4")
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,17)
+	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
+	ship:setTubeSize(0,"Large"):setWeaponTubeExclusiveFor(0,"HVLI")
+	return ship
+end
+function missilePodT2(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod T2")
+	ship:setWeaponTubeCount(2)
+	ship:setTubeLoadTime(0,15):setWeaponTubeDirection(0,-90)
+	ship:setTubeLoadTime(1,15):setWeaponTubeDirection(1,90)
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
+	ship:setTubeSize(1,"small"):setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	return ship
+end
+function missilePodS1(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod S1")
+	ship:setHullMax(55):setHull(55):setShieldsMax(50):setShields(50)
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,20)
+	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 100)
+	ship:setTubeSize(0,"Small"):setWeaponTubeExclusiveFor(0,"EMP")
+	return ship
+end
+function missilePodS4(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod S4")
+	ship:setHullMax(70):setHull(70):setShieldsMax(80):setShields(80)
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,60)
+	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 100)
+	ship:setTubeSize(0,"Large"):setWeaponTubeExclusiveFor(0,"EMP")
 	return ship
 end
 --ships that serve as stations
