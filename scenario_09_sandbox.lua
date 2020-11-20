@@ -6,6 +6,7 @@
 
 --Ideas
 --	sensor buoy drop
+--	add button to tweak red green and blue sensor lines in science for artifacts
 
 
 -- Starry's todo list
@@ -280,6 +281,8 @@ function setConstants()
 	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
+	prefix_length = 0
+	suffix_index = 0
 	startRegion = "Icarus (F5)"
 	icarus_color = false
 	kentar_color = false
@@ -2581,6 +2584,7 @@ function fiddleWithArtifacts()
 		else
 			addGMFunction("+Set Model",setArtifactModel)
 			addGMFunction("+Set Spin",setArtifactSpin)
+			addGMFunction("+Set Signature",setArtifactSignature)
 		end
 	end
 end
@@ -2986,6 +2990,153 @@ function setGivenSpin(spin)
 	end
 	object_list[1]:setSpin(spin)
 	addGMMessage(string.format("Spin set to %.1f",spin))
+end
+function setArtifactSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Signature",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction(string.format("+Biological %.2f",object_list[1]:getRadarSignatureBiological()),setArtifactBiologicalSignature)
+	addGMFunction(string.format("+Electrical %.2f",object_list[1]:getRadarSignatureElectrical()),setArtifactElectricalSignature)
+	addGMFunction(string.format("+Gravitational %.2f",object_list[1]:getRadarSignatureGravity()),setArtifactGravitationalSignature)
+end
+function setArtifactBiologicalSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Biological",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Signature",setArtifactSignature)
+	local bio = object_list[1]:getRadarSignatureBiological()
+	local elec = object_list[1]:getRadarSignatureElectrical()
+	local grav = object_list[1]:getRadarSignatureGravity()
+	if bio <= .9 then
+		addGMFunction(string.format("%.2f add .1 -> %.2f",bio,bio + .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio + .1)
+			setArtifactBiologicalSignature()
+		end)
+	end
+	if bio <= .99 then
+		addGMFunction(string.format("%.2f add .01 -> %.2f",bio,bio + .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio + .01)
+			setArtifactBiologicalSignature()
+		end)
+	end
+	if bio >= .1 then
+		addGMFunction(string.format("%.2f del .1 -> %.2f",bio,bio - .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio - .1)
+			setArtifactBiologicalSignature()
+		end)
+	end
+	if bio >= .01 then
+		addGMFunction(string.format("%.2f del .01 -> %.2f",bio,bio - .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio - .01)
+			setArtifactBiologicalSignature()
+		end)
+	end
+end
+function setArtifactElectricalSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Electrical",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Signature",setArtifactSignature)
+	local bio = object_list[1]:getRadarSignatureBiological()
+	local elec = object_list[1]:getRadarSignatureElectrical()
+	local grav = object_list[1]:getRadarSignatureGravity()
+	if elec <= .9 then
+		addGMFunction(string.format("%.2f add .1 -> %.2f",elec,elec + .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec + .1,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+	if elec <= .99 then
+		addGMFunction(string.format("%.2f add .01 -> %.2f",elec,elec + .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec + .01,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+	if elec >= .1 then
+		addGMFunction(string.format("%.2f del .1 -> %.2f",elec,elec - .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec - .1,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+	if elec >= .01 then
+		addGMFunction(string.format("%.2f del .01 -> %.2f",elec,elec - .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec - .01,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+end
+function setArtifactGravitationalSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Gravitational",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Signature",setArtifactSignature)
+	local bio = object_list[1]:getRadarSignatureBiological()
+	local elec = object_list[1]:getRadarSignatureElectrical()
+	local grav = object_list[1]:getRadarSignatureGravity()
+	if grav <= .9 then
+		addGMFunction(string.format("%.2f add .1 -> %.2f",grav,grav + .1),function()
+			object_list[1]:setRadarSignatureInfo(grav + .1,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
+	if grav <= .99 then
+		addGMFunction(string.format("%.2f add .01 -> %.2f",grav,grav + .01),function()
+			object_list[1]:setRadarSignatureInfo(grav + .01,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
+	if grav >= .1 then
+		addGMFunction(string.format("%.2f del .1 -> %.2f",grav,grav - .1),function()
+			object_list[1]:setRadarSignatureInfo(grav - .1,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
+	if grav >= .01 then
+		addGMFunction(string.format("%.2f del .01 -> %.2f",grav,grav - .01),function()
+			object_list[1]:setRadarSignatureInfo(grav - .01,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
 end
 ---------------------
 --	Tweak Terrain  --
@@ -12695,10 +12846,12 @@ function createPlayerShipWombat()
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
 	playerWombat:setWarpDrive(true)							--add warp (vs none)
 	playerWombat:setWarpSpeed(400)
-	playerWombat:setBeamWeapon(0, 10, 0, 900.0, 4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
-	playerWombat:setBeamWeapon(1, 10, 0, 900.0, 4.0, 3)	
-	playerWombat:setBeamWeaponTurret( 0, 80, -20, .3)
-	playerWombat:setBeamWeaponTurret( 1, 80,  20, .3)
+--                 				 Arc, Dir, Range, CycleTime, Damage
+	playerWombat:setBeamWeapon(0, 10,	0, 900.0,		4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
+	playerWombat:setBeamWeapon(1, 10,	0, 900.0,		4.0, 3)	
+--										Arc,	Dir, Rotate speed
+	playerWombat:setBeamWeaponTurret( 0, 80,	-20, .3)
+	playerWombat:setBeamWeaponTurret( 1, 80, 	 20, .3)
 	playerWombat:setWeaponTubeCount(5)						--more (vs 3)
 	playerWombat:setWeaponTubeDirection(0, 180)				
 	playerWombat:setWeaponTubeDirection(1, 180)				
@@ -14353,6 +14506,7 @@ function centerOfSelected(objectList)
 end
 function gmClickShipSpawn(x,y)
 	local ship = ship_template[individual_ship].create(fleetSpawnFaction,individual_ship)
+	ship:setCallSign(generateCallSign())
 	if ship_template[individual_ship].base then
 		ship:setCommsScript(""):setCommsFunction(commsStation)
 	end
@@ -14856,11 +15010,13 @@ function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, 
 		addGMMessage("Empty Template pool: fix excludes or other criteria")
 		return enemyList
 	end
+	local fleet_prefix = generateCallSignPrefix()
 	while enemyStrength > 0 do
 		local selected_template = template_pool[math.random(1,#template_pool)]
 		print("selected template:",selected_template)
 		print("base:",ship_template[selected_template].base)
 		local ship = ship_template[selected_template].create(fleetSpawnFaction,selected_template)
+		ship:setCallSign(generateCallSign(fleet_prefix))
 		if ship_template[selected_template].base then
 			print("setting faux station comms")
 			ship:setCommsScript(""):setCommsFunction(commsStation)
@@ -14934,6 +15090,132 @@ function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, 
 	end
 	return enemyList
 end
+--		Generate call sign functions
+function generateCallSign(prefix,faction)
+	if faction == nil then
+		if prefix == nil then
+			prefix = generateCallSignPrefix()
+		end
+	else
+		if prefix == nil then
+			prefix = getFactionPrefix(faction)
+		else
+			prefix = string.format("%s %s",getFactionPrefix(faction),prefix)
+		end
+	end
+	suffix_index = suffix_index + math.random(1,3)
+	if suffix_index > 99 then 
+		suffix_index = 1
+	end
+	return string.format("%s%i",prefix,suffix_index)
+end
+function generateCallSignPrefix(length)
+	if call_sign_prefix_pool == nil then
+		call_sign_prefix_pool = {}
+		prefix_length = prefix_length + 1
+		if prefix_length > 2 then
+			prefix_length = 1
+		end
+		fillPrefixPool()
+	end
+	if length == nil then
+		length = prefix_length
+	end
+	local prefix = ""
+	for i=1,length do
+		if #call_sign_prefix_pool < 1 then
+			fillPrefixPool()
+		end
+		prefix = prefix .. tableRemoveRandom(call_sign_prefix_pool)
+	end
+	return prefix
+end
+function fillPrefixPool()
+	for i=1,26 do
+		table.insert(call_sign_prefix_pool,string.char(i+64))
+	end
+end
+function getFactionPrefix(faction)
+	--get the faction names from another scenario if desired
+	local faction_prefix = nil
+	if faction == "Kraylor" then
+		if kraylor_names == nil then
+			setKraylorNames()
+		else
+			if #kraylor_names < 1 then
+				setKraylorNames()
+			end
+		end
+		local kraylor_name_choice = math.random(1,#kraylor_names)
+		faction_prefix = kraylor_names[kraylor_name_choice]
+		table.remove(kraylor_names,kraylor_name_choice)
+	end
+	if faction == "Exuari" then
+		if exuari_names == nil then
+			setExuariNames()
+		else
+			if #exuari_names < 1 then
+				setExuariNames()
+			end
+		end
+		local exuari_name_choice = math.random(1,#exuari_names)
+		faction_prefix = exuari_names[exuari_name_choice]
+		table.remove(exuari_names,exuari_name_choice)
+	end
+	if faction == "Ghosts" then
+		if ghosts_names == nil then
+			setGhostsNames()
+		else
+			if #ghosts_names < 1 then
+				setGhostsNames()
+			end
+		end
+		local ghosts_name_choice = math.random(1,#ghosts_names)
+		faction_prefix = ghosts_names[ghosts_name_choice]
+		table.remove(ghosts_names,ghosts_name_choice)
+	end
+	if faction == "Independent" then
+		if independent_names == nil then
+			setIndependentNames()
+		else
+			if #independent_names < 1 then
+				setIndependentNames()
+			end
+		end
+		local independent_name_choice = math.random(1,#independent_names)
+		faction_prefix = independent_names[independent_name_choice]
+		table.remove(independent_names,independent_name_choice)
+	end
+	if faction == "Human Navy" then
+		if human_names == nil then
+			setHumanNames()
+		else
+			if #human_names < 1 then
+				setHumanNames()
+			end
+		end
+		local human_name_choice = math.random(1,#human_names)
+		faction_prefix = human_names[human_name_choice]
+		table.remove(human_names,human_name_choice)
+	end
+	if faction_prefix == nil then
+		faction_prefix = generateCallSignPrefix()
+	end
+	return faction_prefix
+end
+function tableRemoveRandom(array)
+--	Remove random element from array and return it.
+	-- Returns nil if the array is empty,
+	-- analogous to `table.remove`.
+    local array_item_count = #array
+    if array_item_count == 0 then
+        return nil
+    end
+    local selected_item = math.random(array_item_count)
+    array[selected_item], array[array_item_count] = array[array_item_count], array[selected_item]
+    return table.remove(array)
+end
+
 function modifiedValue()
 	local modChance = random(1,100)
 	local modValue = 1
