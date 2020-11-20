@@ -23773,6 +23773,9 @@ end
 -- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
 function wrapWithErrorHandling(fun)
 	assert(type(fun)=="function" or fun==nil)
+	if fun == nil then
+		return nil
+	end
 	return function(...)
 		local status,error=pcall(fun, ...)
 		if not status then
@@ -23797,7 +23800,6 @@ end
 -- this saves the old addGMFunction, and makes it so all calls to addGMFunction
 -- are wrapped with the common error handling logic
 addGMFunctionReal=addGMFunction
---[[	Seems to have broken the gm click mode paradigm
 function addGMFunction(msg, fun)
 	assert(type(msg)=="string")
 	assert(type(fun)=="function" or fun==nil)
@@ -23809,7 +23811,6 @@ function onGMClick(fun)
 	assert(type(fun)=="function" or fun==nil)
 	return onGMClickReal(wrapWithErrorHandling(fun))
 end
---]]
 function getNumberOfObjectsString(all_objects)
 	-- get a multi-line string for the number of objects at the current time
 	-- intended to be used via addGMMessage or print, but there may be other uses
