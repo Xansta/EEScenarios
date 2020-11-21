@@ -49,6 +49,8 @@ function createSkeletonUniverse()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
+	CubicMineUpdateObject = CubicMineObject
+	CubicMineObject:addToUpdate()
 	skeleton_stations = {}
 	station_names = {}
 	--Icarus
@@ -22230,7 +22232,9 @@ function mineField()
 	addGMFunction("-Main From Minefield",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction(string.format("+Shape: %s",mine_shape),setMineShape)
-	addGMFunction(string.format("+Width: %i",mine_width),setMineWidth)
+	if mine_shape ~= "Cubic" then
+		addGMFunction(string.format("+Width: %i",mine_width),setMineWidth)
+	end
 	if mine_shape == "Circle" then
 		addGMFunction(string.format("+Radius: %i",mine_radius),setMineRadius)
 	end
@@ -22258,6 +22262,22 @@ function mineField()
 		else
 			addGMFunction("Center of Circle",mineCircle)
 		end
+	elseif mine_shape == "Cubic" then
+		if gm_click_mode == "mine Cubic" then
+			addGMFunction(">add point<",addCubicMineMarker)
+		else
+			addGMFunction("add point",addCubicMineMarker)
+		end
+		addGMFunction("finalize",
+			function ()
+				CubicMineUpdateObject:finalize()
+				mineField()
+			end)
+		addGMFunction("cancel",
+			function ()
+				CubicMineUpdateObject:cancel()
+				mineField()
+			end)
 	end
 end
 ---------------------------------------------------------
@@ -23123,6 +23143,18 @@ function setMineShape()
 		end
 		setMineShape()
 	end)
+	button_label = "Cubic interpolation"
+	if mine_shape == "Cubic" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		mine_shape = "Cubic"
+		if  gm_click_mode ~= nil and gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,11) ~= "mine Cubic" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+		setMineShape()
+	end)
 end
 -----------------------------------------
 --	Tweak Terrain > Minefield > Width  --
@@ -23273,6 +23305,126 @@ function gmClickMineLineEnd(x,y)
 	end
 	onGMClick(gmClickMineLineStart)
 	gm_click_mode = "mine line start"
+	mineField()
+end
+CubicMineObject = { markers = {}, ghostMines = {} }
+function CubicMineObject:cancel()
+	assert(type(self)=="table")
+	self.markers = destroyEEtable(self.markers)
+	self.ghostMines = destroyEEtable(self.ghostMines)
+	if gm_click_mode == "mine Cubic" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	end
+end
+function CubicMineObject:addMarker(x,y)
+	assert(type(self)=="table")
+	assert(type(x)=="number")
+	assert(type(y)=="number")
+	table.insert(self.markers,Artifact():setPosition(x,y))
+	self:updateNow()
+end
+function CubicMineObject.isValid() -- the update system checks if we are valid like a SpaceObject
+	return true
+end
+function CubicMineObject:finalize()
+	assert(type(self) == "table")
+	self:updateNow()
+	for i=1,#self.ghostMines do
+		if self.ghostMines[i]:isValid() then
+			local x,y=self.ghostMines[i]:getPosition()
+			Mine():setPosition(x,y)
+		end
+	end
+	self:cancel()
+end
+function CubicMineObject:updateNow()
+	assert(type(self) == "table")
+	-- if we have no ghost mines and wont generate any
+	if #self.ghostMines==0 and #self.markers<4 then
+		return
+	end
+
+	-- the markers can become invalid if destroyed by the GM or eaten by blackholes
+	self.markers = removeInvalidFromEETable(self.markers)
+
+	local pos_tbl = {}
+	for i=1,#self.markers do
+		local x,y=self.markers[i]:getPosition()
+		table.insert(pos_tbl,{x=x,y=y})
+	end
+
+	-- destroying and recreating the artifacts is very expensive in terms of network IO
+	-- there is also some major oddities if the server window is on main screen or engineering
+	-- presumibly relating to objects being tracked somewhere in that client
+	-- so while it is more of a pain we are going to reuse the old artifacts
+	local artifactsToReuse=removeInvalidFromEETable(self.ghostMines)
+	self.ghostMines={}
+
+	-- there probably is a nice algorithm to figure out given a curve with these parameters
+	-- where is the next point along it that is X units from the previous one
+	-- I do not know it
+	-- We could do a algorithm along the lines of
+	-- at T=0 and T=1 the difference is 10k, we want a difference of 500, therefore try T=0.05
+	-- that sounds complicated vs what we want
+	-- some inaccuracy in mine placement is unlikely to be noticed
+	-- so what we do is
+	-- Pick a small delta value to itterate along the curve and to figure out if the next mine is placed at that increment
+	-- the delta value wants to be large enough to be fast, but small enough to get all mine points on a large curve
+	-- if too large mine gaps are observed, it may be worth tweaking these two values
+	local max_dist = 200 * 1000
+	local min_mine_dist = 1000
+	local delta = 1/(max_dist/min_mine_dist)
+	local last_x = nil
+	local last_y = nil
+	if #self.markers>=4 then
+		for t=1,#self.markers-2,delta do
+			local x,y = math.CubicInterpolate2DTable(pos_tbl,t)
+			if last_x == nil or distance(last_x,last_y,x,y) > min_mine_dist then
+				last_x,last_y=x,y
+				local newArtifact=nil
+				if not (#artifactsToReuse==0) then
+					-- techincally this flips the order of the artifacts
+					-- which probably doesnt matter but is kind of odd if players get a scan on one
+					-- this in turn probably doesnt matter as this should be off screen vs the players
+					-- I am going to leave it this way round as it should be higher perfomance removing
+					-- elements from the end of the array
+					newArtifact=artifactsToReuse[#artifactsToReuse]
+					table.remove(artifactsToReuse,#artifactsToReuse)
+				else
+					newArtifact=Artifact()
+				end
+				newArtifact:setPosition(x,y)
+				table.insert(self.ghostMines,newArtifact)
+			end
+		end
+	end
+	destroyEEtable(artifactsToReuse)
+end
+function CubicMineObject:addToUpdate()
+	assert(type(self)=="table")
+	local update_data = {
+		update = function (self, obj, delta)
+			-- in testing network use and CPU is minimal, so call the recalculation each update
+			obj:updateNow(delta)
+			end,
+		edit = {},
+		name = "Cubic GM control"
+	}
+	update_system:addUpdate(self,"Cubic GM control",update_data)
+end
+function addCubicMineMarker()
+	if gm_click_mode == "mine Cubic" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "mine Cubic"
+		onGMClick(function (x,y) CubicMineObject:addMarker(x,y) end)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   mine Cubic\nGM click mode.",prev_mode))
+		end
+	end
 	mineField()
 end
 --	Arc shaped minefield functions
