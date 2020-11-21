@@ -24400,6 +24400,31 @@ function compatSetBeamWeaponDamage(obj,index,val)
 	)
 end
 
+------------------
+-- common utils --
+------------------
+
+-- itterate through a table destroying all elements
+-- returns an empty table to try to be similar with removeInvalidFromEETable
+function destroyEEtable(tbl)
+	assert(type(tbl)=="table")
+	for i=#tbl,1,-1 do
+		if tbl[i]:isValid() then
+			tbl[i]:destroy()
+		end
+	end
+	return {}
+end
+-- return a table with all invalid elements removed
+function removeInvalidFromEETable(tbl)
+	assert(type(tbl)=="table")
+	for i=#tbl,1,-1 do
+		if not tbl[i]:isValid() then
+			table.remove(tbl,i)
+		end
+	end
+	return tbl
+end
 --------------------------
 --	Ship communication  --
 --------------------------
