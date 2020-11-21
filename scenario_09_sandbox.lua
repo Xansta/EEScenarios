@@ -6,8 +6,6 @@
 
 --Ideas
 --	sensor buoy drop
---	add button to tweak red green and blue sensor lines in science for artifacts
-
 
 -- Starry's todo list
 -- test spliting out region and update code, understand what is necessary and consider switching away from the table returning everything if it works
