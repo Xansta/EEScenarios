@@ -323,7 +323,10 @@ function setConstants()
 		["Missile Pod D1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD1},
 		["Missile Pod D2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD2},
 		["Missile Pod D4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD4},
+		["Missile Pod T1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodT1},
 		["Missile Pod T2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodT2},
+		["Missile Pod TI2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodTI2},
+		["Missile Pod TX4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodTX4},
 		["Missile Pod S1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS1},
 		["Missile Pod S4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS4},
 		-- normal ships that are part of the fleet spawn process
@@ -630,6 +633,7 @@ function setConstants()
 	supplyHVLI = 0
 	supplyRepairCrew = 0
 	supplyCoolant = 0
+	supplyProbes = 0
 	shipTemplateDistance = {	["MT52 Hornet"] =					100,
 								["MU52 Hornet"] =					100,
 								["Adder MK5"] =						100,
@@ -3810,7 +3814,7 @@ function playerShip()
 			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
 			{"Barracuda"	,"inactive"	,createPlayerShipBarracuda	,"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
-			{"Blaire"		,"active"	,createPlayerShipBlaire		,"Kludge (Blaire), Corvette, Gunner... incomplete description"},
+			{"Blaire"		,"inactive"	,createPlayerShipBlaire		,"Kludge (Blaire), Corvette, Gunner... incomplete description"},
 --			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
 			{"Cobra"		,"inactive"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:100   Shield:100,100   Size:200   Repair Crew:3   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:600   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.2\n   Arc:100   Direction:-15   Range:1.1   Cycle:6   Damage:6.5\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6.5\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
 			{"Darkstar"		,"inactive"	,createPlayerShipDarkstar	,"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
@@ -3831,7 +3835,7 @@ function playerShip()
 			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Kindling"		,"inactive"	,createPlayerShipKindling	},
 --			{"Knick"		,"inactive"	,createPlayerShipKnick		,"Experimental - not ready for use"},
-			{"Knuckle Drag"	,"active"	,createPlayerShipSimian		,"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower"},
+			{"Knuckle Drag"	,"inactive"	,createPlayerShipSimian		,"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower"},
 			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
 			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
@@ -5818,14 +5822,14 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
-		if i == 2 then
-			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
-			kentar_zone:setColor(0,128,0)
-		else
+--		if i == 2 then
+--			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+--			kentar_zone:setColor(0,128,0)
+--		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
-		end
+--		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -17249,7 +17253,9 @@ end
 -- however dear reader of this code, I provide you with a decoder ring
 -- D=Dumb fire AKA HVLI
 -- T=Tracking AKA homing
--- S=Shields AKA shields
+-- S=Shields AKA EMPs
+-- I=Two tubes on opposite sides (no I or X = one tube)
+-- X=Four tubes equidistant (no I or X = one tube)
 -- E=Explosive AKA nukes (not implemented yet due to expecations regarding extreme friendly fire)
 -- the digit is weighted such that small=1, medium=2, large=4
 -- all of the tubes are added together if multiple are present
@@ -17279,13 +17285,43 @@ function missilePodD4(enemyFaction)
 	ship:setTubeSize(0,"Large"):setWeaponTubeExclusiveFor(0,"HVLI")
 	return ship
 end
+function missilePodT1(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod T1")
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,15)
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
+	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	return ship
+end
 function missilePodT2(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod T2")
+	ship:setWeaponTubeCount(1)
+	ship:setTubeLoadTime(0,15)
+	ship:setWeaponTubeExclusiveFor(0,"Homing")
+	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	return ship
+end
+function missilePodTI2(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod TI2")
 	ship:setWeaponTubeCount(2)
 	ship:setTubeLoadTime(0,15):setWeaponTubeDirection(0,-90)
 	ship:setTubeLoadTime(1,15):setWeaponTubeDirection(1,90)
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
-	ship:setTubeSize(1,"small"):setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	return ship
+end
+function missilePodTX4(enemyFaction)
+	local ship=missilePod(enemyFaction):setTypeName("Missile Pod TX4")
+	ship:setWeaponTubeCount(4)
+	ship:setTubeLoadTime(0,15):setWeaponTubeDirection(0,0)
+	ship:setTubeLoadTime(1,15):setWeaponTubeDirection(1,90)
+	ship:setTubeLoadTime(2,15):setWeaponTubeDirection(1,180)
+	ship:setTubeLoadTime(3,15):setWeaponTubeDirection(1,270)
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(2,"Homing")
+	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(3,"Homing")
 	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
 	return ship
 end
@@ -20117,6 +20153,7 @@ end
 -- +ENERGY 500			D	setSupplyEnergy
 -- +REPAIR CREW 0		D	setSupplyRepairCrew
 -- +COOLANT 0			D	setSupplyCoolant
+-- +PROBES 0			D	setSupplyProbes
 -- +NEAR TO				F	supplyNearTo
 function setCustomSupply()
 	--Default supply drop gives:
@@ -20128,6 +20165,24 @@ function setCustomSupply()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-From Supply",dropPoint)
+	if supply_drop_info == nil then
+		supply_drop_info = "Label"	--default upon Sandbox launch
+	end
+	addGMFunction(string.format("Info: %s",supply_drop_info),function()
+		local supply_info_explained = "Stock: No information about supply drop (just like stock EE)\nLabel: Supply drop call sign has supply drop info\nScan: Scan reveals supply drop info in description"
+		if supply_drop_info == "Label" then
+			supply_info_explained = "Previous: Label\n\n" .. supply_info_explained .. "\n\nSwitched to Scan"
+			supply_drop_info = "Scan"
+		elseif supply_drop_info == "Scan" then
+			supply_info_explained = "Previous: Scan\n\n" .. supply_info_explained .. "\n\nSwitched to Stock"
+			supply_drop_info = "Stock"
+		elseif supply_drop_info == "Stock" then
+			supply_info_explained = "Previous: Stock\n\n" .. supply_info_explained .. "\n\nSwitched to Label"
+			supply_drop_info = "Label"
+		end
+		addGMMessage(supply_info_explained)
+		setCustomSupply()
+	end)
 	local missile_label = ""
 	if supplyNuke > 0 then
 		missile_label = string.format("%sN%i",missile_label,supplyNuke)
@@ -20149,6 +20204,7 @@ function setCustomSupply()
 	addGMFunction(string.format("+Energy %i",supplyEnergy),setSupplyEnergy)
 	addGMFunction(string.format("+Repair Crew %i",supplyRepairCrew),setSupplyRepairCrew)
 	addGMFunction(string.format("+Coolant %i",supplyCoolant),setSupplyCoolant)
+	addGMFunction(string.format("+Probes %i",supplyProbes),setSupplyProbes)
 	if drop_point_location == "Associated" then
 		drop_point_location = "At Click"
 	end
@@ -20490,6 +20546,24 @@ function addCoolant()
 	supplyCoolant = supplyCoolant + 1
 	setSupplyCoolant()
 end
+function setSupplyProbes()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Drop Point",dropPoint)
+	addGMFunction("-From Probes",setCustomSupply)
+	if supplyProbes > 0 then
+		addGMFunction(string.format("%i-1=%i probes",supplyProbes,supplyProbes - 1), function()
+			supplyProbes = supplyProbes - 1
+			setSupplyProbes()
+		end)
+	end
+	if supplyProbes < 50 then
+		addGMFunction(string.format("%i+1=%i probes",supplyProbes,supplyProbes + 1), function()
+			supplyProbes = supplyProbes + 1
+			setSupplyProbes()
+		end)
+	end
+end
 --------------------------------------------------
 --	Drop Point > Custom Supply Point > Near To  --
 --------------------------------------------------
@@ -20547,32 +20621,56 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	if supplyCoolant > 0 then
 		customSupplyDrop.coolant = supplyCoolant
 	end
+	if supplyProbes > 0 then
+		customSupplyDrop.probes = supplyProbes
+	end
 	local supplyLabel = ""
+	local wordy_label = ""
 	if supplyEnergy > 0 then
 		supplyLabel = supplyLabel .. string.format("B%i ",supplyEnergy)
+		wordy_label = wordy_label .. string.format("Battery Power:%i ",supplyEnergy)
 	end
 	if supplyNuke > 0 then
 		supplyLabel = supplyLabel .. string.format("N%i ",supplyNuke)
+		wordy_label = wordy_label .. string.format("Nukes:%i ",supplyNuke)
 	end
 	if supplyEMP > 0 then
 		supplyLabel = supplyLabel .. string.format("E%i ",supplyEMP)
+		wordy_label = wordy_label .. string.format("EMPs:%i ",supplyEMP)
 	end
 	if supplyMine > 0 then
 		supplyLabel = supplyLabel .. string.format("M%i ",supplyMine)
+		wordy_label = wordy_label .. string.format("Mines:%i ",supplyMine)
 	end
 	if supplyHoming > 0 then
 		supplyLabel = supplyLabel .. string.format("H%i ",supplyHoming)
+		wordy_label = wordy_label .. string.format("Homing Missiles:%i ",supplyHoming)
 	end
 	if supplyHVLI > 0 then
 		supplyLabel = supplyLabel .. string.format("L%i ",supplyHVLI)
+		wordy_label = wordy_label .. string.format("High Velocity Lead Impactors:%i ",supplyHVLI)
 	end
 	if supplyRepairCrew > 0 then
 		supplyLabel = supplyLabel .. string.format("R%i ",supplyRepairCrew)
+		wordy_label = wordy_label .. string.format("Robotic Repair Crew:%i ",supplyRepairCrew)
 	end
 	if supplyCoolant > 0 then
 		supplyLabel = supplyLabel .. string.format("C%i ",supplyCoolant)
+		wordy_label = wordy_label .. string.format("Coolant:%i ",supplyCoolant)
 	end
-	customSupplyDrop:setCallSign(supplyLabel)
+	if supplyProbes > 0 then
+		supplyLabel = supplyLabel .. string.format("P%i ",supplyProbes)
+		wordy_label = wordy_label .. string.format("Probes:%i ",supplyProbes)
+	end
+	if supply_drop_info == "Label" then
+		customSupplyDrop:setCallSign(supplyLabel)
+	elseif supply_drop_info == "Scan" then
+		customSupplyDrop:setScanningParameters(2,2)
+		customSupplyDrop:setDescriptionForScanState("notscanned","Supply Drop")
+		customSupplyDrop:setDescriptionForScanState("friendorfoeidentified","Supply Drop")
+		customSupplyDrop:setDescriptionForScanState("simplescan",supplyLabel)
+		customSupplyDrop:setDescriptionForScanState("fullscan",wordy_label)
+	end
 	customSupplyDrop:onPickUp(supplyPickupProcess)
 end
 function supplyPickupProcess(self, player)
@@ -20582,6 +20680,9 @@ function supplyPickupProcess(self, player)
 	end
 	if self.coolant ~= nil then
 		player:setMaxCoolant(player:getMaxCoolant() + self.coolant)
+	end
+	if self.probes ~= nil then
+		player:setScanProbeCount(math.min(player:getScanProbeCount() + self.probes,player:getMaxScanProbeCount()))
 	end
 end
 ----------------------------
