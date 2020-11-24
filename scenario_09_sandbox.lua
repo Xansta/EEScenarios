@@ -13456,6 +13456,11 @@ function spawnGMFleet()
 	else
 		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
 		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
+		if fleetStrengthByPlayerStrength == .25 then
+			GMSetGMFleetStrength = "1/4 Player Strength: " .. calcStr
+		elseif fleetStrengthByPlayerStrength == .5 then
+			GMSetGMFleetStrength = "1/2 Player Strength: " .. calcStr
+		end
 		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
 		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
 	end
@@ -13670,9 +13675,17 @@ function setGMFleetStrength()
 	setFleetStrength(setGMFleetStrength)
 end
 function setFleetStrength(caller)
-	local GMSetFleetStrengthByPlayerStrengthHalf = ".5"
+	local GMSetFleetStrengthByPlayerStrengthQuarter = "1/4"
+	if fleetStrengthByPlayerStrength == .25 then
+		GMSetFleetStrengthByPlayerStrengthQuarter = "1/4*"
+	end
+	addGMFunction(GMSetFleetStrengthByPlayerStrengthQuarter,function()
+		fleetStrengthByPlayerStrength = .25
+		caller()
+	end)
+	local GMSetFleetStrengthByPlayerStrengthHalf = "1/2"
 	if fleetStrengthByPlayerStrength == .5 then
-		GMSetFleetStrengthByPlayerStrengthHalf = ".5*"
+		GMSetFleetStrengthByPlayerStrengthHalf = "1/2*"
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrengthHalf,function()
 		fleetStrengthByPlayerStrength = .5
@@ -13702,20 +13715,20 @@ function setFleetStrength(caller)
 		fleetStrengthByPlayerStrength = 3
 		caller()
 	end)
-	local GMSetFleetStrengthByPlayerStrength4 = "4"
-	if fleetStrengthByPlayerStrength == 4 then
-		GMSetFleetStrengthByPlayerStrength4 = "4*"
-	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrength4,function()
-		fleetStrengthByPlayerStrength = 4
-		caller()
-	end)
 	local GMSetFleetStrengthByPlayerStrength5 = "5"
 	if fleetStrengthByPlayerStrength == 5 then
 		GMSetFleetStrengthByPlayerStrength5 = "5*"
 	end
 	addGMFunction(GMSetFleetStrengthByPlayerStrength5,function()
 		fleetStrengthByPlayerStrength = 5
+		caller()
+	end)
+	local GMSetFleetStrengthByPlayerStrength8 = "8"
+	if fleetStrengthByPlayerStrength == 8 then
+		GMSetFleetStrengthByPlayerStrength8 = "8*"
+	end
+	addGMFunction(GMSetFleetStrengthByPlayerStrength8,function()
+		fleetStrengthByPlayerStrength = 8
 		caller()
 	end)
 	fleetStrengthFixed = false
@@ -22415,6 +22428,11 @@ function stationDefensiveFleet()
 	else
 		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
 		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
+		if fleetStrengthByPlayerStrength == .25 then
+			GMSetGMFleetStrength = "1/4 Player Strength: " .. calcStr
+		elseif fleetStrengthByPlayerStrength == .5 then
+			GMSetGMFleetStrength = "1/2 Player Strength: " .. calcStr
+		end
 		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setDefensiveFleetStrength)
 		addGMFunction("+Set Fixed Strength",setDefensiveFleetFixedStrength)
 	end
