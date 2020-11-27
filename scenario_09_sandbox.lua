@@ -241,43 +241,7 @@ function setConstants()
 	--Original in the midst of the ghosts near Astron spawn point: 586367, 296408
 	universe:addAvailableRegion("Astron (U33)",function() return ghostNebulaSector() end, 460500, 320500) -- there was an alternate spawn location of 545336,292452, inital spawn location seems to not work eh I will look at it later - starry
 	universe:addAvailableRegion("Lafrina (T93)",lafrinaSector,-237666,296975)
-	local station_db = queryScienceDatabase("Stations")
-	if station_db == nil then
-		station_db = ScienceDatabase():setName("Stations")
-		station_db:setLongDescription("Stations are places for ships to dock, get repaired and replenished, interact with station personnel, etc. They are like oases, service stations, villages, towns, cities, etc.")
-		station_db:addEntry("Small")
-		local small_station_db = queryScienceDatabase("Stations","Small")
-		small_station_db:setLongDescription("Stations of this size are often used as research outposts, listening stations, and security checkpoints. Crews turn over frequently in a small station's cramped accommodatations, but they are small enough to look like ships on many long-range sensors, and organized raiders sometimes take advantage of this by placing small stations in nebulae to serve as raiding bases. They are lightly shielded and vulnerable to swarming assaults.")
-		small_station_db:setImage("radartrace_smallstation.png")
-		small_station_db:setKeyValue("Class","Small")
-		small_station_db:setKeyValue("Size",300)
-		small_station_db:setKeyValue("Shield",300)
-		small_station_db:setKeyValue("Hull",150)
-		station_db:addEntry("Medium")
-		local medium_station_db = queryScienceDatabase("Stations","Medium")
-		medium_station_db:setLongDescription("Large enough to accommodate small crews for extended periods of times, stations of this size are often trading posts, refuelling bases, mining operations, and forward military bases. While their shields are strong, concerted attacks by many ships can bring them down quickly.")
-		medium_station_db:setImage("radartrace_mediumstation.png")
-		medium_station_db:setKeyValue("Class","Medium")
-		medium_station_db:setKeyValue("Size",1000)
-		medium_station_db:setKeyValue("Shield",800)
-		medium_station_db:setKeyValue("Hull",400)
-		station_db:addEntry("Large")
-		local large_station_db = queryScienceDatabase("Stations","Large")
-		large_station_db:setLongDescription("These spaceborne communities often represent permanent bases in a sector. Stations of this size can be military installations, commercial hubs, deep-space settlements, and small shipyards. Only a concentrated attack can penetrate a large station's shields, and its hull can withstand all but the most powerful weaponry.")
-		large_station_db:setImage("radartrace_largestation.png")
-		large_station_db:setKeyValue("Class","Large")
-		large_station_db:setKeyValue("Size",1300)
-		large_station_db:setKeyValue("Shield","1000/1000/1000")
-		large_station_db:setKeyValue("Hull",500)
-		station_db:addEntry("Huge")
-		local huge_station_db = queryScienceDatabase("Stations","Huge")
-		huge_station_db:setLongDescription("The size of a sprawling town, stations at this scale represent a faction's center of spaceborne power in a region. They serve many functions at once and represent an extensive investment of time, money, and labor. A huge station's shields and thick hull can keep it intact long enough for reinforcements to arrive, even when faced with an ongoing siege or massive, perfectly coordinated assault.")
-		huge_station_db:setImage("radartrace_hugestation.png")
-		huge_station_db:setKeyValue("Class","Huge")
-		huge_station_db:setKeyValue("Size",1500)
-		huge_station_db:setKeyValue("Shield","1200/1200/1200/1200")
-		huge_station_db:setKeyValue("Hull",800)
-	end
+	initialSandboxDatabaseUpdate()
 	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
@@ -547,7 +511,7 @@ function setConstants()
 		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3},
 		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
 		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2},
-		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 5,		pods = 1},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
 		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1},
 		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1},
 		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
@@ -562,7 +526,7 @@ function setConstants()
 		["Eldridge"]			= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2},
 		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1},
 		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5},
-		["Noble"]				= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2},
+		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2},
 		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
 		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1},
 		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2},
@@ -572,10 +536,11 @@ function setConstants()
 		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4},
 		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
 		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2},
-		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
+		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
 		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3},
 		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2},
 		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3},
+		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2},
 		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3},
 	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -1033,6 +998,601 @@ function setConstants()
 		"Talk to",
 		"Direct Message",
 	}
+end
+function initialSandboxDatabaseUpdate()
+--------------------------------------------------------------------------------------
+--	Generic station descriptions: text and details from shipTemplates_stations.lua  --
+--------------------------------------------------------------------------------------
+	local station_db = queryScienceDatabase("Stations")
+	if station_db == nil then
+		station_db = ScienceDatabase():setName("Stations")
+		station_db:setLongDescription("Stations are places for ships to dock, get repaired and replenished, interact with station personnel, etc. They are like oases, service stations, villages, towns, cities, etc.")
+		station_db:addEntry("Small")
+		local small_station_db = queryScienceDatabase("Stations","Small")
+		small_station_db:setLongDescription("Stations of this size are often used as research outposts, listening stations, and security checkpoints. Crews turn over frequently in a small station's cramped accommodatations, but they are small enough to look like ships on many long-range sensors, and organized raiders sometimes take advantage of this by placing small stations in nebulae to serve as raiding bases. They are lightly shielded and vulnerable to swarming assaults.")
+		small_station_db:setImage("radartrace_smallstation.png")
+		small_station_db:setKeyValue("Class","Small")
+		small_station_db:setKeyValue("Size",300)
+		small_station_db:setKeyValue("Shield",300)
+		small_station_db:setKeyValue("Hull",150)
+		station_db:addEntry("Medium")
+		local medium_station_db = queryScienceDatabase("Stations","Medium")
+		medium_station_db:setLongDescription("Large enough to accommodate small crews for extended periods of times, stations of this size are often trading posts, refuelling bases, mining operations, and forward military bases. While their shields are strong, concerted attacks by many ships can bring them down quickly.")
+		medium_station_db:setImage("radartrace_mediumstation.png")
+		medium_station_db:setKeyValue("Class","Medium")
+		medium_station_db:setKeyValue("Size",1000)
+		medium_station_db:setKeyValue("Shield",800)
+		medium_station_db:setKeyValue("Hull",400)
+		station_db:addEntry("Large")
+		local large_station_db = queryScienceDatabase("Stations","Large")
+		large_station_db:setLongDescription("These spaceborne communities often represent permanent bases in a sector. Stations of this size can be military installations, commercial hubs, deep-space settlements, and small shipyards. Only a concentrated attack can penetrate a large station's shields, and its hull can withstand all but the most powerful weaponry.")
+		large_station_db:setImage("radartrace_largestation.png")
+		large_station_db:setKeyValue("Class","Large")
+		large_station_db:setKeyValue("Size",1300)
+		large_station_db:setKeyValue("Shield","1000/1000/1000")
+		large_station_db:setKeyValue("Hull",500)
+		station_db:addEntry("Huge")
+		local huge_station_db = queryScienceDatabase("Stations","Huge")
+		huge_station_db:setLongDescription("The size of a sprawling town, stations at this scale represent a faction's center of spaceborne power in a region. They serve many functions at once and represent an extensive investment of time, money, and labor. A huge station's shields and thick hull can keep it intact long enough for reinforcements to arrive, even when faced with an ongoing siege or massive, perfectly coordinated assault.")
+		huge_station_db:setImage("radartrace_hugestation.png")
+		huge_station_db:setKeyValue("Class","Huge")
+		huge_station_db:setKeyValue("Size",1500)
+		huge_station_db:setKeyValue("Shield","1200/1200/1200/1200")
+		huge_station_db:setKeyValue("Hull",800)
+	end
+-----------------------------------------------------------------------------------
+--	Template ship category descriptions: text from other shipTemplates... files  --
+-----------------------------------------------------------------------------------
+	local ships_db = queryScienceDatabase("Ships")
+	local fighter_db = queryScienceDatabase("Ships","Starfighter")
+	fighter_db:setLongDescription("Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes.")
+	local frigate_db = queryScienceDatabase("Ships","Frigate")
+	frigate_db:setLongDescription("Frigates are one size up from starfighters. They require a crew from 3 to 20 people.\nThink, Firefly, millennium falcon, slave I (Boba fett's ship).\n\nThey generally have 2 or more shield sections, but hardly ever more than 4.\n\nThis class of ships is normally not fitted with jump or warp drives. But in some cases ships are modified to include these, or for certain roles it is built in.\n\nThey are divided in 3 different sub-classes:\n* Cruiser: Weaponized frigates, focused on combat. These come in various roles.\n* Light transport: Small transports, like transporting up to 50 soldiers in spartan conditions or a few diplomats in luxury. Depending on the role it can have some weaponry.\n* Support: Support types come in many varieties. They are simply a frigate hull fitted with whatever was needed. Anything from mine-layers to science vessels.")
+	local corvette_db = queryScienceDatabase("Ships","Corvette")
+	corvette_db:setLongDescription("Corvettes are the common large ships. Larger then a frigate, smaller then a dreadnaught.\nThey generally have 4 or more shield sections. Run with a crew of 20 to 250.\nThis class generally has jumpdrives or warpdrives. But lack the maneuverability that is seen in frigates.\n\nThey come in 3 different subclasses:\n* Destroyer: Combat oriented ships. No science, no transport. Just death in a large package.\n* Support: Large scale support roles. Drone carriers fall in this category, as well as mobile repair centers.\n* Freighter: Large scale transport ships. Most common here are the jump freighters, using specialized jumpdrives to cross large distances with large amounts of cargo.")
+	local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
+	dreadnought_db:setLongDescription("Dreadnoughts are the largest ships.\nThey are so large and uncommon that every type is pretty much their own subclass.\nThey usually come with 6 or more shield sections, require a crew of 250+ to operate.\n\nThink: Stardestroyer.")
+---------------------------
+--	Custom player ships  --
+---------------------------
+	local prototype_db = ships_db:addEntry("Prototype")
+	prototype_db = queryScienceDatabase("Ships","Prototype")
+	prototype_db:setLongDescription("Prototype ships are those that are under development or are otherwise considered experimental. Some have seen service in and around Icarus or Kentar. Some have been through several iterations after being tested in the field. Many have been scrapped due to poor design, the ravages of space or perhaps the simple passage of time.")
+	prototype_db:setImage("gui/icons/station-engineering.png")
+----	Starfighters
+	local fighter_prototype_db = prototype_db:addEntry("Starfighter")
+--	Striker LX
+	fighter_prototype_db:addEntry("Striker LX")
+	local striker_lx_db = queryScienceDatabase("Ships","Prototype","Starfighter","Striker LX")
+	striker_lx_db:setLongDescription("The Striker is the predecessor to the advanced striker, slow but agile, but does not do an extreme amount of damage, and lacks in shields. The Striker LX is a modification of the Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)")
+	striker_lx_db:setKeyValue("Class","Starfighter")
+	striker_lx_db:setKeyValue("Sub-class","Patrol")
+	striker_lx_db:setKeyValue("Deployed Callsign","Cobra")
+	striker_lx_db:setKeyValue("Size","140")
+	striker_lx_db:setKeyValue("Shield","100/100")
+	striker_lx_db:setKeyValue("Hull","100")
+	striker_lx_db:setKeyValue("Repair Crew",3)
+	striker_lx_db:setKeyValue("Battery Capacity",600)
+	striker_lx_db:setKeyValue("Jump Range","2 - 20 U")
+	striker_lx_db:setKeyValue("Long Sensors","20 U")
+	striker_lx_db:setKeyValue("Short Sensors","4 U")
+	striker_lx_db:setKeyValue("Move speed","3.9 U/min")	--65	(value * 60 / 1000 = units per minute)
+	striker_lx_db:setKeyValue("Turn speed","35 deg/sec")
+	striker_lx_db:setKeyValue("Beam weapon 345:100","6.5 Dmg / 6.0 sec / Tur Spd 0.2")
+	striker_lx_db:setKeyValue("Beam weapon 15:100","6.5 Dmg / 6.0 sec / Tur Spd 0.2")
+	striker_lx_db:setKeyValue("Tube 180","10 sec")
+	striker_lx_db:setKeyValue(" Tube 180","10 sec")
+	striker_lx_db:setKeyValue("Storage Homing","4")
+	striker_lx_db:setKeyValue("Storage Nuke","2")
+	striker_lx_db:setKeyValue("Storage Mine","3")
+	striker_lx_db:setKeyValue("Storage EMP","3")
+	striker_lx_db:setKeyValue("Storage HVLI","6")
+	striker_lx_db:setImage("radar_adv_striker.png")
+--	Gadfly
+	fighter_prototype_db:addEntry("Gadfly")
+	local gadfly_db = queryScienceDatabase("Ships","Prototype","Starfighter","Gadfly")
+	gadfly_db:setLongDescription("The Gadfly is based on a standard fighter with some differences: added jump drive, stronger hull, extra and stronger shields, fewer beams (wider, shorter, faster), missile tubes front and rear (no mines)")
+	gadfly_db:setKeyValue("Class","Starfighter")
+	gadfly_db:setKeyValue("Deployed Callsign","Bling")
+	gadfly_db:setKeyValue("Size","40")
+	gadfly_db:setKeyValue("Shield","80/80")
+	gadfly_db:setKeyValue("Hull","100")
+	gadfly_db:setKeyValue("Repair Crew",3)
+	gadfly_db:setKeyValue("Battery Capacity",400)
+	gadfly_db:setKeyValue("Jump Range","2 - 15 U")
+	gadfly_db:setKeyValue("Long Sensors","15 U")
+	gadfly_db:setKeyValue("Short Sensors","4.5 U")
+	gadfly_db:setKeyValue("Move speed","6.6 U/min")	--110
+	gadfly_db:setKeyValue("Turn speed","20 deg/sec")
+	gadfly_db:setKeyValue("Beam weapon 0:50","8.0 Dmg / 4.0 sec")
+	gadfly_db:setKeyValue("Small Tube 0","5 sec / HVLI")
+	gadfly_db:setKeyValue("Tube 0","10 sec / EMP, Nuke")
+	gadfly_db:setKeyValue("Large Tube 180","15 sec / Homing")
+	gadfly_db:setKeyValue("Storage Homing","4")
+	gadfly_db:setKeyValue("Storage Nuke","1")
+	gadfly_db:setKeyValue("Storage EMP","1")
+	gadfly_db:setKeyValue("Storage HVLI","8")
+	gadfly_db:setImage("radar_fighter.png")
+--	XR-Lindworm
+	fighter_prototype_db:addEntry("XR-Lindworm")
+	local xr_lindworm_db = queryScienceDatabase("Ships","Prototype","Starfighter","XR-Lindworm")
+	xr_lindworm_db:setLongDescription("Based on ZX-Lindworm, the XR version has more repair crew, warp drive, nukes and EMPs, and two shields: stronger in front, weaker in rear")
+	xr_lindworm_db:setKeyValue("Class","Starfighter")
+	xr_lindworm_db:setKeyValue("Sub-class","Bomber")
+	xr_lindworm_db:setKeyValue("Deployed Callsign","Quicksilver")
+	xr_lindworm_db:setKeyValue("Size","30")
+	xr_lindworm_db:setKeyValue("Shield","90/30")
+	xr_lindworm_db:setKeyValue("Hull","75")
+	xr_lindworm_db:setKeyValue("Repair Crew",2)
+	xr_lindworm_db:setKeyValue("Battery Capacity",400)
+	xr_lindworm_db:setKeyValue("Warp Speed","24.0 U/min")	--400
+	xr_lindworm_db:setKeyValue("Long Sensors","20 U")
+	xr_lindworm_db:setKeyValue("Short Sensors","6 U")
+	xr_lindworm_db:setKeyValue("Move speed","4.2 U/min")	--70
+	xr_lindworm_db:setKeyValue("Turn speed","15 deg/sec")
+	xr_lindworm_db:setKeyValue("Beam weapon 180:270","2.0 Dmg / 6.0 sec / Tur Spd 4")
+	xr_lindworm_db:setKeyValue("Small Tube 0","10 sec")
+	xr_lindworm_db:setKeyValue("Small Tube 1","10 sec / HVLI")
+	xr_lindworm_db:setKeyValue("Small Tube 359","10 sec / HVLI")
+	xr_lindworm_db:setKeyValue("Storage Homing","3")
+	xr_lindworm_db:setKeyValue("Storage Nuke","2")
+	xr_lindworm_db:setKeyValue("Storage EMP","3")
+	xr_lindworm_db:setKeyValue("Storage HVLI","12")
+	xr_lindworm_db:setImage("radar_fighter.png")
+--	MX-Lindworm
+	fighter_prototype_db:addEntry("MX-Lindworm")
+	local mx_lindworm_db = queryScienceDatabase("Ships","Prototype","Starfighter","MX-Lindworm")
+	mx_lindworm_db:setLongDescription("Based on ZX-Lindworm, the MX version has more repair crew, faster impulse, a jump drive, and a slower turret")
+	mx_lindworm_db:setKeyValue("Class","Starfighter")
+	mx_lindworm_db:setKeyValue("Sub-class","Bomber")
+	mx_lindworm_db:setKeyValue("Deployed Callsign","Rattler")
+	mx_lindworm_db:setKeyValue("Size","30")
+	mx_lindworm_db:setKeyValue("Shield","40")
+	mx_lindworm_db:setKeyValue("Hull","75")
+	mx_lindworm_db:setKeyValue("Repair Crew",2)
+	mx_lindworm_db:setKeyValue("Battery Capacity",400)
+	mx_lindworm_db:setKeyValue("Jump Range","3 - 20 U")
+	mx_lindworm_db:setKeyValue("Long Sensors","30 U")
+	mx_lindworm_db:setKeyValue("Short Sensors","6 U")
+	mx_lindworm_db:setKeyValue("Move speed","5.1 U/min")	--85
+	mx_lindworm_db:setKeyValue("Turn speed","15 deg/sec")
+	mx_lindworm_db:setKeyValue("Beam weapon 180:270","2.0 Dmg / 6.0 sec / Tur Spd 1")
+	mx_lindworm_db:setKeyValue("Small Tube 0","10 sec")
+	mx_lindworm_db:setKeyValue("Small Tube 1","10 sec / HVLI")
+	mx_lindworm_db:setKeyValue("Small Tube 359","10 sec / HVLI")
+	mx_lindworm_db:setKeyValue("Storage Homing","3")
+	mx_lindworm_db:setKeyValue("Storage HVLI","12")
+	mx_lindworm_db:setImage("radar_fighter.png")
+--	Vermin
+	fighter_prototype_db:addEntry("Vermin")
+	local vermin_db = queryScienceDatabase("Ships","Prototype","Starfighter","Vermin")
+	vermin_db:setLongDescription("Based on a standard fighter, the Vermin has more repair crew, more energy, a warp drive, stronger shields, more beams, and a mine laying tube")
+	vermin_db:setKeyValue("Class","Starfighter")
+	vermin_db:setKeyValue("Deployed Callsign","Sparrow")
+	vermin_db:setKeyValue("Size","40")
+	vermin_db:setKeyValue("Shield","100/60")
+	vermin_db:setKeyValue("Hull","60")
+	vermin_db:setKeyValue("Repair Crew",4)
+	vermin_db:setKeyValue("Battery Capacity",500)
+	vermin_db:setKeyValue("Warp Speed","24.0 U/min")	--400
+	vermin_db:setKeyValue("Long Sensors","22 U")
+	vermin_db:setKeyValue("Short Sensors","4 U")
+	vermin_db:setKeyValue("Move speed","6.6 U/min")	--110
+	vermin_db:setKeyValue("Turn speed","20 deg/sec")
+	vermin_db:setKeyValue("Beam weapon 0:12","4.0 Dmg / 6.0 sec")
+	vermin_db:setKeyValue("Beam weapon 350:40","6.0 Dmg / 6.0 sec")
+	vermin_db:setKeyValue("Beam weapon 10:40","6.0 Dmg / 6.0 sec")
+	vermin_db:setKeyValue("Small Tube 180","10 sec / Mine")
+	vermin_db:setKeyValue("Storage Mine","4")
+	vermin_db:setImage("radar_fighter.png")
+--	Wombat
+	fighter_prototype_db:addEntry("Wombat")
+	local wombat_db = queryScienceDatabase("Ships","Prototype","Starfighter","Wombat")
+	wombat_db:setLongDescription("Based on the ZX-Lindworm, the Wombat has stronger hull and shields, more repair crew, a warp drive, stronger, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, and more homing missiles")
+	wombat_db:setKeyValue("Class","Starfighter")
+	wombat_db:setKeyValue("Sub-class","Bomber")
+	wombat_db:setKeyValue("Deployed Callsigns","Farrah, Shannon")
+	wombat_db:setKeyValue("Size","30")
+	wombat_db:setKeyValue("Shield","80/80")
+	wombat_db:setKeyValue("Hull","100")
+	wombat_db:setKeyValue("Repair Crew",4)
+	wombat_db:setKeyValue("Battery Capacity",400)
+	wombat_db:setKeyValue("Warp Speed","24.0 U/min")	--400
+	wombat_db:setKeyValue("Long Sensors","18 U")
+	wombat_db:setKeyValue("Short Sensors","6 U")
+	wombat_db:setKeyValue("Move speed","4.2 U/min")	--70
+	wombat_db:setKeyValue("Turn speed","15 deg/sec")
+	wombat_db:setKeyValue("Beam weapon 0:80","3.0 Dmg / 4.0 sec / Tur Spd 0.3")
+	wombat_db:setKeyValue(" Beam weapon 0:80","3.0 Dmg / 4.0 sec / Tur Spd 0.3")
+	wombat_db:setKeyValue("Tube 180","10 sec / HVLI")
+	wombat_db:setKeyValue(" Tube 180","10 sec / HVLI, Homing")
+	wombat_db:setKeyValue("Large Tube 180","10 sec / HVLI, Homing")
+	wombat_db:setKeyValue("  Tube 180","10 sec / HVLI, EMP, Nuke")
+	wombat_db:setKeyValue("   Tube 180","10 sec / Mine")
+	wombat_db:setKeyValue("Storage Missiles","H:8 N:1 M:2 E:2 L:12")
+	wombat_db:setImage("radar_fighter.png")
+----	Frigates
+	local frigate_prototype_db = prototype_db:addEntry("Frigate")
+--	Phobos T2
+	frigate_prototype_db:addEntry("Phobos T2")
+	local phobos_t2_db = queryScienceDatabase("Ships","Prototype","Frigate","Phobos T2")
+	phobos_t2_db:setLongDescription("Based on Phobos M3P with these differrences: more repair crew, a jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, and fewer missiles")
+	phobos_t2_db:setKeyValue("Class","Frigate")
+	phobos_t2_db:setKeyValue("Sub-class","Cruiser")
+	phobos_t2_db:setKeyValue("Deployed Callsigns","Ambition, Nimbus, Terror")
+	phobos_t2_db:setKeyValue("Size","80")
+	phobos_t2_db:setKeyValue("Shield","120/80")
+	phobos_t2_db:setKeyValue("Hull","200")
+	phobos_t2_db:setKeyValue("Repair Crew",4)
+	phobos_t2_db:setKeyValue("Battery Capacity",800)
+	phobos_t2_db:setKeyValue("Jump Range","2 - 25 U")
+	phobos_t2_db:setKeyValue("Long Sensors","25 U")
+	phobos_t2_db:setKeyValue("Move speed","4.8 U/min")	--80
+	phobos_t2_db:setKeyValue("Turn speed","20 deg/sec")
+	phobos_t2_db:setKeyValue("Beam weapon 330:40","6.0 Dmg / 4.0 sec / Tur Spd 0.2")
+	phobos_t2_db:setKeyValue("Beam weapon 30:40","6.0 Dmg / 4.0 sec / Tur Spd 0.2")
+	phobos_t2_db:setKeyValue("Tube 0","10 sec")
+	phobos_t2_db:setKeyValue("Tube 180","10 sec / Mine")
+	phobos_t2_db:setKeyValue("Storage Homing",8)
+	phobos_t2_db:setKeyValue("Storage Nuke",2)
+	phobos_t2_db:setKeyValue("Storage Mine",4)
+	phobos_t2_db:setKeyValue("Storage EMP",3)
+	phobos_t2_db:setKeyValue("Storage HVLI",16)
+	phobos_t2_db:setImage("radar_cruiser.png")
+--	Nusret
+	frigate_prototype_db:addEntry("Nusret")
+	local nusret_db = queryScienceDatabase("Ships","Prototype","Frigate","Nusret")
+	nusret_db:setLongDescription("Based on Nautilus but with a short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines and slightly longer sensors")
+	nusret_db:setKeyValue("Class","Frigate")
+	nusret_db:setKeyValue("Sub-class","Mine Layer")
+	nusret_db:setKeyValue("Deployed Callsigns","Argonaut, Manxman, Hrothgar")
+	nusret_db:setKeyValue("Size","80")
+	nusret_db:setKeyValue("Shield","100/100")
+	nusret_db:setKeyValue("Hull","150")
+	nusret_db:setKeyValue("Repair Crew",6)
+	nusret_db:setKeyValue("Jump Range","2.5 - 25 U")
+	nusret_db:setKeyValue("Long Sensors","25 U")
+	nusret_db:setKeyValue("Short Sensors","4 U")
+	nusret_db:setKeyValue("Move speed","6.0 U/min")	--80
+	nusret_db:setKeyValue("Turn speed","10 deg/sec")
+	nusret_db:setKeyValue("Beam weapon 325:90","6.0 Dmg / 6.0 sec / Tur Spd 0.4")
+	nusret_db:setKeyValue("Beam weapon 35:90","6.0 Dmg / 6.0 sec / Tur Spd 0.4")
+	nusret_db:setKeyValue("Beam weapon 0:40","9.0 Dmg / 8.0 sec")
+	nusret_db:setKeyValue("Tube 300","10 sec / Homing")
+	nusret_db:setKeyValue("Tube 60","10 sec / Homing")
+	nusret_db:setKeyValue("Tube 180","8 sec")
+	nusret_db:setKeyValue("Storage Homing",8)
+	nusret_db:setKeyValue("Storage Mine",8)
+	nusret_db:setImage("radar_tug.png")
+--	Pacu
+	frigate_prototype_db:addEntry("Pacu")
+	local pacu_db = queryScienceDatabase("Ships","Prototype","Frigate","Pacu")
+	pacu_db:setLongDescription("Based on the Piranha with more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes and more EMPs")
+	pacu_db:setKeyValue("Class","Frigate")
+	pacu_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+	pacu_db:setKeyValue("Deployed Callsign","Arwine")
+	pacu_db:setKeyValue("Size","80")
+	pacu_db:setKeyValue("Shield","100/100")
+	pacu_db:setKeyValue("Hull","150")
+	pacu_db:setKeyValue("Repair Crew",5)
+	pacu_db:setKeyValue("Jump Range","2 - 25 U")
+	pacu_db:setKeyValue("Long Sensors","20 U")
+	pacu_db:setKeyValue("Short Sensors","6 U")
+	pacu_db:setKeyValue("Move speed","4.2 U/min")	--80
+	pacu_db:setKeyValue("Turn speed","10 deg/sec")
+	pacu_db:setKeyValue("Beam weapon 0:80","4.0 Dmg / 4.0 sec / Tur Spd 0.2")
+	pacu_db:setKeyValue("Large Tube 270","10 sec / Homing, HVLI")
+	pacu_db:setKeyValue("Tube 270","10 sec")
+	pacu_db:setKeyValue(" Large Tube 270","10 sec / Homing, HVLI")
+	pacu_db:setKeyValue("Large Tube 90","10 sec / Homing, HVLI")
+	pacu_db:setKeyValue("Tube 90","10 sec")
+	pacu_db:setKeyValue(" Large Tube 90","10 sec / Homing, HVLI")
+	pacu_db:setKeyValue("Tube 180","10 sec / Mine")
+	pacu_db:setKeyValue("Storage Missiles","H:12 N:4 M:4 E:4 L:20")
+	pacu_db:setImage("radar_piranha.png")
+--	Redhook
+	frigate_prototype_db:addEntry("Redhook")
+	local redhook_db = queryScienceDatabase("Ships","Prototype","Frigate","Redhook")
+	redhook_db:setLongDescription("Based on the Piranha, the Redhook differs in these ways: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes and added EMPs")
+	redhook_db:setKeyValue("Class","Frigate")
+	redhook_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+	redhook_db:setKeyValue("Deployed Callsigns","Barracuda, Hearken, Headhunter")
+	redhook_db:setKeyValue("Size","80")
+	redhook_db:setKeyValue("Shield","70/70")
+	redhook_db:setKeyValue("Hull","120")
+	redhook_db:setKeyValue("Repair Crew",4)
+	redhook_db:setKeyValue("Jump Range","3 - 30 U")
+	redhook_db:setKeyValue("Long Sensors","20 U")
+	redhook_db:setKeyValue("Short Sensors","6 U")
+	redhook_db:setKeyValue("Move speed","3.6 U/min")	--60
+	redhook_db:setKeyValue("Turn speed","10 deg/sec")
+	redhook_db:setKeyValue("Beam weapon 0:80","4.0 Dmg / 4.0 sec / Tur Spd 0.5")
+	redhook_db:setKeyValue("Large Tube 270","10 sec / Homing, HVLI")
+	redhook_db:setKeyValue("Tube 270","10 sec / EMP, HVLI")
+	redhook_db:setKeyValue(" Large Tube 270","10 sec / HVLI")
+	redhook_db:setKeyValue("Large Tube 90","10 sec / Homing, HVLI")
+	redhook_db:setKeyValue("Tube 90","10 sec / EMP, HVLI")
+	redhook_db:setKeyValue(" Large Tube 90","10 sec / HVLI")
+	redhook_db:setKeyValue("Tube 180","10 sec / Mine")
+	redhook_db:setKeyValue("Storage Missiles","H:12 M:4 E:4 L:20")
+	redhook_db:setImage("radar_piranha.png")
+--	Era
+	frigate_prototype_db:addEntry("Era")
+	local era_db = queryScienceDatabase("Ships","Prototype","Frigate","Era")
+	era_db:setLongDescription("Loosely Based on the Flavia P.Falcon, the Era class has faster spin, a 300 degree turreted beam, stronger rear shield and longer long range sensors")
+	era_db:setKeyValue("Class","Frigate")
+	era_db:setKeyValue("Sub-class","Light Transport")
+	era_db:setKeyValue("Deployed Callsigns","Eagle, Vision")
+	era_db:setKeyValue("Size","80")
+	era_db:setKeyValue("Shield","70/100")
+	era_db:setKeyValue("Hull","120")
+	era_db:setKeyValue("Repair Crew",4)
+	era_db:setKeyValue("Warp Speed","30.0 U/min")	--500
+	era_db:setKeyValue("Long Sensors","50 U")
+	era_db:setKeyValue("Move speed","3.6 U/min")	--60
+	era_db:setKeyValue("Turn speed","15 deg/sec")
+	era_db:setKeyValue("Beam weapon 0:300","6.0 Dmg / 6.0 sec / Tur Spd 0.5")
+	era_db:setKeyValue("Beam weapon 180:80","6.0 Dmg / 6.0 sec")
+	era_db:setKeyValue("Tube 180","20 sec")
+	era_db:setKeyValue("Storage Homing",3)
+	era_db:setKeyValue("Storage Nuke",1)
+	era_db:setKeyValue("Storage Mine",1)
+	era_db:setKeyValue("Storage HVLI",5)
+	era_db:setImage("radar_tug.png")
+--	Eldridge
+	frigate_prototype_db:addEntry("Eldridge")
+	local eldridge_db = queryScienceDatabase("Ships","Prototype","Frigate","Eldridge")
+	eldridge_db:setLongDescription("Based on the Nautilus but the jump drive was replaced with a warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines and slightly longer sensors")
+	eldridge_db:setKeyValue("Class","Frigate")
+	eldridge_db:setKeyValue("Sub-class","Mine Layer")
+	eldridge_db:setKeyValue("Deployed Callsign","Falcon")
+	eldridge_db:setKeyValue("Size","80")
+	eldridge_db:setKeyValue("Shield","100/100")
+	eldridge_db:setKeyValue("Hull","100")
+	eldridge_db:setKeyValue("Repair Crew",4)
+	eldridge_db:setKeyValue("Warp Speed","24.0 U/min")	--400
+	eldridge_db:setKeyValue("Long Sensors","24 U")
+	eldridge_db:setKeyValue("Short Sensors","8 U")
+	eldridge_db:setKeyValue("Move speed","6 U/min")	--100
+	eldridge_db:setKeyValue("Turn speed","10 deg/sec")
+	eldridge_db:setKeyValue("Beam weapon 270:90","6.0 Dmg / 6.0 sec / Tur Spd 0.3")
+	eldridge_db:setKeyValue("Beam weapon 90:90","6.0 Dmg / 6.0 sec / Tur Spd 0.3")
+	eldridge_db:setKeyValue("Tube 0","10 sec / Homing")
+	eldridge_db:setKeyValue(" Tube 0","10 sec / Homing")
+	eldridge_db:setKeyValue("Tube 180","10 sec / Mine")
+	eldridge_db:setKeyValue("Storage Homing",8)
+	eldridge_db:setKeyValue("Storage Mine",8)
+	eldridge_db:setImage("radar_tug.png")
+--	Gabble
+	frigate_prototype_db:addEntry("Gabble")
+	local gabble_db = queryScienceDatabase("Ships","Prototype","Frigate","Gabble")
+	gabble_db:setLongDescription("The Gabble closely resembles the Piranha. However, there are differences: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, additional EMPs and a shorter long range scanner")
+	gabble_db:setKeyValue("Class","Frigate")
+	gabble_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+	gabble_db:setKeyValue("Deployed Callsign","Squid")
+	gabble_db:setKeyValue("Size","80")
+	gabble_db:setKeyValue("Shield","70/70")
+	gabble_db:setKeyValue("Hull","120")
+	gabble_db:setKeyValue("Repair Crew",4)
+	gabble_db:setKeyValue("Jump Range","2 - 20 U")
+	gabble_db:setKeyValue("Long Sensors","25 U")
+	gabble_db:setKeyValue("Move speed","3.6 U/min")	--60
+	gabble_db:setKeyValue("Turn speed","10 deg/sec")
+	gabble_db:setKeyValue("Beam weapon 0:80","4.0 Dmg / 4.0 sec / Tur Spd 1")
+	gabble_db:setKeyValue("Large Tube 0","8 sec / HVLI")
+	gabble_db:setKeyValue("Tube 270","8 sec")
+	gabble_db:setKeyValue("Large Tube 270","8 sec / Homing")
+	gabble_db:setKeyValue(" Large Tube 0","8 sec / HVLI")
+	gabble_db:setKeyValue("Tube 90","8 sec")
+	gabble_db:setKeyValue("Large Tube 90","8 sec / Homing")
+	gabble_db:setKeyValue("Tube 170","8 sec / Mine")
+	gabble_db:setKeyValue("Tube 190","8 sec / Mine")
+	gabble_db:setKeyValue("Storage Missiles","H:8 N:4 M:4 E:4 L:8")
+	gabble_db:setImage("radar_piranha.png")
+--	Interlock
+	frigate_prototype_db:addEntry("Interlock")
+	local interlock_db = queryScienceDatabase("Ships","Prototype","Frigate","Interlock")
+	interlock_db:setLongDescription("The Interlock is modeled after the Repulse. The differences include 6 beams, 5 forward, 1 rear, more damage the closer the enemy gets, hull and shields significantly stronger, more missiles, shorter jump, and longer long and short range sensors")
+	interlock_db:setKeyValue("Class","Frigate")
+	interlock_db:setKeyValue("Sub-class","Armored Transport")
+	interlock_db:setKeyValue("Deployed Callsign","Fist")
+	interlock_db:setKeyValue("Size","80")
+	interlock_db:setKeyValue("Shield","120/120")
+	interlock_db:setKeyValue("Hull","250")
+	interlock_db:setKeyValue("Repair Crew",8)
+	interlock_db:setKeyValue("Jump Range","3.5 - 35 U")
+	interlock_db:setKeyValue("Long Sensors","35 U")
+	interlock_db:setKeyValue("Short Sensors","5.5 U")
+	interlock_db:setKeyValue("Move speed","3.3 U/min")	--55
+	interlock_db:setKeyValue("Turn speed","9 deg/sec")
+	interlock_db:setKeyValue("Beam weapon 0:100","6.0 Dmg / 6.0 sec / Tur Spd 1")
+	interlock_db:setKeyValue("Beam weapon 180:180","4.0 Dmg / 6.0 sec / Tur Spd 1")
+	interlock_db:setKeyValue("Beam weapon 325:110","10.0 Dmg / 6.0 sec")
+	interlock_db:setKeyValue("Beam weapon 35:110","10.0 Dmg / 6.0 sec")
+	interlock_db:setKeyValue("Beam weapon 340:60","8.0 Dmg / 6.0 sec")
+	interlock_db:setKeyValue("Beam weapon 20:60","8.0 Dmg / 6.0 sec")
+	interlock_db:setKeyValue("Large Tube 270","20 sec")
+	interlock_db:setKeyValue("Large Tube 90","20 sec")
+	interlock_db:setKeyValue("Tube 180","20 sec / Mine")
+	interlock_db:setKeyValue("Storage Missiles","H:4 M:4 L:6")
+	interlock_db:setImage("radar_tug.png")
+--	Flavia 2C
+	frigate_prototype_db:addEntry("Flavia 2C")
+	local flavia_2c_db = queryScienceDatabase("Ships","Prototype","Frigate","Flavia 2C")
+	flavia_2c_db:setLongDescription("Compared to your typical Flavia, the Flavia 2C has faster spin and impulse, stronger shields, stronger, faster forward beams and more tubes and missiles")
+	flavia_2c_db:setKeyValue("Class","Frigate")
+	flavia_2c_db:setKeyValue("Sub-class","Light Transport")
+	flavia_2c_db:setKeyValue("Deployed Callsign","Osprey")
+	flavia_2c_db:setKeyValue("Size","80")
+	flavia_2c_db:setKeyValue("Shield","120/120")
+	flavia_2c_db:setKeyValue("Hull","100")
+	flavia_2c_db:setKeyValue("Repair Crew",8)
+	flavia_2c_db:setKeyValue("Jump Range","5 - 50 U")
+	flavia_2c_db:setKeyValue("Move speed","4.2 U/min")	--70
+	flavia_2c_db:setKeyValue("Turn speed","20 deg/sec")
+	flavia_2c_db:setKeyValue("Beam weapon 350:40","6.5 Dmg / 5.5 sec")
+	flavia_2c_db:setKeyValue("Beam weapon 10:40","6.5 Dmg / 5.5 sec")
+	flavia_2c_db:setKeyValue("Tube 270","20 sec / Homing")
+	flavia_2c_db:setKeyValue("Tube 90","20 sec / Homing")
+	flavia_2c_db:setKeyValue("Tube 180","20 sec")
+	flavia_2c_db:setKeyValue("Storage Homing",4)
+	flavia_2c_db:setKeyValue("Storage Nuke",2)
+	flavia_2c_db:setKeyValue("Storage Mine",2)
+	flavia_2c_db:setKeyValue("Storage EMP",2)
+	flavia_2c_db:setKeyValue("Storage HVLI",5)
+	flavia_2c_db:setImage("radar_tug.png")
+--	Scatter
+	frigate_prototype_db:addEntry("Scatter")
+	local scatter_db = queryScienceDatabase("Ships","Prototype","Frigate","Scatter")
+	scatter_db:setLongDescription("Inspired by the Hathcock, comparatively, the Scatter has a shorter jump drive, more repair crew, stronger shields, faster impulse, and reconfigured beams: 3 front, 1 rear")
+	scatter_db:setKeyValue("Class","Frigate")
+	scatter_db:setKeyValue("Sub-class","Cruiser: Sniper")
+	scatter_db:setKeyValue("Deployed Callsign","Outcast")
+	scatter_db:setKeyValue("Size","80")
+	scatter_db:setKeyValue("Shield","100/100")
+	scatter_db:setKeyValue("Hull","120")
+	scatter_db:setKeyValue("Repair Crew",4)
+	scatter_db:setKeyValue("Jump Range","2.5 - 28 U")
+	scatter_db:setKeyValue("Long Sensors","28 U")
+	scatter_db:setKeyValue("Move speed","3.9 U/min")	--65
+	scatter_db:setKeyValue("Turn speed","15 deg/sec")
+	scatter_db:setKeyValue("Beam weapon 0:10","4.0 Dmg / 6.0 sec")
+	scatter_db:setKeyValue("Beam weapon 340:80","4.0 Dmg / 6.0 sec")
+	scatter_db:setKeyValue("Beam weapon 20:80","4.0 Dmg / 6.0 sec")
+	scatter_db:setKeyValue("Beam weapon 180:90","4.0 Dmg / 6.0 sec / Tur Spd 0.4")
+	scatter_db:setKeyValue("Tube 270","15 sec")
+	scatter_db:setKeyValue("Tube 90","15 sec")
+	scatter_db:setKeyValue("Storage Homing",4)
+	scatter_db:setKeyValue("Storage Nuke",1)
+	scatter_db:setKeyValue("Storage EMP",2)
+	scatter_db:setKeyValue("Storage HVLI",8)
+	scatter_db:setImage("radar_piranha.png")
+--	Porcupine
+	frigate_prototype_db:addEntry("Porcupine")
+	local porcupine_db = queryScienceDatabase("Ships","Prototype","Frigate","Porcupine")
+	porcupine_db:setLongDescription("Compared to your typical Flavia, the Flavia 2C has faster spin and impulse, stronger shields, stronger, faster forward beams and more tubes and missiles")
+	porcupine_db:setKeyValue("Class","Frigate")
+	porcupine_db:setKeyValue("Sub-class","Light Transport")
+	porcupine_db:setKeyValue("Deployed Callsign","Quill")
+	porcupine_db:setKeyValue("Size","80")
+	porcupine_db:setKeyValue("Shield","100/100")
+	porcupine_db:setKeyValue("Hull","100")
+	porcupine_db:setKeyValue("Repair Crew",8)
+	porcupine_db:setKeyValue("Warp Speed","18.0 U/min")	--300
+	porcupine_db:setKeyValue("Long Sensors","25 U")
+	porcupine_db:setKeyValue("Move speed","3.6 U/min")	--60
+	porcupine_db:setKeyValue("Turn speed","10 deg/sec")
+	porcupine_db:setKeyValue("Beam weapon 90:45","6.0 Dmg / 6.0 sec / Tur Spd 0.1")
+	porcupine_db:setKeyValue("Beam weapon 55:45","6.0 Dmg / 6.0 sec / Tur Spd 0.1")
+	porcupine_db:setKeyValue("Beam weapon 125:45","6.0 Dmg / 6.0 sec / Tur Spd 0.1")
+	porcupine_db:setKeyValue("Small Tube 310","20 sec / Homing, EMP")
+	porcupine_db:setKeyValue("Small Tube 290","10 sec / HVLI")
+	porcupine_db:setKeyValue("Small Tube 270","10 sec / HVLI")
+	porcupine_db:setKeyValue("Small Tube 250","10 sec / HVLI")
+	porcupine_db:setKeyValue("Small Tube 230","20 sec / Homing, Mine, Nuke")
+	porcupine_db:setKeyValue("Storage Missiles","H:8 N:2 M:2 E:2 L:20")
+	porcupine_db:setImage("radar_tug.png")
+--	Rodent
+	frigate_prototype_db:addEntry("Rodent")
+	local rodent_db = queryScienceDatabase("Ships","Prototype","Frigate","Rodent")
+	rodent_db:setLongDescription("Similar to typical Phobos but with more repair crew, weaker hull, weaker rear shield, short jump drive, narrower beams, additional slow turreted beams, additional side tubes and rear mine tube")
+	rodent_db:setKeyValue("Class","Frigate")
+	rodent_db:setKeyValue("Sub-class","Cruiser")
+	rodent_db:setKeyValue("Deployed Callsign","George")
+	rodent_db:setKeyValue("Size","80")
+	rodent_db:setKeyValue("Shield","100/50")
+	rodent_db:setKeyValue("Hull","150")
+	rodent_db:setKeyValue("Repair Crew",5)
+	rodent_db:setKeyValue("Jump Range","4 - 37 U")
+	rodent_db:setKeyValue("Long Sensors","40 U")
+	rodent_db:setKeyValue("Short Sensors","5.5 U")
+	rodent_db:setKeyValue("Move speed","4.8 U/min")	--80
+	rodent_db:setKeyValue("Turn speed","10 deg/sec")
+	rodent_db:setKeyValue("Beam weapon 345:60","5.0 Dmg / 8.0 sec")
+	rodent_db:setKeyValue("Beam weapon 15:60","5.0 Dmg / 8.0 sec")
+	rodent_db:setKeyValue("Beam weapon 0:270","3.0 Dmg / 8.0 sec / Tur Spd 0.4")
+	rodent_db:setKeyValue("Beam weapon 180:270","4.0 Dmg / 8.0 sec / Tur Spd 0.4")
+	rodent_db:setKeyValue("Small Tube 0","8 sec / Homing, HVLI")
+	rodent_db:setKeyValue(" Small Tube 0","8 sec / Homing, HVLI")
+	rodent_db:setKeyValue("Tube 180","15 sec / Mine")
+	rodent_db:setKeyValue("Tube 270","10 sec / EMP, Nuke")
+	rodent_db:setKeyValue("Large Tube 90","20 sec / EMP, Nuke")
+	rodent_db:setKeyValue("Storage Missiles","H:10 N:2 M:4 E:3 L:20")
+	rodent_db:setImage("radar_cruiser.png")
+--	Safari
+	frigate_prototype_db:addEntry("Safari")
+	local safari_db = queryScienceDatabase("Ships","Prototype","Frigate","Safari")
+	safari_db:setLongDescription("Using a Flavia shell, the Safari changes several things: front beams, one long and turreted, one short and strong, weaker rear shield, stronger front shield, small, fast broadside HVLI shooters, only mines in rear, longer long range sensors and shorter short range sensors")
+	safari_db:setKeyValue("Class","Frigate")
+	safari_db:setKeyValue("Sub-class","Light Transport")
+	safari_db:setKeyValue("Deployed Callsign","Florentine")
+	safari_db:setKeyValue("Size","80")
+	safari_db:setKeyValue("Shield","100/60")
+	safari_db:setKeyValue("Hull","100")
+	safari_db:setKeyValue("Repair Crew",8)
+	safari_db:setKeyValue("Warp Speed","30.0 U/min")	--500
+	safari_db:setKeyValue("Long Sensors","33 U")
+	safari_db:setKeyValue("Short Sensors","4.5 U")
+	safari_db:setKeyValue("Move speed","3.6 U/min")	--60
+	safari_db:setKeyValue("Turn speed","10 deg/sec")
+	safari_db:setKeyValue("Beam weapon 0:80","6.0 Dmg / 6.0 sec / Tur Spd 0.4")
+	safari_db:setKeyValue(" Beam weapon 0:40","12.0 Dmg / 8.0 sec")
+	safari_db:setKeyValue("Small Tube 270","8 sec / HVLI")
+	safari_db:setKeyValue("Small Tube 90","8 sec / HVLI")
+	safari_db:setKeyValue("Tube 180","20 sec / Mine")
+	safari_db:setKeyValue("Storage Mine",3)
+	safari_db:setKeyValue("Storage HVLI",20)
+	safari_db:setImage("radar_tug.png")
+--	Surkov
+	frigate_prototype_db:addEntry("Surkov")
+	local surkov_db = queryScienceDatabase("Ships","Prototype","Frigate","Surkov")
+	surkov_db:setLongDescription("The Surkov starts as a Hathcock and makes these changes: warp instead of jump, more repair crew, faster impulse, add rear mine tube, and remove nukes and EMPs\n\nWhen deployed as the Stick, there was one fewer repair crew and the spin speed was only 15")
+	surkov_db:setKeyValue("Class","Frigate")
+	surkov_db:setKeyValue("Sub-class","Cruiser: Sniper")
+	surkov_db:setKeyValue("Deployed Callsigns","Sting, Stick")
+	surkov_db:setKeyValue("Size","80")
+	surkov_db:setKeyValue("Shield","100/100")
+	surkov_db:setKeyValue("Hull","120")
+	surkov_db:setKeyValue("Repair Crew",4)
+	safari_db:setKeyValue("Warp Speed","24.0 U/min")	--400
+	surkov_db:setKeyValue("Long Sensors","35 U")
+	surkov_db:setKeyValue("Short Sensors","6 U")
+	surkov_db:setKeyValue("Move speed","3.6 U/min")	--60
+	surkov_db:setKeyValue("Turn speed","20 deg/sec")
+	surkov_db:setKeyValue("Beam weapon 0:4","4.0 Dmg / 6.0 sec")
+	surkov_db:setKeyValue("Beam weapon 0:20","4.0 Dmg / 6.0 sec")
+	surkov_db:setKeyValue("Beam weapon 0:60","4.0 Dmg / 6.0 sec")
+	surkov_db:setKeyValue("Beam weapon 0:90","4.0 Dmg / 6.0 sec")
+	surkov_db:setKeyValue("Tube 270","15 sec / Homing, HVLI")
+	surkov_db:setKeyValue("Tube 90","15 sec / Homing, HVLI")
+	surkov_db:setKeyValue("Tube 180","15 sec / Mine")
+	surkov_db:setKeyValue("Storage Homing",4)
+	surkov_db:setKeyValue("Storage Mine",3)
+	surkov_db:setKeyValue("Storage HVLI",8)
+	surkov_db:setImage("radar_piranha.png")
+--	Gull
+	frigate_prototype_db:addEntry("Gull")
+	local gull_db = queryScienceDatabase("Ships","Prototype","Frigate","Gull")
+	gull_db:setLongDescription("Like the Era class, the Gull is based on the Flavia: faster spin, 300 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp and longer long range sensors")
+	gull_db:setKeyValue("Class","Frigate")
+	gull_db:setKeyValue("Sub-class","Light Transport")
+	gull_db:setKeyValue("Deployed Callsign","Wiggy")
+	gull_db:setKeyValue("Size","80")
+	gull_db:setKeyValue("Shield","70/120")
+	gull_db:setKeyValue("Hull","120")
+	gull_db:setKeyValue("Repair Crew",8)
+	gull_db:setKeyValue("Jump Range","3 - 30 U")
+	gull_db:setKeyValue("Long Sensors","40 U")
+	gull_db:setKeyValue("Move speed","3.6 U/min")	--60
+	gull_db:setKeyValue("Turn speed","12 deg/sec")
+	gull_db:setKeyValue("Beam weapon 0:300","6.0 Dmg / 6.0 sec / Tur Spd 0.5")
+	gull_db:setKeyValue("Beam weapon 180:80","6.0 Dmg / 6.0 sec")
+	gull_db:setKeyValue("Tube 180","20 sec")
+	gull_db:setKeyValue("Storage Homing",3)
+	gull_db:setKeyValue("Storage Nuke",1)
+	gull_db:setKeyValue("Storage Mine",1)
+	gull_db:setKeyValue("Storage HVLI",5)
+	gull_db:setImage("radar_tug.png")
 end
 function updateSystem()
 	return {
@@ -3826,7 +4386,7 @@ function playerShip()
 			{"Gadfly"		,"inactive"	,createPlayerShipGadfly		,"Gadfly: Fighter   Hull:100   Shield:80,80   Size:100   Repair Crew:3   Cargo:4   R.Strength:9\nFTL:Jump (2U - 15U)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600 Strafe:0   Energy:400   LRS:15   SRS:4.5\nBeams:1 Front\n   Arc:50   Direction:0   Range:0.9   Cycle:4   Damage:8\nTubes:3   2 Front, 1 Rear\n   Direction:  0   Load Speed:05   Type:HVLI Only - small\n   Direction:  0   Load Speed:10   Type:Nuke & EMP\n   Direction:180   Load Speed:15   Type:Homing Only - large\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      1 EMP\n      8 HVLI\nBased on Player Fighter: added jump drive, stronger hull, extra and stronger shields, fewer beams (wider, shorter, faster), missile tubes front and rear (no mines)"},
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
 			{"Guinevere"	,"inactive"	,createPlayerShipGuinevere	,"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
-			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},
+			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},	--proto-atlantis
 			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	},
 			{"Hearken"		,"inactive"	,createPlayerShipHearken	,"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Holmes"		,"inactive"	,createPlayerShipHolmes		,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
@@ -3836,7 +4396,7 @@ function playerShip()
 			{"Kindling"		,"inactive"	,createPlayerShipKindling	},
 --			{"Knick"		,"inactive"	,createPlayerShipKnick		,"Experimental - not ready for use"},
 			{"Knuckle Drag"	,"inactive"	,createPlayerShipSimian		,"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower"},
-			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
+			{"Lancelot"		,"active"	,createPlayerShipLancelot	,"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
 			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
@@ -3864,6 +4424,7 @@ function playerShip()
 			{"Wiggy"		,"inactive"	,createPlayerShipWiggy		,"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors"},
 			{"Windmill"		,"inactive"	,createPlayerShipWindmill	,"Windmill: Frigate, Light Transport   Hull:100   Shield:100,70   Size:200   Repair Crew:5   Cargo:11   R.Strength:19\nFTL:Warp (350)   Speeds: Impulse:100   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:5\nBeams:4 Cardinal directions, sides Turreted Speed:0.5\n   Arc: 60   Direction:  0   Range:1.0   Cycle:6   Damage:6\n   Arc: 60   Direction:180   Range:1.0   Cycle:6   Damage:6\n   Arc:140   Direction:-90   Range:1.2   Cycle:6   Damage:4\n   Arc:140   Direction: 90   Range:1.2   Cycle:6   Damage:4\nTubes:5   Load Speeds: Small:5   Normal:10   Large:15   Mine:20\n   Direction:  0   Type:Exclude Mine - small\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Exclude Mine - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      5 Homing\n      1 Nuke\n      3 Mine\n      2 EMP\n      8 HVLI\nBased on Flavia P.Falcon: faster impulse, slower warp, stronger front shield, fewer repair crew,more beams in more directions, more tubes in more directions, more missiles, longer long range sensors"},
 			{"Wombat"		,"active"	,createPlayerShipWombat		,"Wombat (Shannon): Starfighter, Bomber   Hull:100   Shield:80,80   Size:100   Repair Crew:4   Cargo:3   R.Strength:18\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   LRS:18   SRS:6\nBeam:2 Turreted Speed:0.3\n   Arc:80   Direction:-20   Range:0.9   Cycle:4   Damage:3\n   Arc:80   Direction: 20   Range:0.9   Cycle:4   Damage:3\nTubes:5   Load Speed:10   Rear, 2 small, 1 large, 2 normal\n   Direction:180   Type:Only HVLI - small\n   Direction:180   Type:Only HVLI or Homing - small\n   Direction:180   Type:Only HVLI or Homing - large\n   Direction:180   Type:Only HVLI, EMP or Nuke\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      08 Homing\n      01 Nuke\n      02 Mine\n      02 EMP\n      12 HVLI\nBased on Lindworm: stronger hull and shields, more repair crew, warp drive, stringer, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, more homing missiles"},
+			{"Wrocket"		,"active"	,createPlayerShipWrocket	,"Wrocket (Slingshot): "},
 			{"Yorik"		,"inactive"	,createPlayerShipYorik		,"Rook (Yorik): Frigate, Armored Transport   Hull:200   Shield:200,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:15\nFTL:Jump (3U-30U)   Speeds: Impulse:75   Spin:8   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:41   SRS:5.5\nBeams:2 Front 1 Turreted Speed:0.15\n   Arc:90   Direction:0   Range:0.9   Cycle:6   Damage:4\n   Arc:30   Direction:0   Range:0.9   Cycle:6   Damage:4\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      8 Homing\n      3 Nuke\n      5 Mine\n      6 EMP\n      6 HVLI\nBased on Repulse: slower spin, faster impiulse, 1 turreted beam, both beams forward, hull and shields stronger, relatively weaker rear shield, shorter and weaker beams, more missiles, stronger hull, shorter jump, longer long and short range sensors"},
 		}
 		comparative_player_ship_info = {	--strength, ftl and lrs prepended on player ship select buttons
@@ -3921,6 +4482,7 @@ function playerShip()
 			["Wiggy"		] = {strength = 14,	ftl = "j", lrs = 40},	--template Gull
 			["Windmill"		] = {strength = 19,	ftl = "w", lrs = 33},	--callsign Rocinante
 			["Wombat"		] = {strength = 17,	ftl = "w", lrs = 18},	--callsign Shannon
+			["Wrocket"		] = {strength = 19,	ftl = "j", lrs = 32},	--callsign Slingshot
 			["Yorik"		] = {strength = 15,	ftl = "j", lrs = 41},	--template Rook
 		}
 	end
@@ -5793,10 +6355,10 @@ function createFinneganFeatures()
     local primus_angle = random(0,360)
     local primus_distance = 45000
     local primus_x, primus_y = vectorFromAngle(primus_angle,primus_distance)
-    local planet_primus = Planet():setPosition(strat_x+primus_x,strat_y+primus_y):setPlanetRadius(1800):setDistanceFromMovementPlane(-600)
-    planet_primus:setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.1,0.6,0.1)
-    planet_primus:setCallSign("Pillory"):setOrbit(planet_strat,2500)
-    table.insert(feature_list,planet_primus)
+    local planet_pillory = Planet():setPosition(strat_x+primus_x,strat_y+primus_y):setPlanetRadius(1800):setDistanceFromMovementPlane(-600)
+    planet_pillory:setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.1,0.6,0.1)
+    planet_pillory:setCallSign("Pillory"):setOrbit(planet_strat,2500)
+    table.insert(feature_list,planet_pillory)
     return feature_list
 end
 -- Kentar area stations, asteroids, mines, etc. 
@@ -6089,7 +6651,7 @@ function createKentarStations()
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
 	--Pastern (Orbiting Ergot which orbits Rigil in N25. Look in the square bounded by Q22, K22, K28 and Q28)
-	local ergot_x, ergot_y = planet_primus:getPosition()
+	local ergot_x, ergot_y = planet_ergot:getPosition()
     stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -6115,7 +6677,7 @@ function createKentarStations()
         general_information = "We research the relationship between Rigil, Ergot and the cosmos",
     	history = "Continuing the equine anatomy nomenclature, the station builders named this station Pastern due to its proximity to Ergot"
 	}
-	update_system:addOrbitTargetUpdate(stationPastern,planet_primus,1500,23*2*math.pi,0)
+	update_system:addOrbitTargetUpdate(stationPastern,planet_ergot,1500,23*2*math.pi,0)
 	if random(1,100) <= 23 then stationPastern:setRestocksScanProbes(false) end
 	if random(1,100) <= 18 then stationPastern:setRepairDocked(false) end
 	if random(1,100) <= 15 then stationPastern:setSharesEnergyWithDocked(false) end
@@ -6214,10 +6776,10 @@ function createKentarPlanets()
 	primus_angle = random(0,360)
 	primus_distance = 60000
 	primus_x, primus_y = vectorFromAngle(primus_angle,primus_distance)
-	planet_primus = Planet():setPosition(rigil_x+primus_x,rigil_y+primus_y):setPlanetRadius(1000):setDistanceFromMovementPlane(-500)
-	planet_primus:setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.3,0.15,0.1)
-	planet_primus:setCallSign("Ergot"):setOrbit(planet_rigil,3000)
-	table.insert(planet_list,planet_primus)
+	planet_ergot = Planet():setPosition(rigil_x+primus_x,rigil_y+primus_y):setPlanetRadius(1000):setDistanceFromMovementPlane(-500)
+	planet_ergot:setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.3,0.15,0.1)
+	planet_ergot:setCallSign("Ergot"):setOrbit(planet_rigil,3000)
+	table.insert(planet_list,planet_ergot)
 	black_hole_k1 = BlackHole():setPosition(290000,210000)
 	table.insert(planet_list,black_hole_k1)
 	black_hole_k2 = BlackHole():setPosition(210000,290000)
@@ -6371,8 +6933,8 @@ function createKentarOrbitingAsteroids()
     	local orbit_distance = distance(static_asteroid,planet_rigil)
     	local s_orbit = .8
     	local f_orbit = 1.5
-    	static_asteroid.orbit_influencer = planet_primus
-    	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_primus,10000,30000)
+    	static_asteroid.orbit_influencer = planet_ergot
+    	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_ergot,10000,30000)
     	table.insert(asteroid_list,static_asteroid)
     end
 	local asteroid_details = {
@@ -6436,8 +6998,8 @@ function createKentarOrbitingAsteroids()
     	local orbit_distance = distance(static_asteroid,planet_rigil)
     	local s_orbit = 1.1
     	local f_orbit = 1.7
-    	static_asteroid.orbit_influencer = planet_primus
-    	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_primus,10000,30000)
+    	static_asteroid.orbit_influencer = planet_ergot
+    	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_ergot,10000,30000)
     	table.insert(asteroid_list,static_asteroid)
     end
     return asteroid_list
@@ -12036,18 +12598,20 @@ end
 function createPlayerShipLancelot()
 	playerLancelot = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Lancelot")
 	playerLancelot:setTypeName("Noble")
-	playerLancelot:setRepairCrewCount(5)							--more repair crew (vs 3)
-	playerLancelot:setMaxEnergy(850)								--less maximum energy (vs 1000)
-	playerLancelot:setEnergy(850)							
+	playerLancelot:setRepairCrewCount(5)					--more repair crew (vs 3)
+	playerLancelot:setMaxEnergy(800)						--less maximum energy (vs 1000)
+	playerLancelot:setEnergy(800)							
+	playerLancelot:setShieldsMax(120, 80)					--stronger front shield (vs 80, 80)
+	playerLancelot:setShields(120, 80)
 	playerLancelot.max_jump_range = 30000					--shorter than typical (vs 50)
-	playerLancelot.min_jump_range = 3000						--shorter than typical (vs 5)
+	playerLancelot.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerLancelot:setJumpDriveRange(playerLancelot.min_jump_range,playerLancelot.max_jump_range)
 	playerLancelot:setJumpDriveCharge(playerLancelot.max_jump_range)
 --                 				   Arc, Dir, Range, CycleTime, Dmg
-	playerLancelot:setBeamWeapon(0, 40, -45,  1000,         6, 8)	--4 beams (vs 2)
-	playerLancelot:setBeamWeapon(1, 40,  45,  1000,         6, 8)	--weaker (vs 10 dmg)
-	playerLancelot:setBeamWeapon(2, 40,-135,  1000,         6, 8)	--4 angles (vs overlapping in front)
-	playerLancelot:setBeamWeapon(3, 40, 135,  1000,         6, 8)	--narrower (vs 90 degrees)
+	playerLancelot:setBeamWeapon(0, 60, -30,  1000,         6, 8)	--4 beams (vs 2)
+	playerLancelot:setBeamWeapon(1, 60,  30,  1000,         6, 8)	--weaker (vs 10 dmg)
+	playerLancelot:setBeamWeapon(2, 30, -10,  1000,         6, 8)	
+	playerLancelot:setBeamWeapon(3, 30,  10,  1000,         6, 8)	--narrower (vs 90 degrees)
 	playerLancelot:setBeamWeaponEnergyPerFire(0,playerLancelot:getBeamWeaponEnergyPerFire(0)*3)
 	playerLancelot:setBeamWeaponHeatPerFire(0,playerLancelot:getBeamWeaponHeatPerFire(0)*3)
 	playerLancelot:setBeamWeaponEnergyPerFire(1,playerLancelot:getBeamWeaponEnergyPerFire(1)*3)
@@ -12056,24 +12620,33 @@ function createPlayerShipLancelot()
 	playerLancelot:setBeamWeaponHeatPerFire(2,playerLancelot:getBeamWeaponHeatPerFire(2)*3)
 	playerLancelot:setBeamWeaponEnergyPerFire(3,playerLancelot:getBeamWeaponEnergyPerFire(3)*3)
 	playerLancelot:setBeamWeaponHeatPerFire(3,playerLancelot:getBeamWeaponHeatPerFire(3)*3)
-	playerLancelot:setWeaponTubeCount(4)							--more (vs 2)
-	playerLancelot:setWeaponTubeDirection(0,-90)					--first tube points left (vs -5)
-	playerLancelot:setWeaponTubeDirection(1, 90)					--second tube points right (vs 5)
-	playerLancelot:setWeaponTubeDirection(2,  0)					--third tube points forward (vs rear)
-	playerLancelot:setWeaponTubeDirection(3,180)					--fourth tube points to the rear (vs none)
-	playerLancelot:weaponTubeDisallowMissle(0,"HVLI")				--no HVLI (vs all but mine)
-	playerLancelot:setWeaponTubeExclusiveFor(1,"Homing")			--only Homing, EMP, nuke (vs only mine)
-	playerLancelot:weaponTubeAllowMissle(1,"EMP")
-	playerLancelot:weaponTubeAllowMissle(1,"Nuke")
-	playerLancelot:setWeaponTubeExclusiveFor(2,"HVLI")				--only HVLI (vs all but mine)
-	playerLancelot:setWeaponTubeExclusiveFor(3,"Mine")				--only mine
-	playerLancelot:setWeaponStorageMax("Homing", 8)					--less (vs 12)
+	playerLancelot:setWeaponTubeCount(5)					--more (vs 3)
+	playerLancelot:setWeaponTubeDirection(0,-10)			--1st tube points more left (vs -5)
+	playerLancelot:setWeaponTubeDirection(1, 10)			--2nd tube points more right (vs 5)
+	playerLancelot:setWeaponTubeDirection(2,-90)			--3rd tube points left (vs rear)
+	playerLancelot:setWeaponTubeDirection(3, 90)			--4th tube points right (vs none)
+	playerLancelot:setWeaponTubeDirection(4,180)			--5th tube points to the rear (vs none)
+	playerLancelot:setTubeSize(0,"small")					--left front HVLI tube smaller
+	playerLancelot:setTubeSize(2,"large")					--left broadside larger
+	playerLancelot:setTubeLoadTime(0,6)						--left front HVLI tube faster
+	playerLancelot:setTubeLoadTime(2,20)					--left broadside slower
+	playerLancelot:setTubeLoadTime(4,15)					--rear mining tube slower
+	playerLancelot:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI
+	playerLancelot:setWeaponTubeExclusiveFor(1,"HVLI")		--only HVLI
+	playerLancelot:setWeaponTubeExclusiveFor(2,"Homing")	--only Homing, Nuke, EMP
+	playerLancelot:weaponTubeAllowMissle(2,"Nuke")
+	playerLancelot:weaponTubeAllowMissle(2,"EMP")
+	playerLancelot:setWeaponTubeExclusiveFor(3,"Homing")	--only Homing, Nuke, EMP
+	playerLancelot:weaponTubeAllowMissle(3,"Nuke")
+	playerLancelot:weaponTubeAllowMissle(3,"EMP")
+	playerLancelot:setWeaponTubeExclusiveFor(4,"Mine")		--only mine
+	playerLancelot:setWeaponStorageMax("Homing", 8)			--less (vs 12)
 	playerLancelot:setWeaponStorage("Homing", 8)				
-	playerLancelot:setWeaponStorageMax("Mine", 6)					--less (vs 8)
+	playerLancelot:setWeaponStorageMax("Mine", 6)			--less (vs 8)
 	playerLancelot:setWeaponStorage("Mine", 6)				
-	playerLancelot:setWeaponStorageMax("HVLI", 8)					--more (vs 0)
+	playerLancelot:setWeaponStorageMax("HVLI", 8)			--more (vs 0)
 	playerLancelot:setWeaponStorage("HVLI", 8)				
-	playerLancelot:setCombatManeuver(200,200)						--less (vs 400,250)
+	playerLancelot:setCombatManeuver(200,200)				--less (vs 400,250)
 	playerLancelot:addReputationPoints(50)
 	playerShipSpawned("Lancelot")
 end
@@ -12880,7 +13453,37 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponStorage("Nuke",   1)				
 	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
 	playerWombat:setWeaponStorage("Homing",   8)				
+	playerWombat:addReputationPoints(50)
 	playerShipSpawned("Wombat")
+end
+function createPlayerShipWrocket()
+	playerWrocket = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Slingshot")
+	playerWrocket:setTypeName("Wrocket")
+	playerWrocket:setShieldsMax(100,100)					--stronger shields (vs 80,80)
+	playerWrocket:setShields(100,100)
+	playerWrocket.max_jump_range = 30000					--shorter than typical (vs 50)
+	playerWrocket.min_jump_range = 3000						--shorter than typical (vs 5)
+	playerWrocket:setCombatManeuver(300,200)				--more (vs 200,150)
+	playerWrocket:setJumpDriveRange(playerWrocket.min_jump_range,playerWrocket.max_jump_range)
+	playerWrocket:setJumpDriveCharge(playerWrocket.max_jump_range)
+--                 				   Arc, Dir,   Range, CycleTime, Damage
+	playerWrocket:setBeamWeapon(0,  10,   0,	2000, 		8.0, 	0.5)	--long, very weak, turreted (vs none)
+	playerWrocket:setBeamWeapon(1,  10, 180,	2000, 		8.0, 	0.5)	--fighter deterrents
+--											Arc,  Dir, Rotate speed
+	playerWrocket:setBeamWeaponTurret(0,	270,    0,			 1)
+	playerWrocket:setBeamWeaponTurret(1,	270,  180,			 1)
+	playerWrocket:setTubeSize(0,"small")
+	playerWrocket:setTubeSize(3,"small")
+	playerWrocket:setTubeLoadTime(0,6)
+	playerWrocket:setTubeLoadTime(3,6)
+	playerWrocket:setTubeLoadTime(2,12)
+	playerWrocket:setTubeLoadTime(5,12)
+	playerWrocket:weaponTubeDisallowMissle(1,"Mine")	--no side launching mines
+	playerWrocket:weaponTubeDisallowMissle(4,"Mine")
+	playerWrocket:setWeaponStorageMax("EMP",8)
+	playerWrocket:setWeaponStorage("EMP", 8)
+	playerWrocket:addReputationPoints(50)
+	playerShipSpawned("Wrocket")
 end
 function createPlayerShipYorik()
 	playerYorik = PlayerSpaceship():setTemplate("Repulse"):setFaction("Human Navy"):setCallSign("Yorik")
@@ -17247,6 +17850,13 @@ function missilePod(enemyFaction)
 	-- common shared between all the missile pods
 	-- the AI behaves more sensibly with order stand ground in testing
 	local ship=CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderStandGround():setTypeName("Missile Pod")
+	ship:setScanned(true)
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	-- no beams for missile platforms
 	ship:setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0)
 	ship:setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0)
@@ -17258,6 +17868,41 @@ function missilePod(enemyFaction)
 	ship:setHullMax(35):setHull(35):setShieldsMax(50):setShields(50)
 	ship:setRotationMaxSpeed(5)
 	-- note no missiles - that is done in the individual type of platforms
+    ship.comms_data = {
+    	friendlyness = random(1,100),
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 73,
+        hack_repair =			random(1,100) < 67,
+        scan_repair =			random(1,100) < 63,
+        combat_maneuver_repair=	random(1,100) < 53,
+        self_destruct_repair=	random(1,100) < 43,
+        sensor_boost = {value = math.random(5,10)*1000, cost = math.random(5,10)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = math.random(5,9),	cost = 1},},
+        trade = {	food = false, medicine = random(1,10)<3, luxury = random(1,10)<5 },
+        public_relations = false,
+        general_information = "",
+    	history = "",
+    	idle_defense_fleet = {
+			DF1 = "Adder MK5",
+			DF2 = "Adder MK6",
+    	},
+	}
+	local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+	if missile_pod_db == nil then
+		local station_db = queryScienceDatabase("Stations")
+		station_db:addEntry("Missile Pod")
+		missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. It has offensive weapons sytems to help defend against enemy ships")
+		missile_pod_db:setImage("radartrace_smallstation.png")
+		missile_pod_db:setKeyValue("Class","Small")
+		missile_pod_db:setKeyValue("Size",300)
+		missile_pod_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 -- the extra bit of the callsign after missile pod indicates the type of missile
@@ -17280,6 +17925,22 @@ function missilePodD1(enemyFaction)
 	ship:setTubeLoadTime(0,7)
 	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"HVLI")
+	local missile_pod_d1_db = queryScienceDatabase("Stations","Missile Pod","D1")
+	if missile_pod_d1_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("D1")
+		missile_pod_d1_db = queryScienceDatabase("Stations","Missile Pod","D1")
+		missile_pod_d1_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The D1 fires small, dumb missiles to help defend against enemy ships")
+		missile_pod_d1_db:setImage("radartrace_smallstation.png")
+		missile_pod_d1_db:setKeyValue("Class","Small")
+		missile_pod_d1_db:setKeyValue("Size",300)
+		missile_pod_d1_db:setKeyValue("Shield",20)
+		missile_pod_d1_db:setKeyValue("Hull",15)
+		missile_pod_d1_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_d1_db:setKeyValue("Small Tube 0","7 Sec")
+		missile_pod_d1_db:setKeyValue("Storage HVLI",400)
+		missile_pod_d1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodD2(enemyFaction)
@@ -17288,6 +17949,22 @@ function missilePodD2(enemyFaction)
 	ship:setTubeLoadTime(0,13)
 	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
 	ship:setTubeSize(0,"Medium"):setWeaponTubeExclusiveFor(0,"HVLI")
+	local missile_pod_d2_db = queryScienceDatabase("Stations","Missile Pod","D2")
+	if missile_pod_d2_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("D2")
+		missile_pod_d2_db = queryScienceDatabase("Stations","Missile Pod","D2")
+		missile_pod_d2_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The D2 fires medium, dumb missiles to help defend against enemy ships")
+		missile_pod_d2_db:setImage("radartrace_smallstation.png")
+		missile_pod_d2_db:setKeyValue("Class","Small")
+		missile_pod_d2_db:setKeyValue("Size",300)
+		missile_pod_d2_db:setKeyValue("Shield",50)
+		missile_pod_d2_db:setKeyValue("Hull",35)
+		missile_pod_d2_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_d2_db:setKeyValue("Tube 0","13 Sec")
+		missile_pod_d2_db:setKeyValue("Storage HVLI",400)
+		missile_pod_d2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodD4(enemyFaction)
@@ -17296,6 +17973,22 @@ function missilePodD4(enemyFaction)
 	ship:setTubeLoadTime(0,17)
 	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
 	ship:setTubeSize(0,"Large"):setWeaponTubeExclusiveFor(0,"HVLI")
+	local missile_pod_d4_db = queryScienceDatabase("Stations","Missile Pod","D4")
+	if missile_pod_d4_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("D4")
+		missile_pod_d4_db = queryScienceDatabase("Stations","Missile Pod","D4")
+		missile_pod_d4_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The D4 fires large, dumb missiles to help defend against enemy ships")
+		missile_pod_d4_db:setImage("radartrace_smallstation.png")
+		missile_pod_d4_db:setKeyValue("Class","Small")
+		missile_pod_d4_db:setKeyValue("Size",300)
+		missile_pod_d4_db:setKeyValue("Shield",50)
+		missile_pod_d4_db:setKeyValue("Hull",35)
+		missile_pod_d4_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_d4_db:setKeyValue("Large Tube 0","17 Sec")
+		missile_pod_d4_db:setKeyValue("Storage HVLI",400)
+		missile_pod_d4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodT1(enemyFaction)
@@ -17304,6 +17997,22 @@ function missilePodT1(enemyFaction)
 	ship:setTubeLoadTime(0,15)
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
 	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	local missile_pod_t1_db = queryScienceDatabase("Stations","Missile Pod","T1")
+	if missile_pod_t1_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("T1")
+		missile_pod_t1_db = queryScienceDatabase("Stations","Missile Pod","T1")
+		missile_pod_t1_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The T1 fires small, tracking missiles to help defend against enemy ships")
+		missile_pod_t1_db:setImage("radartrace_smallstation.png")
+		missile_pod_t1_db:setKeyValue("Class","Small")
+		missile_pod_t1_db:setKeyValue("Size",300)
+		missile_pod_t1_db:setKeyValue("Shield",50)
+		missile_pod_t1_db:setKeyValue("Hull",35)
+		missile_pod_t1_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_t1_db:setKeyValue("Small Tube 0","15 Sec")
+		missile_pod_t1_db:setKeyValue("Storage Homing",400)
+		missile_pod_t1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodT2(enemyFaction)
@@ -17312,6 +18021,22 @@ function missilePodT2(enemyFaction)
 	ship:setTubeLoadTime(0,15)
 	ship:setWeaponTubeExclusiveFor(0,"Homing")
 	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	local missile_pod_t2_db = queryScienceDatabase("Stations","Missile Pod","T2")
+	if missile_pod_t2_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("T2")
+		missile_pod_t2_db = queryScienceDatabase("Stations","Missile Pod","T2")
+		missile_pod_t2_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The T2 fires medium, tracking missiles to help defend against enemy ships")
+		missile_pod_t2_db:setImage("radartrace_smallstation.png")
+		missile_pod_t2_db:setKeyValue("Class","Small")
+		missile_pod_t2_db:setKeyValue("Size",300)
+		missile_pod_t2_db:setKeyValue("Shield",50)
+		missile_pod_t2_db:setKeyValue("Hull",35)
+		missile_pod_t2_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_t2_db:setKeyValue("Tube 0","15 Sec")
+		missile_pod_t2_db:setKeyValue("Storage Homing",400)
+		missile_pod_t2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodTI2(enemyFaction)
@@ -17322,6 +18047,23 @@ function missilePodTI2(enemyFaction)
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(1,"Homing")
 	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	local missile_pod_ti2_db = queryScienceDatabase("Stations","Missile Pod","TI2")
+	if missile_pod_ti2_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("TI2")
+		missile_pod_ti2_db = queryScienceDatabase("Stations","Missile Pod","TI2")
+		missile_pod_ti2_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TI2 fires small, tracking missiles from two tubes to help defend against enemy ships")
+		missile_pod_ti2_db:setImage("radartrace_smallstation.png")
+		missile_pod_ti2_db:setKeyValue("Class","Small")
+		missile_pod_ti2_db:setKeyValue("Size",300)
+		missile_pod_ti2_db:setKeyValue("Shield",50)
+		missile_pod_ti2_db:setKeyValue("Hull",35)
+		missile_pod_ti2_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_ti2_db:setKeyValue("Small Tube 90","15 Sec")
+		missile_pod_ti2_db:setKeyValue("Small Tube 270","15 Sec")
+		missile_pod_ti2_db:setKeyValue("Storage Homing",400)
+		missile_pod_ti2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodTX4(enemyFaction)
@@ -17336,6 +18078,25 @@ function missilePodTX4(enemyFaction)
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(2,"Homing")
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(3,"Homing")
 	ship:setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 400)
+	local missile_pod_tx4_db = queryScienceDatabase("Stations","Missile Pod","TX4")
+	if missile_pod_tx4_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("TX4")
+		missile_pod_tx4_db = queryScienceDatabase("Stations","Missile Pod","TX4")
+		missile_pod_tx4_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TX4 fires small, tracking missiles from four tubes to help defend against enemy ships")
+		missile_pod_tx4_db:setImage("radartrace_smallstation.png")
+		missile_pod_tx4_db:setKeyValue("Class","Small")
+		missile_pod_tx4_db:setKeyValue("Size",300)
+		missile_pod_tx4_db:setKeyValue("Shield",50)
+		missile_pod_tx4_db:setKeyValue("Hull",35)
+		missile_pod_tx4_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_tx4_db:setKeyValue("Small Tube 0","15 Sec")
+		missile_pod_tx4_db:setKeyValue("Small Tube 90","15 Sec")
+		missile_pod_tx4_db:setKeyValue("Small Tube 180","15 Sec")
+		missile_pod_tx4_db:setKeyValue("Small Tube 270","15 Sec")
+		missile_pod_tx4_db:setKeyValue("Storage Homing",400)
+		missile_pod_tx4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodS1(enemyFaction)
@@ -17343,8 +18104,24 @@ function missilePodS1(enemyFaction)
 	ship:setHullMax(55):setHull(55):setShieldsMax(50):setShields(50)
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,20)
-	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 100)
+	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 200)
 	ship:setTubeSize(0,"Small"):setWeaponTubeExclusiveFor(0,"EMP")
+	local missile_pod_s1_db = queryScienceDatabase("Stations","Missile Pod","S1")
+	if missile_pod_s1_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("S1")
+		missile_pod_s1_db = queryScienceDatabase("Stations","Missile Pod","S1")
+		missile_pod_s1_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The S1 fires small, shield-damaging missiles to help defend against enemy ships")
+		missile_pod_s1_db:setImage("radartrace_smallstation.png")
+		missile_pod_s1_db:setKeyValue("Class","Small")
+		missile_pod_s1_db:setKeyValue("Size",300)
+		missile_pod_s1_db:setKeyValue("Shield",50)
+		missile_pod_s1_db:setKeyValue("Hull",55)
+		missile_pod_s1_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_s1_db:setKeyValue("Small Tube 0","20 Sec")
+		missile_pod_s1_db:setKeyValue("Storage EMP",200)
+		missile_pod_s1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 function missilePodS4(enemyFaction)
@@ -17352,8 +18129,24 @@ function missilePodS4(enemyFaction)
 	ship:setHullMax(70):setHull(70):setShieldsMax(80):setShields(80)
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,60)
-	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 100)
+	ship:setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 200)
 	ship:setTubeSize(0,"Large"):setWeaponTubeExclusiveFor(0,"EMP")
+	local missile_pod_s4_db = queryScienceDatabase("Stations","Missile Pod","S4")
+	if missile_pod_s4_db == nil then
+		local missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
+		missile_pod_db:addEntry("S4")
+		missile_pod_s4_db = queryScienceDatabase("Stations","Missile Pod","S4")
+		missile_pod_s4_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The S4 fires large, shield-damaging missiles to help defend against enemy ships")
+		missile_pod_s4_db:setImage("radartrace_smallstation.png")
+		missile_pod_s4_db:setKeyValue("Class","Small")
+		missile_pod_s4_db:setKeyValue("Size",300)
+		missile_pod_s4_db:setKeyValue("Shield",80)
+		missile_pod_s4_db:setKeyValue("Hull",70)
+		missile_pod_s4_db:setKeyValue("Turn speed","5 deg/sec")
+		missile_pod_s4_db:setKeyValue("Large Tube 0","60 Sec")
+		missile_pod_s4_db:setKeyValue("Storage EMP",200)
+		missile_pod_s4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
 	return ship
 end
 --ships that serve as stations
