@@ -4420,6 +4420,31 @@ function customButtons()
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
+	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
+	addGMFunction("wj around rigil",function ()
+		local x,y=planet_rigil:getPosition()
+		local jammers=createObjectCircle{x=x,y=y,callback=WarpJammer,number=40}
+	    for i=1,#jammers do
+			local orbit_distance = 59000
+			local s_orbit = .95
+			local f_orbit = 1.65
+			jammers[i]:setRange(10000)
+			jammers[i].orbit_influencer = planet_ergot
+			update_system:addOrbitTargetWithInfluenceUpdate(jammers[i],planet_rigil,orbit_distance,s_orbit,f_orbit,planet_ergot,10000,30000)
+		end
+	end)
+	addGMFunction("sale Bouy",function()
+		onGMClick(function(x,y)
+			local tbl={"50% off marked ships","cheapest deals in the sector","unmatched prices","best discounts for black turkey"}
+			update_system:addNameCycleUpdate(Artifact():setPosition(x,y), 10,tbl,random(1,40))
+		end) end)
+
+end
+function mollyGuardLoadDescription()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("break my game",singleObjectFunction(function(o)load(o:getDescription("notscanned"))()end))
 end
 -- eh this should live somewhere else, but let it be a reminder to simplify other code
 -- there also should be some similar ones for playerships, spaceships etc
