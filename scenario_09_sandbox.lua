@@ -65,6 +65,7 @@ function createSkeletonUniverse()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -105,6 +106,7 @@ function createSkeletonUniverse()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -155,6 +157,7 @@ function createSkeletonUniverse()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
         sensor_boost = {value = 5000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -190,6 +193,7 @@ function createSkeletonUniverse()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
         sensor_boost = {value = 5000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5369,6 +5373,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         hack_repair =			true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5412,6 +5417,7 @@ function createIcarusStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
@@ -5457,6 +5463,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = {quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -5489,6 +5496,7 @@ function createIcarusStations()
         hack_repair =			true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	warp =		{quantity = math.random(2,4),	cost = math.random(80,120)},
@@ -5526,6 +5534,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         hack_repair =			true,
         scan_repair =			true,
+        tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5569,6 +5578,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<60,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5601,6 +5611,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5714,6 +5725,7 @@ function createIcarusStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	impulse = 	{quantity = math.random(5,10),	cost = math.random(80,100)},
@@ -5794,6 +5806,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
         probe_launch_repair =	true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	sensor = 	{quantity = math.random(4,8),	cost = math.random(60,70)}	},
@@ -5835,6 +5848,7 @@ function createIcarusStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5918,6 +5932,7 @@ function createIcarusStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	beam =	 	{quantity = math.random(4,8),	cost = math.random(40,80)},
@@ -5958,6 +5973,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         hack_repair =			true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 20},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
@@ -6044,6 +6060,7 @@ function createIcarusStations()
         hack_repair =			true,
         probe_launch_repair =	true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -6101,6 +6118,7 @@ function createIcarusStations()
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	software = 	{quantity = math.random(4,8),	cost = math.random(80,90)}	},
@@ -6926,6 +6944,7 @@ function createKentarStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -6969,6 +6988,7 @@ function createKentarStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -7009,6 +7029,7 @@ function createKentarStations()
         hack_repair =			true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = 	{quantity = math.random(5,10),	cost = math.random(20,30)},
@@ -7045,6 +7066,7 @@ function createKentarStations()
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 5000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -7131,6 +7153,7 @@ function createKentarStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nickel = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
@@ -7170,6 +7193,7 @@ function createKentarStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	circuit = 	{quantity = math.random(2,5),	cost = math.random(30,50)},
@@ -7205,6 +7229,7 @@ function createKentarStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	true,
         combat_maneuver_repair=	true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(2,5),	cost = math.random(50,80)},
@@ -7245,6 +7270,7 @@ function createKentarStations()
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
+        tube_slow_down_repair = true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -10229,6 +10255,7 @@ function createLafrinaStations()
         probe_launch_repair =	random(1,100) < 63,
         hack_repair =			true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
@@ -10267,6 +10294,7 @@ function createLafrinaStations()
         probe_launch_repair =	true,
         hack_repair =			random(1,100) < 83,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -10310,6 +10338,7 @@ function createLafrinaStations()
         probe_launch_repair =	true,
         hack_repair =			random(1,100) < 63,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	tritanium = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
@@ -10347,6 +10376,7 @@ function createLafrinaStations()
         probe_launch_repair =	random(1,100) < 83,
         hack_repair =			true,
         scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<70,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -10392,6 +10422,7 @@ function createLafrinaStations()
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			random(1,100) < 83,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	nickel = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
@@ -10433,6 +10464,7 @@ function createLafrinaStations()
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			random(1,100) < 83,
+        tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	sensor = 		{quantity = math.random(5,9),	cost = math.random(50,80)},
@@ -23600,6 +23632,30 @@ function stationOperations()
 					addGMMessage("Select only one object. No action taken")
 				end
 			end)
+			if first_object.comms_data.tube_slow_down_repair then
+				button_label = "Fix Slow Tube On"
+			else
+				button_label = "Fix Slow Tube Off"
+			end
+			addGMFunction(button_label,function()
+				local objectList = getGMSelection()
+				if #objectList == 1 then
+					local first_object = objectList[1]
+					local object_type = first_object.typeName
+					if object_type == "SpaceStation" then
+						if first_object.comms_data.tube_slow_down_repair then
+							first_object.comms_data.tube_slow_down_repair = false
+						else
+							first_object.comms_data.tube_slow_down_repair = true
+						end
+						stationOperations()
+					else
+						addGMMessage("Station not selected. No action taken")
+					end
+				else
+					addGMMessage("Select only one object. No action taken")
+				end
+			end)
 		end
 	end
 end
@@ -27160,6 +27216,9 @@ function handleDockedState()
 		if ctd.self_destruct_repair then
 			service_status = string.format("%s\nMay repair self destruct system",service_status)
 		end
+		if ctd.tube_slow_down_repair then
+			service_status = string.format("%s\nMay repair slowed weapon tubes",service_status)
+		end
 		setCommsMessage(service_status)
 		addCommsReply("Back", commsStation)
 	end)
@@ -27213,6 +27272,25 @@ function handleDockedState()
 	end
 	if not offer_repair and ctd.self_destruct_repair and not comms_source:getCanSelfDestruct() then
 		offer_repair = true
+	end
+	if not offer_repair and ctd.tube_slow_down_repair then
+		local tube_load_time_slowed = false
+		if comms_source.normal_tube_load_time ~= nil then
+			local tube_count = comms_source:getWeaponTubeCount()
+			if tube_count > 0 then
+				local tube_index = 0
+				repeat
+					if comms_source.normal_tube_load_time[tube_index] ~= comms_source:getTubeLoadTime(tube_index) then
+						tube_load_time_slowed = true
+						break
+					end
+					tube_index = tube_index + 1
+				until(tube_index >= tube_count)
+			end
+		end
+		if tube_load_time_slowed then
+			offer_repair = true
+		end
 	end
 	if offer_repair then
 		addCommsReply("Repair ship system",function()
@@ -27275,6 +27353,38 @@ function handleDockedState()
 						if comms_source:takeReputationPoints(5) then
 							comms_source:setCanSelfDestruct(true)
 							setCommsMessage("Your self destruct system has been repaired")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
+			if ctd.tube_slow_down_repair then
+				local tube_load_time_slowed = false
+				if comms_source.normal_tube_load_time ~= nil then
+					local tube_count = comms_source:getWeaponTubeCount()
+					if tube_count > 0 then
+						local tube_index = 0
+						repeat
+							if comms_source.normal_tube_load_time[tube_index] ~= comms_source:getTubeLoadTime(tube_index) then
+								tube_load_time_slowed = true
+								break
+							end
+							tube_index = tube_index + 1
+						until(tube_index >= tube_count)
+					end
+				end
+				if tube_load_time_slowed then
+					addCommsReply("Repair slow tube loading (5 Rep)",function()
+						if comms_source:takeReputationPoints(5) then
+							local tube_count = comms_source:getWeaponTubeCount()
+							local tube_index = 0
+							repeat
+								comms_source:setTubeLoadTime(tube_index,comms_source.normal_tube_load_time[tube_index])
+								tube_index = tube_index + 1
+							until(tube_index >= tube_count)
+							setCommsMessage("Your tube load times have been returned to normal")
 						else
 							setCommsMessage("Insufficient reputation")
 						end
@@ -28309,6 +28419,9 @@ function handleUndockedState()
 			end
 			if ctd.self_destruct_repair then
 				service_status = string.format("%s\nMay repair self destruct system",service_status)
+			end
+			if ctd.tube_slow_down_repair then
+				service_status = string.format("%s\nMay repair slowed weapon tubes",service_status)
 			end
 			setCommsMessage(service_status)
 			addCommsReply("Back", commsStation)
@@ -29383,6 +29496,10 @@ function updateInner(delta)
 									upper_consequence = upper_consequence + 1
 									table.insert(consequence_list,"self_destruct")
 								end
+								if p:getWeaponTubeCount() > 0 then
+									upper_consequence = upper_consequence + 1
+									table.insert(consequence_list,"tube_time")
+								end
 								consequence = math.random(1,upper_consequence)
 								if consequence == 1 then
 									p:setRepairCrewCount(p:getRepairCrewCount() - 1)
@@ -29457,6 +29574,27 @@ function updateInner(delta)
 										if p:hasPlayerAtPosition("Engineering+") then
 											p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
 										end
+									elseif named_consequence == "tube_time" then
+										local tube_count = p:getWeaponTubeCount()
+										local tube_index = 0
+										if p.normal_tube_load_time == nil then
+											p.normal_tube_load_time = {}
+											repeat
+												p.normal_tube_load_time[tube_index] = p:getTubeLoadTime(tube_index)
+												tube_index = tube_index + 1
+											until(tube_index >= tube_count)
+											tube_index = 0
+										end
+										repeat
+											p:setTubeLoadTime(tube_index,p:getTubeLoadTime(tube_index) + 2)
+											tube_index = tube_index + 1
+										until(tube_index >= tube_count)
+										if p:hasPlayerAtPosition("Engineering") then
+											p:addCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
+										end
+										if p:hasPlayerAtPosition("Engineering+") then
+											p:addCustomMessage("Engineering+","tube_slow_down_message_plus","Tube damage has caused tube load time to increase")
+										end
 									end
 								end	--coolant loss branch
 							end	--could lose coolant branch
@@ -29502,6 +29640,118 @@ function updateInner(delta)
 					end
 				end
 			end	--health check branch
+			local secondary_systems_optimal = true
+			if not p:getCanLaunchProbe() then
+				secondary_systems_optimal = false
+			end
+			if secondary_systems_optimal and not p:getCanHack() then
+				secondary_systems_optimal = false
+			end
+			if secondary_systems_optimal and not p:getCanScan() then
+				secondary_systems_optimal = false
+			end
+			if secondary_systems_optimal and not p:getCanCombatManeuver() then
+				secondary_systems_optimal = false
+			end
+			if secondary_systems_optimal and not p:getCanSelfDestruct() then
+				secondary_systems_optimal = false
+			end
+			if secondary_systems_optimal then
+				local tube_count = p:getWeaponTubeCount()
+				if tube_count > 0 and p.normal_tube_load_time ~= nil then
+					local tube_index = 0
+					repeat
+						if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
+							secondary_systems_optimal = false
+							break
+						end
+						tube_index = tube_index + 1
+					until(tube_index >= tube_count)
+				end
+			end
+			if secondary_systems_optimal then
+				if p.damage_report ~= nil then
+					p:removeCustom(p.damage_report)
+					p.damage_report = nil
+				end
+				if p.damage_report_plus ~= nil then
+					p:removeCustom(p.damage_report_plus)
+					p.damage_report_plus = nil
+				end
+			else
+				if p:hasPlayerAtPosition("Engineering") then
+					p.damage_report = "damage_report"
+					p:addCustomButton("Engineering",p.damage_report,"Damage Report",function()
+						local dmg_msg = "In addition to the primary systems constantly monitored in engineering, the following secondary systems have also been damaged requiring docking repair facilities:"
+						if not p:getCanLaunchProbe() then
+							dmg_msg = dmg_msg .. "\nProbe launch system"
+						end
+						if not p:getCanHack() then
+							dmg_msg = dmg_msg .. "\nHacking system"
+						end
+						if not p:getCanScan() then
+							dmg_msg = dmg_msg .. "\nScanning system"
+						end
+						if not p:getCanCombatManeuver() then
+							dmg_msg = dmg_msg .. "\nCombat maneuvering system"
+						end
+						if not p:getCanSelfDestruct() then
+							dmg_msg = dmg_msg .. "\nSelf destruct system"
+						end
+						local tube_count = p:getWeaponTubeCount()
+						if tube_count > 0 then
+							if tube_count > 0 and p.normal_tube_load_time ~= nil then
+								local tube_index = 0
+								repeat
+									if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
+										dmg_msg = dmg_msg .. "\nWeapon tube load time degraded"
+										break
+									end
+									tube_index = tube_index + 1
+								until(tube_index >= tube_count)
+							end
+						end
+						p.dmg_msg = "dmg_msg"
+						p:addCustomMessage("Engineering",p.dmg_msg,dmg_msg)
+					end)
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p.damage_report_plus = "damage_report_plus"
+					p:addCustomButton("Engineering",p.damage_report_plus,"Damage Report",function()
+						local dmg_msg = "In addition to the primary systems constantly monitored in engineering, the following secondary systems have also been damaged requiring docking repair facilities:"
+						if not p:getCanLaunchProbe() then
+							dmg_msg = dmg_msg .. "\nProbe launch system"
+						end
+						if not p:getCanHack() then
+							dmg_msg = dmg_msg .. "\nHacking system"
+						end
+						if not p:getCanScan() then
+							dmg_msg = dmg_msg .. "\nScanning system"
+						end
+						if not p:getCanCombatManeuver() then
+							dmg_msg = dmg_msg .. "\nCombat maneuvering system"
+						end
+						if not p:getCanSelfDestruct() then
+							dmg_msg = dmg_msg .. "\nSelf destruct system"
+						end
+						local tube_count = p:getWeaponTubeCount()
+						if tube_count > 0 then
+							if tube_count > 0 and p.normal_tube_load_time ~= nil then
+								local tube_index = 0
+								repeat
+									if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
+										dmg_msg = dmg_msg .. "\nWeapon tube load time degraded"
+										break
+									end
+									tube_index = tube_index + 1
+								until(tube_index >= tube_count)
+							end
+						end
+						p.dmg_msg = "dmg_msg"
+						p:addCustomMessage("Engineering+",p.dmg_msg,dmg_msg)
+					end)
+				end
+			end
 			if p.expedite_dock then
 				if p.expedite_dock_timer == nil then
 					p.expedite_dock_timer = p.expedite_dock_timer_max + delta
