@@ -486,67 +486,70 @@ function setConstants()
 	}
 
 	playerShipStats = {	
-		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1},
-		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
-		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
-		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3},
 		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
 		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
 		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2},
 		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1},
-		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
-		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5},
 		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1},
 		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1},
-		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5},
-		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6},
-		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2},
-		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2},
-		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1},
-		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1},
-		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2},
-		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
-		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
-		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3},
-		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
-		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2},
-		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3},
-		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2},
-		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
-		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1},
-		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1},
-		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
-		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2},
-		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1},
-		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
-		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1},
+	--	Custom player ships	
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3},
+		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3},
+		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3},
 		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2},
-		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1},
-		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
-		["Eldridge"]			= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2},
-		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1},
-		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5},
-		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2},
-		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
-		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1},
 		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2},
-		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3},
+		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1},
+		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2},
+		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
+		["Eldridge"]			= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2},
+		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
+		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
+		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1},
 		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1},
-		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1},
-		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4},
+		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1},
+		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
+		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2},
 		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
+		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5},
+		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
+		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2},
+		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
+		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2},
+		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3},
 		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2},
 		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
-		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3},
-		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2},
-		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3},
-		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2},
+		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1},
 		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2},
-		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3},
+		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
+		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3},
+		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
+		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2},
+		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3},
+		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
+		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1},
+		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2},
+		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1},
+		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2},
+		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1},
+		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4},
+		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
+		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2},
+		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
 	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1002,6 +1005,10 @@ function setConstants()
 		"Contact",
 		"Talk to",
 		"Direct Message",
+	}
+	carrier_deployed_fighter = {}
+	console_list = {
+		"Helms","Weapons","Engineering","Science","Relay","Tactical","Operations","Engineering+","SinglePilot","DamageControl","PowerManagement","Database","altrelay","shiplog"
 	}
 end
 function initialSandboxDatabaseUpdate()
@@ -4874,6 +4881,7 @@ function playerShip()
 			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
 			{"Barracuda"	,"inactive"	,createPlayerShipBarracuda	,"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
+			{"Barrow"		,"active"	,createPlayerShipBarrow		,"Barrow: Corvette, Freighter/Carrier\nSee science database for details"},
 			{"Blaire"		,"inactive"	,createPlayerShipBlaire		,"Kludge (Blaire), Corvette, Gunner... incomplete description"},
 --			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
 			{"Cobra"		,"inactive"	,createPlayerShipCobra		,"Striker LX(Cobra): Starfighter, Patrol   Hull:100   Shield:100,100   Size:200   Repair Crew:3   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:600   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.2\n   Arc:100   Direction:-15   Range:1.1   Cycle:6   Damage:6.5\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6.5\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
@@ -4901,7 +4909,7 @@ function playerShip()
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		},
 			{"Nimbus"		,"inactive"	,createPlayerShipNimbus		,"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
-			{"Nusret"		,"active"	,createPlayerShipNusret		,"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
+			{"Nusret"		,"inactive"	,createPlayerShipNusret		,"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Osprey"		,"inactive"	,createPlayerShipOsprey		,"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
 			{"Outcast"		,"inactive"	,createPlayerShipOutcast	,"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
 			{"Phobos T2"	,"inactive"	,createPlayerShipPhobosT2	,"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:1.2U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:1.2U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
@@ -4933,6 +4941,7 @@ function playerShip()
 			["Argonaut"		] = {strength = 16,	ftl = "j", lrs = 25},	--template Nusret
 			["Arwine"		] = {strength = 18,	ftl = "j", lrs = 20},	--template Pacu
 			["Barracuda"	] = {strength = 11,	ftl = "j", lrs = 20},	--template Redhook
+			["Barrow"		] = {strength = 9,	ftl = "j", lrs = 35},	--callsign Quarter
 			["Blaire"		] = {strength = 22,	ftl = "b", lrs = 35},	--template Kludge (b = both)
 --			["Blazon"		] = {strength = 00,	ftl = "n", lrs = 30},	--template Stricken (n = neither)
 			["Cobra"		] = {strength = 16,	ftl = "j", lrs = 20},	--template Striker LX
@@ -7134,6 +7143,44 @@ function createKentarStations()
 	if random(1,100) <= 25 then stationLocarno:setSharesEnergyWithDocked(false) end
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
+	--Monocle	
+    stationMonocle = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Monocle"):setPosition(389907,193834):setDescription("Observation and resupply"):setCommsScript(""):setCommsFunction(commsStation)
+	nukeAvail =		random(1,100) <= 30
+	empAvail =		random(1,100) <= 40
+	mineAvail =		random(1,100) <= 50
+	homeAvail =		random(1,100) <= 60
+	hvliAvail =		random(1,100) <= 80
+	tradeLuxury =	random(1,100) <= 42
+	tradeMedicine =	random(1,100) <= 42
+    stationMonocle.comms_data = {
+    	friendlyness = 58,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
+        weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        combat_maneuver_repair=	random(1,100)<30,
+        scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	sensor = 		{quantity = math.random(2,5),	cost = math.random(30,50)},
+        			communication = {quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
+        public_relations = true,
+        general_information = "In conjunction with station Pastern, we observe the asteroids in orbit around Rigil. We also provide supplies for Human Navy ships that might need them",
+    	history = "Estamblished in Nov2020, Monocle was established to help Pastern observe asteroids in exchange for information about T'k'nol'g, suspected of biological research using human tissue illicitly obtained. The results of the research so far have yielded an addictive drug that in large enough doses not only kills the consumer but turns their body into a hyper-acidic blob that tends to eat through the hulls of ships and stations. Certain personnel on Monocle are tasked with watching for T'k'nol'g and reporting any additional sightings or gleaned information",
+    	idle_defense_fleet = {
+			DF3 = "Adder MK4",
+			DF4 = "Adder MK5",
+			DF5 = "WX-Lindworm",
+    	},
+	}
+	stationMonocle:setRestocksScanProbes(random(1,100) <= 32)
+	stationMonocle:setRepairDocked(random(1,100) <= 87)
+	stationMonocle:setSharesEnergyWithDocked(random(1,100) <= 78)
+	station_names[stationMonocle:getCallSign()] = {stationMonocle:getSectorName(), stationMonocle}
+	table.insert(stations,stationMonocle)
 	--Nereus
 	--local NereusZone = squareZone(174288, 321668, "Nereus B V13")
 	--NereusZone:setColor(0,128,0)
@@ -12382,6 +12429,8 @@ function createPlayerShipAmbition()
 	playerAmbition:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
 	playerAmbition:setWeaponStorage("HVLI",10)
 	playerAmbition:addReputationPoints(50)
+	playerShipSpawned("Ambition")
+	return playerAmbition
 end
 function createPlayerShipArgonaut()
 	playerArgonaut = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Argonaut")
@@ -12402,6 +12451,7 @@ function createPlayerShipArgonaut()
 	playerArgonaut:setWeaponStorage("Mine", 8)				
 	playerArgonaut:addReputationPoints(50)
 	playerShipSpawned("Argonaut")
+	return playerArgonaut
 end
 function createPlayerShipArwine()
 	--destroyed 14Dec2019
@@ -12442,6 +12492,7 @@ function createPlayerShipArwine()
 	playerArwine:setWeaponStorage("Nuke", 4)				
 	playerArwine:addReputationPoints(50)
 	playerShipSpawned("Arwine")
+	return playerArwine
 end
 function createPlayerShipBarracuda()
 	--destroyed 8feb2020
@@ -12482,6 +12533,25 @@ function createPlayerShipBarracuda()
 	playerBarracuda:setWeaponStorage("Nuke", 4)				
 	playerBarracuda:addReputationPoints(50)
 	playerShipSpawned("Barracuda")
+	return playerBarracuda
+end
+function createPlayerShipBarrow()
+	playerBarrow = PlayerSpaceship():setTemplate("Benedict"):setFaction("Human Navy"):setCallSign("Quarter")
+	playerBarrow:setTypeName("Barrow")
+	playerBarrow:setShieldsMax(100, 100)				--stronger shields (vs 70, 70)
+	playerBarrow:setShields(100, 100)
+	playerBarrow.max_jump_range = 40000					--shorter than typical (vs 50)
+	playerBarrow.min_jump_range = 4000					--shorter than typical (vs 5)
+	playerBarrow:setJumpDriveRange(playerBarrow.min_jump_range,playerBarrow.max_jump_range)
+	playerBarrow:setJumpDriveCharge(playerBarrow.max_jump_range)
+	playerBarrow.carrier_space_group = {
+		["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet", state = "aboard", launch_button = "launch_carpenter"},
+		["Gringo"] =	{create = createPlayerShipPhargus, state = "aboard", launch_button = "launch_gringo"},
+	}
+	playerBarrow.launch_bay = "empty"
+	playerBarrow:addReputationPoints(50)
+	playerShipSpawned("Barrow")
+	return playerBarrow
 end
 function createPlayerShipBlaire()
 	playerBlaire = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Blaire")
@@ -12520,6 +12590,7 @@ function createPlayerShipBlaire()
 	playerBlaire:setWeaponStorage("HVLI", 17)				
 	playerBlaire:addReputationPoints(50)
 	playerShipSpawned("Blaire")
+	return playerBlaire
 end
 function createPlayerShipBlazon()
 	--ship destroyed 24Aug2019
@@ -12550,6 +12621,7 @@ function createPlayerShipBlazon()
 	playerBlazon:setWeaponStorage("Mine",4)
 	playerBlazon:addReputationPoints(50)
 	playerShipSpawned("Blazon")
+	return playerBlazon
 end
 function createPlayerShipCobra()
 	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
@@ -12591,6 +12663,7 @@ function createPlayerShipCobra()
 	playerCobra:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerCobra:addReputationPoints(50)
 	playerShipSpawned("Cobra")
+	return playerCobra
 end
 function createPlayerShipDarkstar()
 	playerDarkstar = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Darkstar")
@@ -12619,6 +12692,7 @@ function createPlayerShipDarkstar()
 	playerDarkstar:setWeaponStorage("HVLI", 6)				
 	playerDarkstar:addReputationPoints(50)
 	playerShipSpawned("Darkstar")
+	return playerDarkstar
 end
 function createPlayerShipEagle()
 	playerEagle = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Eagle")
@@ -12635,6 +12709,7 @@ function createPlayerShipEagle()
 	playerEagle.normal_long_range_radar = 50000
 	playerEagle:addReputationPoints(50)
 	playerShipSpawned("Eagle")
+	return playerEagle
 end
 function createPlayerShipEndeavor()
 	playerEndeavor = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Endeavor")
@@ -12661,6 +12736,7 @@ function createPlayerShipEndeavor()
 	playerEndeavor:setWeaponTubeExclusiveFor(2,"Mine")
 	playerEndeavor:addReputationPoints(50)
 	playerShipSpawned("Endeavor")
+	return playerEndeavor
 end
 function createPlayerShipEnola()
 	playerEnola = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Enola")
@@ -12702,6 +12778,7 @@ function createPlayerShipEnola()
 	playerEnola:setWeaponStorage("Mine", 3)				
 	playerEnola:addReputationPoints(50)
 	playerShipSpawned("Enola")
+	return playerEnola
 end
 function createPlayerShipFalcon()
 	playerFalcon = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Falcon")
@@ -12728,6 +12805,7 @@ function createPlayerShipFalcon()
 	playerFalcon:setBeamWeaponTurret(1,	 90,   90,			 .3)
 	playerFalcon:addReputationPoints(50)
 	playerShipSpawned("Falcon")
+	return playerFalcon
 end
 function createPlayerShipGabble()
 	playerGabble = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Gabble")
@@ -12761,6 +12839,7 @@ function createPlayerShipGabble()
 	playerGabble.normal_long_range_radar = 25000
 	playerGabble:addReputationPoints(50)
 	playerShipSpawned("Gabble")
+	return playerGabble
 end
 function createPlayerShipGadfly()
 	playerGadfly = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Bling")
@@ -12798,6 +12877,7 @@ function createPlayerShipGadfly()
 	playerGadfly:setWeaponStorage("HVLI", 8)				
 	playerGadfly:addReputationPoints(50)
 	playerShipSpawned("Gadfly")
+	return playerGadfly
 end
 function createPlayerShipGorn()
 	playerGorn = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Gorn")
@@ -12823,6 +12903,7 @@ function createPlayerShipGorn()
 	playerGorn.normal_long_range_radar = 28000
 	playerGorn:addReputationPoints(50)
 	playerShipSpawned("Gorn")
+	return playerGorn
 end
 function createPlayerShipGuinevere()
 	playerGuinevere = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Guinevere")
@@ -12853,6 +12934,7 @@ function createPlayerShipGuinevere()
 	playerGuinevere:setWeaponStorage("Mine", 3)				
 	playerGuinevere:addReputationPoints(50)
 	playerShipSpawned("Guinevere")
+	return playerGuinevere
 end
 function createPlayerShipHalberd()
 	--destroyed 29Feb2020
@@ -12887,6 +12969,7 @@ function createPlayerShipHalberd()
 	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
 	playerHalberd:addReputationPoints(50)
 	playerShipSpawned("Halberd")
+	return playerHalberd
 end
 function createPlayerShipHeadhunter()
 	playerHeadhunter = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Headhunter")
@@ -12925,6 +13008,7 @@ function createPlayerShipHeadhunter()
 	playerHeadhunter:setWeaponStorage("Nuke", 4)				
 	playerHeadhunter:addReputationPoints(50)
 	playerShipSpawned("Headhunter")
+	return playerHeadhunter
 end
 function createPlayerShipHearken()
 	playerHearken = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Hearken")
@@ -12957,6 +13041,7 @@ function createPlayerShipHearken()
 	playerHearken:setWeaponStorage("Nuke", 0)				
 	playerHearken:addReputationPoints(50)
 	playerShipSpawned("Hearken")
+	return playerHearken
 end
 function createPlayerShipHolmes()
 	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
@@ -12986,6 +13071,7 @@ function createPlayerShipHolmes()
 	playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerHolmes:addReputationPoints(50)
 	playerShipSpawned("Holmes")
+	return playerHolmes
 end
 function createPlayerShipInterlock()
 	playerInterlock = PlayerSpaceship():setTemplate("Repulse"):setFaction("Human Navy"):setCallSign("Fist")
@@ -13021,6 +13107,7 @@ function createPlayerShipInterlock()
 	playerInterlock:setWeaponStorage("Mine", 4)				
 	playerInterlock:addReputationPoints(50)
 	playerShipSpawned("Interlock")
+	return playerInterlock
 end
 function createPlayerShipJarvis()
 	playerJarvis = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Jarvis")
@@ -13051,6 +13138,7 @@ function createPlayerShipJarvis()
 	playerJarvis:setWeaponStorage("Mine", 0)				
 	playerJarvis:addReputationPoints(50)
 	playerShipSpawned("Jarvis")
+	return playerJarvis
 end
 function createPlayerShipJeeves()
 	playerJeeves = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Jeeves")
@@ -13078,6 +13166,7 @@ function createPlayerShipJeeves()
 	playerJeeves:setWeaponStorage("Mine", 3)				
 	playerJeeves:addReputationPoints(50)
 	playerShipSpawned("Jeeves")
+	return playerJeeves
 end
 function createPlayerShipKindling()
 	playerKindling = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Kindling")
@@ -13119,6 +13208,7 @@ function createPlayerShipKindling()
 	}
 	update_system:addUpdate(playerKindling,"dynamic beams",update_data)
 	playerShipSpawned("Kindling")
+	return playerKindling
 end
 function createPlayerShipKnick()
 	playerKnick = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Knick")
@@ -13128,6 +13218,7 @@ function createPlayerShipKnick()
 	playerKnick:setTubeSize(2, "large")
 	playerKnick:addReputationPoints(50)
 	playerShipSpawned("Knick")
+	return playerKnick
 end
 function createPlayerShipLancelot()
 	playerLancelot = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Lancelot")
@@ -13183,6 +13274,7 @@ function createPlayerShipLancelot()
 	playerLancelot:setCombatManeuver(200,200)				--less (vs 400,250)
 	playerLancelot:addReputationPoints(50)
 	playerShipSpawned("Lancelot")
+	return playerLancelot
 end
 function createPlayerShipMagnum()
 	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
@@ -13213,6 +13305,7 @@ function createPlayerShipMagnum()
 	playerMagnum:setWeaponStorage("Nuke", 1)	
 	playerMagnum:addReputationPoints(50)
 	playerShipSpawned("Magnum")
+	return playerMagnum
 end
 function createPlayerShipManxman()
 	playerManxman = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Manxman")
@@ -13231,6 +13324,7 @@ function createPlayerShipManxman()
 	playerManxman:setWeaponStorage("Mine", 8)				
 	playerManxman:addReputationPoints(50)
 	playerShipSpawned("Manxman")
+	return playerManxman
 end
 function createPlayerShipNarsil()
 	--experimental
@@ -13260,6 +13354,7 @@ function createPlayerShipNarsil()
 	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
 	playerNarsil:addReputationPoints(50)
 	playerShipSpawned("Narsil")
+	return playerNarsil
 end
 function createPlayerShipNimbus()
 	playerNimbus = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Nimbus")
@@ -13287,6 +13382,7 @@ function createPlayerShipNimbus()
 	playerNimbus:setWeaponStorage("HVLI",10)
 	playerNimbus:addReputationPoints(50)
 	playerShipSpawned("Nimbus")
+	return playerNimbus
 end
 function createPlayerShipNusret()
 	playerNusret = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Hrothgar")
@@ -13318,6 +13414,7 @@ function createPlayerShipNusret()
 	playerNusret:setWeaponStorage("Mine", 8)				
 	playerNusret:addReputationPoints(50)
 	playerShipSpawned("Nusret")
+	return playerNusret
 end
 function createPlayerShipOsprey()
 	--destroyed 29Feb2020
@@ -13345,6 +13442,7 @@ function createPlayerShipOsprey()
 	playerOsprey:setWeaponStorage("Homing", 4)				
 	playerOsprey:addReputationPoints(50)
 	playerShipSpawned("Osprey")
+	return playerOsprey
 end
 function createPlayerShipOutcast()
 	playerOutcast = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Outcast")
@@ -13366,6 +13464,7 @@ function createPlayerShipOutcast()
 	playerOutcast:setBeamWeaponTurret(3,	90,	180,	 .4)		--slow turret
 	playerOutcast:addReputationPoints(50)
 	playerShipSpawned("Outcast")
+	return playerOutcast
 end
 function createPlayerShipPhobosT2()
 	playerPhobosT2 = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Terror")
@@ -13397,6 +13496,7 @@ function createPlayerShipPhobosT2()
 	playerPhobosT2:setWeaponStorage("HVLI",16)
 	playerPhobosT2:addReputationPoints(50)
 	playerShipSpawned("Phobos T2")
+	return playerPhobosT2
 end
 function createPlayerShipQuick()
 	playerQuick = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Quicksilver")
@@ -13412,6 +13512,7 @@ function createPlayerShipQuick()
 	playerQuick:setWeaponStorage("EMP", 3)				
 	playerQuick:addReputationPoints(50)
 	playerShipSpawned("Quicksilver")
+	return playerQuick
 end
 function createPlayerShipQuill()
 	playerQuill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Quill")
@@ -13468,6 +13569,7 @@ function createPlayerShipQuill()
 	playerQuill:setLongRangeRadarRange(25000)
 	playerQuill.normal_long_range_radar = 25000
 	playerShipSpawned("Quill")
+	return playerQuill
 end
 function createPlayerShipRaptor()
 	playerRaptor = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Raptor")
@@ -13496,6 +13598,7 @@ function createPlayerShipRaptor()
 	playerRaptor:setWeaponStorage("HVLI", 6)				
 	playerRaptor:addReputationPoints(50)
 	playerShipSpawned("Raptor")
+	return playerRaptor
 end
 function createPlayerShipRattler()
 	playerRattler = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rattler")
@@ -13511,6 +13614,7 @@ function createPlayerShipRattler()
 	playerRattler:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
 	playerRattler:addReputationPoints(50)
 	playerShipSpawned("Rattler")
+	return playerRattler
 end
 function createPlayerShipRaven()
 	playerRaven = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Claw")
@@ -13555,6 +13659,7 @@ function createPlayerShipRaven()
 	playerRaven:setWeaponStorage("Mine",4)
 	playerRaven:addReputationPoints(50)
 	playerShipSpawned("Raven")
+	return playerRaven
 end
 function createPlayerShipRodent()
 	playerRodent = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("George")
@@ -13601,6 +13706,7 @@ function createPlayerShipRodent()
 	playerRodent:setTubeLoadTime(2,15)					--slower (vs 10)
 	playerRodent:addReputationPoints(50)
 	playerShipSpawned("Rodent")
+	return playerRodent
 end
 function createPlayerShipRogue()
 	playerRogue = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Rogue")
@@ -13628,6 +13734,7 @@ function createPlayerShipRogue()
 	playerRogue:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
 	playerRogue:addReputationPoints(50)
 	playerShipSpawned("Rogue")
+	return playerRogue
 end
 function createPlayerShipRotor()
 	playerRotor = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Pinwheel")
@@ -13661,6 +13768,7 @@ function createPlayerShipRotor()
 	playerRotor:setWeaponStorage("Nuke", 0)
 	playerRotor:addReputationPoints(50)
 	playerShipSpawned("Rotor")
+	return playerRotor
 end
 function createPlayerShipSafari()
 	playerSafari = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Florentine")
@@ -13693,6 +13801,7 @@ function createPlayerShipSafari()
 	playerSafari:setWeaponStorage("Mine", 3)
 	playerSafari:addReputationPoints(50)
 	playerShipSpawned("Safari")
+	return playerSafari
 end
 function createPlayerShipSimian()
 	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Knuckle Drag")
@@ -13729,6 +13838,7 @@ function createPlayerShipSimian()
 	playerSimian:setLongRangeRadarRange(20000)				--shorter longer range sensors (vs 30000)
 	playerSimian:addReputationPoints(50)
 	playerShipSpawned("Knuckle Drag")
+	return playerSimian
 end
 function createplayerShipSneak()
 	playerSneak = PlayerSpaceship():setTemplate("Repulse"):setTypeName("Skray"):setFaction("Human Navy"):setCallSign("5N3AK-E")
@@ -13745,6 +13855,7 @@ function createplayerShipSneak()
 	playerSneak:setShortRangeRadarRange(7500)
 	playerSneak:addReputationPoints(50)
 	playerShipSpawned("Skray")
+	return playerSneak
 end
 function createPlayerShipSparrow()
 	playerSparrow = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Sparrow")
@@ -13767,6 +13878,7 @@ function createPlayerShipSparrow()
 	playerSparrow:setWeaponStorage("Mine",4)
 	playerSparrow:addReputationPoints(50)
 	playerShipSpawned("Sparrow")
+	return playerSparrow
 end
 function createPlayerShipSpyder()
 	--experimental
@@ -13785,6 +13897,7 @@ function createPlayerShipSpyder()
 	playerSpyder:setWeaponTubeDirection(3,120)			--right rear facing
 	playerSpyder:addReputationPoints(50)
 	playerShipSpawned("Spyder")
+	return playerSpyder
 end
 function createPlayerShipStick()
 	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Stick")
@@ -13815,6 +13928,7 @@ function createPlayerShipStick()
 	playerStick:setWeaponTubeExclusiveFor(2,"Mine")
 	playerStick:addReputationPoints(50)
 	playerShipSpawned("Stick")
+	return playerStick
 end
 function createPlayerShipSting()
 	--sent to Kraylor war front. May return later
@@ -13845,6 +13959,7 @@ function createPlayerShipSting()
 	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
 	playerSting:addReputationPoints(50)
 	playerShipSpawned("Sting")
+	return playerSting
 end
 function createPlayerShipThelonius()
 	playerThelonius = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Thelonius")
@@ -13876,6 +13991,7 @@ function createPlayerShipThelonius()
 	playerThelonius:setWeaponStorage("HVLI", 10)				
 	playerThelonius:addReputationPoints(50)
 	playerShipSpawned("Thelonius")
+	return playerThelonius
 end
 function createPlayerShipThunderbird()
 	--destroyed 29Feb2020
@@ -13905,6 +14021,7 @@ function createPlayerShipThunderbird()
 	playerThunderbird:setWeaponStorage("HVLI", 6)				
 	playerThunderbird:addReputationPoints(50)
 	playerShipSpawned("Thunderbird")
+	return playerThunderbird
 end
 function createPlayerShipVision()
 	playerVision = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Vision")
@@ -13921,6 +14038,7 @@ function createPlayerShipVision()
 	playerVision.normal_long_range_radar = 50000
 	playerVision:addReputationPoints(50)
 	playerShipSpawned("Vision")
+	return playerVision
 end
 function createPlayerShipWiggy()
 	playerWiggy = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Wiggy")
@@ -13945,6 +14063,7 @@ function createPlayerShipWiggy()
 	playerWiggy.normal_long_range_radar = 40000
 	playerWiggy:addReputationPoints(50)
 	playerShipSpawned("Wiggy")
+	return playerWiggy
 end
 function createPlayerShipWindmill()
 	playerWindmill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Rocinante")
@@ -13990,6 +14109,7 @@ function createPlayerShipWindmill()
 	playerWindmill:setWeaponStorage("HVLI", 8)
 	playerWindmill:addReputationPoints(50)
 	playerShipSpawned("Windmill")
+	return playerWindmill
 end
 function createPlayerShipWombat()
 	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Shannon")
@@ -14033,6 +14153,7 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponStorage("Homing",   8)				
 	playerWombat:addReputationPoints(50)
 	playerShipSpawned("Wombat")
+	return playerWombat
 end
 function createPlayerShipWrocket()
 	playerWrocket = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Slingshot")
@@ -14062,6 +14183,7 @@ function createPlayerShipWrocket()
 	playerWrocket:setWeaponStorage("EMP", 8)
 	playerWrocket:addReputationPoints(50)
 	playerShipSpawned("Wrocket")
+	return playerWrocket
 end
 function createPlayerShipYorik()
 	playerYorik = PlayerSpaceship():setTemplate("Repulse"):setFaction("Human Navy"):setCallSign("Yorik")
@@ -14099,6 +14221,29 @@ function createPlayerShipYorik()
 	playerYorik:setWeaponStorage("Mine", 5)				
 	playerYorik:addReputationPoints(50)
 	playerShipSpawned("Yorik")
+	return playerYorik
+end
+--	Specialized ships spawned by a carrier
+function createPlayerShipPhargus()
+	playerPhargus = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy")
+	playerPhargus:setTypeName("Phargus")
+	playerPhargus:setShieldsMax(70,50)					--weaker (vs 100,100)
+	playerPhargus:setShields(70,50)
+	playerPhargus:setHullMax(120)						--weaker hull (vs 200)
+	playerPhargus:setHull(120)
+--                  			   Arc, Dir,    Range, CycleTime, Dmg
+	playerPhargus:setBeamWeapon(0,  10, -15,	800.0,		   6, 4)		--shorter (vs 1200), weaker (vs 6), faster (vs 8)
+	playerPhargus:setBeamWeapon(1,  10,  15,	800.0,		   6, 4)		
+--										   Arc, Dir, Rotate speed
+	playerPhargus:setBeamWeaponTurret(0,	70,	-15,		 .4)		--slow turret, narrower overall arc (vs 90)
+	playerPhargus:setBeamWeaponTurret(1,	70,	 15,		 .4)
+--	playerPhargus:addReputationPoints(50)	--avoid if spawned by carrier
+--	playerShipSpawned("Barrow")	--Avoid if spawned by carrier
+	return playerPhargus
+end
+function stockPlayer(template)
+	local ship = PlayerSpaceship():setTemplate(template):setFaction("Human Navy")
+	return ship
 end
 function playerShipSpawned(shipName)
 	for shipNum = 1, #playerShipInfo do
@@ -30333,10 +30478,354 @@ function updateInner(delta)
 					p.mining_timer = nil
 				end
 			end
+			if p.carrier_space_group ~= nil then
+				if p.launch_bay == "empty" then
+					for fighter_name, fighter_details in pairs(p.carrier_space_group) do
+						if fighter_details.state == "aboard" then
+							if p:hasPlayerAtPosition("Science") then
+								p:addCustomButton("Science",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
+									p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+									p:addCustomMessage("Science",p.launch_start_message,p.launch_start_message)
+									for f_name, f_details in pairs(p.carrier_space_group) do
+										p:removeCustom(f_details.launch_button)
+									end
+									p.launch_bay = "loaded"
+									fighter_details.state = "charge"
+								end)
+							end
+							if p:hasPlayerAtPosition("Operations") then
+								p:addCustomButton("Operations",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
+									p.launch_start_message_ops = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+									p:addCustomMessage("Operations",p.launch_start_message_ops,p.launch_start_message_ops)
+									for f_name, f_details in pairs(p.carrier_space_group) do
+										p:removeCustom(f_details.launch_button)
+									end
+									p.launch_bay = "loaded"
+									fighter_details.state = "charge"
+								end)
+							end
+						end
+					end
+				elseif p.launch_bay == "loaded" then
+					for fighter_name, fighter_details in pairs(p.carrier_space_group) do
+						if fighter_details.state == "charge" then
+							p.charge_launch = "charge_launch"
+							if p:hasPlayerAtPosition("Engineering") then
+								p:addCustomButton("Engineering",p.charge_launch,"Charge Launch Sys",function()
+									if p:getEnergyLevel() > 50 then
+										p:setEnergyLevel(p:getEnergyLevel() - 50)
+										p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in ten seconds.\nNext step: personnel to take fighter station(s)",fighter_name)
+										p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
+										p:removeCustom(p.charge_launch)
+										p.launch_timer = 20
+										fighter_details.state = "gather"
+									else
+										p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
+										p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
+									end
+								end)
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								p:addCustomButton("Engineering+",p.charge_launch,"Charge Launch Sys",function()
+									if p:getEnergyLevel() > 50 then
+										p:setEnergyLevel(p:getEnergyLevel() - 50)
+										p.launch_charged_message_plus = string.format("Launch systems charged.\nStanding by to launch %s in ten seconds.\nNext step: personnel to take fighter station(s)",fighter_name)
+										p:addCustomMessage("Engineering+",p.launch_charged_message_plus,p.launch_charged_message_plus)
+										p:removeCustom(p.charge_launch)
+										p.launch_timer = 20		--final:10
+										fighter_details.state = "gather"
+									else
+										p.insufficient_launch_charge_energy_message_plus = "insufficient_launch_charge_energy_message_plus"
+										p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message_plus,"Insufficient energy to charge launch systems")
+									end
+								end)
+							end
+						end
+						if fighter_details.state == "gather" then
+							p.launch_timer = p.launch_timer - delta
+							if p.launch_timer < 0 then
+								if p.launch_countdown ~= nil then
+									p:removeCustom(p.launch_countdown)
+									p.launch_countdown = nil
+								end
+								if p.helm_equivalent ~= nil and p.weapons_equivalent ~= nil then
+									local fx, fy = p:getPosition()
+									local fighter = fighter_details.create(fighter_details.template)
+									fighter:setPosition(fx,fy):setCallSign(fighter_name)
+									for _, transfer in ipairs(p.transfer_map) do
+										p:transferPlayersAtPositionToShip(transfer.carrier,fighter,transfer.fighter)
+										local transfer_message = "transfer_message" .. transfer.carrier
+										fighter:addCustomMessage(transfer.carrier,transfer_message,string.format("You have been transferred to %s\nPlease take the %s console",fighter:getCallSign(),transfer.fighter))
+									end
+									fighter.transfer_map = p.transfer_map
+									carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
+									fighter_details.state = "deployed"
+									p:addToShipLog(string.format("Launch of %s complete",fighter_name),"Green")
+								else
+									p:setEnergyLevel(math.min(p:getEnergyLevelMax(),p:getEnergyLevel() + 50))
+									fighter_details.state = "aboard"
+									p:addToShipLog("Launch cancelled due to lack of personnel","Yellow")
+								end
+								p.launch_bay = "empty"
+								if p.science_button_removal ~= nil then
+									for button_name, button_string in pairs(p.science_button_removal) do
+										p:removeCustom(button_name)
+									end
+									p.science_button_removal = nil
+								end
+								if p.helm_button_removal ~= nil then
+									for button_name, button_string in pairs(p.helm_button_removal) do
+										p:removeCustom(button_name)
+									end
+									p.helm_button_removal = nil
+								end
+								if p.engineering_button_removal ~= nil then
+									for button_name, button_string in pairs(p.engineering_button_removal) do
+										p:removeCustom(button_name)
+									end
+									p.engineering_button_removal = nil
+								end
+								if p.weapons_equivalent == nil and p.helm_equivalent then
+									for _, cons in ipairs(console_list) do
+										if p[cons] ~= nil then
+											p:removeCustom(p[cons])
+										end
+									end
+								end
+								p.helm_equivalent = nil
+								p.weapons_equivalent = nil
+								p.transfer_map = nil
+							else
+								local button_name = ""
+								if p:hasPlayerAtPosition("Relay") then
+									p.launch_countdown = "launch_countdown"
+									p:addCustomInfo("Relay",p.launch_countdown,string.format("Launch: %i",math.floor(p.launch_timer)))
+								end
+								if p.transfer_map == nil then
+									p.transfer_map = {}
+								end
+								if p.helm_equivalent == nil then
+									p.helm_button_removal = {}
+									for _, console in ipairs(console_list) do
+										if p:hasPlayerAtPosition(console) then
+											button_name = console .. "helm"
+											p.helm_button_removal[button_name] = button_name
+											p:addCustomButton(console,button_name,string.format("%s Helm",fighter_name),function()
+												string.format("")
+												table.insert(p.transfer_map,{carrier = console, fighter = "Helms"})
+												p.helm_equivalent = true
+												for button_name, button_string in pairs(p.helm_button_removal) do
+													p:removeCustom(button_name)
+												end
+												p.helm_button_removal = nil
+											end)
+											button_name = console .. "tactical"
+											p.helm_button_removal[button_name] = button_name
+											p:addCustomButton(console,button_name,string.format("%s Tactical",fighter_name),function()
+												string.format("")
+												table.insert(p.transfer_map,{carrier = console, fighter = "Tactical"})
+												p.helm_equivalent = true
+												p.weapons_equivalent = true
+												for button_name, button_string in pairs(p.helm_button_removal) do
+													p:removeCustom(button_name)
+												end
+												p.helm_button_removal = nil
+											end)
+											button_name = console .. "singlepilot"
+											p.helm_button_removal[button_name] = button_name
+											p:addCustomButton(console,button_name,string.format("%s Single Pilot",fighter_name),function()
+												string.format("")
+												table.insert(p.transfer_map,{carrier = console, fighter = "SinglePilot"})
+												p.helm_equivalent = true
+												p.weapons_equivalent = true
+												p.relay_equivalent = true
+												for button_name, button_string in pairs(p.helm_button_removal) do
+													p:removeCustom(button_name)
+												end
+												p.helm_button_removal = nil
+											end)
+										end
+									end
+								elseif p.weapons_equivalent == nil and p.helm_equivalent then
+									for _, console in ipairs(console_list) do
+										local already_chosen = false
+										for _, transfer in ipairs(p.transfer_map) do
+											if console == transfer.carrier then
+												already_chosen = true
+												break
+											end
+										end
+										if not already_chosen then
+											if p:hasPlayerAtPosition(console) then
+												p[console] = console
+												p:addCustomButton(console,p[console],string.format("%s Weapons",fighter_name),function()
+													string.format("")
+													table.insert(p.transfer_map,{carrier = console, fighter = "Weapons"})
+													p.weapons_equivalent = true
+													for _, cons in ipairs(console_list) do
+														if p[cons] ~= nil then
+															p:removeCustom(p[cons])
+														end
+													end
+												end)
+											end
+										end
+									end
+								elseif p.engineering_equivalent == nil and p.helm_equivalent and p.weapons_equivalent then
+									p.engineering_button_removal = {}
+									for _, console in ipairs(console_list) do
+										local already_chosen = false
+										for _, transfer in ipairs(p.transfer_map) do
+											if console == transfer.carrier then
+												already_chosen = true
+												break
+											end
+										end
+										if not already_chosen then
+											if p:hasPlayerAtPosition(console) then
+												button_name = console .. "engineering"
+												p.engineering_button_removal[button_name] = button_name
+												p:addCustomButton(console,button_name,string.format("%s Engineering",fighter_name),function()
+													string.format("")
+													table.insert(p.transfer_map,{carrier = console, fighter = "Engineering"})
+													p.engineering_equivalent = true
+													for button_name, button_string in pairs(p.engineering_button_removal) do
+														p:removeCustom(button_name)
+													end
+													p.engineering_button_removal = nil
+												end)
+												button_name = console .. "engineeringplus"
+												p.engineering_button_removal[button_name] = button_name
+												p:addCustomButton(console,button_name,string.format("%s Engineering+",fighter_name),function()
+													string.format("")
+													table.insert(p.transfer_map,{carrier = console, fighter = "Engineering+"})
+													p.engineering_equivalent = true
+													for button_name, button_string in pairs(p.engineering_button_removal) do
+														p:removeCustom(button_name)
+													end
+													p.engineering_button_removal = nil
+												end)
+											end
+										end
+									end
+								elseif p.science_equivalent == nil and p.helm_equivalent and p.weapons_equivalent and p.engineering_equivalent then
+									p.science_button_removal = {}
+									for _, console in ipairs(console_list) do
+										local already_chosen = false
+										for _, transfer in ipairs(p.transfer_map) do
+											if console == transfer.carrier then
+												already_chosen = true
+												break
+											end
+										end
+										if not already_chosen then
+											if p:hasPlayerAtPosition(console) then
+												button_name = console .. "science"
+												p.science_button_removal[button_name] = button_name
+												p:addCustomButton(console,button_name,string.format("%s Science",fighter_name),function()
+													string.format("")
+													table.insert(p.transfer_map,{
+														carrier = console, 
+														fighter = "Science"
+													})
+													p.science_equivalent = true
+													for button_name, button_string in pairs(p.science_button_removal) do
+														p:removeCustom(button_name)
+													end
+													p.science_button_removal = nil
+												end)
+												if not p.relay_equivalent then
+													button_name = console .. "relay"
+													p.science_button_removal[button_name] = button_name
+													p:addCustomButton(console,button_name,string.format("%s Relay",fighter_name),function()
+														string.format("")
+														table.insert(p.transfer_map,{carrier = console, fighter = "Relay"})
+														p.relay_equivalent = true
+														for button_name, button_string in pairs(p.science_button_removal) do
+															p:removeCustom(button_name)
+														end
+														p.science_button_removal = nil
+													end)
+													button_name = console .. "operations"
+													p.science_button_removal[button_name] = button_name
+													p:addCustomButton(console,button_name,string.format("%s Operations",fighter_name),function()
+														string.format("")
+														table.insert(p.transfer_map,{carrier = console, fighter = "Operations"})
+														p.science_equivalent = true
+														p.relay_equivalent = true
+														for button_name, button_string in pairs(p.science_button_removal) do
+															p:removeCustom(button_name)
+														end
+														p.science_button_removal = nil
+													end)
+												end
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
 	if updateDiagnostic then print("update: outside player loop") end
+	for fighter_name, fighter_details in pairs(carrier_deployed_fighter) do
+		if fighter_details.fighter ~= nil and fighter_details.fighter:isValid() then
+			if fighter_details.carrier ~= nil and fighter_details.carrier:isValid() then
+				if fighter_details.fighter:isDocked(fighter_details.carrier) then
+					if fighter_details.fighter.retract_timer == nil then
+						fighter_details.fighter.retract_timer = 10
+					end
+					fighter_details.fighter.retract_timer = fighter_details.fighter.retract_timer - delta
+					if fighter_details.fighter:hasPlayerAtPosition("Helms") then
+						fighter_details.fighter.retract_countdown = "retract_countdown"
+						fighter_details.fighter:addCustomInfo("Helms",fighter_details.fighter.retract_countdown,string.format("Retract: %i",math.floor(fighter_details.fighter.retract_timer)))
+					end
+					if fighter_details.fighter:hasPlayerAtPosition("Tactical") then
+						fighter_details.fighter.retract_countdown_tactical = "retract_countdown_tactical"
+						fighter_details.fighter:addCustomInfo("Tactical",fighter_details.fighter.retract_countdown_tactical,string.format("Retract: %i",math.floor(fighter_details.fighter.retract_timer)))
+					end
+					if fighter_details.fighter:hasPlayerAtPosition("SinglePilot") then
+						fighter_details.fighter.retract_countdown_singlepilot = "retract_countdown_singlepilot"
+						fighter_details.fighter:addCustomInfo("Tactical",fighter_details.fighter.retract_countdown_singlepilot,string.format("Retract: %i",math.floor(fighter_details.fighter.retract_timer)))
+					end
+					if fighter_details.fighter.retract_timer < 0 then
+						for _, transfer in pairs(fighter_details.fighter.transfer_map) do
+							fighter_details.fighter:transferPlayersAtPositionToShip(transfer.fighter,fighter_details.carrier,transfer.carrier)
+							local transfer_message = "transfer_message" .. transfer.fighter
+							fighter_details.carrier:addCustomMessage(transfer.fighter,transfer_message,string.format("Crew returning from %s should resume their previous console, %s",fighter_name,transfer.carrier))
+						end
+						fighter_details.fighter:transferPlayersToShip(fighter_details.carrier)
+						fighter_details.fighter:destroy()
+						fighter_details.carrier.carrier_space_group[fighter_name].state = "aboard"
+						fighter_details.carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
+						carrier_deployed_fighter[fighter_name] = nil
+					end
+				else
+					fighter_details.fighter.retract_timer = nil
+					if fighter_details.fighter.retract_countdown ~= nil then
+						fighter_details.fighter:removeCustom(fighter_details.fighter.retract_countdown)
+						fighter_details.fighter.retract_countdown = nil
+					end
+					if fighter_details.fighter.retract_countdown_tactical ~= nil then
+						fighter_details.fighter:removeCustom(fighter_details.fighter.retract_countdown_tactical)
+						fighter_details.fighter.retract_countdown_tactical = nil
+					end
+					if fighter_details.fighter.retract_countdown_singlepilot ~= nil then
+						fighter_details.fighter:removeCustom(fighter_details.fighter.retract_countdown_singlepilot)
+						fighter_details.fighter.retract_countdown_singlepilot = nil
+					end
+				end
+			else
+				carrier_deployed_fighter[fighter_name] = nil
+			end
+		else
+			carrier_deployed_fighter[fighter_name] = nil
+		end
+	end
 	if healthCheckTimer < 0 then
 		healthCheckTimer = delta + healthCheckTimerInterval
 	end
