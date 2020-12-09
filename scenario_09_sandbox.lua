@@ -1297,7 +1297,7 @@ function initialSandboxDatabaseUpdate()
 --	Redhook
 	frigate_prototype_db:addEntry("Redhook")
 	local redhook_db = queryScienceDatabase("Ships","Prototype","Frigate","Redhook")
-	redhook_db:setLongDescription("Based on the Piranha, the Redhook differs in these ways: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes and added EMPs\n\nDeployed as Headhunter Jul2019 for 4 missions. Deployed as Barracuda Feb2020 for 1 mission. Deployed as Hearken May2020 for 1 mission. Deplyed as Barracuda 18Jul for 2 missions. Deployed as Headhunter Aug2020 for 3 missions\n\nDuring Headhunter's first string of missions, she spent time hunting Kraylor in the Fleur nebula, took part in a goodwill tour of Icarus area stations and helped defend against Kraylor who thought Icarus would be easy pickings since the bulk of the CUF fleet was on the front lines. On her 4th mission, Hunter was taken out by those same Kraylor she had valiantly fought earlier\n\nBarracuda was put on nebula investigation duty around Borlan station. After fighting several Exuari and failing to rescue station Slurry, Barracuda was recalled to defend Icarus where she was destroyed by Exuari\n\nThe Hearken deployed as a Redhook in May2020, but even with several tactical retreats was overwhelmed by Kraylor who deployed a new ship type, Tempest which was equipped with multiple nuclear weapons\n\nIn Jul2020, Barracuda redeployed for two missions. Unfortunately, Exuari destroyed her on her second mission\n\nThe Headhunter was redeployed after extensive repair in Aug2020 for 3 missions. She helped rebuild stations Gagarin, Stromboli 2 and Mermaid 4. She also helped chase down Kraylor that were towing off CUF escape pods. Unfortunately, during a mission in the Kentar region where there was some kind of viral epidemic going on, she was destroyed by a flurry of Kraylor\n\nAngus McDaniels and his salvage crew have gathered numerous parts from various Redhook class wrecks, but they have not been able to fabricate a working ship out of them as of yet")
+	redhook_db:setLongDescription("Based on the Piranha, the Redhook differs in these ways: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes and added EMPs\n\nDeployed as Headhunter Jul2019 for 4 missions. Deployed as Barracuda Feb2020 for 1 mission. Deployed as Hearken May2020 for 1 mission. Deployed as Barracuda 18Jul for 2 missions. Deployed as Headhunter Aug2020 for 3 missions\n\nDuring Headhunter's first string of missions, she spent time hunting Kraylor in the Fleur nebula, took part in a goodwill tour of Icarus area stations and helped defend against Kraylor who thought Icarus would be easy pickings since the bulk of the CUF fleet was on the front lines. On her 4th mission, Hunter was taken out by those same Kraylor she had valiantly fought earlier\n\nBarracuda was put on nebula investigation duty around Borlan station. After fighting several Exuari and failing to rescue station Slurry, Barracuda was recalled to defend Icarus where she was destroyed by Exuari\n\nThe Hearken deployed as a Redhook in May2020, but even with several tactical retreats was overwhelmed by Kraylor who deployed a new ship type, Tempest which was equipped with multiple nuclear weapons\n\nIn Jul2020, Barracuda redeployed for two missions. Unfortunately, Exuari destroyed her on her second mission\n\nThe Headhunter was redeployed after extensive repair in Aug2020 for 3 missions. She helped rebuild stations Gagarin, Stromboli 2 and Mermaid 4. She also helped chase down Kraylor that were towing off CUF escape pods. Unfortunately, during a mission in the Kentar region where there was some kind of viral epidemic going on, she was destroyed by a flurry of Kraylor\n\nAngus McDaniels and his salvage crew have gathered numerous parts from various Redhook class wrecks, but they have not been able to fabricate a working ship out of them as of yet")
 	redhook_db:setKeyValue("Class","Frigate")
 	redhook_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
 	redhook_db:setKeyValue("Deployed Callsigns","Barracuda, Hearken, Headhunter")
@@ -1472,7 +1472,7 @@ function initialSandboxDatabaseUpdate()
 --	Porcupine
 	frigate_prototype_db:addEntry("Porcupine")
 	local porcupine_db = queryScienceDatabase("Ships","Prototype","Frigate","Porcupine")
-	porcupine_db:setLongDescription("The Porcupine falls roughly into the Flavia family. Differences: stronger shields, slower warp, shorter long range sensors, beams on the right side and missile tubes on the left\n\nDeployed Sep2020 for 1 mission\n\nQuill's deployment Sep2020 was right when the Kraylor formed a rift into Icarus and sent through large numbers of vessels and emplacements. Quill survived the first action near Finnegan statoin, but was squashed during the battle around Icarus\n\nThe engineers in the Icarus shipyard have ideas on some design improvements. They hope to get the requisitioned parts in soon")
+	porcupine_db:setLongDescription("The Porcupine falls roughly into the Flavia family. Differences: stronger shields, slower warp, shorter long range sensors, beams on the right side and missile tubes on the left\n\nDeployed Sep2020 as Quill for 1 mission\n\nQuill's deployment Sep2020 was right when the Kraylor formed a rift into Icarus and sent through large numbers of vessels and emplacements. Quill survived the first action near Finnegan station, but was squashed during the battle around Icarus\n\nThe engineers in the Icarus shipyard have ideas on some design improvements. They hope to get the requisitioned parts in soon")
 	porcupine_db:setKeyValue("Class","Frigate")
 	porcupine_db:setKeyValue("Sub-class","Light Transport")
 	porcupine_db:setKeyValue("Deployed Callsign","Quill")
@@ -1671,6 +1671,31 @@ function initialSandboxDatabaseUpdate()
 	rook_db:setKeyValue("Storage EMP",6)
 	rook_db:setKeyValue("Storage HVLI",6)
 	rook_db:setImage("radar_tug.png")
+--	Phargus
+	frigate_prototype_db:addEntry("Phargus")
+	local phargus_db = queryScienceDatabase("Ships","Prototype","Frigate","Phargus")
+	phargus_db:setLongDescription("The Phargus is a Phobos with weaker shields and hull and shorter, weaker, faster and narrower beams. The design changes allow it to be squeezed into a carrier")
+	phargus_db:setKeyValue("Class","Frigate")
+	phargus_db:setKeyValue("Sub-class","Cruiser")
+	phargus_db:setKeyValue("Deployed Callsign","Gringo")
+	phargus_db:setKeyValue("Size","80")
+	phargus_db:setKeyValue("Shield","70/50")
+	phargus_db:setKeyValue("Hull","120")
+	phargus_db:setKeyValue("Repair Crew",3)
+	phargus_db:setKeyValue("Sensor Ranges","Long: 20 U / Short: 5.5 U")
+	phargus_db:setKeyValue("Move speed","4.8 U/min")	--80
+	phargus_db:setKeyValue("Turn speed","10 deg/sec")
+	phargus_db:setKeyValue("Beam weapon 345:70","Rng:.8 Dmg:4 Cyc:6 Tur:.4")
+	phargus_db:setKeyValue("Beam weapon 15:70","Rng:.8 Dmg:4 Cyc:6 Tur:.4")
+	phargus_db:setKeyValue("Tube 359","10 sec")
+	phargus_db:setKeyValue("Tube 1","10 sec")
+	phargus_db:setKeyValue("Tube 180","10 sec / Mine")
+	phargus_db:setKeyValue("Storage Homing",10)
+	phargus_db:setKeyValue("Storage Nuke",2)
+	phargus_db:setKeyValue("Storage Mine",4)
+	phargus_db:setKeyValue("Storage EMP",3)
+	phargus_db:setKeyValue("Storage HVLI",20)
+	phargus_db:setImage("radar_cruiser.png")
 ----	Corvettes
 	local corvette_prototype_db = prototype_db:addEntry("Corvette")
 --	Kludge
@@ -2075,6 +2100,25 @@ function initialSandboxDatabaseUpdate()
 	crab_db:setKeyValue("Tube 90","8 sec")
 	crab_db:setKeyValue("Storage Missiles","H:16 N:2 E:3 L:10")
 	crab_db:setImage("radar_laser.png")
+--	Barrow
+	corvette_prototype_db:addEntry("Barrow")
+	local barrow_db = queryScienceDatabase("Ships","Prototype","Corvette","Barrow")
+	barrow_db:setLongDescription("Modified version of the Benedict with stronger shields, shorter jump range and longer range sensors")
+	barrow_db:setKeyValue("Class","Corvette")
+	barrow_db:setKeyValue("Sub-class","Freighter/Carrier")
+	barrow_db:setKeyValue("Deployed Callsign","Quarter")
+	barrow_db:setKeyValue("Size","200")
+	barrow_db:setKeyValue("Shield","100/100")
+	barrow_db:setKeyValue("Hull","200")
+	barrow_db:setKeyValue("Repair Crew",6)
+	barrow_db:setKeyValue("Jump Range","4 - 40 U")
+	barrow_db:setKeyValue("Sensor Ranges","Long: 35 U / Short: 5 U")
+	barrow_db:setKeyValue("Move speed","3.6 U/min")	--60
+	barrow_db:setKeyValue("Turn speed","6 deg/sec")
+	barrow_db:setKeyValue("Dock classes","Starfighter Frigate Corvette")
+	barrow_db:setKeyValue("Beam weapon 0:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
+	barrow_db:setKeyValue("Beam weapon 180:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
+	barrow_db:setImage("radar_transport.png")
 end
 function updateSystem()
 	return {
@@ -26331,7 +26375,14 @@ function friendlyComms(comms_data)
 		addCommsReply("Back", commsShip)
 	end)
 	for _, obj in ipairs(comms_target:getObjectsInRange(5000)) do
-		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+		local player_carrier = false
+		if obj.typeName == "PlayerSpaceship" then
+			local template_name = obj:getTypeName()
+			if template_name == "Benedict" or template_name == "Kiriya" or template_name == "Barrow" then
+				player_carrier = true
+			end
+		end
+		if (obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj)) or player_carrier then
 			addCommsReply("Dock at " .. obj:getCallSign(), function()
 				setCommsMessage("Docking at " .. obj:getCallSign() .. ".");
 				comms_target:orderDock(obj)
