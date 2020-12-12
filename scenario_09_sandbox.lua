@@ -4769,7 +4769,58 @@ function customButtons()
 			local tbl={"50% off marked ships","cheapest deals in the sector","unmatched prices","best discounts for black turkey"}
 			update_system:addNameCycleUpdate(Artifact():setPosition(x,y), 10,tbl,random(1,40))
 		end) 
-	end)	
+	end)
+	addGMFunction("xmas artifact",christmasArtifact)
+end
+function christmasArtifact()
+	local xmasWaypoints={}
+	clearGMFunctions()
+	onGMClick(function (x,y)
+		if #xmasWaypoints == 0 then
+			table.insert(xmasWaypoints,{x=x,y=y})
+		end
+		table.insert(xmasWaypoints,{x=x,y=y})
+	end)
+	addGMFunction("done",function ()
+		table.insert(xmasWaypoints,xmasWaypoints[#xmasWaypoints])
+		if #xmasWaypoints > 3 then
+			-- yuk yuk this probably should be reworked properly, but it works for this for now
+			local update_data = {
+				update = function (self, obj, delta)
+					local desiredDelta=self.desiredSpeed*delta
+					for i=0,10000 do
+						self.current=self.current+self.tickSize
+						if self.current+2>=#self.waypoints then
+							obj:destroy()
+							return
+						end
+						local px,py=obj:getPosition()
+						local x,y=math.CubicInterpolate2DTable(self.waypoints,self.current)
+						if distance(px,py,x,y)>desiredDelta then
+							obj:setPosition(x,y)
+							return
+						end
+					end
+				end,
+				current = 1,
+				desiredSpeed=500,
+				tickSize=0.000001,
+				edit = {},
+				name = "xmas waypoints",
+				waypoints = xmasWaypoints
+			}
+			local texts={"threats to stop nightime life suppport and return the station to silence",
+				"religious text containing allusions to satan's claws",
+				"claims omnipresent observation, regardless of state of consciousness or moral state",
+				"audio message of numerous voices chanting ritualistically together",
+				"broken message threatening to slay the residents of the station",
+				"message containing a threat to deck both crewman hall and engineer holly"}
+			local art=Artifact():setDescription(texts[irandom(1,#texts)])
+			update_system:addUpdate(art,"xmas waypoints",update_data)
+		end
+		onGMClick(nil)
+		customButtons()
+	end)
 end
 function mollyGuardLoadDescription()
 	clearGMFunctions()
