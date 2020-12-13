@@ -276,7 +276,7 @@ function setConstants()
 	revert_timer_interval = 7
 	revert_timer = revert_timer_interval
 	plotRevert = revertWait
-	
+
 	ship_template = {	--ordered by relative strength
 		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = beamOverclocker},
 		["OClock Engine"] = 	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = engineOverclocker},
@@ -377,6 +377,10 @@ function setConstants()
 		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = tyr},
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 	}
+	local sandbox = getScriptStorage()
+	sandbox.npc = ship_template
+	print([[Usage stock/both: curl --data "getScriptStorage().npc['Phobos T3'].create('Exuari','Phobos T3')" http://localhost:8080/exec.lua]])
+	print([[Usage custom only: curl --data "getScriptStorage().npc['Elara P2'].create('Exuari')" http://localhost:8080/exec.lua]])
 	fleet_group = {
 		["adder"] = "Adders",
 		["Adders"] = "adder",
@@ -1674,7 +1678,7 @@ function initialSandboxDatabaseUpdate()
 --	Phargus
 	frigate_prototype_db:addEntry("Phargus")
 	local phargus_db = queryScienceDatabase("Ships","Prototype","Frigate","Phargus")
-	phargus_db:setLongDescription("The Phargus is a Phobos with weaker shields and hull and shorter, weaker, faster and narrower beams. The design changes allow it to be squeezed into a carrier")
+	phargus_db:setLongDescription("The Phargus is a Phobos with weaker shields and hull and shorter, weaker, faster and narrower beams. The design changes allow it to be squeezed into a carrier\n\nDeployed from carrier Quarter Dec2020 as Gringo for 1 mission\n\nWhen deployed Dec2020, Gringo successfully destroyed numerous Kraylor terrorizing the Arlenians near Lafrina station. Unfortunately, she did not last past the end of the mission\n\nAngus McDaniels is waiting on word from the salvagers in that remote system before he commits to working on a replacement")
 	phargus_db:setKeyValue("Class","Frigate")
 	phargus_db:setKeyValue("Sub-class","Cruiser")
 	phargus_db:setKeyValue("Deployed Callsign","Gringo")
@@ -1802,7 +1806,7 @@ function initialSandboxDatabaseUpdate()
 --	Proto-Atlantis
 	corvette_prototype_db:addEntry("Proto-Atlantis")
 	local proto_atlantis_db = queryScienceDatabase("Ships","Prototype","Corvette","Proto-Atlantis")
-	proto_atlantis_db:setLongDescription("Atlantis predecessor: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, and shorter short range sensors\n\nGorn deployed as described\n\nHalberd deployed with differences: repair crew:4, turn speed: 14 deg/sec, more efficient beam weapons, narrower and turreted beams, one 60 degree angled tube on each side, each broadside and angled tube shoots a single type of missile\n\nNarsil not deployed yet. Differences: repair crew: 4, move speed: 4.2 U/min, turn speed 14 deg/sec, warp speed: 60 U/min, hull:200, shields:150,150, more efficient beams, extra front tube for HVLI, one tube on each side can shoot homing, EMP and nuke\n\nDeployed Feb2020 as Halberd for 2 missions. Deplyed Apr2020 for 4 missions as Gorn\n\nHalberd deployed Feb2020 and helped destroy an Exuari base near Icarus station. On her next mission, she obtained the sought after relativistic non-newtonian lubricant but was destroyed after a long chase of ships suspected of carrying T'k'nol\n\nDeployed as Gorn Apr2020 after Angus McDaniels salvaged it from a recent battle near Kentar. She rescued the Arlenian ambassador and crew when the ambassador's ship went under from Exuari attacks and visited station Kolar near Kentar station to get refit supplies. On her next mission she helped establish the neighborly aliens on station Transylvania, during which her port side beam emplacement was damaged. On her next mission, she fought her way through numerous Exuari to reach Sovinec who required her to extract minerals from nearby asteroids to get beam replacement parts. On her fourth mission, she fought valiantly against overwhelming odds the Kraylor that showed up near station Cindy's Folly, but they were too much for her and she was destroyed\n\nAngus McDaniels hopes to obtain enough spare parts to get her back into working order, but they are hard to come by since they are in heavy use on the CUF/Kraylor front lines")
+	proto_atlantis_db:setLongDescription("Atlantis predecessor: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, and shorter short range sensors\n\nGorn deployed as described\n\nHalberd deployed with differences: repair crew:4, turn speed: 14 deg/sec, more efficient beam weapons, narrower and turreted beams, one 60 degree angled tube on each side, each broadside and angled tube shoots a single type of missile\n\nNarsil not deployed yet. Differences: repair crew: 4, move speed: 4.2 U/min, turn speed 14 deg/sec, warp speed: 60 U/min, hull:200, shields:150,150, more efficient beams, extra front tube for HVLI, one tube on each side can shoot homing, EMP and nuke\n\nDeployed Feb2020 as Halberd for 2 missions. Deplyed Apr2020 for 4 missions as Gorn. Deployed as Halberd Dec2020 for 1 mission\n\nHalberd deployed Feb2020 and helped destroy an Exuari base near Icarus station. On her next mission, she obtained the sought after relativistic non-newtonian lubricant but was destroyed after a long chase of ships suspected of carrying T'k'nol\n\nDeployed as Gorn Apr2020 after Angus McDaniels salvaged it from a recent battle near Kentar. She rescued the Arlenian ambassador and crew when the ambassador's ship went under from Exuari attacks and visited station Kolar near Kentar station to get refit supplies. On her next mission she helped establish the neighborly aliens on station Transylvania, during which her port side beam emplacement was damaged. On her next mission, she fought her way through numerous Exuari to reach Sovinec who required her to extract minerals from nearby asteroids to get beam replacement parts. On her fourth mission, she fought valiantly against overwhelming odds the Kraylor that showed up near station Cindy's Folly, but they were too much for her and she was destroyed\n\nA repaired Halberd was redeployed Dec2020 to help reconstruction freighters and investigate messages. An Exuari Starhammer V destroyed her.\n\nAngus McDaniels hopes to obtain enough spare parts to get her back into working order, but they are hard to come by since they are in heavy use on the CUF/Kraylor front lines")
 	proto_atlantis_db:setKeyValue("Class","Corvette")
 	proto_atlantis_db:setKeyValue("Sub-class","Destroyer")
 	proto_atlantis_db:setKeyValue("Deployed Callsigns","Gorn, Halberd, Narsil")
@@ -1982,7 +1986,7 @@ function initialSandboxDatabaseUpdate()
 --	Raven
 	corvette_prototype_db:addEntry("Raven")
 	local raven_db = queryScienceDatabase("Ships","Prototype","Corvette","Raven")
-	raven_db:setLongDescription("Experimental Cruiser: jump instead of warp, stronger shields, weaker hull, broadside turreted beams, more tubes in bracketing emplacements and a smaller stock of missiles")
+	raven_db:setLongDescription("Experimental Cruiser: jump instead of warp, stronger shields, weaker hull, broadside turreted beams, more tubes in bracketing emplacements and a smaller stock of missiles\n\nDeployed Dec2020 as Claw for 1 mission\n\nWhen deployed as Claw in Dec2020, she destroyed some Exuari but did not survive multiple encounters\n\nAngus McDaniels is confident he can get a revamped Raven class up again soon")
 	raven_db:setKeyValue("Class","Corvette")
 	raven_db:setKeyValue("Deployed Callsign","Claw")
 	raven_db:setKeyValue("Size","200")
@@ -2103,7 +2107,7 @@ function initialSandboxDatabaseUpdate()
 --	Barrow
 	corvette_prototype_db:addEntry("Barrow")
 	local barrow_db = queryScienceDatabase("Ships","Prototype","Corvette","Barrow")
-	barrow_db:setLongDescription("Modified version of the Benedict with stronger shields, shorter jump range and longer range sensors")
+	barrow_db:setLongDescription("Modified version of the Benedict with stronger shields, shorter jump range and longer range sensors\n\nDeployed Dec2020 as Quarter\n\nWhen deployed in Dec2020, Quarter helped take on Kraylor near station Lafrina. She served as a base of operations for fighter class vessels from Lafrina as well as launching Gringo and Carpenter against the Kraylor")
 	barrow_db:setKeyValue("Class","Corvette")
 	barrow_db:setKeyValue("Sub-class","Freighter/Carrier")
 	barrow_db:setKeyValue("Deployed Callsign","Quarter")
@@ -4351,10 +4355,10 @@ function tweakTerrain()
 					local ship_names = ""
 					for _, temp_object in ipairs(object_list) do
 						if temp_object.typeName == "CpuShip" then
-							local type_name = tempObject:getTypeName()
+							local type_name = temp_object:getTypeName()
 							if type_name == "Command Base" or type_name == "Military Outpost" then
-								tempObject:setCommsScript(""):setCommsFunction(commsStation)
-								tempObject.comms_data = {
+								temp_object:setCommsScript(""):setCommsFunction(commsStation)
+								temp_object.comms_data = {
 									friendlyness = random(50,100),
 									weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
 									weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
@@ -4367,7 +4371,7 @@ function tweakTerrain()
 									trade = {	food = false, medicine = false, luxury = true },
 									public_relations = false
 								}
-								addGMMessage(string.format("Faux Station %s now has sandbox communications",tempObject:getCallSign()))
+								addGMMessage(string.format("Faux Station %s now has sandbox communications",temp_object:getCallSign()))
 							else
 								temp_object:setCommsScript(""):setCommsFunction(commsShip)
 								local p = getPlayerShip(-1)
@@ -5010,7 +5014,7 @@ function playerShip()
 			{"Gadfly"		,"inactive"	,createPlayerShipGadfly		,"Gadfly: Fighter   Hull:100   Shield:80,80   Size:100   Repair Crew:3   Cargo:4   R.Strength:9\nFTL:Jump (2U - 15U)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600 Strafe:0   Energy:400   LRS:15   SRS:4.5\nBeams:1 Front\n   Arc:50   Direction:0   Range:0.9   Cycle:4   Damage:8\nTubes:3   2 Front, 1 Rear\n   Direction:  0   Load Speed:05   Type:HVLI Only - small\n   Direction:  0   Load Speed:10   Type:Nuke & EMP\n   Direction:180   Load Speed:15   Type:Homing Only - large\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      1 EMP\n      8 HVLI\nBased on Player Fighter: added jump drive, stronger hull, extra and stronger shields, fewer beams (wider, shorter, faster), missile tubes front and rear (no mines)"},
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
 			{"Guinevere"	,"inactive"	,createPlayerShipGuinevere	,"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
-			{"Halberd"		,"active"	,createPlayerShipHalberd	},	--proto-atlantis
+			{"Halberd"		,"inactive"	,createPlayerShipHalberd	},	--proto-atlantis
 			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	},
 			{"Hearken"		,"inactive"	,createPlayerShipHearken	,"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Holmes"		,"inactive"	,createPlayerShipHolmes		,"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
@@ -5033,7 +5037,7 @@ function playerShip()
 			{"Quill"		,"inactive"	,createPlayerShipQuill		},
 			{"Raptor"		,"inactive"	,createPlayerShipRaptor		,"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Rattler"		,"inactive"	,createPlayerShipRattler	,"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
-			{"Raven"		,"active"	,createPlayerShipRaven		,"Raven (Claw) Cruiser"},
+			{"Raven"		,"inactive"	,createPlayerShipRaven		,"Raven (Claw) Cruiser"},
 			{"Rodent"		,"inactive"	,createPlayerShipRodent		,"Rodent (George): Frigate, Cruiser   Hull:150   Shield:100,50   Size:200   Repair Crew:5   Cargo:8   R.Strength:23   LRS:40   SRS:5.5\nFTL:Jump (4U - 37U)   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front, 2 Turreted Speed:0.4\n   Arc:60   Direction:-15   Range:1.2   Cycle:8   Damage:5\n   Arc:60   Direction: 15   Range:1.2   Cycle:8   Damage:5\n   Arc:270   Direction:  0   Range:0.6   Cycle:8   Damage:3\n   Arc:270   Direction 180   Range:0.5   Cycle:8   Damage:4\nTubes:5   Front:2   Sides:2   Back:1\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:-90   Type:EMP & Nuke only   Load Time:10\n   Direction: 90   Type:EMP & Nuke Only (Large)   Load Time:20\n   Direction:180   Type:Mine Only   Load Time:15\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      06 Mine\n      03 EMP\n      20 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, weaker rear shield, short jump drive, narrower beams, additional slow turreted beams, additional side tubes and rear mine tube"},
 			{"Rogue"		,"inactive"	,createPlayerShipRogue		,"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
 			{"Rotor"		,"inactive"	,createPlayerShipRotor		,"Rotor: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:30\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:4\nBeams:5, 2 Turreted Speed:1\n   Arc:190   Direction:  0   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc:190   Direction:180   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc: 60   Direction:-25   Range:0.8   Cycle:6   Damage:6\n   Arc: 60   Direction: 25   Range:0.8   Cycle:6   Damage:6\n   Arc: 40   Direction:  0   Range:0.6   Cycle:6   Damage:8\nTubes:1   Load Speed:8   Rear:1\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      6 Mine\nBased on Maverick: Fewer beams, one rear tube, slower warp, shorter sensors"},
@@ -5915,10 +5919,9 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
-	local pistilZone = squareZone(24834, 20416, "Pistil 5 G6")
-	pistilZone:setColor(0,128,0)
+--	local pistilZone = squareZone(24834, 20416, "Pistil 5 G6")
+--	pistilZone:setColor(0,128,0)
     stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 5"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
-	--[[
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -5957,11 +5960,9 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
-	--]]
 	--Relay-13
-	local relay13Zone = squareZone(77918, 23876, "Relay-13 E G8")
-	relay13Zone:setColor(0,255,0)
-	--[[
+	--local relay13Zone = squareZone(77918, 23876, "Relay-13 E G8")
+	--relay13Zone:setColor(0,255,0)
     stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 E"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
     stationRelay13.comms_data = {
@@ -5996,7 +5997,6 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
-	--]]
 	--Slurry
 	--local slurryZone = squareZone(100342, 27871, "Slurry V G10")
 	--slurryZone:setColor(51,153,255)
@@ -12662,7 +12662,7 @@ function createPlayerShipBarrow()
 	playerBarrow:setJumpDriveCharge(playerBarrow.max_jump_range)
 	playerBarrow.carrier_space_group = {
 		["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet", state = "aboard", launch_button = "launch_carpenter"},
-		["Gringo"] =	{create = createPlayerShipPhargus, state = "aboard", launch_button = "launch_gringo"},
+		["Chack"] =		{create = createPlayerShipFowl, state = "aboard", launch_button = "launch_chack"},
 	}
 	playerBarrow.launch_bay = "empty"
 	playerBarrow:addReputationPoints(50)
@@ -14347,6 +14347,26 @@ function createPlayerShipYorik()
 	return playerYorik
 end
 --	Specialized ships spawned by a carrier
+function createPlayerShipFowl()
+	playerFowl = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Chack")
+	playerFowl:setTypeName("Fowl")
+	playerFowl:setRepairCrewCount(4)					--more repair crew (vs 3)
+	playerFowl:setMaxEnergy(500)						--more maximum energy (vs 400)
+	playerFowl:setEnergy(500)							
+	playerFowl:setShieldsMax(100,60)					--stronger shields (vs 40)
+	playerFowl:setShields(100,60)
+--                  		   Arc, Dir,	Range, Cycle Time, Dmg
+	playerFowl:setBeamWeapon(0, 12,   0,	 1000,			6, 3)	--3 beams (vs 2)
+	playerFowl:setBeamWeapon(1, 40, -10,	  800,			6, 4)	
+	playerFowl:setBeamWeapon(2, 40,  10,	  800,			6, 4)	
+	playerFowl:setWeaponTubeDirection(0,180)			--tube points backwards (vs forward)
+	playerFowl:setWeaponTubeExclusiveFor(0,"Mine")		--and only lays mines (vs HVLI)
+	playerFowl:setWeaponStorageMax("HVLI",0)			--fewer HVLIs (vs 4)
+	playerFowl:setWeaponStorage("HVLI",0)
+	playerFowl:setWeaponStorageMax("Mine",4)			--more Mines (vs 0)
+	playerFowl:setWeaponStorage("Mine",4)
+	return playerFowl
+end
 function createPlayerShipPhargus()
 	playerPhargus = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy")
 	playerPhargus:setTypeName("Phargus")
