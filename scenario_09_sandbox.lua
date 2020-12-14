@@ -141,6 +141,30 @@ function createSkeletonUniverse()
     wormholeIcarus.default_exit_point_y = -19780
     wormholeIcarus.kentar_exit_point_x = 251000
     wormholeIcarus.kentar_exit_point_y = 250000
+    wormhole_cindy = WormHole():setPosition(150513, -44624)
+    wormhole_exuari_pirate = WormHole():setPosition(216461,-376269)
+    local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
+    local wc_exit_x, wc_exit_y = vectorFromAngle(random(0,360),random(2000,2500))
+    wormhole_cindy:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
+    local wc_x, wc_y = wormhole_cindy:getPosition()
+    local wep_exit_x, wep_exit_y = vectorFromAngle(random(0,300),random(2000,2500))
+    wormhole_exuari_pirate:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
+    wormhole_cindy:onTeleportation(function(self, teleportee)
+		local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
+		local wc_exit_x, wc_exit_y = vectorFromAngle(random(0,360),random(2000,2500))
+	    self:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
+	    if teleportee.typeName == "PlayerSpaceship" then
+	    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+		end
+    end)
+    wormhole_exuari_pirate:onTeleportation(function(self, teleportee)
+		local wc_x, wc_y = wormhole_cindy:getPosition()
+		local wep_exit_x, wep_exit_y = vectorFromAngle(random(0,300),random(2000,2500))
+		self:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
+	    if teleportee.typeName == "PlayerSpaceship" then
+	    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+		end
+    end)
     --Astron
     astron_x = 462523
     astron_y = 317769
