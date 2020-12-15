@@ -401,10 +401,11 @@ function setConstants()
 		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = tyr},
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 	}
-	local sandbox = getScriptStorage()
+	sandbox = getScriptStorage()
 	sandbox.npc = ship_template
 	print([[Usage stock/both: curl --data "getScriptStorage().npc['Phobos T3'].create('Exuari','Phobos T3')" http://localhost:8080/exec.lua]])
 	print([[Usage custom only: curl --data "getScriptStorage().npc['Elara P2'].create('Exuari')" http://localhost:8080/exec.lua]])
+	sandbox.spawnNPCs = spawnNPCs
 	fleet_group = {
 		["adder"] = "Adders",
 		["Adders"] = "adder",
@@ -16500,6 +16501,102 @@ function modifyShip(ship)
 			ship:setBeamWeaponHeatPerFire(beamIndex,ship:getBeamWeaponHeatPerFire(beamIndex)*modHeat)
 			beamIndex = beamIndex + 1
 		until(ship:getBeamWeaponRange(beamIndex) < 1)
+	end
+end
+function spawnNPCs(x, y, strength, faction, action, composition, exclude, tinkered, shape, spawn_distance, spawn_angle, px, py)
+	--	x and y are the spawn coordinates
+	--	strength is the numerical value of the strength of the ships spawned
+	--		if nil, will use relative strength as selected in GM buttons
+	--	faction specifies the spawned ships' faction
+	--		if nil, will use faction specified in GM menus
+	if x == nil or y == nil then
+		print("x and y coordinates required for spawnNPCs func")
+		return
+	end
+	if action ~= nil then
+		if action ~= "Roaming" and action ~= "Idle" and action ~= "Stand Ground" then
+			print("valid values for action are 'Roaming', 'Idle' or 'Stand Ground'")
+			return
+		end
+	end
+	if composition ~= nil then
+		if composition ~= "Random" and composition ~= "Fighters" and composition ~= "Chasers" and composition ~= "Frigates" and composition ~= "Beamers" and composition ~= "Missilers" and composition ~= "Adders" and composition ~= "Non-DB" and composition ~= "Drones" then
+			print("valid values for composition are 'Fighters', 'Chasers', 'Frigates', 'Beamers', 'Missilers', 'Adders', 'Non-DB' or 'Drones'")
+			return
+		end
+	end
+	if tinkered ~= nil then
+		if tinkered ~= "unmodified" and tinkered ~= "improved" and tinkered ~= "degraded" and tinkered ~= "tinkered" then
+			print("valid values for tinkered are 'unmodified', 'improved', 'degraded' or 'tinkered'")
+			return
+		end
+	end
+	if shape ~= nil then
+		if shape ~= "square" and shape ~= "hexagonal" and shape ~= "none" and shape ~= "pyramid" and shape ~= "ambush" then
+			print("valid values for shape are 'square', 'hexagonal', 'none', 'pyramid' or 'ambush'")
+			return
+		end
+	end
+	local restore_strength = nil
+	local restore_strength_boolean = nil
+	local restore_faction = nil
+	local restore_order = nil
+	local restore_composition = nil
+	local restore_exclude = nil
+	local restore_tinkered = nil
+	if strength ~= nil then
+		restore_strength = fleetStrengthFixedValue
+		restore_strength_boolean = fleetStrengthFixed
+		fleetStrengthFixedValue = strength
+		fleetStrengthFixed = true
+	end
+	if faction ~= nil then
+		restore_faction = fleetSpawnFaction
+		fleetSpawnFaction = faction
+	end
+	if action ~= nil then
+		restore_order = fleetOrders
+		fleetOrders = action
+	end
+	if composition ~= nil then
+		restore_composition = fleetComposition
+		fleetComposition = composition
+	end
+	if exclude ~= nil then
+		restore_exclude = fleet_exclusions
+		if string.find(exclude,"N") then
+			fleet_exclusions["Nuke"].exclude = true
+		end
+		if string.find(exclude,"W") then
+			fleet_exclusions["Warp"].exclude = true
+		end
+		if string.find(exclude,"J") then
+			fleet_exclusions["Jump"].exclude = true
+		end
+	end
+	if tinkered ~= nil then
+		restore_tinkered = fleetChange
+		fleetChange = tinkered
+	end
+	spawnRandomArmed(x, y, nil, shape, spawn_distance, spawn_angle, px, py)
+	if restore_tinkered ~= nil then
+		fleetChange = restore_tinkered
+	end
+	if restore_exclude ~= nil then
+		fleet_exclusions = restore_exclude
+	end
+	if restore_composition ~= nil then
+		fleetComposition = restore_composition
+	end
+	if restore_order ~= nil then
+		fleetOrders = restore_order
+	end
+	if restore_faction ~= nil then
+		fleetSpawnFaction = restore_faction
+	end
+	if restore_strength ~= nil then
+		fleetStrengthFixedValue = restore_strength
+		fleetStrengthFixed = restore_strength_boolean
 	end
 end
 function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, px, py)
