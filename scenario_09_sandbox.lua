@@ -3098,12 +3098,7 @@ function updateSystem()
 			---------------------------------------------------------------------------------------------------------------
 			-- addPeriodicCallback
 			---------------------------------------------------------------------------------------------------------------
-			-- phony spaceObject, probably needs to move to a testing library some day
-			local testObj={
-				isValid=function()
-					return true
-				end
-			}
+			local testObj=newPhonySpaceObject()
 			local captured=0
 			local captured_fun = function ()
 				captured = captured + 1
@@ -4880,6 +4875,13 @@ function christmasArtifact()
 		onGMClick(nil)
 		customButtons()
 	end)
+end
+function newPhonySpaceObject()
+	return {
+		valid=true,
+		isValid=function (self) return self.valid end,
+		destroy=function (self) self.valid=false end,
+	}
 end
 function mollyGuardLoadDescription()
 	clearGMFunctions()
