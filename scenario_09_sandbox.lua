@@ -2788,7 +2788,7 @@ function updateSystem()
 						local attach_x, attach_y = self.attach_target:getPosition()
 						obj:setPosition(attach_x+self.relative_attach_x,attach_y+self.relative_attach_y)
 					else
-						self:removeUpdateNamed(obj,"attached")
+						update_system:removeUpdateNamed(obj,"attached")
 					end
 				end
 			}
