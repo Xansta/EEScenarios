@@ -2970,18 +2970,20 @@ function updateSystem()
 		-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 		-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 		-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
-		addPeriodicCallback = function(self, obj, callback, period, accumulated_time)
+		addPeriodicCallback = function(self, obj, callback, period, accumulated_time, random_jitter)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(callback)=="function")
 			assert(type(period)=="number")
 			assert(accumulated_time==nil or type(accumulated_time)=="number")
+			assert(random_jitter==nil or type(random_jitter)=="number")
 			assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
 			local update_data = {
 				name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
 				callback = callback,
 				period = period,
 				accumulated_time = accumulated_time or 0,
+				random_jitter = random_jitter or 0,
 				edit = {
 					-- orbit target wants to be exposed when we have a object selection control
 					{name = "period" , fixedAdjAmount=1},
@@ -2994,7 +2996,7 @@ function updateSystem()
 					self.accumulated_time = self.accumulated_time + delta
 					if self.accumulated_time > self.period then
 						self.callback(obj)
-						self.accumulated_time = self.accumulated_time - self.period
+						self.accumulated_time = self.accumulated_time - self.period - random(0,self.random_jitter)
 						-- we could do this via a loop
 						-- or via calling back into this own function
 						-- technically this is probably slower (as we will end up with calling a function and the assert logic)
