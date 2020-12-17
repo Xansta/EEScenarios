@@ -4859,12 +4859,18 @@ function christmasArtifact()
 				name = "xmas waypoints",
 				waypoints = xmasWaypoints
 			}
-			local texts={"threats to stop nightime life suppport and return the station to silence",
+			local texts={
+				"threats to stop nightime life suppport and return the station to silence",
 				"religious text containing allusions to satan's claws",
 				"claims omnipresent observation, regardless of state of consciousness or moral state",
 				"audio message of numerous voices chanting ritualistically together",
 				"broken message threatening to slay the residents of the station",
-				"message containing a threat to deck both crewman hall and engineer holly"}
+				"message containing a threat to deck both crewman hall and engineer holly",
+				"discussions about precious metal fashioned into cylindrical devices tuned to harmonious frequencies",
+				"the sound of cacaphonous striking of bulkheads by a small boy",
+				"a quest for a supernova by three highly ranked CUF officers",
+				"monitor communications from supernatural public relations representatives",
+			}
 			local art=Artifact():setDescription(texts[irandom(1,#texts)])
 			update_system:addUpdate(art,"xmas waypoints",update_data)
 		end
