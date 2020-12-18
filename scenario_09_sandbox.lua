@@ -2788,7 +2788,7 @@ function updateSystem()
 						local attach_x, attach_y = self.attach_target:getPosition()
 						obj:setPosition(attach_x+self.relative_attach_x,attach_y+self.relative_attach_y)
 					else
-						self:removeUpdateNamed(obj,"attached")
+						update_system:removeUpdateNamed(obj,"attached")
 					end
 				end
 			}
@@ -2970,18 +2970,20 @@ function updateSystem()
 		-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 		-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 		-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
-		addPeriodicCallback = function(self, obj, callback, period, accumulated_time)
+		addPeriodicCallback = function(self, obj, callback, period, accumulated_time, random_jitter)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(callback)=="function")
 			assert(type(period)=="number")
 			assert(accumulated_time==nil or type(accumulated_time)=="number")
+			assert(random_jitter==nil or type(random_jitter)=="number")
 			assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
 			local update_data = {
 				name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
 				callback = callback,
 				period = period,
 				accumulated_time = accumulated_time or 0,
+				random_jitter = random_jitter or 0,
 				edit = {
 					-- orbit target wants to be exposed when we have a object selection control
 					{name = "period" , fixedAdjAmount=1},
@@ -2994,7 +2996,7 @@ function updateSystem()
 					self.accumulated_time = self.accumulated_time + delta
 					if self.accumulated_time > self.period then
 						self.callback(obj)
-						self.accumulated_time = self.accumulated_time - self.period
+						self.accumulated_time = self.accumulated_time - self.period - random(0,self.random_jitter)
 						-- we could do this via a loop
 						-- or via calling back into this own function
 						-- technically this is probably slower (as we will end up with calling a function and the assert logic)
@@ -3098,12 +3100,7 @@ function updateSystem()
 			---------------------------------------------------------------------------------------------------------------
 			-- addPeriodicCallback
 			---------------------------------------------------------------------------------------------------------------
-			-- phony spaceObject, probably needs to move to a testing library some day
-			local testObj={
-				isValid=function()
-					return true
-				end
-			}
+			local testObj=newPhonySpaceObject()
 			local captured=0
 			local captured_fun = function ()
 				captured = captured + 1
@@ -4822,43 +4819,33 @@ function customButtons()
 	end)
 	addGMFunction("xmas artifact",christmasArtifact)
 end
-function christmasArtifact()
-	local xmasWaypoints={}
-	clearGMFunctions()
-	onGMClick(function (x,y)
-		if #xmasWaypoints == 0 then
-			table.insert(xmasWaypoints,{x=x,y=y})
-		end
-		table.insert(xmasWaypoints,{x=x,y=y})
-	end)
-	addGMFunction("done",function ()
-		table.insert(xmasWaypoints,xmasWaypoints[#xmasWaypoints])
-		if #xmasWaypoints > 3 then
-			-- yuk yuk this probably should be reworked properly, but it works for this for now
-			local update_data = {
-				update = function (self, obj, delta)
-					local desiredDelta=self.desiredSpeed*delta
-					for i=0,10000 do
-						self.current=self.current+self.tickSize
-						if self.current+2>=#self.waypoints then
-							obj:destroy()
-							return
-						end
-						local px,py=obj:getPosition()
-						local x,y=math.CubicInterpolate2DTable(self.waypoints,self.current)
-						if distance(px,py,x,y)>desiredDelta then
-							obj:setPosition(x,y)
-							return
-						end
+function addChristmasArtifact(waypoints)
+	if #waypoints > 3 then
+		-- yuk yuk this probably should be reworked properly, but it works for this for now
+		local update_data = {
+			update = function (self, obj, delta)
+				local desiredDelta=self.desiredSpeed*delta
+				for i=0,10000 do
+					self.current=self.current+self.tickSize
+					if self.current+2>=#self.waypoints then
+						obj:destroy()
+						return
 					end
-				end,
-				current = 1,
-				desiredSpeed=500,
-				tickSize=0.000001,
-				edit = {},
-				name = "xmas waypoints",
-				waypoints = xmasWaypoints
-			}
+					local px,py=obj:getPosition()
+					local x,y=math.CubicInterpolate2DTable(self.waypoints,self.current)
+					if distance(px,py,x,y)>desiredDelta then
+						obj:setPosition(x,y)
+						return
+					end
+				end
+			end,
+			current = 1,
+			desiredSpeed=500,
+			tickSize=0.000001,
+			edit = {},
+			name = "xmas waypoints",
+			waypoints = waypoints
+		}
 			local texts={
 				"threats to stop nightime life suppport and return the station to silence",
 				"religious text containing allusions to satan's claws",
@@ -4872,11 +4859,31 @@ function christmasArtifact()
 				"monitor communications from supernatural public relations representatives",
 			}
 			local art=Artifact():setDescription(texts[irandom(1,#texts)])
-			update_system:addUpdate(art,"xmas waypoints",update_data)
+		update_system:addUpdate(art,"xmas waypoints",update_data)
+	end
+end
+function christmasArtifact()
+	local xmasWaypoints={}
+	clearGMFunctions()
+	onGMClick(function (x,y)
+		if #xmasWaypoints == 0 then
+			table.insert(xmasWaypoints,{x=x,y=y})
 		end
+		table.insert(xmasWaypoints,{x=x,y=y})
+	end)
+	addGMFunction("done",function ()
+		table.insert(xmasWaypoints,xmasWaypoints[#xmasWaypoints])
+		addChristmasArtifact(xmasWaypoints)
 		onGMClick(nil)
 		customButtons()
 	end)
+end
+function newPhonySpaceObject()
+	return {
+		valid=true,
+		isValid=function (self) return self.valid end,
+		destroy=function (self) self.valid=false end,
+	}
 end
 function mollyGuardLoadDescription()
 	clearGMFunctions()
