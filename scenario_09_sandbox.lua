@@ -2351,6 +2351,31 @@ function updateSystem()
 			end
 			return ret
 		end,
+		-- I am less than sure this is the best setup
+		-- should it take an angle?
+		-- should dx and dy not be scaled by speed
+		-- should it be addLinearTo?
+		-- all very good questions, also questions I dont have time to deal with right now
+		-- so future code readers, feel free to come up with better answers and swtich over to them
+		addLinear = function (self, obj, dx, dy, speed)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(dx)=="number")
+			assert(type(dy)=="number")
+			assert(type(speed)=="number")
+			local update_data = {
+				name = "linearTo",
+				edit = {},
+				speed = speed,
+				dx = dx,
+				dy = dy,
+				update = function (self, obj, delta)
+					local x,y=obj:getPosition()
+					obj:setPosition(x+self.dx*self.speed*delta,y+self.dy*self.speed*delta)
+				end
+			}
+			self:addUpdate(obj,"absolutePosition",update_data)
+		end,
 		-- when the owner is destroyed the owned objects is also destroyed
 		addOwned = function (self, owned, owner)
 			assert(type(self)=="table")
@@ -4818,6 +4843,22 @@ function customButtons()
 		end) 
 	end)
 	addGMFunction("xmas artifact",christmasArtifact)
+	addGMFunction("!single scan",function ()
+		local objs=getGMSelection()
+		for i=1,#objs do
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				objs[i]:setScanState("simplescan")
+			end
+		end
+	end)
+	addGMFunction("!full scan",function ()
+		local objs=getGMSelection()
+		for i=1,#objs do
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				objs[i]:setScanState("fullscan")
+			end
+		end
+	end)
 end
 function addChristmasArtifact(waypoints)
 	if #waypoints > 3 then
