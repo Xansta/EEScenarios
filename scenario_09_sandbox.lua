@@ -4843,6 +4843,22 @@ function customButtons()
 		end) 
 	end)
 	addGMFunction("xmas artifact",christmasArtifact)
+	addGMFunction("!single scan",function ()
+		local objs=getGMSelection()
+		for i=1,#objs do
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				objs[i]:setScanState("simplescan")
+			end
+		end
+	end)
+	addGMFunction("!full scan",function ()
+		local objs=getGMSelection()
+		for i=1,#objs do
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				objs[i]:setScanState("fullscan")
+			end
+		end
+	end)
 end
 function addChristmasArtifact(waypoints)
 	if #waypoints > 3 then
