@@ -269,6 +269,7 @@ function setConstants()
 	--Original in the midst of the ghosts near Astron spawn point: 586367, 296408
 	universe:addAvailableRegion("Astron (U33)",function() return ghostNebulaSector() end, 460500, 320500) -- there was an alternate spawn location of 545336,292452, inital spawn location seems to not work eh I will look at it later - starry
 	universe:addAvailableRegion("Lafrina (T93)",lafrinaSector,-237666,296975)
+	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	initialSandboxDatabaseUpdate()
 	scenarioTime = 0
 	playerSpawnX = 0
@@ -4843,6 +4844,45 @@ function customButtons()
 		end) 
 	end)
 	addGMFunction("xmas artifact",christmasArtifact)
+	addGMFunction("carol",function ()
+		clearGMFunctions()
+		addGMFunction("-Custom",customButtons)
+		for i=1,12 do
+			addGMFunction("carol "..i,function() carolStage(i) customButtons() end)
+		end
+	end)
+	addGMFunction("spawn",function ()
+		clearGMFunctions()
+		addGMFunction("-Custom",customButtons)
+		for i=1,12 do
+			addGMFunction("spawn "..i,function() onGMClick(function (x,y) carolSpawnSingle(i,"human navy"):setPosition(x,y):orderStandGround() end) end)
+		end
+	end)
+	addGMFunction("!elf rename",function ()
+		local objs=getGMSelection()
+		for i=1,#objs do
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				objs[i]:setCallSign("elf "..irandom(1,99))
+			end
+		end
+	end)
+	addGMFunction("!sleigh rename",function ()
+		local objs=getGMSelection()
+		local full_name_list={"Rudolph","Dasher","Dancer","Prancer","Vixen","Comet","Cupid","Dunder","Blixem"}
+		local name_list={}
+		for i=1,#objs do
+			if #name_list==0 then
+				for j=1,#full_name_list do
+					table.insert(name_list,full_name_list[j])
+				end
+			end
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				local num=irandom(1,#name_list)
+				objs[i]:setCallSign(name_list[num])
+				table.remove(name_list,num)
+			end
+		end
+	end)
 	addGMFunction("!single scan",function ()
 		local objs=getGMSelection()
 		for i=1,#objs do
@@ -4859,6 +4899,209 @@ function customButtons()
 			end
 		end
 	end)
+end
+function carolStage1()
+	local pearTree=CpuShip():
+		setTemplate("Atlantis X23"):
+		setTypeName("Arboretum"):
+		setWeaponTubeCount(0):
+		setWeaponStorageMax("Homing", 0):setWeaponStorage("Homing", 0):
+		setWeaponStorageMax("HVLI", 0):setWeaponStorage("HVLI", 0):
+		setBeamWeapon(0, 78, 340, 700, 6.0, 8.0):
+		setBeamWeapon(1, 83, 20, 700, 6.0, 8.0):
+		setBeamWeapon(2, 100, 180, 0, 6.0, 8.0):
+		setShieldsMax(100,100,100,100):
+		setShields(100,100,100,100):
+		setJumpDrive(false)
+
+	local partridge=CpuShip():
+		setTemplate("Defense platform"):
+		setRotationMaxSpeed(5):
+		setShieldsMax(100):setShields(100):
+		setBeamWeapon(0, 30, 0, 4000, 2.0, 10.0):
+		setBeamWeapon(1, 240, 0, 2000, 4.0, 10.0):
+		setBeamWeapon(2, 240, 0, 0, 4.0, 10.0):
+		setBeamWeapon(3, 330, 180, 0, 6.0, 10.0):
+		setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):
+		setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):
+		orderStandGround():
+		setTypeName("foul fort")
+	update_system:addOrbitTargetUpdate(partridge,pearTree,500,60)
+	-- I wanted pear tree to regenerate when destroyed but there isnt any good code to loot for that
+	return pearTree
+end
+function carolStage2()
+	return CpuShip()
+		:setTemplate("Atlantis X23")
+		:setTypeName("white sky")
+		:setJumpDrive(false)
+		:setWeaponTubeCount(0)
+		:setWeaponStorageMax("Homing", 0):setWeaponStorage("Homing", 0)
+		:setWeaponStorageMax("HVLI", 0):setWeaponStorage("HVLI", 0)
+		:setBeamWeapon(0, 100, 340, 0, 6.0, 8.0) -- the original beams are taken out as the x and y offset are not 0
+		:setBeamWeapon(1, 100, 20, 0, 6.0, 8.0)
+		:setBeamWeapon(2, 100, 180, 0, 6.0, 8.0)
+		-- beam 3 also has x and y offset set
+		:setBeamWeapon(4, 80, 0, 1500, 8, 11)	-- beams with a small overlap, 360 degree beams
+		:setBeamWeapon(5, 80, 60, 1500, 8, 11)
+		:setBeamWeapon(6, 80, 120, 1500, 8, 11)
+		:setBeamWeapon(7, 80, 180, 1500, 8, 11)
+		:setBeamWeapon(8, 80, 240, 1500, 8, 11)
+		:setBeamWeapon(9, 80, 300, 1500, 8, 11)
+	:setShieldsMax(300, 300, 200):setShields(300, 300, 200)
+end
+function carolStage3()
+	-- alpha strike fighter
+	return CpuShip():
+		setTemplate("MT52 Hornet"):
+		setWeaponTubeCount(1):
+		setWeaponStorageMax("Homing", 3):setWeaponStorage("Homing", 3):
+		setWeaponTubeDirection(0,0):setTubeLoadTime(0,0.5):
+		setTypeName("cowards charge")
+end
+function carolStage4()
+	-- warp gunship
+	return CpuShip()
+		:setTemplate("Gunship")
+		:setWeaponTubeCount(0)
+		:setBeamWeapon(0, 30, -8, 3000, 6.0, 4.0) -- there probably is an interesting ship design with damage = around 6-8, but it is too heavy for this curren
+		:setBeamWeapon(1, 30, 8, 3000, 6.0, 4.0)
+		:setBeamWeapon(2, 270, 0, 750, 8.0, 3.0)
+		:setWarpDrive(true) -- AI is such it has to have warp as FTL rather than jump
+		:setWarpSpeed(1000.00)
+		:setRotationMaxSpeed(25)
+		:setImpulseMaxSpeed(0)
+		:setShields(50):setShieldsMax(50)
+		:setHull(50):setHullMax(50):
+		setTypeName("Raven")
+end
+function carolStage5()
+	-- shieldless starhammer like
+	return CpuShip():
+		setTemplate("Starhammer II"):
+		setShieldsMax(0):setShields(0):
+		setHullMax(1000):setHull(200):
+		setWeaponStorageMax("HVLI", 7):setWeaponStorage("HVLI", 7):
+		setTypeName("golden chime")-- the difference between max and hull is so beams dont break systems quickly
+		-- this becomes an alarmingly tanky ship if it ever gets to dock somewhere it can regen hull
+end
+function carolStage6()
+	-- tbh this one is kind of bland, just an adder with a small homing payload
+	return CpuShip():
+		setTemplate("Adder MK8"):
+		setRotationMaxSpeed(20):
+		setWeaponTubeCount(2):
+		setWeaponTubeDirection(0, -35):setTubeSize(0,"small"):setTubeLoadTime(0,10):
+		setWeaponTubeDirection(0, 35):setTubeSize(1,"small"):setTubeLoadTime(1,10):
+		setWeaponStorageMax("Homing", 6):setWeaponStorage("Homing", 6):
+		setWeaponStorageMax("HVLI", 0):setWeaponStorage("HVLI", 0):
+		setTypeName("starspawn")
+end
+function carolStage7()
+	-- HVLI missile tubes in every direction
+	return CpuShip():setTemplate("Missile Cruiser"):setWeaponTubeCount(16):
+	setWeaponTubeDirection(0,0):setTubeSize(0,"small"):setTubeLoadTime(0,10):
+	setWeaponTubeDirection(1,22.5):setTubeSize(1,"small"):setTubeLoadTime(1,10):
+	setWeaponTubeDirection(2,45):setTubeSize(2,"small"):setTubeLoadTime(2,10):
+	setWeaponTubeDirection(3,67.5):setTubeSize(3,"small"):setTubeLoadTime(3,10):
+	setWeaponTubeDirection(4,90):setTubeSize(4,"small"):setTubeLoadTime(4,10):
+	setWeaponTubeDirection(5,112.5):setTubeSize(5,"small"):setTubeLoadTime(5,10):
+	setWeaponTubeDirection(6,135):setTubeSize(6,"small"):setTubeLoadTime(6,10):
+	setWeaponTubeDirection(7,157.5):setTubeSize(7,"small"):setTubeLoadTime(7,10):
+	setWeaponTubeDirection(8,180):setTubeSize(8,"small"):setTubeLoadTime(8,10):
+	setWeaponTubeDirection(9,202.5):setTubeSize(9,"small"):setTubeLoadTime(9,10):
+	setWeaponTubeDirection(10,225):setTubeSize(10,"small"):setTubeLoadTime(10,10):
+	setWeaponTubeDirection(11,247.5):setTubeSize(11,"small"):setTubeLoadTime(11,10):
+	setWeaponTubeDirection(12,270):setTubeSize(12,"small"):setTubeLoadTime(12,10):
+	setWeaponTubeDirection(13,292.5):setTubeSize(13,"small"):setTubeLoadTime(13,10):
+	setWeaponTubeDirection(14,315):setTubeSize(14,"small"):setTubeLoadTime(14,10):
+	setWeaponTubeDirection(15,337.5):setTubeSize(15,"small"):setTubeLoadTime(15,10):
+	setWeaponStorageMax("Homing", 0):setWeaponStorage("Homing", 0):setWeaponStorageMax("HVLI", 200):setWeaponStorage("HVLI", 200):setAI("missilevolley"):
+	setTypeName("Cygnus")
+end
+function carolStage8()
+	-- rear beamed fighter
+	return CpuShip():
+		setTemplate("MU52 Hornet"):
+		setTypeName("Shield maiden"):
+		setBeamWeapon(0, 5, 0, 1, 20, 1):
+		setBeamWeapon(1, 5, 180, 2500, 4, 2):setBeamWeaponTurret(1, 90, 180, .3) -- AI needs a beam at the front to behave as expected
+		-- consider upping shields for name
+end
+function carolStage9()
+-- missilevolley with beams
+	return CpuShip():
+		setTemplate("Ktlitan Queen"):
+		setWeaponTubeCount(0):
+		setBeamWeapon(0, 30, -90, 3000, 4.0, 8.0):
+		setImpulseMaxSpeed(180):
+		setRotationMaxSpeed(7):
+		setBeamWeapon(1, 30, 90, 3000, 4.0, 8.0):
+		setAI("missilevolley"):
+		setHull(50):setHullMax(50):
+		setShields(40,40,40,40):setShieldsMax(40,40,40,40):
+		setTypeName("trance queen")
+end
+function carolStage10()
+	-- emp bomber
+	return CpuShip():
+		setTemplate("MT52 Hornet"):
+		setWeaponTubeCount(1):
+		setTypeName("Starlord"):
+		setTubeSize(0,"small"):setTubeLoadTime(0,15):
+		setWeaponStorageMax("EMP", 5):setWeaponStorage("EMP", 5):
+		setWeaponStorageMax("Homing",20):setWeaponStorage("Homing",20):
+		setBeamWeapon(0, 30, 0, 0, 0, 0)
+end
+function carolStage11()
+	-- storm but charges in
+	return CpuShip():
+		setTemplate("Storm"):
+		setAI("default"):
+		setWeaponStorageMax("Homing",0):setWeaponStorage("Homing",0):
+		setWeaponStorageMax("HVLI",30):setWeaponStorage("HVLI",30):
+		setWeaponTubeDirection(0,-5):setWeaponTubeDirection(1,-2.5):
+		setWeaponTubeDirection(2,0):
+		setWeaponTubeDirection(3,2.5):
+		setWeaponTubeDirection(4,5):
+		setBeamWeapon(0, 5, 0, 1250, 3.0, 2.0):setBeamWeaponTurret(0, 90, 0, 0.25):
+		setTubeSize(0,"small"):setTubeLoadTime(0,7.5):
+		setTubeSize(1,"small"):setTubeLoadTime(1,7.5):
+		setTubeSize(2,"small"):setTubeLoadTime(2,7.5):
+		setTubeSize(3,"small"):setTubeLoadTime(3,7.5):
+		setTubeSize(4,"small"):setTubeLoadTime(4,7.5):
+		setShields(75):setShieldsMax(75):
+		setImpulseMaxSpeed(60):
+		setTypeName("warcry")
+end
+function carolStage12()
+	-- fast fighter
+	return CpuShip():
+		setTemplate("MT52 Hornet"):
+		setImpulseMaxSpeed(350):
+		setRotationMaxSpeed(10):
+		setShieldsMax(10):
+		setShields(10):
+		setBeamWeapon(0, 20, 0, 800, 8, 6):
+		setTypeName("crescendo")
+end
+function carolSpawnSingle(stage,faction)
+	assert(type(stage)=="number")
+	assert(stage > 0 and stage <= 12)
+	local spawnFun={
+		carolStage1,	
+		carolStage2,
+		carolStage3,
+		carolStage4,
+		carolStage5,
+		carolStage6,
+		carolStage7,
+		carolStage8,
+		carolStage9,
+		carolStage10,
+		carolStage11,
+		carolStage12}
+	return spawnFun[stage](spawnFun)
 end
 function addChristmasArtifact(waypoints)
 	if #waypoints > 3 then
@@ -4925,6 +5168,660 @@ function newPhonySpaceObject()
 		isValid=function (self) return self.valid end,
 		destroy=function (self) self.valid=false end,
 	}
+end
+-- consider single scanning ships
+function carolStage(stage)
+	-- this wants to be merged with subspace rift
+	local x=722333
+	local y=88284
+	local all_objs = {}
+	local number_in_ring = stage*4
+	local clockwise_objs=createObjectCircle{number = number_in_ring}
+	for i=#clockwise_objs,1,-1 do
+		createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),10*stage,x,y,0)
+		table.insert(all_objs,clockwise_objs[i])
+	end
+	local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+	for i=#counterclockwise_objs,1,-1 do
+		createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-10*stage,x,y,0)
+		table.insert(all_objs,counterclockwise_objs[i])
+	end
+	local update_data = {
+		all_objs = all_objs,
+		current_radius = 0,
+		state = "expanding",
+		yet_to_spawn = stage,
+		update = function (self, obj, delta)
+			local size_per_stage=250
+			local max_radius = stage*size_per_stage
+			if self.state == "expanding" then
+				local max_time = stage*5
+				self.current_radius = self.current_radius+delta*(max_radius/max_time)
+				if self.current_radius >= max_radius then
+					self.state = "compressing"
+				end
+			end
+			if self.state=="compressing" then
+				local max_time = stage*1
+				self.current_radius = self.current_radius-delta*(max_radius/max_time)
+				for i=12,1,-1 do
+					if i<=self.yet_to_spawn and self.current_radius < size_per_stage*i then
+						createObjectCircle{x = x, y = y, number = i, radius = size_per_stage * i-0.5, start_angle = random(0,360), callback=function() return carolSpawnSingle(i,"Human Navy"):orderRoaming():setFaction("Kraylor") end}
+						self.yet_to_spawn = i - 1
+						local start_angle=random(0,360)
+						for j=1,i*4 do
+							local angle=start_angle+((360)/(i*4)*j)
+							local sx,sy=vectorFromAngle(angle,size_per_stage*i)
+							local dx,dy=vectorFromAngle(angle,1)
+							local art=Artifact():setPosition(x+sx,y+sy)
+--						end
+--						local tmp=createObjectCircle{number = i * 4, radius = size_per_stage * i, start_angle = random(0,360), x=x, y=y}
+--						for j=#tmp,1,-1 do
+--							tmp[j]:setCallSign(i) -- expand out?
+--							local dx,dy=vectorFromAngleNorth
+							update_system:addTimeToLiveUpdate(art,10)
+							update_system:addLinear(art,dx,dy,200)
+						end
+					end
+				end
+				if self.current_radius < 0 then
+					obj:destroy()
+					destroyEEtable(all_objs)
+				end
+			end
+			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+			for i=#all_objs,1,-1 do
+				update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+			end
+			local objs = getObjectsInRadius(x,y,self.current_radius)
+			for i=#objs,1,-1 do
+				if objs[i].typeName=="PlayerSpaceship" then
+					local player_x,player_y = objs[i]:getPosition()
+					local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
+					setCirclePos(objs[i],x,y,-angle,self.current_radius)
+				end
+			end
+		end,
+		edit = {},
+		name = "carol"
+	}
+	update_system:addUpdate(newPhonySpaceObject(),"carol",update_data)
+end
+function santaContainment()
+	local station1 = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(754655, 62391):setCallSign("Polaris"):setDescription("Research base for extra dimensional threat 8"):setCommsFunction(commsStation)
+
+    station1.comms_data = {
+    	friendlyness = 75,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
+        weapon_available = 	{Homing = true,HVLI = true,		Mine = true,		Nuke = true,			EMP = true},
+        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Adder MK5",
+			DF7 = "Adder MK5",
+			DF8 = "Adder MK5",
+    	},
+	}
+
+	--stocking
+    Nebula():setPosition(684797, 117999)
+    Nebula():setPosition(682587, 112910)
+    Nebula():setPosition(682922, 116124)
+    Nebula():setPosition(687944, 121883)
+    Nebula():setPosition(685935, 110567)
+    Nebula():setPosition(689350, 108491)
+    Nebula():setPosition(695778, 118535)
+    Nebula():setPosition(692899, 113245)
+    Nebula():setPosition(689685, 126369)
+    Nebula():setPosition(694171, 135609)
+    Nebula():setPosition(683458, 136212)
+    Nebula():setPosition(686002, 132261)
+    Nebula():setPosition(698657, 124159)
+    Nebula():setPosition(688948, 140765)
+    Nebula():setPosition(698390, 130319)
+    local stocking=SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("stocking"):setPosition(682370, 144143):setCommsFunction(commsStation)
+	stocking.comms_data = {
+    	friendlyness = 75,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
+        weapon_available = 	{Homing = true,HVLI = true,		Mine = true,		Nuke = true,			EMP = true},
+        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Adder MK5",
+			DF7 = "Adder MK5",
+			DF8 = "Adder MK5",
+    	},
+	}
+
+    local b1=BlackHole()
+    local b2=BlackHole():setPosition(659200, 133568)
+	update_system:addOrbitTargetUpdate(b1,b2,11000,180)
+-- snowman
+    Nebula():setPosition(675511, 65243)
+    Nebula():setPosition(671010, 69519)
+    Nebula():setPosition(673110, 75220)
+    Nebula():setPosition(689764, 63142)
+    Nebula():setPosition(682188, 62542)
+    Nebula():setPosition(684363, 71319)
+    Nebula():setPosition(678737, 74545)
+    Nebula():setPosition(686839, 79346)
+    Nebula():setPosition(689222, 52434)
+    Nebula():setPosition(678457, 56620)
+    Nebula():setPosition(693290, 74995)
+    Nebula():setPosition(692765, 67868)
+    Nebula():setPosition(678287, 80171)
+    Nebula():setPosition(687946, 49045)
+    Nebula():setPosition(686870, 55982)
+    Nebula():setPosition(683042, 54786)
+    Nebula():setPosition(676663, 51836)
+    Nebula():setPosition(679175, 49244)
+    Nebula():setPosition(684119, 48168)
+    Nebula():setPosition(681129, 41430)
+    Nebula():setPosition(679773, 36606)
+    Nebula():setPosition(683361, 35490)
+    Nebula():setPosition(686551, 40434)
+
+
+--candy cane nebula
+    Nebula():setPosition(741154, 111647)
+    Nebula():setPosition(746369, 107069)
+    Nebula():setPosition(753613, 104230)
+    Nebula():setPosition(766825, 121672)
+    Nebula():setPosition(766825, 116573)
+    Nebula():setPosition(766477, 110894)
+    Nebula():setPosition(762653, 105910)
+    Nebula():setPosition(766303, 127351)
+    Nebula():setPosition(765840, 132972)
+    Nebula():setPosition(765724, 139230)
+    Nebula():setPosition(765028, 144851)
+    Nebula():setPosition(765434, 150820)
+
+    Asteroid():setPosition(753202, 47301)
+    Asteroid():setPosition(752202, 47339)
+    Mine():setPosition(751180, 47831)
+    Asteroid():setPosition(752989, 48612)
+    Mine():setPosition(752379, 47814)
+    Asteroid():setPosition(750702, 47395)
+    Asteroid():setPosition(751202, 47376)
+    Asteroid():setPosition(752702, 47320)
+    Asteroid():setPosition(751702, 47358)
+    Asteroid():setPosition(752130, 49124)
+    Asteroid():setPosition(752559, 48868)
+    Asteroid():setPosition(751272, 49636)
+    Asteroid():setPosition(751700, 49380)
+    Asteroid():setPosition(750842, 49893)
+    Asteroid():setPosition(750412, 50149)
+    Asteroid():setPosition(751196, 45694)
+    Asteroid():setPosition(751612, 45416)
+    Asteroid():setPosition(752859, 44584)
+    Asteroid():setPosition(752028, 45139)
+    Asteroid():setPosition(752444, 44862)
+    Asteroid():setPosition(750364, 46248)
+    Asteroid():setPosition(750779, 45971)
+    Asteroid():setPosition(749218, 53079)
+    Asteroid():setPosition(748718, 53088)
+    Asteroid():setPosition(750218, 53062)
+    Asteroid():setPosition(750718, 53054)
+    Asteroid():setPosition(749718, 53071)
+    Asteroid():setPosition(751218, 53045)
+    Asteroid():setPosition(748694, 51173)
+    Asteroid():setPosition(748266, 51429)
+    Asteroid():setPosition(749984, 50405)
+    Asteroid():setPosition(749554, 50661)
+    Asteroid():setPosition(749124, 50917)
+    Asteroid():setPosition(753218, 53012)
+    Asteroid():setPosition(752718, 53020)
+    Asteroid():setPosition(753418, 48356)
+    Asteroid():setPosition(752218, 53029)
+    Asteroid():setPosition(751718, 53037)
+    Asteroid():setPosition(749204, 47452)
+    Asteroid():setPosition(748699, 47358)
+    Asteroid():setPosition(748704, 47471)
+    Asteroid():setPosition(749532, 46803)
+    Asteroid():setPosition(749116, 47080)
+    Asteroid():setPosition(749948, 46526)
+    Asteroid():setPosition(750204, 47414)
+    Asteroid():setPosition(749704, 47433)
+    Mine():setPosition(749980, 47848)
+    Mine():setPosition(748780, 47865)
+    Asteroid():setPosition(751668, 59295)
+    Asteroid():setPosition(751168, 59291)
+    Asteroid():setPosition(750168, 59282)
+    Asteroid():setPosition(750668, 59286)
+    Asteroid():setPosition(748168, 59264)
+    Asteroid():setPosition(748668, 59268)
+    Asteroid():setPosition(749668, 59277)
+    Asteroid():setPosition(749168, 59273)
+    Asteroid():setPosition(752168, 59300)
+    Asteroid():setPosition(753168, 59309)
+    Asteroid():setPosition(752668, 59304)
+    Asteroid():setPosition(752419, 54473)
+    Asteroid():setPosition(751984, 54718)
+    Asteroid():setPosition(753292, 53982)
+    Asteroid():setPosition(752856, 54227)
+    Mine():setPosition(750774, 53506)
+    Mine():setPosition(751974, 53501)
+    Asteroid():setPosition(750676, 55453)
+    Asteroid():setPosition(751548, 54963)
+    Asteroid():setPosition(751112, 55208)
+    Asteroid():setPosition(750242, 55698)
+    Asteroid():setPosition(749806, 55943)
+    Asteroid():setPosition(749369, 56188)
+    Asteroid():setPosition(748934, 56434)
+    Asteroid():setPosition(748062, 56924)
+    Asteroid():setPosition(748498, 56679)
+    Mine():setPosition(748374, 53514)
+    Mine():setPosition(749574, 53510)
+    Asteroid():setPosition(748218, 53096)
+    Asteroid():setPosition(746548, 52453)
+    Asteroid():setPosition(746118, 52709)
+    Mine():setPosition(747174, 53518)
+    Asteroid():setPosition(746719, 53122)
+    Asteroid():setPosition(747219, 53113)
+    Asteroid():setPosition(745688, 52965)
+    Asteroid():setPosition(745719, 53138)
+    Asteroid():setPosition(746219, 53130)
+    Mine():setPosition(745974, 53522)
+    Asteroid():setPosition(747406, 51941)
+    Asteroid():setPosition(747836, 51685)
+    Asteroid():setPosition(746976, 52197)
+    Asteroid():setPosition(747718, 53105)
+    Asteroid():setPosition(744576, 58885)
+    Asteroid():setPosition(744668, 59233)
+    Asteroid():setPosition(745168, 59237)
+    Asteroid():setPosition(745012, 58640)
+    Asteroid():setPosition(745448, 58395)
+    Asteroid():setPosition(747190, 57414)
+    Asteroid():setPosition(747626, 57169)
+    Asteroid():setPosition(746754, 57659)
+    Asteroid():setPosition(746318, 57904)
+    Asteroid():setPosition(745884, 58150)
+    Asteroid():setPosition(746668, 59250)
+    Asteroid():setPosition(746168, 59246)
+    Asteroid():setPosition(745668, 59242)
+    Asteroid():setPosition(747168, 59255)
+    Asteroid():setPosition(747668, 59259)
+    Mine():setPosition(748029, 59973)
+    Mine():setPosition(749229, 59994)
+    Mine():setPosition(744430, 59910)
+    Mine():setPosition(745630, 59931)
+    Mine():setPosition(746830, 59952)
+    Mine():setPosition(752829, 60056)
+    Mine():setPosition(750429, 60015)
+    Mine():setPosition(751629, 60035)
+    Asteroid():setPosition(760842, 53088)
+    Asteroid():setPosition(760842, 53088)
+    Asteroid():setPosition(759842, 53071)
+    Asteroid():setPosition(759842, 53071)
+    Asteroid():setPosition(760342, 53079)
+    Asteroid():setPosition(760342, 53079)
+    Asteroid():setPosition(761342, 53096)
+    Mine():setPosition(761186, 53514)
+    Mine():setPosition(762386, 53518)
+    Asteroid():setPosition(762584, 52197)
+    Asteroid():setPosition(762584, 52197)
+    Asteroid():setPosition(761342, 53096)
+    Asteroid():setPosition(761842, 53105)
+    Asteroid():setPosition(763014, 52453)
+    Asteroid():setPosition(761842, 53105)
+    Asteroid():setPosition(762342, 53113)
+    Asteroid():setPosition(762342, 53113)
+    Asteroid():setPosition(762842, 53122)
+    Asteroid():setPosition(762842, 53122)
+    Asteroid():setPosition(762154, 51941)
+    Asteroid():setPosition(762154, 51941)
+    Asteroid():setPosition(761726, 51685)
+    Asteroid():setPosition(761726, 51685)
+    Asteroid():setPosition(761296, 51429)
+    Asteroid():setPosition(761296, 51429)
+    Asteroid():setPosition(761064, 56679)
+    Asteroid():setPosition(761064, 56679)
+    Asteroid():setPosition(761498, 56924)
+    Asteroid():setPosition(761498, 56924)
+    Asteroid():setPosition(760192, 56188)
+    Asteroid():setPosition(760192, 56188)
+    Asteroid():setPosition(760628, 56434)
+    Asteroid():setPosition(760628, 56434)
+    Asteroid():setPosition(763342, 53130)
+    Asteroid():setPosition(763342, 53130)
+    Asteroid():setPosition(763014, 52453)
+    Asteroid():setPosition(760866, 51173)
+    Asteroid():setPosition(760866, 51173)
+    Asteroid():setPosition(763442, 52709)
+    Asteroid():setPosition(763442, 52709)
+    Asteroid():setPosition(760436, 50917)
+    Asteroid():setPosition(760436, 50917)
+    Asteroid():setPosition(760008, 50661)
+    Asteroid():setPosition(760008, 50661)
+    Mine():setPosition(759986, 53510)
+    Asteroid():setPosition(759342, 53062)
+    Asteroid():setPosition(759342, 53062)
+    Asteroid():setPosition(759756, 55943)
+    Asteroid():setPosition(759756, 55943)
+    Asteroid():setPosition(759319, 55698)
+    Asteroid():setPosition(759319, 55698)
+    Asteroid():setPosition(758884, 55453)
+    Asteroid():setPosition(758884, 55453)
+    Asteroid():setPosition(763242, 57904)
+    Asteroid():setPosition(763242, 57904)
+    Asteroid():setPosition(762806, 57659)
+    Asteroid():setPosition(762806, 57659)
+    Asteroid():setPosition(763678, 58150)
+    Asteroid():setPosition(763678, 58150)
+    Asteroid():setPosition(763392, 59246)
+    Asteroid():setPosition(763392, 59246)
+    Asteroid():setPosition(762894, 59250)
+    Asteroid():setPosition(762894, 59250)
+    Asteroid():setPosition(762394, 59255)
+    Asteroid():setPosition(762394, 59255)
+    Asteroid():setPosition(762370, 57414)
+    Asteroid():setPosition(762370, 57414)
+    Asteroid():setPosition(761934, 57169)
+    Asteroid():setPosition(761934, 57169)
+    Asteroid():setPosition(759578, 50405)
+    Asteroid():setPosition(759578, 50405)
+    Asteroid():setPosition(758842, 53054)
+    Asteroid():setPosition(759148, 50149)
+    Asteroid():setPosition(759148, 50149)
+    Asteroid():setPosition(760358, 47452)
+    Asteroid():setPosition(760856, 47471)
+    Asteroid():setPosition(760856, 47471)
+    Asteroid():setPosition(760862, 47358)
+    Asteroid():setPosition(760862, 47358)
+    Asteroid():setPosition(759858, 47433)
+    Asteroid():setPosition(760029, 46803)
+    Asteroid():setPosition(760029, 46803)
+    Asteroid():setPosition(760446, 47080)
+    Asteroid():setPosition(760446, 47080)
+    Asteroid():setPosition(759614, 46526)
+    Asteroid():setPosition(759614, 46526)
+    Asteroid():setPosition(759358, 47414)
+    Asteroid():setPosition(758858, 47395)
+    Mine():setPosition(759580, 47848)
+    Asteroid():setPosition(760358, 47452)
+    Mine():setPosition(760780, 47865)
+    Asteroid():setPosition(759358, 47414)
+    Asteroid():setPosition(759858, 47433)
+    Asteroid():setPosition(758858, 47395)
+    Asteroid():setPosition(759198, 46248)
+    Asteroid():setPosition(759198, 46248)
+    Asteroid():setPosition(763842, 53138)
+    Asteroid():setPosition(763842, 53138)
+    Asteroid():setPosition(755342, 52995)
+    Asteroid():setPosition(755342, 52995)
+    Asteroid():setPosition(756342, 53012)
+    Asteroid():setPosition(755842, 53003)
+    Asteroid():setPosition(755842, 53003)
+    Asteroid():setPosition(757842, 53037)
+    Asteroid():setPosition(758342, 53045)
+    Asteroid():setPosition(757842, 53037)
+    Asteroid():setPosition(758342, 53045)
+    Asteroid():setPosition(756842, 53020)
+    Asteroid():setPosition(756342, 53012)
+    Asteroid():setPosition(756842, 53020)
+    Asteroid():setPosition(757342, 53029)
+    Asteroid():setPosition(757342, 53029)
+    Asteroid():setPosition(757002, 48868)
+    Asteroid():setPosition(757002, 48868)
+    Asteroid():setPosition(757430, 49124)
+    Asteroid():setPosition(757430, 49124)
+    Asteroid():setPosition(757860, 49380)
+    Asteroid():setPosition(757860, 49380)
+    Asteroid():setPosition(758289, 49636)
+    Asteroid():setPosition(758289, 49636)
+    Asteroid():setPosition(755284, 47844)
+    Asteroid():setPosition(755360, 47263)
+    Asteroid():setPosition(755360, 47263)
+    Asteroid():setPosition(755860, 47282)
+    Asteroid():setPosition(755860, 47282)
+    Asteroid():setPosition(756359, 47301)
+    Asteroid():setPosition(756859, 47320)
+    Asteroid():setPosition(756859, 47320)
+    Mine():setPosition(757182, 47814)
+    Asteroid():setPosition(758358, 47376)
+    Asteroid():setPosition(757858, 47358)
+    Asteroid():setPosition(757858, 47358)
+    Asteroid():setPosition(757359, 47339)
+    Asteroid():setPosition(757359, 47339)
+    Asteroid():setPosition(755869, 44030)
+    Asteroid():setPosition(755869, 44030)
+    Asteroid():setPosition(756286, 44307)
+    Asteroid():setPosition(756286, 44307)
+    Asteroid():setPosition(755454, 43752)
+    Asteroid():setPosition(755038, 43475)
+    Asteroid():setPosition(757949, 45416)
+    Asteroid():setPosition(757534, 45139)
+    Asteroid():setPosition(757534, 45139)
+    Asteroid():setPosition(756702, 44584)
+    Asteroid():setPosition(756702, 44584)
+    Asteroid():setPosition(757949, 45416)
+    Asteroid():setPosition(757118, 44862)
+    Asteroid():setPosition(757118, 44862)
+    Asteroid():setPosition(755712, 48100)
+    Asteroid():setPosition(755712, 48100)
+    Asteroid():setPosition(756359, 47301)
+    Asteroid():setPosition(755284, 47844)
+    Mine():setPosition(755982, 47797)
+    Asteroid():setPosition(756142, 48356)
+    Asteroid():setPosition(756142, 48356)
+    Asteroid():setPosition(756572, 48612)
+    Asteroid():setPosition(756572, 48612)
+    Asteroid():setPosition(754699, 47244)
+    Asteroid():setPosition(754862, 47244)
+    Asteroid():setPosition(754862, 47244)
+    Asteroid():setPosition(754854, 47588)
+    Asteroid():setPosition(754854, 47588)
+    Asteroid():setPosition(754200, 47263)
+    Asteroid():setPosition(754962, 53247)
+    Asteroid():setPosition(754844, 52986)
+    Asteroid():setPosition(755398, 53492)
+    Asteroid():setPosition(754894, 59322)
+    Asteroid():setPosition(754218, 52995)
+    Asteroid():setPosition(755834, 53737)
+    Mine():setPosition(753579, 47797)
+    Asteroid():setPosition(754844, 52986)
+    Asteroid():setPosition(754718, 52986)
+    Asteroid():setPosition(753718, 53003)
+    Asteroid():setPosition(756269, 53982)
+    Asteroid():setPosition(756706, 54227)
+    Asteroid():setPosition(754708, 47588)
+    Asteroid():setPosition(754278, 47844)
+    Asteroid():setPosition(753848, 48100)
+    Asteroid():setPosition(753700, 47282)
+    Asteroid():setPosition(753276, 44307)
+    Asteroid():setPosition(753692, 44030)
+    Asteroid():setPosition(754108, 43752)
+    Asteroid():setPosition(757142, 54473)
+    Asteroid():setPosition(757576, 54718)
+    Asteroid():setPosition(758012, 54963)
+    Asteroid():setPosition(755454, 43752)
+    Asteroid():setPosition(755038, 43475)
+    Asteroid():setPosition(754524, 43475)
+    Asteroid():setPosition(757894, 59295)
+    Asteroid():setPosition(758358, 47376)
+    Asteroid():setPosition(758366, 45694)
+    Asteroid():setPosition(758366, 45694)
+    Asteroid():setPosition(756894, 59304)
+    Asteroid():setPosition(755394, 59318)
+    Asteroid():setPosition(754894, 59322)
+    Asteroid():setPosition(756706, 54227)
+    Asteroid():setPosition(757142, 54473)
+    Asteroid():setPosition(755894, 59313)
+    Asteroid():setPosition(756394, 59309)
+    Asteroid():setPosition(755894, 59313)
+    Asteroid():setPosition(756894, 59304)
+    Asteroid():setPosition(756394, 59309)
+    Asteroid():setPosition(755394, 59318)
+    Asteroid():setPosition(757394, 59300)
+    Asteroid():setPosition(757394, 59300)
+    Asteroid():setPosition(753728, 53737)
+    Asteroid():setPosition(755834, 53737)
+    Asteroid():setPosition(756269, 53982)
+    Asteroid():setPosition(754168, 59318)
+    Asteroid():setPosition(753668, 59313)
+    Asteroid():setPosition(754668, 59322)
+    Asteroid():setPosition(754164, 53492)
+    Asteroid():setPosition(758012, 54963)
+    Asteroid():setPosition(757576, 54718)
+    Asteroid():setPosition(757894, 59295)
+    Asteroid():setPosition(760394, 59273)
+    Asteroid():setPosition(754962, 53247)
+    Asteroid():setPosition(754598, 53247)
+    Asteroid():setPosition(755398, 53492)
+    Mine():setPosition(753174, 53497)
+    Mine():setPosition(756386, 53497)
+    Mine():setPosition(757586, 53501)
+    Asteroid():setPosition(760394, 59273)
+    Asteroid():setPosition(759394, 59282)
+    Asteroid():setPosition(759894, 59277)
+    Asteroid():setPosition(760894, 59268)
+    Asteroid():setPosition(761894, 59259)
+    Asteroid():setPosition(758448, 55208)
+    Asteroid():setPosition(758448, 55208)
+    Asteroid():setPosition(758394, 59291)
+    Asteroid():setPosition(758394, 59291)
+    Asteroid():setPosition(760894, 59268)
+    Asteroid():setPosition(758894, 59286)
+    Asteroid():setPosition(759894, 59277)
+    Asteroid():setPosition(759394, 59282)
+    Asteroid():setPosition(758894, 59286)
+    Asteroid():setPosition(761394, 59264)
+    Asteroid():setPosition(761394, 59264)
+    Asteroid():setPosition(763872, 52965)
+    Asteroid():setPosition(763872, 52965)
+    Asteroid():setPosition(758842, 53054)
+    Mine():setPosition(758786, 53506)
+    Asteroid():setPosition(758718, 49893)
+    Asteroid():setPosition(758718, 49893)
+    Mine():setPosition(758380, 47831)
+    Asteroid():setPosition(764392, 59237)
+    Asteroid():setPosition(764892, 59233)
+    Asteroid():setPosition(764892, 59233)
+    Asteroid():setPosition(765392, 59228)
+    Asteroid():setPosition(765422, 59130)
+    Asteroid():setPosition(764986, 58885)
+    Asteroid():setPosition(764986, 58885)
+    Asteroid():setPosition(761894, 59259)
+    Asteroid():setPosition(758782, 45971)
+    Asteroid():setPosition(758782, 45971)
+    Asteroid():setPosition(764114, 58395)
+    Asteroid():setPosition(764114, 58395)
+    Asteroid():setPosition(764549, 58640)
+    Asteroid():setPosition(763892, 59242)
+    Asteroid():setPosition(763892, 59242)
+    Asteroid():setPosition(764392, 59237)
+    Mine():setPosition(765130, 59910)
+    Asteroid():setPosition(764549, 58640)
+    Mine():setPosition(762730, 59952)
+    Mine():setPosition(763930, 59931)
+    Asteroid():setPosition(765392, 59228)
+    Asteroid():setPosition(765422, 59130)
+    Mine():setPosition(763586, 53522)
+    Mine():setPosition(756732, 60056)
+    Mine():setPosition(761532, 59973)
+    Mine():setPosition(760332, 59994)
+    Mine():setPosition(759132, 60015)
+    Mine():setPosition(757932, 60035)
+
+
+	local x=722333
+	local y=88284
+	local santa=Artifact():setPosition(x,y):setDescription("A contained extra dimensional ship inside of a weakening stasis bubble")
+	-- this is kind of alarmingly inefficient
+	-- also the tracking logic deep inside of christmasArtifact can get quite expensive if delta becomes large
+	-- overall if I had to give a rating for this code it is terrifying
+	-- there are situations where the can cause a casscading failure, the christmasArtifact update takes longer
+	-- resulting in larger deltas, resulting in more being spawn and cycling to a server hang
+	-- this was observed in testing
+	-- since then numbers have been dialed down
+	-- there really should be a linear update option in the sandbox - that can be done cheaper here and remove this risk
+	-- tl;dr - DONT USE THIS IN GENERIC CODE IT MAY CAUSE SANDBOX HANGS
+	update_system:addPeriodicCallback(santa,
+		function (self,obj)
+			for i=1,irandom(1,5) do
+				local dx,dy=vectorFromAngle(irandom(0,360),200000)
+				addChristmasArtifact({{x=x,y=y},{x=x,y=y},{x=x+dx,y=y+dy},{x=x+dx,y=y+dy}})
+			end
+		end,60,60,60)
+
+	-- statis stations
+	local commsFun = function ()
+		setCommsMessage("This is an automated stasis bubble generator \n You have permission to contact the operator of this station")
+		addCommsReply("Contact operator",function () commsSwitchToGM() end)
+		commsSwitchToGM()
+		return true
+	end
+	local make_sts=function ()
+		return SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCanBeDestroyed(false):setCommsFunction(commsFun):setSharesEnergyWithDocked(false):setRepairDocked(false):setRestocksScanProbes(false):setRestocksMissilesDocked(false)
+	end
+	local station_offset=20000
+	local station_up=make_sts():setPosition(x,y-station_offset):setCallSign("Sts 8a"):setDescription("Northen stasis generator")
+	local station_right=make_sts():setPosition(x+station_offset,y):setCallSign("Sts 8b"):setDescription("Eastern stasis generator")
+	local station_down=make_sts():setPosition(x,y+station_offset):setCallSign("Sts 8c"):setDescription("Southern stasis generator")
+	local station_left=make_sts():setPosition(x-station_offset,y):setCallSign("Sts 8d"):setDescription("Western stasis generator")
+	-- the stasis field between them
+	local speed=2400
+	local pulse_time=1.2*distance(station_up,station_left)/speed-- all stations are the same distnace apart
+	local criss_cross=newPhonySpaceObject()
+	-- there probabaly should be a addLinearUpdate
+	-- though the chasing update nicely manages to get rid of the object
+	-- and the CPU time for recaulculating path each time is probably minimal
+	local desc="Energy wave from a charging stasis bubble"
+	update_system:addPeriodicCallback(criss_cross,
+		function (self, obj)
+			update_system:addChasingUpdate(Artifact():setPosition(station_up:getPosition()):setDescription(desc), station_left, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_up:getPosition()):setDescription(desc), station_right, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_down:getPosition()):setDescription(desc), station_left, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_down:getPosition()):setDescription(desc), station_right, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_left:getPosition()):setDescription(desc), station_down, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_left:getPosition()):setDescription(desc), station_up, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_right:getPosition()):setDescription(desc), station_up, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_right:getPosition()):setDescription(desc), station_down, speed, nil)
+		end,pulse_time,pulse_time)
+	local pulse=newPhonySpaceObject()
+	update_system:addPeriodicCallback(pulse,
+		function (self,obj)
+			update_system:addChasingUpdate(Artifact():setPosition(station_up:getPosition()):setDescription(desc), santa, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_down:getPosition()):setDescription(desc), santa, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_left:getPosition()):setDescription(desc), santa, speed, nil)
+			update_system:addChasingUpdate(Artifact():setPosition(station_right:getPosition()):setDescription(desc), santa, speed, nil)
+			local periodic=update_system:getUpdateNamed(pulse,"periodic callback")
+		end,15,15,30)
 end
 function mollyGuardLoadDescription()
 	clearGMFunctions()
