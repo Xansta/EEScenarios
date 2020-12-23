@@ -7629,7 +7629,7 @@ function exuariHarassment(delta)
 		if plot1_fleet_count < 1 then
 			if exuari_harassing_station ~= nil and exuari_harassing_station:isValid() then
 				if plot1_timer == nil then
-					plot1_timer = delta + 500 + random(1,30) - (difficulty * 100)
+					plot1_timer = delta + 400 + random(1,30) - (difficulty * 100)
 					plot1_fleets_destroyed = plot1_fleets_destroyed + 1
 				end
 				plot1_timer = plot1_timer - delta
