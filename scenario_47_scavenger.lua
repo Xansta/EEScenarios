@@ -125,7 +125,7 @@ function init()
 	first_station.comms_data.weapon_available.Homing = true
 	first_station.comms_data.weapon_available.EMP = true
 	first_station.comms_data.weapon_available.Nuke = true
-	first_station.comms_data.weapon_cost = {Homing = 2, HV, HVLI = math.random(1,3), Mine = math.random(2,5), Nuke = 12, EMP = 9}
+	first_station.comms_data.weapon_cost = {Homing = 2, HVLI = math.random(1,3), Mine = math.random(2,5), Nuke = 12, EMP = 9}
 	local fsx = psx
 	local fsy = psy
 --	print("init: place first enemy station")
