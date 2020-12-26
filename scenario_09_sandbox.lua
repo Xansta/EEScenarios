@@ -6329,6 +6329,23 @@ function changeTerrain()
 			changeTerrain()
 		end)
 	end
+	if icarus_color then
+		if wormhole_tour then
+			addGMFunction("Del Wormhole Tour",function()
+				wormhole_tour = false
+				if wormhole_tour_stuff ~= nil then
+					for _, dw in pairs(wormhole_tour_stuff) do
+						dw:destroy()
+					end
+				end			
+			end)
+		else
+			addGMFunction("Add Wormhole tour",function()
+				wormhole_tour = true
+				wormhole_tour_stuff = wormholeTour()
+			end)
+		end
+	end
 end
 -- Icarus area stations, asteroids, mines, etc. 
 function icarusSector()
@@ -6343,7 +6360,6 @@ function icarusSector()
 		end,
 		objects = {}
 	}
-
 	-- Ghost jump trace (from moons GM session @ 2020-07-18)
 	local art=Artifact():setPosition(37333, 27778)
 	update_system:addPeriodicCallback(art,
@@ -6352,7 +6368,6 @@ function icarusSector()
 		end
 		,0.1)
 	table.insert(ret.objects,art)
-
 	return ret
 end
 function createIcarusColor()
@@ -8021,6 +8036,158 @@ function createFinneganFeatures()
     planet_pillory:setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.1,0.6,0.1)
     planet_pillory:setCallSign("Pillory"):setOrbit(planet_strat,2500)
     table.insert(feature_list,planet_pillory)
+    return feature_list
+end
+function wormholeTour()
+	local feature_list = {}
+--	I90 north of Lafrina, west of Icarus
+	table.insert(feature_list,WormHole():setPosition(-280955, 79017):setTargetPosition(-320252, 653528))
+	table.insert(feature_list,BlackHole():setPosition(-290344, 73094))
+--	F88 south of Lafrina
+	table.insert(
+		feature_list,
+		WormHole():setPosition(-323252, 653528):setTargetPosition(319531, 616181):onTeleportation(function(self, teleportee)
+			local wep_x = 319531
+			local wep_y = 617181
+			local vx, vy = vectorFromAngle(random(0,360),random(50,500))
+		    self:setTargetPosition(wep_x + vx, wep_y + vy)
+		end)
+	)
+	local asteroidCoordinates = {
+		{-346106, 680515, 379},
+		{-345466, 679052, 214},
+		{-345969, 679235, 256},
+		{-340666, 676994, 338},
+		{-337145, 678183, 249},
+		{-337602, 665793, 297},
+		{-338288, 664467, 283},
+		{-336459, 664696, 230},
+		{-338197, 662958, 207},
+		{-350541, 677726, 150},
+		{-345695, 678595, 340},
+		{-345192, 678503, 241},
+		{-337419, 674388, 314},
+		{-338882, 671234, 331},
+		{-347844, 674388, 219},
+		{-344872, 671965, 275},
+		{-341397, 672560, 257},
+		{-332893, 663736, 257},
+		{-334905, 663827, 248},
+		{-332847, 661907, 272},
+		{-335773, 661907, 184},
+		{-334173, 661221, 268},
+		{-337008, 666707, 215},
+		{-337511, 668033, 265},
+		{-337556, 667256, 172},
+		{-341260, 665884, 266},
+		{-342494, 668628, 304},
+		{-338379, 667347, 281},
+		{-336551, 667073, 244},
+		{-335910, 670502, 182},
+		{-334585, 667667, 165},
+		{-330424, 660581, 311},
+		{-331293, 662547, 233},
+		{-333442, 656832, 275},
+		{-333030, 658798, 316},
+		{-334585, 658843, 289},
+		{-331110, 659118, 266},
+		{-329510, 656374, 228},
+		{-328279, 656363, 247},
+		{-326711, 656461, 257},
+		{-330744, 655551, 328},
+		{-330104, 654637, 249},
+		{-328138, 652305, 312},
+		{-329372, 653082, 248},
+		{-329098, 654911, 261},
+		{-328504, 654317, 190},
+		{-323474, 648647, 316},
+		{-324800, 648693, 246},
+		{-328138, 651528, 289},
+		{-327818, 650705, 346},
+		{-326629, 649196, 136},
+		{-325029, 650019, 273},
+		{-324434, 649608, 282},
+		{-326629, 652351, 324},
+		{-327299, 654501, 240},
+		{-326949, 651208, 178},
+		{-327361, 652900, 260},
+		{-330333, 656237, 326},
+		{-331796, 657929, 295},
+		{-331476, 656466, 249},
+		{-326417, 657539, 217},
+		{-328181, 658323, 235},
+		{-326126, 649973, 239},
+		{-325943, 650796, 225},
+		{-325349, 649242, 257},
+		--E20
+    	{321053, 628901, 278},
+    	{320642, 628474, 176},
+    	{318054, 629098, 330},
+    	{318404, 629281, 294},
+    	{319592, 624578, 347},
+    	{318770, 629753, 258},
+    	{320505, 628794, 181},
+    	{319820, 629372, 249},
+    	{320231, 629418, 177},
+    	{320718, 629281, 200},
+    	{319548, 622373, 178},
+    	{318905, 621872, 209},
+    	{318968, 629357, 236},
+    	{318359, 628657, 248},
+    	{318831, 628018, 206},
+    	{318815, 628809, 299},
+    	{320248, 621948, 182},
+    	{319397, 622827, 244},
+    	{319019, 622439, 235},
+    	{319444, 621910, 286},
+    	{319784, 622175, 296},
+    	{319510, 623290, 228},
+    	{319406, 623706, 237},
+    	{319945, 622808, 211},
+    	{319652, 623517, 163},
+    	{319567, 625681, 226},
+    	{319633, 626163, 310},
+    	{319662, 624122, 315},
+    	{319576, 625029, 192},
+    	{320040, 627515, 207},
+    	{320219, 627997, 241},
+    	{319482, 626626, 255},
+    	{319718, 626882, 268},
+    	{319113, 627638, 257},
+    	{318877, 628422, 285},
+    	{319690, 627468, 347},
+    	{319387, 627175, 242},
+    	{319454, 629027, 198},
+    	{319992, 628318, 325},
+    	{320021, 628942, 317},
+    	{319340, 628583, 127},
+    	{319633, 627846, 262},
+    	{319321, 628148, 353},
+    	{320307, 629890, 235},
+    	{319455, 629890, 189},
+    }
+--	E20 southeast of Kentar
+	table.insert(feature_list,BlackHole():setPosition(314508, 624940))
+	table.insert(
+		feature_list,
+		WormHole():setPosition(319531, 619181):setTargetPosition(258703, -420658):onTeleportation(function(self, teleportee)
+			local wep_x = 258703
+			local wep_y = -420658
+			local vx, vy = vectorFromAngle(random(0,360),random(50,200))
+		    self:setTargetPosition(wep_x + vx, wep_y + vy)
+		end)
+	)
+	table.insert(feature_list,WarpJammer():setFaction("Independent"):setPosition(319664, 628392))
+	table.insert(feature_list,BlackHole():setPosition(324682, 624964))
+--	ZJ17 Near north end of linked Cindy's folly wormhole pair
+	table.insert(feature_list,Nebula():setPosition(261439, -423676))
+	table.insert(feature_list,Nebula():setPosition(255314, -422770))
+	table.insert(feature_list,WormHole():setPosition(258056, -424035):setTargetPosition(-282955, 79017))
+    for i=1,#asteroidCoordinates do
+    	local staticAsteroid = Asteroid():setPosition(asteroidCoordinates[i][1],asteroidCoordinates[i][2]):setSize(asteroidCoordinates[i][3])
+    	staticAsteroid.original_size = asteroidCoordinates[i][3]
+    	table.insert(feature_list,staticAsteroid)
+    end
     return feature_list
 end
 -- Kentar area stations, asteroids, mines, etc. 
