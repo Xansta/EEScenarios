@@ -152,17 +152,25 @@ function createSkeletonUniverse()
     wormhole_cindy:onTeleportation(function(self, teleportee)
 		local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
 		local wc_exit_x, wc_exit_y = vectorFromAngle(random(0,360),random(2000,2500))
-	    self:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
-	    if teleportee.typeName == "PlayerSpaceship" then
-	    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+		if self ~= nil then
+		    self:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
+		end
+		if teleportee ~= nil then
+		    if teleportee.typeName == "PlayerSpaceship" then
+		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+			end
 		end
     end)
     wormhole_exuari_pirate:onTeleportation(function(self, teleportee)
 		local wc_x, wc_y = wormhole_cindy:getPosition()
 		local wep_exit_x, wep_exit_y = vectorFromAngle(random(0,300),random(2000,2500))
-		self:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
-	    if teleportee.typeName == "PlayerSpaceship" then
-	    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+		if self ~= nil then
+			self:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
+		end
+		if teleportee ~= nil then
+		    if teleportee.typeName == "PlayerSpaceship" then
+		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+			end
 		end
     end)
     --Astron
@@ -8050,7 +8058,9 @@ function wormholeTour()
 			local wep_x = 319531
 			local wep_y = 617181
 			local vx, vy = vectorFromAngle(random(0,360),random(50,500))
-		    self:setTargetPosition(wep_x + vx, wep_y + vy)
+			if self ~= nil then
+			    self:setTargetPosition(wep_x + vx, wep_y + vy)
+			end
 		end)
 	)
 	local asteroidCoordinates = {
@@ -8174,7 +8184,9 @@ function wormholeTour()
 			local wep_x = 258703
 			local wep_y = -420658
 			local vx, vy = vectorFromAngle(random(0,360),random(50,200))
-		    self:setTargetPosition(wep_x + vx, wep_y + vy)
+			if self ~= nil then
+			    self:setTargetPosition(wep_x + vx, wep_y + vy)
+			end
 		end)
 	)
 	table.insert(feature_list,WarpJammer():setFaction("Independent"):setPosition(319664, 628392))
