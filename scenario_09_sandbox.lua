@@ -1110,6 +1110,7 @@ function initialSandboxDatabaseUpdate()
 	stock_db:setLongDescription("Mainstream ships are those ship types that are commonly available to CUF crews serving on the front lines or in well established areas under the protection of the Human Navy more generally.")
 ----	Starfighters
 	local fighter_stock_db = stock_db:addEntry("Starfighter")
+	fighter_stock_db:setLongDescription("Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes.")
 --	MP52 Hornet
 	fighter_stock_db:addEntry("MP52 Hornet")
 	local mp52_hornet_db = queryScienceDatabase("Ships","Mainstream","Starfighter","MP52 Hornet")
@@ -1143,6 +1144,33 @@ function initialSandboxDatabaseUpdate()
 	zx_lindworm_db:setKeyValue("Turn speed","15 deg/sec")
 	zx_lindworm_db:setKeyValue("Beam weapon 180:270","Rng:.7 Dmg:2 Cyc:6")
 	zx_lindworm_db:setImage("radar_fighter.png")
+----	Frigates
+	local frigate_stock_db = stock_db:addEntry("Frigate")
+	frigate_stock_db:setLongDescription("Frigates are one size up from starfighters. They require a crew from 3 to 20 people.\nThink, Firefly, millennium falcon, slave I (Boba fett's ship).\n\nThey generally have 2 or more shield sections, but hardly ever more than 4.\n\nThis class of ships is normally not fitted with jump or warp drives. But in some cases ships are modified to include these, or for certain roles it is built in.\n\nThey are divided in 3 different sub-classes:\n* Cruiser: Weaponized frigates, focused on combat. These come in various roles.\n* Light transport: Small transports, like transporting up to 50 soldiers in spartan conditions or a few diplomats in luxury. Depending on the role it can have some weaponry.\n* Support: Support types come in many varieties. They are simply a frigate hull fitted with whatever was needed. Anything from mine-layers to science vessels.")
+--	Phobos M3P
+	frigate_stock_db:addEntry("Phobos M3P")
+	local phobos_m3p_db = queryScienceDatabase("Ships","Mainstream","Frigate","Phobos M3P")
+	phobos_m3p_db:setLongDescription("Player variant of the Phobos M3. Not as strong as the Atlantis, but has front firing tubes, making it an easier to use ship in some scenarios.")
+	phobos_m3p_db:setKeyValue("Class","Frigate")
+	phobos_m3p_db:setKeyValue("Sub-class","Cruiser")
+	phobos_m3p_db:setKeyValue("Size","80")
+	phobos_m3p_db:setKeyValue("Shield","100/100")
+	phobos_m3p_db:setKeyValue("Hull","200")
+	phobos_m3p_db:setKeyValue("Repair Crew",3)
+	phobos_m3p_db:setKeyValue("Sensor Ranges","Long: 25 U / Short: 5 U")
+	phobos_m3p_db:setKeyValue("Move speed","4.8 U/min")	--80
+	phobos_m3p_db:setKeyValue("Turn speed","10 deg/sec")
+	phobos_m3p_db:setKeyValue("Beam weapon 345:90","Rng:1.2 Dmg:6 Cyc:8")
+	phobos_m3p_db:setKeyValue("Beam weapon 15:90","Rng:1.2 Dmg:6 Cyc:8")
+	phobos_m3p_db:setKeyValue("Tube 359","10 sec")
+	phobos_m3p_db:setKeyValue("Tube 1","10 sec")
+	phobos_m3p_db:setKeyValue("Tube 180","10 sec")
+	phobos_m3p_db:setKeyValue("Storage Homing","10")
+	phobos_m3p_db:setKeyValue("Storage Nuke","2")
+	phobos_m3p_db:setKeyValue("Storage Mine","4")
+	phobos_m3p_db:setKeyValue("Storage EMP","3")
+	phobos_m3p_db:setKeyValue("Storage HVLI","20")
+	phobos_m3p_db:setImage("radar_cruiser.png")
 ---------------------------
 --	Custom player ships  --
 ---------------------------
@@ -8130,7 +8158,6 @@ function wormholeTour()
 		{-325943, 650796, 225},
 		{-325349, 649242, 257},
 		--E20
---[[		
     	{321053, 628901, 278},
     	{320642, 628474, 176},
     	{318054, 629098, 330},
@@ -8176,7 +8203,6 @@ function wormholeTour()
     	{319321, 628148, 353},
     	{320307, 629890, 235},
     	{319455, 629890, 189},
---]]
     }
 --	E20 southeast of Kentar
 	table.insert(feature_list,BlackHole():setPosition(314508, 624940))
@@ -8191,7 +8217,7 @@ function wormholeTour()
 			end
 		end)
 	)
-	table.insert(feature_list,WarpJammer():setFaction("Independent"):setPosition(319664, 628392))
+	table.insert(feature_list,WarpJammer():setFaction("Independent"):setPosition(319664, 628392):setRange(80000))
 	table.insert(feature_list,BlackHole():setPosition(324682, 624964))
 --	ZJ17 Near north end of linked Cindy's folly wormhole pair
 	table.insert(feature_list,Nebula():setPosition(261439, -423676))
@@ -19428,7 +19454,7 @@ function gnat(enemyFaction)
 		no_class_db:addEntry("Gnat")
 		gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Gnat"),	--base ship database entry
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
 			gnat_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
@@ -19461,7 +19487,7 @@ function cucaracha(enemyFaction)
 		no_class_db:addEntry("Cucaracha")
 		cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Cucaracha"),	--base ship database entry
+			queryScienceDatabase("Ships","No Class","Tug"),	--base ship database entry
 			cucaracha_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
@@ -19493,7 +19519,7 @@ function starhammerIII(enemyFaction)
 		corvette_db:addEntry("Starhammer III")
 		starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Corvette","Starhammer III"),	--base ship database entry
+			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
 			starhammer_iii_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire",
@@ -19532,7 +19558,7 @@ function k2breaker(enemyFaction)
 		no_class_db:addEntry("K2 Breaker")
 		k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","K2 Breaker"),	--base ship database entry
+			queryScienceDatabase("Ships","No Class","Ktlitan Breaker"),	--base ship database entry
 			k2_breaker_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships",
@@ -19580,7 +19606,7 @@ function hurricane(enemyFaction)
 		frigate_db:addEntry("Hurricane")
 		hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Hurricane"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Piranha F8"),	--base ship database entry
 			hurricane_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot",
@@ -19620,7 +19646,7 @@ function phobosT4(enemyFaction)
 		frigate_db:addEntry("Phobos T4")
 		phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T4"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
 			phobos_t4_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Phobos T4 makes some simple improvements on the Phobos T3: faster maneuver, stronger front shields, though weaker rear shields and longer and faster beam weapons",
@@ -19662,7 +19688,7 @@ function whirlwind(enemyFaction)
 		frigate_db:addEntry("Whirlwind")
 		whirlwind_db = queryScienceDatabase("Ships","Frigate","Whirlwind")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Whirlwind"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
 			whirlwind_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Whirlwind, another heavy artillery cruiser, takes the Storm and adds tubes and missiles. It's as if the Storm swallowed a Pirahna and grew gills. Expect to see missiles, lots of missiles",
@@ -19702,7 +19728,7 @@ function farco3(enemyFaction)
 		frigate_db:addEntry("Farco 3")
 		farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Farco 3"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
 			farco_3_db,		--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 3, the beams are longer and faster and the shields are slightly stronger.",
@@ -19734,7 +19760,7 @@ function farco5(enemyFaction)
 		frigate_db:addEntry("Farco 5")
 		farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Farco 5"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
 			farco_5_db,		--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 5, the tubes load faster and the shields are slightly stronger.",
@@ -19769,7 +19795,7 @@ function farco8(enemyFaction)
 		frigate_db:addEntry("Farco 8")
 		farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Farco 8"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
 			farco_8_db,		--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 8, the beams are longer and faster, the tubes load faster and the shields are stronger.",
@@ -19804,7 +19830,7 @@ function farco11(enemyFaction)
 		frigate_db:addEntry("Farco 11")
 		farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Farco 11"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
 			farco_11_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 11, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam and the shields are stronger.",
@@ -19845,7 +19871,7 @@ function farco13(enemyFaction)
 		frigate_db:addEntry("Farco 13")
 		farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Farco 13"),	--base ship database entry
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
 			farco_13_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 13, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam, the tubes load faster, there are more missiles and the shields are stronger.",
