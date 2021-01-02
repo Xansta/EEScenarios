@@ -58,7 +58,12 @@ function createSkeletonUniverse()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornetreinforcements =	math.random(75,125),
+			phobosreinforcements =	math.random(175,225),
+        },
         jump_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
@@ -30263,28 +30268,7 @@ function handleUndockedState()
             addCommsReply("Back", commsStation)
         end)
     end
-    if isAllowedTo(ctd.services.reinforcements) then
-        addCommsReply("Please send reinforcements! ("..getServiceCost("reinforcements").."rep)", function()
-            if comms_source:getWaypointCount() < 1 then
-                setCommsMessage("You need to set a waypoint before you can request reinforcements.");
-            else
-                setCommsMessage("To which waypoint should we dispatch the reinforcements?");
-                for n=1,comms_source:getWaypointCount() do
-                    addCommsReply("WP" .. n, function()
-						if comms_source:takeReputationPoints(getServiceCost("reinforcements")) then
-							ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Adder MK5"):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
-							ship:setCommsScript(""):setCommsFunction(commsShip)
-							setCommsMessage("We have dispatched " .. ship:getCallSign() .. " to assist at WP" .. n);
-						else
-							setCommsMessage("Not enough reputation!");
-						end
-                        addCommsReply("Back", commsStation)
-                    end)
-                end
-            end
-            addCommsReply("Back", commsStation)
-        end)
-    end
+	requestReinforcements(commsStation)
     if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) and 
     	comms_target.comms_data.idle_defense_fleet ~= nil then
     	local defense_fleet_count = 0
@@ -30316,6 +30300,82 @@ function handleUndockedState()
 				addCommsReply("Back", mainMenu)
     		end)
 		end
+    end
+end
+function requestReinforcements(return_function)
+    if isAllowedTo(comms_target.comms_data.services.reinforcements) then
+    	addCommsReply("Please send reinforcements",function()
+    		if comms_source:getWaypointCount() < 1 then
+    			setCommsMessage("You need to set a waypoint before you can request reinforcements")
+    		else
+    			setCommsMessage("What kind of reinforcements would you like?")
+    			addCommsReply(string.format("Standard Adder MK5 (%i Rep)",getServiceCost("reinforcements")),function()
+    				if comms_source:getWaypointCount() < 1 then
+    					setCommsMessage("You need to set a waypoint before you can request reinforcements")
+    				else
+		                setCommsMessage("To which waypoint should we dispatch the Adder MK5?");
+    					for n=1,comms_source:getWaypointCount() do
+    						addCommsReply("Waypoint " .. n, function()
+								if comms_source:takeReputationPoints(getServiceCost("reinforcements")) then
+									ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Adder MK5"):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
+									ship:setCommsScript(""):setCommsFunction(commsShip)
+									setCommsMessage("We have dispatched " .. ship:getCallSign() .. " to assist at waypoint " .. n);
+								else
+									setCommsMessage("Not enough reputation!");
+								end
+								addCommsReply("Back", return_function)
+    						end)
+    					end
+    				end
+    				addCommsReply("Back", return_function)
+    			end)
+    			if comms_data.service_cost.hornetreinforcements ~= nil then
+					addCommsReply(string.format("MU52 Hornet (%i Rep)",getServiceCost("hornetreinforcements")),function()
+						if comms_source:getWaypointCount() < 1 then
+							setCommsMessage("You need to set a waypoint before you can request reinforcements")
+						else
+							setCommsMessage("To which waypoint should we dispatch the MU52 Hornet?");
+							for n=1,comms_source:getWaypointCount() do
+								addCommsReply("Waypoint " .. n, function()
+									if comms_source:takeReputationPoints(getServiceCost("hornetreinforcements")) then
+										ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("MU52 Hornet"):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
+										ship:setCommsScript(""):setCommsFunction(commsShip)
+										setCommsMessage("We have dispatched " .. ship:getCallSign() .. " to assist at waypoint " .. n);
+									else
+										setCommsMessage("Not enough reputation!");
+									end
+									addCommsReply("Back", return_function)
+								end)
+							end
+						end
+						addCommsReply("Back", return_function)
+					end)
+				end
+    			if comms_data.service_cost.phobosreinforcements ~= nil then
+					addCommsReply(string.format("Phobos T3 (%i Rep)",getServiceCost("phobosreinforcements")),function()
+						if comms_source:getWaypointCount() < 1 then
+							setCommsMessage("You need to set a waypoint before you can request reinforcements")
+						else
+							setCommsMessage("To which waypoint should we dispatch the Phobos T3?");
+							for n=1,comms_source:getWaypointCount() do
+								addCommsReply("Waypoint " .. n, function()
+									if comms_source:takeReputationPoints(getServiceCost("phobosreinforcements")) then
+										ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Phobos T3"):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
+										ship:setCommsScript(""):setCommsFunction(commsShip)
+										setCommsMessage("We have dispatched " .. ship:getCallSign() .. " to assist at waypoint " .. n);
+									else
+										setCommsMessage("Not enough reputation!");
+									end
+									addCommsReply("Back", return_function)
+								end)
+							end
+						end
+						addCommsReply("Back", return_function)
+					end)
+				end
+    		end
+            addCommsReply("Back", return_function)
+    	end)
     end
 end
 function getServiceCost(service)
