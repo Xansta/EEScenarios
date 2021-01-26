@@ -14,7 +14,7 @@
 require "utils.lua"
 
 function init()
-	scenario_version = "1.0.0"
+	scenario_version = "1.0.1"
 	print(string.format("Scenario version %s",scenario_version))
 	print(_VERSION)
 	setVariations()
@@ -363,6 +363,12 @@ function setConstants()
 		{action = batteryEfficiencyUpgrade, name = "battery efficiency upgrade"},
 		{action = fasterImpulseUpgrade, name = "faster impulse upgrade"},
 		{action = longerSensorsUpgrade, name = "longer sensor range upgrade"},
+		{action = fasterSpinUpgrade, name = "faster maneuvering speed upgrade"},
+	}
+	upgrade_automated_applications = {
+		"single",	--automatically applied only to the player that completed the requirements
+		"players",	--automatically applied to allied players
+		"all",		--automatically applied to players and NPCs (where applicable)
 	}
 	prefix_length = 0
 	suffix_index = 0
@@ -2519,7 +2525,19 @@ function generateTerrain()
 				if scientist_list["Human Navy"] == nil then
 					scientist_list["Human Navy"] = {}
 				end
-				table.insert(scientist_list["Human Navy"],{name = tableRemoveRandom(scientist_names), topic = tableRemoveRandom(scientist_topics), location = pStation, location_name = pStation:getCallSign(), score_value = scientist_score_value, upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], upgrade = tableRemoveRandom(upgrade_list)})
+				table.insert(
+					scientist_list["Human Navy"],
+					{
+						name = tableRemoveRandom(scientist_names), 
+						topic = tableRemoveRandom(scientist_topics), 
+						location = pStation, 
+						location_name = pStation:getCallSign(), 
+						score_value = scientist_score_value, 
+						upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], 
+						upgrade = tableRemoveRandom(upgrade_list),
+						upgrade_automated_application = upgrade_automated_applications[math.random(1,#upgrade_automated_applications)],
+					}
+				)
 				scientist_count = scientist_count + 1
 			end
 		end
@@ -2541,7 +2559,19 @@ function generateTerrain()
 				scientist_list["Kraylor"] = {}
 			end
 			if #scientist_list["Kraylor"] < #scientist_list["Human Navy"] then
-				table.insert(scientist_list["Kraylor"],{name = tableRemoveRandom(scientist_names), topic = scientist_list["Human Navy"][#scientist_list["Human Navy"]].topic, location = pStation, location_name = pStation:getCallSign(), score_value = scientist_score_value, upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], upgrade = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade})
+				table.insert(
+					scientist_list["Kraylor"],
+					{
+						name = tableRemoveRandom(scientist_names), 
+						topic = scientist_list["Human Navy"][#scientist_list["Human Navy"]].topic, 
+						location = pStation, 
+						location_name = pStation:getCallSign(), 
+						score_value = scientist_score_value, 
+						upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], 
+						upgrade = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade,
+						upgrade_automated_application = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade_automated_application,
+					}
+				)
 			end
 		end
 		if exuari_angle ~= nil then
@@ -2560,7 +2590,19 @@ function generateTerrain()
 					scientist_list["Exuari"] = {}
 				end
 				if #scientist_list["Exuari"] < #scientist_list["Human Navy"] then
-					table.insert(scientist_list["Exuari"],{name = tableRemoveRandom(scientist_names), topic = scientist_list["Human Navy"][#scientist_list["Human Navy"]].topic, location = pStation, location_name = pStation:getCallSign(), score_value = scientist_score_value, upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], upgrade = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade})
+					table.insert(
+						scientist_list["Exuari"],
+						{
+							name = tableRemoveRandom(scientist_names), 
+							topic = scientist_list["Human Navy"][#scientist_list["Human Navy"]].topic, 
+							location = pStation, 
+							location_name = pStation:getCallSign(), 
+							score_value = scientist_score_value, 
+							upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], 
+							upgrade = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade,
+							upgrade_automated_application = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade_automated_application,
+						}
+					)
 				end
 			end
 		end
@@ -2580,7 +2622,19 @@ function generateTerrain()
 					scientist_list["Ktlitans"] = {}
 				end
 				if #scientist_list["Ktlitans"] < #scientist_list["Human Navy"] then
-					table.insert(scientist_list["Ktlitans"],{name = tableRemoveRandom(scientist_names), topic = scientist_list["Human Navy"][#scientist_list["Human Navy"]].topic, location = pStation, location_name = pStation:getCallSign(), score_value = scientist_score_value, upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], upgrade = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade})
+					table.insert(
+						scientist_list["Ktlitans"],
+						{
+							name = tableRemoveRandom(scientist_names), 
+							topic = scientist_list["Human Navy"][#scientist_list["Human Navy"]].topic, 
+							location = pStation, 
+							location_name = pStation:getCallSign(), 
+							score_value = scientist_score_value, 
+							upgrade_requirement = upgrade_requirements[math.random(1,#upgrade_requirements)], 
+							upgrade = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade,
+							upgrade_automated_application = scientist_list["Human Navy"][#scientist_list["Human Navy"]].upgrade_automated_application,
+						}
+					)
 				end
 			end
 		end
@@ -8877,6 +8931,8 @@ function handleDockedState()
 				addCommsReply("Can you tell me some more about your ideas?",function()
 					local rc = false
 					local msg = ""
+					local completed_message = ""
+					local npc_message = ""
 					setCommsMessage(string.format("I'd need to visit %s to proceed further",faction_primary_station[comms_target:getFaction()].station:getCallSign()))
 					if string.find(scientist.upgrade_requirement,"talk") or string.find(scientist.upgrade_requirement,"meet") then
 						if string.find(scientist.upgrade_requirement,"primary") then
@@ -8892,7 +8948,43 @@ function handleDockedState()
 						else
 							rc, msg = scientist.upgrade.action(comms_source)
 							if rc then
-								setCommsMessage(string.format("After an extended conversation with %s and the exchange of technical information with various crew members, you apply the insight into %s gained by %s.\n\n%s",scientist.name,scientist.topic,scientist.name,msg))
+								completed_message = string.format("After an extended conversation with %s and the exchange of technical information with various crew members, you apply the insight into %s gained by %s.\n\n%s",scientist.name,scientist.topic,scientist.name,msg)
+								if scientist.upgrade_automated_application == "single" then
+									setCommsMessage(completed_message)
+								elseif scientist.upgrade_automated_application == "players" then
+									for pidx=1,32 do
+										local p = getPlayerShip(pidx)
+										if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+											rc, msg = scientist.upgrade.action(p)
+											if rc then
+												p:addToShipLog(string.format("%s provided details from %s for an upgrade. %s",comms_source:getCallSign(),scientist.name,msg),"Magenta")
+											end
+										end
+									end
+									setCommsMessage(completed_message .. "\nThe upgrade details were also provided to the other players in your faction.")
+								elseif scientist.upgrade_automated_application == "all" then
+									if scientist.upgrade.action ~= longerSensorsUpgrade and scientist.upgrade.action ~= batteryEfficiencyUpgrade then
+										if npc_fleet ~= nil and npc_fleet[comms_source:getFaction()] ~= nil and #npc_fleet[comms_source:getFaction()] > 0 then
+											for i=1,#npc_fleet[comms_source:getFaction()] do
+												local npc = npc_fleet[comms_source:getFaction()][i]
+												if npc ~= nil and npc:isValid() then
+													rc, msg = scientist.upgrade.action(npc)
+												end
+											end
+											npc_message = "and npc ships "
+										end
+									end
+									for pidx=1,32 do
+										local p = getPlayerShip(pidx)
+										if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+											rc, msg = scientist.upgrade.action(p)
+											if rc then
+												p:addToShipLog(string.format("%s provided details from %s for an upgrade. %s",comms_source:getCallSign(),scientist.name,msg),"Magenta")
+											end
+										end
+									end
+									setCommsMessage(string.format("%s\nThe upgrade details were also provided to the other players %sin your faction.",completed_message,npc_message))
+								end
 							else
 								setCommsMessage(string.format("Your conversation with %s about %s was interesting, but not directly applicable.\n\n%s",scientist.name,scientist.topic,msg))
 							end
@@ -8901,11 +8993,26 @@ function handleDockedState()
 						if comms_target == faction_primary_station[comms_target:getFaction()].station then
 							rc, msg = scientist.upgrade.action(comms_source)
 							if rc then
-								setCommsMessage(string.format("After an extended conversation with %s, various crew members and %s facilities managers, you apply the insight into %s gained by %s.\n\n%s",scientist.name,comms_target:getCallSign(),scientist.topic,scientist.name,msg))
+								completed_message = string.format("After an extended conversation with %s, various crew members and %s facilities managers, you apply the insight into %s gained by %s.\n\n%s",scientist.name,comms_target:getCallSign(),scientist.topic,scientist.name,msg)
 								if faction_primary_station[comms_target:getFaction()].station.available_upgrades == nil then
 									faction_primary_station[comms_target:getFaction()].station.available_upgrades = {}
 								end
 								faction_primary_station[comms_target:getFaction()].station.available_upgrades[scientist.upgrade.name] = scientist.upgrade.action
+								setCommsMessage(completed_message)
+								if scientist.upgrade_automated_application == "all" then
+									if scientist.upgrade.action ~= longerSensorsUpgrade and scientist.upgrade.action ~= batteryEfficiencyUpgrade then
+										if npc_fleet ~= nil and npc_fleet[comms_source:getFaction()] ~= nil and #npc_fleet[comms_source:getFaction()] > 0 then
+											for i=1,#npc_fleet[comms_source:getFaction()] do
+												local npc = npc_fleet[comms_source:getFaction()][i]
+												if npc ~= nil and npc:isValid() then
+													rc, msg = scientist.upgrade.action(npc)
+												end
+											end
+											npc_message = "and npc ships "
+										end
+									end
+									setCommsMessage(string.format("%s\nNPC ships received the upgrade as well",completed_message))
+								end
 							else
 								setCommsMessage(string.format("Your conversation with %s about %s was interesting, but not directly applicable.\n\n%s",scientist.name,scientist.topic,msg))
 								if faction_primary_station[comms_target:getFaction()].station.available_upgrades == nil then
@@ -8927,11 +9034,47 @@ function handleDockedState()
 							if colleage_count > 0 then
 								rc, msg = scientist.upgrade.action(comms_source)
 								if rc then
-									setCommsMessage(string.format("After an extended conversation with %s, %s, various crew members and %s facilities managers, you apply the insight into %s and %s gained by %s.\n\n%s",scientist.name,conferee.name,comms_target:getCallSign(),scientist.topic,conferee.topic,scientist.name,msg))
+									completed_message = string.format("After an extended conversation with %s, %s, various crew members and %s facilities managers, you apply the insight into %s and %s gained by %s.\n\n%s",scientist.name,conferee.name,comms_target:getCallSign(),scientist.topic,conferee.topic,scientist.name,msg)
 									if faction_primary_station[comms_target:getFaction()].station.available_upgrades == nil then
 										faction_primary_station[comms_target:getFaction()].station.available_upgrades = {}
 									end
 									faction_primary_station[comms_target:getFaction()].station.available_upgrades[scientist.upgrade.name] = scientist.upgrade.action
+									if scientist.upgrade_automated_application == "single" then
+										setCommsMessage(completed_message)
+									elseif scientist.upgrade_automated_application == "players" then
+										for pidx=1,32 do
+											local p = getPlayerShip(pidx)
+											if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+												rc, msg = scientist.upgrade.action(p)
+												if rc then
+													p:addToShipLog(string.format("%s provided details from %s for an upgrade. %s",comms_source:getCallSign(),scientist.name,msg),"Magenta")
+												end
+											end
+										end
+										setCommsMessage(completed_message .. "\nThe upgrade details were also provided to the other players in your faction.")
+									elseif scientist.upgrade_automated_application == "all" then
+										if scientist.upgrade.action ~= longerSensorsUpgrade and scientist.upgrade.action ~= batteryEfficiencyUpgrade then
+											if npc_fleet ~= nil and npc_fleet[comms_source:getFaction()] ~= nil and #npc_fleet[comms_source:getFaction()] > 0 then
+												for i=1,#npc_fleet[comms_source:getFaction()] do
+													local npc = npc_fleet[comms_source:getFaction()][i]
+													if npc ~= nil and npc:isValid() then
+														rc, msg = scientist.upgrade.action(npc)
+													end
+												end
+												npc_message = "and npc ships "
+											end
+										end
+										for pidx=1,32 do
+											local p = getPlayerShip(pidx)
+											if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+												rc, msg = scientist.upgrade.action(p)
+												if rc then
+													p:addToShipLog(string.format("%s provided details from %s for an upgrade. %s",comms_source:getCallSign(),scientist.name,msg),"Magenta")
+												end
+											end
+										end
+										setCommsMessage(string.format("%s\nThe upgrade details were also provided to the other players %sin your faction.",completed_message,npc_message))
+									end
 								else
 									setCommsMessage(string.format("Your conversation with %s and %s about %s and %s was interesting, but not directly applicable.\n\n%s",scientist.name,conferee.name,scientist.topic,conferee.topic,msg))
 									if faction_primary_station[comms_target:getFaction()].station.available_upgrades == nil then
@@ -9052,6 +9195,10 @@ function handleUndockedState()
 			addCommsReply(string.format("Speak with scientist %s",scientist.name),function()
 				setCommsMessage(string.format("Greetings, %s\nI've got great ideas for the war effort.\nWhat can I do for you?",comms_source:getCallSign()))
 				addCommsReply("Can you tell me some more about your ideas?",function()
+					local rc = false
+					local msg = ""
+					local completed_message = ""
+					local npc_message = ""
 					if string.find(scientist.upgrade_requirement,"talk") then
 						if string.find(scientist.upgrade_requirement,"primary") then
 							if faction_primary_station[comms_target:getFaction()].station ~= nil and faction_primary_station[comms_target:getFaction()].station:isValid() then
@@ -9066,11 +9213,54 @@ function handleUndockedState()
 						else
 							local rc, msg = scientist.upgrade.action(comms_source)
 							if rc then
-								setCommsMessage(string.format("After an extended conversation with %s and the exchange of technical information with various crew members, you apply the insight into %s gained by %s.\n\n%s",scientist.name,scientist.topic,scientist.name,msg))
+								completed_message = string.format("After an extended conversation with %s and the exchange of technical information with various crew members, you apply the insight into %s gained by %s.\n\n%s",scientist.name,scientist.topic,scientist.name,msg)
+								if scientist.upgrade_automated_application == "single" then
+									setCommsMessage(completed_message)
+								elseif scientist.upgrade_automated_application == "players" then
+									for pidx=1,32 do
+										local p = getPlayerShip(pidx)
+										if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+											rc, msg = scientist.upgrade.action(p)
+											if rc then
+												p:addToShipLog(string.format("%s provided details from %s for an upgrade. %s",comms_source:getCallSign(),scientist.name,msg),"Magenta")
+											end
+										end
+									end
+									setCommsMessage(completed_message .. "\nThe upgrade details were also provided to the other players in your faction.")
+								elseif scientist.upgrade_automated_application == "all" then
+									if scientist.upgrade.action ~= longerSensorsUpgrade and scientist.upgrade.action ~= batteryEfficiencyUpgrade then
+										if npc_fleet ~= nil and npc_fleet[comms_source:getFaction()] ~= nil and #npc_fleet[comms_source:getFaction()] > 0 then
+											for i=1,#npc_fleet[comms_source:getFaction()] do
+												local npc = npc_fleet[comms_source:getFaction()][i]
+												if npc ~= nil and npc:isValid() then
+													rc, msg = scientist.upgrade.action(npc)
+												end
+											end
+											npc_message = "and npc ships "
+										end
+									end
+									for pidx=1,32 do
+										local p = getPlayerShip(pidx)
+										if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+											rc, msg = scientist.upgrade.action(p)
+											if rc then
+												p:addToShipLog(string.format("%s provided details from %s for an upgrade. %s",comms_source:getCallSign(),scientist.name,msg),"Magenta")
+											end
+										end
+									end
+									setCommsMessage(string.format("%s\nThe upgrade details were also provided to the other players %sin your faction.",completed_message,npc_message))
+								end
 							else
 								setCommsMessage(string.format("Your conversation with %s about %s was interesting, but not directly applicable.\n\n%s",scientist.name,scientist.topic,msg))
 							end
-							if random(1,100) <= 16 then
+							local overhear_chance = 16
+							if scientist.upgrade_automated_application == "players" then
+								overhear_chance = 28
+							end
+							if scientist.upgrade_automated_application == "all" then
+								overhear_chance = 39
+							end
+							if random(1,100) <= overhear_chance then
 								for pidx=1,32 do
 									local p = getPlayerShip(pidx)
 									if p ~= nil and p:isValid() then
@@ -10414,6 +10604,15 @@ function longerSensorsUpgrade(p)
 		return true, "Your ship's long range sensors have had their reach increased by 10 units"
 	else
 		return false, "You already have upgraded long range sensors"
+	end
+end
+function fasterSpinUpgrade(p)
+	if p.faster_spin_upgrade == nil then
+		p.faster_spin_upgrade = "done"
+		p:setRotationMaxSpeed(p:getRotationMaxSpeed()*1.2)
+		return true, "Your maneuvering speed has been increased by 20%"
+	else
+		return false, "You already have upgraded maneuvering speed"
 	end
 end
 ---------------------------
