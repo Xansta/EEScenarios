@@ -14,7 +14,7 @@
 require "utils.lua"
 
 function init()
-	scenario_version = "0.1.21"
+	scenario_version = "1.0.0"
 	print(string.format("Scenario version %s",scenario_version))
 	print(_VERSION)
 	setVariations()
@@ -41,6 +41,7 @@ function setConstants()
 	max_game_time = game_time_limit	
 	game_state = "paused"	--then moves to "terrain generated" then to "running"
 	respawn_count = 0
+	respawn_type = "lindworm"
 	storage = getScriptStorage()
 	storage.gatherStats = gatherStats
 	player_team_count = 2	--default to 2. Can be 2, 3 or 4
@@ -1136,6 +1137,14 @@ function mainGMButtonsDuringPause()
 		end
 		addGMFunction(button_label,setNPCShips)
 		addGMFunction("+Terrain",setTerrainParameters)
+		addGMFunction(string.format("Respawn: %s",respawn_type),function()
+			if respawn_type == "lindworm" then
+				respawn_type = "self"
+			elseif respawn_type == "self" then
+				respawn_type = "lindworm"
+			end
+			mainGMButtons()
+		end)
 	else
 		addGMFunction("Show control codes",showControlCodes)
 		addGMFunction("Show Human codes",showHumanCodes)
@@ -1922,6 +1931,18 @@ function generateTerrain()
 		ktlitan_angle = (exuari_angle + replicant_increment) % 360
 		faction_angle["Ktlitans"] = ktlitan_angle
 		npc_fleet["Ktlitans"] = {}
+	end
+	
+	if respawn_type == "self" then
+		death_penalty = {}
+		death_penalty["Human Navy"] = 0
+		death_penalty["Kraylor"] = 0
+		if exuari_angle ~= nil then
+			death_penalty["Exuari"] = 0
+		end
+		if ktlitan_angle ~= nil then
+			death_penalty["Ktlitans"] = 0
+		end
 	end
 	
 	--	Set primary stations
@@ -5339,7 +5360,12 @@ function playerDestroyed(self,instigator)
 	local old_template = self:getTypeName()
 	local p = PlayerSpaceship()
 	if p ~= nil and p:isValid() then
-		p:setTemplate("ZX-Lindworm")
+		if respawn_type == "lindworm" then
+			p:setTemplate("ZX-Lindworm")
+		elseif respawn_type == "self" then
+			p:setTemplate(old_template)
+			death_penalty[faction] = death_penalty[faction] + self.shipScore
+		end
 		p:setFaction(faction)
 		p.control_code = self.control_code
 		p:setControlCode(p.control_code)
@@ -5347,15 +5373,23 @@ function playerDestroyed(self,instigator)
 		local cc_15 = string.lpad(p.control_code,15)
 --		print(p:getCallSign(),"Control code:",p.control_code,"Faction:",faction)
 		print(name_15,"Control code:",cc_15,"Faction:",faction)
-		if old_template == "ZX-Lindworm" then
+		if respawn_type == "lindworm" then
+			if old_template == "ZX-Lindworm" then
+				resetPlayer(p,name)
+			else
+				resetPlayer(p)
+			end
+		elseif respawn_type == "self" then
 			resetPlayer(p,name)
-		else
-			resetPlayer(p)
 		end
 		p:setPosition(self.respawn_x, self.respawn_y)
 		p.respawn_x = self.respawn_x
 		p.respawn_y = self.respawn_y
-		player_restart[name] = {self = p, template = "ZX-Lindworm", control_code = p.control_code, faction = faction, respawn_x = self.respawn_x, respawn_y = self.respawn_y}
+		if respawn_type == "lindworm" then
+			player_restart[name] = {self = p, template = "ZX-Lindworm", control_code = p.control_code, faction = faction, respawn_x = self.respawn_x, respawn_y = self.respawn_y}
+		elseif respawn_type == "self" then
+			player_restart[name] = {self = p, template = old_template, control_code = p.control_code, faction = faction, respawn_x = self.respawn_x, respawn_y = self.respawn_y}
+		end
 	else
 		respawn_countdown = 2
 		if restart_queue == nil then
@@ -5389,7 +5423,12 @@ function delayedRespawn(name)
 		local old_template = player_restart[name].template
 		local p = PlayerSpaceship()
 		if p~= nil and p:isValid() then
-			p:setTemplate("ZX-Lindworm")
+			if respawn_type == "lindworm" then
+				p:setTemplate("ZX-Lindworm")
+			elseif respawn_type == "self" then
+				p:setTemplate(old_template)
+				death_penalty[faction] = death_penalty[faction] + self.shipScore
+			end
 			p:setFaction(faction)
 			p.control_code = player_restart[name].control_code
 			p:setControlCode(p.control_code)
@@ -5397,12 +5436,23 @@ function delayedRespawn(name)
 			local cc_15 = string.lpad(p.control_code,15)
 			print(name_15,"Control code:",cc_15,"Faction:",faction)
 --			print(p:getCallSign(),"Control code:",p.control_code,"Faction:",faction)
-			if old_template == "ZX-Lindworm" then
+			if respawn_type == "lindworm" then
+				if old_template == "ZX-Lindworm" then
+					resetPlayer(p,name)
+				else
+					resetPlayer(p)
+				end
+			elseif respawn_type == "self" then
 				resetPlayer(p,name)
-			else
-				resetPlayer(p)
 			end
 			p:setPosition(player_restart[name].respawn_x,player_restart[name].respawn_y)
+			p.respawn_x = player_restart[name].respawn_x
+			p.respawn_y = player_restart[name].respawn_y
+			if respawn_type == "lindworm" then
+				player_restart[name] = {self = p, template = "ZX-Lindworm", control_code = p.control_code, faction = faction, respawn_x = player_restart[name].respawn_x, respawn_y = player_restart[name].respawn_y}
+			elseif respawn_type == "self" then
+				player_restart[name] = {self = p, template = old_template, control_code = p.control_code, faction = faction, respawn_x = player_restart[name].respawn_x, respawn_y = player_restart[name].respawn_y}
+			end
 			if restart_queue ~= nil and #restart_queue > 0 then
 				for i=1,#restart_queue do
 					if restart_queue[i] == name then
@@ -11204,25 +11254,43 @@ function gatherStats()
 	stat_list.weight.station = station_weight
 	stat_list.weight.ship = player_ship_weight
 	stat_list.weight.npc = npc_ship_weight
+	local human_death_penalty = 0
+	local kraylor_death_penalty = 0
+	local exuari_death_penalty = 0
+	local ktlitan_death_penalty = 0
+	if respawn_type == "self" then
+		human_death_penalty = death_penalty["Human Navy"]
+		kraylor_death_penalty = death_penalty["Kraylor"]
+		if exuari_angle ~= nil then
+			exuari_death_penalty = death_penalty["Exuari"]
+		end
+		if ktlitan_angle ~= nil then
+			ktlitan_death_penalty = death_penalty["Ktlitans"]
+		end
+	end
 	stat_list.human.weighted_score = 
 		stat_list.human.station_score_total*station_weight + 
 		stat_list.human.ship_score_total*player_ship_weight + 
-		stat_list.human.npc_score_total*npc_ship_weight
+		stat_list.human.npc_score_total*npc_ship_weight - 
+		human_death_penalty
 	stat_list.kraylor.weighted_score = 
 		stat_list.kraylor.station_score_total*station_weight + 
 		stat_list.kraylor.ship_score_total*player_ship_weight + 
-		stat_list.kraylor.npc_score_total*npc_ship_weight
+		stat_list.kraylor.npc_score_total*npc_ship_weight - 
+		kraylor_death_penalty
 	if exuari_angle ~= nil then
 		stat_list.exuari.weighted_score = 
 			stat_list.exuari.station_score_total*station_weight + 
 			stat_list.exuari.ship_score_total*player_ship_weight + 
-			stat_list.exuari.npc_score_total*npc_ship_weight
+			stat_list.exuari.npc_score_total*npc_ship_weight - 
+			exuari_death_penalty
 	end
 	if ktlitan_angle ~= nil then
 		stat_list.ktlitan.weighted_score = 
 			stat_list.ktlitan.station_score_total*station_weight + 
 			stat_list.ktlitan.ship_score_total*player_ship_weight + 
-			stat_list.ktlitan.npc_score_total*npc_ship_weight
+			stat_list.ktlitan.npc_score_total*npc_ship_weight - 
+			ktlitan_death_penalty
 	end
 	if original_score ~= nil then
 		stat_list.human.original_weighted_score = original_score["Human Navy"]
