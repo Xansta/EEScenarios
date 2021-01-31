@@ -530,72 +530,72 @@ function setConstants()
 	}
 
 	playerShipStats = {	
-		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2},
-		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
-		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1},
-		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6},
-		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
-		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2},
-		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3},
-		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1},
-		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1},
-		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2},
-		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3},
-		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
-		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
-		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2},
-		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1},
-		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5},
-		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1},
-		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1},
+		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false	},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false	},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1,	turbo_torp = false	},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6,	turbo_torp = false	},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false	},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2,	turbo_torp = false	},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false	},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1,	turbo_torp = false	},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false	},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false	},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false	},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false	},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false	},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = false	},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false	},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5,	turbo_torp = false	},
+		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1,	turbo_torp = false	},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false	},
 	--	Custom player ships	
-		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3},
-		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3},
-		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3},
-		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3},
-		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2},
-		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2},
-		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1},
-		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2},
-		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Eldridge"]			= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2},
-		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
-		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3},
-		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1},
-		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1},
-		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1},
-		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4},
-		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2},
-		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
-		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5},
-		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1},
-		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
-		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2},
-		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1},
-		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
-		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3},
-		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2},
-		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3},
-		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2},
-		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2},
-		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2},
-		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2},
-		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3},
-		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3},
-		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2},
-		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3},
-		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1},
-		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1},
-		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2},
-		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1},
-		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2},
-		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1},
-		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4},
-		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
-		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2},
-		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1},
+		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3,	turbo_torp = true	},
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3,	turbo_torp = false	},
+		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3,	turbo_torp = false	},
+		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false	},
+		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false	},
+		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false	},
+		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false	},
+		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false	},
+		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false	},
+		["Eldridge"]			= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false	},
+		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false	},
+		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false	},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false	},
+		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false	},
+		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false	},
+		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false	},
+		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false	},
+		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false	},
+		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false	},
+		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false	},
+		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false	},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false	},
+		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false	},
+		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false	},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false	},
+		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false	},
+		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false	},
+		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false	},
+		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false	},
+		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false	},
+		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false	},
+		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false	},
+		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false	},
+		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false	},
+		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false	},
+		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false	},
+		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3,	turbo_torp = false	},
+		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false	},
+		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false	},
+		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false	},
+		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false	},
+		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false	},
+		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false	},
+		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false	},
+		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false	},
+		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false	},
+		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false	},
 	}	
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -5181,18 +5181,18 @@ function createIcarusColor()
 		if i == 5 then
 			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
 			dp5Zone:setColor(0,128,0)
-		elseif i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
-			dp6Zone:setColor(0,128,0)
-		elseif i == 3 then
-			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
-			dp3Zone:setColor(0,128,0)
-		elseif i == 2 then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
-			dp2Zone:setColor(0,128,0)
-		elseif i == 1 then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
-			dp1Zone:setColor(0,128,0)
+		elseif i == 4 then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
+			dp4Zone:setColor(0,128,0)
+--		elseif i == 3 then
+--			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
+--			dp3Zone:setColor(0,128,0)
+--		elseif i == 2 then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
+--			dp2Zone:setColor(0,128,0)
+--		elseif i == 1 then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
+--			dp1Zone:setColor(0,128,0)
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -5314,9 +5314,10 @@ function createIcarusStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Aquarius F4m9		Destroyed 31Oct2020
-	--local aquariusZone = squareZone(-4295, 14159, "Aquarius VI F4.9")
-	--aquariusZone:setColor(51,153,255)
-    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius VI"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local aquariusZone = squareZone(-4295, 14159, "Aquarius VII F4.9")
+	aquariusZone:setColor(51,153,255)
+	--[[
+    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius VII"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -5354,6 +5355,7 @@ function createIcarusStations()
 	if random(1,100) <= 37 then stationAquarius:setSharesEnergyWithDocked(false) end
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
+	--]]
 	--Borlan
 	--local borlanZone = squareZone(68808, 39300, "Borlan 2 G8")
 	--borlanZone:setColor(51,153,255)
@@ -5437,9 +5439,8 @@ function createIcarusStations()
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
 	--Elysium F4m2.5 
-	local elysiumZone = squareZone(-7504, 1384, "Elysium 3 F4.3")
-	elysiumZone:setColor(51,153,255)
-	--[[
+	--local elysiumZone = squareZone(-7504, 1384, "Elysium 3 F4.3")
+	--elysiumZone:setColor(51,153,255)
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 3"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5476,7 +5477,6 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
-	--]]
 	--Finnegan
 	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
 	--finneganZone:setColor(51,153,255)
@@ -5554,9 +5554,8 @@ function createIcarusStations()
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Macassa
-	local macassaZone = squareZone(16335, -18034, "Macassa 9 E5")
-	macassaZone:setColor(0,128,0)
-	--[[
+	--local macassaZone = squareZone(16335, -18034, "Macassa 9 E5")
+	--macassaZone:setColor(0,128,0)
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 9"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5587,7 +5586,6 @@ function createIcarusStations()
 	if random(1,100) <= 9  then stationMacassa:setSharesEnergyWithDocked(false) end
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
-	--]]
 	--Maximilian
 	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 5 E4")
 	maximilianZone:setColor(51,153,255)
@@ -5629,9 +5627,10 @@ function createIcarusStations()
 	table.insert(stations,stationMaximilian)
 	--]]
 	--Mermaid
-	--local mermaidZone = squareZone(28889, -4417, "Mermaid 5 E6")
-	--mermaidZone:setColor(51,153,255)
-    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 5"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+	local mermaidZone = squareZone(28889, -4417, "Mermaid 6 E6")
+	mermaidZone:setColor(51,153,255)
+	--[[
+    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 6"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -5669,6 +5668,7 @@ function createIcarusStations()
 	if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
+	--]]
 	--Mos Espa
 	--local mosEspaZone = squareZone(113941, -85822, "Mos Espa A10")
 	--mosEspaZone:setColor(51,153,255)
@@ -5713,9 +5713,8 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	local nervaZone = squareZone(-9203, -2077, "Nerva 4 E4")
-	nervaZone:setColor(51,153,255)
-	--[[
+	--local nervaZone = squareZone(-9203, -2077, "Nerva 4 E4")
+	--nervaZone:setColor(51,153,255)
     stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 4"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5753,7 +5752,6 @@ function createIcarusStations()
 	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
-	--]]
 	--Pistil
 --	local pistilZone = squareZone(24834, 20416, "Pistil 5 G6")
 --	pistilZone:setColor(0,128,0)
@@ -6064,10 +6062,10 @@ function createIcarusStations()
 	station_names[stationTransylvania:getCallSign()] = {stationTransylvania:getSectorName(), stationTransylvania}
 	table.insert(stations,stationTransylvania)
 	--Wookie F4m5 
-	local wookieZone = squareZone(-11280, 7425, "Wookie-Gookie F4")	-- -oka means 4, kin means 5, gookie means 6
+	local wookieZone = squareZone(-11280, 7425, "De-Wookie F4")	-- -oka means 4, kin means 5, gookie means 6, De means 7
 	wookieZone:setColor(51,153,255)
 	--[[
-    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-Gookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("De-Wookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -15101,6 +15099,10 @@ function assignPlayerShipScore(p)
 				p.mining = playerShipStats[tempTypeName].mining
 				p.max_pods = playerShipStats[tempTypeName].pods
 				p.pods = p.max_pods
+				p.turbo_torp = playerShipStats[tempTypeName].turbo_torp
+				p.turbo_torp_charge_interval = 20	--final: 180
+				p.turbo_torp_timer = p.turbo_torp_charge_interval
+				p.turbo_torp_active = false
 				p.score_settings_source = tempTypeName
 			end
 		end
@@ -31159,6 +31161,67 @@ function updateInner(delta)
 					end
 				end
 			end
+			--[[	experimental
+			if p.turbo_torp then
+				print(string.format("%s has turbo torp",p:getCallSign()))
+				if p.turbo_torp_active then
+					print("turbo torp is active")
+					local missile_list = p:getObjectsInRange(100)
+					for _, obj in ipairs(missile_list) do
+						if obj ~= p then
+							local type_name = obj.typeName
+							local heading = -1
+							if obj:getHeading() ~= nil then
+								heading = obj:getHeading()
+							end
+							local vx = 0
+							local vy = 0
+							if obj:getVelocity() ~= nil then
+								vx, vy = obj:getVelocity()
+							end
+							local md = distance(p,obj)
+							print(type_name,heading,vx,vy,md)
+						end
+					end
+				else
+					print("turbo torp not active")
+					if p.turbo_torp_timer < 0 then
+						print("turbo torp timer expired")
+						if p.turbo_torp_button == nil then
+							if p:hasPlayerAtPosition("Weapons") then
+								p.turbo_torp_button = "turbo_torp_button"
+								p:addCustomButton("Weapons",p.turbo_torp_button,"Turbo Torpedo",function()
+									p.turbo_torp_active = true
+									p:removeCustom(p.turbo_torp_button)
+									p.turbo_torp_button = nil
+								end)
+							end
+						end
+						if p.turbo_torp_button_tac == nil then
+							if p:hasPlayerAtPosition("Tactical") then
+								p.turbo_torp_button_tac = "turbo_torp_button_tac"
+								p:addCustomButton("Tactical",p.turbo_torp_button_tac,"Turbo Torpedo",function()
+									p.turbo_torp_active = true
+									p:removeCustom(p.turbo_torp_button_tac)
+									p.turbo_torp_button_tac = nil
+								end)
+							end
+						end
+					else
+						print("turbo torp timer not expired:",p.turbo_torp_timer)
+						p.turbo_torp_timer = p.turbo_torp_timer - delta
+						if p.turbo_torp_button ~= nil then
+							p:removeCustom(p.turbo_torp_button)
+							p.turbo_torp_button = nil
+						end
+						if p.turbo_torp_button_tac ~= nil then
+							p:removeCustom(p.turbo_torp_button_tac)
+							p.turbo_torp_button_tac = nil
+						end
+					end
+				end
+			end
+			--]]
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
