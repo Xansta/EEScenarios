@@ -19,6 +19,8 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
+	scenario_version = "5.0.1"
+	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	-- Make the createPlayerShip... functions accessible from other scripts (including exec.lua)
 	local scenario = {}
@@ -29,7 +31,9 @@ function init()
 	scenario.createPlayerShipSpinstar = createPlayerShipSpinstar
 	scenario.createPlayerShipSpyder = createPlayerShipSpyder
 	scenario.createPlayerShipSting = createPlayerShipSting
-	print([[Usage: curl --data "getScriptStorage().scenario.createPlayerShipSting()" http://localhost:8080/exec.lua]])
+	scenario.gatherStats = gatherStats
+	print("Example of calling a function via http API, assuming you start EE with parameter httpserver=8080 (or it's in options.ini):")
+	print('curl --data "getScriptStorage().scenario.createPlayerShipSting()" http://localhost:8080/exec.lua')
 	local storage = getScriptStorage()
 	storage.scenario = scenario
 	-- starryUtil v2
@@ -15133,18 +15137,21 @@ function endWar(delta)
 	endWarTimer = endWarTimer - delta
 	if endWarTimer < 0 then
 		endWarTimer = delta + endWarTimerInterval
-		friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct = listStatuses()
-		if friendlySurvivedCount == nil then
-			return
-		end
-		local evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
+--		friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct = listStatuses()
+--		if friendlySurvivedCount == nil then
+--			return
+--		end
+		local stat_list = gatherStats()
+		local evalEnemy = stat_list.kraylor.station.percentage * enemyStationComponentWeight + stat_list.kraylor.ship.percentage * enemyShipComponentWeight
+--		local evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
 		if evalEnemy < enemyDestructionVictoryCondition then
 			missionVictory = true
 			missionCompleteReason = string.format("Enemy reduced to less than %i%% strength",math.floor(enemyDestructionVictoryCondition))
 			endStatistics()
 			victory("Human Navy")
 		end
-		local evalFriendly = fpct2*friendlyStationComponentWeight + npct2*neutralStationComponentWeight + fpct*friendlyShipComponentWeight
+		local evalFriendly = stat_list.human.station.percentage * friendlyStationComponentWeight + stat_list.independent.station.percentage * neutralStationComponentWeight + stat_list.human.ship.percentage * friendlyShipComponentWeight
+--		local evalFriendly = fpct2*friendlyStationComponentWeight + npct2*neutralStationComponentWeight + fpct*friendlyShipComponentWeight
 		if evalFriendly < friendlyDestructionDefeatCondition then
 			missionVictory = false
 			missionCompleteReason = string.format("Human Navy reduced to less than %i%% strength",math.floor(friendlyDestructionDefeatCondition))
@@ -15310,6 +15317,120 @@ end
 function neutralStationDestroyed(self, instigator)
 	table.insert(neutralStationDestroyedNameList,self:getCallSign())
 	table.insert(neutralStationDestroyedValue,self.strength)
+end
+function gatherStats()
+	local stat_list = {}
+	stat_list.scenario = {name = "Borderline Fever", version = scenario_version}
+	stat_list.human = {}
+	stat_list.human.station = {}
+	stat_list.human.station.count = 0
+	stat_list.human.station.value = 0
+	stat_list.human.station.original_count = 0
+	stat_list.human.station.original_value = 0
+	stat_list.human.ship = {}
+	stat_list.human.ship.value = 0
+	stat_list.human.ship.original_value = rawHumanShipStrength
+	stat_list.kraylor = {}
+	stat_list.kraylor.station = {}
+	stat_list.kraylor.station.count = 0
+	stat_list.kraylor.station.value = 0
+	stat_list.kraylor.station.original_count = 0
+	stat_list.kraylor.station.original_value = 0
+	stat_list.kraylor.ship = {}
+	stat_list.kraylor.ship.value = 0
+	stat_list.kraylor.ship.original_value = rawKraylorShipStrength
+	stat_list.independent = {}
+	stat_list.independent.station = {}
+	stat_list.independent.station.count = 0
+	stat_list.independent.station.value = 0
+	stat_list.independent.station.original_count = 0
+	stat_list.independent.station.original_value = 0
+	if stationList ~= nil and #stationList > 0 then
+		for _, station in ipairs(stationList) do
+			if station:isValid() then
+				if station:getFaction() == "Human Navy" then
+					stat_list.human.station.count = stat_list.human.station.count + 1
+					stat_list.human.station.value = stat_list.human.station.value + station.strength
+				end
+				if station:getFaction() == "Kraylor" then
+					stat_list.kraylor.station.count = stat_list.kraylor.station.count + 1
+					stat_list.kraylor.station.value = stat_list.kraylor.station.value + station.strength
+				end
+				if station:getFaction() == "Independent" then
+					stat_list.independent.station.count = stat_list.independent.station.count + 1
+					stat_list.independent.station.value = stat_list.independent.station.value + station.strength
+				end
+			end
+		end
+		if original_human_station_count == nil then
+			original_human_station_count = stat_list.human.station.count
+		end
+		stat_list.human.station.original_count = original_human_station_count
+		if original_human_station_value == nil then
+			original_human_station_value = stat_list.human.station.value
+		end
+		stat_list.human.station.original_value = original_human_station_value
+		if original_kraylor_station_count == nil then
+			original_kraylor_station_count = stat_list.kraylor.station.count
+		end
+		stat_list.kraylor.station.original_count = original_kraylor_station_count
+		if original_kraylor_station_value == nil then
+			original_kraylor_station_value = stat_list.kraylor.station.value
+		end
+		stat_list.kraylor.station.original_value = original_kraylor_station_value
+		if original_independent_station_count == nil then
+			original_independent_station_count = stat_list.independent.station.count
+		end
+		stat_list.independent.station.original_count = original_independent_station_count
+		if original_independent_station_value == nil then
+			original_independent_station_value = stat_list.independent.station.value
+		end
+		stat_list.independent.station.original_value = original_independent_station_value
+	end
+	if stat_list.human.station.original_value > 0 then
+		stat_list.human.station.percentage = stat_list.human.station.value/stat_list.human.station.original_value*100
+	else
+		stat_list.human.station.percentage = 100
+	end
+	if stat_list.kraylor.station.original_value > 0 then
+		stat_list.kraylor.station.percentage = stat_list.kraylor.station.value/stat_list.kraylor.station.original_value*100
+	else
+		stat_list.kraylor.station.percentage = 100
+	end
+	if stat_list.independent.station.original_value > 0 then
+		stat_list.independent.station.percentage = stat_list.independent.station.value/stat_list.independent.station.original_value*100
+	else
+		stat_list.independent.station.percentage = 100
+	end
+	if friendlyFleetList ~= nil and #friendlyFleetList > 0 then
+		for _, temp_fleet in ipairs(friendlyFleetList) do
+			for _, temp_friend in ipairs(temp_fleet) do
+				if temp_friend ~= nil and temp_friend:isValid() then
+					stat_list.human.ship.value = stat_list.human.ship.value + ship_template[temp_friend:getTypeName()].strength
+				end
+			end
+		end
+	end
+	if enemyFleetList ~= nil and #enemyFleetList > 0 then
+		for _, temp_fleet in ipairs(enemyFleetList) do
+			for _, temp_enemy in ipairs(temp_fleet) do
+				if temp_enemy ~= nil and temp_enemy:isValid() then
+					stat_list.kraylor.ship.value = stat_list.kraylor.ship.value + ship_template[temp_enemy:getTypeName()].strength
+				end
+			end
+		end
+	end
+	if stat_list.human.ship.original_value > 0 then
+		stat_list.human.ship.percentage = stat_list.human.ship.value/stat_list.human.ship.original_value*100
+	else
+		stat_list.human.ship.percentage = 100
+	end
+	if stat_list.kraylor.ship.original_value > 0 then
+		stat_list.kraylor.ship.percentage = stat_list.kraylor.ship.value/stat_list.kraylor.ship.original_value*100
+	else
+		stat_list.kraylor.ship.percentage = 100
+	end
+	return stat_list
 end
 function listStatuses()
 	local friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2 = stationStatus()
