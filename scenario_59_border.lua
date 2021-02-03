@@ -19,9 +19,10 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.1"
+	scenario_version = "5.0.2"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
+	game_state = "paused"
 	-- Make the createPlayerShip... functions accessible from other scripts (including exec.lua)
 	local scenario = {}
 	scenario.createPlayerShipBlazon = createPlayerShipBlazon
@@ -2218,54 +2219,15 @@ end
 function setGameTimeLimit()
 	clearGMFunctions()
 	addGMFunction("-From time limit",mainGMButtons)
-	addGMFunction("15 minutes", function()
-		gameTimeLimit = 15*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 15 minutes")
-	end)
-	addGMFunction("20 minutes", function()
-		gameTimeLimit = 20*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 20 minutes")
-	end)
-	addGMFunction("25 minutes", function()
-		gameTimeLimit = 25*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 25 minutes")
-	end)
-	addGMFunction("30 minutes", function()
-		gameTimeLimit = 30*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 30 minutes")
-	end)
-	addGMFunction("40 minutes", function()
-		gameTimeLimit = 40*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 40 minutes")
-	end)
-	addGMFunction("45 minutes", function()
-		gameTimeLimit = 45*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 45 minutes")
-	end)
-	addGMFunction("50 minutes", function()
-		gameTimeLimit = 50*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 50 minutes")
-	end)
-	addGMFunction("55 minutes", function()
-		gameTimeLimit = 55*60
-		plot2 = timedGame
-		playWithTimeLimit = true
-		addGMMessage("Game time limit set to 55 minutes")
-	end)
+	for gt=15,55,5 do
+		addGMFunction(string.format("%i minutes",gt),function()
+			defaultGameTimeLimitInMinutes = gt
+			gameTimeLimit = defaultGameTimeLimitInMinutes*60
+			plot2 = timedGame
+			playWithTimeLimit = true
+			addGMMessage(string.format("Game time limit set to %i minutes",defaultGameTimeLimitInMinutes))
+		end)
+	end
 end
 -- Dynamic game master buttons --
 function dynamicGameMasterButtons(delta)
@@ -13476,6 +13438,7 @@ function friendlyTransportPlot(delta)
 end
 -- Plot 1 peace/treaty/war states
 function treatyHolds(delta)
+	game_state = "treaty holds"
 	primaryOrders = "Treaty holds. Patrol border. Stay out of blue neutral border zone"
 	for pidx=1,8 do
 		local p = getPlayerShip(pidx)
@@ -13530,6 +13493,7 @@ function treatyHolds(delta)
 	end
 end
 function treatyStressed(delta)
+	game_state = "kraylors belligerent"
 	treatyStressTimer = treatyStressTimer - delta
 	if not initialAssetsEvaluated then
 		if gameTimeLimit < 1700 then
@@ -13571,6 +13535,7 @@ function treatyStressed(delta)
 	end
 end
 function limitedWar(delta)
+	game_state = "limited war"
 	if not initialAssetsEvaluated then
 		if gameTimeLimit < 1700 then
 			evaluateInitialAssets()
@@ -13578,6 +13543,7 @@ function limitedWar(delta)
 	end
 	limitedWarTimer = limitedWarTimer - delta
 	if limitedWarTimer < 0 then
+		game_state = "full war"
 		primaryOrders = "War continues. Atrocities suspected. Destroy any Kraylor vessels or stations"
 		for pidx=1,8 do
 			local p = getPlayerShip(pidx)
@@ -13702,6 +13668,7 @@ function timedGame(delta)
 		if plot2diagnostic then print("reason set") end
 		endStatistics()
 		if plot2diagnostic then print("finished end stats page") end
+		game_state = "victory-human"
 		victory("Human Navy")
 	end
 end
@@ -14507,6 +14474,7 @@ function displayDefeatResults(delta)
 	if finalTimer < 0 then
 		missionCompleteReason = "Player violated treaty terms by crossing neutral border zone"
 		endStatistics()
+		game_state = "victory-kraylor"
 		victory("Kraylor")
 	end
 end
@@ -14520,6 +14488,7 @@ function playerWarCrimeCheck(delta)
 			missionVictory = false
 			missionCompleteReason = "Player committed war crimes by destroying civilians aboard Kraylor station"
 			endStatistics()
+			game_state = "victory_kraylor"
 			victory("Kraylor")
 		end
 	end
@@ -15148,6 +15117,7 @@ function endWar(delta)
 			missionVictory = true
 			missionCompleteReason = string.format("Enemy reduced to less than %i%% strength",math.floor(enemyDestructionVictoryCondition))
 			endStatistics()
+			game_state = "victory-human"
 			victory("Human Navy")
 		end
 		local evalFriendly = stat_list.human.station.percentage * friendlyStationComponentWeight + stat_list.independent.station.percentage * neutralStationComponentWeight + stat_list.human.ship.percentage * friendlyShipComponentWeight
@@ -15156,18 +15126,21 @@ function endWar(delta)
 			missionVictory = false
 			missionCompleteReason = string.format("Human Navy reduced to less than %i%% strength",math.floor(friendlyDestructionDefeatCondition))
 			endStatistics()
+			game_state = "victory-kraylor"
 			victory("Kraylor")
 		end
 		if evalEnemy - evalFriendly > destructionDifferenceEndCondition then
 			missionVictory = false
 			missionCompleteReason = string.format("Enemy strength exceeded ours by %i percentage points",math.floor(destructionDifferenceEndCondition))
 			endStatistics()
+			game_state = "victory-kraylor"
 			victory("Kraylor")
 		end
 		if evalFriendly - evalEnemy > destructionDifferenceEndCondition then
 			missionVictory = true
 			missionCompleteReason = string.format("Our strength exceeded enemy strength by %i percentage points",math.floor(destructionDifferenceEndCondition))
 			endStatistics()
+			game_state = "victory-human"
 			victory("Human Navy")
 		end
 	end
@@ -15321,6 +15294,15 @@ end
 function gatherStats()
 	local stat_list = {}
 	stat_list.scenario = {name = "Borderline Fever", version = scenario_version}
+	stat_list.times = {}
+	stat_list.times.stage = game_state
+	if playWithTimeLimit then
+		stat_list.times.game = {}
+		stat_list.times.game.max = defaultGameTimeLimitInMinutes*60
+		stat_list.times.game.total_seconds_left = gameTimeLimit
+		stat_list.times.game.minutes_left = math.floor(gameTimeLimit / 60)
+		stat_list.times.game.seconds_left = math.floor(gameTimeLimit % 60)
+	end
 	stat_list.human = {}
 	stat_list.human.station = {}
 	stat_list.human.station.count = 0
