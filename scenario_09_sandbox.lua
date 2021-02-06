@@ -11078,10 +11078,104 @@ function tweakEngineering()
 	addGMFunction("+Coolant",changePlayerCoolant)
 	addGMFunction("+Repair Crew",changePlayerRepairCrew)
 	addGMFunction("+Max System",changePlayerMaxSystem)
+	addGMFunction("+Beam heat/energy",changePlayerBeams)
 	addGMFunction("shields degrade",shieldsDegrade)
 	addGMFunction("shields regen",shieldsRegen)
 	addGMFunction("bleed energy",bleedEnergy)
 	addGMFunction("restore energy",restoreEnergy)
+end
+function changePlayerBeams()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Engineering",tweakEngineering)
+	local p = playerShipSelected()
+	local button_label = "Beam Heat +"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Heat +",p:getBeamWeaponHeatPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponHeatPerFire(beam_index,p:getBeamWeaponHeatPerFire(beam_index)*1.2)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
+	button_label = "Beam Heat -"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Heat -",p:getBeamWeaponHeatPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponHeatPerFire(beam_index,p:getBeamWeaponHeatPerFire(beam_index)*.8)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
+	button_label = "Beam Energy +"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Energy +",p:getBeamWeaponEnergyPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponEnergyPerFire(beam_index,p:getBeamWeaponEnergyPerFire(beam_index)*1.1)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
+	button_label = "Beam Energy -"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Energy -",p:getBeamWeaponEnergyPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponEnergyPerFire(beam_index,p:getBeamWeaponEnergyPerFire(beam_index)*.9)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
 end
 -----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Cool --
