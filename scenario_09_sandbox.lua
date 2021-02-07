@@ -2607,6 +2607,61 @@ function orderShip()
 	addGMFunction("+Attach To Ship",attachAnythingToNPS)
 	addGMFunction("+Detach",detachAnythingFromNPS)
 	addGMFunction("+Patrol",setPatrolPoints)	--currently broken
+	local button_label = "+AI"
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local obj = object_list[1]
+		if obj.typeName == "CpuShip" then
+			if obj.AI ~= nil then
+				button_label = string.format("+AI %s",obj.AI)
+			end
+		end
+	end
+	addGMFunction(button_label,setShipAI)
+end
+function setShipAI()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("You need to select a CPU ship. No action taken.")
+		orderShip()
+	end
+	local obj = object_list[1]
+	if obj ~= nil then
+		if obj.typeName ~= "CpuShip" then
+			addGMMessage("What you have selected is not a CPU ship. No action taken.")
+			orderShip()
+		end
+	else
+		orderShip()
+	end
+	clearGMFunctions()
+	local button_label = "default"
+	if obj.AI == "default" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("default")
+		obj.AI = "default"
+		orderShip()
+	end)
+	button_label = "fighter"
+	if obj.AI == "fighter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("fighter")
+		obj.AI = "fighter"
+		orderShip()
+	end)
+	button_label = "missilevolley"
+	if obj.AI == "missilevolley" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("missilevolley")
+		obj.AI = "missilevolley"
+		orderShip()
+	end)
 end
 -----------------
 --	Artifacts  --
@@ -5178,9 +5233,9 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
-			dp6Zone:setColor(0,128,0)
+--		if i == 6 then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
+--			dp6Zone:setColor(0,128,0)
 --		elseif i == 3 then
 --			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
 --			dp3Zone:setColor(0,128,0)
@@ -5190,11 +5245,11 @@ function createIcarusColor()
 --		elseif i == 1 then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
 --			dp1Zone:setColor(0,128,0)
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -5434,9 +5489,10 @@ function createIcarusStations()
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
 	--Elysium F4m2.5 
-	--local elysiumZone = squareZone(-7504, 1384, "Elysium 3 F4.3")
-	--elysiumZone:setColor(51,153,255)
-    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 3"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
+	local elysiumZone = squareZone(-7504, 1384, "Elysium 4 F4.3")
+	elysiumZone:setColor(51,153,255)
+	--[[
+    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 4"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -5472,6 +5528,7 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
+	--]]
 	--Finnegan
 	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
 	--finneganZone:setColor(51,153,255)
@@ -5704,10 +5761,10 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	local nervaZone = squareZone(-9203, -2077, "Nerva 5 E4")
+	local nervaZone = squareZone(-9203, -2077, "Nerva 8 E4")
 	nervaZone:setColor(51,153,255)
 	--[[
-    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 5"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
+    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 8"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -18066,14 +18123,17 @@ function enforcer(enemyFaction)
 	ship:setHullMax(100)										--stronger hull (vs 70)
 	ship:setHull(100)
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	30,	  -15,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
-	ship:setBeamWeapon(1,	30,	   15,	1500,		6,		10)
+	ship:setBeamWeapon(0,	30,	    5,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
+	ship:setBeamWeapon(1,	30,	   -5,	1500,		6,		10)
 	ship:setBeamWeapon(2,	 0,	    0,	   0,		0,		 0)	--fewer (vs 4)
 	ship:setBeamWeapon(3,	 0,	    0,	   0,		0,		 0)
 	ship:setWeaponTubeCount(3)									--more (vs 0)
 	ship:setTubeSize(0,"large")									--large (vs normal)
-	ship:setWeaponTubeDirection(1,-30)				
-	ship:setWeaponTubeDirection(2, 30)				
+	ship:setWeaponTubeDirection(1,-15)				
+	ship:setWeaponTubeDirection(2, 15)	
+	ship:setTubeLoadTime(0,18)
+	ship:setTubeLoadTime(1,12)
+	ship:setTubeLoadTime(2,12)			
 	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
 	ship:setWeaponStorage("Homing", 18)
 	local enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
