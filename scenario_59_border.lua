@@ -19,7 +19,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.2"
+	scenario_version = "5.0.3"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -138,6 +138,7 @@ function init()
 	endStatDiagnostic = false
 	printDetailedStats = true
 	change_enemy_order_diagnostic = false
+	distance_diagnostic = true
 	setConstants()	--missle type names, template names and scores, deployment directions, player ship names, etc.
 	repeat
 		setGossipSnippets()
@@ -194,7 +195,7 @@ function init()
 	friendlyTransportList = {}
 	friendlyTransportSpawnDelay = 20
 	plotEW = endWar
-	endWarTimerInterval = 9
+	endWarTimerInterval = 3
 	endWarTimer = endWarTimerInterval
 	plotDGM = dynamicGameMasterButtons
 	plotPA = personalAmbush
@@ -7166,6 +7167,7 @@ function handleDockedState()
     if comms_target:areEnemiesInRange(20000) then
 		oMsg = oMsg .. "\nForgive us if we seem a little distracted. We are carefully monitoring the enemies nearby."
 	end
+	oMsg = string.format("%s\n\nReputation: %i",oMsg,math.floor(comms_source:getReputationPoints()))
 	setCommsMessage(oMsg)
 	local missilePresence = 0
 	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
@@ -7181,7 +7183,7 @@ function handleDockedState()
 			addCommsReply("I need ordnance restocked", function()
 				local ctd = comms_target.comms_data
 				if stationCommsDiagnostic then print("in restock function") end
-				setCommsMessage("What type of ordnance?")
+				setCommsMessage(string.format("What type of ordnance?\n\nReputation: %i",math.floor(comms_source:getReputationPoints())))
 				if stationCommsDiagnostic then print(string.format("player nuke weapon storage max: %.1f",comms_source:getWeaponStorageMax("Nuke"))) end
 				if comms_source:getWeaponStorageMax("Nuke") > 0 then
 					if stationCommsDiagnostic then print("player can fire nukes") end
@@ -7349,7 +7351,7 @@ function handleDockedState()
 	end
 	if offer_repair then
 		addCommsReply("Repair ship system",function()
-			setCommsMessage("What system would you like repaired?")
+			setCommsMessage(string.format("What system would you like repaired?\n\nReputation: %i",math.floor(comms_source:getReputationPoints())))
 			if comms_target.comms_data.probe_launch_repair then
 				if not comms_source:getCanLaunchProbe() then
 					addCommsReply("Repair probe launch system (5 Rep)",function()
@@ -7630,14 +7632,14 @@ function handleDockedState()
 				comms_target.cartographer_description = "The clerk behind the desk glances at you then returns to preening her feathers."
 			end
 		end
-		setCommsMessage(string.format("%s\n\nYou can examine the brochure on the coffee table, talk to the apprentice cartographer or talk to the master cartographer",comms_target.cartographer_description))
+		setCommsMessage(string.format("%s\n\nYou can examine the brochure on the coffee table, talk to the apprentice cartographer or talk to the master cartographer.\n\nReputation: %i",comms_target.cartographer_description,math.floor(comms_source:getReputationPoints())))
 		addCommsReply("What's the difference between the apprentice and the master?", function()
 			setCommsMessage("The clerk responds in a bored voice, 'The apprentice knows the local area and is learning the broader area. The master knows the local and the broader area but can't be bothered with the local area'")
 			addCommsReply("Back",commsStation)
 		end)
 		addCommsReply(string.format("Examine brochure (%i rep)",getCartographerCost()),function()
 			if comms_source:takeReputationPoints(getCartographerCost()) then
-				setCommsMessage("The brochure has a list of nearby stations and has a list of goods nearby")
+				setCommsMessage(string.format("The brochure has a list of nearby stations and has a list of goods nearby.\n\nReputation: %i",math.floor(comms_source:getReputationPoints())))
 				addCommsReply(string.format("Examine station list (%i rep)",getCartographerCost()), function()
 					if comms_source:takeReputationPoints(getCartographerCost()) then
 						local brochure_stations = ""
@@ -7694,6 +7696,7 @@ function handleDockedState()
 						if obj.typeName == "SpaceStation" then
 							if not obj:isEnemy(comms_target) then
 								if obj.comms_data.characterDescription ~= nil then
+									if distance_diagnostic then print("distance_diagnostic 1",obj,sx,sy) end
 									local sd = distance(obj,sx, sy)
 									if random(0,1) < (1 - (sd/30000)) then
 										table.insert(upgrade_stations,obj)
@@ -7897,6 +7900,12 @@ function handleDockedState()
 		end)
 		addCommsReply("Back",commsStation)
 	end)
+	if comms_source:isFriendly(comms_target) then
+		addCommsReply("Visit the office of wartime statistics",function()
+			wartimeStatistics()
+			addCommsReply("Back",commsStation)
+		end)
+	end
 	local goodCount = 0
 	for good, goodData in pairs(ctd.goods) do
 		goodCount = goodCount + 1
@@ -7972,73 +7981,91 @@ function handleDockedState()
 					end
 				end
 			end
-			if ctd.trade.food and comms_source.goods ~= nil and comms_source.goods.food ~= nil and comms_source.goods.food.quantity > 0 then
-				for good, goodData in pairs(ctd.goods) do
-					addCommsReply(string.format("Trade food for %s",good), function()
-						local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
-						if goodData["quantity"] < 1 then
-							goodTransactionMessage = goodTransactionMessage .. "\nInsufficient station inventory"
-						else
-							goodData["quantity"] = goodData["quantity"] - 1
-							if comms_source.goods == nil then
-								comms_source.goods = {}
+			if ctd.trade.food then
+				if comms_source.goods ~= nil then
+					if comms_source.goods.food ~= nil then
+						if comms_source.goods.food.quantity > 0 then
+							for good, goodData in pairs(ctd.goods) do
+								addCommsReply(string.format("Trade food for %s",good), function()
+									local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
+									if goodData["quantity"] < 1 then
+										goodTransactionMessage = goodTransactionMessage .. "\nInsufficient station inventory"
+									else
+										goodData["quantity"] = goodData["quantity"] - 1
+										if comms_source.goods == nil then
+											comms_source.goods = {}
+										end
+										if comms_source.goods[good] == nil then
+											comms_source.goods[good] = 0
+										end
+										comms_source.goods[good] = comms_source.goods[good] + 1
+										comms_source.goods["food"] = comms_source.goods["food"] - 1
+										goodTransactionMessage = goodTransactionMessage .. "\nTraded"
+									end
+									setCommsMessage(goodTransactionMessage)
+									addCommsReply("Back", commsStation)
+								end)
 							end
-							if comms_source.goods[good] == nil then
-								comms_source.goods[good] = 0
-							end
-							comms_source.goods[good] = comms_source.goods[good] + 1
-							comms_source.goods["food"] = comms_source.goods["food"] - 1
-							goodTransactionMessage = goodTransactionMessage .. "\nTraded"
 						end
-						setCommsMessage(goodTransactionMessage)
-						addCommsReply("Back", commsStation)
-					end)
+					end
 				end
 			end
-			if ctd.trade.medicine and comms_source.goods ~= nil and comms_source.goods.medicine ~= nil and comms_source.goods.medicine.quantity > 0 then
-				for good, goodData in pairs(ctd.goods) do
-					addCommsReply(string.format("Trade medicine for %s",good), function()
-						local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
-						if goodData["quantity"] < 1 then
-							goodTransactionMessage = goodTransactionMessage .. "\nInsufficient station inventory"
-						else
-							goodData["quantity"] = goodData["quantity"] - 1
-							if comms_source.goods == nil then
-								comms_source.goods = {}
+			if ctd.trade.medicine then
+				if comms_source.goods ~= nil then
+					if comms_source.goods.medicine ~= nil then
+						if comms_source.goods.medicine.quantity > 0 then
+							for good, goodData in pairs(ctd.goods) do
+								addCommsReply(string.format("Trade medicine for %s",good), function()
+									local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
+									if goodData["quantity"] < 1 then
+										goodTransactionMessage = goodTransactionMessage .. "\nInsufficient station inventory"
+									else
+										goodData["quantity"] = goodData["quantity"] - 1
+										if comms_source.goods == nil then
+											comms_source.goods = {}
+										end
+										if comms_source.goods[good] == nil then
+											comms_source.goods[good] = 0
+										end
+										comms_source.goods[good] = comms_source.goods[good] + 1
+										comms_source.goods["medicine"] = comms_source.goods["medicine"] - 1
+										goodTransactionMessage = goodTransactionMessage .. "\nTraded"
+									end
+									setCommsMessage(goodTransactionMessage)
+									addCommsReply("Back", commsStation)
+								end)
 							end
-							if comms_source.goods[good] == nil then
-								comms_source.goods[good] = 0
-							end
-							comms_source.goods[good] = comms_source.goods[good] + 1
-							comms_source.goods["medicine"] = comms_source.goods["medicine"] - 1
-							goodTransactionMessage = goodTransactionMessage .. "\nTraded"
 						end
-						setCommsMessage(goodTransactionMessage)
-						addCommsReply("Back", commsStation)
-					end)
+					end
 				end
 			end
-			if ctd.trade.luxury and comms_source.goods ~= nil and comms_source.goods.luxury ~= nil and comms_source.goods.luxury.quantity > 0 then
-				for good, goodData in pairs(ctd.goods) do
-					addCommsReply(string.format("Trade luxury for %s",good), function()
-						local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
-						if goodData[quantity] < 1 then
-							goodTransactionMessage = goodTransactionMessage .. "\nInsufficient station inventory"
-						else
-							goodData["quantity"] = goodData["quantity"] - 1
-							if comms_source.goods == nil then
-								comms_source.goods = {}
+			if ctd.trade.luxury then
+				if comms_source.goods ~= nil then
+					if comms_source.goods.luxury ~= nil then
+						if comms_source.goods.luxury.quantity > 0 then
+							for good, goodData in pairs(ctd.goods) do
+								addCommsReply(string.format("Trade luxury for %s",good), function()
+									local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
+									if goodData[quantity] < 1 then
+										goodTransactionMessage = goodTransactionMessage .. "\nInsufficient station inventory"
+									else
+										goodData["quantity"] = goodData["quantity"] - 1
+										if comms_source.goods == nil then
+											comms_source.goods = {}
+										end
+										if comms_source.goods[good] == nil then
+											comms_source.goods[good] = 0
+										end
+										comms_source.goods[good] = comms_source.goods[good] + 1
+										comms_source.goods["luxury"] = comms_source.goods["luxury"] - 1
+										goodTransactionMessage = goodTransactionMessage .. "\nTraded"
+									end
+									setCommsMessage(goodTransactionMessage)
+									addCommsReply("Back", commsStation)
+								end)
 							end
-							if comms_source.goods[good] == nil then
-								comms_source.goods[good] = 0
-							end
-							comms_source.goods[good] = comms_source.goods[good] + 1
-							comms_source.goods["luxury"] = comms_source.goods["luxury"] - 1
-							goodTransactionMessage = goodTransactionMessage .. "\nTraded"
 						end
-						setCommsMessage(goodTransactionMessage)
-						addCommsReply("Back", commsStation)
-					end)
+					end
 				end
 			end
 			addCommsReply("Back", commsStation)
@@ -8081,6 +8108,7 @@ function masterCartographer()
 			for _, obj in ipairs(nearby_objects) do
 				if obj.typeName == "SpaceStation" then
 					if not obj:isEnemy(comms_target) then
+						if distance_diagnostic then print("distance_diagnostic 2",comms_target,obj) end
 						station_distance = distance(comms_target,obj)
 						if station_distance > 50000 then
 							if obj.comms_data.characterDescription ~= nil then
@@ -8105,6 +8133,7 @@ function masterCartographer()
 			for _, obj in ipairs(nearby_objects) do
 				if obj.typeName == "SpaceStation" then
 					if not obj:isEnemy(comms_target) then
+						if distance_diagnostic then print("distance_diagnostic 3",comms_target,obj) end
 						station_distance = distance(comms_target,obj)
 						if station_distance > 50000 then
 							stations_known = stations_known + 1
@@ -8150,6 +8179,7 @@ function masterCartographer()
 			for _, obj in ipairs(nearby_objects) do
 				if obj.typeName == "SpaceStation" then
 					if not obj:isEnemy(comms_target) then
+						if distance_diagnostic then print("distance_diagnostic 4",comms_target,obj) end
 						local station_distance = distance(comms_target,obj)
 						if station_distance > 50000 then
 							if obj.comms_data.goods ~= nil then
@@ -8163,6 +8193,7 @@ function masterCartographer()
 			end
 			for good, obj in pairs(by_goods) do
 				addCommsReply(good, function()
+					if distance_diagnostic then print("distance_diagnostic 5",comms_target,obj) end
 					local station_distance = distance(comms_target,obj)
 					local station_details = string.format("%s %s %s Distance:%.1fU",obj:getSectorName(),obj:getFaction(),obj:getCallSign(),station_distance/1000)
 					if obj.comms_data.goods ~= nil then
@@ -8197,6 +8228,7 @@ function masterCartographer()
 				setCommsMessage("What station?")
 				for i=1,#ctd.character_master do
 					local obj = ctd.character_master[i]
+					if distance_diagnostic then print("distance_diagnostic 6",comms_target,obj) end
 					station_distance = distance(comms_target,obj)
 					addCommsReply(obj:getCallSign(), function()
 						local station_details = string.format("%s %s %s Distance:%.1fU",obj:getSectorName(),obj:getFaction(),obj:getCallSign(),station_distance/1000)
@@ -8543,6 +8575,12 @@ function handleUndockedState()
 				addCommsReply("Back", commsStation)
 			end)
 		end
+		if comms_source:isFriendly(comms_target) then
+			addCommsReply("Contact the office of wartime statistics",function()
+				wartimeStatistics()
+				addCommsReply("Back",commsStation)
+			end)
+		end
 		addCommsReply("Where can I find particular goods?", function()
 			local ctd = comms_target.comms_data
 			gkMsg = "Friendly stations often have food or medicine or both. Neutral stations may trade their goods for food, medicine or luxury."
@@ -8554,6 +8592,7 @@ function handleUndockedState()
 					local station = humanStationList[i]
 					if station ~= nil and station:isValid() then
 						local brainCheckChance = 60
+						if distance_diagnostic then print("distance_diagnostic 7",comms_target,station) end
 						if distance(comms_target,station) > 75000 then
 							brainCheckChance = 20
 						end
@@ -8960,6 +8999,211 @@ function getFriendStatus()
         return "neutral"
     end
 end
+function wartimeStatistics()
+	setCommsMessage("So, what category of wartime statistics are you interested in?")
+	addCommsReply("Destroyed assets",function()
+		setCommsMessage("What kind of destroyed assets may I show you?")
+		addCommsReply("Destroyed Human stations",function()
+			if friendlyStationDestroyedNameList ~= nil and #friendlyStationDestroyedNameList > 0 then
+				local out = "Destroyed Human Stations (value, name):"
+				local friendlyDestructionValue = 0
+				for i=1,#friendlyStationDestroyedNameList do
+					out = string.format("%s\n    %2d %s",out,friendlyStationDestroyedValue[i],friendlyStationDestroyedNameList[i])
+					friendlyDestructionValue = friendlyDestructionValue + friendlyStationDestroyedValue[i]
+				end
+				local stat_list = gatherStats()
+				out = string.format("%s\nTotal: %s (station evaluation weight: %i%%)",out,friendlyDestructionValue,stat_list.human.weight.station*100)
+				setCommsMessage(out)
+			else
+				setCommsMessage("No Human stations have been destroyed (yet)")
+			end
+			addCommsReply("Back",commsStation)		
+		end)
+		addCommsReply("Destroyed Kraylor stations",function()
+			if enemyStationDestroyedNameList ~= nil and #enemyStationDestroyedNameList > 0 then
+				local out = "Destroyed Kraylor Stations (value, name):"
+				local enemyDestroyedValue = 0
+				for i=1,#enemyStationDestroyedNameList do
+					out = string.format("%s\n    %2d %s",out,enemyStationDestroyedValue[i],enemyStationDestroyedNameList[i])
+					enemyDestroyedValue = enemyDestroyedValue + enemyStationDestroyedValue[i]
+				end
+				local stat_list = gatherStats()
+				out = string.format("%s\nTotal: %s (station evaluation weight: %i%%)",out,enemyDestroyedValue,stat_list.kraylor.weight.station*100)
+				setCommsMessage(out)
+			else
+				setCommsMessage("No Kraylor stations have been destroyed (yet)")
+			end
+			addCommsReply("Back",commsStation)		
+		end)
+		addCommsReply("Destroyed Independent stations",function()
+			if neutralStationDestroyedNameList ~= nil and #neutralStationDestroyedNameList > 0 then
+				local out = "Destroyed Independent Stations (value, name):"
+				local neutralDestroyedValue = 0
+				for i=1,#neutralStationDestroyedNameList do
+					out = string.format("%s\n    %2d %s",out,neutralStationDestroyedValue[i],neutralStationDestroyedNameList[i])
+					neutralDestroyedValue = neutralDestroyedValue + neutralStationDestroyedValue[i]
+				end
+				local stat_list = gatherStats()
+				out = string.format("%s\nTotal: %s (station evaluation weight: %i%%)",out,neutralDestroyedValue,stat_list.human.weight.neutral*100)
+				setCommsMessage(out)
+			else
+				setCommsMessage("No Independent stations have been destroyed (yet)")
+			end
+			addCommsReply("Back",commsStation)		
+		end)
+		addCommsReply("Destroyed Human ships",function()
+			if friendlyVesselDestroyedNameList ~= nil and #friendlyVesselDestroyedNameList > 0 then
+				local out = "Destroyed Human Naval Vessels (value, name, type):"
+				local friendlyShipDestroyedValue = 0
+				for i=1,#friendlyVesselDestroyedNameList do
+					out = string.format("%s\n    %2d %s %s",out,friendlyVesselDestroyedValue[i],friendlyVesselDestroyedNameList[i],friendlyVesselDestroyedType[i])
+					friendlyShipDestroyedValue = friendlyShipDestroyedValue + friendlyVesselDestroyedValue[i]
+				end
+				local stat_list = gatherStats()
+				out = string.format("%s\nTotal: %s (ship evaluation weight: %i%%)",out,friendlyShipDestroyedValue,stat_list.human.weight.ship*100)
+				setCommsMessage(out)
+			else
+				setCommsMessage("No Human naval vessels have been destroyed (yet)")
+			end
+			addCommsReply("Back",commsStation)		
+		end)
+		addCommsReply("Destroyed Kraylor ships",function()
+			if enemyVesselDestroyedNameList ~= nil and #enemyVesselDestroyedNameList > 0 then
+				local out = "Destroyed Kraylor Vessels (value, name, type):"
+				local enemyShipDestroyedValue = 0
+				for i=1,#enemyVesselDestroyedNameList do
+					out = string.format("%s\n    %2d %s %s",out,enemyVesselDestroyedValue[i],enemyVesselDestroyedNameList[i],enemyVesselDestroyedType[i])
+					enemyShipDestroyedValue = enemyShipDestroyedValue + enemyVesselDestroyedValue[i]
+				end
+				local stat_list = gatherStats()
+				out = string.format("%s\nTotal: %s (ship evaluation weight: %i%%)",out,enemyShipDestroyedValue,stat_list.kraylor.weight.ship*100)
+				setCommsMessage(out)
+			else
+				setCommsMessage("No Kraylor vessels have been destroyed yet. You'd better get busy")
+			end
+			addCommsReply("Back",commsStation)		
+		end)
+		addCommsReply("Back",commsStation)
+	end)
+	addCommsReply("Surviving assets",function()
+		setCommsMessage("What kind of surviving assets may I show you?")
+		addCommsReply("Surviving Human stations",function()
+			local out = "Surviving Human stations (value, name):"
+			local friendlySurvivalValue = 0
+			for _, station in ipairs(stationList) do
+				if station:isValid() then
+					if station:isFriendly(comms_source) then
+						out = string.format("%s\n    %2d %s",out,station.strength,station:getCallSign())
+						friendlySurvivalValue = friendlySurvivalValue + station.strength
+					end
+				end
+			end
+			local stat_list = gatherStats()
+			out = string.format("%s\nTotal: %s (station evaluation weight: %i%%)",out,friendlySurvivalValue,stat_list.human.weight.station*100)
+			setCommsMessage(out)
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply("Surviving Kraylor stations",function()
+			local out = "Surviving Kraylor stations (value, name):"
+			local enemySurvivalValue = 0
+			for _, station in ipairs(stationList) do
+				if station:isValid() then
+					if station:isEnemy(comms_source) then
+						out = string.format("%s\n    %2d %s",out,station.strength,station:getCallSign())
+						enemySurvivalValue = enemySurvivalValue + station.strength
+					end
+				end
+			end
+			local stat_list = gatherStats()
+			out = string.format("%s\nTotal: %s (station evaluation weight: %i%%)",out,enemySurvivalValue,stat_list.kraylor.weight.station*100)
+			if game_state == "full war" then
+				out = string.format("%s\n\nNow that we've been given authorization to destroy Kraylor stations, can you provide the location of one of these staions, please?",out)
+				setCommsMessage(out)
+				addCommsReply("Get location of one enemy station (5 Rep)",function()
+					if comms_source:takeReputationPoints(5) then
+						setCommsMessage("Which enemy station are you interested in?")
+						local choice_count = 0
+						for _, station in ipairs(stationList) do
+							if station:isValid() then
+								if station:isEnemy(comms_source) then
+									choice_count = choice_count + 1
+									addCommsReply(station:getCallSign(),function()
+										setCommsMessage(string.format("Station %s is in %s",station:getCallSign(),station:getSectorName()))
+										addCommsReply("Back",commsStation)
+									end)
+								end
+							end
+							if choice_count >= 20 then
+								break
+							end
+						end
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+				end)
+			else
+				setCommsMessage(out)
+			end
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply("Surviving Independent Stations",function()
+			local out = "Surviving Independent stations (value, name):"
+			local neutralSurvivalValue = 0
+			for _, station in ipairs(stationList) do
+				if station:isValid() then
+					if not station:isFriendly(comms_source) and not station:isEnemy(comms_source)then
+						out = string.format("%s\n    %2d %s",out,station.strength,station:getCallSign())
+						neutralSurvivalValue = neutralSurvivalValue + station.strength
+					end
+				end
+			end
+			local stat_list = gatherStats()
+			out = string.format("%s\nTotal: %s (station evaluation weight: %i%%)",out,neutralSurvivalValue,stat_list.human.weight.neutral*100)
+			setCommsMessage(out)
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply("Surviving Human ships",function()
+			local out = "Surviving Human naval vessels (value, name, type):"
+			local friendlyShipSurvivedValue = 0
+			for j=1,#friendlyFleetList do
+				local tempFleet = friendlyFleetList[j]
+				for _, tempFriend in ipairs(tempFleet) do
+					if tempFriend ~= nil and tempFriend:isValid() then
+						local friend_type = tempFriend:getTypeName()
+						out = string.format("%s\n    %2d %s %s",out,ship_template[friend_type].strength,tempFriend:getCallSign(),friend_type)
+						friendlyShipSurvivedValue = friendlyShipSurvivedValue + ship_template[friend_type].strength
+					end
+				end
+			end
+			local stat_list = gatherStats()
+			out = string.format("%s\nTotal: %s (ship evaluation weight: %i%%)",out,friendlyShipSurvivedValue,stat_list.human.weight.ship*100)
+			setCommsMessage(out)
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply("Surviving Kraylor ships",function()
+			local out = "Surviving Kraylor vessels (intelligence estimate):"
+			local enemyShipSurvivedValue = 0
+			local enemyShipCount = 0
+			local ship_type_list = {}
+			for j=1,#enemyFleetList do
+				tempFleet = enemyFleetList[j]
+				for _, tempEnemy in ipairs(tempFleet) do
+					local enemy_type = tempEnemy:getTypeName()
+					enemyShipSurvivedValue = enemyShipSurvivedValue + ship_template[enemy_type].strength
+					enemyShipCount = enemyShipCount + 1
+					table.insert(ship_type_list,enemy_type)
+				end
+			end
+			local stat_list = gatherStats()
+			out = string.format("%s\nApproximately %i ships valued between %i and %i",out,enemyShipCount,math.floor(enemyShipSurvivedValue - random(0,enemyShipSurvivedValue*.3)),math.floor(enemyShipSurvivedValue + random(0,enemyShipSurvivedValue*.3)))
+			out = string.format("%s\nAt least one ship is of type %s",out,ship_type_list[math.random(1,#ship_type_list)])
+			out = string.format("%s\nShip evaluation weight: %i%%",out,stat_list.kraylor.weight.ship*100)
+			setCommsMessage(out)
+			addCommsReply("Back",commsStation)
+		end)
+		addCommsReply("Back",commsStation)
+	end)
+end
 -------------------------------
 -- Defend ship communication --
 -------------------------------
@@ -9282,6 +9526,7 @@ function friendlyComms(comms_data)
 	if shipCommsDiagnostic then print("got ship type") end
 	if shipType:find("Freighter") ~= nil then
 		if shipCommsDiagnostic then print("it's a freighter") end
+		if distance_diagnostic then print("distance_diagnostic 8",comms_source,comms_target) end
 		if distance(comms_source, comms_target) < 5000 then
 			if shipCommsDiagnostic then print("close enough to trade or sell") end
 			local goodCount = 0
@@ -9987,6 +10232,7 @@ function neutralComms(comms_data)
 			end
 			setCommsMessage(cargoMsg)
 		end)
+		if distance_diagnostic then print("distance_diagnostic 9",comms_source,comms_target) end
 		if distance(comms_source,comms_target) < 5000 then
 			local goodCount = 0
 			if comms_source.goods ~= nil then
@@ -10260,6 +10506,7 @@ function closestPlayerTo(obj)
 		for pidx=1,8 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
+				if distance_diagnostic then print("distance_diagnostic 10",p,obj) end
 				local currentDistance = distance(p,obj)
 				if currentDistance < closestDistance then
 					closestPlayer = p
@@ -10280,6 +10527,7 @@ function nearStations(nobj, compareStationList)
 	for ri, obj in ipairs(compareStationList) do
 		if obj ~= nil and obj:isValid() and obj:getCallSign() ~= nobj:getCallSign() then
 			table.insert(remainingStations,obj)
+--			if distance_diagnostic then print("distance_diagnostic 11",nobj,obj) end
 			local currentDistance = distance(nobj, obj)
 			if currentDistance < closestDistance then
 				closestObj = obj
@@ -10924,23 +11172,19 @@ function healthCheck(delta)
 			end
 		end
 		healthCheckTimer = delta + healthCheckTimerInterval
-		local friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct = listStatuses()
-		if friendlySurvivedCount ~= nil then
-			local evalFriendly = fpct2*friendlyStationComponentWeight + npct2*neutralStationComponentWeight + fpct*friendlyShipComponentWeight
-			local evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
-			resetBanner(evalFriendly,evalEnemy)
-			local eval_status = string.format("F:%.1f%% E:%.1f%% D:%.1f%%",evalFriendly,evalEnemy,evalFriendly-evalEnemy)
-			for pidx=1,8 do
-				local p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if p:hasPlayerAtPosition("Relay") then
-						p.eval_status = "eval_status"
-						p:addCustomInfo("Relay",p.eval_status,eval_status)
-					end
-					if p:hasPlayerAtPosition("Operations") then
-						p.eval_status_operations = "eval_status_operations"
-						p:addCustomInfo("Operations",p.eval_status_operations,eval_status)
-					end
+		local stat_list = gatherStats()
+		resetBanner(stat_list.human.evaluation,stat_list.kraylor.evaluation)
+		local eval_status = string.format("F:%.1f%% E:%.1f%% D:%.1f%%",stat_list.human.evaluation,stat_list.kraylor.evaluation,stat_list.human.evaluation-stat_list.kraylor.evaluation)
+		for pidx=1,8 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				if p:hasPlayerAtPosition("Relay") then
+					p.eval_status = "eval_status"
+					p:addCustomInfo("Relay",p.eval_status,eval_status)
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p.eval_status_operations = "eval_status_operations"
+					p:addCustomInfo("Operations",p.eval_status_operations,eval_status)
 				end
 			end
 		end
@@ -11301,6 +11545,7 @@ function coolantNebulae(delta)
 		if p ~= nil and p:isValid() then
 			local inside_gain_coolant_nebula = false
 			for i=1,#coolant_nebula do
+--				if distance_diagnostic then print("distance_diagnostic 12",p,coolant_nebula[i]) end
 				if distance(p,coolant_nebula[i]) < 5000 then
 					if coolant_nebula[i].lose then
 						p:setMaxCoolant(p:getMaxCoolant()*coolant_loss)
@@ -12586,14 +12831,17 @@ function enforcer(enemyFaction)
 	ship:setHullMax(100)										--stronger hull (vs 70)
 	ship:setHull(100)
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	30,	  -15,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
-	ship:setBeamWeapon(1,	30,	   15,	1500,		6,		10)
+	ship:setBeamWeapon(0,	30,	    5,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
+	ship:setBeamWeapon(1,	30,	   -5,	1500,		6,		10)
 	ship:setBeamWeapon(2,	 0,	    0,	   0,		0,		 0)	--fewer (vs 4)
 	ship:setBeamWeapon(3,	 0,	    0,	   0,		0,		 0)
 	ship:setWeaponTubeCount(3)									--more (vs 0)
 	ship:setTubeSize(0,"large")									--large (vs normal)
-	ship:setWeaponTubeDirection(1,-30)				
-	ship:setWeaponTubeDirection(2, 30)				
+	ship:setWeaponTubeDirection(1,-15)				
+	ship:setWeaponTubeDirection(2, 15)				
+	ship:setTubeLoadTime(0,18)
+	ship:setTubeLoadTime(1,12)
+	ship:setTubeLoadTime(2,12)			
 	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
 	ship:setWeaponStorage("Homing", 18)
 	local enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
@@ -12607,9 +12855,9 @@ function enforcer(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams.",
 			{
-				{key = "Large tube 0", value = "20 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -30", value = "20 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 30", value = "20 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
 			},
 			nil
 		)
@@ -13694,6 +13942,7 @@ function pincerAttack(delta)
 	pincerTimer = pincerTimer - delta
 	if pincerTimer < 0 then
 		if plot3diagnostic then print("pincer timer expired") end
+		if distance_diagnostic then print("distance_diagnostic 13",kraylorCentroidX,kraylorCentroidY,referenceStartX,referenceStartY) end
 		local pincerSize = distance(kraylorCentroidX,kraylorCentroidY,referenceStartX,referenceStartY)*random(.4,.7)
 		foundInitialFleetMember = false
 		for i=1,#enemyFleetList do
@@ -13880,6 +14129,7 @@ function enemyDefenseCheck(delta)
 		if p ~= nil and p:isValid() then
 			for _, enemyStation in ipairs(kraylorStationList) do
 				if enemyStation ~= nil and enemyStation:isValid() and not enemyStation.defenseDeployed then
+--					if distance_diagnostic then print("distance_diagnostic 14",p,enemyStation) end
 					local distToEnemyStation = distance(p,enemyStation)
 					if distToEnemyStation < enemyStation.defenseTriggerDistance then
 						if enemyStation.defenseType == "fighterFleet" then
@@ -14049,6 +14299,7 @@ function artifactToPlatform(delta)
 	for i=1,#artPlatformList do
 		local tap = artPlatformList[i]
 		local apx, apy = tap:getPosition()
+		if distance_diagnostic then print("distance_diagnostic 15",apx, apy, tap.originX, tap.originY) end
 		if distance(apx, apy, tap.originX, tap.originY) > tap.triggerDistance then
 			if enemyDefensePlatformList == nil then
 				enemyDefensePlatformList = {}
@@ -14096,6 +14347,7 @@ function warpJammerOrbit(delta)
 				tj:setPosition(tj.originX+newx,tj.originY+newy)
 			else
 				local wjx, wjy = tj:getPosition()
+				if distance_diagnostic then print("distance_diagnostic 16",wjx, wjy, tj.originX, tj.originY) end
 				if distance(wjx, wjy, tj.originX, tj.originY) > tj.triggerDistance then
 					ef, efp = spawnJammerFleet(esx, esy)
 					for _, enemy in ipairs(ef) do
@@ -14115,6 +14367,7 @@ function artifactToMinefield(delta)
 	for i=1,#artMineList do
 		local tam = artMineList[i]
 		local amx, amy = tam:getPosition()
+		if distance_diagnostic then print("distance_diagnostic 17",amx, amy, tam.originX, tam.originY) end
 		if distance(amx, amy, tam.originX, tam.originY) > tam.triggerDistance then
 			if tam.mineCount == nil then
 				tam.mineCount = 0
@@ -14155,6 +14408,7 @@ function explosiveTransportCheck(delta)
 			if p ~= nil and p:isValid() then
 				local tpx, tpy = p:getPosition()
 				local dtx, dty = tdt:getPosition()
+				if distance_diagnostic then print("distance_diagnostic 18",tpx, tpy, dtx, dty) end
 				if distance(tpx, tpy, dtx, dty) < 750 then
 					local tafx = Artifact():setPosition(dtx,dty)
 					tafx:explode()
@@ -14179,6 +14433,7 @@ function artifactToWorm(delta)
 	for i=1,#artWormList do
 		local taw = artWormList[i]
 		local awx, awy = taw:getPosition()
+		if distance_diagnostic then print("distance_diagnostic 19",taw,taw.originX,taw.originY) end
 		if distance(taw,taw.originX,taw.originY) > taw.triggerDistance then
 			taw.deleteMe = true
 			local wdx, wdy = vectorFromAngle(random(0,360),100000)
@@ -14335,12 +14590,8 @@ function personalAmbushDestructCheck(delta)
 	if paDestructTimer < 0 then
 		if initialAssetsEvaluated then
 			if paDiagnostic then print("paDestruct check") end
-			friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct = listStatuses()
-			if friendlySurvivedCount == nil then
-				return
-			end
-			local evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
-			if evalEnemy < paTriggerEval then
+			local stat_list = gatherStats()
+			if stat_list.kraylor.evaluation < paTriggerEval then
 				if paDiagnostic then print("met paDestruct criteria") end
 				local candidate = nil
 				for pidx=1,8 do
@@ -14349,6 +14600,7 @@ function personalAmbushDestructCheck(delta)
 						local nebulaHuntList = p:getObjectsInRange(20000)
 						for _, obj in ipairs(nebulaHuntList) do
 							if obj.typeName == "Nebula" then
+								if distance_diagnostic then print("distance_diagnostic 20",p,obj) end
 								if distance(p,obj) > 6000 then
 									if paDiagnostic then print("found a nebula in " .. obj:getSectorName()) end
 									candidate = obj
@@ -14390,6 +14642,7 @@ function personalAmbushTimeCheck(delta)
 				nebulaHuntList = p:getObjectsInRange(20000)
 				for _, obj in ipairs(nebulaHuntList) do
 					if obj.typeName == "Nebula" then
+						if distance_diagnostic then print("distance_diagnostic 21",p,obj) end
 						if distance(p,obj) > 6000 then
 							if paDiagnostic then print("found a nebula in " .. obj:getSectorName()) end
 							candidate = obj
@@ -14480,11 +14733,8 @@ function displayDefeatResults(delta)
 end
 function playerWarCrimeCheck(delta)
 	if not treaty and not targetKraylorStations and initialAssetsEvaluated then
-		local friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2 = stationStatus()
-		if friendlySurvivedCount == nil then
-			return
-		end
-		if epct2 < 100 then
+		local stat_list = gatherStats()
+		if stat_list.kraylor.station.percentage < 100 then
 			missionVictory = false
 			missionCompleteReason = "Player committed war crimes by destroying civilians aboard Kraylor station"
 			endStatistics()
@@ -14637,6 +14887,7 @@ function muckAndFlies(delta)
 					attemptCount = attemptCount + 1
 					if candidate ~= nil then
 						if candidate:isValid() then
+							if distance_diagnostic then print("distance_diagnostic 22",candidate,px+jx,py+jy) end
 							if distance(candidate,px+jx,py+jy) > (jamDistance*3 + 10000) then
 								validCandidate = true
 							end
@@ -14662,6 +14913,7 @@ function muckAndFlies(delta)
 					attemptCount = attemptCount + 1
 					if candidate ~= nil then
 						if candidate:isValid() then
+							if distance_diagnostic then print("distance_diagnostic 23",candidate,px+jx,py+jy) end
 							if distance(candidate,px+jx,py+jy) > (jamDistance*3 + 10000) then
 								validCandidate = true
 							end
@@ -14968,6 +15220,7 @@ function addMiningButtons(p,mining_objects)
 			p:addCustomButton("Science",p.mining_lock_button,"Lock for Mining",function()
 				local cpx, cpy = p:getPosition()
 				local tpx, tpy = p.mining_target:getPosition()
+				if distance_diagnostic then print("distance_diagnostic 24",cpx,cpy,tpx,tpy) end
 				local asteroid_distance = distance(cpx,cpy,tpx,tpy)
 				if asteroid_distance < 1000 then
 					p.mining_target_lock = true
@@ -14988,6 +15241,7 @@ function addMiningButtons(p,mining_objects)
 			p:addCustomButton("Science",p.mining_target_button,"Target Asteroid",function()
 				string.format("")	--necessary to have global reference for Serious Proton engine
 				tpx, tpy = p.mining_target:getPosition()
+				if distance_diagnostic then print("distance_diagnostic 25",cpx, cpy, tpx, tpy) end
 				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
 				local theta = math.atan(tpy - cpy,tpx - cpx)
 				if theta < 0 then
@@ -15106,39 +15360,31 @@ function endWar(delta)
 	endWarTimer = endWarTimer - delta
 	if endWarTimer < 0 then
 		endWarTimer = delta + endWarTimerInterval
---		friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct = listStatuses()
---		if friendlySurvivedCount == nil then
---			return
---		end
 		local stat_list = gatherStats()
-		local evalEnemy = stat_list.kraylor.station.percentage * enemyStationComponentWeight + stat_list.kraylor.ship.percentage * enemyShipComponentWeight
---		local evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
-		if evalEnemy < enemyDestructionVictoryCondition then
+		if stat_list.kraylor.evaluation < enemyDestructionVictoryCondition then
 			missionVictory = true
 			missionCompleteReason = string.format("Enemy reduced to less than %i%% strength",math.floor(enemyDestructionVictoryCondition))
 			endStatistics()
 			game_state = "victory-human"
 			victory("Human Navy")
 		end
-		local evalFriendly = stat_list.human.station.percentage * friendlyStationComponentWeight + stat_list.independent.station.percentage * neutralStationComponentWeight + stat_list.human.ship.percentage * friendlyShipComponentWeight
---		local evalFriendly = fpct2*friendlyStationComponentWeight + npct2*neutralStationComponentWeight + fpct*friendlyShipComponentWeight
-		if evalFriendly < friendlyDestructionDefeatCondition then
+		if stat_list.human.evaluation < friendlyDestructionDefeatCondition then
 			missionVictory = false
 			missionCompleteReason = string.format("Human Navy reduced to less than %i%% strength",math.floor(friendlyDestructionDefeatCondition))
 			endStatistics()
 			game_state = "victory-kraylor"
 			victory("Kraylor")
 		end
-		if evalEnemy - evalFriendly > destructionDifferenceEndCondition then
+		if stat_list.kraylor.evaluation - stat_list.human.evaluation > stat_list.times.threshold then
 			missionVictory = false
-			missionCompleteReason = string.format("Enemy strength exceeded ours by %i percentage points",math.floor(destructionDifferenceEndCondition))
+			missionCompleteReason = string.format("Enemy strength exceeded ours by %i percentage points",math.floor(stat_list.times.threshold))
 			endStatistics()
 			game_state = "victory-kraylor"
 			victory("Kraylor")
 		end
-		if evalFriendly - evalEnemy > destructionDifferenceEndCondition then
+		if stat_list.human.evaluation - stat_list.kraylor.evaluation > stat_list.times.threshold then
 			missionVictory = true
-			missionCompleteReason = string.format("Our strength exceeded enemy strength by %i percentage points",math.floor(destructionDifferenceEndCondition))
+			missionCompleteReason = string.format("Our strength exceeded enemy strength by %i percentage points",math.floor(stat_list.times.threshold))
 			endStatistics()
 			game_state = "victory-human"
 			victory("Human Navy")
@@ -15146,19 +15392,11 @@ function endWar(delta)
 	end
 end
 function setSecondaryOrders()
-	friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct = listStatuses()
-	if friendlySurvivedCount == nil then
-		secondaryOrders = ""
-		return
-	end
 	secondaryOrders = ""
-	--secondaryOrders = string.format("\nStations: Friendly: %.1f%%, Enemy: %.1f%%, Neutral: %.1f%%",fpct2,epct2,npct2)
-	--secondaryOrders = secondaryOrders .. string.format("\nShips: Friendly: %.1f%%, Enemy: %.1f%%",fpct, epct)
-	evalFriendly = fpct2*friendlyStationComponentWeight + npct2*neutralStationComponentWeight + fpct*friendlyShipComponentWeight
-	secondaryOrders = secondaryOrders .. string.format("\n\nFriendly evaluation: %.1f%%. Below %.1f%% = defeat",evalFriendly,friendlyDestructionDefeatCondition)
-	evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
-	secondaryOrders = secondaryOrders .. string.format("\nEnemy evaluation: %.1f%%. Below %.1f%% = victory",evalEnemy,enemyDestructionVictoryCondition)
-	secondaryOrders = secondaryOrders .. string.format("\n\nGet behind by %.1f%% = defeat. Get ahead by %.1f%% = victory",destructionDifferenceEndCondition,destructionDifferenceEndCondition)
+	local stat_list = gatherStats()
+	secondaryOrders = secondaryOrders .. string.format("\n\nFriendly evaluation: %.1f%%. Below %.1f%% = defeat",stat_list.human.evaluation,friendlyDestructionDefeatCondition)
+	secondaryOrders = secondaryOrders .. string.format("\nEnemy evaluation: %.1f%%. Below %.1f%% = victory",stat_list.kraylor.evaluation,enemyDestructionVictoryCondition)
+	secondaryOrders = secondaryOrders .. string.format("\n\nGet behind by %.1f%% = defeat. Get ahead by %.1f%% = victory",stat_list.times.threshold,stat_list.times.threshold)
 end
 ---------------------------
 -- Statistical functions --
@@ -15296,6 +15534,7 @@ function gatherStats()
 	stat_list.scenario = {name = "Borderline Fever", version = scenario_version}
 	stat_list.times = {}
 	stat_list.times.stage = game_state
+	stat_list.times.threshold = destructionDifferenceEndCondition
 	if playWithTimeLimit then
 		stat_list.times.game = {}
 		stat_list.times.game.max = defaultGameTimeLimitInMinutes*60
@@ -15312,6 +15551,10 @@ function gatherStats()
 	stat_list.human.ship = {}
 	stat_list.human.ship.value = 0
 	stat_list.human.ship.original_value = rawHumanShipStrength
+	stat_list.human.weight = {}
+	stat_list.human.weight.station = friendlyStationComponentWeight
+	stat_list.human.weight.ship = friendlyShipComponentWeight
+	stat_list.human.weight.neutral = neutralStationComponentWeight
 	stat_list.kraylor = {}
 	stat_list.kraylor.station = {}
 	stat_list.kraylor.station.count = 0
@@ -15321,6 +15564,9 @@ function gatherStats()
 	stat_list.kraylor.ship = {}
 	stat_list.kraylor.ship.value = 0
 	stat_list.kraylor.ship.original_value = rawKraylorShipStrength
+	stat_list.kraylor.weight = {}
+	stat_list.kraylor.weight.station = enemyStationComponentWeight
+	stat_list.kraylor.weight.ship = enemyShipComponentWeight
 	stat_list.independent = {}
 	stat_list.independent.station = {}
 	stat_list.independent.station.count = 0
@@ -15412,133 +15658,38 @@ function gatherStats()
 	else
 		stat_list.kraylor.ship.percentage = 100
 	end
+	stat_list.kraylor.evaluation = stat_list.kraylor.station.percentage * stat_list.kraylor.weight.station + stat_list.kraylor.ship.percentage * stat_list.kraylor.weight.ship
+	stat_list.human.evaluation = stat_list.human.station.percentage * stat_list.human.weight.station + stat_list.independent.station.percentage * stat_list.human.weight.neutral + stat_list.human.ship.percentage * stat_list.human.weight.ship
 	return stat_list
-end
-function listStatuses()
-	local friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2 = stationStatus()
-	if friendlySurvivedCount == nil then
-		return nil
-	end
-	--ship information
-	local enemyShipSurvivedCount = 0
-	local enemyShipSurvivedValue = 0
-	for j=1,#enemyFleetList do
-		local tempFleet = enemyFleetList[j]
-		for _, tempEnemy in ipairs(tempFleet) do
-			if tempEnemy ~= nil and tempEnemy:isValid() then
-				enemyShipSurvivedCount = enemyShipSurvivedCount + 1
-				local temp_type = tempEnemy:getTypeName()
-				enemyShipSurvivedValue = enemyShipSurvivedValue + ship_template[temp_type].strength
-			end
-		end
-	end
-	local friendlyShipSurvivedCount = 0
-	local friendlyShipSurvivedValue = 0
-	for j=1,#friendlyFleetList do
-		tempFleet = friendlyFleetList[j]
-		for _, tempFriend in ipairs(tempFleet) do
-			if tempFriend ~= nil and tempFriend:isValid() then
-				friendlyShipSurvivedCount = friendlyShipSurvivedCount + 1
-				local temp_type = tempFriend:getTypeName()
-				friendlyShipSurvivedValue = friendlyShipSurvivedValue + ship_template[temp_type].strength
-			end
-		end
-	end
-	local fpct = friendlyShipSurvivedValue/rawHumanShipStrength*100
-	local epct = enemyShipSurvivedValue/rawKraylorShipStrength*100
-	return friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct
-end
-function stationStatus()
-	tp = getPlayerShip(-1)
-	if tp == nil then
-		return nil
-	end
-	local friendlySurvivedCount = 0
-	local friendlySurvivedValue = 0
-	local enemySurvivedCount = 0
-	local enemySurvivedValue = 0
-	local neutralSurvivedCount = 0
-	local neutralSurvivedValue = 0
-	for _, station in pairs(stationList) do
-		if tp ~= nil then
-			if station:isFriendly(tp) then
-				if station:isValid() then
-					friendlySurvivedCount = friendlySurvivedCount + 1
-					friendlySurvivedValue = friendlySurvivedValue + station.strength
-				end
-			elseif station:isEnemy(tp) then
-				if station:isValid() then
-					enemySurvivedCount = enemySurvivedCount + 1
-					enemySurvivedValue = enemySurvivedValue + station.strength
-				end
-			else
-				if station:isValid() then
-					neutralSurvivedCount = neutralSurvivedCount + 1
-					neutralSurvivedValue = neutralSurvivedValue + station.strength
-				end
-			end
-		end
-	end
-	if originalHumanStationCount == nil then
-		originalHumanStationCount = #humanStationList
-	end
-	if originalHumanStationValue == nil then
-		originalHumanStationValue = humanStationStrength
-	end
-	if originalKraylorStationCount == nil then
-		originalKraylorStationCount = #kraylorStationList
-	end
-	if originalKraylorStationValue == nil then
-		originalKraylorStationValue = kraylorStationStrength
-	end
-	if originalNeutralStationCount == nil then
-		originalNeutralStationCount = #neutralStationList
-	end
-	if originalNeutralStationValue == nil then
-		originalNeutralStationValue = neutralStationStrength
-	end
-	local fpct1 = friendlySurvivedCount/originalHumanStationCount*100
-	local fpct2 = friendlySurvivedValue/originalHumanStationValue*100
-	local epct1 = enemySurvivedCount/originalKraylorStationCount*100
-	local epct2 = enemySurvivedValue/originalKraylorStationValue*100
-	local npct1 = neutralSurvivedCount/originalNeutralStationCount*100
-	local npct2 = neutralSurvivedValue/originalNeutralStationValue*100
-	return friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2
 end
 function endStatistics()
 --final page for victory or defeat on main streen
 	if endStatDiagnostic then print("starting end statistics") end
-	friendlySurvivedCount, friendlySurvivedValue, fpct1, fpct2, enemySurvivedCount, enemySurvivedValue, epct1, epct2, neutralSurvivedCount, neutralSurvivedValue, npct1, npct2, friendlyShipSurvivedValue, fpct, enemyShipSurvivedValue, epct = listStatuses()
-	if friendlySurvivedCount == nil then
-		globalMessage("statistics unavailable")
-		return
-	end
+	local stat_list = gatherStats()
 	if endStatDiagnostic then print("got statuses")	end
 	local gMsg = ""
 	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	gMsg = gMsg .. string.format("Friendly stations: %i out of %i survived (%.1f%%), strength: %i out of %i (%.1f%%)\n",friendlySurvivedCount,originalHumanStationCount,fpct1,friendlySurvivedValue,originalHumanStationValue,fpct2)
+	gMsg = gMsg .. string.format("Friendly stations: %i out of %i survived (%.1f%%), strength: %i out of %i (%.1f%%)\n",stat_list.human.station.count,stat_list.human.station.original_count,stat_list.human.station.count/stat_list.human.station.original_count*100,stat_list.human.station.value,stat_list.human.station.original_value,stat_list.human.station.percentage)
 	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	gMsg = gMsg .. string.format("Enemy stations: %i out of %i survived (%.1f%%), strength: %i out of %i (%.1f%%)\n",enemySurvivedCount,originalKraylorStationCount,epct1,enemySurvivedValue,originalKraylorStationValue,epct2)
+	gMsg = gMsg .. string.format("Enemy stations: %i out of %i survived (%.1f%%), strength: %i out of %i (%.1f%%)\n",stat_list.kraylor.station.count,stat_list.kraylor.station.original_count,stat_list.kraylor.station.count/stat_list.kraylor.station.original_count*100,stat_list.kraylor.station.value,stat_list.kraylor.station.original_value,stat_list.kraylor.station.percentage)
 	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	gMsg = gMsg .. string.format("Neutral stations: %i out of %i survived (%.1f%%), strength: %i out of %i (%.1f%%)\n\n\n\n",neutralSurvivedCount,originalNeutralStationCount,npct1,neutralSurvivedValue,originalNeutralStationValue,npct2)
+	gMsg = gMsg .. string.format("Neutral stations: %i out of %i survived (%.1f%%), strength: %i out of %i (%.1f%%)\n\n\n\n",stat_list.independent.station.count,stat_list.independent.station.original_count,stat_list.independent.station.count/stat_list.independent.station.original_count*100,stat_list.independent.station.value,stat_list.independent.station.original_value,stat_list.independent.station.percentage)
 	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
 	--ship information
-	gMsg = gMsg .. string.format("Friendly ships: strength: %i out of %i (%.1f%%)\n",friendlyShipSurvivedValue,rawHumanShipStrength,fpct)
+	gMsg = gMsg .. string.format("Friendly ships: strength: %i out of %i (%.1f%%)\n",stat_list.human.ship.value,stat_list.human.ship.original_value,stat_list.human.ship.percentage)
 	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	gMsg = gMsg .. string.format("Enemy ships: strength: %i out of %i (%.1f%%)\n",enemyShipSurvivedValue,rawKraylorShipStrength,epct)
+	gMsg = gMsg .. string.format("Enemy ships: strength: %i out of %i (%.1f%%)\n",stat_list.kraylor.ship.value,stat_list.kraylor.ship.original_value,stat_list.kraylor.ship.percentage)
 	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
 	if endStatDiagnostic then print("set raw stats") end
-	local friendlyStationComponent = friendlySurvivedValue/originalHumanStationValue
-	local enemyStationComponent = 1-enemySurvivedValue/originalKraylorStationValue
-	local neutralStationComponent = neutralSurvivedValue/originalNeutralStationValue
-	local friendlyShipComponent = friendlyShipSurvivedValue/rawHumanShipStrength
-	local enemyShipComponent = 1-enemyShipSurvivedValue/rawKraylorShipStrength
-	local evalFriendly = fpct2*friendlyStationComponentWeight + npct2*neutralStationComponentWeight + fpct*friendlyShipComponentWeight
-	gMsg = gMsg .. string.format("Friendly evaluation strength: %.1f%%\n",evalFriendly)
-	gMsg = gMsg .. string.format("   Weights: friendly station: %.2f, neutral station: %.2f, friendly ship: %.2f\n", friendlyStationComponentWeight, neutralStationComponentWeight, friendlyShipComponentWeight)
-	local evalEnemy = epct2*enemyStationComponentWeight + epct*enemyShipComponentWeight
-	gMsg = gMsg .. string.format("Enemy evaluation strength: %.1f%%\n",evalEnemy)
-	gMsg = gMsg .. string.format("   Weights: enemy station: %.2f, enemy ship: %.2f\n", enemyStationComponentWeight, enemyShipComponentWeight)
+	local friendlyStationComponent = stat_list.human.station.value/stat_list.human.station.original_value
+	local enemyStationComponent = 1-stat_list.kraylor.station.value/stat_list.kraylor.station.original_value
+	local neutralStationComponent = stat_list.independent.station.value/stat_list.independent.station.original_value
+	local friendlyShipComponent = stat_list.human.ship.value/stat_list.human.ship.original_value
+	local enemyShipComponent = 1-stat_list.kraylor.ship.value/stat_list.kraylor.ship.original_value
+	gMsg = gMsg .. string.format("Friendly evaluation strength: %.1f%%\n",stat_list.human.evaluation)
+	gMsg = gMsg .. string.format("   Weights: friendly station: %.2f, neutral station: %.2f, friendly ship: %.2f\n", stat_list.human.weight.station, stat_list.human.weight.neutral, stat_list.human.weight.ship)
+	gMsg = gMsg .. string.format("Enemy evaluation strength: %.1f%%\n",stat_list.kraylor.evaluation)
+	gMsg = gMsg .. string.format("   Weights: enemy station: %.2f, enemy ship: %.2f\n", stat_list.kraylor.weight.station, stat_list.kraylor.weight.ship)
 	local rankVal = friendlyStationComponent*.4 + friendlyShipComponent*.2 + enemyStationComponent*.2 + enemyShipComponent*.1 + neutralStationComponent*.1 
 	if endStatDiagnostic then print("calculated ranking stats") end
 	if endStatDiagnostic then print("rank value: " .. rankVal) end
