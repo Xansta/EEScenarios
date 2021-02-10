@@ -19,7 +19,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.3"
+	scenario_version = "5.0.4"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -138,7 +138,7 @@ function init()
 	endStatDiagnostic = false
 	printDetailedStats = true
 	change_enemy_order_diagnostic = false
-	distance_diagnostic = true
+	distance_diagnostic = false
 	setConstants()	--missle type names, template names and scores, deployment directions, player ship names, etc.
 	repeat
 		setGossipSnippets()
@@ -659,15 +659,6 @@ function setConstants()
 		{15, 3},
 		{20, 4}
 	}
-	cargoInventoryList = {}
-	table.insert(cargoInventoryList,cargoInventory1)
-	table.insert(cargoInventoryList,cargoInventory2)
-	table.insert(cargoInventoryList,cargoInventory3)
-	table.insert(cargoInventoryList,cargoInventory4)
-	table.insert(cargoInventoryList,cargoInventory5)
-	table.insert(cargoInventoryList,cargoInventory6)
-	table.insert(cargoInventoryList,cargoInventory7)
-	table.insert(cargoInventoryList,cargoInventory8)
 	get_coolant_function = {}
 	table.insert(get_coolant_function,getCoolant1)
 	table.insert(get_coolant_function,getCoolant2)
@@ -1825,7 +1816,7 @@ function mainGMButtons()
 	clearGMFunctions()
 	local playerShipCount = 0
 	local highestPlayerIndex = 0
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil then
 			if p:isValid() then
@@ -1878,7 +1869,7 @@ function setShowPlayerInfo()
 		setShowPlayerInfo()
 	end)
 	if show_player_info then
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				local player_name = p:getCallSign()
@@ -1930,7 +1921,7 @@ function setShowPlayerInfo()
 end
 function showPlayerInfoOnConsole(delta)
 	if show_player_info then
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				local player_name = p:getCallSign()
@@ -2092,7 +2083,7 @@ function showPlayerInfoOnConsole(delta)
 			end
 		end
 	else	--not show player info
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if p.name_helm ~= nil then
@@ -10153,7 +10144,7 @@ function revertCheck(delta)
 end
 function checkContinuum(delta)
 	local continuum_count = 0
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if p.continuum_target then
@@ -10503,7 +10494,7 @@ function closestPlayerTo(obj)
 	if obj ~= nil and obj:isValid() then
 		local closestDistance = 9999999
 		local closestPlayer = nil
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if distance_diagnostic then print("distance_diagnostic 10",p,obj) end
@@ -10527,7 +10518,7 @@ function nearStations(nobj, compareStationList)
 	for ri, obj in ipairs(compareStationList) do
 		if obj ~= nil and obj:isValid() and obj:getCallSign() ~= nobj:getCallSign() then
 			table.insert(remainingStations,obj)
---			if distance_diagnostic then print("distance_diagnostic 11",nobj,obj) end
+			if distance_diagnostic then print("distance_diagnostic 11",nobj,obj) end
 			local currentDistance = distance(nobj, obj)
 			if currentDistance < closestDistance then
 				closestObj = obj
@@ -10683,7 +10674,7 @@ end
 function playerPower()
 --evaluate the players for enemy strength and size spawning purposes
 	local playerShipScore = 0
-	for p5idx=1,8 do
+	for p5idx=1,32 do
 		local p5obj = getPlayerShip(p5idx)
 		if p5obj ~= nil and p5obj:isValid() then
 			if p5obj.shipScore == nil then
@@ -10698,7 +10689,7 @@ end
 function setPlayers()
 --set up players with name, goods, cargo space, reputation and either a warp drive or a jump drive if applicable
 	local active_player_count = 0
-	for p1idx=1,8 do
+	for p1idx=1,32 do
 		pobj = getPlayerShip(p1idx)
 		if pobj ~= nil and pobj:isValid() then
 			active_player_count = active_player_count + 1
@@ -10906,7 +10897,7 @@ function resetBanner(evalFriendly,evalEnemy)
 	local active_player_count = 0
 	local players_relative_strength = 0
 	banner["player"] = {}
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			active_player_count = active_player_count + 1
@@ -10943,7 +10934,7 @@ function resetBanner(evalFriendly,evalEnemy)
 	setBanner(banner_string)
 end
 function expediteDockCheck(delta)
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if p.expedite_dock then
@@ -11060,7 +11051,7 @@ function healthCheck(delta)
 	healthCheckTimer = healthCheckTimer - delta
 	if healthCheckTimer < 0 then
 		if healthDiagnostic then print("health check timer expired") end
-		for pidx=1,8 do
+		for pidx=1,32 do
 			if healthDiagnostic then print("in player loop") end
 			local p = getPlayerShip(pidx)
 			if healthDiagnostic then print("got player ship") end
@@ -11175,7 +11166,7 @@ function healthCheck(delta)
 		local stat_list = gatherStats()
 		resetBanner(stat_list.human.evaluation,stat_list.kraylor.evaluation)
 		local eval_status = string.format("F:%.1f%% E:%.1f%% D:%.1f%%",stat_list.human.evaluation,stat_list.kraylor.evaluation,stat_list.human.evaluation-stat_list.kraylor.evaluation)
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if p:hasPlayerAtPosition("Relay") then
@@ -11329,8 +11320,8 @@ function crewFate(p, fatalityChance)
 end
 --      Inventory button and functions for relay/operations 
 function cargoInventory(delta)
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	for pidx=1,32 do
+		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			local cargoHoldEmpty = true
 			if p.goods ~= nil then
@@ -11345,14 +11336,14 @@ function cargoInventory(delta)
 				if p:hasPlayerAtPosition("Relay") then
 					if p.inventoryButton == nil then
 						local tbi = "inventory" .. p:getCallSign()
-						p:addCustomButton("Relay",tbi,"Inventory",cargoInventoryList[pidx])
+						p:addCustomButton("Relay",tbi,"Inventory",function() playerShipCargoInventory(p) end)
 						p.inventoryButton = true
 					end
 				end
 				if p:hasPlayerAtPosition("Operations") then
 					if p.inventoryButton == nil then
 						local tbi = "inventoryOp" .. p:getCallSign()
-						p:addCustomButton("Operations",tbi,"Inventory",cargoInventoryList[pidx])
+						p:addCustomButton("Operations",tbi,"Inventory",function() playerShipCargoInventory(p) end)
 						p.inventoryButton = true
 					end
 				end
@@ -11360,53 +11351,19 @@ function cargoInventory(delta)
 		end
 	end
 end
-function cargoInventoryGivenShip(p)
+function playerShipCargoInventory(p)
 	p:addToShipLog(string.format("%s Current cargo:",p:getCallSign()),"Yellow")
-	local cargoHoldEmpty = true
+	local goodCount = 0
 	if p.goods ~= nil then
-		for good, quantity in pairs(p.goods) do
-			if quantity ~= nil and quantity > 0 then
-				p:addToShipLog(string.format("     %s: %i",good,math.floor(quantity)),"Yellow")
-				cargoHoldEmpty = false
-			end
+		for good, goodQuantity in pairs(p.goods) do
+			goodCount = goodCount + 1
+			p:addToShipLog(string.format("     %s: %i",good,goodQuantity),"Yellow")
 		end
 	end
-	if cargoHoldEmpty then
-		p:addToShipLog("     Empty\n","Yellow")
+	if goodCount < 1 then
+		p:addToShipLog("     Empty","Yellow")
 	end
 	p:addToShipLog(string.format("Available space: %i",p.cargo),"Yellow")
-end
-function cargoInventory1()
-	local p = getPlayerShip(1)
-	cargoInventoryGivenShip(p)
-end
-function cargoInventory2()
-	local p = getPlayerShip(2)
-	cargoInventoryGivenShip(p)
-end
-function cargoInventory3()
-	local p = getPlayerShip(3)
-	cargoInventoryGivenShip(p)
-end
-function cargoInventory4()
-	local p = getPlayerShip(4)
-	cargoInventoryGivenShip(p)
-end
-function cargoInventory5()
-	local p = getPlayerShip(5)
-	cargoInventoryGivenShip(p)
-end
-function cargoInventory6()
-	local p = getPlayerShip(6)
-	cargoInventoryGivenShip(p)
-end
-function cargoInventory7()
-	local p = getPlayerShip(7)
-	cargoInventoryGivenShip(p)
-end
-function cargoInventory8()
-	local p = getPlayerShip(8)
-	cargoInventoryGivenShip(p)
 end
 --      Enable and disable auto-cooling on a ship functions
 function autoCoolant(delta)
@@ -11432,7 +11389,7 @@ function autoCoolant(delta)
 		table.insert(disableAutoCoolFunctionList,disableAutoCool7)
 		table.insert(disableAutoCoolFunctionList,disableAutoCool8)
 	end
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if p.autoCoolant ~= nil then
@@ -11540,12 +11497,12 @@ function disableAutoCool8()
 end
 --		Gain or lose coolant from nebula functions
 function coolantNebulae(delta)
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			local inside_gain_coolant_nebula = false
 			for i=1,#coolant_nebula do
---				if distance_diagnostic then print("distance_diagnostic 12",p,coolant_nebula[i]) end
+				if distance_diagnostic then print("distance_diagnostic 12",p,coolant_nebula[i]) end
 				if distance(p,coolant_nebula[i]) < 5000 then
 					if coolant_nebula[i].lose then
 						p:setMaxCoolant(p:getMaxCoolant()*coolant_loss)
@@ -13688,7 +13645,7 @@ end
 function treatyHolds(delta)
 	game_state = "treaty holds"
 	primaryOrders = "Treaty holds. Patrol border. Stay out of blue neutral border zone"
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() and p.order1 == nil then
 			if p.nameAssigned then
@@ -13723,7 +13680,7 @@ function treatyHolds(delta)
 			treatyStressTimer = random(lrr5,urr5)
 		end
 		primaryOrders = "Treaty holds, Kraylors belligerent. Patrol border. Stay out of blue neutral border zone"
-		for pidx=1,8 do
+		for pidx=1,32 do
 			p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if not p.nameAssigned then
@@ -13758,7 +13715,7 @@ function treatyStressed(delta)
 			borderZone[i]:setColor(255,0,0)
 		end
 		primaryOrders = "War declared. Destroy any Kraylor vessels. Avoid destruction of Kraylor stations"
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if not p.nameAssigned then
@@ -13793,7 +13750,7 @@ function limitedWar(delta)
 	if limitedWarTimer < 0 then
 		game_state = "full war"
 		primaryOrders = "War continues. Atrocities suspected. Destroy any Kraylor vessels or stations"
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if not p.nameAssigned then
@@ -13861,7 +13818,7 @@ function evaluateInitialAssets()
 		end
 	end
 	local playerShipNames = {}
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			table.insert(playerShipNames,p:getCallSign())
@@ -13879,7 +13836,7 @@ function evaluateInitialAssets()
 			print(i .. ": " .. playerShipNames[i])
 		end
 	end
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if #playerShipNames > 1 then
@@ -14124,12 +14081,12 @@ function setEnemyStationDefenses()
 	end
 end
 function enemyDefenseCheck(delta)
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			for _, enemyStation in ipairs(kraylorStationList) do
 				if enemyStation ~= nil and enemyStation:isValid() and not enemyStation.defenseDeployed then
---					if distance_diagnostic then print("distance_diagnostic 14",p,enemyStation) end
+					if distance_diagnostic then print("distance_diagnostic 14",p,enemyStation) end
 					local distToEnemyStation = distance(p,enemyStation)
 					if distToEnemyStation < enemyStation.defenseTriggerDistance then
 						if enemyStation.defenseType == "fighterFleet" then
@@ -14403,7 +14360,7 @@ end
 function explosiveTransportCheck(delta)
 	for i=1,#deadlyTransportList do
 		local tdt = deadlyTransportList[i]
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				local tpx, tpy = p:getPosition()
@@ -14455,7 +14412,7 @@ end
 function enemyDefenseZoneCheck(delta)
 	for i=1,#defensiveZoneList do
 		tz = defensiveZoneList[i]
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				if tz:isInside(p) then
@@ -14594,7 +14551,7 @@ function personalAmbushDestructCheck(delta)
 			if stat_list.kraylor.evaluation < paTriggerEval then
 				if paDiagnostic then print("met paDestruct criteria") end
 				local candidate = nil
-				for pidx=1,8 do
+				for pidx=1,32 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() and p.sprung == nil then
 						local nebulaHuntList = p:getObjectsInRange(20000)
@@ -14636,7 +14593,7 @@ function personalAmbushTimeCheck(delta)
 	if gameTimeLimit < paTriggerTime then
 		if paDiagnostic then print("paGame Time check passed") end
 		candidate = nil
-		for pidx=1,8 do
+		for pidx=1,32 do
 			p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() and p.sprung == nil then
 				nebulaHuntList = p:getObjectsInRange(20000)
@@ -14674,7 +14631,7 @@ end
 function playerBorderCheck(delta)
 	if treaty then
 		tbz = nil
-		for pidx=1,8 do
+		for pidx=1,32 do
 			p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				playerOutOfBounds = false
@@ -14799,7 +14756,7 @@ function enemyReinforcements(delta)
 				local p = closestPlayerTo(ta)
 				ta:destroy()
 				if p == nil then
-					for pidx=1,8 do
+					for pidx=1,32 do
 						p = getPlayerShip(pidx)
 						if p ~= nil and p:isValid() then
 							break
@@ -14838,7 +14795,7 @@ function muckAndFlies(delta)
 			return
 		end
 		local victimList = {}
-		for pidx=1,8 do
+		for pidx=1,32 do
 			p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				table.insert(victimList,p)
@@ -14945,7 +14902,7 @@ function sleeperAgent(delta)
 	muckFlyTimer = muckFlyTimer - delta
 	if muckFlyTimer < 0 then
 		local victim_list = {}
-		for pidx=1,8 do
+		for pidx=1,32 do
 			local p = getPlayerShip(pidx)
 			if p ~= nil and p:isValid() then
 				table.insert(victim_list,p)
@@ -15063,7 +15020,7 @@ function armoredWarpJammer(self, instigator)
 end
 -- Plot mining
 function checkForMining(delta)
-	for pidx=1,8 do
+	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if p.mining and p.cargo > 0 then
