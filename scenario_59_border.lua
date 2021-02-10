@@ -19,7 +19,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.5"
+	scenario_version = "5.0.6"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -556,6 +556,7 @@ function setConstants()
 	commonGoods = {"food","medicine","nickel","platinum","gold","dilithium","tritanium","luxury","cobalt","impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	componentGoods = {"impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	mineralGoods = {"nickel","platinum","gold","dilithium","tritanium","cobalt"}
+	vapor_goods = {"gold pressed latinum","unobtanium","eludium","impossibrium"}
 	characterNames = {"Frank Brown",
 					  "Joyce Miller",
 					  "Harry Jones",
@@ -6197,7 +6198,7 @@ function setOptionalMissions()
 		beamTimeBase.comms_data.characterDescription = "He dabbles in ship system innovations. He's been working on improving beam weapons by reducing the amount of time between firing. I hear he's already installed some improvements on ships that have docked here previously"
 		beamTimeBase.comms_data.characterFunction = "shrinkBeamCycle"
 		if beamTimeGood == nil then
-			beamTimeBase.comms_data.characterGood = "gold pressed latinum"			
+			beamTimeBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			beamTimeBase.comms_data.characterGood = beamTimeGood
 			clueStation = nil
@@ -6239,7 +6240,7 @@ function setOptionalMissions()
 		spinBase.comms_data.characterDescription = "She tinkers with ship systems like engines and thrusters. She's consulted with the military on tuning spin time by increasing thruster power. She's got prototypes that are awaiting formal military approval before installation"
 		spinBase.comms_data.characterFunction = "increaseSpin"
 		if spinGood == nil then
-			spinBase.comms_data.characterGood = "gold pressed latinum"			
+			spinBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			spinBase.comms_data.characterGood = spinGood
 			clueStation = nil
@@ -6281,7 +6282,7 @@ function setOptionalMissions()
 		auxTubeBase.comms_data.characterDescription = "He specializes in miniaturization of weapons systems. He's come up with a way to add a missile tube and some missiles to any ship regardless of size or configuration"
 		auxTubeBase.comms_data.characterFunction = "addAuxTube"
 		if auxTubeGood == nil then
-			auxTubeBase.comms_data.characterGood = "gold pressed latinum"			
+			auxTubeBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			auxTubeBase.comms_data.characterGood = auxTubeGood
 			clueStation = nil
@@ -6323,7 +6324,7 @@ function setOptionalMissions()
 		coolBeamBase.comms_data.characterDescription = "She developed this technique for cooling beam systems so that they can be fired more often without burning out"
 		coolBeamBase.comms_data.characterFunction = "coolBeam"
 		if coolBeamGood == nil then
-			coolBeamBase.comms_data.characterGood = "gold pressed latinum"			
+			coolBeamBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			coolBeamBase.comms_data.characterGood = coolBeamGood
 			clueStation = nil
@@ -6365,7 +6366,7 @@ function setOptionalMissions()
 		longerBeamBase.comms_data.characterDescription = "He knows how to modify beam systems to extend their range"
 		longerBeamBase.comms_data.characterFunction = "longerBeam"
 		if longerBeamGood == nil then
-			longerBeamBase.comms_data.characterGood = "gold pressed latinum"			
+			longerBeamBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			longerBeamBase.comms_data.characterGood = longerBeamGood
 			clueStation = nil
@@ -6407,7 +6408,7 @@ function setOptionalMissions()
 		damageBeamBase.comms_data.characterDescription = "She can make your beams hit harder"
 		damageBeamBase.comms_data.characterFunction = "damageBeam"
 		if damageBeamGood == nil then
-			damageBeamBase.comms_data.characterGood = "gold pressed latinum"			
+			damageBeamBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			damageBeamBase.comms_data.characterGood = damageBeamGood
 			clueStation = nil
@@ -6449,7 +6450,7 @@ function setOptionalMissions()
 		moreMissilesBase.comms_data.characterDescription = "He can fit more missiles aboard your ship"
 		moreMissilesBase.comms_data.characterFunction = "moreMissiles"
 		if moreMissilesGood == nil then
-			moreMissilesBase.comms_data.characterGood = "gold pressed latinum"			
+			moreMissilesBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			moreMissilesBase.comms_data.characterGood = moreMissilesGood
 			clueStation = nil
@@ -6491,7 +6492,7 @@ function setOptionalMissions()
 		fasterImpulseBase.comms_data.characterDescription = "She can soup up your impulse engines"
 		fasterImpulseBase.comms_data.characterFunction = "fasterImpulse"
 		if fasterImpulseGood == nil then
-			fasterImpulseBase.comms_data.characterGood = "gold pressed latinum"			
+			fasterImpulseBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			fasterImpulseBase.comms_data.characterGood = fasterImpulseGood
 			clueStation = nil
@@ -6533,7 +6534,7 @@ function setOptionalMissions()
 		strongerHullBase.comms_data.characterDescription = "He can strengthen your hull"
 		strongerHullBase.comms_data.characterFunction = "strongerHull"
 		if strongerHullGood ~= nil then
-			strongerHullBase.comms_data.characterGood = "gold pressed latinum"			
+			strongerHullBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			strongerHullBase.comms_data.characterGood = strongerHullGood
 			clueStation = nil
@@ -6575,7 +6576,7 @@ function setOptionalMissions()
 		efficientBatteriesBase.comms_data.characterDescription = "She knows how to increase your maximum energy capacity by improving battery efficiency"
 		efficientBatteriesBase.comms_data.characterFunction = "efficientBatteries"
 		if efficientBatteriesGood == nil then
-			efficientBatteriesBase.comms_data.characterGood = "gold pressed latinum"			
+			efficientBatteriesBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			efficientBatteriesBase.comms_data.characterGood = efficientBatteriesGood
 			clueStation = nil
@@ -6617,7 +6618,7 @@ function setOptionalMissions()
 		strongerShieldsBase.comms_data.characterDescription = "He can strengthen your shields"
 		strongerShieldsBase.comms_data.characterFunction = "strongerShields"
 		if strongerShieldsGood == nil then
-			strongerShieldsBase.comms_data.characterGood = "gold pressed latinum"			
+			strongerShieldsBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
 			strongerShieldsBase.comms_data.characterGood = strongerShieldsGood
 			clueStation = nil
@@ -6674,8 +6675,15 @@ function shrinkBeamCycle()
 					end
 					if partQuantity > 0 then
 						comms_source.shrinkBeamCycleUpgrade = "done"
-						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-						comms_source.cargo = comms_source.cargo + 1
+						local upgrade_value = .75
+						if partQuantity > 1 then
+							upgrade_value = .6
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+							comms_source.cargo = comms_source.cargo + 2
+						else
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+							comms_source.cargo = comms_source.cargo + 1
+						end
 						local bi = 0
 						repeat
 							local tempArc = comms_source:getBeamWeaponArc(bi)
@@ -6683,10 +6691,10 @@ function shrinkBeamCycle()
 							local tempRng = comms_source:getBeamWeaponRange(bi)
 							local tempCyc = comms_source:getBeamWeaponCycleTime(bi)
 							local tempDmg = comms_source:getBeamWeaponDamage(bi)
-							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng,tempCyc * .75,tempDmg)
+							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng,tempCyc * upgrade_value,tempDmg)
 							bi = bi + 1
 						until(comms_source:getBeamWeaponRange(bi) < 1)
-						setCommsMessage("After accepting your gift, he reduced your Beam cycle time by 25%")
+						setCommsMessage(string.format("After accepting your gift, he reduced your Beam cycle time by %i%%",(1-upgrade_value)*100))
 					else
 						setCommsMessage(string.format("%s requires %s for the upgrade",ctd.character,ctd.characterGood))
 					end
@@ -6707,6 +6715,7 @@ function shrinkBeamCycle()
 			else
 				setCommsMessage("Your ship type does not support a beam weapon upgrade.")				
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6721,10 +6730,17 @@ function increaseSpin()
 				end
 				if partQuantity > 0 then
 					comms_source.increaseSpinUpgrade = "done"
-					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-					comms_source.cargo = comms_source.cargo + 1
-					comms_source:setRotationMaxSpeed(comms_source:getRotationMaxSpeed()*1.5)
-					setCommsMessage(string.format("Ship spin speed increased by 50%% after you gave %s to %s",ctd.characterGood,ctd.character))
+					local upgrade_value = 1.5
+					if partQuantity > 1 then
+						upgrade_value = 1.8
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+						comms_source.cargo = comms_source.cargo + 2
+					else
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+						comms_source.cargo = comms_source.cargo + 1
+					end
+					comms_source:setRotationMaxSpeed(comms_source:getRotationMaxSpeed()*upgrade_value)
+					setCommsMessage(string.format("Ship spin speed increased by %i%% after you gave %s to %s",(upgrade_value-1)*100,ctd.characterGood,ctd.character))
 				else
 					setCommsMessage(string.format("%s requires %s for the spin upgrade",ctd.character,ctd.characterGood))
 				end
@@ -6733,6 +6749,7 @@ function increaseSpin()
 				comms_source:setRotationMaxSpeed(comms_source:getRotationMaxSpeed()*1.5)
 				setCommsMessage(string.format("%s: I increased the speed your ship spins by 50%%. Normally, I'd require %s, but seeing as you're going out to take on the Kraylors, we worked it out",ctd.character,ctd.characterGood))
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6751,15 +6768,23 @@ function addAuxTube()
 				end
 				if partQuantity > 0 and luxQuantity > 0 then
 					comms_source.auxTubeUpgrade = "done"
-					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-					comms_source.goods["luxury"] = comms_source.goods["luxury"] - 1
-					comms_source.cargo = comms_source.cargo + 2
+					local upgrade_value = 2
+					if luxQuantity > 1 then
+						upgrade_value = 4
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+						comms_source.goods["luxury"] = comms_source.goods["luxury"] - 2
+						comms_source.cargo = comms_source.cargo + 3
+					else
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+						comms_source.goods["luxury"] = comms_source.goods["luxury"] - 1
+						comms_source.cargo = comms_source.cargo + 2
+					end
 					local originalTubes = comms_source:getWeaponTubeCount()
 					local newTubes = originalTubes + 1
 					comms_source:setWeaponTubeCount(newTubes)
 					comms_source:setWeaponTubeExclusiveFor(originalTubes, "Homing")
-					comms_source:setWeaponStorageMax("Homing", comms_source:getWeaponStorageMax("Homing") + 2)
-					comms_source:setWeaponStorage("Homing", comms_source:getWeaponStorage("Homing") + 2)
+					comms_source:setWeaponStorageMax("Homing", comms_source:getWeaponStorageMax("Homing") + upgrade_value)
+					comms_source:setWeaponStorage("Homing", comms_source:getWeaponStorage("Homing") + upgrade_value)
 					setCommsMessage(string.format("%s thanks you for the %s and the luxury and installs a homing missile tube for you",ctd.character,ctd.characterGood))
 				else
 					setCommsMessage(string.format("%s requires %s and luxury for the missile tube",ctd.character,ctd.characterGood))
@@ -6774,6 +6799,7 @@ function addAuxTube()
 				comms_source:setWeaponStorage("Homing", comms_source:getWeaponStorage("Homing") + 2)
 				setCommsMessage(string.format("%s installs a homing missile tube for you. The %s required was requisitioned from wartime contingency supplies",ctd.character,ctd.characterGood))
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6789,14 +6815,21 @@ function coolBeam()
 					end
 					if partQuantity > 0 then
 						comms_source.coolBeamUpgrade = "done"
-						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-						comms_source.cargo = comms_source.cargo + 1
+						local upgrade_value = .5
+						if partQuantity > 1 then
+							upgrade_value = .4
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+							comms_source.cargo = comms_source.cargo + 2
+						else
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+							comms_source.cargo = comms_source.cargo + 1
+						end
 						local bi = 0
 						repeat
-							comms_source:setBeamWeaponHeatPerFire(bi,comms_source:getBeamWeaponHeatPerFire(bi) * 0.5)
+							comms_source:setBeamWeaponHeatPerFire(bi,comms_source:getBeamWeaponHeatPerFire(bi) * upgrade_value)
 							bi = bi + 1
 						until(comms_source:getBeamWeaponRange(bi) < 1)
-						setCommsMessage("Beam heat generation reduced by 50%")
+						setCommsMessage(string.format("Beam heat generation reduced by %i%%",(1-upgrade_value)*100))
 					else
 						setCommsMessage(string.format("%s says she needs %s before she can cool your beams",ctd.character,ctd.characterGood))
 					end
@@ -6812,6 +6845,7 @@ function coolBeam()
 			else
 				setCommsMessage("Your ship type does not support a beam weapon upgrade.")				
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6835,8 +6869,15 @@ function longerBeam()
 					if partQuantity > 0 then
 						if optionalMissionDiagnostic then print("player has enough of the right goods") end
 						comms_source.longerBeamUpgrade = "done"
-						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-						comms_source.cargo = comms_source.cargo + 1
+						local upgrade_value = 1.25
+						if partQuantity > 1 then
+							upgrade_value = 1.4
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+							comms_source.cargo = comms_source.cargo + 2
+						else
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+							comms_source.cargo = comms_source.cargo + 1
+						end
 						local bi = 0
 						repeat
 							local tempArc = comms_source:getBeamWeaponArc(bi)
@@ -6844,11 +6885,11 @@ function longerBeam()
 							local tempRng = comms_source:getBeamWeaponRange(bi)
 							local tempCyc = comms_source:getBeamWeaponCycleTime(bi)
 							local tempDmg = comms_source:getBeamWeaponDamage(bi)
-							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng * 1.25,tempCyc,tempDmg)
+							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng * upgrade_value,tempCyc,tempDmg)
 							bi = bi + 1
 						until(comms_source:getBeamWeaponRange(bi) < 1)
 						if optionalMissionDiagnostic then print("beam range extended") end
-						setCommsMessage(string.format("%s extended your beam range by 25%% and says thanks for the %s",ctd.character,ctd.characterGood))
+						setCommsMessage(string.format("%s extended your beam range by %i%% and says thanks for the %s",ctd.character,(upgrade_value-1)*100,ctd.characterGood))
 					else
 						setCommsMessage(string.format("%s requires %s for the upgrade",ctd.character,ctd.characterGood))
 					end
@@ -6871,6 +6912,7 @@ function longerBeam()
 			else
 				setCommsMessage("Your ship type does not support a beam weapon upgrade.")				
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6886,8 +6928,15 @@ function damageBeam()
 					end
 					if partQuantity > 0 then
 						comms_source.damageBeamUpgrade = "done"
-						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-						comms_source.cargo = comms_source.cargo + 1
+						local upgrade_value = 1.2
+						if partQuantity > 1 then
+							upgrade_value = 1.3
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+							comms_source.cargo = comms_source.cargo + 2
+						else
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+							comms_source.cargo = comms_source.cargo + 1
+						end
 						local bi = 0
 						repeat
 							local tempArc = comms_source:getBeamWeaponArc(bi)
@@ -6895,10 +6944,10 @@ function damageBeam()
 							local tempRng = comms_source:getBeamWeaponRange(bi)
 							local tempCyc = comms_source:getBeamWeaponCycleTime(bi)
 							local tempDmg = comms_source:getBeamWeaponDamage(bi)
-							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng,tempCyc,tempDmg*1.2)
+							comms_source:setBeamWeapon(bi,tempArc,tempDir,tempRng,tempCyc,tempDmg*upgrade_value)
 							bi = bi + 1
 						until(comms_source:getBeamWeaponRange(bi) < 1)
-						setCommsMessage(string.format("%s increased your beam damage by 20%% and stores away the %s",ctd.character,ctd.characterGood))
+						setCommsMessage(string.format("%s increased your beam damage by %i%% and stores away the %s",ctd.character,(upgrade_value-1)*100,ctd.characterGood))
 					else
 						setCommsMessage(string.format("%s requires %s for the upgrade",ctd.character,ctd.characterGood))
 					end
@@ -6919,6 +6968,7 @@ function damageBeam()
 			else
 				setCommsMessage("Your ship type does not support a beam weapon upgrade.")				
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6934,13 +6984,20 @@ function moreMissiles()
 					end
 					if partQuantity > 0 then
 						comms_source.moreMissilesUpgrade = "done"
-						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-						comms_source.cargo = comms_source.cargo + 1
+						local upgrade_value = 1.25
+						if partQuantity > 1 then
+							upgrade_value = 1.4
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+							comms_source.cargo = comms_source.cargo + 2
+						else
+							comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+							comms_source.cargo = comms_source.cargo + 1
+						end
 						local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 						for _, missile_type in ipairs(missile_types) do
-							comms_source:setWeaponStorageMax(missile_type, math.ceil(comms_source:getWeaponStorageMax(missile_type)*1.25))
+							comms_source:setWeaponStorageMax(missile_type, math.ceil(comms_source:getWeaponStorageMax(missile_type)*upgrade_value))
 						end
-						setCommsMessage(string.format("%s: You can now store at least 25%% more missiles. I appreciate the %s",ctd.character,ctd.characterGood))
+						setCommsMessage(string.format("%s: You can now store at least %i%% more missiles. I appreciate the %s",ctd.character,(upgrade_value-1)*100,ctd.characterGood))
 					else
 						setCommsMessage(string.format("%s needs %s for the upgrade",ctd.character,ctd.characterGood))
 					end
@@ -6955,6 +7012,7 @@ function moreMissiles()
 			else
 				setCommsMessage("Your ship type does not support a missile storage capacity upgrade.")				
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6969,10 +7027,17 @@ function fasterImpulse()
 				end
 				if partQuantity > 0 then
 					comms_source.fasterImpulseUpgrade = "done"
-					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-					comms_source.cargo = comms_source.cargo + 1
-					comms_source:setImpulseMaxSpeed(comms_source:getImpulseMaxSpeed()*1.25)
-					setCommsMessage(string.format("%s: Your impulse engines now push you up to 25%% faster. Thanks for the %s",ctd.character,ctd.characterGood))
+					local upgrade_value = 1.25
+					if partQuantity > 1 then
+						upgrade_value = 1.4
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+						comms_source.cargo = comms_source.cargo + 2
+					else
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+						comms_source.cargo = comms_source.cargo + 1
+					end
+					comms_source:setImpulseMaxSpeed(comms_source:getImpulseMaxSpeed()*upgrade_value)
+					setCommsMessage(string.format("%s: Your impulse engines now push you up to %i%% faster. Thanks for the %s",ctd.character,(upgrade_value-1)*100,ctd.characterGood))
 				else
 					setCommsMessage(string.format("You need to bring %s to %s for the upgrade",ctd.characterGood,ctd.character))
 				end
@@ -6981,6 +7046,7 @@ function fasterImpulse()
 				comms_source:setImpulseMaxSpeed(comms_source:getImpulseMaxSpeed()*1.25)
 				setCommsMessage(string.format("%s: Your impulse engines now push you up to 25%% faster. I didn't need %s after all. Go run circles around those blinking Kraylors",ctd.character,ctd.characterGood))
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -6995,11 +7061,18 @@ function strongerHull()
 				end
 				if partQuantity > 0 then
 					comms_source.strongerHullUpgrade = "done"
-					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-					comms_source.cargo = comms_source.cargo + 1
-					comms_source:setHullMax(comms_source:getHullMax()*1.5)
+					local upgrade_value = 1.5
+					if partQuantity > 1 then
+						upgrade_value = 1.8
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+						comms_source.cargo = comms_source.cargo + 2
+					else
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+						comms_source.cargo = comms_source.cargo + 1
+					end
+					comms_source:setHullMax(comms_source:getHullMax()*upgrade_value)
 					comms_source:setHull(comms_source:getHullMax())
-					setCommsMessage(string.format("%s: Thank you for the %s. Your hull is 50%% stronger",ctd.character,ctd.characterGood))
+					setCommsMessage(string.format("%s: Thank you for the %s. Your hull is %i%% stronger",ctd.character,(upgrade_value-1)*100,ctd.characterGood))
 				else
 					setCommsMessage(string.format("%s: I need %s before I can increase your hull strength",ctd.character,ctd.characterGood))
 				end
@@ -7009,6 +7082,7 @@ function strongerHull()
 				comms_source:setHull(comms_source:getHullMax())
 				setCommsMessage(string.format("%s: I made your hull 50%% stronger. I scrounged some %s from around here since you are on the Kraylor offense team",ctd.character,ctd.characterGood))
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -7023,11 +7097,18 @@ function efficientBatteries()
 				end
 				if partQuantity > 0 then
 					comms_source.efficientBatteriesUpgrade = "done"
-					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-					comms_source.cargo = comms_source.cargo + 1
-					comms_source:setMaxEnergy(comms_source:getMaxEnergy()*1.25)
+					local upgrade_value = 1.25
+					if partQuantity > 1 then
+						upgrade_value = 1.4
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+						comms_source.cargo = comms_source.cargo + 2
+					else
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+						comms_source.cargo = comms_source.cargo + 1
+					end
+					comms_source:setMaxEnergy(comms_source:getMaxEnergy()*upgrade_value)
 					comms_source:setEnergy(comms_source:getMaxEnergy())
-					setCommsMessage(string.format("%s: I appreciate the %s. You have a 25%% greater energy capacity due to increased battery efficiency",ctd.character,ctd.characterGood))
+					setCommsMessage(string.format("%s: I appreciate the %s. You have a %i%% greater energy capacity due to increased battery efficiency",ctd.character,(upgrade_value-1)*100,ctd.characterGood))
 				else
 					setCommsMessage(string.format("%s: You need to bring me some %s before I can increase your battery efficiency",ctd.character,ctd.characterGood))
 				end
@@ -7037,6 +7118,7 @@ function efficientBatteries()
 				comms_source:setEnergy(comms_source:getMaxEnergy())
 				setCommsMessage(string.format("%s increased your battery efficiency by 25%% without the need for %s due to the pressing military demands on your ship",ctd.character,ctd.characterGood))
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -7051,14 +7133,21 @@ function strongerShields()
 				end
 				if partQuantity > 0 then
 					comms_source.strongerShieldsUpgrade = "done"
-					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
-					comms_source.cargo = comms_source.cargo + 1
-					if comms_source:getShieldCount() == 1 then
-						comms_source:setShieldsMax(comms_source:getShieldMax(0)*1.2)
+					local upgrade_value = 1.2
+					if partQuantity > 1 then
+						upgrade_value = 1.4
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 2
+						comms_source.cargo = comms_source.cargo + 2
 					else
-						comms_source:setShieldsMax(comms_source:getShieldMax(0)*1.2,comms_source:getShieldMax(1)*1.2)
+						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
+						comms_source.cargo = comms_source.cargo + 1
 					end
-					setCommsMessage(string.format("%s: I've raised your shield maximum by 20%%, %s. Thanks for bringing the %s",ctd.character,comms_source:getCallSign(),ctd.characterGood))
+					if comms_source:getShieldCount() == 1 then
+						comms_source:setShieldsMax(comms_source:getShieldMax(0)*upgrade_value)
+					else
+						comms_source:setShieldsMax(comms_source:getShieldMax(0)*upgrade_value,comms_source:getShieldMax(1)*upgrade_value)
+					end
+					setCommsMessage(string.format("%s: I've raised your shield maximum by %i%%, %s. Thanks for bringing the %s",ctd.character,(upgrade_value-1)*100,comms_source:getCallSign(),ctd.characterGood))
 				else
 					setCommsMessage(string.format("%s: You need to provide %s before I can raise your shield strength",ctd.character,ctd.characterGood))
 				end
@@ -7071,6 +7160,7 @@ function strongerShields()
 				end
 				setCommsMessage(string.format("%s: Congratulations, %s, your shields are 20%% stronger. Don't worry about the %s. Go kick those Kraylors outta here",ctd.character,comms_source:getCallSign(),ctd.characterGood))
 			end
+			addCommsReply("Back",commsStation)
 		end)
 	end
 end
@@ -7462,11 +7552,13 @@ function handleDockedState()
 					end
 				end
 			end
+			addCommsReply("Back",commsStation)
 		end)	--end station info comms reply branch
 	end
 	if enemyEverDetected then
 		addCommsReply("Why the yellow neutral border zones?", function()
 			setCommsMessage("Each neutral border zone is equipped with sensors and an auto-transmitter. If the sensors detect enemy forces in the zone, the auto-transmitter sends encoded zone identifying details through subspace. Human navy ships are equipped to recognize this data and color code the appropriate zone on the science and relay consoles.")
+			addCommsReply("Back",commsStation)
 		end)
 	end
 	if ctd.character ~= nil then
