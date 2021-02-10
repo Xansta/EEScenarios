@@ -19,7 +19,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.4"
+	scenario_version = "5.0.5"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -659,15 +659,6 @@ function setConstants()
 		{15, 3},
 		{20, 4}
 	}
-	get_coolant_function = {}
-	table.insert(get_coolant_function,getCoolant1)
-	table.insert(get_coolant_function,getCoolant2)
-	table.insert(get_coolant_function,getCoolant3)
-	table.insert(get_coolant_function,getCoolant4)
-	table.insert(get_coolant_function,getCoolant5)
-	table.insert(get_coolant_function,getCoolant6)
-	table.insert(get_coolant_function,getCoolant7)
-	table.insert(get_coolant_function,getCoolant8)
 	show_player_info = true
 	show_only_player_name = true
 	info_choice = 0
@@ -11367,28 +11358,6 @@ function playerShipCargoInventory(p)
 end
 --      Enable and disable auto-cooling on a ship functions
 function autoCoolant(delta)
-	if enableAutoCoolFunctionList == nil then
-		enableAutoCoolFunctionList = {}
-		table.insert(enableAutoCoolFunctionList,enableAutoCool1)
-		table.insert(enableAutoCoolFunctionList,enableAutoCool2)
-		table.insert(enableAutoCoolFunctionList,enableAutoCool3)
-		table.insert(enableAutoCoolFunctionList,enableAutoCool4)
-		table.insert(enableAutoCoolFunctionList,enableAutoCool5)
-		table.insert(enableAutoCoolFunctionList,enableAutoCool6)
-		table.insert(enableAutoCoolFunctionList,enableAutoCool7)
-		table.insert(enableAutoCoolFunctionList,enableAutoCool8)
-	end
-	if disableAutoCoolFunctionList == nil then
-		disableAutoCoolFunctionList = {}
-		table.insert(disableAutoCoolFunctionList,disableAutoCool1)
-		table.insert(disableAutoCoolFunctionList,disableAutoCool2)
-		table.insert(disableAutoCoolFunctionList,disableAutoCool3)
-		table.insert(disableAutoCoolFunctionList,disableAutoCool4)
-		table.insert(disableAutoCoolFunctionList,disableAutoCool5)
-		table.insert(disableAutoCoolFunctionList,disableAutoCool6)
-		table.insert(disableAutoCoolFunctionList,disableAutoCool7)
-		table.insert(disableAutoCoolFunctionList,disableAutoCool8)
-	end
 	for pidx=1,32 do
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
@@ -11396,104 +11365,44 @@ function autoCoolant(delta)
 				if p:hasPlayerAtPosition("Engineering") then
 					if p.autoCoolButton == nil then
 						local tbi = "enableAutoCool" .. p:getCallSign()
-						p:addCustomButton("Engineering",tbi,"Auto cool",enableAutoCoolFunctionList[pidx])
+						p:addCustomButton("Engineering",tbi,"Auto cool",function() 
+							string.format("")	--global context for serious proton
+							p:commandSetAutoRepair(true)
+							p:setAutoCoolant(true)
+							p.autoCoolant = true
+						end)
 						tbi = "disableAutoCool" .. p:getCallSign()
-						p:addCustomButton("Engineering",tbi,"Manual cool",disableAutoCoolFunctionList[pidx])
+						p:addCustomButton("Engineering",tbi,"Manual cool",function()
+							string.format("")	--global context for serious proton
+							p:commandSetAutoRepair(false)
+							p:setAutoCoolant(false)
+							p.autoCoolant = false
+						end)
 						p.autoCoolButton = true
 					end
 				end
 				if p:hasPlayerAtPosition("Engineering+") then
 					if p.autoCoolButton == nil then
 						tbi = "enableAutoCoolPlus" .. p:getCallSign()
-						p:addCustomButton("Engineering+",tbi,"Auto cool",enableAutoCoolFunctionList[pidx])
+						p:addCustomButton("Engineering+",tbi,"Auto cool",function()
+							string.format("")	--global context for serious proton
+							p:commandSetAutoRepair(true)
+							p:setAutoCoolant(true)
+							p.autoCoolant = true
+						end)
 						tbi = "disableAutoCoolPlus" .. p:getCallSign()
-						p:addCustomButton("Engineering+",tbi,"Manual cool",disableAutoCoolFunctionList[pidx])
+						p:addCustomButton("Engineering+",tbi,"Manual cool",function()
+							string.format("")	--global context for serious proton
+							p:commandSetAutoRepair(false)
+							p:setAutoCoolant(false)
+							p.autoCoolant = false
+						end)
 						p.autoCoolButton = true
 					end
 				end
 			end
 		end
 	end
-end
-function enableAutoCool1()
-	local p = getPlayerShip(1)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool1()
-	local p = getPlayerShip(1)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
-end
-function enableAutoCool2()
-	local p = getPlayerShip(2)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool2()
-	local p = getPlayerShip(2)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
-end
-function enableAutoCool3()
-	local p = getPlayerShip(3)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool3()
-	local p = getPlayerShip(3)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
-end
-function enableAutoCool4()
-	local p = getPlayerShip(4)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool4()
-	local p = getPlayerShip(4)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
-end
-function enableAutoCool5()
-	local p = getPlayerShip(5)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool5()
-	local p = getPlayerShip(5)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
-end
-function enableAutoCool6()
-	local p = getPlayerShip(6)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool6()
-	local p = getPlayerShip(6)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
-end
-function enableAutoCool7()
-	local p = getPlayerShip(7)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool7()
-	local p = getPlayerShip(7)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
-end
-function enableAutoCool8()
-	local p = getPlayerShip(8)
-	p:setAutoCoolant(true)
-	p.autoCoolant = true
-end
-function disableAutoCool8()
-	local p = getPlayerShip(8)
-	p:setAutoCoolant(false)
-	p.autoCoolant = false
 end
 --		Gain or lose coolant from nebula functions
 function coolantNebulae(delta)
@@ -11534,12 +11443,12 @@ function coolantNebulae(delta)
 				else
 					if p:hasPlayerAtPosition("Engineering") then
 						p.get_coolant_button = "get_coolant_button"
-						p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",get_coolant_function[pidx])
+						p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",function() getCoolantGivenPlayer(p) end)
 						p.get_coolant = true
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
 						p.get_coolant_button_plus = "get_coolant_button_plus"
-						p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",get_coolant_function[pidx])
+						p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",function() getCoolantGivenPlayer(p) end)
 						p.get_coolant = true
 					end
 				end
@@ -11628,38 +11537,6 @@ function getCoolantGivenPlayer(p)
 		end
 	end
 	p.coolant_trigger = true
-end
-function getCoolant1()
-	local p = getPlayerShip(1)
-	getCoolantGivenPlayer(p)
-end
-function getCoolant2()
-	local p = getPlayerShip(2)
-	getCoolantGivenPlayer(p)
-end
-function getCoolant3()
-	local p = getPlayerShip(3)
-	getCoolantGivenPlayer(p)
-end
-function getCoolant4()
-	local p = getPlayerShip(4)
-	getCoolantGivenPlayer(p)
-end
-function getCoolant5()
-	local p = getPlayerShip(5)
-	getCoolantGivenPlayer(p)
-end
-function getCoolant6()
-	local p = getPlayerShip(6)
-	getCoolantGivenPlayer(p)
-end
-function getCoolant7()
-	local p = getPlayerShip(7)
-	getCoolantGivenPlayer(p)
-end
-function getCoolant8()
-	local p = getPlayerShip(8)
-	getCoolantGivenPlayer(p)
 end
 --		Generate call sign functions
 function generateCallSign(prefix,faction)
