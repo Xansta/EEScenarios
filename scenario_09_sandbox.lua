@@ -2552,6 +2552,25 @@ function orderFleet()
 			addGMMessage("No Human Navy ships selected. No action taken")
 		end
 	end)
+	addGMFunction("Set scanned",function()
+		local object_list = getGMSelection()
+		local fleet = {}
+		for _, temp_object in pairs(object_list) do
+			if temp_object.typeName == "CpuShip" then
+				table.insert(fleet,temp_object)
+			end
+		end
+		if #fleet > 0 then
+			local ship_names = ""
+			for _, ship in ipairs(fleet) do
+				ship:setScanned(true)
+				ship_names = ship_names .. ship:getCallSign() .. " "
+			end
+			addGMMessage(string.format("Ships set as scanned:\n   %s",ship_names))
+		else
+			addGMMessage("No CPU ships selected. No action taken")
+		end
+	end)
 end
 ------------------
 --	Order Ship  --
@@ -2618,21 +2637,35 @@ function orderShip()
 		end
 	end
 	addGMFunction(button_label,setShipAI)
+	addGMFunction("Docked?",function()
+		local object_list = getGMSelection()
+		if #object_list == 1 then
+		local obj = object_list[1]
+			if obj.typeName == "CpuShip" then
+				local docked_with = obj:getDockedWith()
+				if docked_with ~= nil then
+					addGMMessage(string.format("Docked with %s",docked_with:getCallSign()))
+				else
+					addGMMessage("Not docked")
+				end
+			end
+		end
+	end)
 end
 function setShipAI()
 	local object_list = getGMSelection()
 	if #object_list ~= 1 then
 		addGMMessage("You need to select a CPU ship. No action taken.")
-		orderShip()
+		return
 	end
 	local obj = object_list[1]
 	if obj ~= nil then
 		if obj.typeName ~= "CpuShip" then
 			addGMMessage("What you have selected is not a CPU ship. No action taken.")
-			orderShip()
+			return
 		end
 	else
-		orderShip()
+		return
 	end
 	clearGMFunctions()
 	local button_label = "default"
@@ -2660,6 +2693,15 @@ function setShipAI()
 	addGMFunction(button_label,function()
 		obj:setAI("missilevolley")
 		obj.AI = "missilevolley"
+		orderShip()
+	end)
+	button_label = "evasion"
+	if obj.AI == "evasion" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("evasion")
+		obj.AI = "evasion"
 		orderShip()
 	end)
 end
@@ -11019,7 +11061,7 @@ function activePlayerShip()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("Ship Butt Info",function()
+	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
 	for shipNum = 1, #playerShipInfo do
@@ -11042,7 +11084,7 @@ function inactivePlayerShip()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("Ship Butt Info",function()
+	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
 	for shipNum = 1, #playerShipInfo do
@@ -13347,11 +13389,11 @@ function createPlayerShipHolmes()
 	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
 	playerHolmes:setTypeName("Holmes")
 	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
---                  			 Arc, Dir, Range, CycleTime, Dmg
-	playerHolmes:setBeamWeapon(0, 50, -85, 900.0, 		6.0, 7)	--broadside beams, narrower (vs 70)
-	playerHolmes:setBeamWeapon(1, 50, -95, 900.0, 		6.0, 7)	
-	playerHolmes:setBeamWeapon(2, 50,  85, 900.0, 		6.0, 7)	
-	playerHolmes:setBeamWeapon(3, 50,  95, 900.0, 		6.0, 7)	
+--                  			 Arc, Dir,  Range,CycleTime, Dmg
+	playerHolmes:setBeamWeapon(0, 10, -90, 1000.0, 		6.0, 7)	--broadside beams, narrower (vs 70)
+	playerHolmes:setBeamWeapon(1, 60, -90,  500.0, 		6.0, 7)	
+	playerHolmes:setBeamWeapon(2, 10,  90, 1000.0, 		6.0, 7)	
+	playerHolmes:setBeamWeapon(3, 60,  90,  500.0, 		6.0, 7)	
 	for i=0,3 do
 		playerHolmes:setBeamWeaponHeatPerFire(i,0.45)
 		playerHolmes:setBeamWeaponEnergyPerFire(i,6)
@@ -18147,9 +18189,9 @@ function enforcer(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams.",
 			{
-				{key = "Large tube 0", value = "20 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -30", value = "20 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 30", value = "20 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
 			},
 			nil
 		)
@@ -28288,7 +28330,10 @@ function handleDockedState()
 					end
 				end
 			end
-			if ctd.trade.food and comms_source.goods["food"] > 0 then
+			if comms_source.goods == nil then
+				comms_source.goods = {}
+			end
+			if ctd.trade.food and comms_source.goods["food"] ~= nil and comms_source.goods["food"] > 0 then
 				for good, goodData in pairs(ctd.goods) do
 					addCommsReply(string.format("Trade food for %s",good), function()
 						local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
@@ -28311,7 +28356,7 @@ function handleDockedState()
 					end)
 				end
 			end
-			if ctd.trade.medicine and comms_source.goods["medicine"] > 0 then
+			if ctd.trade.medicine and comms_source.goods["medicine"] ~= nil and comms_source.goods["medicine"] > 0 then
 				for good, goodData in pairs(ctd.goods) do
 					addCommsReply(string.format("Trade medicine for %s",good), function()
 						local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
@@ -28334,7 +28379,7 @@ function handleDockedState()
 					end)
 				end
 			end
-			if ctd.trade.luxury and comms_source.goods["luxury"] > 0 then
+			if ctd.trade.luxury and comms_source.goods["luxury"] ~= nil and comms_source.goods["luxury"] > 0 then
 				for good, goodData in pairs(ctd.goods) do
 					addCommsReply(string.format("Trade luxury for %s",good), function()
 						local goodTransactionMessage = string.format("Type: %s,  Quantity: %i",good,goodData["quantity"])
@@ -28384,6 +28429,20 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
 						startRegion = "Kentar (R17)"
 						if not kentar_color then
 							createKentarColor()
@@ -28402,6 +28461,20 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
 						startRegion = region.name
 						if not universe:hasRegionSpawned(region) then
 							universe:spawnRegion(region)
@@ -28418,6 +28491,20 @@ function handleDockedState()
 							if p ~= nil and p:isValid() then
 								p:commandUndock()
 								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
 							end
 						end
 						startRegion = region.name
@@ -28438,6 +28525,20 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
 						startRegion = "Icarus (F5)"
 						if not icarus_color then
 							createIcarusColor()
@@ -28454,6 +28555,20 @@ function handleDockedState()
 							if p ~= nil and p:isValid() then
 								p:commandUndock()
 								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
 							end
 						end
 						startRegion = region.name
@@ -28474,6 +28589,20 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
 						startRegion = region.name
 						if not universe:hasRegionSpawned(region) then
 							universe:spawnRegion(region)
@@ -28492,6 +28621,20 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
 						startRegion = "Icarus (F5)"
 						if not icarus_color then
 							createIcarusColor()
@@ -28507,6 +28650,20 @@ function handleDockedState()
 							if p ~= nil and p:isValid() then
 								p:commandUndock()
 								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
 							end
 						end
 						startRegion = "Kentar (R17)"
@@ -28527,6 +28684,20 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
 						startRegion = region.name
 						if not universe:hasRegionSpawned(region) then
 							universe:spawnRegion(region)
@@ -28543,6 +28714,20 @@ function handleDockedState()
 							if p ~= nil and p:isValid() then
 								p:commandUndock()
 								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
 							end
 						end
 						startRegion = "Icarus (F5)"
@@ -28562,6 +28747,20 @@ function handleDockedState()
 								p:setPosition(playerSpawnX,playerSpawnY)
 							end
 						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
 						startRegion = "Kentar (R17)"
 						if not kentar_color then
 							createKentarColor()
@@ -28578,6 +28777,20 @@ function handleDockedState()
 							if p ~= nil and p:isValid() then
 								p:commandUndock()
 								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
 							end
 						end
 						startRegion = region.name
@@ -31441,6 +31654,28 @@ function updateInner(delta)
 	end
 	if plotPulse ~= nil then
 		plotPulse(delta)
+	end
+	if jump_train ~= nil then
+		if #jump_train > 0 then
+			for index, ship in ipairs(jump_train) do
+				local px, py = ship:getPosition()
+				if math.abs(px - ship.jump_corridor_x) < 5000 and math.abs(py - ship.jump_corridor_y) < 5000 then
+					ship.move_test_count = ship.move_test_count + 1
+					if ship.move_test_count > 5 then
+						ship.move_test_count = nil
+						ship.jump_corridor_x = nil
+						ship.jump_corridor_y = nil
+						table.remove(jump_train,index)
+						break
+					end
+				else
+					ship.move_test_count = 0
+					ship:setPosition(ship.jump_corridor_x,ship.jump_corridor_y)
+				end
+			end
+		else
+			jump_train = nil
+		end
 	end
 	if updateDiagnostic then print("update: end of update function") end
 end
