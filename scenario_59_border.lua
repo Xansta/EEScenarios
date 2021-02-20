@@ -19,7 +19,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.6"
+	scenario_version = "5.0.7"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -15333,8 +15333,8 @@ function detailedStats()
 	print("    Survived")
 	local friendlySurvivalValue = 0
 	for _, station in ipairs(stationList) do
-		if station:isFriendly(getPlayerShip(-1)) then
-			if station:isValid() then
+		if station:isValid() then
+			if station:isFriendly(getPlayerShip(-1)) then
 				print(string.format("      %2d %s",station.strength,station:getCallSign()))
 				friendlySurvivalValue = friendlySurvivalValue + station.strength
 			end
