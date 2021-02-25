@@ -5,9 +5,11 @@
 -- Type: Replayable Mission
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
+-- Variation[Quixotic]: Practically insurmountable goals and/or enemies
 -- Variation[Timed]: Victory if some human navy stations and player ships survive for 30 minutes
 -- Variation[Timed Easy]: Victory if some human navy stations and player ships survive for 30 minutes, Easy goals and/or enemies
 -- Variation[Timed Hard]: Victory if some human navy stations and player ships survive for 30 minutes, Hard goals and/or enemies
+-- Variation[Timed Quixotic]: Victory if some human navy stations and player ships survive for 30 minutes, Practically insurmountable goals and/or enemies
 
 -- to do items:
 -- Station warning of enemies in area (helpful warnings - shuffle stations)
@@ -19,7 +21,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.7"
+	scenario_version = "5.0.8"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -171,6 +173,7 @@ function init()
 	plot1 = treatyHolds				--start main plot with the treaty in place
 	treaty = true
 	initialAssetsEvaluated = false
+	plotSW = stationWarning
 	plotC = autoCoolant				--enable buttons for turning on and off automated cooling
 	plotCI = cargoInventory			--manage button on relay/operations to show cargo inventory
 	plotH = healthCheck				--Damage to ship can kill repair crew members
@@ -244,6 +247,15 @@ function setVariations()
 		enemyDestructionVictoryCondition = enemyDestructionVictoryCondition*.9
 		friendlyDestructionDefeatCondition = friendlyDestructionDefeatCondition*1.1
 		destructionDifferenceEndCondition = destructionDifferenceEndCondition*.9
+	elseif string.find(getScenarioVariation(),"Quixotic") then
+		difficulty = 5
+		adverseEffect = .9
+		coolant_loss = .999
+		coolant_gain = .0001
+		ersAdj = -10
+		enemyDestructionVictoryCondition = enemyDestructionVictoryCondition*.8
+		friendlyDestructionDefeatCondition = friendlyDestructionDefeatCondition*1.2
+		destructionDifferenceEndCondition = destructionDifferenceEndCondition*.8
 	else
 		difficulty = 1		--default (normal)
 		adverseEffect = .995
@@ -7108,7 +7120,7 @@ function efficientBatteries()
 					end
 					comms_source:setMaxEnergy(comms_source:getMaxEnergy()*upgrade_value)
 					comms_source:setEnergy(comms_source:getMaxEnergy())
-					setCommsMessage(string.format("%s: I appreciate the %s. You have a %i%% greater energy capacity due to increased battery efficiency",ctd.character,(upgrade_value-1)*100,ctd.characterGood))
+					setCommsMessage(string.format("%s: I appreciate the %s. You have a %i%% greater energy capacity due to increased battery efficiency",ctd.character,ctd.characterGood,(upgrade_value-1)*100))
 				else
 					setCommsMessage(string.format("%s: You need to bring me some %s before I can increase your battery efficiency",ctd.character,ctd.characterGood))
 				end
@@ -15324,6 +15336,63 @@ function setSecondaryOrders()
 	secondaryOrders = secondaryOrders .. string.format("\nEnemy evaluation: %.1f%%. Below %.1f%% = victory",stat_list.kraylor.evaluation,enemyDestructionVictoryCondition)
 	secondaryOrders = secondaryOrders .. string.format("\n\nGet behind by %.1f%% = defeat. Get ahead by %.1f%% = victory",stat_list.times.threshold,stat_list.times.threshold)
 end
+function stationWarning(delta)
+	local warning_message = ""
+	for _, warn_station in ipairs(humanStationList) do
+		if warn_station ~= nil and warn_station:isValid() then
+			local make_warning_check = false
+			if warn_station.warning_timer ~= nil then
+				warn_station.warning_timer = warn_station.warning_timer - delta
+				if warn_station.warning_timer < 0 then
+					make_warning_check = true
+				end
+			else
+				make_warning_check = true
+			end
+			if make_warning_check then
+				warn_station.warning_timer = nil
+				for _, obj in ipairs(warn_station:getObjectsInRange(20000)) do
+					if obj ~= nil and obj:isValid() and obj:isEnemy(warn_station) and obj.typeName == "CpuShip" then
+						warning_message = string.format("[%s in %s] We detect one or more enemies nearby",warn_station:getCallSign(),warn_station:getSectorName())
+						if difficulty < 2 then
+							warning_message = string.format("%s. At least one is of type %s",warning_message,obj:getTypeName())
+						end
+					end
+				end
+				for i=1,warn_station:getShieldCount() do
+					if warn_station:getShieldLevel(i-1) < warn_station:getShieldMax(i-1) then
+						warning_message = string.format("[%s in %s] Our shields have taken damage",warn_station:getCallSign(),warn_station:getSectorName())
+					end
+				end
+				for i=1,warn_station:getShieldCount() do
+					if warn_station:getShieldLevel(i-1) < warn_station:getShieldMax(i-1)*.1 then
+						if warn_station:getShieldCount() == 1 then
+							warning_message = string.format("[%s in %s] Our shields are nearly gone",warn_station:getCallSign(),warn_station:getSectorName())
+						else
+							warning_message = string.format("[%s in %s] One or more of our shield arcs are nearly gone",warn_station:getCallSign(),warn_station:getSectorName())
+						end
+					end
+				end
+				if warn_station:getHull() < warn_station:getHullMax() then
+					warning_message = string.format("[%s in %s] Our hull has been damaged",warn_station:getCallSign(),warn_station:getSectorName())
+				end
+				if warn_station:getHull() < warn_station:getHullMax()*.1 then
+					warning_message = string.format("[%s in %s] We are on the brink of destruction",warn_station:getCallSign(),warn_station:getSectorName())
+				end
+				if warning_message ~= "" then
+					warn_station.warning_timer = delta + 150 + difficulty*100
+					for pidx=1,32 do
+						local p = getPlayerShip(pidx)
+						if p ~= nil and p:isValid() then
+							p:addToShipLog(warning_message,"Red")
+						end
+					end
+					break
+				end
+			end
+		end
+	end
+end
 ---------------------------
 -- Statistical functions --
 ---------------------------
@@ -15715,7 +15784,7 @@ function updateInner(delta)
 		plotAW(delta)
 	end
 --	if updateDiagnostic then print("plotWJ") end
-	if plotWJ ~= nil then	--artifact to worm
+	if plotWJ ~= nil then	--warp jammer
 		plotWJ(delta)
 	end
 --	if updateDiagnostic then print("plotAM") end
@@ -15795,6 +15864,9 @@ function updateInner(delta)
 	end
 	if plotExDk ~= nil then	--expedite dock
 		plotExDk(delta)
+	end
+	if plotSW ~= nil then	--station warning
+		plotSW(delta)
 	end
 	if plotShowPlayerInfo ~= nil then
 		plotShowPlayerInfo(delta)
