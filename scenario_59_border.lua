@@ -21,7 +21,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.0.8"
+	scenario_version = "5.0.9"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -7159,7 +7159,7 @@ function strongerShields()
 					else
 						comms_source:setShieldsMax(comms_source:getShieldMax(0)*upgrade_value,comms_source:getShieldMax(1)*upgrade_value)
 					end
-					setCommsMessage(string.format("%s: I've raised your shield maximum by %i%%, %s. Thanks for bringing the %s",ctd.character,(upgrade_value-1)*100,comms_source:getCallSign(),ctd.characterGood))
+					setCommsMessage(string.format("%s: I've raised your shield maximum by %i%%, %s. Thanks for bringing the %s",ctd.character,math.floor((upgrade_value-1)*100),comms_source:getCallSign(),ctd.characterGood))
 				else
 					setCommsMessage(string.format("%s: You need to provide %s before I can raise your shield strength",ctd.character,ctd.characterGood))
 				end
@@ -7532,7 +7532,7 @@ function handleDockedState()
     			else
     				setCommsMessage("Insufficient reputation")
     			end
-				addCommsReply("Back", mainMenu)
+				addCommsReply("Back", commsStation)
     		end)
 		end
     end
@@ -8901,7 +8901,7 @@ function handleUndockedState()
     			else
     				setCommsMessage("Insufficient reputation")
     			end
-				addCommsReply("Back", mainMenu)
+				addCommsReply("Back", commsStation)
     		end)
 		end
     end
