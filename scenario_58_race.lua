@@ -17,7 +17,7 @@ require("utils.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.0"
+	scenario_version = "2.0.1"
 	print(string.format("     -----     Scenario: Fermi 500     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	-- 27 types of goods so far
@@ -49,6 +49,14 @@ function init()
 					{"software",0},
 					{"battery",0}	}
 	diagnostic = true
+	predefined_player_ships = {
+		{name = "Phoenix",		control_code = "VULCAN515"},
+		{name = "Callisto",		control_code = "GALILEO678"},
+		{name = "Charybdis",	control_code = "ROYALE777"},
+		{name = "Sentinel",		control_code = "NOG345"},
+		{name = "Omnivore",		control_code = "ANGLE180"},
+		{name = "Tarquin",		control_code = "ANOMALY543"},
+	}
 	player_count = 0
 	player_start_list = {}
 	player_ship_stats = {	
@@ -83,7 +91,7 @@ function init()
 	playerShipNamesFor["Player Fighter"] = {"Buzzer","Flitter","Zippiticus","Hopper","Molt","Stinger","Stripe"}
 	playerShipNamesFor["Benedict"] = {"Elizabeth","Ford","Vikramaditya","Liaoning","Avenger","Naruebet","Washington","Lincoln","Garibaldi","Eisenhower"}
 	playerShipNamesFor["Kiriya"] = {"Cavour","Reagan","Gaulle","Paulo","Truman","Stennis","Kuznetsov","Roosevelt","Vinson","Old Salt"}
-	playerShipNamesFor["Striker"] = {"Sparrow","Sizzle","Squawk","Crow","Phoenix","Snowbird","Hawk"}
+	playerShipNamesFor["Striker"] = {"Sparrow","Sizzle","Squawk","Crow","Snowbird","Hawk"}
 	playerShipNamesFor["ZX-Lindworm"] = {"Seagull","Catapult","Blowhard","Flapper","Nixie","Pixie","Tinkerbell"}
 	playerShipNamesFor["Repulse"] = {"Fiddler","Brinks","Loomis","Mowag","Patria","Pandur","Terrex","Komatsu","Eitan"}
 	playerShipNamesFor["Ender"] = {"Mongo","Godzilla","Leviathan","Kraken","Jupiter","Saturn"}
@@ -196,7 +204,7 @@ function init()
 		"Mekong",
 		"Melbourne",
 		"Merced",
-		"Merrimack",
+		"Merrimac",
 		"Miranda",
 		"Nash",
 		"New Orleans",
@@ -499,6 +507,13 @@ function mainGMButtonsDuringPause()
 	addGMFunction("Show control codes",showControlCodes)
 	addGMFunction(string.format("+Start Delay: %i",raceStartDelay/60),setStartDelay)
 	addGMFunction(string.format("+Patience: %i",patienceTimeLimit/60),setPatienceTimeLimit)
+	if predefined_player_ships ~= nil then
+		addGMFunction("Random PShip Names",function()
+			addGMMessage("Player ship names will be selected at random.\nControl codes will be randomly generated")
+			predefined_player_ships = nil
+			mainGMButtons()
+		end)
+	end
 end
 function setPatienceTimeLimit()
 	clearGMFunctions()
@@ -3067,18 +3082,36 @@ function update(delta)
 			if p ~= nil and p:isValid() then
 				if p.nameAssigned == nil then
 					p.nameAssigned = true
-					local control_code_index = math.random(1,#control_code_stem)
-					local stem = control_code_stem[control_code_index]
-					table.remove(control_code_stem,control_code_index)
-					local branch = math.random(100,999)
-					p.control_code = stem .. branch
-					p:setControlCode(stem .. branch)
 					tempPlayerType = p:getTypeName()
 					p.shipScore = player_ship_stats[tempPlayerType].strength
 					p.maxCargo = player_ship_stats[tempPlayerType].cargo
 					p:addReputationPoints(5)
 					goods[p] = goodsList
-					namePlayerShip(p,tempPlayerType)
+					local use_fixed = false
+					if predefined_player_ships ~= nil then
+						if pps_index == nil then
+							pps_index = 0
+						end
+						pps_index = pps_index + 1
+						if predefined_player_ships[pps_index] ~= nil then
+							use_fixed = true
+						else
+							predefined_player_ships = nil
+						end
+					end
+					if use_fixed then
+						p:setCallSign(predefined_player_ships[pps_index].name)
+						p.control_code = predefined_player_ships[pps_index].control_code
+						p:setControlCode(predefined_player_ships[pps_index].control_code)
+					else
+						namePlayerShip(p,tempPlayerType)
+						local control_code_index = math.random(1,#control_code_stem)
+						local stem = control_code_stem[control_code_index]
+						table.remove(control_code_stem,control_code_index)
+						local branch = math.random(100,999)
+						p.control_code = stem .. branch
+						p:setControlCode(stem .. branch)
+					end
 					p.name = p:getCallSign()
 					local gi = 1
 					repeat
