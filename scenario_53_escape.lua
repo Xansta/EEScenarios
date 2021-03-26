@@ -1,9 +1,9 @@
 -- Name: Escape
 -- Description: Escape imprisonment and return home. 
 ---
---- Mission consists of one ship with a full crew. Engineer and Science will be the most busy initially
+--- Mission consists of one ship with a full crew. Engineer and Science will be busy
 ---
---- Version 5 Provides additional information while on the initial fighter (13Jul2020)
+--- Version 5 brings enhancements benefitting operations and tactical consoles
 -- Type: Mission, somewhat replayable
 -- Variation[Easy]: Easy goals and/or enemies
 -- Variation[Hard]: Hard goals and/or enemies
@@ -14,8 +14,30 @@ require("utils.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
+	print("----- Escape -----")
 	wfv = "nowhere"		--wolf fence value - used for debugging
 	setVariations()
+	local frigate_db = queryScienceDatabase("Ships","Frigate")
+	frigate_db:addEntry("Repulse")
+	local repulse_db = queryScienceDatabase("Ships","Frigate","Repulse")
+	repulse_db:setLongDescription("A Flavia P. Falcon with better hull and shields, a jump drive, two turreted beams covering both sides and a forward and rear tube. The nukes and mines are gone")
+	repulse_db:setKeyValue("Class","Frigate")
+	repulse_db:setKeyValue("Sub-class","Cruiser: Armored Transport")
+	repulse_db:setKeyValue("Size","80")
+	repulse_db:setKeyValue("Shield","80/80")
+	repulse_db:setKeyValue("Hull","120")
+	repulse_db:setKeyValue("Repair Crew",8)
+	repulse_db:setKeyValue("Jump Range","5 - 50 U")
+	repulse_db:setKeyValue("Sensor Ranges","Long: 30 U / Short: 5 U")
+	repulse_db:setKeyValue("Move speed","3.3 U/min")	--55
+	repulse_db:setKeyValue("Turn speed","9 deg/sec")
+	repulse_db:setKeyValue("Beam weapon 90:200","Rng:1.2 Dmg:5 Cyc:6")
+	repulse_db:setKeyValue("Beam weapon 270:200","Rng:1.2 Dmg:5 Cyc:6")
+	repulse_db:setKeyValue("Tube 0","20 sec")
+	repulse_db:setKeyValue("Tube 180","20 sec")
+	repulse_db:setKeyValue("Storage Homing","4")
+	repulse_db:setKeyValue("Storage HVLI","6")
+	repulse_db:setImage("radar_tug.png")
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	--Ship Template Name List
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
@@ -57,17 +79,6 @@ function init()
     brigStation = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS23"):setPosition(912787, 148301)
 	table.insert(enemyStationList,brigStation)
 	buildNearbyStations()
-	--build headquarters
-	local vx, vy = vectorFromAngle(random(0,90),random(300000,400000))
-	psx = brigx + vx
-	psy = brigy + vy
-	si = math.random(1,#placeStation)			--station index
-	stationFaction = "Human Navy"
-	pStation = placeStation[si]()
-	table.remove(placeStation,si)
-	table.insert(stationList,pStation)
-	stationHeadquarters = pStation
-	stationHeadquarters:setTemplate("Huge Station")	
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
 	playerShipNamesForPiranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
@@ -4150,60 +4161,6 @@ function handleUndockedState()
 				addCommsReply("Back", commsStation)
 			end)
 		end
-		addCommsReply("Where can I find particular goods?", function()
-			local ctd = comms_target.comms_data
-			gkMsg = "Friendly stations often have food or medicine or both. Neutral stations may trade their goods for food, medicine or luxury."
-			if ctd.goodsKnowledge == nil then
-				ctd.goodsKnowledge = {}
-				local knowledgeCount = 0
-				local knowledgeMax = 10
-				for i=1,#humanStationList do
-					local station = humanStationList[i]
-					if station ~= nil and station:isValid() then
-						local brainCheckChance = 60
-						if distance(comms_target,station) > 75000 then
-							brainCheckChance = 20
-						end
-						for good, goodData in pairs(station.comms_data.goods) do
-							if random(1,100) <= brainCheckChance then
-								local stationCallSign = station:getCallSign()
-								local stationSector = station:getSectorName()
-								ctd.goodsKnowledge[good] =	{	station = stationCallSign,
-																sector = stationSector,
-																cost = goodData["cost"] }
-								knowledgeCount = knowledgeCount + 1
-								if knowledgeCount >= knowledgeMax then
-									break
-								end
-							end
-						end
-					end
-					if knowledgeCount >= knowledgeMax then
-						break
-					end
-				end
-			end
-			local goodsKnowledgeCount = 0
-			for good, goodKnowledge in pairs(ctd.goodsKnowledge) do
-				goodsKnowledgeCount = goodsKnowledgeCount + 1
-				addCommsReply(good, function()
-					local ctd = comms_target.comms_data
-					local stationName = ctd.goodsKnowledge[good]["station"]
-					local sectorName = ctd.goodsKnowledge[good]["sector"]
-					local goodName = good
-					local goodCost = ctd.goodsKnowledge[good]["cost"]
-					setCommsMessage(string.format("Station %s in sector %s has %s for %i reputation",stationName,sectorName,goodName,goodCost))
-					addCommsReply("Back", commsStation)
-				end)
-			end
-			if goodsKnowledgeCount > 0 then
-				gkMsg = gkMsg .. "\n\nWhat goods are you interested in?\nI've heard about these:"
-			else
-				gkMsg = gkMsg .. " Beyond that, I have no knowledge of specific stations"
-			end
-			setCommsMessage(gkMsg)
-			addCommsReply("Back", commsStation)
-		end)
 		if ctd.public_relations then
 			addCommsReply("Tell me more about your station", function()
 				setCommsMessage("What would you like to know?")
@@ -4779,30 +4736,7 @@ function scanRepulse(delta)
 	if difficulty >= 1 then
 		plotSuffocate = checkForSuffocationOnFighter
 	end
-	local junk_ships_scanned = 0
-	for i=1,#junkShips do
-		local junk_ship = junkShips[i]
-		if junk_ship ~= nil and junk_ship:isValid() then
-			if junk_ship:isScannedBy(playerFighter) then
-				junk_ships_scanned = junk_ships_scanned + 1
-			end
-		end
-	end
-	local encrypted_message = string.format("Encrypted message from Human Navy regional headquarters station %s in %s: Assuming our intercepted Kraylor intelligence is correct (that you've escaped the Kraylor brig station) you're likely to need to find a jump or warp capable ship to bring you home. One of our intelligence analysts suggests that you've probably boarded one of the barely functioning junk ships in Boris Junk Yard. There is a small possibility that one of those ships could have a warp drive or a jump drive that you might get working well enough to bring you home. Boris is a notorious retired militia captian turned junk yard manager. Beware of his semi-automated junk yard defenses. To find a ship with a jump drive, your science officer will need to either check the database on the ships after a single scan or check the scanned ship systems after a second scan if the model does not appear in the database. We're blindly broadcasting this message on the encrypted channel hoping you'll receive it in time for it to be helpful. Good luck. [message repeats continuously]",stationHeadquarters:getCallSign(),stationHeadquarters:getSectorName())
-	if junk_ships_scanned >= 5 then
-		if playerFighter.encrypted_message == nil then
-			playerFighter:addToShipLog(encrypted_message,"Magenta")
-			playerFighter.encrypted_message = "sent"
-		end
-	end
 	if junkRepulse:isValid() then
-		local junk_scanned = junkRepulse:isScannedBy(playerFighter)
-		if junk_scanned then
-			if playerFighter.encrypted_message == nil then
-				playerFighter:addToShipLog(encrypted_message,"Magenta")
-				playerFighter.encrypted_message = "sent"
-			end
-		end
 		if junkRepulse:isFullyScannedBy(playerFighter) then
 			hintRepulseTimer = random(30,60)
 			plot1 = hintRepulse
@@ -4818,12 +4752,6 @@ function checkForSuffocationOnFighter(delta)
 		end
 	end
 	air_low_timer = air_low_timer - delta
-	if air_low_timer < 120 then
-		if playerFighter.initial_air_warning == nil then
-			playerFighter:addToShipLog(string.format("[Environmental Repair Crew Member] There's something wrong with %s's environmental system. I have not quite figured it out yet. I'll report to the engineer as soon as I get more information",playerFighter:getCallSign()),"Magenta")
-			playerFighter.initial_air_warning = "sent"
-		end
-	end
 	if air_low_timer < 0 then
 		if suffocation_timer == nil then
 			if difficulty > 1 then
@@ -4840,6 +4768,22 @@ function checkForSuffocationOnFighter(delta)
 			suffocation_label = string.format("%s %i",suffocation_label,suffocation_label_seconds)
 		else
 			suffocation_label = string.format("%s %i:%.2i",suffocation_label,suffocation_label_minutes,suffocation_label_seconds)
+		end
+		if playerFighter:hasPlayerAtPosition("PowerManagement") then
+			if playerFighter.suffocation_message_pm == nil then
+				playerFighter.suffocation_message_pm = "suffocation_message_pm"
+				playerFighter:addCustomMessage("PowerManagement",playerFighter.suffocation_message_pm,"Environmental systems show limited air remaining")
+			end
+			playerFighter.suffocation_timer_pm = "suffocation_timer_pm"
+			playerFighter:addCustomInfo("PowerManagement",playerFighter.suffocation_timer_pm,suffocation_label)
+		end
+		if playerFighter:hasPlayerAtPosition("DamageControl") then
+			if playerFighter.suffocation_message_dc == nil then
+				playerFighter.suffocation_message_dc = "suffocation_message_dc"
+				playerFighter:addCustomMessage("DamageControl",playerFighter.suffocation_message_dc,"Environmental systems show limited air remaining")
+			end
+			playerFighter.suffocation_timer_dc = "suffocation_timer_dc"
+			playerFighter:addCustomInfo("DamageControl",playerFighter.suffocation_timer_dc,suffocation_label)
 		end
 		if playerFighter:hasPlayerAtPosition("Engineering") then
 			if playerFighter.suffocation_message == nil then
@@ -4880,6 +4824,14 @@ function checkForSuffocationOnFighter(delta)
 				playerFighter:removeCustom(playerFighter.suffocation_timer)
 				playerFighter.suffocation_timer = nil
 			end
+			if playerFighter.suffocation_timer_dc ~= nil then
+				playerFighter:removeCustom(playerFighter.suffocation_timer_dc)
+				playerFighter.suffocation_timer_dc = nil
+			end
+			if playerFighter.suffocation_timer_pm ~= nil then
+				playerFighter:removeCustom(playerFighter.suffocation_timer_pm)
+				playerFighter.suffocation_timer_pm = nil
+			end
 			if playerFighter.suffocation_timer_eng_plus ~= nil then
 				playerFighter:removeCustom(playerFighter.suffocation_timer_eng_plus)
 				playerFighter.suffocation_timer_eng_plus = nil
@@ -4902,13 +4854,21 @@ function hintRepulse(delta)
 	end
 	hintRepulseTimer = hintRepulseTimer - delta
 	if hintRepulseTimer < 0 then
+		if playerFighter:hasPlayerAtPosition("PowerManagement") then
+			repulseHintMessagePM = "repulseHintMessagePM"
+			playerFighter:addCustomMessage("PowerManagement",repulseHintMessagePM,string.format("Reading through the scan data provided by science, you see that there could be a working jump drive on %s. However, if the crew wishes to transport over there, %s will need to get very close due to the minimal amount of energy remaining in the transporters.",junkRepulse:getCallSign(),playerFighter:getCallSign()))
+		end
+		if playerFighter:hasPlayerAtPosition("DamageControl") then
+			repulseHintMessageDC = "repulseHintMessageDC"
+			playerFighter:addCustomMessage("DamageControl",repulseHintMessageDC,string.format("Reading through the scan data provided by science, you see that there could be a working jump drive on %s. However, if the crew wishes to transport over there, %s will need to get very close due to the minimal amount of energy remaining in the transporters.",junkRepulse:getCallSign(),playerFighter:getCallSign()))
+		end
 		if playerFighter:hasPlayerAtPosition("Engineering") then
 			repulseHintMessage = "repulseHintMessage"
 			playerFighter:addCustomMessage("Engineering",repulseHintMessage,string.format("Reading through the scan data provided by science, you see that there could be a working jump drive on %s. However, if the crew wishes to transport over there, %s will need to get very close due to the minimal amount of energy remaining in the transporters.",junkRepulse:getCallSign(),playerFighter:getCallSign()))
 		end
 		if playerFighter:hasPlayerAtPosition("Engineering+") then
 			repulseHintMessageEPlus = "repulseHintMessageEPlus"
-			playerFighter:addCustomMessage("Engineering",repulseHintMessageEPlus,string.format("Reading through the scan data provided by science, you see that there could be a working jump drive on %s. However, if the crew wishes to transport over there, %s will need to get very close due to the minimal amount of energy remaining in the transporters.",junkRepulse:getCallSign(),playerFighter:getCallSign()))
+			playerFighter:addCustomMessage("Engineering+",repulseHintMessageEPlus,string.format("Reading through the scan data provided by science, you see that there could be a working jump drive on %s. However, if the crew wishes to transport over there, %s will need to get very close due to the minimal amount of energy remaining in the transporters.",junkRepulse:getCallSign(),playerFighter:getCallSign()))
 		end
 		plot1 = hugRepulse
 	end
@@ -4919,15 +4879,23 @@ function hugRepulse(delta)
 		plotSuffocate = checkForSuffocationOnFighter
 	end
 	if distance(playerFighter,junkRepulse) < 500 then
+		if playerFighter:hasPlayerAtPosition("PowerManagement") then
+			repulseTransferButtonPM = "repulseTransferButtonPM"
+			playerFighter:addCustomButton("PowerManagement",repulseTransferButtonPM,"Transfer to Repulse",repulseTransfer)
+		end
+		if playerFighter:hasPlayerAtPosition("DamageControl") then
+			repulseTransferButtonDC = "repulseTransferButtonDC"
+			playerFighter:addCustomButton("DamageControl",repulseTransferButtonDC,"Transfer to Repulse",repulseTransfer)
+		end
 		if playerFighter:hasPlayerAtPosition("Engineering") then
 			repulseTransferButton = "repulseTransferButton"
 			playerFighter:addCustomButton("Engineering",repulseTransferButton,"Transfer to Repulse",repulseTransfer)
 		end
 		if playerFighter:hasPlayerAtPosition("Engineering+") then
 			repulseTransferButtonEPlus = "repulseTransferButtonEPlus"
-			playerFighter:addCustomButton("Engineering",repulseTransferButtonEPlus,"Transfer to Repulse",repulseTransfer)
+			playerFighter:addCustomButton("Engineering+",repulseTransferButtonEPlus,"Transfer to Repulse",repulseTransfer)
 		end
-		if repulseTransferButtonEPlus ~= nil or repulseTransferButton ~= nil then
+		if repulseTransferButtonEPlus ~= nil or repulseTransferButton ~= nil or repulseTransferButtonDC ~= nil or repulseTransferButtonPM ~= nil then
 			plot1 = nil
 		end
 	end
@@ -4996,7 +4964,19 @@ function augmentRepairCrew(delta)
 --Former repair crew asks to be rescued to take up their jobs again
 	augmentRepairCrewTimer = augmentRepairCrewTimer - delta
 	if augmentRepairCrewTimer < 0 then
-		brigHailed = brigStation:sendCommsMessage(playerRepulse,"Need a repair crew? We used to be posted on that ship. We would be happy to return to our repair duty and get away from these Kraylors. We left the transporters locked on us, but the Kraylors destroyed our remote activator. You should find an activation switch at the weapons console")
+		local console_switch = ""
+		if playerRepulse:hasPlayerAtPosition("Weapons") then
+			if playerRepulse:hasPlayerAtPosition("Tactical") then
+				console_switch = "Weapons or Tactical"
+			else
+				console_switch = "Weapons"
+			end
+		else
+			if playerRepulse:hasPlayerAtPosition("Tactical") then
+				console_switch = "Tactical"
+			end
+		end
+		brigHailed = brigStation:sendCommsMessage(playerRepulse,string.format("Need a repair crew? We used to be posted on that ship. We would be happy to return to our repair duty and get away from these Kraylors. We left the transporters locked on us, but the Kraylors destroyed our remote activator. You should find an activation control 'Return Transport' at the %s console",console_switch))
 		if brigHailed then
 			if playerRepulse:hasPlayerAtPosition("Weapons") then
 				if retrieveRepairCrewButton == nil then
@@ -5103,7 +5083,12 @@ function fixFlood(delta)
 		end
 		if missileFixStation ~= nil then
 			if missileFixStationMessage == nil then
-				playerRepulse:addToShipLog(string.format("[Edwina (repair crew member)] My dad can fix our missile systems. He's got years of experience. He's on %s",missileFixStation:getCallSign()),"Magenta")
+				playerRepulse:addToShipLog(string.format("[Edwina (repair crew member)] My dad can fix our missile systems. He's got years of experience. He's on %s in %s",missileFixStation:getCallSign(),missileFixStation:getSectorName()),"Magenta")
+				if playerRepulse:getWaypointCount() < 9 then
+					local msx, msy = missileFixStation:getPosition()
+					playerRepulse:commandAddWaypoint(msx, msy)
+					playerRepulse:addToShipLog(string.format("Added waypoint %i to navigation system for %s",playerRepulse:getWaypointCount(),missileFixStation:getCallSign()),"Magenta")
+				end
 				missileFixStationMessage = "sent"
 			end
 		end
@@ -5120,6 +5105,11 @@ function fixFlood(delta)
 		if shieldFixStation ~= nil then
 			if shieldFixStationMessage == nil then
 				playerRepulse:addToShipLog(string.format("[Amir (repair crew member)] My sister fixes shield systems. I bet she could easily get our shields working. She works at a shop on %s",shieldFixStation:getCallSign()),"Magenta")
+				if playerRepulse:getWaypointCount() < 9 then
+					local msx, msy = shieldFixStation:getPosition()
+					playerRepulse:commandAddWaypoint(msx, msy)
+					playerRepulse:addToShipLog(string.format("Added waypoint %i to navigation system for %s",playerRepulse:getWaypointCount(),shieldFixStation:getCallSign()),"Magenta")
+				end
 				shieldFixStationMessage = "sent"
 			end
 		end
@@ -5136,6 +5126,11 @@ function fixFlood(delta)
 		if impulseFixStation ~= nil then
 			if impulseFixStationMessage == nil then
 				playerRepulse:addToShipLog(string.format("[Janet (repair crew member)] Johnny, my son, does practical research on impulse drives. He's on %s. He can probably get our impulse engines up to full capacity",impulseFixStation:getCallSign()),"Magenta")
+				if playerRepulse:getWaypointCount() < 9 then
+					local msx, msy = impulseFixStation:getPosition()
+					playerRepulse:commandAddWaypoint(msx, msy)
+					playerRepulse:addToShipLog(string.format("Added waypoint %i to navigation system for %s",playerRepulse:getWaypointCount(),impulseFixStation:getCallSign()),"Magenta")
+				end
 				impulseFixStationMessage = "sent"
 			end
 		end
@@ -5152,6 +5147,11 @@ function fixFlood(delta)
 		if longRangeFixStation ~= nil then
 			if longRangeFixStationMessage == nil then
 				playerRepulse:addToShipLog(string.format("[Fred (repair crew member)] The outfit my wife works for on %s specializes in long range communication. She could probably get our systems connected back up to the Human Navy communication network",longRangeFixStation:getCallSign()),"Magenta")
+				if playerRepulse:getWaypointCount() < 9 then
+					local msx, msy = longRangeFixStation:getPosition()
+					playerRepulse:commandAddWaypoint(msx, msy)
+					playerRepulse:addToShipLog(string.format("Added waypoint %i to navigation system for %s",playerRepulse:getWaypointCount(),longRangeFixStation:getCallSign()),"Magenta")
+				end
 				longRangeFixStationMessage = "sent"
 			end
 		end
@@ -5168,6 +5168,11 @@ function fixFlood(delta)
 		if jumpFixStation ~= nil then
 			if jumpFixStationMessage == nil then
 				playerRepulse:addToShipLog(string.format("[Nancy (repair crew member)] Our jump drive needs help. My brother on %s fixes jump drives and he could get ours working",jumpFixStation:getCallSign()),"Magenta")
+				if playerRepulse:getWaypointCount() < 9 then
+					local msx, msy = jumpFixStation:getPosition()
+					playerRepulse:commandAddWaypoint(msx, msy)
+					playerRepulse:addToShipLog(string.format("Added waypoint %i to navigation system for %s",playerRepulse:getWaypointCount(),jumpFixStation:getCallSign()),"Magenta")
+				end
 				jumpFixStationMessage = "sent"
 			end
 		end
@@ -5184,6 +5189,11 @@ function fixFlood(delta)
 		if reactorFixStation ~= nil then
 			if reactorFixStationMessage == nil then
 				playerRepulse:addToShipLog(string.format("[Manuel (repair crew member)] The reactor could use some tuning. My cousin can fix us up. He does work on reactors on %s",reactorFixStation:getCallSign()),"Magenta")
+				if playerRepulse:getWaypointCount() < 9 then
+					local msx, msy = reactorFixStation:getPosition()
+					playerRepulse:commandAddWaypoint(msx, msy)
+					playerRepulse:addToShipLog(string.format("Added waypoint %i to navigation system for %s",playerRepulse:getWaypointCount(),reactorFixStation:getCallSign()),"Magenta")
+				end
 				reactorFixStationMessage = "sent"
 				if playerRepulse:hasPlayerAtPosition("Relay") then
 					if crewFixButtonMsg == nil then
@@ -5227,23 +5237,83 @@ function cumulativeHarassment(delta)
 end
 function showCrewFixers()
 	oMsg = ""
+	if not playerRepulse.beamFix then
+		oMsg = oMsg .. string.format(" Beams:%s(%s) ",beamFixStation:getCallSign(),beamFixStation:getSectorName())
+		for i=1,playerRepulse:getWaypointCount() do
+			local wx, wy = playerRepulse:getWaypoint(i)
+			local td = distance(beamFixStation,wx,wy)
+--			print("index:",i,"waypoint x,y:",wx,wy,"distance:",td)
+			if td < 50 then
+				oMsg = oMsg .. string.format("WP:%i ",i)		
+				break
+			end
+		end
+	end
 	if not playerRepulse.missileFix then
 		oMsg = oMsg .. string.format(" Missiles:%s(%s) ",missileFixStation:getCallSign(),missileFixStation:getSectorName())
+		for i=1,playerRepulse:getWaypointCount() do
+			local wx, wy = playerRepulse:getWaypoint(i)
+			local td = distance(missileFixStation,wx,wy)
+			if td < 50 then
+				oMsg = oMsg .. string.format("WP:%i ",i)		
+				break
+			end
+		end
 	end
 	if not playerRepulse.frontShieldFix and not playerRepulse.rearShieldFix then
 		oMsg = oMsg .. string.format(" Shields:%s(%s) ",shieldFixStation:getCallSign(),shieldFixStation:getSectorName())
+		for i=1,playerRepulse:getWaypointCount() do
+			local wx, wy = playerRepulse:getWaypoint(i)
+			local td = distance(shieldFixStation,wx,wy)
+			if td < 50 then
+				oMsg = oMsg .. string.format("WP:%i ",i)		
+				break
+			end
+		end
 	end
 	if not playerRepulse.impulseFix then
 		oMsg = oMsg .. string.format(" Impulse:%s(%s) ",impulseFixStation:getCallSign(),impulseFixStation:getSectorName())
+		for i=1,playerRepulse:getWaypointCount() do
+			local wx, wy = playerRepulse:getWaypoint(i)
+			local td = distance(impulseFixStation,wx,wy)
+			if td < 50 then
+				oMsg = oMsg .. string.format("WP:%i ",i)		
+				break
+			end
+		end
 	end
 	if not playerRepulse.longRangeFix then
 		oMsg = oMsg .. string.format(" Communications:%s(%s) ",longRangeFixStation:getCallSign(),longRangeFixStation:getSectorName())
+		for i=1,playerRepulse:getWaypointCount() do
+			local wx, wy = playerRepulse:getWaypoint(i)
+			local td = distance(longRangeFixStation,wx,wy)
+			if td < 50 then
+				oMsg = oMsg .. string.format("WP:%i ",i)		
+				break
+			end
+		end
 	end
 	if not playerRepulse.jumpFix then
 		oMsg = oMsg .. string.format(" Jump:%s(%s) ",jumpFixStation:getCallSign(),jumpFixStation:getSectorName())
+		for i=1,playerRepulse:getWaypointCount() do
+			local wx, wy = playerRepulse:getWaypoint(i)
+			local td = distance(jumpFixStation,wx,wy)
+			if td < 50 then
+				oMsg = oMsg .. string.format("WP:%i ",i)		
+				break
+			end
+		end
 	end
 	if not playerRepulse.reactorFix then
 		oMsg = oMsg .. string.format(" Reactor:%s(%s) ",reactorFixStation:getCallSign(),reactorFixStation:getSectorName())
+		for i=1,playerRepulse:getWaypointCount() do
+			local wx, wy = playerRepulse:getWaypoint(i)
+			local td = distance(reactorFixStation,wx,wy)
+			if td < 50 then
+				oMsg = oMsg .. string.format("WP:%i ",i)		
+				break
+			end
+		end
 	end
 	if oMsg == nil then
 		if crewFixButtonMsg ~= nil then
@@ -5278,6 +5348,11 @@ function suggestBeamFix(delta)
 				end
 			until(beamFixStation ~= nil)
 			playerRepulse:addToShipLog(string.format("[Kent (repair crew member)] My brother on %s in %s can fix our port side beam weapon",beamFixStation:getCallSign(),beamFixStation:getSectorName()),"Magenta")
+			if playerRepulse:getWaypointCount() < 9 then
+				local msx, msy = beamFixStation:getPosition()
+				playerRepulse:commandAddWaypoint(msx, msy)
+				playerRepulse:addToShipLog(string.format("Added waypoint %i to navigation system for %s",playerRepulse:getWaypointCount(),beamFixStation:getCallSign()),"Magenta")
+			end
 			plot2 = chaseTrigger
 		end
 	end
@@ -5310,16 +5385,15 @@ function junkYardDog(delta)
 			plot2 = borisChase
 		end
 		if playerRepulse.junk_yard_dog_warning == nil then
-			playerRepulse:addToShipLog(string.format("[Sensor tech] Looks like %s figured out where we went and has sicced %s on us.",brigStation:getCallSign(),junk_yard_dog:getCallSign()),"Magenta")
-			playerRepulse:addToShipLog(string.format("[Engineering tech] With our hull at %i, we better hope our shields hold",playerRepulse:getHull()),"Magenta")
-			playerRepulse.junk_yard_dog_warning = "sent"
+			if junk_yard_dog ~= nil and junk_yard_dog:isValid() then
+				playerRepulse:addToShipLog(string.format("[Sensor tech] Looks like %s figured out where we went and has sicced %s on us.",brigStation:getCallSign(),junk_yard_dog:getCallSign()),"Magenta")
+				playerRepulse:addToShipLog(string.format("[Engineering tech] With our hull at %i, we better hope our shields hold",playerRepulse:getHull()),"Magenta")
+				playerRepulse.junk_yard_dog_warning = "sent"
+			end
 		end
 	end
 end
 function borisChase(delta)
-	if boris_chase_count == nil then
-		boris_chase_count = 0
-	end
 	borisChaseTimer = borisChaseTimer - delta
 	if borisChaseTimer < 0 then
 		borisChaseTimer = delta + 300 + random(1,300)
@@ -5338,14 +5412,8 @@ function borisChase(delta)
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Drone"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
 				elseif difficulty > 1 then
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Fighter"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
-					if boris_chase_count >= 2 then
-						junkChaser:setWarpDrive(true)
-					end
 				else
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Fighter"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
-					if boris_chase_count >= 3 then
-						junkChaser:setWarpDrive(true)
-					end
 				end
 				junkChaser:onDestruction(resetBoris)
 				chaserMsgChoice = math.random(1,3)
@@ -5361,7 +5429,6 @@ function borisChase(delta)
 	end
 end
 function resetBoris(self, instigator)
-	boris_chase_count = boris_chase_count + 1
 	if borisChaseTimer < 300 then
 		borisChaseTimer = 300
 	end
