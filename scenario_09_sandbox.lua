@@ -54,6 +54,7 @@ function createSkeletonUniverse()
 	station_names = {}
 	--Icarus
 	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+    stationIcarus:setShortRangeRadarRange(20000)
     stationIcarus.comms_data = {
     	friendlyness = 75,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -100,6 +101,7 @@ function createSkeletonUniverse()
 	--local kentarZone = squareZone(kentar_x,kentar_y, "Kentar 2")
 	--kentarZone:setColor(0,128,0)
 	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(kentar_x,kentar_y):setCallSign("Kentar 2"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+    stationKentar:setShortRangeRadarRange(25000)
     stationKentar.comms_data = {
     	friendlyness = 68,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -183,6 +185,7 @@ function createSkeletonUniverse()
     astron_x = 462523
     astron_y = 317769
     stationAstron = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(astron_x, astron_y):setCallSign("Astron"):setDescription("Military Observation Post"):setCommsScript(""):setCommsFunction(commsStation)
+    stationAstron:setShortRangeRadarRange(4500)
     stationAstron.comms_data = {
     	friendlyness = 68,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -219,6 +222,7 @@ function createSkeletonUniverse()
 	lafrina_x = -250369
 	lafrina_y = 293390
 	stationLafrina = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(lafrina_x,lafrina_y):setCallSign("Lafrina"):setDescription("Black hole observation and research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationLafrina:setShortRangeRadarRange(14500)
     stationLafrina.comms_data = {
     	friendlyness = 86,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -315,6 +319,8 @@ function setConstants()
 	revert_timer_interval = 7
 	revert_timer = revert_timer_interval
 	plotRevert = revertWait
+	tractor_sound = "sfx/emp_explosion.wav"
+	tractor_sound_power = .25
 
 	ship_template = {	--ordered by relative strength
 		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = beamOverclocker},
@@ -342,7 +348,7 @@ function setConstants()
 		["Jacket Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneJacket},
 		["Ktlitan Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = stockTemplate},
 		["Heavy Drone"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneHeavy},
-		["Adder MK3"] =			{strength = 5,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk3},
+		["Adder MK3"] =			{strength = 5,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["MT52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["MU52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["MV52 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = hornetMV52},
@@ -356,10 +362,10 @@ function setConstants()
 		["Adder MK6"] =			{strength = 8,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Ktlitan Scout"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["WZ-Lindworm"] =		{strength = 9,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = wzLindworm},
-		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk7},
-		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk8},
-		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = adderMk9},
-		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = nirvanaR3},
+		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Phobos R2"] =			{strength = 13,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = phobosR2},
 		["Missile Cruiser"] =	{strength = 14,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
 		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = waddle5},
@@ -555,6 +561,7 @@ function setConstants()
 		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false	},
 		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false	},
 		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false	},
+		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false	},
 		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false	},
 		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false	},
 		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false	},
@@ -1043,7 +1050,7 @@ function setConstants()
 		"Administrative Assistant",
 		"General Manager",
 		"Finnicky Flunky",
-		"Vericose Veined VIP",
+		"Varicose Veined VIP",
 		"Operator",
 		"Tempermental Technician",
 	}
@@ -2621,7 +2628,7 @@ function orderShip()
 			return
 		end
 		tempObject:setShieldsFrequency(tempObject.damage_instigator:getBeamFrequency())
-		addGMMessage(string.format("shields of %s change to frequency %s",tempObject:getCallSign(),tempObject.damage_instigator:getBeamFrequency()))
+		addGMMessage(string.format("shields of %s change to frequency %s (%s)",tempObject:getCallSign(),tempObject.damage_instigator:getBeamFrequency(),tempObject.damage_instigator:getBeamFrequency()*20+400))
 	end)
 	addGMFunction("+Attach To Ship",attachAnythingToNPS)
 	addGMFunction("+Detach",detachAnythingFromNPS)
@@ -3302,7 +3309,7 @@ function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("+Update Editor",updateEditor)
-	addGMFunction("Explode Sel Art",explodeSelectedArtifact)
+	addGMFunction("Explode Sel Artifact",explodeSelectedArtifact)
 	addGMFunction("Pulse Asteroid",pulseAsteroid)
 	if jump_corridor then
 		addGMFunction("Jump Corridor On",function()
@@ -3696,6 +3703,7 @@ function customButtons()
 	addGMFunction("+Debug",debugButtons)
 	addGMFunction("+Snippet",snippetButtons)
 	addGMFunction("+Science DB",scienceDatabase)
+	addGMFunction("+Tractor Sound",tractorSound)
 	addGMFunction("4k mine ring",singleObjectFunction(function (obj)
 		local x,y = obj:getPosition()
 			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
@@ -3882,6 +3890,53 @@ function customButtons()
 			end
 		end
 	end)
+end
+function tractorSound()
+	clearGMFunctions()
+	addGMFunction("-Main From Tractor Sound",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction(string.format("%.1f Power ^ -> %.1f",tractor_sound_power, tractor_sound_power + 1),function()
+		tractor_sound_power = tractor_sound_power + 1
+		tractorSound()
+	end)
+	addGMFunction(string.format("%.1f Power ^ -> %.1f",tractor_sound_power, tractor_sound_power + .1),function()
+		tractor_sound_power = tractor_sound_power + .1
+		tractorSound()
+	end)
+	addGMFunction(string.format("%.1f Power V -> %.1f",tractor_sound_power, tractor_sound_power - 1),function()
+		tractor_sound_power = tractor_sound_power - 1
+		tractorSound()
+	end)
+	addGMFunction(string.format("%.1f Power V -> %.1f",tractor_sound_power, tractor_sound_power - .1),function()
+		tractor_sound_power = tractor_sound_power - .1
+		tractorSound()
+	end)
+	local stock_sounds = {
+		["Button"] = "button.wav",
+		["Explosion"] = "explosion.wav",
+		["Laser"] = "laser.wav",
+		["Missile Launch"] = "missile_launch.wav",
+		["EMP Explosion"] = "sfx/emp_explosion.wav",
+		["Engine Fighter"] = "sfx/engine_fighter.wav",
+		["Engine"] = "sfx/engine.wav",
+		["HVLI Fire"] = "sfx/hvli_fire.wav",
+		["Laser Fire"] = "sfx/laser_fire.wav",
+		["Nuke Explosion"] = "sfx/nuke_explosion.wav",
+		["R Launch"] = "sfx/rlaunch.wav",
+		["Shield Down"] = "shield_down.wav",
+		["Shield Up"] = "shield_up.wav",
+	}
+	for sound_name, file_name in pairs(stock_sounds) do
+		if tractor_sound == file_name then
+			sound_name = sound_name .. "*"
+		end
+		addGMFunction(sound_name,function()
+			tractor_sound = file_name
+			local tractor_sound_message = string.format("Tractor sound set to %s",file_name)
+			addGMMessage(tractor_sound_message)
+			tractorSound()
+		end)
+	end
 end
 function carolStage1()
 	local pearTree=CpuShip():
@@ -4233,7 +4288,7 @@ function carolStage(stage)
 end
 function santaContainment()
 	local station1 = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(754655, 62391):setCallSign("Polaris"):setDescription("Research base for extra dimensional threat 8"):setCommsFunction(commsStation)
-
+	station1:setShortRangeRadarRange(20000)
     station1.comms_data = {
     	friendlyness = 75,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -4956,14 +5011,15 @@ function playerShip()
 	addGMFunction("+Teleport Players",teleportPlayers)
 	if playerShipInfo == nil then
 		playerShipInfo={
-			{"Amalgam"		,"active"	,createPlayerShipAmalgam	,{strength = 42,	ftl = "j", lrs = 36},""},
+			{"Amalgam"		,"inactive"	,createPlayerShipAmalgam	,{strength = 42,	ftl = "j", lrs = 36},""},
 			{"Ambition"		,"inactive"	,createPlayerShipAmbition	,{strength = 19,	ftl = "j", lrs = 25},"Phobos T2(Ambition): Frigate, Cruiser   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
 			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,{strength = 16,	ftl = "j", lrs = 25},"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,{strength = 18,	ftl = "j", lrs = 20},"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
 			{"Barracuda"	,"inactive"	,createPlayerShipBarracuda	,{strength = 11,	ftl = "j", lrs = 20},"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Barrow"		,"inactive"	,createPlayerShipBarrow		,{strength = 9,		ftl = "j", lrs = 35},"Barrow: Corvette, Freighter/Carrier\nSee science database for details"},
-			{"Blaire"		,"inactive"	,createPlayerShipBlaire		,{strength = 22,	ftl = "b", lrs = 35},"Kludge (Blaire), Corvette, Gunner... incomplete description"},
+			{"Blaire"		,"active"	,createPlayerShipBlaire		,{strength = 22,	ftl = "b", lrs = 35},"Kludge (Blaire), Corvette, Gunner... incomplete description"},
 --			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
+			{"Chavez"		,"active"	,createPlayerShipChavez		,{strength = 21,	ftl = "j", lrs = 25},"(no desc)"},
 			{"Cobra"		,"inactive"	,createPlayerShipCobra		,{strength = 16,	ftl = "j", lrs = 20},"Striker LX(Cobra): Starfighter, Patrol   Hull:100   Shield:100,100   Size:200   Repair Crew:3   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:600   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.2\n   Arc:100   Direction:-15   Range:1.1   Cycle:6   Damage:6.5\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6.5\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)"},
 			{"Darkstar"		,"inactive"	,createPlayerShipDarkstar	,{strength = 22,	ftl = "j", lrs = 30},"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Eagle"		,"active"	,createPlayerShipEagle		,{strength = 14,	ftl = "w", lrs = 50},"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
@@ -4973,15 +5029,15 @@ function playerShip()
 			{"Ink"			,"inactive"	,createPlayerShipGabble		,{strength = 14,	ftl = "j", lrs = 25},"Squid(Ink): Frigate, Cruiser: Light Artillery   Hull:120   Shield:100,100   Size:200   Repair Crew:5   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
 			{"Gadfly"		,"inactive"	,createPlayerShipGadfly		,{strength = 09,	ftl = "j", lrs = 15},"Gadfly: Fighter   Hull:100   Shield:80,80   Size:100   Repair Crew:3   Cargo:4   R.Strength:9\nFTL:Jump (2U - 15U)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600 Strafe:0   Energy:400   LRS:15   SRS:4.5\nBeams:1 Front\n   Arc:50   Direction:0   Range:0.9   Cycle:4   Damage:8\nTubes:3   2 Front, 1 Rear\n   Direction:  0   Load Speed:05   Type:HVLI Only - small\n   Direction:  0   Load Speed:10   Type:Nuke & EMP\n   Direction:180   Load Speed:15   Type:Homing Only - large\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      1 EMP\n      8 HVLI\nBased on Player Fighter: added jump drive, stronger hull, extra and stronger shields, fewer beams (wider, shorter, faster), missile tubes front and rear (no mines)"},
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,{strength = 40,	ftl = "j", lrs = 30},"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
-			{"Guinevere"	,"inactive"	,createPlayerShipGuinevere	,{strength = 23,	ftl = "j", lrs = 35},"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
+			{"Guinevere"	,"active"	,createPlayerShipGuinevere	,{strength = 23,	ftl = "j", lrs = 35},"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	,{strength = 23,	ftl = "j", lrs = 35},"(no desc)"},	--proto-atlantis
 			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	,{strength = 11,	ftl = "j", lrs = 20},"(no desc)"},
 			{"Hearken"		,"inactive"	,createPlayerShipHearken	,{strength = 11,	ftl = "j", lrs = 20},"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
-			{"Holmes"		,"active"	,createPlayerShipHolmes		,{strength = 35,	ftl = "w", lrs = 35},"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
+			{"Holmes"		,"inactive"	,createPlayerShipHolmes		,{strength = 35,	ftl = "w", lrs = 35},"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
 			{"Interlock"	,"inactive"	,createPlayerShipInterlock	,{strength = 19,	ftl = "j", lrs = 35},"Interlock: Frigate, Armored Transport   Hull:250   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:19\nFTL:Jump (3.5U-35U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:35   SRS:5.5\nBeams:5 Front 1 rear Turreted Speed:1\n   Arc:100   Direction:  0   Range:0.9   Cycle:6   Damage:6   Turreted\n   Arc:180   Direction:180   Range:0.9   Cycle:6   Damage:4   Turreted\n   Arc:110   Direction:-35   Range:0.3   Cycle:6   Damage:10\n   Arc:110   Direction: 35   Range:0.3   Cycle:6   Damage:10\n   Arc: 60   Direction:-20   Range:0.6   Cycle:6   Damage:8\n   Arc: 60   Direction: 20   Range:0.6   Cycle:6   Damage:8\nTubes:3   Load Speed:20   Large Broadside, Rear\n   Direction:-90   Type:Exclude Mine - Large\n   Direction: 90   Type:Exclude Mine - Large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      4 Homing\n      4 Mine\n      6 HVLI\nBased on Repulse: 6 beams, 5 forward, 1 rear, more damage the closer the enemy gets, hull and shields significantly stronger, more missiles, shorter jump, longer long and short range sensors"},
 			{"Jarvis"		,"inactive"	,createPlayerShipJarvis		,{strength = 20,	ftl = "w", lrs = 30},"Butler (Jarvis): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:70   Spin:12   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Front/Broadside\n   Arc:160   Direction:-80   Range:0.9   Cycle:6   Damage:6\n   Arc:160   Direction: 80   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP or Nuke Only\n   Direction:  0   Type:HVLI Only - Large\n   Direction:180   Type:Homing Only\n   Ordnance stock and type:\n      04 Homing\n      03 Nuke\n      04 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, front and side beams, fewer tubes, fewer missiles, no mines, Small Nukes, EMPs in front middle tube, large HVLI"},
 			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,{strength = 20,	ftl = "w", lrs = 30},"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
-			{"Kindling"		,"inactive"	,createPlayerShipKindling	,{strength = 40,	ftl = "j", lrs = 25},"(no desc)"},
+			{"Kindling"		,"active"	,createPlayerShipKindling	,{strength = 40,	ftl = "j", lrs = 25},"(no desc)"},
 --			{"Knick"		,"inactive"	,createPlayerShipKnick		,{strength = 05,	ftl = "j", lrs = 30},"Experimental - not ready for use"},
 			{"Knuckle Drag"	,"inactive"	,createPlayerShipSimian		,{strength = 25,	ftl = "j", lrs = 32},"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower"},
 			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,{strength = 30,	ftl = "j", lrs = 27},"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
@@ -4992,8 +5048,8 @@ function playerShip()
 			{"Nusret"		,"inactive"	,createPlayerShipNusret		,{strength = 16,	ftl = "j", lrs = 25},"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Osprey"		,"inactive"	,createPlayerShipOsprey		,{strength = 25,	ftl = "w", lrs = 30},"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
 			{"Outcast"		,"inactive"	,createPlayerShipOutcast	,{strength = 30,	ftl = "j", lrs = 28},"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
-			{"Peacock"		,"active"	,createPlayerShipPeacock	,{strength = 30,	ftl = "j", lrs = 25},"(no desc)"},
-			{"Phobos T2"	,"active"	,createPlayerShipPhobosT2	,{strength = 19,	ftl = "j", lrs = 25},"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:1.2U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:1.2U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
+			{"Peacock"		,"inactive"	,createPlayerShipPeacock	,{strength = 30,	ftl = "j", lrs = 25},"(no desc)"},
+			{"Phobos T2"	,"inactive"	,createPlayerShipPhobosT2	,{strength = 19,	ftl = "j", lrs = 25},"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:1.2U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:1.2U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
 			{"Quicksilver"	,"inactive"	,createPlayerShipQuick		,{strength = 12,	ftl = "w", lrs = 20},"XR-Lindworm (Quicksilver): Starfighter, Bomber   Hull:75   Shield:90,30   Size:100   Repair Crew:2   Cargo:3   R.Strength:11\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400  LRS:20   SRS:6\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      02 Nuke\n      03 EMP\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, warp drive, nukes and EMPs, two shields: stronger in front, weaker in rear"},
 			{"Quill"		,"inactive"	,createPlayerShipQuill		,{strength = 30,	ftl = "w", lrs = 30},"(no desc)"},
 			{"Raptor"		,"inactive"	,createPlayerShipRaptor		,{strength = 22,	ftl = "j", lrs = 30},"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
@@ -5004,7 +5060,7 @@ function playerShip()
 			{"Rotor"		,"inactive"	,createPlayerShipRotor		,{strength = 35,	ftl = "w", lrs = 25},"Rotor: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:30\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:4\nBeams:5, 2 Turreted Speed:1\n   Arc:190   Direction:  0   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc:190   Direction:180   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc: 60   Direction:-25   Range:0.8   Cycle:6   Damage:6\n   Arc: 60   Direction: 25   Range:0.8   Cycle:6   Damage:6\n   Arc: 40   Direction:  0   Range:0.6   Cycle:6   Damage:8\nTubes:1   Load Speed:8   Rear:1\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      6 Mine\nBased on Maverick: Fewer beams, one rear tube, slower warp, shorter sensors"},
 			{"Safari"		,"inactive"	,createPlayerShipSafari		,{strength = 15,	ftl = "w", lrs = 33},"Safari: Frigate, Light Transport   Hull:100   Shield:100,60   Size:200   Repair Crew:8   Cargo:10   R.Strength:15\nFTL:Warp (500)   Speeds: Impulse:60   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:4.5\nBeams:2 Front 1 Turreted Speed:0.4\n   Arc:40   Direction:0   Range:1.2   Cycle:6   Damage:6\n   Arc:80   Direction:0   Range:0.6   Cycle:8   Damage:12\nTubes:3   2 small broadside load speed 8, 1 rear Load Speed:20\n   Direction:-90   Type:HVLI only - small\n   Direction: 90   Type:HVLI only - small\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      03 Mine\n      20 HVLI\nBased on Flavia P.Falcon: front beams, one long and turreted, one short and strong, weaker rear shield, stronger front shield, small, fast broadside HVLI shooters, only mines in rear, longer long range sensors, shorter short range sensors"},
 			{"Skray"		,"inactive"	,createplayerShipSneak      ,{strength = 15,	ftl = "j", lrs = 30},"Skray: Frigate, Armored Transport   Hull:120   Shield:80,80   Size:200   Repair Crew:8   Cargo:3   R.Strength:15\nFTL:Jump (5U - 50U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   SRS:7.5\nBeams:2 Turreted Speed:5\n   Arc:30   Direction:-70   Range:1.2   Cycle:6   Damage:5\n   Arc:30   Direction: 70   Range:1.2   Cycle:6   Damage:5\nTubes:2   Load Speed:20   Front, Rear\n   Direction:  0   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      10 Homing\n      10 HVLI\nBased on Repulse: more missiles, non-overlapping beams, longer short range sensors"},
-			{"Sparrow"		,"active"	,createPlayerShipSparrow	,{strength = 10,	ftl = "w", lrs = 22},"Vermin (Sparrow):   Hull:60   Shield:100,60   Size:100   Repair Crew:4   Cargo:3   R.Strength:10   LRS:22   SRS:4\nFTL:Warp (400)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:500   LRS:22   SRS:4\nBeam:3 Front\n   Arc:12   Direction:  0   Range:1.0   Cycle:6   Damage:4\n   Arc:40   Direction:-10   Range:0.8   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:0.8   Cycle:6   Damage:6\nTubes:1   Load Speed:10   Rear\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Mine\nBased on player fighter: more repair crew, more energy, warp drive, stronger shields, more beams, mine laying tube"},
+			{"Sparrow"		,"inactive"	,createPlayerShipSparrow	,{strength = 10,	ftl = "w", lrs = 22},"Vermin (Sparrow):   Hull:60   Shield:100,60   Size:100   Repair Crew:4   Cargo:3   R.Strength:10   LRS:22   SRS:4\nFTL:Warp (400)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:500   LRS:22   SRS:4\nBeam:3 Front\n   Arc:12   Direction:  0   Range:1.0   Cycle:6   Damage:4\n   Arc:40   Direction:-10   Range:0.8   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:0.8   Cycle:6   Damage:6\nTubes:1   Load Speed:10   Rear\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Mine\nBased on player fighter: more repair crew, more energy, warp drive, stronger shields, more beams, mine laying tube"},
 			{"Spyder"		,"inactive"	,createPlayerShipSpyder		,{strength = 60,	ftl = "j", lrs = 30},"(no desc)"},
 			{"Stick"		,"inactive"	,createPlayerShipStick		,{strength = 35,	ftl = "w", lrs = 35},"Surkov (Stick): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, stronger shields, faster impulse, add mine tube facing back, remove nukes and EMPs"},
 			{"Sting"		,"inactive"	,createPlayerShipSting		,{strength = 35,	ftl = "w", lrs = 35},"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs"},
@@ -5275,23 +5331,24 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
---			dp6Zone:setColor(0,128,0)
---		elseif i == 3 then
---			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
---			dp3Zone:setColor(0,128,0)
+		if i == 1 then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
+			dp1Zone:setColor(0,128,0)
+		elseif i == 4 then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
+			dp4Zone:setColor(0,128,0)
 --		elseif i == 2 then
 --			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
 --			dp2Zone:setColor(0,128,0)
 --		elseif i == 1 then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
 --			dp1Zone:setColor(0,128,0)
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
+			dp:setLongRangeRadarRange(20000)
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -5408,9 +5465,10 @@ function createIcarusStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Aquarius F4m9		Destroyed 31Oct2020
-	--local aquariusZone = squareZone(-4295, 14159, "Aquarius VII F4.9")
-	--aquariusZone:setColor(51,153,255)
-    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius VII"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local aquariusZone = squareZone(-4295, 14159, "Aquarius VIII F4.9")
+	aquariusZone:setColor(51,153,255)
+	--[[
+    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius VIII"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -5448,6 +5506,7 @@ function createIcarusStations()
 	if random(1,100) <= 37 then stationAquarius:setSharesEnergyWithDocked(false) end
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
+	--]]
 	--Borlan
 	--local borlanZone = squareZone(68808, 39300, "Borlan 2 G8")
 	--borlanZone:setColor(51,153,255)
@@ -5498,9 +5557,10 @@ function createIcarusStations()
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
 	--Cindy's Folly
-	--local cindyZone = squareZone(81075, -1304, "Cindy's Folly 2 E9")
-	--cindyZone:setColor(51,153,255)
-    stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 2"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local cindyZone = squareZone(81075, -1304, "Cindy's Folly 3 E9")
+	cindyZone:setColor(51,153,255)
+	--[[
+    stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 3"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 37 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 44 then hvliAvail = true else hvliAvail = false end
     if random(1,100) <= 23 then mineAvail = true else mineAvail = false end
@@ -5530,10 +5590,10 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationCindyFolly:setSharesEnergyWithDocked(false) end
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
+	--]]
 	--Elysium F4m2.5 
-	local elysiumZone = squareZone(-7504, 1384, "Elysium 4 F4.3")
-	elysiumZone:setColor(51,153,255)
-	--[[
+	--local elysiumZone = squareZone(-7504, 1384, "Elysium 4 F4.3")
+	--elysiumZone:setColor(51,153,255)
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 4"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5570,7 +5630,6 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
-	--]]
 	--Finnegan
 	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
 	--finneganZone:setColor(51,153,255)
@@ -5618,6 +5677,7 @@ function createIcarusStations()
 	--local gagarinZone = squareZone(-60000, 62193, "Gagarin I2")
 	--gagarinZone:setColor(0,128,0)
 	stationGagarin = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gagarin"):setPosition(-60000, 62193):setDescription("Mining and exploring"):setCommsScript(""):setCommsFunction(commsStation)
+    stationGagarin:setShortRangeRadarRange(9000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -5651,6 +5711,7 @@ function createIcarusStations()
 	--local macassaZone = squareZone(16335, -18034, "Macassa 9 E5")
 	--macassaZone:setColor(0,128,0)
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 9"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMacassa:setShortRangeRadarRange(8000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -5681,9 +5742,10 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 5 E4")
-	--maximilianZone:setColor(51,153,255)
-    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 5"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
+	maximilianZone:setColor(51,153,255)
+	--[[
+    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 6"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -5718,6 +5780,7 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
+	--]]
 	--Mermaid
 	--local mermaidZone = squareZone(28889, -4417, "Mermaid 6 E6")
 	--mermaidZone:setColor(51,153,255)
@@ -5803,10 +5866,10 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	local nervaZone = squareZone(-9203, -2077, "Nerva 8 E4")
+	local nervaZone = squareZone(-9203, -2077, "Nerva 9 E4")
 	nervaZone:setColor(51,153,255)
 	--[[
-    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 8"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
+    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 9"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -5845,9 +5908,11 @@ function createIcarusStations()
 	table.insert(stations,stationNerva)
 	--]]
 	--Pistil
---	local pistilZone = squareZone(24834, 20416, "Pistil 5 G6")
---	pistilZone:setColor(0,128,0)
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 5"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local pistilZone = squareZone(24834, 20416, "Pistil 6 G6")
+	pistilZone:setColor(0,128,0)
+	--[[
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 6"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -5886,10 +5951,13 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
+	--]]
 	--Relay-13
-	--local relay13Zone = squareZone(77918, 23876, "Relay-13 E G8")
-	--relay13Zone:setColor(0,255,0)
-    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 E"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+	local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
+	relay13Zone:setColor(0,255,0)
+	--[[
+    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 F"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+    stationRelay13:setShortRangeRadarRange(12000)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
     stationRelay13.comms_data = {
     	friendlyness = 75,
@@ -5923,6 +5991,7 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
+	--]]
 	--Slurry
 	--local slurryZone = squareZone(100342, 27871, "Slurry V G10")
 	--slurryZone:setColor(51,153,255)
@@ -6012,6 +6081,7 @@ function createIcarusStations()
 	--local speculatorZone = squareZone(55000,108000, "Speculator K7")
 	--speculatorZone:setColor(51,153,255)
     stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSpeculator:setShortRangeRadarRange(13000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7111,14 +7181,14 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
---		if i == 2 then
---			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
---			kentar_zone:setColor(0,128,0)
---		else
+		if i == 1 then
+			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+			kentar_zone:setColor(0,128,0)
+		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
---		end
+		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -7136,6 +7206,7 @@ function createKentarStations()
 	--local gamma3Zone = squareZone(266825, 314128, "Gamma-3 U18")
 	--gamma3Zone:setColor(0,128,0)
     stationGamma3 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gamma-3"):setPosition(266825, 314128):setDescription("Observation Post Gamma 3"):setCommsScript(""):setCommsFunction(commsStation)
+    stationGamma3:setShortRangeRadarRange(11000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7180,6 +7251,7 @@ function createKentarStations()
 	--local katangaZone = squareZone(229513, 224048, "Katanga 2 Q16")
 	--katangaZone:setColor(0,128,0)
     stationKatanga = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(229513, 224048):setCallSign("Katanga 2"):setDescription("Mining station for cobalt, gold and other minerals"):setCommsScript(""):setCommsFunction(commsStation)
+    stationKatanga:setShortRangeRadarRange(8000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7224,6 +7296,7 @@ function createKentarStations()
 	table.insert(stations,stationKatanga)
 	--Keyhole-23 T15
 	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
+    stationKeyhole23:setShortRangeRadarRange(6500)
 	stationKeyhole23.total_time = 0
     if random(1,100) <= 67 then tradeLuxury = true else tradeLuxury = false end
     stationKeyhole23.comms_data = {
@@ -7343,6 +7416,7 @@ function createKentarStations()
 	table.insert(stations,stationLocarno)
 	--Monocle	
     stationMonocle = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Monocle"):setPosition(389907,193834):setDescription("Observation and resupply"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMonocle:setShortRangeRadarRange(12000)
 	nukeAvail =		random(1,100) <= 30
 	empAvail =		random(1,100) <= 40
 	mineAvail =		random(1,100) <= 50
@@ -7383,6 +7457,7 @@ function createKentarStations()
 	--local NereusZone = squareZone(174288, 321668, "Nereus B V13")
 	--NereusZone:setColor(0,128,0)
     stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus B"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+    stationNereus:setShortRangeRadarRange(8500)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7458,6 +7533,7 @@ function createKentarStations()
 	--local talosZone = squareZone(124505, 317170, "Talos 2 U11")
 	--talosZone:setColor(0,128,0)
 	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos 2"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
+    stationTalos:setShortRangeRadarRange(12500)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7498,6 +7574,7 @@ function createKentarStations()
 	table.insert(stations,stationTalos)
 	--Sutter (T9)
     stationSutter = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Sutter"):setPosition(84609, 293172):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSutter:setShortRangeRadarRange(14500)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -11143,6 +11220,24 @@ function teleportPlayers()
 		end
 		addGMMessage("Players teleported to Kentar")
 	end)
+	addGMFunction("To Lafrina",function()
+		for pidx=1,32 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				p:setPosition(-237666,296975)
+			end
+		end
+		addGMMessage("Players teleported to Lafrina")
+	end)
+	addGMFunction("To Astron",function()
+		for pidx=1,32 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				p:setPosition(460500, 320500)
+			end
+		end
+		addGMMessage("Players teleported to Astron")
+	end)
 end
 ------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Engineering  --
@@ -12961,6 +13056,52 @@ function createPlayerShipBlazon()
 	playerShipSpawned("Blazon")
 	return playerBlazon
 end
+function createPlayerShipChavez()
+	playerChavez = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Wesson")
+	playerChavez:setTypeName("Chavez")
+	playerChavez:setRepairCrewCount(5)		--more (vs 2)
+	playerChavez.maxRepairCrew = playerChavez:getRepairCrewCount()
+	playerChavez.max_jump_range = 25000					--shorter than typical (vs 50)
+	playerChavez.min_jump_range = 2500					--shorter than typical (vs 5)
+	playerChavez:setJumpDriveRange(playerChavez.min_jump_range,playerChavez.max_jump_range)
+	playerChavez:setJumpDriveCharge(playerChavez.max_jump_range)
+	playerChavez:setImpulseMaxSpeed(70)		--faster (vs 50)
+	playerChavez:setHullMax(160)			--stronger (vs 120)
+	playerChavez:setHull(160)
+	playerChavez:setRotationMaxSpeed(20)	--faster spin (vs 15)
+	playerChavez:setAcceleration(10)		--faster (vs 8)
+--      				           	Arc,  Dir,  Range,Cyc,Dmg
+	playerChavez:setBeamWeapon(0,	 50,  -20,	 1200,	6,	4)	--fewer (vs 4)
+	playerChavez:setBeamWeapon(1,	 50,   20,	 1200,	6,	4)
+	playerChavez:setBeamWeapon(2,	  0,    0,	    0,	0,	0)
+	playerChavez:setBeamWeapon(3,	  0,    0,	    0,	0,	0)
+	playerChavez:setWeaponTubeCount(4)					--more (vs2)
+	playerChavez:setWeaponTubeDirection(0, 0)
+	playerChavez:setWeaponTubeExclusiveFor(0,"Homing")
+	playerChavez:weaponTubeAllowMissle(0,"HVLI")
+	playerChavez:setWeaponTubeDirection(1,-90)
+	playerChavez:setWeaponTubeDirection(2,90)
+	playerChavez:setWeaponTubeDirection(3,180)
+	playerChavez:setWeaponTubeExclusiveFor(1,"EMP")
+	playerChavez:setWeaponTubeExclusiveFor(2,"Nuke")
+	playerChavez:setWeaponTubeExclusiveFor(3,"Mine")
+	playerChavez:setWeaponStorageMax("Homing",	6)	--more (vs 4)
+	playerChavez:setWeaponStorage("Homing",		6)
+	playerChavez:setWeaponStorageMax("HVLI",	6)	--fewer (vs 8)
+	playerChavez:setWeaponStorage("HVLI",   	6)
+	playerChavez:setWeaponStorageMax("EMP", 	4)	--more (vs 2)
+	playerChavez:setWeaponStorage("EMP",    	4)
+	playerChavez:setWeaponStorageMax("Nuke",	2)	--more (vs 1)
+	playerChavez:setWeaponStorage("Nuke",   	2)
+	playerChavez:setWeaponStorageMax("Mine",	4)	--more (vs none)
+	playerChavez:setWeaponStorage("Mine",   	4)
+	playerChavez:setTubeLoadTime(0,10)				--faster (vs 15)
+	playerChavez:setTubeLoadTime(1,15)	
+	playerChavez:setTubeLoadTime(2,15)
+	playerChavez:setTubeLoadTime(3,20)
+	playerShipSpawned("Chavez")
+	return playerChavez
+end
 function createPlayerShipCobra()
 	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
 	playerCobra:setTypeName("Striker LX")
@@ -14336,7 +14477,7 @@ function createPlayerShipSting()
 	playerSting:setTypeName("Surkov")
 	playerSting:setRepairCrewCount(4)	--more repair crew (vs 2)
 	playerSting:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
-	playerSting:setRotationMaxSpeed(20)					--faster spin (vs 15)
+	playerSting:setRotationMaxSpeed(20)	--faster spin (vs 15)
 	playerSting:setJumpDrive(false)		--no jump
 	playerSting:setWarpDrive(true)		--add warp
 	playerSting:setWarpSpeed(400)
@@ -16736,7 +16877,6 @@ function modifyShip(ship)
 	if ship:getBeamWeaponRange(0) > 0 then
 		local beamIndex = 0
 		local modArc = modifiedValue()
-		local modDirection = modifiedValue()
 		local modRange = modifiedValue()
 		local modCycle = 1/modifiedValue()
 		local modDamage = modifiedValue()
@@ -16748,7 +16888,7 @@ function modifyShip(ship)
 			local beamRange = ship:getBeamWeaponRange(beamIndex)
 			local beamCycle = ship:getBeamWeaponCycleTime(beamIndex)
 			local beamDamage = ship:getBeamWeaponDamage(beamIndex)
-			ship:setBeamWeapon(beamIndex,beamArc*modArc,beamDirection*modDirection,beamRange*modRange,beamCycle*modCycle,beamDamage*modDamage)
+			ship:setBeamWeapon(beamIndex,beamArc*modArc,beamDirection,beamRange*modRange,beamCycle*modCycle,beamDamage*modDamage)
 			ship:setBeamWeaponEnergyPerFire(beamIndex,ship:getBeamWeaponEnergyPerFire(beamIndex)*modEnergy)
 			ship:setBeamWeaponHeatPerFire(beamIndex,ship:getBeamWeaponHeatPerFire(beamIndex)*modHeat)
 			beamIndex = beamIndex + 1
@@ -21152,7 +21292,26 @@ function artifactToPod()
 						for pb, enabled in pairs(p.podButton) do
 							if enabled and pb == podCallSign then
 								p:removeCustom(pb)
+								p:removeCustom(pb .. "plus")
 								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p:addCustomMessage("Engineering+","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p.podButton[pb] = false
+							end
+						end
+					end
+				end
+			end)
+			local tempButtonPlus = podCallSign .. "plus"
+			p:addCustomButton("Engineering+",tempButtonPlus,string.format("Prepare to get %s",podCallSign),function()
+				for pidx=1,8 do
+					p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						for pb, enabled in pairs(p.podButton) do
+							if enabled and pb == podCallSign then
+								p:removeCustom(pb)
+								p:removeCustom(pb .. "plus")
+								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p:addCustomMessage("Engineering+","pbgone",string.format("Transporters ready for pickup of %s",pb))
 								p.podButton[pb] = false
 							end
 						end
@@ -21186,7 +21345,26 @@ function podCreation(originx, originy, vectorx, vectory)
 						for pb, enabled in pairs(p.podButton) do
 							if enabled and pb == podCallSign then
 								p:removeCustom(pb)
+								p:removeCustom(pb .. "plus")
 								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p:addCustomMessage("Engineering+","pbgone+",string.format("Transporters ready for pickup of %s",pb))
+								p.podButton[pb] = false
+							end
+						end
+					end
+				end
+			end)
+			local tempButtonPlus = podCallSign .. "plus"
+			p:addCustomButton("Engineering+",tempButtonPlus,string.format("Prepare to get %s",podCallSign),function()
+				for pidx=1,8 do
+					p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						for pb, enabled in pairs(p.podButton) do
+							if enabled and pb == podCallSign then
+								p:removeCustom(pb)
+								p:removeCustom(pb .. "plus")
+								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p:addCustomMessage("Engineering+","pbgone+",string.format("Transporters ready for pickup of %s",pb))
 								p.podButton[pb] = false
 							end
 						end
@@ -21330,7 +21508,25 @@ function marineCreation(originx, originy, vectorx, vectory, associatedObjectName
 						for mpb, enabled in pairs(p.marinePointButton) do
 							if enabled and mpb == marineCallSign then
 								p:removeCustom(mpb)
+								p:removeCustom(mpb .. "plus")
 								p:addCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
+								p:addCustomMessage("Engineering+","mpbgone+",string.format("Transporters ready for marines via %s",mpb))
+								p.marinePointButton[mpb] = false
+							end
+						end
+					end
+				end
+			end)
+			p:addCustomButton("Engineering+",marineCallSign .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),function()
+				for pidx=1,8 do
+					p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						for mpb, enabled in pairs(p.marinePointButton) do
+							if enabled and mpb == marineCallSign then
+								p:removeCustom(mpb)
+								p:removeCustom(mpb .. "plus")
+								p:addCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
+								p:addCustomMessage("Engineering+","mpbgone+",string.format("Transporters ready for marines via %s",mpb))
 								p.marinePointButton[mpb] = false
 							end
 						end
@@ -21662,7 +21858,25 @@ function engineerCreation(originx, originy, vectorx, vectory, associatedObjectNa
 						for epb, enabled in pairs(p.engineerPointButton) do
 							if enabled and epb == engineerCallSign then
 								p:removeCustom(epb)
+								p:removeCustom(epb .. "plus")
 								p:addCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
+								p:addCustomMessage("Engineering+","epbgone+",string.format("Transporters ready for engineers via %s",epb))
+								p.engineerPointButton[epb] = false
+							end
+						end
+					end
+				end
+			end)
+			p:addCustomButton("Engineering+",tempButton .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),function()
+				for pidx=1,8 do
+					p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						for epb, enabled in pairs(p.engineerPointButton) do
+							if enabled and epb == engineerCallSign then
+								p:removeCustom(epb)
+								p:removeCustom(epb .. "plus")
+								p:addCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
+								p:addCustomMessage("Engineering+","epbgone+",string.format("Transporters ready for engineers via %s",epb))
 								p.engineerPointButton[epb] = false
 							end
 						end
@@ -21994,7 +22208,25 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 						for mpb, enabled in pairs(p.medicPointButton) do
 							if enabled and mpb == medicCallSign then
 								p:removeCustom(mpb)
+								p:removeCustom(mpb .. "plus")
 								p:addCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
+								p:addCustomMessage("Engineering+","mtpbgone+",string.format("Transporters ready for medical team via %s",mpb))
+								p.medicPointButton[mpb] = false
+							end
+						end
+					end
+				end
+			end)
+			p:addCustomButton("Engineering",tempButton .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
+				for pidx=1,8 do
+					p = getPlayerShip(pidx)
+					if p ~= nil and p:isValid() then
+						for mpb, enabled in pairs(p.medicPointButton) do
+							if enabled and mpb == medicCallSign then
+								p:removeCustom(mpb)
+								p:removeCustom(mpb .. "plus")
+								p:addCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
+								p:addCustomMessage("Engineering+","mtpbgone+",string.format("Transporters ready for medical team via %s",mpb))
 								p.medicPointButton[mpb] = false
 							end
 						end
@@ -28405,6 +28637,83 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
+	if comms_target == stationLafrina then
+		addCommsReply("I need information on the Arlenian stations in the area",function()
+			setCommsMessage("Which station are you interested in?")
+			if stationMarielle ~= nil and stationMarielle:isValid() then
+				addCommsReply(string.format("Marielle in %s",stationMarielle:getSectorName()),function()
+					setCommsMessage(string.format("Marielle is located in %s. It is a medium sized station conducting mining and manufacturing operations.\n\nWould you like a waypoint set on Marielle?",stationMarielle:getSectorName()))
+					addCommsReply("Yes",function()
+						local sx, sy = stationMarielle:getPosition()
+						comms_source:commandAddWaypoint(sx, sy)
+						setCommsMessage(string.format("Waypoint %i set on station Marielle",comms_source:getWaypointCount()))
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			if stationIlorea ~= nil and stationIlorea:isValid() then
+				addCommsReply(string.format("Ilorea in %s",stationIlorea:getSectorName()),function()
+					setCommsMessage(string.format("Ilorea is located in %s. It is a small station conducting mining operations and providing resupply services for miners and passing ships.\n\nWould you like a waypoint set on Ilorea?",stationIlorea:getSectorName()))
+					addCommsReply("Yes",function()
+						local sx, sy = stationIlorea:getPosition()
+						comms_source:commandAddWaypoint(sx, sy)
+						setCommsMessage(string.format("Waypoint %i set on station Ilorea",comms_source:getWaypointCount()))
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			if stationRivelle ~= nil and stationRivelle:isValid() then
+				addCommsReply(string.format("Rivelle in %s",stationRivelle:getSectorName()),function()
+					setCommsMessage(string.format("Rivelle is located in %s. It is a small station conducting mining operations.\n\nWould you like a waypoint set on Rivelle?",stationRivelle:getSectorName()))
+					addCommsReply("Yes",function()
+						local sx, sy = stationRivelle:getPosition()
+						comms_source:commandAddWaypoint(sx, sy)
+						setCommsMessage(string.format("Waypoint %i set on station Rivelle",comms_source:getWaypointCount()))
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			if stationBorie ~= nil and stationBorie:isValid() then
+				addCommsReply(string.format("Borie in %s",stationBorie:getSectorName()),function()
+					setCommsMessage(string.format("Borie is located in %s. It is a small station conducting mining operations. The Arlenians also indulge in gambling on this station.\n\nWould you like a waypoint set on Borie?",stationBorie:getSectorName()))
+					addCommsReply("Yes",function()
+						local sx, sy = stationBorie:getPosition()
+						comms_source:commandAddWaypoint(sx, sy)
+						setCommsMessage(string.format("Waypoint %i set on station Borie",comms_source:getWaypointCount()))
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			if stationLurive ~= nil and stationLurive:isValid() then
+				addCommsReply(string.format("Lurive in %s",stationLurive:getSectorName()),function()
+					setCommsMessage(string.format("Lurive is located in %s. It is a small station conducting mining operations and research.\n\nWould you like a waypoint set on Lurive?",stationLurive:getSectorName()))
+					addCommsReply("Yes",function()
+						local sx, sy = stationLurive:getPosition()
+						comms_source:commandAddWaypoint(sx, sy)
+						setCommsMessage(string.format("Waypoint %i set on station Lurive",comms_source:getWaypointCount()))
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			if stationVilairre ~= nil and stationVilairre:isValid() then
+				addCommsReply(string.format("Vilairre currently in %s",stationVilairre:getSectorName()),function()
+					setCommsMessage(string.format("Vilairre is currently located in %s. It is a small station that handles communicatino and administration for area operations. It orbits the planet named Wilaux.\n\nWould you like a waypoint set on Vilairre?",stationVilairre:getSectorName()))
+					addCommsReply("Yes",function()
+						local sx, sy = stationVilairre:getPosition()
+						comms_source:commandAddWaypoint(sx, sy)
+						setCommsMessage(string.format("Waypoint %i set on station Vilairre. Since Vilairre orbits Wilaux, this waypoint will become rapidly outdated",comms_source:getWaypointCount()))
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Back", commsStation)
+				end)
+			end
+		end)
+	end
 	if jump_corridor then
 		if comms_target == stationIcarus or comms_target == stationKentar or comms_target == stationAstron or comms_target == stationLafrina then
 			local all_docked = true
@@ -29368,6 +29677,83 @@ function handleUndockedState()
 			setCommsMessage(msg);
 			addCommsReply("Back", commsStation)
 		end)
+		if comms_target == stationLafrina then
+			addCommsReply("I need information on the Arlenian stations in the area",function()
+				setCommsMessage("Which station are you interested in?")
+				if stationMarielle ~= nil and stationMarielle:isValid() then
+					addCommsReply(string.format("Marielle in %s",stationMarielle:getSectorName()),function()
+						setCommsMessage(string.format("Marielle is located in %s. It is a medium sized station conducting mining and manufacturing operations.\n\nWould you like a waypoint set on Marielle?",stationMarielle:getSectorName()))
+						addCommsReply("Yes",function()
+							local sx, sy = stationMarielle:getPosition()
+							comms_source:commandAddWaypoint(sx, sy)
+							setCommsMessage(string.format("Waypoint %i set on station Marielle",comms_source:getWaypointCount()))
+							addCommsReply("Back", commsStation)
+						end)
+						addCommsReply("Back", commsStation)
+					end)
+				end
+				if stationIlorea ~= nil and stationIlorea:isValid() then
+					addCommsReply(string.format("Ilorea in %s",stationIlorea:getSectorName()),function()
+						setCommsMessage(string.format("Ilorea is located in %s. It is a small station conducting mining operations and providing resupply services for miners and passing ships.\n\nWould you like a waypoint set on Ilorea?",stationIlorea:getSectorName()))
+						addCommsReply("Yes",function()
+							local sx, sy = stationIlorea:getPosition()
+							comms_source:commandAddWaypoint(sx, sy)
+							setCommsMessage(string.format("Waypoint %i set on station Ilorea",comms_source:getWaypointCount()))
+							addCommsReply("Back", commsStation)
+						end)
+						addCommsReply("Back", commsStation)
+					end)
+				end
+				if stationRivelle ~= nil and stationRivelle:isValid() then
+					addCommsReply(string.format("Rivelle in %s",stationRivelle:getSectorName()),function()
+						setCommsMessage(string.format("Rivelle is located in %s. It is a small station conducting mining operations.\n\nWould you like a waypoint set on Rivelle?",stationRivelle:getSectorName()))
+						addCommsReply("Yes",function()
+							local sx, sy = stationRivelle:getPosition()
+							comms_source:commandAddWaypoint(sx, sy)
+							setCommsMessage(string.format("Waypoint %i set on station Rivelle",comms_source:getWaypointCount()))
+							addCommsReply("Back", commsStation)
+						end)
+						addCommsReply("Back", commsStation)
+					end)
+				end
+				if stationBorie ~= nil and stationBorie:isValid() then
+					addCommsReply(string.format("Borie in %s",stationBorie:getSectorName()),function()
+						setCommsMessage(string.format("Borie is located in %s. It is a small station conducting mining operations. The Arlenians also indulge in gambling on this station.\n\nWould you like a waypoint set on Borie?",stationBorie:getSectorName()))
+						addCommsReply("Yes",function()
+							local sx, sy = stationBorie:getPosition()
+							comms_source:commandAddWaypoint(sx, sy)
+							setCommsMessage(string.format("Waypoint %i set on station Borie",comms_source:getWaypointCount()))
+							addCommsReply("Back", commsStation)
+						end)
+						addCommsReply("Back", commsStation)
+					end)
+				end
+				if stationLurive ~= nil and stationLurive:isValid() then
+					addCommsReply(string.format("Lurive in %s",stationLurive:getSectorName()),function()
+						setCommsMessage(string.format("Lurive is located in %s. It is a small station conducting mining operations and research.\n\nWould you like a waypoint set on Lurive?",stationLurive:getSectorName()))
+						addCommsReply("Yes",function()
+							local sx, sy = stationLurive:getPosition()
+							comms_source:commandAddWaypoint(sx, sy)
+							setCommsMessage(string.format("Waypoint %i set on station Lurive",comms_source:getWaypointCount()))
+							addCommsReply("Back", commsStation)
+						end)
+						addCommsReply("Back", commsStation)
+					end)
+				end
+				if stationVilairre ~= nil and stationVilairre:isValid() then
+					addCommsReply(string.format("Vilairre currently in %s",stationVilairre:getSectorName()),function()
+						setCommsMessage(string.format("Vilairre is currently located in %s. It is a small station that handles communicatino and administration for area operations. It orbits the planet named Wilaux.\n\nWould you like a waypoint set on Vilairre?",stationVilairre:getSectorName()))
+						addCommsReply("Yes",function()
+							local sx, sy = stationVilairre:getPosition()
+							comms_source:commandAddWaypoint(sx, sy)
+							setCommsMessage(string.format("Waypoint %i set on station Vilairre. Since Vilairre orbits Wilaux, this waypoint will become rapidly outdated",comms_source:getWaypointCount()))
+							addCommsReply("Back", commsStation)
+						end)
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end)
+		end
 	end)
 	if isAllowedTo(ctd.services.supplydrop) then
         addCommsReply("Can you send a supply drop? ("..getServiceCost("supplydrop").."rep)", function()
@@ -29593,13 +29979,25 @@ function removeTractorObjectButtons(p)
 		p:removeCustom(p.tractor_next_target_button)
 		p.tractor_next_target_button = nil
 	end
+	if p.tractor_next_target_button_plus ~= nil then
+		p:removeCustom(p.tractor_next_target_button_plus)
+		p.tractor_next_target_button_plus = nil
+	end
 	if p.tractor_target_button ~= nil then
 		p:removeCustom(p.tractor_target_button)
 		p.tractor_target_button = nil
 	end
+	if p.tractor_target_button_plus ~= nil then
+		p:removeCustom(p.tractor_target_button_plus)
+		p.tractor_target_button_plus = nil
+	end
 	if p.tractor_lock_button ~= nil then
 		p:removeCustom(p.tractor_lock_button)
 		p.tractor_lock_button = nil
+	end
+	if p.tractor_lock_button_plus ~= nil then
+		p:removeCustom(p.tractor_lock_button_plus)
+		p.tractor_lock_button_plus = nil
 	end
 end
 function addTractorObjectButtons(p,tractor_objects)
@@ -29621,6 +30019,28 @@ function addTractorObjectButtons(p,tractor_objects)
 				else
 					local lock_fail_message = "lock_fail_message"
 					p:addCustomMessage("Engineering",lock_fail_message,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
+					p.tractor_target = nil
+				end
+				removeTractorObjectButtons(p)
+			end)
+		end
+	end
+	if p.tractor_lock_button_plus == nil then
+		if p:hasPlayerAtPosition("Engineering+") then
+			p.tractor_lock_button_plus = "tractor_lock_button_plus"
+			p:addCustomButton("Engineering+",p.tractor_lock_button_plus,"Lock on Tractor",function()
+				local cpx, cpy = p:getPosition()
+				local tpx, tpy = p.tractor_target:getPosition()
+				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
+				if tractor_object_distance < 1000 then
+					p.tractor_target_lock = true
+					p.tractor_vector_x = tpx - cpx
+					p.tractor_vector_y = tpy - cpy
+					local locked_message_plus = "locked_message_plus"
+					p:addCustomMessage("Engineering+",locked_message_plus,"Tractor locked on target")
+				else
+					local lock_fail_message_plus = "lock_fail_message_plus"
+					p:addCustomMessage("Engineering+",lock_fail_message_plus,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
 					p.tractor_target = nil
 				end
 				removeTractorObjectButtons(p)
@@ -29651,6 +30071,33 @@ function addTractorObjectButtons(p,tractor_objects)
 				end
 				local target_description = "target_description"
 				p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
+			end)
+		end
+	end
+	if p.tractor_target_button_plus == nil then
+		if p:hasPlayerAtPosition("Engineering+") then
+			p.tractor_target_button_plus = "tractor_target_button_plus"
+			local label_type = p.tractor_target.typeName
+			if label_type == "CpuShip" or label_type == "PlayerSpaceship" then
+				label_type = p.tractor_target:getCallSign()
+			elseif label_type == "VisualAsteroid" then
+				label_type = "Asteroid"
+			end
+			p:addCustomButton("Engineering+",p.tractor_target_button_plus,string.format("Target %s",label_type),function()
+				string.format("")	--necessary to have global reference for Serious Proton engine
+				tpx, tpy = p.tractor_target:getPosition()
+				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+				local theta = math.atan(tpy - cpy,tpx - cpx)
+				if theta < 0 then
+					theta = theta + 6.2831853071795865
+				end
+				local angle = theta * 57.2957795130823209
+				angle = angle + 90
+				if angle > 360 then
+					angle = angle - 360
+				end
+				local target_description_plus = "target_description_plus"
+				p:addCustomMessage("Engineering+",target_description_plus,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
 			end)
 		end
 	end
@@ -29726,10 +30173,85 @@ function addTractorObjectButtons(p,tractor_objects)
 				end)
 			end
 		end
+		if p.tractor_next_target_button_plus == nil then
+			if p:hasPlayerAtPosition("Engineering+") then
+				p.tractor_next_target_button_plus = "tractor_next_target_button_plus"
+				p:addCustomButton("Engineering+",p.tractor_next_target_button_plus,"Other tractor target",function()
+					local nearby_objects = p:getObjectsInRange(1000)
+					local tractor_objects = {}
+					if nearby_objects ~= nil and #nearby_objects > 1 then
+						for _, obj in ipairs(nearby_objects) do
+							if p ~= obj then
+								local object_type = obj.typeName
+								if object_type ~= nil then
+									if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+										table.insert(tractor_objects,obj)
+									end
+								end
+							end
+						end		--end of nearby object list loop
+						if #tractor_objects > 0 then
+							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+							if p.tractor_target ~= nil and p.tractor_target:isValid() then
+								local target_in_list = false
+								local matching_index = 0
+								for i=1,#tractor_objects do
+									if tractor_objects[i] == p.tractor_target then
+										target_in_list = true
+										matching_index = i
+										break
+									end
+								end		--end of check for the current target in list loop
+								if target_in_list then
+									if #tractor_objects > 1 then
+										if #tractor_objects > 2 then
+											local new_index = matching_index
+											repeat
+												new_index = math.random(1,#tractor_objects)
+											until(new_index ~= matching_index)
+											p.tractor_target = tractor_objects[new_index]
+										else
+											if matching_index == 1 then
+												p.tractor_target = tractor_objects[2]
+											else
+												p.tractor_target = tractor_objects[1]
+											end
+										end
+										removeTractorObjectButtons(p)
+										addTractorObjectButtons(p,tractor_objects)
+									end
+								else
+									p.tractor_target = tractor_objects[1]
+									removeTractorObjectButtons(p)
+									addTractorObjectButtons(p,tractor_objects)
+								end
+							else
+								p.tractor_target = tractor_objects[1]
+								addTractorObjectButtons(p,tractor_objects)
+							end
+						else	--no nearby tractorable objects
+							if p.tractor_target ~= nil then
+								removeTractorObjectButtons(p)
+								p.tractor_target = nil
+							end
+						end
+					else	--no nearby objects
+						if p.tractor_target ~= nil then
+							removeTractorObjectButtons(p)
+							p.tractor_target = nil
+						end
+					end
+				end)
+			end
+		end
 	else
 		if p.tractor_next_target_button ~= nil then
 			p:removeCustom(p.tractor_next_target_button)
 			p.tractor_next_target_button = nil
+		end
+		if p.tractor_next_target_button_plus ~= nil then
+			p:removeCustom(p.tractor_next_target_button_plus)
+			p.tractor_next_target_button_plus = nil
 		end
 	end
 end
@@ -30618,7 +31140,7 @@ function updateInner(delta)
 				end
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.damage_report_plus = "damage_report_plus"
-					p:addCustomButton("Engineering",p.damage_report_plus,"Damage Report",function()
+					p:addCustomButton("Engineering+",p.damage_report_plus,"Damage Report",function()
 						local dmg_msg = "In addition to the primary systems constantly monitored in engineering, the following secondary systems have also been damaged requiring docking repair facilities:"
 						if not p:getCanLaunchProbe() then
 							dmg_msg = dmg_msg .. "\nProbe launch system"
@@ -31016,20 +31538,34 @@ function updateInner(delta)
 							p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
 							p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
 							if random(1,100) < 27 then
-								BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+								BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)]):setBeamFireSound(tractor_sound):setBeamFireSoundPower(tractor_sound_power + player_velocity/100)
 							end
 							if p.disengage_tractor_button == nil then
 								p.disengage_tractor_button = "disengage_tractor_button"
 								p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
 									p.tractor_target_lock = false
 									p:removeCustom(p.disengage_tractor_button)
+									p:removeCustom(p.disengage_tractor_button_plus)
 									p.disengage_tractor_button = nil
+									p.disengage_tractor_button_plus = nil
+								end)
+							end
+							if p.disengage_tractor_button_plus == nil then
+								p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
+								p:addCustomButton("Engineering+",p.disengage_tractor_button_plus,"Disengage Tractor",function()
+									p.tractor_target_lock = false
+									p:removeCustom(p.disengage_tractor_button)
+									p:removeCustom(p.disengage_tractor_button_plus)
+									p.disengage_tractor_button = nil
+									p.disengage_tractor_button_plus = nil
 								end)
 							end
 						else
 							p.tractor_target_lock = false
 							p:removeCustom(p.disengage_tractor_button)
+							p:removeCustom(p.disengage_tractor_button_plus)
 							p.disengage_tractor_button = nil
+							p.disengage_tractor_button_plus = nil
 						end
 					else	--tractor not locked on target
 						local tractor_objects = {}
@@ -31085,13 +31621,17 @@ function updateInner(delta)
 							p:removeCustom(p.disengage_tractor_button)
 							p.disengage_tractor_button = nil
 						end
+						if p.disengage_tractor_button_plus ~= nil then
+							p:removeCustom(p.disengage_tractor_button_plus)
+							p.disengage_tractor_button_plus = nil
+						end
 					else
 						if p.tractor_target_lock then
 							if p.tractor_target ~= nil and p.tractor_target:isValid() then
 								p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
 								p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
 								if random(1,100) < 27 then
-									BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)])
+									BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)]):setBeamFireSound(tractor_sound):setBeamFireSoundPower(tractor_sound_power + player_velocity/100)
 								end
 								if p.disengage_tractor_button == nil then
 									p.disengage_tractor_button = "disengage_tractor_button"
@@ -31101,10 +31641,20 @@ function updateInner(delta)
 										p.disengage_tractor_button = nil
 									end)
 								end
+								if p.disengage_tractor_button_plus == nil then
+									p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
+									p:addCustomButton("Engineering+",p.disengage_tractor_button_plus,"Disengage Tractor",function()
+										p.tractor_target_lock = false
+										p:removeCustom(p.disengage_tractor_button_plus)
+										p.disengage_tractor_button_plus = nil
+									end)
+								end
 							else	--invalid tractor target
 								p.tractor_target_lock = false
 								p:removeCustom(p.disengage_tractor_button)
+								p:removeCustom(p.disengage_tractor_button_plus)
 								p.disengage_tractor_button = nil
+								p.disengage_tractor_button_plus = nil
 							end
 						end		--end of tractor lock processing				
 					end		--end of player moving slow enough to tractor branch
@@ -31269,11 +31819,11 @@ function updateInner(delta)
 							if p:hasPlayerAtPosition("Engineering") then
 								p:addCustomButton("Engineering",p.charge_launch,"Charge Launch Sys",function()
 									if p:getEnergyLevel() > 50 then
+										p.launch_timer = 20
 										p:setEnergyLevel(p:getEnergyLevel() - 50)
-										p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in ten seconds.\nNext step: personnel to take fighter station(s)",fighter_name)
+										p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
 										p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
 										p:removeCustom(p.charge_launch)
-										p.launch_timer = 20
 										fighter_details.state = "gather"
 									else
 										p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
@@ -31284,11 +31834,11 @@ function updateInner(delta)
 							if p:hasPlayerAtPosition("Engineering+") then
 								p:addCustomButton("Engineering+",p.charge_launch,"Charge Launch Sys",function()
 									if p:getEnergyLevel() > 50 then
+										p.launch_timer = 20		--final:10
 										p:setEnergyLevel(p:getEnergyLevel() - 50)
-										p.launch_charged_message_plus = string.format("Launch systems charged.\nStanding by to launch %s in ten seconds.\nNext step: personnel to take fighter station(s)",fighter_name)
+										p.launch_charged_message_plus = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
 										p:addCustomMessage("Engineering+",p.launch_charged_message_plus,p.launch_charged_message_plus)
 										p:removeCustom(p.charge_launch)
-										p.launch_timer = 20		--final:10
 										fighter_details.state = "gather"
 									else
 										p.insufficient_launch_charge_energy_message_plus = "insufficient_launch_charge_energy_message_plus"
