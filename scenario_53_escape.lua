@@ -5412,8 +5412,14 @@ function borisChase(delta)
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Drone"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
 				elseif difficulty > 1 then
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Fighter"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
+					if boris_chase_count >= 2 then
+						junkChaser:setWarpDrive(true)
+					end
 				else
 					junkChaser = CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Fighter"):setPosition(brigx-100,brigy-100):orderAttack(playerRepulse):setRotation(180)
+					if boris_chase_count >= 3 then
+						junkChaser:setWarpDrive(true)
+					end
 				end
 				junkChaser:onDestruction(resetBoris)
 				chaserMsgChoice = math.random(1,3)
