@@ -11470,11 +11470,19 @@ function changePlayerCoolant()
 						coolant_reason_given = true
 						break
 					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						p:addCustomMessage("Engineering+","coolant_bonus_message_plus",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
+						coolant_reason_given = true
+						break
+					end
 				end
 			end
 			if not coolant_reason_given then
 				if p:hasPlayerAtPosition("Engineering") then
 					p:addCustomMessage("Engineering","coolant_bonus_message","Additional coolant was added. It was missed during the last inventory cycle")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","coolant_bonus_message_plus","Additional coolant was added. It was missed during the last inventory cycle")
 				end
 			end
 		else
@@ -11495,11 +11503,19 @@ function changePlayerCoolant()
 						coolant_reason_given = true
 						break
 					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						p:addCustomMessage("Engineering+","coolant_loss_message_plus",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
+						coolant_reason_given = true
+						break
+					end
 				end
 			end
 			if not coolant_reason_given then
 				if p:hasPlayerAtPosition("Engineering") then
 					p:addCustomMessage("Engineering","coolant_loss_message","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","coolant_loss_message_plus","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
 				end
 			end
 		else
@@ -11548,11 +11564,19 @@ function changePlayerRepairCrew()
 						crew_reason_given = true
 						break
 					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						p:addCustomMessage("Engineering+","added_repair_crew_message_plus",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
+						crew_reason_given = true
+						break
+					end
 				end
 			end
 			if not crew_reason_given then
 				if p:hasPlayerAtPosition("Engineering") then
 					p:addCustomMessage("Engineering","added_repair_crew_message","A crew member from a different department has completed training and has transferred to your repair crew")
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomMessage("Engineering+","added_repair_crew_message_plus","A crew member from a different department has completed training and has transferred to your repair crew")
 				end
 			end
 		else
@@ -11574,11 +11598,19 @@ function changePlayerRepairCrew()
 							crew_reason_given = true
 							break
 						end
+						if p:hasPlayerAtPosition("Engineering+") then
+							p:addCustomMessage("Engineering+","removed_repair_crew_message_plus",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
+							crew_reason_given = true
+							break
+						end
 					end
 				end
 				if not crew_reason_given then
 					if p:hasPlayerAtPosition("Engineering") then
 						p:addCustomMessage("Engineering","removed_repair_crew_message","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
+					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						p:addCustomMessage("Engineering+","removed_repair_crew_message_plus","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
 					end
 				end
 			end
@@ -11608,15 +11640,15 @@ function changePlayerMaxSystem()
 	local p = playerShipSelected()
 	if p ~= nil then
 		string.format("")	--necessary to have global reference for Serious Proton engine
-		addGMFunction(string.format("+Reactor %.2f",p.max_reactor),changePlayerMaxReactor)
-		addGMFunction(string.format("+Beam %.2f",p.max_beam),changePlayerMaxBeam)
-		addGMFunction(string.format("+Missile %.2f",p.max_missile),changePlayerMaxMissile)
-		addGMFunction(string.format("+Maneuver %.2f",p.max_maneuver),changePlayerMaxManeuver)
-		addGMFunction(string.format("+Impulse %.2f",p.max_impulse),changePlayerMaxImpulse)
-		addGMFunction(string.format("+Warp %.2f",p.max_warp),changePlayerMaxWarp)
-		addGMFunction(string.format("+Jump %.2f",p.max_jump),changePlayerMaxJump)
-		addGMFunction(string.format("+Front Shield %.2f",p.max_front_shield),changePlayerMaxFrontShield)
-		addGMFunction(string.format("+Rear Shield %.2f",p.max_rear_shield),changePlayerMaxRearShield)
+		addGMFunction(string.format("+Reactor %.2f",p:getSystemHealthMax("reactor")),changePlayerMaxReactor)
+		addGMFunction(string.format("+Beam %.2f",p:getSystemHealthMax("beamweapons")),changePlayerMaxBeam)
+		addGMFunction(string.format("+Missile %.2f",p:getSystemHealthMax("missilesystem")),changePlayerMaxMissile)
+		addGMFunction(string.format("+Maneuver %.2f",p:getSystemHealthMax("maneuver")),changePlayerMaxManeuver)
+		addGMFunction(string.format("+Impulse %.2f",p:getSystemHealthMax("impulse")),changePlayerMaxImpulse)
+		addGMFunction(string.format("+Warp %.2f",p:getSystemHealthMax("warp")),changePlayerMaxWarp)
+		addGMFunction(string.format("+Jump %.2f",p:getSystemHealthMax("jumpdrive")),changePlayerMaxJump)
+		addGMFunction(string.format("+Front Shield %.2f",p:getSystemHealthMax("frontshield")),changePlayerMaxFrontShield)
+		addGMFunction(string.format("+Rear Shield %.2f",p:getSystemHealthMax("rearshield")),changePlayerMaxRearShield)
 	else
 		addGMFunction("+Select Player",changePlayerMaxSystem)
 	end
@@ -12392,6 +12424,94 @@ function sendPlayerConsoleMessage()
 		end
 		sendPlayerConsoleMessage()
 	end)
+	addGMFunction("Tactical",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Tactical",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Tactical console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Operations",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Operations",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Operations console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Engineering Plus",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Engineering+",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Engineering Plus console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Strategic Map",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("altRelay",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Strategic Map console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Power Management",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("PowerManagement",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Power Management console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Damage Control",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("DamageControl",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Damage Control console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Ship Log",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("ShipLog",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Ship Log console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
+	addGMFunction("Database",function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			local console_message = "console_message"
+			p:addCustomMessage("Database",console_message,message_object:getDescription())
+			addGMMessage(string.format("Message sent to Database console on %s:\n%s",p:getCallSign(),message_object:getDescription()))
+		else
+			addGMMessage("Player ship not selected. No action taken")
+		end
+		sendPlayerConsoleMessage()
+	end)
 end
 ----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Max System  > Reactor  --
@@ -12410,15 +12530,15 @@ function changePlayerMaxReactor()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_reactor < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_reactor,p.max_reactor + .05),function()
-				p.max_reactor = p.max_reactor + .05
+		if p:getSystemHealthMax("reactor") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("reactor"),p:getSystemHealthMax("reactor") + .05),function()
+				p:setSystemHealthMax("reactor",p:getSystemHealthMax("reactor") + .05)
 				changePlayerMaxReactor()
 			end)
 		end
-		if p.max_reactor > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_reactor,p.max_reactor - .05),function()
-				p.max_reactor = p.max_reactor - .05
+		if p:getSystemHealthMax("reactor") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("reactor"),p:getSystemHealthMax("reactor") - .05),function()
+				p:setSystemHealthMax("reactor",p:getSystemHealthMax("reactor") - .05)
 				changePlayerMaxReactor()
 			end)
 		end
@@ -12443,15 +12563,15 @@ function changePlayerMaxBeam()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_beam < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_beam,p.max_beam + .05),function()
-				p.max_beam = p.max_beam + .05
+		if p:getSystemHealthMax("beamweapons") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("beamweapons"),p:getSystemHealthMax("beamweapons") + .05),function()
+				p:setSystemHealthMax("beamweapons",p:getSystemHealthMax("beamweapons") + .05)
 				changePlayerMaxBeam()
 			end)
 		end
-		if p.max_beam > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_beam,p.max_beam - .05),function()
-				p.max_beam = p.max_beam - .05
+		if p:getSystemHealthMax("beamweapons") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("beamweapons"),p:getSystemHealthMax("beamweapons") - .05),function()
+				p:setSystemHealthMax("beamweapons",p:getSystemHealthMax("beamweapons") - .05)
 				changePlayerMaxBeam()
 			end)
 		end
@@ -12476,15 +12596,15 @@ function changePlayerMaxMissile()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_missile < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_missile,p.max_missile + .05),function()
-				p.max_missile = p.max_missile + .05
+		if p:getSystemHealthMax("missilesystem") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("missilesystem"),p:getSystemHealthMax("missilesystem") + .05),function()
+				p:setSystemHealthMax("missilesystem",p:getSystemHealthMax("missilesystem") + .05)
 				changePlayerMaxMissile()
 			end)
 		end
-		if p.max_missile > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_missile,p.max_missile - .05),function()
-				p.max_missile = p.max_missile - .05
+		if p:getSystemHealthMax("missilesystem") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("missilesystem"),p:getSystemHealthMax("missilesystem") - .05),function()
+				p:setSystemHealthMax("missilesystem",p:getSystemHealthMax("missilesystem") - .05)
 				changePlayerMaxMissile()
 			end)
 		end
@@ -12509,15 +12629,15 @@ function changePlayerMaxManeuver()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_maneuver < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_maneuver,p.max_maneuver + .05),function()
-				p.max_maneuver = p.max_maneuver + .05
+		if p:getSystemHealthMax("maneuver") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("maneuver"),p:getSystemHealthMax("maneuver") + .05),function()
+				p:setSystemHealthMax("maneuver",p:getSystemHealthMax("maneuver") + .05)
 				changePlayerMaxManeuver()
 			end)
 		end
-		if p.max_maneuver > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_maneuver,p.max_maneuver - .05),function()
-				p.max_maneuver = p.max_maneuver - .05
+		if p:getSystemHealthMax("maneuver") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("maneuver"),p:getSystemHealthMax("maneuver") - .05),function()
+				p:setSystemHealthMax("maneuver",p:getSystemHealthMax("maneuver") - .05)
 				changePlayerMaxManeuver()
 			end)
 		end
@@ -12542,15 +12662,15 @@ function changePlayerMaxImpulse()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_impulse < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_impulse,p.max_impulse + .05),function()
-				p.max_impulse = p.max_impulse + .05
+		if p:getSystemHealthMax("impulse") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("impulse"),p:getSystemHealthMax("impulse") + .05),function()
+				p:setSystemHealthMax("impulse",p:getSystemHealthMax("impulse") + .05)
 				changePlayerMaxImpulse()
 			end)
 		end
-		if p.max_impulse > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_impulse,p.max_impulse - .05),function()
-				p.max_impulse = p.max_impulse - .05
+		if p:getSystemHealthMax("impulse") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("impulse"),p:getSystemHealthMax("impulse") - .05),function()
+				p:setSystemHealthMax("impulse",p:getSystemHealthMax("impulse") - .05)
 				changePlayerMaxImpulse()
 			end)
 		end
@@ -12575,15 +12695,15 @@ function changePlayerMaxWarp()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_warp < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_warp,p.max_warp + .05),function()
-				p.max_warp = p.max_warp + .05
+		if p:getSystemHealthMax("warp") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("warp"),p:getSystemHealthMax("warp") + .05),function()
+				p:setSystemHealthMax("warp",p:getSystemHealthMax("warp") + .05)
 				changePlayerMaxWarp()
 			end)
 		end
-		if p.max_warp > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_warp,p.max_warp - .05),function()
-				p.max_warp = p.max_warp - .05
+		if p:getSystemHealthMax("warp") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("warp"),p:getSystemHealthMax("warp") + .05),function()
+				p:setSystemHealthMax("warp",p:getSystemHealthMax("warp") - .05)
 				changePlayerMaxWarp()
 			end)
 		end
@@ -12608,15 +12728,15 @@ function changePlayerMaxJump()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_jump < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_jump,p.max_jump + .05),function()
-				p.max_jump = p.max_jump + .05
+		if p:getSystemHealthMax("jumpdrive") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("jumpdrive"),p:getSystemHealthMax("jumpdrive") + .05),function()
+				p:setSystemHealthMax("jumpdrive",p:getSystemHealthMax("jumpdrive") + .05)
 				changePlayerMaxJump()
 			end)
 		end
-		if p.max_jump > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_jump,p.max_jump - .05),function()
-				p.max_jump = p.max_jump - .05
+		if p:getSystemHealthMax("jumpdrive") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("jumpdrive"),p:getSystemHealthMax("jumpdrive") - .05),function()
+				p:setSystemHealthMax("jumpdrive",p:getSystemHealthMax("jumpdrive") - .05)
 				changePlayerMaxJump()
 			end)
 		end
@@ -12641,15 +12761,15 @@ function changePlayerMaxFrontShield()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_front_shield < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_front_shield,p.max_front_shield + .05),function()
-				p.max_front_shield = p.max_front_shield + .05
+		if p:getSystemHealthMax("frontshield") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("frontshield"),p:getSystemHealthMax("frontshield") + .05),function()
+				p:setSystemHealthMax("frontshield",p:getSystemHealthMax("frontshield") + .05)
 				changePlayerMaxFrontShield()
 			end)
 		end
-		if p.max_front_shield > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_front_shield,p.max_front_shield - .05),function()
-				p.max_front_shield = p.max_front_shield - .05
+		if p:getSystemHealthMax("frontshield") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("frontshield"),p:getSystemHealthMax("frontshield") - .05),function()
+				p:setSystemHealthMax("frontshield",p:getSystemHealthMax("frontshield") - .05)
 				changePlayerMaxFrontShield()
 			end)
 		end
@@ -12674,15 +12794,15 @@ function changePlayerMaxRearShield()
 	addGMFunction("-Max System",changePlayerMaxSystem)
 	local p = playerShipSelected()
 	if p ~= nil then
-		if p.max_rear_shield < 1 then
-			addGMFunction(string.format("^ From %.2f to %.2f",p.max_rear_shield,p.max_rear_shield + .05),function()
-				p.max_rear_shield = p.max_rear_shield + .05
+		if p:getSystemHealthMax("rearshield") < 1 then
+			addGMFunction(string.format("^ From %.2f to %.2f",p:getSystemHealthMax("rearshield"),p:getSystemHealthMax("rearshield") + .05),function()
+				p:setSystemHealthMax("rearshield",p:getSystemHealthMax("rearshield") + .05)
 				changePlayerMaxRearShield()
 			end)
 		end
-		if p.max_rear_shield > -1 then
-			addGMFunction(string.format("V From %.2f to %.2f",p.max_rear_shield,p.max_rear_shield - .05),function()
-				p.max_rear_shield = p.max_rear_shield - .05
+		if p:getSystemHealthMax("rearshield") > -1 then
+			addGMFunction(string.format("V From %.2f to %.2f",p:getSystemHealthMax("rearshield"),p:getSystemHealthMax("rearshield") - .05),function()
+				p:setSystemHealthMax("rearshield",p:getSystemHealthMax("rearshield") - .05)
 				changePlayerMaxRearShield()
 			end)
 		end
@@ -15401,15 +15521,6 @@ function assignPlayerShipScore(p)
 	p.mining = false
 	p.max_pods = 1
 	p.pods = p.max_pods
-	p.max_reactor = 1
-	p.max_beam = 1
-	p.max_missile = 1
-	p.max_maneuver = 1
-	p.max_impulse = 1
-	p.max_warp = 1
-	p.max_jump = 1
-	p.max_front_shield = 1
-	p.max_rear_shield = 1
 	local tempTypeName = p:getTypeName()
 --	print("assign player ship score, temp type name",tempTypeName)
 	if tempTypeName ~= nil then
@@ -30942,33 +31053,6 @@ function updateInner(delta)
 						end
 					end
 				end
-			end
-			if p:getSystemHealth("reactor") > p.max_reactor then
-				p:setSystemHealth("reactor",p.max_reactor)
-			end
-			if p:getSystemHealth("beamweapons") > p.max_beam then
-				p:setSystemHealth("beamweapons",p.max_beam)
-			end
-			if p:getSystemHealth("missilesystem") > p.max_missile then
-				p:setSystemHealth("missilesystem",p.max_missile)
-			end
-			if p:getSystemHealth("maneuver") > p.max_maneuver then
-				p:setSystemHealth("maneuver",p.max_maneuver)
-			end
-			if p:getSystemHealth("impulse") > p.max_impulse then
-				p:setSystemHealth("impulse",p.max_impulse)
-			end
-			if p:getSystemHealth("warp") > p.max_warp then
-				p:setSystemHealth("warp",p.max_warp)
-			end
-			if p:getSystemHealth("jumpdrive") > p.max_jump then
-				p:setSystemHealth("jumpdrive",p.max_jump)
-			end
-			if p:getSystemHealth("frontshield") > p.max_front_shield then
-				p:setSystemHealth("frontshield",p.max_front_shield)
-			end
-			if p:getSystemHealth("rearshield") > p.max_rear_shield then
-				p:setSystemHealth("rearshield",p.max_rear_shield)
 			end
 			if updateDiagnostic then print("update: valid player: mortal repair crew") end
 			if healthCheckTimer < 0 then	--check to see if any crew perish due to excessive damage
