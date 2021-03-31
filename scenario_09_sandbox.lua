@@ -22217,7 +22217,7 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 					end
 				end
 			end)
-			p:addCustomButton("Engineering",tempButton .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
+			p:addCustomButton("Engineering+",tempButton .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
 				for pidx=1,8 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
@@ -30261,13 +30261,25 @@ function removeMiningButtons(p)
 		p:removeCustom(p.mining_next_target_button)
 		p.mining_next_target_button = nil
 	end
+	if p.mining_next_target_button_ops ~= nil then
+		p:removeCustom(p.mining_next_target_button_ops)
+		p.mining_next_target_button_ops = nil
+	end
 	if p.mining_target_button ~= nil then
 		p:removeCustom(p.mining_target_button)
 		p.mining_target_button = nil
 	end
+	if p.mining_target_button_ops ~= nil then
+		p:removeCustom(p.mining_target_button_ops)
+		p.mining_target_button_ops = nil
+	end
 	if p.mining_lock_button ~= nil then
 		p:removeCustom(p.mining_lock_button)
 		p.mining_lock_button = nil
+	end
+	if p.mining_lock_button_ops ~= nil then
+		p:removeCustom(p.mining_lock_button_ops)
+		p.mining_lock_button_ops = nil
 	end
 end
 function addMiningButtons(p,mining_objects)
@@ -30286,7 +30298,27 @@ function addMiningButtons(p,mining_objects)
 					p:addCustomMessage("Science",mining_locked_message,"Mining target locked\nWeapons may trigger the mining beam")
 				else
 					local mining_lock_fail_message = "mining_lock_fail_message"
-					p:addCustomMessage("Engineering",mining_lock_fail_message,string.format("Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U",asteroid_distance/1000))
+					p:addCustomMessage("Science",mining_lock_fail_message,string.format("Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U",asteroid_distance/1000))
+					p.mining_target = nil
+				end
+				removeMiningButtons(p)
+			end)
+		end
+	end
+	if p.mining_lock_button_ops == nil then
+		if p:hasPlayerAtPosition("Operations") then
+			p.mining_lock_button_ops = "mining_lock_button_ops"
+			p:addCustomButton("Operations",p.mining_lock_button_ops,"Lock for Mining",function()
+				local cpx, cpy = p:getPosition()
+				local tpx, tpy = p.mining_target:getPosition()
+				local asteroid_distance = distance(cpx,cpy,tpx,tpy)
+				if asteroid_distance < 1000 then
+					p.mining_target_lock = true
+					local mining_locked_message_ops = "mining_locked_message_ops"
+					p:addCustomMessage("Operations",mining_locked_message_ops,"Mining target locked\nWeapons may trigger the mining beam")
+				else
+					local mining_lock_fail_message_ops = "mining_lock_fail_message_ops"
+					p:addCustomMessage("Operations",mining_lock_fail_message_ops,string.format("Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U",asteroid_distance/1000))
 					p.mining_target = nil
 				end
 				removeMiningButtons(p)
@@ -30330,6 +30362,46 @@ function addMiningButtons(p,mining_objects)
 				end
 				local target_description = "target_description"
 				p:addCustomMessage("Science",target_description,string.format("Distance: %.1fU\nBearing: %.1f\nMineral traces detected: %s",target_distance,angle,minerals))
+			end)
+		end
+	end
+	if p.mining_target_button_ops == nil then
+		if p:hasPlayerAtPosition("Operations") then
+			p.mining_target_button_ops = "mining_target_button_ops"
+			p:addCustomButton("Operations",p.mining_target_button_ops,"Target Asteroid",function()
+				string.format("")	--necessary to have global reference for Serious Proton engine
+				tpx, tpy = p.mining_target:getPosition()
+				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+				local theta = math.atan(tpy - cpy,tpx - cpx)
+				if theta < 0 then
+					theta = theta + 6.2831853071795865
+				end
+				local angle = theta * 57.2957795130823209
+				angle = angle + 90
+				if angle > 360 then
+					angle = angle - 360
+				end
+				if p.mining_target.trace_minerals == nil then
+					p.mining_target.trace_minerals = {}
+					for i=1,#mineralGoods do
+						if random(1,100) < 26 then
+							table.insert(p.mining_target.trace_minerals,mineralGoods[i])
+						end
+					end
+				end
+				local minerals = ""
+				for i=1,#p.mining_target.trace_minerals do
+					if minerals == "" then
+						minerals = minerals .. p.mining_target.trace_minerals[i]
+					else
+						minerals = minerals .. ", " .. p.mining_target.trace_minerals[i]
+					end
+				end
+				if minerals == "" then
+					minerals = "none"
+				end
+				local target_description_ops = "target_description_ops"
+				p:addCustomMessage("Operations",target_description_ops,string.format("Distance: %.1fU\nBearing: %.1f\nMineral traces detected: %s",target_distance,angle,minerals))
 			end)
 		end
 	end
@@ -30404,11 +30476,86 @@ function addMiningButtons(p,mining_objects)
 					end
 				end)
 			end
+		end		
+		if p.mining_next_target_button_ops == nil then
+			if p:hasPlayerAtPosition("Operations") then
+				p.mining_next_target_button_ops = "mining_next_target_button_ops"
+				p:addCustomButton("Operations",p.mining_next_target_button_ops,"Other mining target",function()
+					local nearby_objects = p:getObjectsInRange(1000)
+					local mining_objects = {}
+					if nearby_objects ~= nil and #nearby_objects > 1 then
+						for _, obj in ipairs(nearby_objects) do
+							if p ~= obj then
+								local object_type = obj.typeName
+								if object_type ~= nil then
+									if object_type == "Asteroid" or object_type == "VisualAsteroid" then
+										table.insert(mining_objects,obj)
+									end
+								end
+							end
+						end		--end of nearby object list loop
+						if #mining_objects > 0 then
+							--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+							if p.mining_target ~= nil and p.mining_target:isValid() then
+								local target_in_list = false
+								local matching_index = 0
+								for i=1,#mining_objects do
+									if mining_objects[i] == p.mining_target then
+										target_in_list = true
+										matching_index = i
+										break
+									end
+								end		--end of check for the current target in list loop
+								if target_in_list then
+									if #mining_objects > 1 then
+										if #mining_objects > 2 then
+											local new_index = matching_index
+											repeat
+												new_index = math.random(1,#mining_objects)
+											until(new_index ~= matching_index)
+											p.mining_target = mining_objects[new_index]
+										else
+											if matching_index == 1 then
+												p.mining_target = mining_objects[2]
+											else
+												p.mining_target = mining_objects[1]
+											end
+										end
+										removeMiningButtons(p)
+										addMiningButtons(p,mining_objects)
+									end
+								else
+									p.mining_target = mining_objects[1]
+									removeMiningButtons(p)
+									addMiningButtons(p,mining_objects)
+								end
+							else
+								p.mining_target = mining_objects[1]
+								addMiningButtons(p,mining_objects)
+							end
+						else	--no nearby tractorable objects
+							if p.mining_target ~= nil then
+								removeMiningButtons(p)
+								p.mining_target = nil
+							end
+						end
+					else	--no nearby objects
+						if p.mining_target ~= nil then
+							removeMiningButtons(p)
+							p.mining_target = nil
+						end
+					end
+				end)
+			end
 		end
 	else
 		if p.mining_next_target_button ~= nil then
 			p:removeCustom(p.mining_next_target_button)
 			p.mining_next_target_button = nil
+		end
+		if p.mining_next_target_button_ops ~= nil then
+			p:removeCustom(p.mining_next_target_button_ops)
+			p.mining_next_target_button_ops = nil
 		end
 	end
 end
@@ -31674,7 +31821,7 @@ function updateInner(delta)
 									end
 									p.mining_target_lock = false
 									p.mining_timer = nil
-									if #p.mining_target.trace_minerals > 0 then
+									if p.mining_target.trace_minerals ~= nil and #p.mining_target.trace_minerals > 0 then
 										local good = p.mining_target.trace_minerals[math.random(1,#p.mining_target.trace_minerals)]
 										if p.goods == nil then
 											p.goods = {}
@@ -31688,10 +31835,18 @@ function updateInner(delta)
 											local mined_mineral_message = "mined_mineral_message"
 											p:addCustomMessage("Science",mined_mineral_message,string.format("Mining obtained %s which has been stored in the cargo hold",good))
 										end
+										if p:hasPlayerAtPosition("Operations") then
+											local mined_mineral_message_ops = "mined_mineral_message_ops"
+											p:addCustomMessage("Operations",mined_mineral_message_ops,string.format("Mining obtained %s which has been stored in the cargo hold",good))
+										end
 									else	--no minerals in asteroid
 										if p:hasPlayerAtPosition("Science") then
 											local mined_mineral_message = "mined_mineral_message"
 											p:addCustomMessage("Science",mined_mineral_message,"mining failed to extract any minerals")
+										end										
+										if p:hasPlayerAtPosition("Operations") then
+											local mined_mineral_message_ops = "mined_mineral_message_ops"
+											p:addCustomMessage("Operations",mined_mineral_message_ops,"mining failed to extract any minerals")
 										end										
 									end
 								else	--still mining, update timer display, energy and heat
@@ -31704,6 +31859,10 @@ function updateInner(delta)
 									if p:hasPlayerAtPosition("Weapons") then
 										p.mining_timer_info = "mining_timer_info"
 										p:addCustomInfo("Weapons",p.mining_timer_info,string.format("Mining %i",mining_seconds))
+									end
+									if p:hasPlayerAtPosition("Tactical") then
+										p.mining_timer_info_tac = "mining_timer_info_tac"
+										p:addCustomInfo("Tactical",p.mining_timer_info_tac,string.format("Mining %i",mining_seconds))
 									end
 								end
 							else	--mining not in progress
@@ -31718,12 +31877,27 @@ function updateInner(delta)
 										end)
 									end
 								end
+								if p.trigger_mine_beam_button_tac == nil then
+									if p:hasPlayerAtPosition("Tactical") then
+										p.trigger_mine_beam_button_tac = "trigger_mine_beam_button_tac"
+										p:addCustomButton("Tactical",p.trigger_mine_beam_button_tac,"Start Mining",function()
+											p.mining_in_progress = true
+											p.mining_timer = delta + 5
+											p:removeCustom(p.trigger_mine_beam_button_tac)
+											p.trigger_mine_beam_button_tac = nil
+										end)
+									end
+								end
 							end
 						else	--no mining target or mining target invalid
 							p.mining_target_lock = false
 							if p.mining_timer_info ~= nil then
 								p:removeCustom(p.mining_timer_info)
 								p.mining_timer_info = nil
+							end
+							if p.mining_timer_info_tac ~= nil then
+								p:removeCustom(p.mining_timer_info_tac)
+								p.mining_timer_info_tac = nil
 							end
 						end
 					else	--not locked
@@ -31775,9 +31949,17 @@ function updateInner(delta)
 						p:removeCustom(p.mining_timer_info)
 						p.mining_timer_info = nil
 					end
+					if p.mining_timer_info_tac ~= nil then
+						p:removeCustom(p.mining_timer_info_tac)
+						p.mining_timer_info_tac = nil
+					end
 					if p.trigger_mine_beam_button then
 						p:removeCustom(p.trigger_mine_beam_button)
 						p.trigger_mine_beam_button = nil
+					end
+					if p.trigger_mine_beam_button_tac then
+						p:removeCustom(p.trigger_mine_beam_button_tac)
+						p.trigger_mine_beam_button_tac = nil
 					end
 					p.mining_target_lock = false
 					p.mining_in_progress = false
