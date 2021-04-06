@@ -3448,6 +3448,7 @@ function tweakTerrain()
 			addGMFunction("+Move Selected",moveSelectedObjects)
 		end
 	end
+	addGMFunction("+Probes",tweakProbes)
 end
 function moveSelectedObjects()
 	if gm_click_mode == "move selected" then
@@ -5331,24 +5332,24 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 1 then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
-			dp1Zone:setColor(0,128,0)
-		elseif i == 4 then
-			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
-			dp4Zone:setColor(0,128,0)
+--		if i == 1 then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
+--			dp1Zone:setColor(0,128,0)
+--		elseif i == 4 then
+--			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
+--			dp4Zone:setColor(0,128,0)
 --		elseif i == 2 then
 --			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
 --			dp2Zone:setColor(0,128,0)
 --		elseif i == 1 then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
 --			dp1Zone:setColor(0,128,0)
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -5592,9 +5593,10 @@ function createIcarusStations()
 	table.insert(stations,stationCindyFolly)
 	--]]
 	--Elysium F4m2.5 
-	--local elysiumZone = squareZone(-7504, 1384, "Elysium 4 F4.3")
-	--elysiumZone:setColor(51,153,255)
-    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 4"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
+	local elysiumZone = squareZone(-7504, 1384, "Elysium 5 F4.3")
+	elysiumZone:setColor(51,153,255)
+	--[[
+    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 5"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -5630,6 +5632,7 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
+	--]]
 	--Finnegan
 	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
 	--finneganZone:setColor(51,153,255)
@@ -5908,9 +5911,8 @@ function createIcarusStations()
 	table.insert(stations,stationNerva)
 	--]]
 	--Pistil
-	local pistilZone = squareZone(24834, 20416, "Pistil 6 G6")
-	pistilZone:setColor(0,128,0)
-	--[[
+	--local pistilZone = squareZone(24834, 20416, "Pistil 6 G6")
+	--pistilZone:setColor(0,128,0)
     stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 6"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -5951,7 +5953,6 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
-	--]]
 	--Relay-13
 	local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
 	relay13Zone:setColor(0,255,0)
@@ -15544,6 +15545,7 @@ function assignPlayerShipScore(p)
 				p.turbo_torp_charge_interval = 20	--final: 180
 				p.turbo_torp_timer = p.turbo_torp_charge_interval
 				p.turbo_torp_active = false
+				p.probe_boost = playerShipStats[tempTypeName].probe_boost
 				p.score_settings_source = tempTypeName
 			end
 		end
@@ -17370,204 +17372,6 @@ end
 --------------------------------------------------------------------------------------------
 --	Additional enemy ships with some modifications from the original template parameters  --
 --------------------------------------------------------------------------------------------
-function adderMk3(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK4"):orderRoaming()
-	ship:onTakingDamage(function(self,instigator)
-		string.format("")	--serious proton needs a global context
-		if instigator ~= nil then
-			self.damage_instigator = instigator
-		end
-	end)
-	ship:setTypeName("Adder MK3")
-	ship:setHullMax(35)		--weaker hull (vs 40)
-	ship:setHull(35)
-	ship:setShieldsMax(15)	--weaker shield (vs 20)
-	ship:setShields(15)
---				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	ship:setRotationMaxSpeed(35)	--faster maneuver (vs 20)
-	local adder_mk3_db = queryScienceDatabase("Ships","Starfighter","Adder MK3")
-	if adder_mk3_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Adder MK3")
-		adder_mk3_db = queryScienceDatabase("Ships","Starfighter","Adder MK3")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK4"),	--base ship database entry
-			adder_mk3_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Adder MK3 is one of the first of the Adder line to meet with some success. A large number of them were made before the manufacturer went through its first bankruptcy. There has been a recent surge of purchases of the Adder MK3 in the secondary market due to its low price and its similarity to subsequent models. Compared to the Adder MK4, the Adder MK3 has weaker shields and hull, but a faster turn speed",
-			{
-				{key = "Small tube 0", value = "20 sec"},	--torpedo tube direction and load speed
-			},
-			nil
-		)
-		--[[
-		adder_mk3_db:setLongDescription("One of the first of the Adder line to meet with some success. A large number of them were made before the manufacturer went through its first bankruptcy. There has been a recent surge of purchases in the secondary market due to its low price and its similarity to subsequent models")
-		adder_mk3_db:setKeyValue("Class","Starfighter")
-		adder_mk3_db:setKeyValue("Sub-class","Gunship")
-		adder_mk3_db:setKeyValue("Size","30")
-		adder_mk3_db:setKeyValue("Shield","15")
-		adder_mk3_db:setKeyValue("Hull","35")
-		adder_mk3_db:setKeyValue("Move speed","3.6 U/min")
-		adder_mk3_db:setKeyValue("Turn speed","35 deg/sec")
-		adder_mk3_db:setKeyValue("Beam weapon 0:30","2.0 Dmg / 5.0 sec")
-		adder_mk3_db:setKeyValue("Small tube 0","20 sec")
-		adder_mk3_db:setKeyValue("Storage HVLI","2")
-		adder_mk3_db:setImage("radar_fighter.png")
-		--]]
-	end
-	return ship
-end
-function adderMk7(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK6"):orderRoaming()
-	ship:onTakingDamage(function(self,instigator)
-		string.format("")	--serious proton needs a global context
-		if instigator ~= nil then
-			self.damage_instigator = instigator
-		end
-	end)
-	ship:setTypeName("Adder MK7")
-	ship:setShieldsMax(40)	--stronger shields (vs 30)
-	ship:setShields(40)
---				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	30,		0,	 900,	5.0,	2.0)	--narrower (30 vs 35) but longer (900 vs 800) beam
-	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	local adder_mk7_db = queryScienceDatabase("Ships","Starfighter","Adder MK7")
-	if adder_mk7_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Adder MK7")
-		adder_mk7_db = queryScienceDatabase("Ships","Starfighter","Adder MK7")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK6"),	--base ship database entry
-			adder_mk7_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The release of the Adder Mark 7 sent the manufacturer into a second bankruptcy. They made improvements to the Mark 7 over the Mark 6 like stronger shields and longer beams, but the popularity of their previous models, especially the Mark 5, prevented them from raising the purchase price enough to recoup the development and manufacturing costs of the Mark 7",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil
-		)
-		--[[
-		adder_mk7_db:setLongDescription("The release of the Adder Mark 7 sent the manufacturer into a second bankruptcy. They made improvements over the Mark 6 like stronger shields and longer beams, but the popularity of their previous models prevented them from raising the purchase price enough to recoup the development and manufacturing costs of the Mark 7")
-		adder_mk7_db:setKeyValue("Class","Starfighter")
-		adder_mk7_db:setKeyValue("Sub-class","Gunship")
-		adder_mk7_db:setKeyValue("Size","30")
-		adder_mk7_db:setKeyValue("Shield","40")
-		adder_mk7_db:setKeyValue("Hull","50")
-		adder_mk7_db:setKeyValue("Move speed","4.8 U/min")
-		adder_mk7_db:setKeyValue("Turn speed","28.0 deg/sec")
-		adder_mk7_db:setKeyValue("Beam weapon 0:30","2.0 Dmg / 5.0 sec")
-		adder_mk7_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
-		adder_mk7_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		adder_mk7_db:setKeyValue("Beam weapon 180:35","2.0 Dmg / 6.0 sec")
-		adder_mk7_db:setKeyValue("Front small tube","15 sec")
-		adder_mk7_db:setKeyValue("Storage HVLI","8")
-		adder_mk7_db:setImage("radar_fighter.png")
-		--]]
-	end
-	return ship
-end
-function adderMk8(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
-	ship:onTakingDamage(function(self,instigator)
-		string.format("")	--serious proton needs a global context
-		if instigator ~= nil then
-			self.damage_instigator = instigator
-		end
-	end)
-	ship:setTypeName("Adder MK8")
-	ship:setShieldsMax(50)					--stronger shields (vs 30)
-	ship:setShields(50)
---				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	30,		0,	 900,	5.0,	2.3)	--narrower (30 vs 35) but longer (900 vs 800) and stronger (2.3 vs 2.0) beam
-	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	ship:setRotationMaxSpeed(30)			--faster maneuver (vs 25)
-	local adder_mk8_db = queryScienceDatabase("Ships","Starfighter","Adder MK8")
-	if adder_mk8_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Adder MK8")
-		adder_mk8_db = queryScienceDatabase("Ships","Starfighter","Adder MK8")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			adder_mk8_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"New management after bankruptcy revisited their most popular Adder Mark 5 model with improvements: stronger shields, longer and stronger beams and a faster turn speed. Thus was born the Adder Mark 8 model. Targeted to the practical but nostalgic buyer who must purchase replacements for their Adder Mark 5 fleet",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil
-		)
-		--[[
-		adder_mk8_db:setLongDescription("New management after bankruptcy revisited their most popular Adder Mark 5 model with improvements: stronger shields, longer and stronger beams and a faster turn speed. Thus was born the Adder Mark 8 model. Targeted to the practical but nostalgic buyer who must purchase replacements for their Adder Mark 5 fleet")
-		adder_mk8_db:setKeyValue("Class","Starfighter")
-		adder_mk8_db:setKeyValue("Sub-class","Gunship")
-		adder_mk8_db:setKeyValue("Size","30")
-		adder_mk8_db:setKeyValue("Shield","50")
-		adder_mk8_db:setKeyValue("Hull","50")
-		adder_mk8_db:setKeyValue("Move speed","4.8 U/min")
-		adder_mk8_db:setKeyValue("Turn speed","30.0 deg/sec")
-		adder_mk8_db:setKeyValue("Beam weapon 0:30","2.3 Dmg / 5.0 sec")
-		adder_mk8_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
-		adder_mk8_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		adder_mk8_db:setKeyValue("Small tube 0","15 sec")
-		adder_mk8_db:setKeyValue("Storage HVLI","4")
-		adder_mk8_db:setImage("radar_fighter.png")
-		--]]
-	end
-	return ship
-end
-function adderMk9(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
-	ship:onTakingDamage(function(self,instigator)
-		string.format("")	--serious proton needs a global context
-		if instigator ~= nil then
-			self.damage_instigator = instigator
-		end
-	end)
-	ship:setTypeName("Adder MK9")
-	ship:setShieldsMax(50)					--stronger shields (vs 30)
-	ship:setShields(50)
---				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	30,		0,	 900,	4.5,	2.5)	--narrower (30 vs 35) but longer (900 vs 800), faster (4.5 vs 5.0) and stronger (2.5 vs 2.0) beam
-	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	ship:setRotationMaxSpeed(30)			--faster maneuver (vs 25)
-	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
-	ship:setWeaponStorage("Nuke",2)
-	local adder_mk9_db = queryScienceDatabase("Ships","Starfighter","Adder MK9")
-	if adder_mk9_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Adder MK9")
-		adder_mk9_db = queryScienceDatabase("Ships","Starfighter","Adder MK9")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			adder_mk9_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Hot on the heels of the Adder Mark 8 comes the Adder Mark 9. Still using the Adder Mark 5 as a base, the designers provided stronger shields, stronger, longer and faster beams, faster turn speed and for that extra special touch, two nuclear missiles. As their ad says, 'You'll feel better in an Adder Mark 9.'",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil
-		)
-		--[[
-		adder_mk9_db:setLongDescription("Hot on the heels of the Adder Mark 8 comes the Adder Mark 9. Still using the Adder Mark 5 as a base, the designers provided stronger shields, stronger, longer and faster beams, faster turn speed and for that extra special touch, two nuclear missiles. As their ad says, 'You'll feel better in an Adder Mark 9.'")
-		adder_mk9_db:setKeyValue("Class","Starfighter")
-		adder_mk9_db:setKeyValue("Sub-class","Gunship")
-		adder_mk9_db:setKeyValue("Size","30")
-		adder_mk9_db:setKeyValue("Shield","50")
-		adder_mk9_db:setKeyValue("Hull","50")
-		adder_mk9_db:setKeyValue("Move speed","4.8 U/min")
-		adder_mk9_db:setKeyValue("Turn speed","30.0 deg/sec")
-		adder_mk8_db:setKeyValue("Beam weapon 0:30","2.5 Dmg / 4.5 sec")
-		adder_mk8_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
-		adder_mk8_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		adder_mk9_db:setKeyValue("Front small tube","15 sec")
-		adder_mk9_db:setKeyValue("Storage HVLI","4")
-		adder_mk9_db:setKeyValue("Storage Nuke","2")
-		adder_mk9_db:setImage("radar_fighter.png")
-		--]]
-	end
-	return ship
-end
 function phobosR2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
 	ship:onTakingDamage(function(self,instigator)
@@ -24803,6 +24607,182 @@ function mineField()
 			end)
 	end
 end
+------------------------------
+--	Tweak Terrain > Probes  --
+------------------------------
+-- Button Text		   FD*	Related Function(s)
+function tweakProbes()
+	clearGMFunctions()
+	addGMFunction("-Main From Probes",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("Stop",function()
+		local object_list = getGMSelection()
+		if object_list == nil then
+			addGMMessage("Select something first")
+		else
+			if #object_list < 1 or #object_list > 1 then
+				addGMMessage("Select one thing")
+			else
+				local probe = object_list[1]
+				if probe.typeName ~= "ScanProbe" then
+					addGMMessage("Select a probe")
+				else
+					if probe.original_target_x == nil then
+						local ptx, pty = probe:getTarget()
+						probe.original_target_x = ptx
+						probe.original_target_y = pty
+					end
+					local px, py = probe:getPosition()
+					probe:setTarget(px,py)
+				end
+			end
+		end
+		tweakProbes()
+	end)
+	addGMFunction("Resume",function()
+		local object_list = getGMSelection()
+		if object_list == nil then
+			addGMMessage("Select something first")
+		else
+			if #object_list < 1 or #object_list > 1 then
+				addGMMessage("Select one thing")
+			else
+				local probe = object_list[1]
+				if probe.typeName ~= "ScanProbe" then
+					addGMMessage("Select a probe")
+				else
+					if probe.original_target_x == nil then
+						addGMMessage("Probe was not stopped or diverted")
+					else
+						probe:setTarget(probe.original_target_x,probe.original_target_y)
+					end
+				end
+			end
+		end
+		tweakProbes()
+	end)
+	if gm_click_mode == "divert probe" then
+		addGMFunction(">Divert<",divertProbe)
+	else
+		addGMFunction("Divert",divertProbe)
+	end
+	if gm_click_mode == "create probe" then
+		addGMFunction(">Create<",createProbe)
+	else
+		addGMFunction("Create",createProbe)
+	end
+	local accelerate_button_label = "Accelerate"
+	local decelerate_button_label = "Decelerate"
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			local probe = object_list[1]
+			if probe.typeName == "ScanProbe" then
+				accelerate_button_label = string.format("%.1f Accelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() + 100)/1000)
+				decelerate_button_label = string.format("%.1f Decelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() - 100)/1000)
+			end
+		end
+	end
+	addGMFunction(accelerate_button_label,function()
+		local object_list = getGMSelection()
+		if object_list ~= nil then
+			if #object_list == 1 then
+				local probe = object_list[1]
+				if probe.typeName == "ScanProbe" then
+					if probe:getSpeed() < 5000 then
+						probe:setSpeed(probe:getSpeed() + 100)
+					else
+						addGMMessage("Maximum probe speed reached")
+					end
+				else
+					addGMMessage("Select a probe")
+				end
+			else
+				addGMMessage("Select one object")
+			end
+		else
+			addGMMessage("Select something first")
+		end
+		tweakProbes()
+	end)
+	addGMFunction(decelerate_button_label,function()
+		local object_list = getGMSelection()
+		if object_list ~= nil then
+			if #object_list == 1 then
+				local probe = object_list[1]
+				if probe.typeName == "ScanProbe" then
+					if probe:getSpeed() > 100 then
+						probe:setSpeed(probe:getSpeed() - 100)
+					else
+						addGMMessage("Minimum probe speed reached")
+					end
+				else
+					addGMMessage("Select a probe")
+				end
+			else
+				addGMMessage("Select one object")
+			end
+		else
+			addGMMessage("Select something first")
+		end
+		tweakProbes()
+	end)
+end
+function createProbe()
+	if gm_click_mode == "create probe" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "create probe"
+		onGMClick(gmClickCreateProbe)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   create probe\nGM click mode.",prev_mode))
+		end
+	end
+	tweakProbes()
+end
+function gmClickCreateProbe(x,y)
+	ScanProbe():setPosition(x,y):setFaction(fleetSpawnFaction):setTarget(x,y)
+end
+function divertProbe()
+	if gm_click_mode == "divert probe" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "divert probe"
+		onGMClick(gmClickDivertProbe)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   divert probe\nGM click mode.",prev_mode))
+		end
+	end
+	tweakProbes()
+end
+function gmClickDivertProbe(x,y)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Select something first")
+	else
+		if #object_list < 1 or #object_list > 1 then
+			addGMMessage("Select one thing")
+		else
+			local probe = object_list[1]
+			if probe.typeName ~= "ScanProbe" then
+				addGMMessage("Select a probe")
+			else
+				if probe.original_target_x == nil then
+					local ptx, pty = probe:getTarget()
+					probe.original_target_x = ptx
+					probe.original_target_y = pty
+				end
+				probe:setTarget(x,y)
+				local ntx, nty = probe:getTarget()
+			end
+		end
+	end
+	tweakProbes()
+end
 ---------------------------------------------------------
 --	Tweak Terrain > Station Defense > Defensive Fleet  --
 ---------------------------------------------------------
@@ -28071,8 +28051,56 @@ function commsStation()
     if comms_source:isEnemy(comms_target) then
         return false
     end
-    if comms_target:areEnemiesInRange(5000) then
-        setCommsMessage("We are under attack! No time for chatting!");
+    local range_divisor = {
+		["Small Station"]	= 2,
+		["Medium Station"]	= 3,
+		["Large Station"]	= 4,
+		["Huge Station"]	= 5,
+    }
+    local temp_type = comms_target:getTypeName()
+    local panic_range = comms_target:getShortRangeRadarRange()/range_divisor[temp_type]
+    if panic_range == nil then
+    	panic_range = 5000
+    end
+    if comms_target:areEnemiesInRange(panic_range) then
+--		local olx, oly = comms_target:getPosition()
+--		local obj_list = getObjectsInRadius(olx,oly,panic_range)
+--		for _, obj in ipairs(obj_list) do
+--			print(obj.typeName,obj:getFaction())
+--		end
+        setCommsMessage(string.format("[Automated Response]\nWe're sorry, but we cannot take your take your call right now. All personnel are busy at emergency stations due to hostile entities within %.1f units",panic_range/1000));
+		if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) and 
+			comms_target.comms_data.idle_defense_fleet ~= nil then
+			local defense_fleet_count = 0
+			for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
+				defense_fleet_count = defense_fleet_count + 1
+			end
+			if defense_fleet_count > 0 then
+				addCommsReply("Activate station defense fleet (" .. getServiceCost("activatedefensefleet") .. " rep)",function()
+					if comms_source:takeReputationPoints(getServiceCost("activatedefensefleet")) then
+						local out = string.format("%s defense fleet\n",comms_target:getCallSign())
+						for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
+							local script = Script()
+							local position_x, position_y = comms_target:getPosition()
+							local station_name = comms_target:getCallSign()
+							script:setVariable("position_x", position_x):setVariable("position_y", position_y)
+							script:setVariable("station_name",station_name)
+							script:setVariable("name",name)
+							script:setVariable("template",template)
+							script:setVariable("faction_id",comms_target:getFactionId())
+							script:run("border_defend_station.lua")
+							out = out .. " " .. name
+							comms_target.comms_data.idle_defense_fleet[name] = nil
+						end
+						out = out .. "\nactivated"
+						setCommsMessage(out)
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply("Back", commsStation)
+				end)
+			end
+		end
         return true
     end
     if not comms_source:isDocked(comms_target) then
