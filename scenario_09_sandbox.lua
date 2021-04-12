@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.0.1"
+	scenario_version = "3.1.0"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -69,8 +69,10 @@ function createSkeletonUniverse()
         	reinforcements = math.random(140,160),
    			hornetreinforcements =	math.random(75,125),
 			phobosreinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
         },
         jump_overcharge =		true,
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -111,8 +113,13 @@ function createSkeletonUniverse()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			shield_overcharge = math.random(1,5)*5,
+        },
         jump_overcharge =		true,
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -195,8 +202,13 @@ function createSkeletonUniverse()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(100,140), reinforcements = math.random(140,180)},
+        service_cost = 		{
+        	supplydrop = math.random(100,140), 
+        	reinforcements = math.random(140,180),
+			shield_overcharge = math.random(1,5)*5,
+        },
         jump_overcharge =		true,
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -232,8 +244,13 @@ function createSkeletonUniverse()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = math.random(13,20),	EMP = 9 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			shield_overcharge = math.random(1,5)*5,
+        },
         jump_overcharge =		true,
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -5618,7 +5635,12 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 5,				HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(123,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         hack_repair =			true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -5659,7 +5681,12 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(9,21) },
         weapon_available = 	{Homing = true,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -5709,7 +5736,10 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = 30,					EMP = 20 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = false,				EMP = false},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -5783,7 +5813,10 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(3,6),	HVLI = math.random(1,4),Mine = math.random(5,9),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(123,175),
+        },
         hack_repair =			true,
         scan_repair =			true,
         tube_slow_down_repair =	true,
@@ -5829,7 +5862,12 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,6),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(123,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<60,
         sensor_boost = {value = 10000, cost = 10},
@@ -5977,7 +6015,10 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
@@ -6100,7 +6141,12 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,5),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = false,	HVLI = true,		Mine = false,			Nuke = false,				EMP = false},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
@@ -6183,8 +6229,13 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,6),	HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(123,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
         jump_overcharge =		true,
+        shield_overcharge =		true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
@@ -6271,7 +6322,12 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         hack_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
@@ -6313,7 +6369,12 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         hack_repair =			true,
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -7355,7 +7416,12 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -7399,7 +7465,10 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
@@ -7478,7 +7547,12 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "neutral"},
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(1,4),Mine = math.random(1,4),Nuke = math.random(12,18),	EMP = math.random(13,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -7565,7 +7639,12 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         combat_maneuver_repair=	random(1,100)<30,
         scan_repair =			true,
@@ -7606,7 +7685,12 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -7646,7 +7730,12 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(3,7), HVLI = math.random(1,3),Mine = math.random(1,6),Nuke = math.random(13,15),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -7683,7 +7772,10 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,7), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(14,18),	EMP = math.random(8,12) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+        },
         probe_launch_repair =	true,
         combat_maneuver_repair=	true,
         tube_slow_down_repair = random(1,100)<30,
@@ -7724,7 +7816,12 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -10748,7 +10845,12 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	true,
         hack_repair =			random(1,100) < 83,
         scan_repair =			true,
@@ -10792,7 +10894,10 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = false,			Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+        },
         probe_launch_repair =	true,
         hack_repair =			random(1,100) < 63,
         scan_repair =			true,
@@ -10830,7 +10935,12 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "neutral", 			EMP = "neutral"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = false,			Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
         probe_launch_repair =	random(1,100) < 83,
         hack_repair =			true,
         scan_repair =			true,
@@ -13355,6 +13465,7 @@ function createPlayerShipChavez()
 	playerChavez:setTubeLoadTime(1,15)	
 	playerChavez:setTubeLoadTime(2,15)
 	playerChavez:setTubeLoadTime(3,20)
+	playerChavez:addReputationPoints(50)
 	playerShipSpawned("Chavez")
 	return playerChavez
 end
@@ -27933,6 +28044,9 @@ function handleDockedState()
 		if ctd.jump_overcharge then
 			service_status = string.format("%s\nMay overcharge jump drive",service_status)
 		end
+		if ctd.shield_overcharge then
+			service_status = string.format("%s\nMay overcharge shield",service_status)
+		end
 		if ctd.probe_launch_repair then
 			service_status = string.format("%s\nMay repair probe launch system",service_status)
 		end
@@ -27970,24 +28084,83 @@ function handleDockedState()
 			end)
 		end
 	end
-	if ctd.jump_overcharge then
-		if comms_source:hasJumpDrive() then
-			local max_charge = comms_source.max_jump_range
-			if max_charge == nil then
-				max_charge = 50000
+	local overcharge_service = false
+	if ctd.jump_overcharge and comms_source:hasJumpDrive() then
+		local max_charge = comms_source.max_jump_range
+		if max_charge == nil then
+			max_charge = 50000
+		end
+		if comms_source:getJumpDriveCharge() >= max_charge then
+			overcharge_service = true
+		end
+	end
+	if ctd.shield_overcharge and comms_source:getShieldCount() > 0 then
+		overcharge_service = true
+	end
+	if overcharge_service then
+		addCommsReply("Overcharge System",function()
+			setCommsMessage("What system would you like to overcharge?")
+			if ctd.jump_overcharge then
+				if comms_source:hasJumpDrive() then
+					local max_charge = comms_source.max_jump_range
+					if max_charge == nil then
+						max_charge = 50000
+					end
+					if comms_source:getJumpDriveCharge() >= max_charge then
+						addCommsReply("Overcharge Jump Drive (10 Rep)",function()
+							if comms_source:takeReputationPoints(10) then
+								comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
+								setCommsMessage(string.format("Your jump drive has been overcharged to %ik",math.floor(comms_source:getJumpDriveCharge()/1000)))
+							else
+								setCommsMessage("Insufficient reputation")
+							end
+							addCommsReply("Back", commsStation)
+						end)
+					end
+				end
 			end
-			if comms_source:getJumpDriveCharge() >= max_charge then
-				addCommsReply("Overcharge Jump Drive (10 Rep)",function()
-					if comms_source:takeReputationPoints(10) then
-						comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
-						setCommsMessage(string.format("Your jump drive has been overcharged to %ik",math.floor(comms_source:getJumpDriveCharge()/1000)))
+			if ctd.shield_overcharge and comms_source:getShieldCount() > 0 then
+				local base_cost = comms_target.comms_data.service_cost.shield_overcharge
+				local multiplier = comms_target.comms_data.reputation_cost_multipliers[getFriendStatus()]
+				addCommsReply(string.format("Overcharge Front Shield (%i Rep)",math.ceil(base_cost * multiplier)),function()
+					if comms_source:getShieldLevel(0) > comms_source:getShieldMax(0) then
+						setCommsMessage("Your front shield is already overcharged")
+					elseif comms_source:getShieldLevel(0) < comms_source:getShieldMax(0) then
+						setCommsMessage("We cannot overcharge until you have a full charge on your front shield")
 					else
-						setCommsMessage("Insufficient reputation")
+						if comms_source:takeReputationPoints(math.ceil(base_cost * multiplier)) then
+							if comms_source:getShieldCount() == 1 then
+								comms_source:setShields(comms_source:getShieldMax(0)*(1 + base_cost/100))
+							else
+								comms_source:setShields(comms_source:getShieldMax(0)*(1 + base_cost/100),comms_source:getShieldLevel(1))								
+							end
+							setCommsMessage("Your front shield has been overcharged")
+						else
+							setCommsMessage(string.format("Insufficient reputation: %i",math.floor(comms_source:getReputationPoints())))
+						end
 					end
 					addCommsReply("Back", commsStation)
 				end)
+				if comms_source:getShieldCount() > 1 then
+					addCommsReply(string.format("Overcharge Rear Shield (%i Rep)",math.ceil(base_cost * multiplier)),function()
+						if comms_source:getShieldLevel(1) > comms_source:getShieldMax(1) then
+							setCommsMessage("Your rear shield is already overcharged")
+						elseif comms_source:getShieldLevel(1) < comms_source:getShieldMax(1) then
+							setCommsMessage("We cannot overcharge until you have a full charge on your rear shield")
+						else
+							if comms_source:takeReputationPoints(math.ceil(base_cost * multiplier)) then
+								comms_source:setShields(comms_source:getShieldLevel(0),comms_source:getShieldMax(1)*(1 + base_cost/100))
+								setCommsMessage("Your rear shield has been overcharged")
+							else
+								setCommsMessage(string.format("Insufficient reputation: %i",math.floor(comms_source:getReputationPoints())))
+							end
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
 			end
-		end
+			addCommsReply("Back", commsStation)
+		end)
 	end
 	local offer_repair = false
 	if ctd.probe_launch_repair and not comms_source:getCanLaunchProbe() then
