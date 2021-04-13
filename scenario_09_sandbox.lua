@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.1.0"
+	scenario_version = "3.2.0"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -676,7 +676,7 @@ function setConstants()
 		["Eldridge"]			= { strength = 15,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3	},
 		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0	},
 		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0	},
-		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 1.25	},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25	},
 		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0	},
 		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6	},
 		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0	},
@@ -14158,6 +14158,9 @@ function createPlayerShipMagnum()
 	playerMagnum:setWeaponStorage("EMP", 2)				
 	playerMagnum:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
 	playerMagnum:setWeaponStorage("Nuke", 1)	
+	playerMagnum.turbo_torpedo_type = {"Nuke","HomingMissile"}
+	playerMagnum.turbo_torp_factor = 3
+	playerMagnum.turbo_torp_charge_interval = 90
 	playerMagnum:addReputationPoints(50)
 	playerShipSpawned("Magnum")
 	return playerMagnum
@@ -15844,9 +15847,13 @@ function assignPlayerShipScore(p)
 				p.max_pods = playerShipStats[tempTypeName].pods
 				p.pods = p.max_pods
 				p.turbo_torp = playerShipStats[tempTypeName].turbo_torp
-				p.turbo_torp_charge_interval = 20	--final: 180
-				p.turbo_torp_timer = p.turbo_torp_charge_interval
-				p.turbo_torp_active = false
+				if p.turbo_torp then
+					if p.turbo_torp_charge_interval == nil then
+						p.turbo_torp_charge_interval = 55
+					end
+					p.turbo_torp_timer = p.turbo_torp_charge_interval
+					p.turbo_torp_active = false
+				end
 				p.probe_boost = playerShipStats[tempTypeName].probe_boost
 				p.patrol_probe = playerShipStats[tempTypeName].patrol_probe
 				if p.patrol_probe > 0 then
@@ -32309,67 +32316,102 @@ function updateInner(delta)
 					end
 				end
 			end
-			--[[	experimental
 			if p.turbo_torp then
-				print(string.format("%s has turbo torp",p:getCallSign()))
-				if p.turbo_torp_active then
-					print("turbo torp is active")
-					local missile_list = p:getObjectsInRange(100)
-					for _, obj in ipairs(missile_list) do
-						if obj ~= p then
-							local type_name = obj.typeName
-							local heading = -1
-							if obj:getHeading() ~= nil then
-								heading = obj:getHeading()
-							end
-							local vx = 0
-							local vy = 0
-							if obj:getVelocity() ~= nil then
-								vx, vy = obj:getVelocity()
-							end
-							local md = distance(p,obj)
-							print(type_name,heading,vx,vy,md)
+				if p.turbo_missile ~= nil then
+					if p.turbo_missile:isValid() then
+						if p.turbo_torp_factor == nil then
+							p.turbo_torp_factor = 1
 						end
+						local tvx, tvy = p.turbo_missile:getVelocity()
+						local mx, my = p.turbo_missile:getPosition()
+						p.turbo_missile:setPosition(mx+tvx*delta*p.turbo_torp_factor,my+tvy*delta*p.turbo_torp_factor)
+					else
+						p.turbo_missile = nil
 					end
 				else
-					print("turbo torp not active")
-					if p.turbo_torp_timer < 0 then
-						print("turbo torp timer expired")
-						if p.turbo_torp_button == nil then
-							if p:hasPlayerAtPosition("Weapons") then
-								p.turbo_torp_button = "turbo_torp_button"
-								p:addCustomButton("Weapons",p.turbo_torp_button,"Turbo Torpedo",function()
-									p.turbo_torp_active = true
-									p:removeCustom(p.turbo_torp_button)
-									p.turbo_torp_button = nil
-								end)
-							end
-						end
-						if p.turbo_torp_button_tac == nil then
-							if p:hasPlayerAtPosition("Tactical") then
-								p.turbo_torp_button_tac = "turbo_torp_button_tac"
-								p:addCustomButton("Tactical",p.turbo_torp_button_tac,"Turbo Torpedo",function()
-									p.turbo_torp_active = true
-									p:removeCustom(p.turbo_torp_button_tac)
-									p.turbo_torp_button_tac = nil
-								end)
+					if p.turbo_torp_active then
+						local missile_list = p:getObjectsInRange(100)
+						for _, obj in ipairs(missile_list) do
+							if obj ~= p then
+								local type_name = obj.typeName
+								local heading = -1
+								if obj:getHeading() ~= nil then
+									heading = obj:getHeading()
+								end
+								local vx = 0
+								local vy = 0
+								if obj:getVelocity() ~= nil then
+									vx, vy = obj:getVelocity()
+								end
+								if p.turbo_torpedo_type == nil then
+									p.turbo_torpedo_type = {}
+									table.insert(p.turbo_torpedo_type,"HomingMissile")
+								end
+--								local md = distance(p,obj)
+--								print(type_name,heading,vx,vy,md)
+								for _, ttt in ipairs(p.turbo_torpedo_type) do
+									if type_name == ttt then
+										if obj:getOwner() == p then
+											p.turbo_missile = obj
+											p.turbo_torp_active = false
+											p.turbo_torp_timer = p.turbo_torp_charge_interval
+											local applicable_missiles = ""
+											for _, amt in ipairs(p.turbo_torpedo_type) do
+												applicable_missiles = applicable_missiles .. "\n" .. amt
+											end
+											if p:hasPlayerAtPosition("Weapons") then
+												p.turbo_timer_reset_message = "turbo_timer_reset_message"
+												p:addCustomMessage("Weapons",p.turbo_timer_reset_message,string.format("Turbo Torpedo will become available again %i seconds after the %s expires.\nTurbo applies to the following missile types:%s",p.turbo_torp_charge_interval,type_name,applicable_missiles))
+											end
+											if p:hasPlayerAtPosition("Tactical") then
+												p.turbo_timer_reset_message_tac = "turbo_timer_reset_message_tac"
+												p:addCustomMessage("Weapons",p.turbo_timer_reset_message_tac,string.format("Turbo Torpedo will become available again %i seconds after the %s expires.\nTurbo applies to the following missile types:%s",p.turbo_torp_charge_interval,type_name,applicable_missiles))
+											end
+											break
+										end
+									end
+								end
+								if p.turbo_missile == obj then
+									break
+								end
 							end
 						end
 					else
-						print("turbo torp timer not expired:",p.turbo_torp_timer)
-						p.turbo_torp_timer = p.turbo_torp_timer - delta
-						if p.turbo_torp_button ~= nil then
-							p:removeCustom(p.turbo_torp_button)
-							p.turbo_torp_button = nil
-						end
-						if p.turbo_torp_button_tac ~= nil then
-							p:removeCustom(p.turbo_torp_button_tac)
-							p.turbo_torp_button_tac = nil
+						if p.turbo_torp_timer < 0 then
+							if p.turbo_torp_button == nil then
+								if p:hasPlayerAtPosition("Weapons") then
+									p.turbo_torp_button = "turbo_torp_button"
+									p:addCustomButton("Weapons",p.turbo_torp_button,"Turbo Torpedo",function()
+										p.turbo_torp_active = true
+										p:removeCustom(p.turbo_torp_button)
+										p.turbo_torp_button = nil
+									end)
+								end
+							end
+							if p.turbo_torp_button_tac == nil then
+								if p:hasPlayerAtPosition("Tactical") then
+									p.turbo_torp_button_tac = "turbo_torp_button_tac"
+									p:addCustomButton("Tactical",p.turbo_torp_button_tac,"Turbo Torpedo",function()
+										p.turbo_torp_active = true
+										p:removeCustom(p.turbo_torp_button_tac)
+										p.turbo_torp_button_tac = nil
+									end)
+								end
+							end
+						else
+							p.turbo_torp_timer = p.turbo_torp_timer - delta
+							if p.turbo_torp_button ~= nil then
+								p:removeCustom(p.turbo_torp_button)
+								p.turbo_torp_button = nil
+							end
+							if p.turbo_torp_button_tac ~= nil then
+								p:removeCustom(p.turbo_torp_button_tac)
+								p.turbo_torp_button_tac = nil
+							end
 						end
 					end
 				end
 			end
-			--]]
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
