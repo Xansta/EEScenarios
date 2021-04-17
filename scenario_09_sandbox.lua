@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.2.1"
+	scenario_version = "3.2.2"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -344,110 +344,111 @@ function setConstants()
 	tractor_sound_power = .25
 
 	ship_template = {	--ordered by relative strength
-		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = beamOverclocker},
-		["OClock Engine"] = 	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = engineOverclocker},
-		["OClock Shield"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = shieldOverclocker},
---		["OClock Orbit"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = orbiterOverclocker},
-		["OClock Boss"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = overclockOptimizer},
---		["Orbit Rock"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = asteroidOrbiter},
---		["Orbit Mine"] = 		{strength = 30,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = mineOrbiter},
-		["Leech Sat"] =		 	{strength = 80,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = leech},
-		["Command Base"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = commandBase},
-		["Military Outpost"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	create = militaryOutpost},
-		["Missile Pod D1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD1},
-		["Missile Pod D2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD2},
-		["Missile Pod D4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodD4},
-		["Missile Pod T1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodT1},
-		["Missile Pod T2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodT2},
-		["Missile Pod TI2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodTI2},
-		["Missile Pod TX4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodTX4},
-		["Missile Pod S1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS1},
-		["Missile Pod S4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	create = missilePodS4},
+		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = beamOverclocker},
+		["OClock Engine"] = 	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = engineOverclocker},
+		["OClock Shield"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = shieldOverclocker},
+--		["OClock Orbit"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = orbiterOverclocker},
+		["OClock Boss"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = overclockOptimizer},
+--		["Orbit Rock"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = asteroidOrbiter},
+--		["Orbit Mine"] = 		{strength = 30,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = mineOrbiter},
+		["Leech Sat"] =		 	{strength = 80,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = leech},
+		["Command Base"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	short_range_radar = 10000,	create = commandBase},
+		["Military Outpost"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	short_range_radar = 8000,	create = militaryOutpost},
+		["Missile Pod D1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = missilePodD1},
+		["Missile Pod D2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = missilePodD2},
+		["Missile Pod D4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = missilePodD4},
+		["Missile Pod T1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6000,	create = missilePodT1},
+		["Missile Pod T2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6000,	create = missilePodT2},
+		["Missile Pod TI2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6000,	create = missilePodTI2},
+		["Missile Pod TX4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6000,	create = missilePodTX4},
+		["Missile Pod S1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	create = missilePodS1},
+		["Missile Pod S4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	create = missilePodS4},
 		-- normal ships that are part of the fleet spawn process
-		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	base = false,	create = gnat},
-		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneLite},
-		["Jacket Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneJacket},
-		["Ktlitan Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = stockTemplate},
-		["Heavy Drone"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	create = droneHeavy},
-		["Adder MK3"] =			{strength = 5,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["MT52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["MU52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["MV52 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = hornetMV52},
-		["MT55 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = hornetMT55},
-		["Adder MK4"] =			{strength = 6,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Fighter"] =			{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Ktlitan Fighter"] =	{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["MU55 Hornet"] =		{strength = 7,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = hornetMU55},
-		["K2 Fighter"] =		{strength = 7,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = k2fighter},
-		["Adder MK5"] =			{strength = 7,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["WX-Lindworm"] =		{strength = 7,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["K3 Fighter"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = k3fighter},
-		["Adder MK6"] =			{strength = 8,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Ktlitan Scout"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["WZ-Lindworm"] =		{strength = 9,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	create = wzLindworm},
-		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Phobos R2"] =			{strength = 13,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = phobosR2},
-		["Missile Cruiser"] =	{strength = 14,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = waddle5},
-		["Jade 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = jade5},
-		["Phobos T3"] =			{strength = 15,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Piranha F8"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Piranha F12"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Piranha F12.M"] =		{strength = 16,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Phobos M3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Farco 3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco3},
-		["Farco 5"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco5},
-		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Phobos T4"] =			{strength = 18,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = phobosT4},
-		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Farco 8"] =			{strength = 19,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco8},
-		["Nirvana R5A"] =		{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Adv. Gunship"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Piranha F10"] =		{strength = 21,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = piranhaF10},
-		["Farco 11"] =			{strength = 21,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco11},
-		["Storm"] =				{strength = 22,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Stalker R5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stalkerR5},
-		["Stalker Q5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stalkerQ5},
-		["Farco 13"] =			{strength = 24,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = farco13},
-		["Ranus U"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Stalker Q7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Stalker R7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Whirlwind"] =			{strength = 26,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = whirlwind},
-		["Adv. Striker"] =		{strength = 27,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Elara P2"] =			{strength = 28,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = elaraP2},
-		["Tempest"] =			{strength = 30,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = tempest},
-		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG3},
-		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG4},
-		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = cucaracha},
-		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG5},
-		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = fiendG6},
-		["Ktlitan Worker"] =	{strength = 40,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = predator},
-		["Predator V2"] =		{strength = 43,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = predatorV2},
-		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = hurricane},
-		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = k2breaker},
-		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = atlantisY42},
-		["Blockade Runner"] =	{strength = 65,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Starhammer II"] =		{strength = 70,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Enforcer"] =			{strength = 75,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = enforcer},
-		["Gulper"] =			{strength = 77,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = gulper},
-		["Dreadnought"] =		{strength = 80,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Enforcer V2"] =		{strength = 83,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	create = enforcerV2},
-		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = starhammerIII},
-		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = starhammerV},
-		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
-		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = tyr},
-		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	create = stockTemplate},
+		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	base = false,	short_range_radar = 4500,	create = gnat},
+		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	short_range_radar = 5000,	create = droneLite},
+		["Jacket Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	short_range_radar = 5000,	create = droneJacket},
+		["Ktlitan Drone"] =		{strength = 4,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Heavy Drone"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	short_range_radar = 5500,	create = droneHeavy},
+		["Adder MK3"] =			{strength = 5,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["MT52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["MU52 Hornet"] =		{strength = 5,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["MV52 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = hornetMV52},
+		["MT55 Hornet"] =		{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = hornetMT55},
+		["Adder MK4"] =			{strength = 6,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Fighter"] =			{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Ktlitan Fighter"] =	{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["MU55 Hornet"] =		{strength = 7,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	create = hornetMU55},
+		["K2 Fighter"] =		{strength = 7,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = k2fighter},
+		["Adder MK5"] =			{strength = 7,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["WX-Lindworm"] =		{strength = 7,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	create = stockTemplate},
+		["K3 Fighter"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = k3fighter},
+		["Adder MK6"] =			{strength = 8,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Ktlitan Scout"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7000,	create = stockTemplate},
+		["WZ-Lindworm"] =		{strength = 9,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	create = wzLindworm},
+		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	create = stockTemplate},
+		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = stockTemplate},
+		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Phobos R2"] =			{strength = 13,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = phobosR2},
+		["Missile Cruiser"] =	{strength = 14,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7000,	create = stockTemplate},
+		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = waddle5},
+		["Jade 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = jade5},
+		["Phobos T3"] =			{strength = 15,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Piranha F8"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = stockTemplate},
+		["Piranha F12"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = stockTemplate},
+		["Piranha F12.M"] =		{strength = 16,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = stockTemplate},
+		["Phobos M3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	create = stockTemplate},
+		["Farco 3"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	create = farco3},
+		["Farco 5"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	create = farco5},
+		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Phobos T4"] =			{strength = 18,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = phobosT4},
+		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = stockTemplate},
+		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Farco 8"] =			{strength = 19,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	create = farco8},
+		["Nirvana R5A"] =		{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Adv. Gunship"] =		{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7000,	create = stockTemplate},
+		["Ktlitan Worker"] =	{strength = 20,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Piranha F10"] =		{strength = 21,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = piranhaF10},
+		["Farco 11"] =			{strength = 21,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	create = farco11},
+		["Storm"] =				{strength = 22,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = stockTemplate},
+		["Stalker R5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stalkerR5},
+		["Stalker Q5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stalkerQ5},
+		["Farco 13"] =			{strength = 24,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = farco13},
+		["Ranus U"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = stockTemplate},
+		["Stalker Q7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Stalker R7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Whirlwind"] =			{strength = 26,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = whirlwind},
+		["Adv. Striker"] =		{strength = 27,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Elara P2"] =			{strength = 28,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	create = elaraP2},
+		["Tempest"] =			{strength = 30,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = tempest},
+		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	create = fiendG3},
+		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	create = fiendG4},
+		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = cucaracha},
+		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	create = fiendG5},
+		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	create = fiendG6},
+		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7500,	create = predator},
+		["Predator V2"] =		{strength = 43,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8500,	create = predatorV2},
+		["Diva"] =				{strength = 44,	adder = false,	missiler = true,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	create = diva},
+		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	create = hurricane},
+		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = stockTemplate},
+		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	create = stockTemplate},
+		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	create = k2breaker},
+		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	create = stockTemplate},
+		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	create = atlantisY42},
+		["Blockade Runner"] =	{strength = 65,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	create = stockTemplate},
+		["Starhammer II"] =		{strength = 70,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	create = stockTemplate},
+		["Enforcer"] =			{strength = 75,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	create = enforcer},
+		["Gulper"] =			{strength = 77,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 12000,	create = gulper},
+		["Dreadnought"] =		{strength = 80,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	create = stockTemplate},
+		["Enforcer V2"] =		{strength = 83,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	create = enforcerV2},
+		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 12000,	create = starhammerIII},
+		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 15000,	create = starhammerV},
+		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	create = stockTemplate},
+		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	create = tyr},
+		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	create = stockTemplate},
 	}
 	sandbox = getScriptStorage()
 	sandbox.npc = ship_template
@@ -917,6 +918,7 @@ function setConstants()
 								["Atlantis Y42"] =					400,
 								["Starhammer V"] =					400,
 								["Gulper"] =						400,
+								["Diva"] =							350,
 								["Tyr"] =							2000,
 								["Gnat"] =							300,
 								["Jump Carrier"] =					800		}
@@ -17696,6 +17698,9 @@ function modifiedValue()
 end
 function stockTemplate(enemyFaction,template)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming()
+	if ship_template[template].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template[template].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -17709,6 +17714,9 @@ end
 --------------------------------------------------------------------------------------------
 function phobosR2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Phobos R2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Phobos R2"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -17756,6 +17764,9 @@ function phobosR2(enemyFaction)
 end
 function hornetMV52(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming()
+	if ship_template["MV52 Hornet"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["MV52 Hornet"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -17795,41 +17806,11 @@ function hornetMV52(enemyFaction)
 	end
 	return ship
 end
-function nirvanaR3(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Nirvana R5"):orderRoaming()
-	ship:onTakingDamage(function(self,instigator)
-		string.format("")	--serious proton needs a global context
-		if instigator ~= nil then
-			self.damage_instigator = instigator
-		end
-	end)
-	ship:setTypeName("Nirvana R3")
-	ship:setBeamWeapon(0, 90, -15, 1000.0, 3, 1)	--shorter beams (vs 1200)
-	ship:setBeamWeapon(1, 90,  15, 1000.0, 3, 1)	--shorter beams
-	ship:setBeamWeapon(2, 90, -50, 1000.0, 3, 1)	--shorter beams
-	ship:setBeamWeapon(3, 90,  50, 1000.0, 3, 1)	--shorter beams
-	ship:setHullMax(60)								--weaker hull (vs 70)
-	ship:setHull(60)
-	ship:setShields(40,30)							--weaker shields (vs 50,40)
-	ship:setImpulseMaxSpeed(65)						--slower impulse (vs 70)
-	local nirvana_r3_db = queryScienceDatabase("Ships","Frigate","Nirvana R3")
-	if nirvana_r3_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Nirvana R3")
-		nirvana_r3_db = queryScienceDatabase("Ships","Frigate","Nirvana R3")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Nirvana R5"),	--base ship database entry
-			nirvana_r3_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"One of the earliest mass produced Nirvana models, the Nirvana R3 is designed to be used against fighters. It's got several fast, low damage, point defense beam weapons. Compared to the later, more common Nirvana R5, it has shorter beams, weaker shields and hull and a slower impulse drive.",
-			nil,
-			nil
-		)
-	end
-	return ship
-end
 function fiendG3(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	if ship_template["Fiend G3"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Fiend G3"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -17875,6 +17856,9 @@ function fiendG3(enemyFaction)
 end
 function fiendG4(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	if ship_template["Fiend G4"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Fiend G4"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -17920,6 +17904,9 @@ function fiendG4(enemyFaction)
 end
 function fiendG5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	if ship_template["Fiend G5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Fiend G5"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -17967,6 +17954,9 @@ function fiendG5(enemyFaction)
 end
 function fiendG6(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	if ship_template["Fiend G6"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Fiend G6"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18014,6 +18004,9 @@ function fiendG6(enemyFaction)
 end
 function k2fighter(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	if ship_template["K2 Fighter"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["K2 Fighter"].short_range_radar)
+	end
 	ship:setTypeName("K2 Fighter")
 	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 6)	--beams cycle faster (vs 4.0)
 	ship:setHullMax(65)								--weaker hull (vs 70)
@@ -18047,6 +18040,9 @@ function k2fighter(enemyFaction)
 end	
 function k3fighter(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	if ship_template["K3 Fighter"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["K3 Fighter"].short_range_radar)
+	end
 	ship:setTypeName("K3 Fighter")
 	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 9)	--beams cycle faster and damage more (vs 4.0 & 6)
 	ship:setHullMax(60)								--weaker hull (vs 70)
@@ -18080,6 +18076,9 @@ function k3fighter(enemyFaction)
 end	
 function stalkerQ5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming()
+	if ship_template["Stalker Q5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Stalker Q5"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18124,6 +18123,9 @@ function stalkerQ5(enemyFaction)
 end
 function stalkerR5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming()
+	if ship_template["Stalker R5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Stalker R5"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18168,6 +18170,9 @@ function stalkerR5(enemyFaction)
 end
 function waddle5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	if ship_template["Waddle 5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Waddle 5"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18213,6 +18218,9 @@ function waddle5(enemyFaction)
 end
 function jade5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	if ship_template["Jade 5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Jade 5"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18259,6 +18267,9 @@ function jade5(enemyFaction)
 end
 function droneLite(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	if ship_template["Lite Drone"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Lite Drone"].short_range_radar)
+	end
 	ship:setTypeName("Lite Drone")
 	ship:setHullMax(20)					--weaker hull (vs 30)
 	ship:setHull(20)
@@ -18294,6 +18305,9 @@ function droneLite(enemyFaction)
 end
 function droneHeavy(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	if ship_template["Heavy Drone"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Heavy Drone"].short_range_radar)
+	end
 	ship:setTypeName("Heavy Drone")
 	ship:setHullMax(40)					--stronger hull (vs 30)
 	ship:setHull(40)
@@ -18328,6 +18342,9 @@ function droneHeavy(enemyFaction)
 end
 function droneJacket(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	if ship_template["Jacket Drone"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Jacket Drone"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18369,6 +18386,15 @@ function droneJacket(enemyFaction)
 end
 function elaraP2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Elara P2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Elara P2"].short_range_radar)
+	end
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("Elara P2")
 	ship:setWarpDrive(true)			--warp drive (vs none)
 	ship:setWarpSpeed(800)
@@ -18413,6 +18439,15 @@ function elaraP2(enemyFaction)
 end
 function wzLindworm(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming()
+	if ship_template["WZ-Lindworm"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["WZ-Lindworm"].short_range_radar)
+	end
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
 	ship:setTypeName("WZ-Lindworm")
 	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
 	ship:setWeaponStorage("Nuke",2)
@@ -18462,6 +18497,9 @@ function wzLindworm(enemyFaction)
 end
 function tempest(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming()
+	if ship_template["Tempest"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Tempest"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18539,6 +18577,9 @@ function tempest(enemyFaction)
 end
 function enforcer(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming()
+	if ship_template["Enforcer"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Enforcer"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18609,6 +18650,9 @@ function enforcer(enemyFaction)
 end
 function predator(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	if ship_template["Predator"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Predator"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18699,6 +18743,9 @@ function predator(enemyFaction)
 end
 function atlantisY42(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming()
+	if ship_template["Atlantis Y42"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Atlantis Y42"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18760,6 +18807,9 @@ function atlantisY42(enemyFaction)
 end
 function starhammerV(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	if ship_template["Starhammer V"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Starhammer V"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18820,6 +18870,9 @@ function starhammerV(enemyFaction)
 end
 function tyr(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming()
+	if ship_template["Tyr"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Tyr"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18888,6 +18941,9 @@ function tyr(enemyFaction)
 end
 function gnat(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	if ship_template["Gnat"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Gnat"].short_range_radar)
+	end
 	ship:setTypeName("Gnat")
 	ship:setHullMax(15)					--weaker hull (vs 30)
 	ship:setHull(15)
@@ -18913,6 +18969,9 @@ function gnat(enemyFaction)
 end
 function cucaracha(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming()
+	if ship_template["Cucaracha"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Cucaracha"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18946,6 +19005,9 @@ function cucaracha(enemyFaction)
 end
 function starhammerIII(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	if ship_template["Starhammer III"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Starhammer III"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -18981,6 +19043,9 @@ function starhammerIII(enemyFaction)
 end
 function k2breaker(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming()
+	if ship_template["K2 Breaker"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["K2 Breaker"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19021,6 +19086,9 @@ function k2breaker(enemyFaction)
 end
 function hurricane(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	if ship_template["Hurricane"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Hurricane"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19074,6 +19142,9 @@ function hurricane(enemyFaction)
 end
 function phobosT4(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Phobos T4"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Phobos T4"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19108,6 +19179,9 @@ function phobosT4(enemyFaction)
 end
 function whirlwind(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming()
+	if ship_template["Whirlwind"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Whirlwind"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19157,6 +19231,9 @@ function whirlwind(enemyFaction)
 end
 function farco3(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Farco 3"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 3"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19190,6 +19267,9 @@ function farco3(enemyFaction)
 end
 function farco5(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Farco 5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 5"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19222,6 +19302,9 @@ function farco5(enemyFaction)
 end
 function farco8(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Farco 8"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 8"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19257,6 +19340,9 @@ function farco8(enemyFaction)
 end
 function farco11(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Farco 11"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 11"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19292,6 +19378,9 @@ function farco11(enemyFaction)
 end
 function farco13(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	if ship_template["Farco 13"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 13"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19333,6 +19422,9 @@ function farco13(enemyFaction)
 end
 function hornetMT55(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming()
+	if ship_template["MT55 Hornet"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["MT55 Hornet"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19361,6 +19453,9 @@ function hornetMT55(enemyFaction)
 end
 function hornetMU55(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MU52 Hornet"):orderRoaming()
+	if ship_template["MU55 Hornet"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["MU55 Hornet"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19396,6 +19491,9 @@ function hornetMU55(enemyFaction)
 end
 function piranhaF10(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12.M"):orderRoaming()
+	if ship_template["Piranha F10"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Piranha F10"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19447,6 +19545,9 @@ function piranhaF10(enemyFaction)
 end
 function predatorV2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	if ship_template["Predator V2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Predator V2"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19525,6 +19626,9 @@ function predatorV2(enemyFaction)
 end
 function enforcerV2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming()
+	if ship_template["Enforcer V2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Enforcer V2"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19578,6 +19682,9 @@ function enforcerV2(enemyFaction)
 end
 function gulper(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	if ship_template["Gulper"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Gulper"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -19631,6 +19738,41 @@ function gulper(enemyFaction)
 				{key = "Large tube 0", value = "14 sec"},	--torpedo tube size, direction and load speed
 			},
 			"5 - 50 U"		--jump range
+		)
+	end
+	return ship		
+end
+function diva(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):orderRoaming()
+	if ship_template["Diva"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Diva"].short_range_radar)
+	end
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("Diva")
+	ship:setImpulseMaxSpeed(35)				--faster impulse (vs 0)
+	ship:setRotationMaxSpeed(8)				--faster maneuver (vs 0)
+	ship:setAcceleration(5)					--faster acceleration (vs 0)
+	ship:setWeaponTubeDirection(1,180)		--rear (vs front)				
+	local diva_db = queryScienceDatabase("Ships","No class","Gulper")
+	if diva_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No class")
+		no_class_db:addEntry("Diva")
+		diva_db = queryScienceDatabase("Ships","No class","Diva")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No class","Ktlitan Queen"),	--base ship database entry
+			diva_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Diva is a mobile version of the Ktlitan Queen with one tube pointed to the rear",
+			{
+				{key = "Tube 0", value = "15 sec"},			--torpedo tube size, direction and load speed
+				{key = "Tube 180", value = "15 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil		--jump range
 		)
 	end
 	return ship		
@@ -19706,6 +19848,9 @@ end
 --not included in random fleet spawn lists
 function leech(enemyFaction)
 	local ship = CpuShip():setTemplate("Defense platform"):setFaction(enemyFaction):orderRoaming()
+	if ship_template["Leech Sat"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Leech Sat"].short_range_radar)
+	end
 	ship:setTypeName("Leech")
 --               			Arc,  Dir, Range,   CycleTime, Dmg
 	ship:setBeamWeapon(0,	 30,	0,	4000,			2,	20)	--slower cycle time  (2,4,4,4,6) vs 1.5
@@ -19731,6 +19876,9 @@ function overclocker(enemyFaction)
 end
 function beamOverclocker(enemyFaction)
 	local ship = overclocker(enemyFaction)
+	if ship_template["OClock Beam"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["OClock Beam"].short_range_radar)
+	end
 	ship:setDescription("beam overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
 	ship:setDescriptions("sending encrypted data","sending encrypted data to boost beams of nearby ships")
 	update_system:addBeamOverclocker(ship,10)
@@ -19738,6 +19886,9 @@ function beamOverclocker(enemyFaction)
 end
 function engineOverclocker(enemyFaction)
 	local ship = overclocker(enemyFaction)
+	if ship_template["OClock Engine"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["OClock Engine"].short_range_radar)
+	end
 	ship:setDescription("engine overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
 	ship:setDescriptions("sending encrypted data","sending encrypted data to boost engines of nearby ships")
 	update_system:addEngineOverclocker(ship,10)
@@ -19745,6 +19896,9 @@ function engineOverclocker(enemyFaction)
 end
 function shieldOverclocker(enemyFaction)
 	local ship = overclocker(enemyFaction)
+	if ship_template["OClock Shield"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["OClock Shield"].short_range_radar)
+	end
 	ship:setDescription("shield overclocker")-- there seems to be some sort of bug with descriptions - the fully scanned is not showing with setDescriptions, this is a work around, it should be fixed in EE at some point
 	ship:setDescriptions("sending encrypted data","sending encrypted data to boost shields of nearby ships")
 	update_system:addShieldOverclocker(ship,10)
@@ -19866,6 +20020,9 @@ end
 -- load time is not in there
 function missilePodD1(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D1")
+	if ship_template["Missile Pod D1"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod D1"].short_range_radar)
+	end
 	ship:setHullMax(15):setHull(15):setShieldsMax(20):setShields(20)
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,7)
@@ -19891,6 +20048,9 @@ function missilePodD1(enemyFaction)
 end
 function missilePodD2(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D2")
+	if ship_template["Missile Pod D2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod D2"].short_range_radar)
+	end
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,13)
 	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
@@ -19915,6 +20075,9 @@ function missilePodD2(enemyFaction)
 end
 function missilePodD4(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod D4")
+	if ship_template["Missile Pod D4"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod D4"].short_range_radar)
+	end
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,17)
 	ship:setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 400)
@@ -19939,6 +20102,9 @@ function missilePodD4(enemyFaction)
 end
 function missilePodT1(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod T1")
+	if ship_template["Missile Pod T1"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod T1"].short_range_radar)
+	end
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,15)
 	ship:setTubeSize(0,"small"):setWeaponTubeExclusiveFor(0,"Homing")
@@ -19963,6 +20129,9 @@ function missilePodT1(enemyFaction)
 end
 function missilePodT2(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod T2")
+	if ship_template["Missile Pod T2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod T2"].short_range_radar)
+	end
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,15)
 	ship:setWeaponTubeExclusiveFor(0,"Homing")
@@ -19987,6 +20156,9 @@ function missilePodT2(enemyFaction)
 end
 function missilePodTI2(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod TI2")
+	if ship_template["Missile Pod TI2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod TI2"].short_range_radar)
+	end
 	ship:setWeaponTubeCount(2)
 	ship:setTubeLoadTime(0,15):setWeaponTubeDirection(0,-90)
 	ship:setTubeLoadTime(1,15):setWeaponTubeDirection(1,90)
@@ -20014,6 +20186,9 @@ function missilePodTI2(enemyFaction)
 end
 function missilePodTX4(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod TX4")
+	if ship_template["Missile Pod TX4"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod TX4"].short_range_radar)
+	end
 	ship:setWeaponTubeCount(4)
 	ship:setTubeLoadTime(0,15):setWeaponTubeDirection(0,0)
 	ship:setTubeLoadTime(1,15):setWeaponTubeDirection(1,90)
@@ -20047,6 +20222,9 @@ function missilePodTX4(enemyFaction)
 end
 function missilePodS1(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod S1")
+	if ship_template["Missile Pod S1"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod S1"].short_range_radar)
+	end
 	ship:setHullMax(55):setHull(55):setShieldsMax(50):setShields(50)
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,20)
@@ -20072,6 +20250,9 @@ function missilePodS1(enemyFaction)
 end
 function missilePodS4(enemyFaction)
 	local ship=missilePod(enemyFaction):setTypeName("Missile Pod S4")
+	if ship_template["Missile Pod S4"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Missile Pod S4"].short_range_radar)
+	end
 	ship:setHullMax(70):setHull(70):setShieldsMax(80):setShields(80)
 	ship:setWeaponTubeCount(1)
 	ship:setTubeLoadTime(0,60)
@@ -20098,6 +20279,9 @@ end
 --ships that serve as stations
 function commandBase(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Jump Carrier"):orderRoaming()
+	if ship_template["Command Base"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Command Base"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
@@ -20195,6 +20379,9 @@ function commandBase(enemyFaction)
 end
 function militaryOutpost(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderRoaming()
+	if ship_template["Military Outpost"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Military Outpost"].short_range_radar)
+	end
 	ship:onTakingDamage(function(self,instigator)
 		string.format("")	--serious proton needs a global context
 		if instigator ~= nil then
