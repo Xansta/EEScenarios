@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.2.3"
+	scenario_version = "3.2.4"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -7644,7 +7644,7 @@ function createKentarStations()
 	if random(1,100) <= 25 then stationLocarno:setSharesEnergyWithDocked(false) end
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
-	--Monocle	
+	--Monocle	(originally Arecibo)
     stationMonocle = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Monocle"):setPosition(389907,193834):setDescription("Observation and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     stationMonocle:setShortRangeRadarRange(12000)
 	nukeAvail =		random(1,100) <= 30
@@ -14065,10 +14065,10 @@ function createPlayerShipJeeves()
 --                  			 Arc, Dir, Range, CycleTime, Dmg
 	playerJeeves:setBeamWeapon(0, 80, -90, 900.0, 		6.0,   6)	--side beams (vs forward)
 	playerJeeves:setBeamWeapon(1, 80,  90, 900.0, 		6.0,   6)	
-	playerJeeves:setWeaponTubeCount(4)								--fewer (vs 6)
-	playerJeeves:setWeaponTubeExclusiveFor(1,"EMP")					--normal sized tube allow EMPs and Nukes (vs HVLI)
+	playerJeeves:setWeaponTubeCount(4)						--fewer (vs 6)
+	playerJeeves:setWeaponTubeExclusiveFor(1,"EMP")			--normal sized tube allow EMPs and Nukes (vs HVLI)
 	playerJeeves:weaponTubeAllowMissle(1,"Nuke")
-	playerJeeves:setWeaponTubeExclusiveFor(2,"Homing")				--large tube for homing (vs HVLI)
+	playerJeeves:setWeaponTubeExclusiveFor(2,"Homing")		--large tube for homing (vs HVLI)
 	playerJeeves:setWeaponTubeExclusiveFor(3,"Mine")
 	playerJeeves:setWeaponTubeDirection(3, 180)
 	playerJeeves:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
@@ -15116,7 +15116,7 @@ function createPlayerShipWiggy()
 	playerWiggy:setWarpDrive(false)						--no warp drive (vs warp)
 	playerWiggy:setJumpDrive(true)						--jump drive (vs warp)
 	playerWiggy.max_jump_range = 30000					--shorter than typical (vs 50)
-	playerWiggy.min_jump_range = 3000						--shorter than typical (vs 5)
+	playerWiggy.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerWiggy:setJumpDriveRange(playerWiggy.min_jump_range,playerWiggy.max_jump_range)
 	playerWiggy:setJumpDriveCharge(playerWiggy.max_jump_range)
 	playerWiggy:setHullMax(120)							--stronger hull (vs 100)
