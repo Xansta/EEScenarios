@@ -1675,7 +1675,7 @@ function updateSystem()
 				end
 			)
 		end,
-		_addGenericOverclocker = function (self, obj, period, updateName, addUpdate, updateRange, filterFun)
+		_addGenericOverclocker = function (self, obj, period, updateName, addUpdate, updateRange, filterFun, playerApply)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(period)=="number")
@@ -1683,6 +1683,7 @@ function updateSystem()
 			assert(type(addUpdate)=="function")
 			assert(type(updateRange)=="number")
 			assert(filterFun==nil or type(filterFun)=="function")
+			assert(playerApply==nil or type(playerApply)=="function")
 			local callback = function(obj)
 				assert(type(obj)=="table")
 				local x,y=obj:getPosition()
@@ -1692,6 +1693,9 @@ function updateSystem()
 					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
 						if filterFun == nil or filterFun(objs[index]) then
 							local art=Artifact():setPosition(x,y):setDescription("encrypted data")
+							if playerApply ~= nil then
+								art:onPlayerCollision(playerApply)
+							end
 							local callback=function (self, obj, target)
 								assert(type(self)=="table")
 								assert(type(obj)=="table")
@@ -1718,7 +1722,22 @@ function updateSystem()
 				assert(type(target)=="table")
 				self:addBeamBoostOverclock(target, 5, 10, 2, 0.75)
 			end
-			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate, 5000)
+			-- defence platforms are too scary to be ranged boosted
+			local filter = function (possibleTarget)
+				return possibleTarget:getTypeName() ~= "Defense platform"
+			end
+			local playerApply = function (artifact, player)
+				artifact:destroy()
+				local update = self:getUpdateNamed(player,"beam overclock")
+				if update == nil then
+					self:addBeamBoostOverclock(player, 10, 30, 0.5, 1.5)
+				else
+					update:refresh()
+				end
+				artifact:destroy()
+
+			end
+			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate, 5000, filter, playerApply)
 		end,
 		addShieldOverclocker = function (self, obj, period)
 			assert(type(self)=="table")
@@ -1732,7 +1751,15 @@ function updateSystem()
 				end
 				target:setShields(table.unpack(shields))
 			end
-			self:_addGenericOverclocker(obj, period, "shield overclock", addUpdate, 5000)
+			local playerApply = function (artifact, player)
+				local shields = {}
+				for i=0,player:getShieldCount()-1 do
+					table.insert(shields,math.max(0,player:getShieldLevel(i)-20))
+				end
+				player:setShields(table.unpack(shields))
+				artifact:destroy()
+			end
+			self:_addGenericOverclocker(obj, period, "shield overclock", addUpdate, 5000, nil, playerApply)
 		end,
 		addEngineOverclocker = function (self, obj, period)
 			assert(type(self)=="table")
@@ -1742,7 +1769,16 @@ function updateSystem()
 				assert(type(target)=="table")
 				self:addEngineBoostUpdate(target, 5, 10, 2, 2)
 			end
-			self:_addGenericOverclocker(obj, period, "engine overclock", addUpdate, 5000)
+			local playerApply = function (artifact, player)
+				local update = self:getUpdateNamed(player,"engine overclock")
+				if update == nil then
+					self:addEngineBoostUpdate(player, 10, 30, 0.5, 0.5)
+				else
+					update:refresh()
+				end
+				artifact:destroy()
+			end
+			self:_addGenericOverclocker(obj, period, "engine overclock", addUpdate, 5000, nil, playerApply)
 		end,
 		addOrbitingOverclocker = function (self, obj, period)
 			assert(type(self)=="table")
