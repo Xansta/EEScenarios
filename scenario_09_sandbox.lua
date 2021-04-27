@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.2.4"
+	scenario_version = "3.3.1"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -1722,11 +1722,11 @@ function updateSystem()
 				assert(type(target)=="table")
 				self:addBeamBoostOverclock(target, 5, 10, 2, 0.75)
 			end
-			-- defence platforms are too scary to be ranged boosted
-			local filter = function (possibleTarget)
+			-- defense platforms are too scary to be beam boosted
+			local filter = function(possibleTarget)
 				return possibleTarget:getTypeName() ~= "Defense platform"
 			end
-			local playerApply = function (artifact, player)
+			local playerApply = function(artifact, player)
 				artifact:destroy()
 				local update = self:getUpdateNamed(player,"beam overclock")
 				if update == nil then
@@ -1735,7 +1735,6 @@ function updateSystem()
 					update:refresh()
 				end
 				artifact:destroy()
-
 			end
 			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate, 5000, filter, playerApply)
 		end,
@@ -1751,7 +1750,7 @@ function updateSystem()
 				end
 				target:setShields(table.unpack(shields))
 			end
-			local playerApply = function (artifact, player)
+			local playerApply = function(artifact, player)
 				local shields = {}
 				for i=0,player:getShieldCount()-1 do
 					table.insert(shields,math.max(0,player:getShieldLevel(i)-20))
@@ -1769,8 +1768,8 @@ function updateSystem()
 				assert(type(target)=="table")
 				self:addEngineBoostUpdate(target, 5, 10, 2, 2)
 			end
-			local playerApply = function (artifact, player)
-				local update = self:getUpdateNamed(player,"engine overclock")
+			local playerApply = function(artifact, player)
+				local update = self:getUpdateNamed(player, "engine overclock")
 				if update == nil then
 					self:addEngineBoostUpdate(player, 10, 30, 0.5, 0.5)
 				else
@@ -2791,9 +2790,7 @@ end
 ------------------
 -- Button Text			   DF*	Related Function(s)
 -- -MAIN FROM ORDER SHIP	F	initialGMFunctions
--- JAM RANGE 10 - 5 = 5U	D	inline
--- JAM RANGE 10 + 5 = 15U	D	inline
--- DROP JAMMER 10U			D	dropJammer
+-- +WARP/JUMP JAMMER		F	warpJumpJammer
 -- FIX SHIELD FREQ			F	inline
 -- +ATTACH TO SHIP			F	attachAnythingToNPS
 -- +DETACH					F	detachAnythingFromNPS
@@ -2801,19 +2798,7 @@ end
 function orderShip()
 	clearGMFunctions()
 	addGMFunction("-Main from order ship",initialGMFunctions)
-	if jammer_range > 5000 then
-		addGMFunction(string.format("Jam range %i - %i = %iU",jammer_range/1000,5,(jammer_range-5000)/1000),function()
-			jammer_range = jammer_range - 5000
-			orderShip()
-		end)
-	end
-	if jammer_range < 50000 then
-		addGMFunction(string.format("Jam range %i + %i = %iU",jammer_range/1000,5,(jammer_range+5000)/1000),function()
-			jammer_range = jammer_range + 5000
-			orderShip()
-		end)
-	end
-	addGMFunction(string.format("Drop Jammer %iU",jammer_range/1000),dropJammer)
+	addGMFunction("+Warp/Jump Jammer",warpJumpJammer)
 	addGMFunction("Fix Shield Freq",function()
 		local object_list = getGMSelection()
 		if #object_list ~= 1 then
@@ -2865,6 +2850,33 @@ function orderShip()
 			end
 		end
 	end)
+end
+-------------------------------------
+--	Order Ship > Warp/Jump Jammer  --
+-------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -MAIN FROM JAMMER		F	initialGMFunctions
+-- -ORDER SHIP				F	orderShip
+-- JAM RANGE 10 - 5 = 5U	D	inline
+-- JAM RANGE 10 + 5 = 15U	D	inline
+-- DROP JAMMER 10U			D	dropJammer
+function warpJumpJammer()
+	clearGMFunctions()
+	addGMFunction("-Main from Jammer",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	if jammer_range > 5000 then
+		addGMFunction(string.format("Jam range %i - %i = %iU",jammer_range/1000,5,(jammer_range-5000)/1000),function()
+			jammer_range = jammer_range - 5000
+			warpJumpJammer()
+		end)
+	end
+	if jammer_range < 50000 then
+		addGMFunction(string.format("Jam range %i + %i = %iU",jammer_range/1000,5,(jammer_range+5000)/1000),function()
+			jammer_range = jammer_range + 5000
+			warpJumpJammer()
+		end)
+	end
+	addGMFunction(string.format("Drop Jammer %iU",jammer_range/1000),dropJammer)
 end
 function setShipAI()
 	local object_list = getGMSelection()
@@ -2930,6 +2942,8 @@ end
 --    or
 -- +SET MODEL			D	setArtifactModel
 -- +SET SPIN			D	setArtifactSpin
+-- +SET SIGNATURE		D	setArtifactSignature
+-- EXPLODE SEL ART		D	explodeSelectedArtifact
 function fiddleWithArtifacts()
 	clearGMFunctions()
 	addGMFunction("-Main from Artifacts",initialGMFunctions)
@@ -2945,6 +2959,7 @@ function fiddleWithArtifacts()
 			addGMFunction("+Set Model",setArtifactModel)
 			addGMFunction("+Set Spin",setArtifactSpin)
 			addGMFunction("+Set Signature",setArtifactSignature)
+			addGMFunction("Explode Sel Artifact",explodeSelectedArtifact)
 		end
 	end
 end
@@ -3504,7 +3519,6 @@ end
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- +UPDATE EDITOR		F	updateEditor
--- EXPLODE SEL ART		F	explodeSelectedArtifact
 -- PULSE ASTEROID		F	pulseAsteroid
 -- JUMP CORRIDOR OFF	F	inline (toggles between ON and OFF)
 -- SANDBOX COMMS		F	inline
@@ -3516,7 +3530,6 @@ function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("+Update Editor",updateEditor)
-	addGMFunction("Explode Sel Artifact",explodeSelectedArtifact)
 	addGMFunction("Pulse Asteroid",pulseAsteroid)
 	if jump_corridor then
 		addGMFunction("Jump Corridor On",function()
@@ -3641,8 +3654,9 @@ function tweakTerrain()
 			end)
 		end
 	end
-	addGMFunction("+Station Operations",stationOperations)
-	addGMFunction("+Station defense",stationDefense)
+	addGMFunction("+Station Manipulation",stationManipulation)
+--	addGMFunction("+Station Operations",stationOperations)
+--	addGMFunction("+Station defense",stationDefense)
 	addGMFunction("+Minefield",mineField)
 	if #objectList > 0 then
 		if gm_click_mode ~= nil then
@@ -3656,6 +3670,13 @@ function tweakTerrain()
 		end
 	end
 	addGMFunction("+Probes",tweakProbes)
+end
+function stationManipulation()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("+Station Operations",stationOperations)
+	addGMFunction("+Station defense",stationDefense)
 end
 function moveSelectedObjects()
 	if gm_click_mode == "move selected" then
@@ -24670,8 +24691,7 @@ end
 -- FIX DESTRUCT ON		D	inline
 function stationOperations()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
 	local objectList = getGMSelection()
 	if #objectList ~= 1 then
 		addGMFunction("+Select Station",stationOperations)
@@ -24913,8 +24933,7 @@ end
 -- AUTOROTATE NO		D	inline
 function stationDefense()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
 	local objectList = getGMSelection()
 	if #objectList ~= 1 then
 		addGMFunction("+Select Station",stationDefense)
