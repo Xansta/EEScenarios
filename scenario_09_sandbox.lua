@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.3.2"
+	scenario_version = "3.4.1"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -215,7 +215,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
-        sensor_boost = {value = 5000, cost = 0},
+--		sensor_boost = {value = 5000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -342,6 +342,7 @@ function setConstants()
 	plotRevert = revertWait
 	tractor_sound = "sfx/emp_explosion.wav"
 	tractor_sound_power = .25
+	sensor_impact = 1	--normal
 
 	ship_template = {	--ordered by relative strength
 		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	create = beamOverclocker},
@@ -753,6 +754,11 @@ function setConstants()
 	healthCheckTimer = healthCheckTimerInterval
 	rendezvousPoints = {}
 	escapePodList = {}
+	sensor_jammer_list = {}
+	sensor_jammer_range = 30000
+	sensor_jammer_impact = 10000
+	sensor_jammer_scan_complexity = 3
+	sensor_jammer_scan_depth = 3
 	drop_point_location = "At Click"
 	scan_clue_location = "At Click"
 	artifactCounter = 0
@@ -2880,6 +2886,7 @@ end
 -- -MAIN FROM ARTIFACTS	F	initialGMFunctions
 -- +DROP POINT			F	dropPoint
 -- +SCAN CLUE			F	scanClue
+-- +SENSOR JAMMER		F	sensorJammer
 -- +SELECT ARTIFACT		D	fiddleWithArtifacts
 --    or
 -- +SET MODEL			D	setArtifactModel
@@ -2891,6 +2898,7 @@ function fiddleWithArtifacts()
 	addGMFunction("-Main from Artifacts",initialGMFunctions)
 	addGMFunction("+Drop Point",dropPoint)
 	addGMFunction("+Scan Clue",scanClue)
+	addGMFunction("+Sensor Jammer",sensorJammer)
 	local object_list = getGMSelection()
 	if object_list == nil or #object_list ~= 1 then
 		addGMFunction("+Select Artifact",fiddleWithArtifacts)
@@ -5718,6 +5726,9 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
+	if stationIcarus ~= nil then
+		table.insert(stations,stationIcarus)
+	end
 	return stations
 end
 function createIcarusArtifacts()
@@ -7111,6 +7122,9 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationSutter:setSharesEnergyWithDocked(false) end
 	station_names[stationSutter:getCallSign()] = {stationSutter:getSectorName(), stationSutter}
 	table.insert(stations,stationSutter)
+	if stationKentar ~= nil then
+		table.insert(stations,stationKentar)
+	end
 	return stations
 end
 function createKentarPlanets()
@@ -10317,6 +10331,9 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationVilairre:setSharesEnergyWithDocked(false) end
 	station_names[stationVilairre:getCallSign()] = {stationVilairre:getSectorName(), stationVilairre}
 	table.insert(stations,stationVilairre)
+	if stationLafrina ~= nil then
+		table.insert(stations,stationLafrina)
+	end
 	return stations
 end
 function createLafrinaPlanets()
@@ -10575,67 +10592,37 @@ end
 -- +PLAYER MESSAGE	F	playerMessage
 function tweakPlayerShip()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("+Engineering",tweakEngineering)
-	addGMFunction("+Cargo",changePlayerCargo)
-	addGMFunction("+Probes",changePlayerProbes)
-	addGMFunction("+Reputation",changePlayerReputation)
+	addGMFunction("+Relay",tweakRelay)
 	addGMFunction("+Player Message",playerMessage)
 	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
-	addGMFunction("+Waypoint",addWaypoint)
+	addGMFunction("+Sensors",playerSensors)
 end
-function addWaypoint()
+function playerSensors()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Main Frm Sensors",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
-	if gm_click_mode == "add waypoint" then
-		addGMFunction(">Add Waypoint<",clickForWaypoint)
-	else
-		addGMFunction("Add Waypoint",clickForWaypoint)
-	end
-end
-function clickForWaypoint()
-	if gm_click_mode == "add waypoint" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "add waypoint"
-		onGMClick(gmClickZoneWaypoint)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   add waypoint\nGM click mode.",prev_mode))
+	addGMFunction(string.format("%.1f LRS ^ -> %.1f",sensor_impact,sensor_impact + .1),function()
+		if sensor_impact + .1 > 2 then
+			addGMMessage("Maximum positive sensor impact reached: 2. No action taken")
+		else
+			sensor_impact = sensor_impact + .1
 		end
-	end
-	addWaypoint()
-end
-function gmClickZoneWaypoint(x,y)
-	local selected_list = getGMSelection()
-	local players_selected = {}
-	for _, obj in ipairs(selected_list) do
-		if obj.typeName == "PlayerSpaceship" then
-			table.insert(players_selected,obj)
+		playerSensors()
+	end)
+	addGMFunction(string.format("%.1f LRS V -> %.1f",sensor_impact,sensor_impact - .1),function()
+		if sensor_impact - .1 < 0 then
+			addGMMessage("Minimum negative sensor impact reached: 0. No action taken")
+		else
+			sensor_impact = sensor_impact - .1
 		end
-	end
-	local player_list = ""
-	if #players_selected > 0 then
-		for _, p in ipairs(players_selected) do
-			p:commandAddWaypoint(x,y)
-			player_list = player_list .. " " .. p:getCallSign()
-		end
-	else
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:commandAddWaypoint(x,y)
-				player_list = player_list .. " " .. p:getCallSign()
-			end
-		end
-	end
-	addGMMessage(string.format("Waypoint added to:\n%s",player_list))
+		playerSensors()
+	end)
 end
 -----------------------------------------------
 --	Initial Set Up > Player Ships > Current  --
@@ -10789,25 +10776,6 @@ function tweakEngineering()
 	addGMFunction("bleed energy",bleedEnergy)
 	addGMFunction("restore energy",restoreEnergy)
 end
-------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Cargo  --
-------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM CARGO		F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- +REMOVE CARGO		F	removeCargo
--- +ADD MINERAL			F	addMineralCargo
--- +ADD COMPONENT		F	addComponentCargo
-function changePlayerCargo()
-	clearGMFunctions()
-	addGMFunction("-Main from Cargo",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("+Remove Cargo",removeCargo)
-	addGMFunction("+Add Mineral",addMineralCargo)
-	addGMFunction("+Add Component",addComponentCargo)
-end
 function playerShipSelected()
 	local p = getPlayerShip(-1)
 	local object_list = getGMSelection()
@@ -10832,96 +10800,27 @@ function playerShipSelected()
 	end
 	return nil
 end
--------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Probes  --
--------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM PROBES	F	initialGMFunctions
+------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay  --
+------------------------------------------------------------------
+-- -MAIN FRM TWK RLY	F	initialGMFunctions
 -- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
 -- -TWEAK PLAYER		F	tweakPlayerShip
--- DEL PROBE 8 -> 7		D	inline
-function changePlayerProbes()
+-- +CARGO				F	changePlayerCargo
+-- +PROBES				F	changePlayerProbes
+-- +REPUTATION			F	changePlayerReputation
+-- +WAYPOINT			F	addWaypoint
+function tweakRelay()
 	clearGMFunctions()
-	addGMFunction("-Main from Probes",initialGMFunctions)
+	addGMFunction("-Main Frm Twk Rly",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local probe_count = p:getScanProbeCount()
-		local max_probe_count = p:getMaxScanProbeCount()
-		if probe_count < max_probe_count then
-			addGMFunction(string.format("Add Probe %i -> %i",probe_count,probe_count + 1),function()
-				p:setScanProbeCount(probe_count + 1)
-				changePlayerProbes()
-			end)
-		end
-		if probe_count > 0 then
-			addGMFunction(string.format("Del Probe %i -> %i",probe_count,probe_count - 1),function()
-				p:setScanProbeCount(probe_count - 1)
-				changePlayerProbes()
-			end)
-		end
-	else
-		addGMFunction("+Select player ship",function()
-			changePlayerProbes()
-		end)
-	end
-end
------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Reputation  --
------------------------------------------------------------------
--- Button text	   FD*	Related Function(s)
--- -MAIN FROM REP	F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -TWEAK PLAYER	F	tweakPlayerShip
--- ADD ONE REP n	D	inline
--- ADD FIVE REP n	D	inline
--- ADD TEN REP n	D	inline
--- DEL ONE REP n	D	inline
--- DEL FIVE REP n	D	inline
--- DEL TEN REP n	D	inline
-function changePlayerReputation()
-	clearGMFunctions()
-	addGMFunction("-Main From Rep",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local current_rep = math.floor(p:getReputationPoints())
-		addGMFunction(string.format("Add one rep %i",current_rep),function()
-			p:addReputationPoints(1)
-			changePlayerReputation()
-		end)
-		addGMFunction(string.format("Add five rep %i",current_rep),function()
-			p:addReputationPoints(5)
-			changePlayerReputation()
-		end)
-		addGMFunction(string.format("Add ten rep %i",current_rep),function()
-			p:addReputationPoints(10)
-			changePlayerReputation()
-		end)
-		if current_rep > 0 then
-			addGMFunction(string.format("Del one rep %i",current_rep),function()
-				p:takeReputationPoints(1)
-				changePlayerReputation()
-			end)
-		end
-		if current_rep > 5 then
-			addGMFunction(string.format("Del five rep %i",current_rep),function()
-				p:takeReputationPoints(5)
-				changePlayerReputation()
-			end)
-		end
-		if current_rep > 10 then
-			addGMFunction(string.format("Del ten rep %i",current_rep),function()
-				p:takeReputationPoints(10)
-				changePlayerReputation()
-			end)
-		end
-	else
-		addGMMessage("No player selected. No action taken. No reputation options presented")
-		tweakPlayerShip()
-	end
+	addGMFunction("+Cargo",changePlayerCargo)
+	addGMFunction("+Probes",changePlayerProbes)
+	addGMFunction("+Reputation",changePlayerReputation)
+	addGMFunction("+Waypoint",addWaypoint)
 end
 ---------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Player Message  --
@@ -11601,12 +11500,189 @@ function changePlayerMaxSystem()
 		addGMFunction("+Select Player",changePlayerMaxSystem)
 	end
 end
---	************************************************************************************  --
---	****				Initial Set Up Player Ships Tweak Player Cargo				****  --
---	************************************************************************************  --
+--	********************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Tweak Relay				****  --
+--	********************************************************************************************  --
+--------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo  --
+--------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM CARGO		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +REMOVE CARGO		F	removeCargo
+-- +ADD MINERAL			F	addMineralCargo
+-- +ADD COMPONENT		F	addComponentCargo
+function changePlayerCargo()
+	clearGMFunctions()
+	addGMFunction("-Main from Cargo",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	addGMFunction("+Remove Cargo",removeCargo)
+	addGMFunction("+Add Mineral",addMineralCargo)
+	addGMFunction("+Add Component",addComponentCargo)
+end
 ---------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Cargo > Remove Cargo  --
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Probes  --
 ---------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PROBES	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- DEL PROBE 8 -> 7		D	inline
+function changePlayerProbes()
+	clearGMFunctions()
+	addGMFunction("-Main from Probes",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local probe_count = p:getScanProbeCount()
+		local max_probe_count = p:getMaxScanProbeCount()
+		if probe_count < max_probe_count then
+			addGMFunction(string.format("Add Probe %i -> %i",probe_count,probe_count + 1),function()
+				p:setScanProbeCount(probe_count + 1)
+				changePlayerProbes()
+			end)
+		end
+		if probe_count > 0 then
+			addGMFunction(string.format("Del Probe %i -> %i",probe_count,probe_count - 1),function()
+				p:setScanProbeCount(probe_count - 1)
+				changePlayerProbes()
+			end)
+		end
+	else
+		addGMFunction("+Select player ship",function()
+			changePlayerProbes()
+		end)
+	end
+end
+-------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Reputation  --
+-------------------------------------------------------------------------------
+-- Button text	   FD*	Related Function(s)
+-- -MAIN FROM REP	F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -TWEAK PLAYER	F	tweakPlayerShip
+-- ADD ONE REP n	D	inline
+-- ADD FIVE REP n	D	inline
+-- ADD TEN REP n	D	inline
+-- DEL ONE REP n	D	inline
+-- DEL FIVE REP n	D	inline
+-- DEL TEN REP n	D	inline
+function changePlayerReputation()
+	clearGMFunctions()
+	addGMFunction("-Main From Rep",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local current_rep = math.floor(p:getReputationPoints())
+		addGMFunction(string.format("Add one rep %i",current_rep),function()
+			p:addReputationPoints(1)
+			changePlayerReputation()
+		end)
+		addGMFunction(string.format("Add five rep %i",current_rep),function()
+			p:addReputationPoints(5)
+			changePlayerReputation()
+		end)
+		addGMFunction(string.format("Add ten rep %i",current_rep),function()
+			p:addReputationPoints(10)
+			changePlayerReputation()
+		end)
+		if current_rep > 0 then
+			addGMFunction(string.format("Del one rep %i",current_rep),function()
+				p:takeReputationPoints(1)
+				changePlayerReputation()
+			end)
+		end
+		if current_rep > 5 then
+			addGMFunction(string.format("Del five rep %i",current_rep),function()
+				p:takeReputationPoints(5)
+				changePlayerReputation()
+			end)
+		end
+		if current_rep > 10 then
+			addGMFunction(string.format("Del ten rep %i",current_rep),function()
+				p:takeReputationPoints(10)
+				changePlayerReputation()
+			end)
+		end
+	else
+		addGMMessage("No player selected. No action taken. No reputation options presented")
+		tweakRelay()
+	end
+end
+-----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Waypoint  --
+-----------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM WAYPOINT	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -TWEAK RELAY			F	tweakRelay
+function addWaypoint()
+	clearGMFunctions()
+	addGMFunction("-Main From Waypoint",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	if gm_click_mode == "add waypoint" then
+		addGMFunction(">Add Waypoint<",clickForWaypoint)
+	else
+		addGMFunction("Add Waypoint",clickForWaypoint)
+	end
+end
+function clickForWaypoint()
+	if gm_click_mode == "add waypoint" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "add waypoint"
+		onGMClick(gmClickZoneWaypoint)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   add waypoint\nGM click mode.",prev_mode))
+		end
+	end
+	addWaypoint()
+end
+function gmClickZoneWaypoint(x,y)
+	local selected_list = getGMSelection()
+	local players_selected = {}
+	for _, obj in ipairs(selected_list) do
+		if obj.typeName == "PlayerSpaceship" then
+			table.insert(players_selected,obj)
+		end
+	end
+	local player_list = ""
+	if #players_selected > 0 then
+		for _, p in ipairs(players_selected) do
+			p:commandAddWaypoint(x,y)
+			player_list = player_list .. " " .. p:getCallSign()
+		end
+	else
+		for pidx=1,32 do
+			local p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				p:commandAddWaypoint(x,y)
+				player_list = player_list .. " " .. p:getCallSign()
+			end
+		end
+	end
+	addGMMessage(string.format("Waypoint added to:\n%s",player_list))
+end
+--	************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Tweak Relay Cargo				****  --
+--	************************************************************************************************  --
+-----------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Remove Cargo  --
+-----------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -CARGO FROM DEL		F	changePlayerCargo
 -- One button for each type of cargo in the selected player ship
@@ -11641,9 +11717,9 @@ function removeCargo()
 		changePlayerCargo()
 	end
 end
---------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Cargo > Add Mineral Cargo  --
---------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Add Mineral Cargo  --
+----------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -CARGO FROM ADD		F	changePlayerCargo
 -- One button for each mineral cargo type
@@ -11677,9 +11753,9 @@ function addMineralCargo()
 		changePlayerCargo()
 	end
 end
-----------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Cargo > Add Component Cargo  --
-----------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Add Component Cargo  --
+------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -CARGO FROM ADD		F	changePlayerCargo
 -- One button for each component cargo type
@@ -11710,7 +11786,9 @@ function addComponentCargo()
 		addGMMessage("No player selected. No action taken")
 	end
 end
-
+--	************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Ship Log Message				****  --
+--	************************************************************************************************  --
 ----------------------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source  --
 ----------------------------------------------------------------------------------------
@@ -20807,6 +20885,133 @@ function numericEditControl(params)
 	end
 	return ret.fun
 end
+---------------------------------
+--	Artifacts > Sensor Jammer  --
+---------------------------------
+-- Button Text		   DF*	Related Function(s)
+-- -MAIN FRM SENSOR JAM	F	initialGMFunctions
+-- -ARTIFACTS			F	fiddleWithArtifacts
+-- PLACE SENSOR JAMMER	F	placeSensorJammer
+function sensorJammer()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Sensor Jam",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction(string.format("%i Jam Range ^ -> %i",sensor_jammer_range/1000,(sensor_jammer_range + 1000)/1000),function()
+		if sensor_jammer_range >= 100000 then
+			addGMMessage("Maximum range of 100 units reached. No action taken")
+		else
+			sensor_jammer_range = sensor_jammer_range + 1000
+		end
+		sensorJammer()
+	end)
+	addGMFunction(string.format("%i Jam Range V -> %i",sensor_jammer_range/1000,(sensor_jammer_range - 1000)/1000),function()
+		if sensor_jammer_range <= 1000 then
+			addGMMessage("Minimum range of 1 unit reached. No action taken")
+		else
+			sensor_jammer_range = sensor_jammer_range - 1000
+		end
+		sensorJammer()
+	end)
+	addGMFunction(string.format("%i Jam Power ^ -> %i",sensor_jammer_impact/1000,(sensor_jammer_impact + 1000)/1000),function()
+		if sensor_jammer_impact >= 100000 then
+			addGMMessage("Maximum power of 100 units reached. No action taken")
+		else
+			sensor_jammer_impact = sensor_jammer_impact + 1000
+		end
+		sensorJammer()
+	end)
+	addGMFunction(string.format("%i Jam Power V -> %i",sensor_jammer_impact/1000,(sensor_jammer_impact - 1000)/1000),function()
+		if sensor_jammer_impact <= 1000 then
+			addGMMessage("Minimum power of 1 unit reached. No action taken")
+		else
+			sensor_jammer_impact = sensor_jammer_impact - 1000
+		end
+		sensorJammer()
+	end)
+	addGMFunction(string.format("+Scan Complex: %i",sensor_jammer_scan_complexity),setSensorJammerScanComplexity)
+	addGMFunction(string.format("+Scan Depth: %i",sensor_jammer_scan_depth),setSensorJammerScanDepth)
+	if gm_click_mode == "sensor jammer" then
+		addGMFunction(">Place Sensor Jammer<",placeSensorJammer)
+	else
+		addGMFunction("Place Sensor Jammer",placeSensorJammer)
+	end
+end
+function setSensorJammerScanComplexity()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Complexity",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Sensor Jammer",sensorJammer)
+	addGMFunction(string.format("%i Up to %i",sensor_jammer_scan_complexity,sensor_jammer_scan_complexity + 1),function()
+		if sensor_jammer_scan_complexity >= 4 then
+			addGMMessage("Maximum sensor jammer scan complexity reached: 4. No action taken")
+		else
+			sensor_jammer_scan_complexity = sensor_jammer_scan_complexity + 1
+		end
+		setSensorJammerScanComplexity()
+	end)
+	addGMFunction(string.format("%i Down to %i",sensor_jammer_scan_complexity,sensor_jammer_scan_complexity - 1),function()
+		if sensor_jammer_scan_complexity <= 1 then
+			addGMMessage("Minimum sensor jammer scan complexity reached: 1. No action taken")
+		else
+			sensor_jammer_scan_complexity = sensor_jammer_scan_complexity - 1
+		end
+		setSensorJammerScanComplexity()
+	end)
+end
+function setSensorJammerScanDepth()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Depth",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Sensor Jammer",sensorJammer)
+	addGMFunction(string.format("%i Up to %i",sensor_jammer_scan_depth,sensor_jammer_scan_depth + 1),function()
+		if sensor_jammer_scan_depth >= 4 then
+			addGMMessage("Maximum sensor jammer scan depth reached: 4. No action taken")
+		else
+			sensor_jammer_scan_depth = sensor_jammer_scan_depth + 1
+		end
+		setSensorJammerScanDepth()
+	end)
+	addGMFunction(string.format("%i Down to %i",sensor_jammer_scan_depth,sensor_jammer_scan_depth - 1),function()
+		if sensor_jammer_scan_depth <= 1 then
+			addGMMessage("Minimum sensor jammer scan depth reached: 1. No action taken")
+		else
+			sensor_jammer_scan_depth = sensor_jammer_scan_depth - 1
+		end
+		setSensorJammerScanDepth()
+	end)
+end
+function placeSensorJammer()
+	if gm_click_mode == "sensor jammer" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "sensor jammer"
+		onGMClick(gmClickSensorJammer)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   sensor jammer\nGM click mode.",prev_mode))
+		end
+	end
+	sensorJammer()
+end
+function gmClickSensorJammer(x,y)
+	artifactCounter = artifactCounter + 1
+	artifactNumber = artifactNumber + math.random(1,4)
+	local random_suffix = string.char(math.random(65,90))
+	local jammer_call_sign = string.format("SJ%i%s",artifactNumber,random_suffix)
+	local sensor_jammer = Artifact():setPosition(x,y):setScanningParameters(sensor_jammer_scan_complexity,sensor_jammer_scan_depth):setRadarSignatureInfo(.2,.4,.1):setModel("SensorBuoyMKIII"):setDescriptions("Source of unusual emanations","Source of emanations interfering with long range sensors"):setCallSign(jammer_call_sign)
+	sensor_jammer:onPickUp(sensorJammerPickupProcess)
+	sensor_jammer_list[jammer_call_sign] = sensor_jammer
+	sensor_jammer.range = sensor_jammer_range
+	sensor_jammer.impact = sensor_jammer_impact
+end
+function sensorJammerPickupProcess(self,retriever)
+	local jammer_call_sign = self:getCallSign()
+	sensor_jammer_list[jammer_call_sign] = nil
+	if not self:isScannedBy(retriever) then
+		retriever:setCanScan(false)
+	end
+end
 -----------------------------
 --	Artifacts > Set Model  --
 -----------------------------
@@ -21075,6 +21280,7 @@ end
 function gmClickDropPoint(x,y)
 	podCreation(x,y,0,0)
 end
+
 --------------------------------------------------------------------------------
 --	Artifacts > Drop Point > Escape Pod > At Click (set drop point location)  --
 --------------------------------------------------------------------------------
@@ -28974,7 +29180,8 @@ function handleDockedState()
 					if comms_source.normal_long_range_radar == nil then
 						comms_source.normal_long_range_radar = comms_source:getLongRangeRadarRange()
 					end
-					comms_source:setLongRangeRadarRange(comms_source.normal_long_range_radar + ctd.sensor_boost.value)
+					comms_source.station_sensor_boost = ctd.sensor_boost.value
+					--comms_source:setLongRangeRadarRange(comms_source.normal_long_range_radar + ctd.sensor_boost.value)
 					setCommsMessage(string.format("sensors increased by %i units",ctd.sensor_boost.value/1000))
 				else
 					setCommsMessage("Insufficient reputation")
@@ -32539,50 +32746,42 @@ function updateInner(delta)
 				local free_sensor_boost = false
 				local sensor_boost_present = false
 				local sensor_boost_amount = 0
-				for i=1,#regionStations do
-					local sensor_station = regionStations[i]
-					if p:isDocked(sensor_station) then
-						if sensor_station.comms_data.sensor_boost ~= nil then
-							sensor_boost_present = true
-							if sensor_station.comms_data.sensor_boost.cost < 1 then
-								free_sensor_boost = true
+				if p.station_sensor_boost == nil then
+					for i=1,#regionStations do
+						local sensor_station = regionStations[i]
+						if sensor_station:isValid() and p:isDocked(sensor_station) then
+							if sensor_station.comms_data.sensor_boost ~= nil then
+								sensor_boost_present = true
+								if sensor_station.comms_data.sensor_boost.cost < 1 then
+									free_sensor_boost = true
+									p.station_sensor_boost = sensor_station.comms_data.sensor_boost.value
+									break
+								end
+								sensor_boost_amount = sensor_station.comms_data.sensor_boost.value
 							end
-							sensor_boost_amount = sensor_station.comms_data.sensor_boost.value
 						end
 					end
 				end
-				if p:isDocked(stationIcarus) then
-					free_sensor_boost = true
-					sensor_boost_amount = stationIcarus.comms_data.sensor_boost.value
+				local base_range = p.normal_long_range_radar
+				if p.station_sensor_boost ~= nil then
+					base_range = base_range + p.station_sensor_boost
 				end
-				if stationKentar ~= nil then
-					if p:isDocked(stationKentar) then
-						free_sensor_boost = true
-						sensor_boost_amount = stationKentar.comms_data.sensor_boost.value
-					end
+				if p:getDockedWith() == nil then
+					base_range = p.normal_long_range_radar
+					p.station_sensor_boost = nil
 				end
-				local boosted_range = p.normal_long_range_radar + sensor_boost_amount
-				if sensor_boost_present or free_sensor_boost then
-					if free_sensor_boost then
-						if p:getLongRangeRadarRange() < boosted_range then
-							p:setLongRangeRadarRange(boosted_range)
+				local impact_range = math.max(base_range*sensor_impact,p:getShortRangeRadarRange())
+				local sensor_jammer_impact = 0
+				for jammer_name, sensor_jammer in pairs(sensor_jammer_list) do
+					if sensor_jammer ~= nil and sensor_jammer:isValid() then
+						local jammer_distance = distance(p,sensor_jammer)
+						if jammer_distance < sensor_jammer.range then
+							sensor_jammer_impact = math.max(sensor_jammer_impact,sensor_jammer.impact*(1-(jammer_distance/sensor_jammer.range)))
 						end
 					end
-				else
-					if p:getLongRangeRadarRange() > p.normal_long_range_radar then
-						local temp_player = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy")
-						local science_swap = false
-						if p:hasPlayerAtPosition("Science") then
-							science_swap = true
-							p:transferPlayersAtPositionToShip("Science",temp_player)
-						end
-						p:setLongRangeRadarRange(p.normal_long_range_radar)
-						if science_swap then
-							temp_player:transferPlayersAtPositionToShip("Science",p)
-						end
-						temp_player:destroy()
-					end
 				end
+				impact_range = math.max(p:getShortRangeRadarRange(),impact_range - sensor_jammer_impact)
+				p:setLongRangeRadarRange(impact_range)
 			end
 			local vx, vy = p:getVelocity()
 			local dx=math.abs(vx)
