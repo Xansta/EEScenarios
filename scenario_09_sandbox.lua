@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.3.1"
+	scenario_version = "3.3.2"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -2765,7 +2765,27 @@ function orderFleet()
 			addGMMessage("No Human Navy ships selected. No action taken")
 		end
 	end)
-	addGMFunction("Set scanned",function()
+	--Replaces !single scan and !full scan buttons
+	addGMFunction("Set Singly Scanned",function()
+		local object_list = getGMSelection()
+		local fleet = {}
+		for _, temp_object in pairs(object_list) do
+			if temp_object.typeName == "CpuShip" then
+				table.insert(fleet,temp_object)
+			end
+		end
+		if #fleet > 0 then
+			local ship_names = ""
+			for _, ship in ipairs(fleet) do
+				ship:setScanState("simplescan")
+				ship_names = ship_names .. ship:getCallSign() .. " "
+			end
+			addGMMessage(string.format("Ships set as singly scanned:\n   %s",ship_names))
+		else
+			addGMMessage("No CPU ships selected. No action taken")
+		end
+	end)
+	addGMFunction("Set Fully Scanned",function()
 		local object_list = getGMSelection()
 		local fleet = {}
 		for _, temp_object in pairs(object_list) do
@@ -2779,7 +2799,7 @@ function orderFleet()
 				ship:setScanned(true)
 				ship_names = ship_names .. ship:getCallSign() .. " "
 			end
-			addGMMessage(string.format("Ships set as scanned:\n   %s",ship_names))
+			addGMMessage(string.format("Ships set as fully scanned:\n   %s",ship_names))
 		else
 			addGMMessage("No CPU ships selected. No action taken")
 		end
@@ -2795,6 +2815,8 @@ end
 -- +ATTACH TO SHIP			F	attachAnythingToNPS
 -- +DETACH					F	detachAnythingFromNPS
 -- +PATROL					F	setPatrolPoints
+-- +AI						D	setShipAI
+-- DOCKED?					F	inline
 function orderShip()
 	clearGMFunctions()
 	addGMFunction("-Main from order ship",initialGMFunctions)
@@ -2851,86 +2873,6 @@ function orderShip()
 		end
 	end)
 end
--------------------------------------
---	Order Ship > Warp/Jump Jammer  --
--------------------------------------
--- Button Text			   DF*	Related Function(s)
--- -MAIN FROM JAMMER		F	initialGMFunctions
--- -ORDER SHIP				F	orderShip
--- JAM RANGE 10 - 5 = 5U	D	inline
--- JAM RANGE 10 + 5 = 15U	D	inline
--- DROP JAMMER 10U			D	dropJammer
-function warpJumpJammer()
-	clearGMFunctions()
-	addGMFunction("-Main from Jammer",initialGMFunctions)
-	addGMFunction("-Order Ship",orderShip)
-	if jammer_range > 5000 then
-		addGMFunction(string.format("Jam range %i - %i = %iU",jammer_range/1000,5,(jammer_range-5000)/1000),function()
-			jammer_range = jammer_range - 5000
-			warpJumpJammer()
-		end)
-	end
-	if jammer_range < 50000 then
-		addGMFunction(string.format("Jam range %i + %i = %iU",jammer_range/1000,5,(jammer_range+5000)/1000),function()
-			jammer_range = jammer_range + 5000
-			warpJumpJammer()
-		end)
-	end
-	addGMFunction(string.format("Drop Jammer %iU",jammer_range/1000),dropJammer)
-end
-function setShipAI()
-	local object_list = getGMSelection()
-	if #object_list ~= 1 then
-		addGMMessage("You need to select a CPU ship. No action taken.")
-		return
-	end
-	local obj = object_list[1]
-	if obj ~= nil then
-		if obj.typeName ~= "CpuShip" then
-			addGMMessage("What you have selected is not a CPU ship. No action taken.")
-			return
-		end
-	else
-		return
-	end
-	clearGMFunctions()
-	local button_label = "default"
-	if obj.AI == "default" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		obj:setAI("default")
-		obj.AI = "default"
-		orderShip()
-	end)
-	button_label = "fighter"
-	if obj.AI == "fighter" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		obj:setAI("fighter")
-		obj.AI = "fighter"
-		orderShip()
-	end)
-	button_label = "missilevolley"
-	if obj.AI == "missilevolley" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		obj:setAI("missilevolley")
-		obj.AI = "missilevolley"
-		orderShip()
-	end)
-	button_label = "evasion"
-	if obj.AI == "evasion" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		obj:setAI("evasion")
-		obj.AI = "evasion"
-		orderShip()
-	end)
-end
 -----------------
 --	Artifacts  --
 -----------------
@@ -2963,569 +2905,18 @@ function fiddleWithArtifacts()
 		end
 	end
 end
-function setPatrolPoints()
-	clearGMFunctions()
-	addGMFunction("-Main from Patrol",initialGMFunctions)
-	addGMFunction("-Order Ship",orderShip)
-	local patrol_ship_selected = false
-	local selection_label = "+Select ship"
-	if patrol_ship ~= nil and patrol_ship:isValid() then
-		patrol_ship_selected = true
-	end
-	if patrol_ship_selected then
-		selection_label = string.format("+Change from %s",patrol_ship:getCallSign())
-	end
-	local object_list = getGMSelection()
-	if #object_list == 1 then
-		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
-			if patrol_ship_selected then
-				if patrol_ship ~= temp_object then
-					selection_label = string.format("+Chg %s to %s",patrol_ship:getCallSign(),temp_object:getCallSign())
-				end
-			else
-				selection_label = string.format("+Select %s",temp_object:getCallSign())
-			end
-		end
-	end
-	addGMFunction(selection_label,changePatrolShip)
-	if patrol_ship_selected then
-		local add_point_label = "Add patrol point"
-		if patrol_ship.patrol_points ~= nil then
-			add_point_label = string.format("%s %i",add_point_label,#patrol_ship.patrol_points + 1)
-		end
-		if gm_click_mode == "add patrol point" then
-			addGMFunction(string.format(">%s<",add_point_label),addPatrolPoint)
-		else
-			addGMFunction(string.format("%s",add_point_label),addPatrolPoint)
-		end
-		if patrol_ship.patrol_points ~= nil then
-			addGMFunction("Del Patrol Points",function()
-				patrol_ship.patrol_points = nil
-				addGMMessage(string.format("All patrol points deleted from %s",patrol_ship:getCallSign()))
-				setPatrolPoints()
-			end)
-		end
-	end
-end
-function addPatrolPoint()
-	if gm_click_mode == "add patrol point" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "add patrol point"
-		onGMClick(gmClickAddPatrolPoint)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   add patrol point\nGM click mode.",prev_mode))
-		end
-	end
-	setPatrolPoints()
-end
-function changePatrolShip()
-	local object_list = getGMSelection()
-	if #object_list == 1 then
-		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
-			patrol_ship = temp_object
-		else
-			addGMMessage("Select CPU ship. No action taken")
-		end
-	else
-		addGMMessage("Select one CPU ship. No action taken")
-	end
-	setPatrolPoints()
-end
-function gmClickAddPatrolPoint(x,y)
-	if patrol_ship ~= nil and patrol_ship:isValid() then
-		if patrol_ship.patrol_points ~= nil then
-			table.insert(patrol_ship.patrol_points,{x = x, y = y})
-		else
-			local px, py = patrol_ship:getPosition()
-			local patrol_points = {
-				{x = px, y = py},
-				{x = x, y = y},
-			}
-			--						obj,			patrol_points,	patrol_point_index,	patrol_check_timer_interval
-			update_system:addPatrol(patrol_ship,	patrol_points,	2,					5)
-			patrol_ship:orderFlyTowards(x,y)
-		end
-		setPatrolPoints()
-	end
-end
-function detachAnythingFromNPS()
-	clearGMFunctions()
-	addGMFunction("-Main from detach",initialGMFunctions)
-	addGMFunction("-Order Ship",orderShip)
-	local object_list = getGMSelection()
-	if #object_list < 1 or #object_list > 1 then
-		addGMFunction("+Select object",detachAnythingFromNPS)
-		return
-	end
-	local current_selected_object = object_list[1]
-	local current_selected_object_type = current_selected_object.typeName
-	update_system:removeUpdateNamed(current_selected_object,"attached")
-end
-function attachAnythingToNPS()
-	clearGMFunctions()
-	addGMFunction("-Main from attach",initialGMFunctions)
-	addGMFunction("-Order Ship",orderShip)
-	local object_list = getGMSelection()
-	if #object_list < 1 or #object_list > 1 then
-		addGMFunction("+Select object",attachAnythingToNPS)
-		return
-	end
-	local current_selected_object = object_list[1]
-	local current_selected_object_type = current_selected_object.typeName
-	local pod_x, pod_y = current_selected_object:getPosition()
-	local nearby_objects = getObjectsInRadius(pod_x, pod_y, 40000)
-	cpu_ship_list = {}
-	for i=1,#nearby_objects do
-		local temp_object = nearby_objects[i]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" and temp_object ~= current_selected_object then
-			local ship_distance = distance(temp_object,current_selected_object)
-			table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
-		end
-	end
-	if #cpu_ship_list > 0 then
-		table.sort(cpu_ship_list,function(a,b)
-			return a.distance < b.distance
-		end)
-		if #cpu_ship_list >= 1 then
-			addGMFunction(string.format("Attach to %s",cpu_ship_list[1].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
-			end)
-		end
-		if #cpu_ship_list >= 2 then
-			addGMFunction(string.format("Attach to %s",cpu_ship_list[2].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
-			end)
-		end
-		if #cpu_ship_list >= 3 then
-			addGMFunction(string.format("Attach to %s",cpu_ship_list[3].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[3],relative_attach_x,relative_attach_y)
-			end)
-		end
-	else
-		addGMMessage("No CPU Ships within 40 units of selected object")
-		addGMFunction("+Select drop point",attachAnythingToNPS)
-	end
-end
-function dropJammer()
-	local object_list = getGMSelection()
-	if #object_list < 1 then
-		addGMMessage("Jammer drop failed - nothing selected for location determination") 
-		return
-	end
-	local selected_matches_npc_ship = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		if current_selected_object.typeName == "CpuShip" then
-			local csox, csoy = current_selected_object:getPosition()
-			local vx, vy = vectorFromAngle(current_selected_object:getHeading()+90,500)
-			WarpJammer():setRange(jammer_range):setPosition(csox+vx,csoy+vy):setFaction(current_selected_object:getFaction())
-		end
-	end
-end
--------------------------------
---	Artifacts > Drop Points  --
--------------------------------
--- Button Text			   FD*	Related Function(s)
--- -MAIN FROM DROP PNT		F	initialGMFunctions
--- +ESCAPE POD				F	setEscapePod
--- +MARINE POINT			F	setMarinePoint
--- +ENGINEER POINT			F	setEngineerPoint
--- +MEDICAL TEAM POINT		F	setMedicPoint
--- +CUSTOM SUPPLY			F	setCustomSupply
--- +ATTACH TO NPS			F	attachArtifact
--- +DETACH					F	detachArtifact
--- ARTIFACT TO POD			F	artifactToPod
-function dropPoint()
-	clearGMFunctions()
-	addGMFunction("-Main from Drop Pnt",initialGMFunctions)
-	addGMFunction("+Escape Pod",setEscapePod)
-	addGMFunction("+Marine Point",setMarinePoint)
-	addGMFunction("+Engineer Point",setEngineerPoint)
-	addGMFunction("+Medical Team Point",setMedicPoint)
-	addGMFunction("+Custom Supply",setCustomSupply)
-	addGMFunction("+Attach to NPS",attachArtifact)
-	addGMFunction("+Detach",detachArtifact)
-	addGMFunction("Artifact To Pod",artifactToPod)
-end
------------------------------
---	Artifacts > Scan Clue  --
------------------------------
--- Button Text			   FD*	Related Function(s)
--- -MAIN FROM SCAN CLUE		F	initialGMFunctions
--- +UNSCANNED DESC			F	setUnscannedDescription
--- +SCANNED DESC			F	setScannedDescription
--- SHOW DESCRIPTIONS		F	inline
--- +SCAN COMPLEX: 1			D	setScanComplexity
--- +SCAN DEPTH: 1			D	setScanDepth
--- UNRETRIEVABLE			D	inline (toggles between retrievable and unretrievable)
--- EXPIRING					F	inline (toggles between expiring and non-expiring)
--- +AT CLICK				D	setScanClueLocation
--- PLACE SCAN CLUE			D	placeScanClue
-function scanClue()
-	clearGMFunctions()
-	addGMFunction("-Main from Scan Clue",initialGMFunctions)
-	addGMFunction("+Unscanned Desc",setUnscannedDescription)
-	addGMFunction("+Scanned Desc",setScannedDescription)
-	addGMFunction("Show Descriptions",function()
-		local unscannedDescription = unscannedClues[unscannedClueKey]
-		local scannedDescription = ""
-		if scannedClues1[scannedClueKey1] ~= nil and scannedClues1[scannedClueKey1] ~= "None" then
-			scannedDescription = scannedDescription .. scannedClues1[scannedClueKey1] .. " "
-		end
-		if scannedClues2[scannedClueKey2] ~= nil and scannedClues2[scannedClueKey2] ~= "None" then
-			scannedDescription = scannedDescription .. scannedClues2[scannedClueKey2] .. " "
-		end
-		if scannedClues3[scannedClueKey3] ~= nil and scannedClues3[scannedClueKey3] ~= "None" then
-			scannedDescription = scannedDescription .. scannedClues3[scannedClueKey3] .. " "
-		end
-		if scannedClues4[scannedClueKey4] ~= nil and scannedClues4[scannedClueKey4] ~= "None" then
-			scannedDescription = scannedDescription .. scannedClues4[scannedClueKey4] .. " "
-		end
-		if scannedClues5[scannedClueKey5] ~= nil and scannedClues5[scannedClueKey5] ~= "None" then
-			scannedDescription = scannedDescription .. scannedClues5[scannedClueKey5] .. " "
-		end
-		addGMMessage(string.format("Unscanned description:\n%s\nScanned Description:\n%s",unscannedDescription,scannedDescription))
-	end)
-	local GMSetScanComplexity = "+Scan Complex: " .. scanComplexity
-	addGMFunction(GMSetScanComplexity,setScanComplexity)
-	local GMSetScanDepth = "+Scan Depth: " .. scanDepth
-	addGMFunction(GMSetScanDepth,setScanDepth)
-	if scan_clue_retrievable then
-		addGMFunction("Retrievable",function()
-			scan_clue_retrievable = false
-			scanClue()
-		end)
-	else
-		addGMFunction("Unretrievable",function()
-			scan_clue_retrievable = true
-			scanClue()
-		end)
-	end
-	if scan_clue_expire then
-		addGMFunction("Expiring",function()
-			scan_clue_expire = false
-			scanClue()
-		end)
-	else
-		addGMFunction("Non-Expiring",function()
-			scan_clue_expire = true
-			scanClue()
-		end)
-	end
-	addGMFunction(string.format("+%s",scan_clue_location),setScanClueLocation)
-	if gm_click_mode == "place scan clue" then
-		addGMFunction(">Place Scan Clue<",placeScanClue)
-	else
-		addGMFunction("Place Scan Clue",placeScanClue)
-	end
-end
-function placeScanClue()
-	if drop_point_location == "At Click" then
-		if gm_click_mode == "place scan clue" then
-			gm_click_mode = nil
-			onGMClick(nil)
-		else
-			local prev_mode = gm_click_mode
-			gm_click_mode = "place scan clue"
-			onGMClick(gmClickPlaceScanClue)
-			if prev_mode ~= nil then
-				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   place scan clue\nGM click mode.",prev_mode))
-			end
-		end
-		scanClue()
-	elseif drop_point_location == "Near To" then
-		scanClueNearTo()
-	end
-end
-function gmClickPlaceScanClue(x,y)
-	scanClueCreation(x, y, 0, 0)
-end
-function updateEditObjectValid()
-	if update_edit_object == nil or not update_edit_object:isValid() then
-		addGMMessage("the object being edited has been destroyed")
-		updateEditor()
-		return false
-	else
-		return true
-	end
-end
-function numericEditControl(params)
-	-- we need to be able to call the function that we are defining within itself
-	-- there probably is a tidy way to do this, but I don't know it
-	-- thus we are going to create a table which we will look up itself within
-	local ret = {}
-	ret.fun = function()
-		assert(type(params)=="table")
-		assert(type(params.closers)=="function")
-		assert(type(params.getter)=="function")
-		assert(type(params.setter)=="function")
-		assert(type(params.name)=="string")
-		assert(type(params.fixedAdjAmount)=="number")
-		params.closers()
-		addGMFunction(string.format("%.2f - %.2f",params.getter(),params.fixedAdjAmount),
-			function ()
-				params.setter(params.getter()-params.fixedAdjAmount)
-				ret["fun"]()
-			end)
-		addGMFunction(string.format("%s = %.2f",params.name,params.getter()),nil)
-		addGMFunction(string.format("%.2f + %.2f",params.getter(),params.fixedAdjAmount),
-			function ()
-				params.setter(params.getter()+params.fixedAdjAmount)
-				ret["fun"]()
-			end)
-	end
-	return ret.fun
-end
------------------------------
---	Artifacts > Set Model  --
------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM MODEL		F	initialGMFunctions
--- -ARTIFACTS			F	fiddleWithArtifacts
--- +NORMAL				F	normalArtifactModels
--- +UTILITY				F	utilityArtifactModels
--- +STATION				F	stationArtifactModels
--- +SHIP				F	shipArtifactModels
-function setArtifactModel()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Model",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction("+Normal",normalArtifactModels)
-	addGMFunction("+Utility",utilityArtifactModels)
-	addGMFunction("+Station",stationArtifactModels)
-	addGMFunction("+Ship",shipArtifactModels)
-end
-----------------------------
---	Artifacts > Set Spin  --
-----------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN FROM SPIN	F	initialGMFunctions
--- -ARTIFACTS		F	fiddleWithArtifacts
--- SPIN 0.5			F	inline
--- SPIN 1			F	inline
--- SPIN 1.5			F	inline
--- SPIN 2			F	inline
-function setArtifactSpin()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Spin",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	for i=1,6 do
-		addGMFunction(string.format("Spin %.1f",i/2),function()
-			setGivenSpin(i/2)
-		end)
-	end
-end
-function setGivenSpin(spin)
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	object_list[1]:setSpin(spin)
-	addGMMessage(string.format("Spin set to %.1f",spin))
-end
-function setArtifactSignature()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Signature",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction(string.format("+Biological %.2f",object_list[1]:getRadarSignatureBiological()),setArtifactBiologicalSignature)
-	addGMFunction(string.format("+Electrical %.2f",object_list[1]:getRadarSignatureElectrical()),setArtifactElectricalSignature)
-	addGMFunction(string.format("+Gravitational %.2f",object_list[1]:getRadarSignatureGravity()),setArtifactGravitationalSignature)
-end
-function setArtifactBiologicalSignature()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Biological",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction("-Signature",setArtifactSignature)
-	local bio = object_list[1]:getRadarSignatureBiological()
-	local elec = object_list[1]:getRadarSignatureElectrical()
-	local grav = object_list[1]:getRadarSignatureGravity()
-	if bio <= .9 then
-		addGMFunction(string.format("%.2f add .1 -> %.2f",bio,bio + .1),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec,bio + .1)
-			setArtifactBiologicalSignature()
-		end)
-	end
-	if bio <= .99 then
-		addGMFunction(string.format("%.2f add .01 -> %.2f",bio,bio + .01),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec,bio + .01)
-			setArtifactBiologicalSignature()
-		end)
-	end
-	if bio >= .1 then
-		addGMFunction(string.format("%.2f del .1 -> %.2f",bio,bio - .1),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec,bio - .1)
-			setArtifactBiologicalSignature()
-		end)
-	end
-	if bio >= .01 then
-		addGMFunction(string.format("%.2f del .01 -> %.2f",bio,bio - .01),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec,bio - .01)
-			setArtifactBiologicalSignature()
-		end)
-	end
-end
-function setArtifactElectricalSignature()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Electrical",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction("-Signature",setArtifactSignature)
-	local bio = object_list[1]:getRadarSignatureBiological()
-	local elec = object_list[1]:getRadarSignatureElectrical()
-	local grav = object_list[1]:getRadarSignatureGravity()
-	if elec <= .9 then
-		addGMFunction(string.format("%.2f add .1 -> %.2f",elec,elec + .1),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec + .1,bio)
-			setArtifactElectricalSignature()
-		end)
-	end
-	if elec <= .99 then
-		addGMFunction(string.format("%.2f add .01 -> %.2f",elec,elec + .01),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec + .01,bio)
-			setArtifactElectricalSignature()
-		end)
-	end
-	if elec >= .1 then
-		addGMFunction(string.format("%.2f del .1 -> %.2f",elec,elec - .1),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec - .1,bio)
-			setArtifactElectricalSignature()
-		end)
-	end
-	if elec >= .01 then
-		addGMFunction(string.format("%.2f del .01 -> %.2f",elec,elec - .01),function()
-			object_list[1]:setRadarSignatureInfo(grav,elec - .01,bio)
-			setArtifactElectricalSignature()
-		end)
-	end
-end
-function setArtifactGravitationalSignature()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
-	clearGMFunctions()
-	addGMFunction("-Main from Gravitational",initialGMFunctions)
-	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction("-Signature",setArtifactSignature)
-	local bio = object_list[1]:getRadarSignatureBiological()
-	local elec = object_list[1]:getRadarSignatureElectrical()
-	local grav = object_list[1]:getRadarSignatureGravity()
-	if grav <= .9 then
-		addGMFunction(string.format("%.2f add .1 -> %.2f",grav,grav + .1),function()
-			object_list[1]:setRadarSignatureInfo(grav + .1,elec,bio)
-			setArtifactGravitationalSignature()
-		end)
-	end
-	if grav <= .99 then
-		addGMFunction(string.format("%.2f add .01 -> %.2f",grav,grav + .01),function()
-			object_list[1]:setRadarSignatureInfo(grav + .01,elec,bio)
-			setArtifactGravitationalSignature()
-		end)
-	end
-	if grav >= .1 then
-		addGMFunction(string.format("%.2f del .1 -> %.2f",grav,grav - .1),function()
-			object_list[1]:setRadarSignatureInfo(grav - .1,elec,bio)
-			setArtifactGravitationalSignature()
-		end)
-	end
-	if grav >= .01 then
-		addGMFunction(string.format("%.2f del .01 -> %.2f",grav,grav - .01),function()
-			object_list[1]:setRadarSignatureInfo(grav - .01,elec,bio)
-			setArtifactGravitationalSignature()
-		end)
-	end
-end
 ---------------------
 --	Tweak Terrain  --
 ---------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- +UPDATE EDITOR		F	updateEditor
--- PULSE ASTEROID		F	pulseAsteroid
--- JUMP CORRIDOR OFF	F	inline (toggles between ON and OFF)
--- SANDBOX COMMS		F	inline
--- +STATION OPERATIONS	F	stationOperations
--- +STATION DEFENSE		F	stationDefense
--- +MINEFIELD			F	mineField
--- +MOVE SELECTED		D	moveSelectedObjects
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- +UPDATE EDITOR			F	updateEditor
+-- PULSE ASTEROID			F	pulseAsteroid
+-- JUMP CORRIDOR OFF		F	inline (toggles between ON and OFF)
+-- SANDBOX COMMS			F	inline
+-- +STATION MANIPULATION	F	stationManipulation
+-- +MINEFIELD				F	mineField
+-- +MOVE SELECTED			D	moveSelectedObjects
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -3655,8 +3046,6 @@ function tweakTerrain()
 		end
 	end
 	addGMFunction("+Station Manipulation",stationManipulation)
---	addGMFunction("+Station Operations",stationOperations)
---	addGMFunction("+Station defense",stationDefense)
 	addGMFunction("+Minefield",mineField)
 	if #objectList > 0 then
 		if gm_click_mode ~= nil then
@@ -3670,13 +3059,6 @@ function tweakTerrain()
 		end
 	end
 	addGMFunction("+Probes",tweakProbes)
-end
-function stationManipulation()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("+Station Operations",stationOperations)
-	addGMFunction("+Station defense",stationDefense)
 end
 function moveSelectedObjects()
 	if gm_click_mode == "move selected" then
@@ -3905,102 +3287,29 @@ function countdownTimer()
 		end)
 	end
 end
--------------------
---	End Session  --
--------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM END		F	initialGMFunctions
--- +REGION REPORT		F	regionReport
--- +FACTION VICTORY		F	endMission
-function endSession()
-	clearGMFunctions()
-	addGMFunction("-Main From End",initialGMFunctions)
-	addGMFunction("+Region Report",regionReport)
-	addGMFunction("+Faction Victory",endMission)
-end
 --------------
 --	Custom  --
 --------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM END		F	initialGMFunctions
--- +DEBUG				F	debugButtons
--- +SNIPPET				F	snippetButtons
--- +SCIENCE DB			F	scienceDatabase
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM END			F	initialGMFunctions
+-- +DEBUG					F	debugButtons
+-- +SNIPPET					F	snippetButtons
+-- +ONE-OFFS				F	oneOffs
+-- +SCIENCE DB				F	scienceDatabase
+-- +TRACTOR SOUND			F	tractorSound
+-- 4K MINE RING				F	inline
+-- SUBSPACE RIFT			F	inline
+-- ***DANGER*** RUN DESC	F	mollyGuardLoadDescription
 function customButtons()
 	clearGMFunctions()
 	addGMFunction("-Main From Custom",initialGMFunctions)
 	addGMFunction("+Debug",debugButtons)
 	addGMFunction("+Snippet",snippetButtons)
-	addGMFunction("+Science DB",scienceDatabase)
-	addGMFunction("+Tractor Sound",tractorSound)
+	addGMFunction("+One-Offs",oneOffs)
 	addGMFunction("4k mine ring",singleObjectFunction(function (obj)
 		local x,y = obj:getPosition()
 			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
 		end))	-- this probably wants to be done properly with a nice fancy UI but today is not the day
-	addGMFunction("ghost setup",function()
-		CpuShip():setFaction("Ghosts"):setTemplate("Defense platform"):setCallSign("DP2"):setPosition(583206, 296210)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("NC9"):setPosition(586733, 288815):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("VS10"):setPosition(585369, 288737):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("SS11"):setPosition(585379, 289271)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("CV16"):setPosition(586718, 288183)
-		CpuShip():setFaction("Ghosts"):setTemplate("Storm"):setCallSign("UTI20"):setPosition(586045, 288149):setWeaponStorage("Homing", 10)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("VK15"):setPosition(585369, 288257)
-		CpuShip():setFaction("Ghosts"):setTemplate("Defense platform"):setCallSign("DP6"):setPosition(589491, 296139)
-		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("terminus"):setPosition(586037, 289433):setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("VS12"):setPosition(586289, 289313)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("S8"):setPosition(585402, 303565):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("BR7"):setPosition(586766, 303705):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("NC18"):setPosition(586766, 304106)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("SS13"):setPosition(585660, 303233)
-		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("SCMODS"):setPosition(586067, 303113):setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
-		CpuShip():setFaction("Ghosts"):setTemplate("Transport5x5"):setCallSign("talos"):setPosition(586469, 302949)
-		CpuShip():setFaction("Ghosts"):setTemplate("Storm"):setCallSign("VK19"):setPosition(586033, 304397):setWeaponStorage("Homing", 10)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("CCN14"):setPosition(586733, 303249)
-		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("CSS17"):setPosition(585402, 304253)
-		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("CSS50"):setPosition(643734, 296415):orderRoaming():setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
-		CpuShip():setFaction("Ghosts"):setTemplate("WX-Lindworm"):setCallSign("SS56"):setPosition(642146, 297017):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 0):setWeaponStorage("HVLI", 4)
-		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("UTI51"):setPosition(643661, 299810):orderRoaming():setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("SS55"):setPosition(644829, 299901):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("S52"):setPosition(645157, 297255):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
-		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("CSS58"):setPosition(642310, 297784):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
-		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("CCN59"):setPosition(642182, 298496):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
-		CpuShip():setFaction("Ghosts"):setTemplate("WX-Lindworm"):setCallSign("VK57"):setPosition(642274, 299335):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 0):setWeaponStorage("HVLI", 4)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("NC54"):setPosition(645522, 298989):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
-		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("CCN53"):setPosition(645522, 298039):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
-		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("VK61"):setPosition(641251, 298623):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
-		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("CV60"):setPosition(641233, 297912):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
-	end)
-	addGMFunction("boss battle",function()
-			CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("UTI44"):setPosition(601834, 599635):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("NC49"):setPosition(602814, 600718):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("UTI45"):setPosition(602824, 599604):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS33"):setPosition(598977, 602372):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("SS46"):setPosition(596845, 600551):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CV47"):setPosition(598084, 600739):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CV43"):setPosition(597980, 599208):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("VS32"):setPosition(604980, 591314):orderRoaming():setWeaponStorage("Homing", 968)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3209"):setPosition(603890, 596151)
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("SS30"):setPosition(608741, 605018):orderRoaming():setWeaponStorage("Homing", 968)
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("NC31"):setPosition(609563, 597669):orderRoaming():setWeaponStorage("Homing", 968)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3210"):setPosition(603862, 603779)
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("NC29"):setPosition(602602, 609125):orderRoaming():setWeaponStorage("Homing", 968)
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("CV28"):setPosition(595034, 608656):orderRoaming():setWeaponStorage("Homing", 968)
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3211"):setPosition(596356, 603757)
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS35"):setPosition(601070, 602580):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS39"):setPosition(601119, 603375):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CV34"):setPosition(600103, 602433):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("NC48"):setPosition(601678, 600843):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS40"):setPosition(600703, 597848):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("VK38"):setPosition(601706, 598411):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("SS41"):setPosition(599356, 597358):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("S42"):setPosition(597511, 599072):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("SS32"):setPosition(598331, 596825):orderRoaming()
-		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3208"):setPosition(596308, 596165)
-		SpaceStation():setTemplate("Large Station"):setFaction("Kraylor"):setCallSign("DS3206"):setPosition(600024, 600006)
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("BR27"):setPosition(597433, 590779):orderRoaming():setWeaponStorage("Homing", 968)
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("CCN25"):setPosition(590869, 602565):orderRoaming():setWeaponStorage("Homing", 968)
-		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("VS26"):setPosition(591360, 594996):orderRoaming():setWeaponStorage("Homing", 968)
-	end)
 	addGMFunction("subspace rift",function () onGMClick(function (x,y)
 		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
 		local all_objs = {}
@@ -4045,127 +3354,19 @@ function customButtons()
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
 	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
-	addGMFunction("wj around rigil",function ()
-		local x,y=planet_rigil:getPosition()
-		local jammers=createObjectCircle{x=x,y=y,callback=WarpJammer,number=40}
-	    for i=1,#jammers do
-			local orbit_distance = 59000
-			local s_orbit = .95
-			local f_orbit = 1.65
-			jammers[i]:setRange(10000)
-			jammers[i].orbit_influencer = planet_ergot
-			update_system:addOrbitTargetWithInfluenceUpdate(jammers[i],planet_rigil,orbit_distance,s_orbit,f_orbit,planet_ergot,10000,30000)
-		end
-	end)
-	addGMFunction("sale Bouy",function()
-		onGMClick(function(x,y)
-			local tbl={"50% off marked ships","cheapest deals in the sector","unmatched prices","best discounts for black turkey"}
-			update_system:addNameCycleUpdate(Artifact():setPosition(x,y), 10,tbl,random(1,40))
-		end) 
-	end)
-	addGMFunction("xmas artifact",christmasArtifact)
-	addGMFunction("carol",function ()
-		clearGMFunctions()
-		addGMFunction("-Custom",customButtons)
-		for i=1,12 do
-			addGMFunction("carol "..i,function() carolStage(i) customButtons() end)
-		end
-	end)
-	addGMFunction("spawn",function ()
-		clearGMFunctions()
-		addGMFunction("-Custom",customButtons)
-		for i=1,12 do
-			addGMFunction("spawn "..i,function() onGMClick(function (x,y) carolSpawnSingle(i,"human navy"):setPosition(x,y):orderStandGround() end) end)
-		end
-	end)
-	addGMFunction("!elf rename",function ()
-		local objs=getGMSelection()
-		for i=1,#objs do
-			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
-				objs[i]:setCallSign("elf "..irandom(1,99))
-			end
-		end
-	end)
-	addGMFunction("!sleigh rename",function ()
-		local objs=getGMSelection()
-		local full_name_list={"Rudolph","Dasher","Dancer","Prancer","Vixen","Comet","Cupid","Dunder","Blixem"}
-		local name_list={}
-		for i=1,#objs do
-			if #name_list==0 then
-				for j=1,#full_name_list do
-					table.insert(name_list,full_name_list[j])
-				end
-			end
-			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
-				local num=irandom(1,#name_list)
-				objs[i]:setCallSign(name_list[num])
-				table.remove(name_list,num)
-			end
-		end
-	end)
-	addGMFunction("!single scan",function ()
-		local objs=getGMSelection()
-		for i=1,#objs do
-			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
-				objs[i]:setScanState("simplescan")
-			end
-		end
-	end)
-	addGMFunction("!full scan",function ()
-		local objs=getGMSelection()
-		for i=1,#objs do
-			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
-				objs[i]:setScanState("fullscan")
-			end
-		end
-	end)
 end
-function tractorSound()
+-------------------
+--	End Session  --
+-------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM END		F	initialGMFunctions
+-- +REGION REPORT		F	regionReport
+-- +FACTION VICTORY		F	endMission
+function endSession()
 	clearGMFunctions()
-	addGMFunction("-Main From Tractor Sound",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction(string.format("%.1f Power ^ -> %.1f",tractor_sound_power, tractor_sound_power + 1),function()
-		tractor_sound_power = tractor_sound_power + 1
-		tractorSound()
-	end)
-	addGMFunction(string.format("%.1f Power ^ -> %.1f",tractor_sound_power, tractor_sound_power + .1),function()
-		tractor_sound_power = tractor_sound_power + .1
-		tractorSound()
-	end)
-	addGMFunction(string.format("%.1f Power V -> %.1f",tractor_sound_power, tractor_sound_power - 1),function()
-		tractor_sound_power = tractor_sound_power - 1
-		tractorSound()
-	end)
-	addGMFunction(string.format("%.1f Power V -> %.1f",tractor_sound_power, tractor_sound_power - .1),function()
-		tractor_sound_power = tractor_sound_power - .1
-		tractorSound()
-	end)
-	local stock_sounds = {
-		["Button"] = "button.wav",
-		["Explosion"] = "explosion.wav",
-		["Laser"] = "laser.wav",
-		["Missile Launch"] = "missile_launch.wav",
-		["EMP Explosion"] = "sfx/emp_explosion.wav",
-		["Engine Fighter"] = "sfx/engine_fighter.wav",
-		["Engine"] = "sfx/engine.wav",
-		["HVLI Fire"] = "sfx/hvli_fire.wav",
-		["Laser Fire"] = "sfx/laser_fire.wav",
-		["Nuke Explosion"] = "sfx/nuke_explosion.wav",
-		["R Launch"] = "sfx/rlaunch.wav",
-		["Shield Down"] = "shield_down.wav",
-		["Shield Up"] = "shield_up.wav",
-	}
-	for sound_name, file_name in pairs(stock_sounds) do
-		if tractor_sound == file_name then
-			sound_name = sound_name .. "*"
-		end
-		addGMFunction(sound_name,function()
-			tractor_sound = file_name
-			local tractor_sound_message = string.format("Tractor sound set to %s",file_name)
-			addGMMessage(tractor_sound_message)
-			tractorSound()
-		end)
-	end
+	addGMFunction("-Main From End",initialGMFunctions)
+	addGMFunction("+Region Report",regionReport)
+	addGMFunction("+Faction Victory",endMission)
 end
 function carolStage1()
 	local pearTree=CpuShip():
@@ -5090,24 +4291,6 @@ function santaContainment()
 			local periodic=update_system:getUpdateNamed(pulse,"periodic callback")
 		end,15,15,30)
 end
-function mollyGuardLoadDescription()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction("break my game",singleObjectFunction(function(o)load(o:getDescription("notscanned"))()end))
-end
--- eh this should live somewhere else, but let it be a reminder to simplify other code
--- there also should be some similar ones for playerships, spaceships etc
-function singleObjectFunction(fn)
-	return function ()
-		local object_list = getGMSelection()
-		if #object_list ~= 1 then
-			addGMMessage("you must select one object")
-			return
-		end
-		fn(object_list[1])
-	end
-end
 function singleCPUShipFunction(fn)
 	return singleObjectFunction(function (obj)
 		if obj.typeName ~= "CpuShip" then
@@ -5244,7 +4427,7 @@ function playerShip()
 			{"Ambition"		,"inactive"	,createPlayerShipAmbition	,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2(Ambition): Frigate, Cruiser   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
 			{"Argonaut"		,"inactive"	,createPlayerShipArgonaut	,{strength = 16,	ftl = "J", lrs = 25},"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Arwine"		,"inactive"	,createPlayerShipArwine		,{strength = 18,	ftl = "J", lrs = 20},"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs"},
-			{"Barracuda"	,"active"	,createPlayerShipBarracuda	,{strength = 11,	ftl = "J", lrs = 20},"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
+			{"Barracuda"	,"inactive"	,createPlayerShipBarracuda	,{strength = 11,	ftl = "J", lrs = 20},"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
 			{"Barrow"		,"inactive"	,createPlayerShipBarrow		,{strength = 9,		ftl = "J", lrs = 35},"Barrow: Corvette, Freighter/Carrier\nSee science database for details"},
 			{"Blaire"		,"inactive"	,createPlayerShipBlaire		,{strength = 22,	ftl = "B", lrs = 35},"Kludge (Blaire), Corvette, Gunner... incomplete description"},
 --			{"Blazon"		,"inactive"	,createPlayerShipBlazon		},
@@ -5253,31 +4436,31 @@ function playerShip()
 			{"Darkstar"		,"inactive"	,createPlayerShipDarkstar	,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Eagle"		,"inactive"	,createPlayerShipEagle		,{strength = 14,	ftl = "W", lrs = 50},"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Endeavor"		,"inactive"	,createPlayerShipEndeavor	,{strength = 30,	ftl = "J", lrs = 30},"Bermuda (Endeavor): Corvette, Destroyer   Hull:150   Shield:150,150   Size:400   Repair Crew:5   Cargo:4   R.Strength:25\nFTL:Jump (3.5U - 35U)   Speeds: Impulse:70   Spin:10   Accelerate:30   C.Maneuver: Boost:400 Strafe:250   SRS:4.5\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:3   Load Speed:8   Left Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      04 Nuke\n      06 EMP\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, no right tubes, slower impulse, faster acceleration, weaker hull, weaker shields, less energy"},
-			{"Enola"		,"active"	,createPlayerShipEnola		,{strength = 22,	ftl = "J", lrs = 23},"Fray (Enola): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:22\nFTL:Jump (2U - 20U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:23   SRS:4.5\nBeams:3 1 front, 2 sides Turreted speed:0.3\n   Arc:110   Direction:  0   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction:-90   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction: 90   Range:0.9   Cycle:6   Damage:4\nTubes:4 rear   Load Speed:8\n   Direction:180   Type:HVLI Only - small\n   Direction:180   Type:Homing or EMP\n   Direction:180   Type:Nuke only - Large\n   Ordnance stock and type:\n      05 Homing\n      03 Mine\n      02 Nuke\n      04 EMP\n      12 HVLI\nBased on Crucible: jump instead of warp, 3 turreted beams (weaker, more coverage), tubes facing rear, fewer missiles, large nukes, shorter sensors, fewer probes"},
+			{"Enola"		,"inactive"	,createPlayerShipEnola		,{strength = 22,	ftl = "J", lrs = 23},"Fray (Enola): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:22\nFTL:Jump (2U - 20U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:23   SRS:4.5\nBeams:3 1 front, 2 sides Turreted speed:0.3\n   Arc:110   Direction:  0   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction:-90   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction: 90   Range:0.9   Cycle:6   Damage:4\nTubes:4 rear   Load Speed:8\n   Direction:180   Type:HVLI Only - small\n   Direction:180   Type:Homing or EMP\n   Direction:180   Type:Nuke only - Large\n   Ordnance stock and type:\n      05 Homing\n      03 Mine\n      02 Nuke\n      04 EMP\n      12 HVLI\nBased on Crucible: jump instead of warp, 3 turreted beams (weaker, more coverage), tubes facing rear, fewer missiles, large nukes, shorter sensors, fewer probes"},
 			{"Falcon"		,"inactive"	,createPlayerShipFalcon		,{strength = 15,	ftl = "W", lrs = 24},"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors"},
-			{"Fresnel"		,"active"	,createPlayerShipFresnel	,{strength = 08,	ftl = "J", lrs = 15},"(no desc)"},
+			{"Fresnel"		,"inactive"	,createPlayerShipFresnel	,{strength = 08,	ftl = "J", lrs = 15},"(no desc)"},
 			{"Ink"			,"inactive"	,createPlayerShipGabble		,{strength = 14,	ftl = "J", lrs = 25},"Squid(Ink): Frigate, Cruiser: Light Artillery   Hull:120   Shield:100,100   Size:200   Repair Crew:5   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS"},
 			{"Gadfly"		,"inactive"	,createPlayerShipGadfly		,{strength = 09,	ftl = "J", lrs = 15},"Gadfly: Fighter   Hull:100   Shield:80,80   Size:100   Repair Crew:3   Cargo:4   R.Strength:9\nFTL:Jump (2U - 15U)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600 Strafe:0   Energy:400   LRS:15   SRS:4.5\nBeams:1 Front\n   Arc:50   Direction:0   Range:0.9   Cycle:4   Damage:8\nTubes:3   2 Front, 1 Rear\n   Direction:  0   Load Speed:05   Type:HVLI Only - small\n   Direction:  0   Load Speed:10   Type:Nuke & EMP\n   Direction:180   Load Speed:15   Type:Homing Only - large\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      1 EMP\n      8 HVLI\nBased on Player Fighter: added jump drive, stronger hull, extra and stronger shields, fewer beams (wider, shorter, faster), missile tubes front and rear (no mines)"},
 			{"Gorn"			,"inactive"	,createPlayerShipGorn		,{strength = 40,	ftl = "J", lrs = 30},"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS"},
 			{"Guinevere"	,"inactive"	,createPlayerShipGuinevere	,{strength = 23,	ftl = "J", lrs = 35},"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Halberd"		,"inactive"	,createPlayerShipHalberd	,{strength = 23,	ftl = "J", lrs = 35},"(no desc)"},	--proto-atlantis
 			{"Headhunter"	,"inactive"	,createPlayerShipHeadhunter	,{strength = 11,	ftl = "J", lrs = 20},"(no desc)"},
-			{"Hearken"		,"inactive"	,createPlayerShipHearken	,{strength = 11,	ftl = "J", lrs = 20},"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
-			{"Holmes"		,"inactive"	,createPlayerShipHolmes		,{strength = 35,	ftl = "W", lrs = 35},"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
+			{"Hearken"		,"active"	,createPlayerShipHearken	,{strength = 11,	ftl = "J", lrs = 20},"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs"},
+			{"Holmes"		,"active"	,createPlayerShipHolmes		,{strength = 35,	ftl = "W", lrs = 35},"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only"},
 			{"Interlock"	,"inactive"	,createPlayerShipInterlock	,{strength = 19,	ftl = "J", lrs = 35},"Interlock: Frigate, Armored Transport   Hull:250   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:19\nFTL:Jump (3.5U-35U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:35   SRS:5.5\nBeams:5 Front 1 rear Turreted Speed:1\n   Arc:100   Direction:  0   Range:0.9   Cycle:6   Damage:6   Turreted\n   Arc:180   Direction:180   Range:0.9   Cycle:6   Damage:4   Turreted\n   Arc:110   Direction:-35   Range:0.3   Cycle:6   Damage:10\n   Arc:110   Direction: 35   Range:0.3   Cycle:6   Damage:10\n   Arc: 60   Direction:-20   Range:0.6   Cycle:6   Damage:8\n   Arc: 60   Direction: 20   Range:0.6   Cycle:6   Damage:8\nTubes:3   Load Speed:20   Large Broadside, Rear\n   Direction:-90   Type:Exclude Mine - Large\n   Direction: 90   Type:Exclude Mine - Large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      4 Homing\n      4 Mine\n      6 HVLI\nBased on Repulse: 6 beams, 5 forward, 1 rear, more damage the closer the enemy gets, hull and shields significantly stronger, more missiles, shorter jump, longer long and short range sensors"},
 			{"Jarvis"		,"inactive"	,createPlayerShipJarvis		,{strength = 20,	ftl = "W", lrs = 30},"Butler (Jarvis): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:70   Spin:12   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Front/Broadside\n   Arc:160   Direction:-80   Range:0.9   Cycle:6   Damage:6\n   Arc:160   Direction: 80   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP or Nuke Only\n   Direction:  0   Type:HVLI Only - Large\n   Direction:180   Type:Homing Only\n   Ordnance stock and type:\n      04 Homing\n      03 Nuke\n      04 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, front and side beams, fewer tubes, fewer missiles, no mines, Small Nukes, EMPs in front middle tube, large HVLI"},
-			{"Jeeves"		,"inactive"	,createPlayerShipJeeves		,{strength = 20,	ftl = "W", lrs = 30},"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
+			{"Jeeves"		,"active"	,createPlayerShipJeeves		,{strength = 20,	ftl = "W", lrs = 30},"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings"},
 			{"Kindling"		,"inactive"	,createPlayerShipKindling	,{strength = 40,	ftl = "J", lrs = 25},"(no desc)"},
 --			{"Knick"		,"inactive"	,createPlayerShipKnick		,{strength = 05,	ftl = "J", lrs = 30},"Experimental - not ready for use"},
-			{"Knuckle Drag"	,"inactive"	,createPlayerShipSimian		,{strength = 25,	ftl = "J", lrs = 32},"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower"},
+			{"Knuckle Drag"	,"active"	,createPlayerShipSimian		,{strength = 25,	ftl = "J", lrs = 32},"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower"},
 			{"Lancelot"		,"inactive"	,createPlayerShipLancelot	,{strength = 30,	ftl = "J", lrs = 27},"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver"},
 			{"Magnum"		,"inactive"	,createPlayerShipMagnum		,{strength = 35,	ftl = "J", lrs = 32},"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles"},
-			{"Mantis"		,"active"	,createPlayerShipMantis		,{strength = 30,	ftl = "W", lrs = 25},"(no desc)"},
+			{"Mantis"		,"inactive"	,createPlayerShipMantis		,{strength = 30,	ftl = "W", lrs = 25},"(no desc)"},
 			{"Manxman"		,"inactive"	,createPlayerShipManxman	,{strength = 16,	ftl = "J", lrs = 25},"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
 			{"Narsil"		,"inactive"	,createPlayerShipNarsil		,{strength = 40,	ftl = "W", lrs = 30},"(no desc)"},
 			{"Nimbus"		,"inactive"	,createPlayerShipNimbus		,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage"},
 			{"Nusret"		,"inactive"	,createPlayerShipNusret		,{strength = 16,	ftl = "J", lrs = 25},"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors"},
-			{"Osprey"		,"active"	,createPlayerShipOsprey		,{strength = 25,	ftl = "W", lrs = 30},"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
+			{"Osprey"		,"inactive"	,createPlayerShipOsprey		,{strength = 25,	ftl = "W", lrs = 30},"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles"},
 			{"Outcast"		,"inactive"	,createPlayerShipOutcast	,{strength = 30,	ftl = "J", lrs = 28},"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear"},
 			{"Peacock"		,"inactive"	,createPlayerShipPeacock	,{strength = 30,	ftl = "J", lrs = 25},"(no desc)"},
 			{"Phobos T2"	,"inactive"	,createPlayerShipPhobosT2	,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:1.2U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:1.2U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles"},
@@ -5285,7 +4468,7 @@ function playerShip()
 			{"Quill"		,"inactive"	,createPlayerShipQuill		,{strength = 30,	ftl = "W", lrs = 30},"(no desc)"},
 			{"Raptor"		,"inactive"	,createPlayerShipRaptor		,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs"},
 			{"Rattler"		,"inactive"	,createPlayerShipRattler	,{strength = 10,	ftl = "J", lrs = 30},"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret"},
-			{"Raven"		,"active"	,createPlayerShipRaven		,{strength = 30,	ftl = "W", lrs = 25},"Raven (Claw) Cruiser"},
+			{"Raven"		,"inactive"	,createPlayerShipRaven		,{strength = 30,	ftl = "W", lrs = 25},"Raven (Claw) Cruiser"},
 			{"Rodent"		,"inactive"	,createPlayerShipRodent		,{strength = 23,	ftl = "J", lrs = 40},"Rodent (George): Frigate, Cruiser   Hull:150   Shield:100,50   Size:200   Repair Crew:5   Cargo:8   R.Strength:23   LRS:40   SRS:5.5\nFTL:Jump (4U - 37U)   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front, 2 Turreted Speed:0.4\n   Arc:60   Direction:-15   Range:1.2   Cycle:8   Damage:5\n   Arc:60   Direction: 15   Range:1.2   Cycle:8   Damage:5\n   Arc:270   Direction:  0   Range:0.6   Cycle:8   Damage:3\n   Arc:270   Direction 180   Range:0.5   Cycle:8   Damage:4\nTubes:5   Front:2   Sides:2   Back:1\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:-90   Type:EMP & Nuke only   Load Time:10\n   Direction: 90   Type:EMP & Nuke Only (Large)   Load Time:20\n   Direction:180   Type:Mine Only   Load Time:15\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      06 Mine\n      03 EMP\n      20 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, weaker rear shield, short jump drive, narrower beams, additional slow turreted beams, additional side tubes and rear mine tube"},
 			{"Rogue"		,"inactive"	,createPlayerShipRogue		,{strength = 23,	ftl = "J", lrs = 25},"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)"},
 			{"Rotor"		,"inactive"	,createPlayerShipRotor		,{strength = 35,	ftl = "W", lrs = 25},"Rotor: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:30\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:4\nBeams:5, 2 Turreted Speed:1\n   Arc:190   Direction:  0   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc:190   Direction:180   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc: 60   Direction:-25   Range:0.8   Cycle:6   Damage:6\n   Arc: 60   Direction: 25   Range:0.8   Cycle:6   Damage:6\n   Arc: 40   Direction:  0   Range:0.6   Cycle:6   Damage:8\nTubes:1   Load Speed:8   Rear:1\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      6 Mine\nBased on Maverick: Fewer beams, one rear tube, slower warp, shorter sensors"},
@@ -5301,8 +4484,8 @@ function playerShip()
 			{"Vision"		,"inactive"	,createPlayerShipVision		,{strength = 14,	ftl = "W", lrs = 50},"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors"},
 			{"Wiggy"		,"inactive"	,createPlayerShipWiggy		,{strength = 14,	ftl = "J", lrs = 40},"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors"},
 			{"Windmill"		,"inactive"	,createPlayerShipWindmill	,{strength = 19,	ftl = "W", lrs = 33},"Windmill: Frigate, Light Transport   Hull:100   Shield:100,70   Size:200   Repair Crew:5   Cargo:11   R.Strength:19\nFTL:Warp (350)   Speeds: Impulse:100   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:5\nBeams:4 Cardinal directions, sides Turreted Speed:0.5\n   Arc: 60   Direction:  0   Range:1.0   Cycle:6   Damage:6\n   Arc: 60   Direction:180   Range:1.0   Cycle:6   Damage:6\n   Arc:140   Direction:-90   Range:1.2   Cycle:6   Damage:4\n   Arc:140   Direction: 90   Range:1.2   Cycle:6   Damage:4\nTubes:5   Load Speeds: Small:5   Normal:10   Large:15   Mine:20\n   Direction:  0   Type:Exclude Mine - small\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Exclude Mine - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      5 Homing\n      1 Nuke\n      3 Mine\n      2 EMP\n      8 HVLI\nBased on Flavia P.Falcon: faster impulse, slower warp, stronger front shield, fewer repair crew,more beams in more directions, more tubes in more directions, more missiles, longer long range sensors"},
-			{"Wombat"		,"inactive"	,createPlayerShipWombat		,{strength = 17,	ftl = "W", lrs = 18},"Wombat (Shannon): Starfighter, Bomber   Hull:100   Shield:80,80   Size:100   Repair Crew:4   Cargo:3   R.Strength:18\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   LRS:18   SRS:6\nBeam:2 Turreted Speed:0.3\n   Arc:80   Direction:-20   Range:0.9   Cycle:4   Damage:3\n   Arc:80   Direction: 20   Range:0.9   Cycle:4   Damage:3\nTubes:5   Load Speed:10   Rear, 2 small, 1 large, 2 normal\n   Direction:180   Type:Only HVLI - small\n   Direction:180   Type:Only HVLI or Homing - small\n   Direction:180   Type:Only HVLI or Homing - large\n   Direction:180   Type:Only HVLI, EMP or Nuke\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      08 Homing\n      01 Nuke\n      02 Mine\n      02 EMP\n      12 HVLI\nBased on Lindworm: stronger hull and shields, more repair crew, warp drive, stringer, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, more homing missiles"},
-			{"Wrocket"		,"inactive"	,createPlayerShipWrocket	,{strength = 19,	ftl = "J", lrs = 32},"Wrocket (Slingshot): "},
+			{"Wombat"		,"active"	,createPlayerShipWombat		,{strength = 17,	ftl = "W", lrs = 18},"Wombat (Shannon): Starfighter, Bomber   Hull:100   Shield:80,80   Size:100   Repair Crew:4   Cargo:3   R.Strength:18\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   LRS:18   SRS:6\nBeam:2 Turreted Speed:0.3\n   Arc:80   Direction:-20   Range:0.9   Cycle:4   Damage:3\n   Arc:80   Direction: 20   Range:0.9   Cycle:4   Damage:3\nTubes:5   Load Speed:10   Rear, 2 small, 1 large, 2 normal\n   Direction:180   Type:Only HVLI - small\n   Direction:180   Type:Only HVLI or Homing - small\n   Direction:180   Type:Only HVLI or Homing - large\n   Direction:180   Type:Only HVLI, EMP or Nuke\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      08 Homing\n      01 Nuke\n      02 Mine\n      02 EMP\n      12 HVLI\nBased on Lindworm: stronger hull and shields, more repair crew, warp drive, stringer, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, more homing missiles"},
+			{"Wrocket"		,"active"	,createPlayerShipWrocket	,{strength = 19,	ftl = "J", lrs = 32},"Wrocket (Slingshot): "},
 			{"Yorik"		,"inactive"	,createPlayerShipYorik		,{strength = 15,	ftl = "J", lrs = 41},"Rook (Yorik): Frigate, Armored Transport   Hull:200   Shield:200,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:15\nFTL:Jump (3U-30U)   Speeds: Impulse:75   Spin:8   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:41   SRS:5.5\nBeams:2 Front 1 Turreted Speed:0.15\n   Arc:90   Direction:0   Range:0.9   Cycle:6   Damage:4\n   Arc:30   Direction:0   Range:0.9   Cycle:6   Damage:4\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      8 Homing\n      3 Nuke\n      5 Mine\n      6 EMP\n      6 HVLI\nBased on Repulse: slower spin, faster impiulse, 1 turreted beam, both beams forward, hull and shields stronger, relatively weaker rear shield, shorter and weaker beams, more missiles, stronger hull, shorter jump, longer long and short range sensors"},
 		}
 	end
@@ -5426,6 +4609,9 @@ function autoStationWarn()
 	end
 	addGMFunction(button_label,setStationSensorRange)
 end
+--	****************************************************************  --
+--	****				Initial Set Up Start Region				****  --
+--	****************************************************************  --
 ----------------------------------------------------------
 --	Initial Set Up > Start Region > Player Spawn Point  --
 ----------------------------------------------------------
@@ -11372,6 +10558,9 @@ function removeLafrinaColor()
 	end
 	lafrina_stations = nil
 end
+--	****************************************************************  --
+--	****				Initial Set Up Player Ships				****  --
+--	****************************************************************  --
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
 ----------------------------------------------------
@@ -11562,19 +10751,27 @@ function teleportPlayers()
 		addGMMessage("Players teleported to Astron")
 	end)
 end
+--	********************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player				****  --
+--	********************************************************************************  --
 ------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Engineering  --
 ------------------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -PLAYER SHIP		F	playerShip
--- -TWEAK PLAYER	F	tweakPlayerShip
--- +AUTO COOL		F	autoCool
--- +AUTO REPAIR		F	autoRepair
--- +COOLANT			F	changePlayerCoolant
--- +REPAIR CREW		F	changePlayerRepairCrew
--- +MAX SYSTEM		F	changePlayerMaxSystem
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +AUTO COOL			F	autoCool
+-- +AUTO REPAIR			F	autoRepair
+-- +COOLANT				F	changePlayerCoolant
+-- +REPAIR CREW			F	changePlayerRepairCrew
+-- +MAX SYSTEM			F	changePlayerMaxSystem
+-- +BEAM HEAT/ENERGY	F	changePlayerBeams
+-- SHIELDS DEGRADE		F	shieldsDegrade
+-- SHIELDS REGEN		F	shieldsRegen
+-- BLEED ENERGY			F	bleedEnergy
+-- RESTORE ENERGY		F	restoreEnergy
 function tweakEngineering()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -11592,6 +10789,434 @@ function tweakEngineering()
 	addGMFunction("bleed energy",bleedEnergy)
 	addGMFunction("restore energy",restoreEnergy)
 end
+------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Cargo  --
+------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM CARGO		F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +REMOVE CARGO		F	removeCargo
+-- +ADD MINERAL			F	addMineralCargo
+-- +ADD COMPONENT		F	addComponentCargo
+function changePlayerCargo()
+	clearGMFunctions()
+	addGMFunction("-Main from Cargo",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("+Remove Cargo",removeCargo)
+	addGMFunction("+Add Mineral",addMineralCargo)
+	addGMFunction("+Add Component",addComponentCargo)
+end
+function playerShipSelected()
+	local p = getPlayerShip(-1)
+	local object_list = getGMSelection()
+	local selected_matches_player = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		for pidx=1,8 do
+			p = getPlayerShip(pidx)
+			if p ~= nil and p:isValid() then
+				if p == current_selected_object then
+					selected_matches_player = true
+					break
+				end
+			end
+		end
+		if selected_matches_player then
+			break
+		end
+	end
+	if selected_matches_player then
+		return p
+	end
+	return nil
+end
+-------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Probes  --
+-------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PROBES	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- DEL PROBE 8 -> 7		D	inline
+function changePlayerProbes()
+	clearGMFunctions()
+	addGMFunction("-Main from Probes",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local probe_count = p:getScanProbeCount()
+		local max_probe_count = p:getMaxScanProbeCount()
+		if probe_count < max_probe_count then
+			addGMFunction(string.format("Add Probe %i -> %i",probe_count,probe_count + 1),function()
+				p:setScanProbeCount(probe_count + 1)
+				changePlayerProbes()
+			end)
+		end
+		if probe_count > 0 then
+			addGMFunction(string.format("Del Probe %i -> %i",probe_count,probe_count - 1),function()
+				p:setScanProbeCount(probe_count - 1)
+				changePlayerProbes()
+			end)
+		end
+	else
+		addGMFunction("+Select player ship",function()
+			changePlayerProbes()
+		end)
+	end
+end
+-----------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Reputation  --
+-----------------------------------------------------------------
+-- Button text	   FD*	Related Function(s)
+-- -MAIN FROM REP	F	initialGMFunctions
+-- -SETUP			F	initialSetUp
+-- -TWEAK PLAYER	F	tweakPlayerShip
+-- ADD ONE REP n	D	inline
+-- ADD FIVE REP n	D	inline
+-- ADD TEN REP n	D	inline
+-- DEL ONE REP n	D	inline
+-- DEL FIVE REP n	D	inline
+-- DEL TEN REP n	D	inline
+function changePlayerReputation()
+	clearGMFunctions()
+	addGMFunction("-Main From Rep",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local current_rep = math.floor(p:getReputationPoints())
+		addGMFunction(string.format("Add one rep %i",current_rep),function()
+			p:addReputationPoints(1)
+			changePlayerReputation()
+		end)
+		addGMFunction(string.format("Add five rep %i",current_rep),function()
+			p:addReputationPoints(5)
+			changePlayerReputation()
+		end)
+		addGMFunction(string.format("Add ten rep %i",current_rep),function()
+			p:addReputationPoints(10)
+			changePlayerReputation()
+		end)
+		if current_rep > 0 then
+			addGMFunction(string.format("Del one rep %i",current_rep),function()
+				p:takeReputationPoints(1)
+				changePlayerReputation()
+			end)
+		end
+		if current_rep > 5 then
+			addGMFunction(string.format("Del five rep %i",current_rep),function()
+				p:takeReputationPoints(5)
+				changePlayerReputation()
+			end)
+		end
+		if current_rep > 10 then
+			addGMFunction(string.format("Del ten rep %i",current_rep),function()
+				p:takeReputationPoints(10)
+				changePlayerReputation()
+			end)
+		end
+	else
+		addGMMessage("No player selected. No action taken. No reputation options presented")
+		tweakPlayerShip()
+	end
+end
+---------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Player Message  --
+---------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PLYR MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +CONSOLE MESSAGE		F	playerConsoleMessage
+-- +SHIP LOG MSG		F	playerShipLogMessage
+function playerMessage()
+	clearGMFunctions()
+	addGMFunction("-Main from plyr msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak player",tweakPlayerShip)
+	addGMFunction("+Console Message",playerConsoleMessage)
+	addGMFunction("+Ship Log Msg",playerShipLogMessage)
+	addGMFunction("+Hail Message",playerHailMessage)
+end
+----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Console Message  --
+----------------------------------------------------------------------
+-- Button text	   FD*	Related Function(s)
+-- -MAIN FROM CNSL MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +SELECT MSG OBJ		F	changeMessageObject
+function playerConsoleMessage()
+	clearGMFunctions()
+	addGMFunction("-Main From Cnsl Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+		local p = playerShipSelected()
+		if p ~= nil then
+			addGMFunction("+Send to console",sendPlayerConsoleMessage)
+		else
+			addGMFunction("+Select Player",playerConsoleMessage)
+		end
+	end
+end
+function changeMessageObject()
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			message_object = object_list[1]
+			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nplace message in unscanned description field",message_object:getSectorName()))
+			playerConsoleMessage()
+		else
+			addGMMessage("Select only one object to use to pass messages via its description field. No action taken")
+			playerConsoleMessage()
+		end
+	else
+		addGMMessage("Select an object to use to pass messages via its description field. No action taken")
+		playerConsoleMessage()
+	end 
+end
+-----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message  --
+-----------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- +SRC:UNKNOWN			D	playerMessageSource
+-- +SELECT MSG OBJ		D	changeMessageObject
+-- +PSHIP:ALL			D	setPlayerShipMessageDestination
+-- +COLOR:MAGENTA		D	setPlayerShipLogMessageColor
+-- PREVIEW				F	inline
+-- SEND					F	inline
+function playerShipLogMessage()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if player_message_source == nil then
+		player_message_source = "Unknown"
+	end
+	if type(player_message_source) == "string" then
+		addGMFunction(string.format("+Src:%s",player_message_source),playerMessageSource)
+	else
+		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageSource)
+	end
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+	end
+	if player_ship_message_destination == nil then
+		player_ship_message_destination = "All"
+	end
+	local button_label = "+pShip"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. ":All"
+	else
+		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
+	end
+	set_player_ship_message_destination_caller = playerShipLogMessage
+	addGMFunction(button_label,setPlayerShipMessageDestination)
+	addGMFunction(string.format("+Color:%s",color_list[player_ship_log_message_color]),setPlayerShipLogMessageColor)
+	addGMFunction("Preview",function()
+		local preview_message = "Clicking send will send the following message:"
+		if message_object ~= nil then
+			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
+			preview_message = preview_message .. "\nIdentified as coming from"
+			if type(player_message_source) == "string" then
+				if message_source_object ~= nil then
+					local source = message_source_object:getDescription()
+					if source ~= nil then
+						player_message_source = source
+					end
+				end
+				preview_message = string.format("%s\n%s",preview_message,player_message_source)
+			else
+				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
+			end
+			if type(player_ship_message_destination) == "string" then
+				preview_message = string.format("%s\nTo all player ship logs",preview_message)
+			else
+				preview_message = string.format("%s\nTo %s's ship log",preview_message,player_ship_message_destination:getCallSign())
+			end
+			preview_message = string.format("%s\nIn this color: %s",preview_message,color_list[player_ship_log_message_color])
+		else
+			preview_message = preview_message .. "\nno message because no message object has been selected"
+		end
+		addGMMessage(preview_message)
+	end)
+	addGMFunction("Send",function()
+		local ship_log_message = ""
+		if type(player_message_source) == "string" then
+			if message_source_object ~= nil then
+				local source = message_source_object:getDescription()
+				if source ~= nil then
+					player_message_source = source
+				end
+			end
+			ship_log_message = string.format("[%s] %s",player_message_source,message_object:getDescription())
+		else
+			ship_log_message = string.format("[%s in %s] %s",player_message_source:getCallSign(),player_message_source:getSectorName(),message_object:getDescription())
+		end
+		if type(player_ship_message_destination) == "string" then
+			for pidx=1,32 do
+				local p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					p:addToShipLog(ship_log_message,player_ship_log_message_color)
+				end
+			end
+		else
+			player_ship_message_destination:addToShipLog(ship_log_message,player_ship_log_message_color)
+		end
+		local confirmation_message = string.format("Message...\n%s\nsent to\n",ship_log_message)
+		if type(player_ship_message_destination) == "string" then
+			confirmation_message = string.format("%sAll player ships colored in %s",confirmation_message,color_list[player_ship_log_message_color])
+		else
+			confirmation_message = string.format("%s%s colored in %s",confirmation_message,player_ship_message_destination:getCallSign(),color_list[player_ship_log_message_color])
+		end
+		addGMMessage(confirmation_message)
+	end)
+end
+function playerHailMessage()
+	clearGMFunctions()
+	addGMFunction("-Main From Hail Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if player_message_source == nil or type(player_message_source) == "string" then
+		addGMFunction("+Source",playerMessageObjectSource)
+	else
+		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageObjectSource)
+	end
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+	end
+	if player_ship_message_destination == nil then
+		player_ship_message_destination = "All"
+	end
+	local button_label = "+pShip"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. ":All"
+	else
+		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
+	end
+	set_player_ship_message_destination_caller = playerHailMessage
+	addGMFunction(button_label,setPlayerShipMessageDestination)
+	addGMFunction("Preview",function()
+		local preview_message = "Clicking send will send the following message:"
+		if message_object ~= nil then
+			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
+			preview_message = preview_message .. "\nIdentified as coming from"
+			if player_message_source == nil or type(player_message_source) == "string" then
+				preview_message = preview_message .. "\nNobody (message will not go out). You need to select a message source"
+			else
+				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
+			end
+			if type(player_ship_message_destination) == "string" then
+				preview_message = string.format("%s\nTo all player ships",preview_message)
+			else
+				preview_message = string.format("%s\nTo %s",preview_message,player_ship_message_destination:getCallSign())
+			end
+		else
+			preview_message = preview_message .. "\nNo message because no message object has been selected"
+		end
+		addGMMessage(preview_message)
+	end)
+	addGMFunction("Send",function()
+		local hail_message = ""
+		if player_message_source == nil or type(player_message_source) == "string" then
+			addGMMessage("You need to select a message source. No action taken")
+			return
+		else
+			hail_message = string.format("[Sector %s] %s",player_message_source:getSectorName(),message_object:getDescription())
+		end
+		if type(player_ship_message_destination) == "string" then
+			for pidx=1,32 do
+				local p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					player_message_source:sendCommsMessage(p,hail_message)
+				end
+			end
+		else
+			player_message_source:sendCommsMessage(player_ship_message_destination,hail_message)
+		end
+		local confirmation_message = string.format("Message...\n%s\nsent to\n",hail_message)
+		if type(player_ship_message_destination) == "string" then
+			confirmation_message = string.format("%sAll player ships",confirmation_message)
+		else
+			confirmation_message = string.format("%s%s",confirmation_message,player_ship_message_destination:getCallSign())
+		end
+		addGMMessage(confirmation_message)
+	end)
+end
+function playerMessageObjectSource()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Hail Message",playerHailMessage)
+	local stations_and_ships = {}
+	for _, station in pairs(regionStations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	if region_ships ~= nil then
+		for _, ship in pairs(region_ships) do
+			if ship ~= nil and ship:isValid() then
+				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
+			end
+		end
+	end
+	for _, station in pairs(skeleton_stations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	table.sort(stations_and_ships,function(a,b)
+		return a.name < b.name
+	end)
+	for _,item in ipairs(stations_and_ships) do
+		button_label = item.name
+		if type(player_message_source) == "table" and player_message_source == item.object then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			player_message_source = item.object
+			playerMessageObjectSource()
+		end)
+	end
+end
+--	********************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Engineering				****  --
+--	********************************************************************************************  --
+-------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Engineering > Beam Heat/Energy  --
+-------------------------------------------------------------------------------------
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -ENGINEERING			F	tweakEngineering
+-- BEAM HEAT +			D	inline
+-- BEAM HEAT -			D	inline
+-- BEAM ENERGY +		D	inline
+-- BEAM ENERGY - 		D	inline
 function changePlayerBeams()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -11976,84 +11601,9 @@ function changePlayerMaxSystem()
 		addGMFunction("+Select Player",changePlayerMaxSystem)
 	end
 end
-------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Cargo  --
-------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM CARGO		F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- +REMOVE CARGO		F	removeCargo
--- +ADD MINERAL			F	addMineralCargo
--- +ADD COMPONENT		F	addComponentCargo
-function changePlayerCargo()
-	clearGMFunctions()
-	addGMFunction("-Main from Cargo",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("+Remove Cargo",removeCargo)
-	addGMFunction("+Add Mineral",addMineralCargo)
-	addGMFunction("+Add Component",addComponentCargo)
-end
-function playerShipSelected()
-	local p = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					break
-				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
-		return p
-	end
-	return nil
-end
--------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Probes  --
--------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM PROBES	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- DEL PROBE 8 -> 7		D	inline
-function changePlayerProbes()
-	clearGMFunctions()
-	addGMFunction("-Main from Probes",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local probe_count = p:getScanProbeCount()
-		local max_probe_count = p:getMaxScanProbeCount()
-		if probe_count < max_probe_count then
-			addGMFunction(string.format("Add Probe %i -> %i",probe_count,probe_count + 1),function()
-				p:setScanProbeCount(probe_count + 1)
-				changePlayerProbes()
-			end)
-		end
-		if probe_count > 0 then
-			addGMFunction(string.format("Del Probe %i -> %i",probe_count,probe_count - 1),function()
-				p:setScanProbeCount(probe_count - 1)
-				changePlayerProbes()
-			end)
-		end
-	else
-		addGMFunction("+Select player ship",function()
-			changePlayerProbes()
-		end)
-	end
-end
+--	************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Cargo				****  --
+--	************************************************************************************  --
 ---------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Cargo > Remove Cargo  --
 ---------------------------------------------------------------------------
@@ -12160,341 +11710,7 @@ function addComponentCargo()
 		addGMMessage("No player selected. No action taken")
 	end
 end
------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Reputation  --
------------------------------------------------------------------
--- Button text	   FD*	Related Function(s)
--- -MAIN FROM REP	F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -TWEAK PLAYER	F	tweakPlayerShip
--- ADD ONE REP n	D	inline
--- ADD FIVE REP n	D	inline
--- ADD TEN REP n	D	inline
--- DEL ONE REP n	D	inline
--- DEL FIVE REP n	D	inline
--- DEL TEN REP n	D	inline
-function changePlayerReputation()
-	clearGMFunctions()
-	addGMFunction("-Main From Rep",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local current_rep = math.floor(p:getReputationPoints())
-		addGMFunction(string.format("Add one rep %i",current_rep),function()
-			p:addReputationPoints(1)
-			changePlayerReputation()
-		end)
-		addGMFunction(string.format("Add five rep %i",current_rep),function()
-			p:addReputationPoints(5)
-			changePlayerReputation()
-		end)
-		addGMFunction(string.format("Add ten rep %i",current_rep),function()
-			p:addReputationPoints(10)
-			changePlayerReputation()
-		end)
-		if current_rep > 0 then
-			addGMFunction(string.format("Del one rep %i",current_rep),function()
-				p:takeReputationPoints(1)
-				changePlayerReputation()
-			end)
-		end
-		if current_rep > 5 then
-			addGMFunction(string.format("Del five rep %i",current_rep),function()
-				p:takeReputationPoints(5)
-				changePlayerReputation()
-			end)
-		end
-		if current_rep > 10 then
-			addGMFunction(string.format("Del ten rep %i",current_rep),function()
-				p:takeReputationPoints(10)
-				changePlayerReputation()
-			end)
-		end
-	else
-		addGMMessage("No player selected. No action taken. No reputation options presented")
-		tweakPlayerShip()
-	end
-end
----------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Player Message  --
----------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM PLYR MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -PLAYER SHIP			F	playerShip
--- -TWEAK PLAYER		F	tweakPlayerShip
--- +CONSOLE MESSAGE		F	playerConsoleMessage
--- +SHIP LOG MSG		F	playerShipLogMessage
-function playerMessage()
-	clearGMFunctions()
-	addGMFunction("-Main from plyr msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak player",tweakPlayerShip)
-	addGMFunction("+Console Message",playerConsoleMessage)
-	addGMFunction("+Ship Log Msg",playerShipLogMessage)
-	addGMFunction("+Hail Message",playerHailMessage)
-end
-----------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Console Message  --
-----------------------------------------------------------------------
--- Button text	   FD*	Related Function(s)
--- -MAIN FROM CNSL MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- +SELECT MSG OBJ		F	changeMessageObject
-function playerConsoleMessage()
-	clearGMFunctions()
-	addGMFunction("-Main From Cnsl Msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	if message_object == nil then
-		addGMFunction("+Select Msg Obj",changeMessageObject)
-	else
-		addGMFunction("+Change Msg Obj",changeMessageObject)
-		local p = playerShipSelected()
-		if p ~= nil then
-			addGMFunction("+Send to console",sendPlayerConsoleMessage)
-		else
-			addGMFunction("+Select Player",playerConsoleMessage)
-		end
-	end
-end
-function changeMessageObject()
-	local object_list = getGMSelection()
-	if object_list ~= nil then
-		if #object_list == 1 then
-			message_object = object_list[1]
-			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nplace message in unscanned description field",message_object:getSectorName()))
-			playerConsoleMessage()
-		else
-			addGMMessage("Select only one object to use to pass messages via its description field. No action taken")
-			playerConsoleMessage()
-		end
-	else
-		addGMMessage("Select an object to use to pass messages via its description field. No action taken")
-		playerConsoleMessage()
-	end 
-end
------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Ship Log Message  --
------------------------------------------------------------------------
--- Button text		   FD*	Related Function(s)
--- -MAIN FROM SHIP MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- -PLAYER MESSAGE		F	playerMessage
--- +SRC:UNKNOWN			D	playerMessageSource
--- +SELECT MSG OBJ		D	changeMessageObject
--- +PSHIP:ALL			D	setPlayerShipMessageDestination
--- +COLOR:MAGENTA		D	setPlayerShipLogMessageColor
--- PREVIEW				F	inline
--- SEND					F	inline
-function playerShipLogMessage()
-	clearGMFunctions()
-	addGMFunction("-Main From Ship Msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	if player_message_source == nil then
-		player_message_source = "Unknown"
-	end
-	if type(player_message_source) == "string" then
-		addGMFunction(string.format("+Src:%s",player_message_source),playerMessageSource)
-	else
-		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageSource)
-	end
-	if message_object == nil then
-		addGMFunction("+Select Msg Obj",changeMessageObject)
-	else
-		addGMFunction("+Change Msg Obj",changeMessageObject)
-	end
-	if player_ship_message_destination == nil then
-		player_ship_message_destination = "All"
-	end
-	local button_label = "+pShip"
-	if type(player_ship_message_destination) == "string" then
-		button_label = button_label .. ":All"
-	else
-		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
-	end
-	set_player_ship_message_destination_caller = playerShipLogMessage
-	addGMFunction(button_label,setPlayerShipMessageDestination)
-	addGMFunction(string.format("+Color:%s",color_list[player_ship_log_message_color]),setPlayerShipLogMessageColor)
-	addGMFunction("Preview",function()
-		local preview_message = "Clicking send will send the following message:"
-		if message_object ~= nil then
-			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
-			preview_message = preview_message .. "\nIdentified as coming from"
-			if type(player_message_source) == "string" then
-				if message_source_object ~= nil then
-					local source = message_source_object:getDescription()
-					if source ~= nil then
-						player_message_source = source
-					end
-				end
-				preview_message = string.format("%s\n%s",preview_message,player_message_source)
-			else
-				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
-			end
-			if type(player_ship_message_destination) == "string" then
-				preview_message = string.format("%s\nTo all player ship logs",preview_message)
-			else
-				preview_message = string.format("%s\nTo %s's ship log",preview_message,player_ship_message_destination:getCallSign())
-			end
-			preview_message = string.format("%s\nIn this color: %s",preview_message,color_list[player_ship_log_message_color])
-		else
-			preview_message = preview_message .. "\nno message because no message object has been selected"
-		end
-		addGMMessage(preview_message)
-	end)
-	addGMFunction("Send",function()
-		local ship_log_message = ""
-		if type(player_message_source) == "string" then
-			if message_source_object ~= nil then
-				local source = message_source_object:getDescription()
-				if source ~= nil then
-					player_message_source = source
-				end
-			end
-			ship_log_message = string.format("[%s] %s",player_message_source,message_object:getDescription())
-		else
-			ship_log_message = string.format("[%s in %s] %s",player_message_source:getCallSign(),player_message_source:getSectorName(),message_object:getDescription())
-		end
-		if type(player_ship_message_destination) == "string" then
-			for pidx=1,32 do
-				local p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					p:addToShipLog(ship_log_message,player_ship_log_message_color)
-				end
-			end
-		else
-			player_ship_message_destination:addToShipLog(ship_log_message,player_ship_log_message_color)
-		end
-		local confirmation_message = string.format("Message...\n%s\nsent to\n",ship_log_message)
-		if type(player_ship_message_destination) == "string" then
-			confirmation_message = string.format("%sAll player ships colored in %s",confirmation_message,color_list[player_ship_log_message_color])
-		else
-			confirmation_message = string.format("%s%s colored in %s",confirmation_message,player_ship_message_destination:getCallSign(),color_list[player_ship_log_message_color])
-		end
-		addGMMessage(confirmation_message)
-	end)
-end
-function playerHailMessage()
-	clearGMFunctions()
-	addGMFunction("-Main From Hail Msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	if player_message_source == nil or type(player_message_source) == "string" then
-		addGMFunction("+Source",playerMessageObjectSource)
-	else
-		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageObjectSource)
-	end
-	if message_object == nil then
-		addGMFunction("+Select Msg Obj",changeMessageObject)
-	else
-		addGMFunction("+Change Msg Obj",changeMessageObject)
-	end
-	if player_ship_message_destination == nil then
-		player_ship_message_destination = "All"
-	end
-	local button_label = "+pShip"
-	if type(player_ship_message_destination) == "string" then
-		button_label = button_label .. ":All"
-	else
-		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
-	end
-	set_player_ship_message_destination_caller = playerHailMessage
-	addGMFunction(button_label,setPlayerShipMessageDestination)
-	addGMFunction("Preview",function()
-		local preview_message = "Clicking send will send the following message:"
-		if message_object ~= nil then
-			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
-			preview_message = preview_message .. "\nIdentified as coming from"
-			if player_message_source == nil or type(player_message_source) == "string" then
-				preview_message = preview_message .. "\nNobody (message will not go out). You need to select a message source"
-			else
-				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
-			end
-			if type(player_ship_message_destination) == "string" then
-				preview_message = string.format("%s\nTo all player ships",preview_message)
-			else
-				preview_message = string.format("%s\nTo %s",preview_message,player_ship_message_destination:getCallSign())
-			end
-		else
-			preview_message = preview_message .. "\nNo message because no message object has been selected"
-		end
-		addGMMessage(preview_message)
-	end)
-	addGMFunction("Send",function()
-		local hail_message = ""
-		if player_message_source == nil or type(player_message_source) == "string" then
-			addGMMessage("You need to select a message source. No action taken")
-			return
-		else
-			hail_message = string.format("[Sector %s] %s",player_message_source:getSectorName(),message_object:getDescription())
-		end
-		if type(player_ship_message_destination) == "string" then
-			for pidx=1,32 do
-				local p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					player_message_source:sendCommsMessage(p,hail_message)
-				end
-			end
-		else
-			player_message_source:sendCommsMessage(player_ship_message_destination,hail_message)
-		end
-		local confirmation_message = string.format("Message...\n%s\nsent to\n",hail_message)
-		if type(player_ship_message_destination) == "string" then
-			confirmation_message = string.format("%sAll player ships",confirmation_message)
-		else
-			confirmation_message = string.format("%s%s",confirmation_message,player_ship_message_destination:getCallSign())
-		end
-		addGMMessage(confirmation_message)
-	end)
-end
-function playerMessageObjectSource()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	addGMFunction("-Hail Message",playerHailMessage)
-	local stations_and_ships = {}
-	for _, station in pairs(regionStations) do
-		if station ~= nil and station:isValid() then
-			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
-		end
-	end
-	if region_ships ~= nil then
-		for _, ship in pairs(region_ships) do
-			if ship ~= nil and ship:isValid() then
-				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
-			end
-		end
-	end
-	for _, station in pairs(skeleton_stations) do
-		if station ~= nil and station:isValid() then
-			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
-		end
-	end
-	table.sort(stations_and_ships,function(a,b)
-		return a.name < b.name
-	end)
-	for _,item in ipairs(stations_and_ships) do
-		button_label = item.name
-		if type(player_message_source) == "table" and player_message_source == item.object then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			player_message_source = item.object
-			playerMessageObjectSource()
-		end)
-	end
-end
+
 ----------------------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source  --
 ----------------------------------------------------------------------------------------
@@ -13133,6 +12349,9 @@ function changePlayerMaxRearShield()
 		addGMFunction("+Select Player",changePlayerMaxRearShield)
 	end
 end
+--	****************************************************************************  --
+--	****				Initial Set Up Player Ships	Descriptions			****  --
+--	****************************************************************************  --
 -----------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Descriptions > Describe Current  --
 -----------------------------------------------------------------------
@@ -15233,12 +14452,12 @@ function createPlayerShipWindmill()
 	return playerWindmill
 end
 function createPlayerShipWombat()
-	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Shannon")
+	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(100)							--stronger hull (vs 75)
 	playerWombat:setHull(100)
-	playerWombat:setShieldsMax(80, 80)						--stronger shields (vs 40)
-	playerWombat:setShields(80, 80)
+	playerWombat:setShieldsMax(60, 100)						--stronger shields (vs 40)
+	playerWombat:setShields(60, 100)
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
 	playerWombat:setWarpDrive(true)							--add warp (vs none)
 	playerWombat:setWarpSpeed(400)
@@ -15258,6 +14477,9 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponTubeExclusiveFor(1,"HVLI")
 	playerWombat:weaponTubeAllowMissle(1,"Homing")
 	playerWombat:setTubeSize(2,"large")						--large (vs small)
+	playerWombat:setTubeLoadTime(2,15)						--slower load time (vs 10)
+	playerWombat:setTubeLoadTime(0,5)						--faster load time (vs 10)
+	playerWombat:setTubeLoadTime(1,5)						--faster load time (vs 10)
 	playerWombat:setWeaponTubeExclusiveFor(2,"HVLI")
 	playerWombat:weaponTubeAllowMissle(2,"Homing")
 	playerWombat:setWeaponTubeExclusiveFor(3,"HVLI")
@@ -15279,11 +14501,11 @@ end
 function createPlayerShipWrocket()
 	playerWrocket = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Slingshot")
 	playerWrocket:setTypeName("Wrocket")
-	playerWrocket:setShieldsMax(100,100)					--stronger shields (vs 80,80)
+	playerWrocket:setShieldsMax(100,100)				--stronger shields (vs 80,80)
 	playerWrocket:setShields(100,100)
-	playerWrocket.max_jump_range = 30000					--shorter than typical (vs 50)
-	playerWrocket.min_jump_range = 3000						--shorter than typical (vs 5)
-	playerWrocket:setCombatManeuver(300,200)				--more (vs 200,150)
+	playerWrocket.max_jump_range = 30000				--shorter than typical (vs 50)
+	playerWrocket.min_jump_range = 3000					--shorter than typical (vs 5)
+	playerWrocket:setCombatManeuver(300,200)			--more (vs 200,150)
 	playerWrocket:setJumpDriveRange(playerWrocket.min_jump_range,playerWrocket.max_jump_range)
 	playerWrocket:setJumpDriveCharge(playerWrocket.max_jump_range)
 --                 				   Arc, Dir,   Range, CycleTime, Damage
@@ -15292,15 +14514,15 @@ function createPlayerShipWrocket()
 --											Arc,  Dir, Rotate speed
 	playerWrocket:setBeamWeaponTurret(0,	270,    0,			 1)
 	playerWrocket:setBeamWeaponTurret(1,	270,  180,			 1)
-	playerWrocket:setTubeSize(0,"small")
-	playerWrocket:setTubeSize(3,"small")
-	playerWrocket:setTubeLoadTime(0,6)
-	playerWrocket:setTubeLoadTime(3,6)
-	playerWrocket:setTubeLoadTime(2,12)
-	playerWrocket:setTubeLoadTime(5,12)
+	playerWrocket:setTubeSize(0,"small")				--small (vs large)
+	playerWrocket:setTubeSize(3,"small")				--small (vs large)
+	playerWrocket:setTubeLoadTime(0,6)					--faster (vs 8)
+	playerWrocket:setTubeLoadTime(3,6)					--faster (vs 8)
+	playerWrocket:setTubeLoadTime(2,12)					--slower (vs 8)
+	playerWrocket:setTubeLoadTime(5,12)					--slower (vs 8)
 	playerWrocket:weaponTubeDisallowMissle(1,"Mine")	--no side launching mines
 	playerWrocket:weaponTubeDisallowMissle(4,"Mine")
-	playerWrocket:setWeaponStorageMax("EMP",8)
+	playerWrocket:setWeaponStorageMax("EMP",8)			--more (vs 0)
 	playerWrocket:setWeaponStorage("EMP", 8)
 	playerWrocket:addReputationPoints(50)
 	playerShipSpawned("Wrocket")
@@ -15400,6 +14622,9 @@ function playerShipSpawned(shipName)
 		end
 	end
 end
+--	************************************************************  --
+--	****				Initial Set Up Zones				****  --
+--	************************************************************  --
 -----------------------------------------
 --	Initial Set Up > Zones > Add Zone  --
 -----------------------------------------
@@ -15419,6 +14644,48 @@ function addZone()
 	addGMFunction("+Via Object",addZoneByObject)
 	addGMFunction("+Via Click",addZoneByClick)
 end
+--------------------------------------------
+--	Initial Set Up > Zones > Delete Zone  --
+--------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -ZONES FROM DELETE	F	changeZones
+-- Button for each existing zone
+function deleteZone()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones from delete",changeZones)
+	if selected_zone_index == nil then
+		selected_zone_index = 1
+	end
+	if #zone_list > 0 then
+		local zone_delete_label = string.format("Del %s",zone_list[selected_zone_index].name)
+		if zone_list[selected_zone_index].sector_name ~= nil then
+			zone_delete_label = string.format("%s in %s",zone_delete_label,zone_list[selected_zone_index].sector_name)
+		end
+		addGMFunction(zone_delete_label,function()
+			local zone_to_delete = zone_list[selected_zone_index]
+			table.remove(zone_list,selected_zone_index)
+			zone_to_delete:destroy()
+			selected_zone_index = nil
+			deleteZone()
+		end)
+		addGMFunction("Select Next Zone",function()
+			selected_zone_index = selected_zone_index + 1
+			if selected_zone_index > #zone_list then
+				selected_zone_index = 1
+			end
+			deleteZone()
+		end)
+	else
+		changeZones()
+	end
+end
+--	********************************************************************  --
+--	****				Initial Set Up Zones Add Zone				****  --
+--	********************************************************************  --
 -------------------------------------------------
 --	Initial Set Up > Zones > Add Zone > Color  --
 -------------------------------------------------
@@ -15759,45 +15026,6 @@ function setZonePolygonPointMax()
 			zone_point_max = zone_point_max - 1
 			setZonePolygonPointMax()
 		end)
-	end
-end
---------------------------------------------
---	Initial Set Up > Zones > Delete Zone  --
---------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -ZONES FROM DELETE	F	changeZones
--- Button for each existing zone
-function deleteZone()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Zones from delete",changeZones)
-	if selected_zone_index == nil then
-		selected_zone_index = 1
-	end
-	if #zone_list > 0 then
-		local zone_delete_label = string.format("Del %s",zone_list[selected_zone_index].name)
-		if zone_list[selected_zone_index].sector_name ~= nil then
-			zone_delete_label = string.format("%s in %s",zone_delete_label,zone_list[selected_zone_index].sector_name)
-		end
-		addGMFunction(zone_delete_label,function()
-			local zone_to_delete = zone_list[selected_zone_index]
-			table.remove(zone_list,selected_zone_index)
-			zone_to_delete:destroy()
-			selected_zone_index = nil
-			deleteZone()
-		end)
-		addGMFunction("Select Next Zone",function()
-			selected_zone_index = selected_zone_index + 1
-			if selected_zone_index > #zone_list then
-				selected_zone_index = 1
-			end
-			deleteZone()
-		end)
-	else
-		changeZones()
 	end
 end
 -----------------------------------------------------------------------------------
@@ -21128,13 +20356,683 @@ end
 --	*											   *  --
 --	**											  **  --
 --	************************************************  --
---	****				Drop Point				****  --
+--	****				Order Ship				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
+-------------------------------------
+--	Order Ship > Warp/Jump Jammer  --
+-------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -MAIN FROM JAMMER		F	initialGMFunctions
+-- -ORDER SHIP				F	orderShip
+-- JAM RANGE 10 - 5 = 5U	D	inline
+-- JAM RANGE 10 + 5 = 15U	D	inline
+-- DROP JAMMER 10U			D	dropJammer
+function warpJumpJammer()
+	clearGMFunctions()
+	addGMFunction("-Main from Jammer",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	if jammer_range > 5000 then
+		addGMFunction(string.format("Jam range %i - %i = %iU",jammer_range/1000,5,(jammer_range-5000)/1000),function()
+			jammer_range = jammer_range - 5000
+			warpJumpJammer()
+		end)
+	end
+	if jammer_range < 50000 then
+		addGMFunction(string.format("Jam range %i + %i = %iU",jammer_range/1000,5,(jammer_range+5000)/1000),function()
+			jammer_range = jammer_range + 5000
+			warpJumpJammer()
+		end)
+	end
+	addGMFunction(string.format("Drop Jammer %iU",jammer_range/1000),dropJammer)
+end
+function dropJammer()
+	local object_list = getGMSelection()
+	if #object_list < 1 then
+		addGMMessage("Jammer drop failed - nothing selected for location determination") 
+		return
+	end
+	local selected_matches_npc_ship = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		if current_selected_object.typeName == "CpuShip" then
+			local csox, csoy = current_selected_object:getPosition()
+			local vx, vy = vectorFromAngle(current_selected_object:getHeading()+90,500)
+			WarpJammer():setRange(jammer_range):setPosition(csox+vx,csoy+vy):setFaction(current_selected_object:getFaction())
+		end
+	end
+end
+---------------------------
+--	Order Ship > Patrol  --
+---------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PATROL	F	initialGMFunctions
+-- -ORDER SHIP			F	orderShip
+-- +SELECT SHIP			D	changePatrolShip
+function setPatrolPoints()
+	clearGMFunctions()
+	addGMFunction("-Main from Patrol",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	local patrol_ship_selected = false
+	local selection_label = "+Select ship"
+	if patrol_ship ~= nil and patrol_ship:isValid() then
+		patrol_ship_selected = true
+	end
+	if patrol_ship_selected then
+		selection_label = string.format("+Change from %s",patrol_ship:getCallSign())
+	end
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local temp_object = object_list[1]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" then
+			if patrol_ship_selected then
+				if patrol_ship ~= temp_object then
+					selection_label = string.format("+Chg %s to %s",patrol_ship:getCallSign(),temp_object:getCallSign())
+				end
+			else
+				selection_label = string.format("+Select %s",temp_object:getCallSign())
+			end
+		end
+	end
+	addGMFunction(selection_label,changePatrolShip)
+	if patrol_ship_selected then
+		local add_point_label = "Add patrol point"
+		if patrol_ship.patrol_points ~= nil then
+			add_point_label = string.format("%s %i",add_point_label,#patrol_ship.patrol_points + 1)
+		end
+		if gm_click_mode == "add patrol point" then
+			addGMFunction(string.format(">%s<",add_point_label),addPatrolPoint)
+		else
+			addGMFunction(string.format("%s",add_point_label),addPatrolPoint)
+		end
+		if patrol_ship.patrol_points ~= nil then
+			addGMFunction("Del Patrol Points",function()
+				patrol_ship.patrol_points = nil
+				addGMMessage(string.format("All patrol points deleted from %s",patrol_ship:getCallSign()))
+				setPatrolPoints()
+			end)
+		end
+	end
+end
+function addPatrolPoint()
+	if gm_click_mode == "add patrol point" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "add patrol point"
+		onGMClick(gmClickAddPatrolPoint)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   add patrol point\nGM click mode.",prev_mode))
+		end
+	end
+	setPatrolPoints()
+end
+function changePatrolShip()
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local temp_object = object_list[1]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" then
+			patrol_ship = temp_object
+		else
+			addGMMessage("Select CPU ship. No action taken")
+		end
+	else
+		addGMMessage("Select one CPU ship. No action taken")
+	end
+	setPatrolPoints()
+end
+function gmClickAddPatrolPoint(x,y)
+	if patrol_ship ~= nil and patrol_ship:isValid() then
+		if patrol_ship.patrol_points ~= nil then
+			table.insert(patrol_ship.patrol_points,{x = x, y = y})
+		else
+			local px, py = patrol_ship:getPosition()
+			local patrol_points = {
+				{x = px, y = py},
+				{x = x, y = y},
+			}
+			--						obj,			patrol_points,	patrol_point_index,	patrol_check_timer_interval
+			update_system:addPatrol(patrol_ship,	patrol_points,	2,					5)
+			patrol_ship:orderFlyTowards(x,y)
+		end
+		setPatrolPoints()
+	end
+end
+-----------------------
+--	Order Ship > AI  --
+-----------------------
+-- Button Text		   FD*	Related Function(s)
+-- DEFAULT*				D	inline
+-- FIGHTER				D	inline
+-- MISSILEVOLLEY		D	inline
+-- EVASION				D	inline
+function setShipAI()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("You need to select a CPU ship. No action taken.")
+		return
+	end
+	local obj = object_list[1]
+	if obj ~= nil then
+		if obj.typeName ~= "CpuShip" then
+			addGMMessage("What you have selected is not a CPU ship. No action taken.")
+			return
+		end
+	else
+		return
+	end
+	clearGMFunctions()
+	local button_label = "default"
+	if obj.AI == "default" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("default")
+		obj.AI = "default"
+		orderShip()
+	end)
+	button_label = "fighter"
+	if obj.AI == "fighter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("fighter")
+		obj.AI = "fighter"
+		orderShip()
+	end)
+	button_label = "missilevolley"
+	if obj.AI == "missilevolley" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("missilevolley")
+		obj.AI = "missilevolley"
+		orderShip()
+	end)
+	button_label = "evasion"
+	if obj.AI == "evasion" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		obj:setAI("evasion")
+		obj.AI = "evasion"
+		orderShip()
+	end)
+end
+---------------------------
+--	Order Ship > Detach  --
+---------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM DETACH	F	initialGMFunctions
+-- -ORDER SHIP			F	orderShip
+-- +SELECT OBJECT		F	detachAnythingFromNPS
+function detachAnythingFromNPS()
+	clearGMFunctions()
+	addGMFunction("-Main from detach",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	local object_list = getGMSelection()
+	if #object_list < 1 or #object_list > 1 then
+		addGMFunction("+Select object",detachAnythingFromNPS)
+		return
+	end
+	local current_selected_object = object_list[1]
+	local current_selected_object_type = current_selected_object.typeName
+	update_system:removeUpdateNamed(current_selected_object,"attached")
+end
+---------------------------
+--	Order Ship > Attach  --
+---------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM ATTACH	F	initialGMFunctions
+-- -ORDER SHIP			F	orderShip
+-- +SELECT OBJECT		F	attachAnythingToNPS
+-- Three buttons for the nearest three CpuShips
+function attachAnythingToNPS()
+	clearGMFunctions()
+	addGMFunction("-Main from attach",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	local object_list = getGMSelection()
+	if #object_list < 1 or #object_list > 1 then
+		addGMFunction("+Select object",attachAnythingToNPS)
+		return
+	end
+	local current_selected_object = object_list[1]
+	local current_selected_object_type = current_selected_object.typeName
+	local pod_x, pod_y = current_selected_object:getPosition()
+	local nearby_objects = getObjectsInRadius(pod_x, pod_y, 40000)
+	cpu_ship_list = {}
+	for i=1,#nearby_objects do
+		local temp_object = nearby_objects[i]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" and temp_object ~= current_selected_object then
+			local ship_distance = distance(temp_object,current_selected_object)
+			table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
+		end
+	end
+	if #cpu_ship_list > 0 then
+		table.sort(cpu_ship_list,function(a,b)
+			return a.distance < b.distance
+		end)
+		if #cpu_ship_list >= 1 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[1].ship:getCallSign()), function()
+				local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
+				local relative_attach_x = pod_x - attach_target_x
+				local relative_attach_y = pod_y - attach_target_y
+				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
+			end)
+		end
+		if #cpu_ship_list >= 2 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[2].ship:getCallSign()), function()
+				local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
+				local relative_attach_x = pod_x - attach_target_x
+				local relative_attach_y = pod_y - attach_target_y
+				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
+			end)
+		end
+		if #cpu_ship_list >= 3 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[3].ship:getCallSign()), function()
+				local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
+				local relative_attach_x = pod_x - attach_target_x
+				local relative_attach_y = pod_y - attach_target_y
+				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+			end)
+		end
+	else
+		addGMMessage("No CPU Ships within 40 units of selected object")
+		addGMFunction("+Select drop point",attachAnythingToNPS)
+	end
+end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****				Artifacts				****  --
 --	************************************************  --
 --	**											  **  --
 --	*											   *  --
 -------------------------------
---	Drop Point > Escape Pod  --
+--	Artifacts > Drop Points  --
 -------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM DROP PNT		F	initialGMFunctions
+-- +ESCAPE POD				F	setEscapePod
+-- +MARINE POINT			F	setMarinePoint
+-- +ENGINEER POINT			F	setEngineerPoint
+-- +MEDICAL TEAM POINT		F	setMedicPoint
+-- +CUSTOM SUPPLY			F	setCustomSupply
+-- +ATTACH TO NPS			F	attachArtifact
+-- +DETACH					F	detachArtifact
+-- ARTIFACT TO POD			F	artifactToPod
+function dropPoint()
+	clearGMFunctions()
+	addGMFunction("-Main from Drop Pnt",initialGMFunctions)
+	addGMFunction("+Escape Pod",setEscapePod)
+	addGMFunction("+Marine Point",setMarinePoint)
+	addGMFunction("+Engineer Point",setEngineerPoint)
+	addGMFunction("+Medical Team Point",setMedicPoint)
+	addGMFunction("+Custom Supply",setCustomSupply)
+	addGMFunction("+Attach to NPS",attachArtifact)
+	addGMFunction("+Detach",detachArtifact)
+	addGMFunction("Artifact To Pod",artifactToPod)
+end
+-----------------------------
+--	Artifacts > Scan Clue  --
+-----------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM SCAN CLUE		F	initialGMFunctions
+-- +UNSCANNED DESC			F	setUnscannedDescription
+-- +SCANNED DESC			F	setScannedDescription
+-- SHOW DESCRIPTIONS		F	inline
+-- +SCAN COMPLEX: 1			D	setScanComplexity
+-- +SCAN DEPTH: 1			D	setScanDepth
+-- UNRETRIEVABLE			D	inline (toggles between retrievable and unretrievable)
+-- EXPIRING					F	inline (toggles between expiring and non-expiring)
+-- +AT CLICK				D	setScanClueLocation
+-- PLACE SCAN CLUE			D	placeScanClue
+function scanClue()
+	clearGMFunctions()
+	addGMFunction("-Main from Scan Clue",initialGMFunctions)
+	addGMFunction("+Unscanned Desc",setUnscannedDescription)
+	addGMFunction("+Scanned Desc",setScannedDescription)
+	addGMFunction("Show Descriptions",function()
+		local unscannedDescription = unscannedClues[unscannedClueKey]
+		local scannedDescription = ""
+		if scannedClues1[scannedClueKey1] ~= nil and scannedClues1[scannedClueKey1] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues1[scannedClueKey1] .. " "
+		end
+		if scannedClues2[scannedClueKey2] ~= nil and scannedClues2[scannedClueKey2] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues2[scannedClueKey2] .. " "
+		end
+		if scannedClues3[scannedClueKey3] ~= nil and scannedClues3[scannedClueKey3] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues3[scannedClueKey3] .. " "
+		end
+		if scannedClues4[scannedClueKey4] ~= nil and scannedClues4[scannedClueKey4] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues4[scannedClueKey4] .. " "
+		end
+		if scannedClues5[scannedClueKey5] ~= nil and scannedClues5[scannedClueKey5] ~= "None" then
+			scannedDescription = scannedDescription .. scannedClues5[scannedClueKey5] .. " "
+		end
+		addGMMessage(string.format("Unscanned description:\n%s\nScanned Description:\n%s",unscannedDescription,scannedDescription))
+	end)
+	local GMSetScanComplexity = "+Scan Complex: " .. scanComplexity
+	addGMFunction(GMSetScanComplexity,setScanComplexity)
+	local GMSetScanDepth = "+Scan Depth: " .. scanDepth
+	addGMFunction(GMSetScanDepth,setScanDepth)
+	if scan_clue_retrievable then
+		addGMFunction("Retrievable",function()
+			scan_clue_retrievable = false
+			scanClue()
+		end)
+	else
+		addGMFunction("Unretrievable",function()
+			scan_clue_retrievable = true
+			scanClue()
+		end)
+	end
+	if scan_clue_expire then
+		addGMFunction("Expiring",function()
+			scan_clue_expire = false
+			scanClue()
+		end)
+	else
+		addGMFunction("Non-Expiring",function()
+			scan_clue_expire = true
+			scanClue()
+		end)
+	end
+	addGMFunction(string.format("+%s",scan_clue_location),setScanClueLocation)
+	if gm_click_mode == "place scan clue" then
+		addGMFunction(">Place Scan Clue<",placeScanClue)
+	else
+		addGMFunction("Place Scan Clue",placeScanClue)
+	end
+end
+function placeScanClue()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "place scan clue" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "place scan clue"
+			onGMClick(gmClickPlaceScanClue)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   place scan clue\nGM click mode.",prev_mode))
+			end
+		end
+		scanClue()
+	elseif drop_point_location == "Near To" then
+		scanClueNearTo()
+	end
+end
+function gmClickPlaceScanClue(x,y)
+	scanClueCreation(x, y, 0, 0)
+end
+function updateEditObjectValid()
+	if update_edit_object == nil or not update_edit_object:isValid() then
+		addGMMessage("the object being edited has been destroyed")
+		updateEditor()
+		return false
+	else
+		return true
+	end
+end
+function numericEditControl(params)
+	-- we need to be able to call the function that we are defining within itself
+	-- there probably is a tidy way to do this, but I don't know it
+	-- thus we are going to create a table which we will look up itself within
+	local ret = {}
+	ret.fun = function()
+		assert(type(params)=="table")
+		assert(type(params.closers)=="function")
+		assert(type(params.getter)=="function")
+		assert(type(params.setter)=="function")
+		assert(type(params.name)=="string")
+		assert(type(params.fixedAdjAmount)=="number")
+		params.closers()
+		addGMFunction(string.format("%.2f - %.2f",params.getter(),params.fixedAdjAmount),
+			function ()
+				params.setter(params.getter()-params.fixedAdjAmount)
+				ret["fun"]()
+			end)
+		addGMFunction(string.format("%s = %.2f",params.name,params.getter()),nil)
+		addGMFunction(string.format("%.2f + %.2f",params.getter(),params.fixedAdjAmount),
+			function ()
+				params.setter(params.getter()+params.fixedAdjAmount)
+				ret["fun"]()
+			end)
+	end
+	return ret.fun
+end
+-----------------------------
+--	Artifacts > Set Model  --
+-----------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM MODEL		F	initialGMFunctions
+-- -ARTIFACTS			F	fiddleWithArtifacts
+-- +NORMAL				F	normalArtifactModels
+-- +UTILITY				F	utilityArtifactModels
+-- +STATION				F	stationArtifactModels
+-- +SHIP				F	shipArtifactModels
+function setArtifactModel()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Model",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("+Normal",normalArtifactModels)
+	addGMFunction("+Utility",utilityArtifactModels)
+	addGMFunction("+Station",stationArtifactModels)
+	addGMFunction("+Ship",shipArtifactModels)
+end
+----------------------------
+--	Artifacts > Set Spin  --
+----------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN FROM SPIN	F	initialGMFunctions
+-- -ARTIFACTS		F	fiddleWithArtifacts
+-- SPIN 0.5			F	inline
+-- SPIN 1			F	inline
+-- SPIN 1.5			F	inline
+-- SPIN 2			F	inline
+function setArtifactSpin()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Spin",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	for i=1,6 do
+		addGMFunction(string.format("Spin %.1f",i/2),function()
+			setGivenSpin(i/2)
+		end)
+	end
+end
+function setGivenSpin(spin)
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	object_list[1]:setSpin(spin)
+	addGMMessage(string.format("Spin set to %.1f",spin))
+end
+function setArtifactSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Signature",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction(string.format("+Biological %.2f",object_list[1]:getRadarSignatureBiological()),setArtifactBiologicalSignature)
+	addGMFunction(string.format("+Electrical %.2f",object_list[1]:getRadarSignatureElectrical()),setArtifactElectricalSignature)
+	addGMFunction(string.format("+Gravitational %.2f",object_list[1]:getRadarSignatureGravity()),setArtifactGravitationalSignature)
+end
+function setArtifactBiologicalSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Biological",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Signature",setArtifactSignature)
+	local bio = object_list[1]:getRadarSignatureBiological()
+	local elec = object_list[1]:getRadarSignatureElectrical()
+	local grav = object_list[1]:getRadarSignatureGravity()
+	if bio <= .9 then
+		addGMFunction(string.format("%.2f add .1 -> %.2f",bio,bio + .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio + .1)
+			setArtifactBiologicalSignature()
+		end)
+	end
+	if bio <= .99 then
+		addGMFunction(string.format("%.2f add .01 -> %.2f",bio,bio + .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio + .01)
+			setArtifactBiologicalSignature()
+		end)
+	end
+	if bio >= .1 then
+		addGMFunction(string.format("%.2f del .1 -> %.2f",bio,bio - .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio - .1)
+			setArtifactBiologicalSignature()
+		end)
+	end
+	if bio >= .01 then
+		addGMFunction(string.format("%.2f del .01 -> %.2f",bio,bio - .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec,bio - .01)
+			setArtifactBiologicalSignature()
+		end)
+	end
+end
+function setArtifactElectricalSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Electrical",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Signature",setArtifactSignature)
+	local bio = object_list[1]:getRadarSignatureBiological()
+	local elec = object_list[1]:getRadarSignatureElectrical()
+	local grav = object_list[1]:getRadarSignatureGravity()
+	if elec <= .9 then
+		addGMFunction(string.format("%.2f add .1 -> %.2f",elec,elec + .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec + .1,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+	if elec <= .99 then
+		addGMFunction(string.format("%.2f add .01 -> %.2f",elec,elec + .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec + .01,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+	if elec >= .1 then
+		addGMFunction(string.format("%.2f del .1 -> %.2f",elec,elec - .1),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec - .1,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+	if elec >= .01 then
+		addGMFunction(string.format("%.2f del .01 -> %.2f",elec,elec - .01),function()
+			object_list[1]:setRadarSignatureInfo(grav,elec - .01,bio)
+			setArtifactElectricalSignature()
+		end)
+	end
+end
+function setArtifactGravitationalSignature()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-Main from Gravitational",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Signature",setArtifactSignature)
+	local bio = object_list[1]:getRadarSignatureBiological()
+	local elec = object_list[1]:getRadarSignatureElectrical()
+	local grav = object_list[1]:getRadarSignatureGravity()
+	if grav <= .9 then
+		addGMFunction(string.format("%.2f add .1 -> %.2f",grav,grav + .1),function()
+			object_list[1]:setRadarSignatureInfo(grav + .1,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
+	if grav <= .99 then
+		addGMFunction(string.format("%.2f add .01 -> %.2f",grav,grav + .01),function()
+			object_list[1]:setRadarSignatureInfo(grav + .01,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
+	if grav >= .1 then
+		addGMFunction(string.format("%.2f del .1 -> %.2f",grav,grav - .1),function()
+			object_list[1]:setRadarSignatureInfo(grav - .1,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
+	if grav >= .01 then
+		addGMFunction(string.format("%.2f del .01 -> %.2f",grav,grav - .01),function()
+			object_list[1]:setRadarSignatureInfo(grav - .01,elec,bio)
+			setArtifactGravitationalSignature()
+		end)
+	end
+end
+--	************************************************************  --
+--	****				Artifacts Drop Points				****  --
+--	************************************************************  --
+-------------------------------------------
+--	Artifacts > Drop Point > Escape Pod  --
+-------------------------------------------
 -- Button Text		   DF*	Related Function(s)
 -- -MAIN FROM ESC POD	F	initialGMFunctions
 -- -FROM ESCAPE POD		F	dropPoint
@@ -21177,9 +21075,9 @@ end
 function gmClickDropPoint(x,y)
 	podCreation(x,y,0,0)
 end
---------------------------------------------------------------------
---	Drop Point > Escape Pod > At Click (set drop point location)  --
---------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--	Artifacts > Drop Point > Escape Pod > At Click (set drop point location)  --
+--------------------------------------------------------------------------------
 -- Button Text		   DF*	Related Function(s)
 -- -MAIN FRM DROP LOC	F	initialGMFunctions
 -- -TO DROP POINT		F	dropPoint
@@ -21215,9 +21113,9 @@ function setDropPointLocation()
 		set_drop_point_location_caller()
 	end)
 end
---------------------------------------------
---	Drop Point > Escape Pod > Associated  --
---------------------------------------------
+--------------------------------------------------------
+--	Artifacts > Drop Point > Escape Pod > Associated  --
+--------------------------------------------------------
 --Create escape pod associated to selected object
 --If selected object is a black hole, add these two buttons
 -- NEAR RADIUS BUT SAFE		F	nearButSafe
@@ -21368,9 +21266,9 @@ function podPickupProcess(self,retriever)
 		end
 	end
 end
------------------------------------------
---	Drop Point > Escape Pod > Near To  --
------------------------------------------
+-----------------------------------------------------
+--	Artifacts > Drop Point > Escape Pod > Near To  --
+-----------------------------------------------------
 --Create escape pod near to selected object(s)
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FROM NEAR TO		F	initialGMFunctions
@@ -21444,9 +21342,9 @@ function podAssociatedToGivenCpuShip(tempObject)
 	local sox, soy = vectorFromAngle(random(0,360),podDistance)
 	podCreation(aox, aoy, sox, soy)
 end
-----------------------------------------------------------------------------------------------------------
---	Drop Point > Escape Pod (or other drop point type) > Near To > +30 Units (Set Pod Create Distance)  --
-----------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------
+--	Artifacts > Drop Point > Escape Pod (or other drop point type) > Near To > +30 Units (Set Pod Create Distance)  --
+----------------------------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -FROM CREATE DIST	F	callingNearTo (set prior to invocation)
 -- .5U					*	inline
@@ -21525,9 +21423,9 @@ function setCreateDistance()
 		setCreateDistance()
 	end)
 end
--------------------------------------------------------------------------------------------------------------
---	Drop Point > Escape Pod (or other drop point type) > Near To > +90 Degrees (Set Pod Create Direction)  --
--------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------
+--	Artifacts > Drop Point > Escape Pod (or other drop point type) > Near To > +90 Degrees (Set Pod Create Direction)  --
+-------------------------------------------------------------------------------------------------------------------------
 -- Button Text		   DF*	Related Function(s)
 -- -FROM CREATE DIR		F	callingNearTo (set prior to invocation)
 -- 0					*	inline, setCreateDirection0
@@ -21737,9 +21635,9 @@ function podCreation(originx, originy, vectorx, vectory)
 		end
 	end
 end
----------------------------------
---	Drop Point > Marine Point  --
----------------------------------
+---------------------------------------------
+--	Artifacts > Drop Point > Marine Point  --
+---------------------------------------------
 -- Button Text		   DF*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- -FROM MARINE POINT	F	dropPoint
@@ -22010,9 +21908,9 @@ function marinePointPickupProcess(self,retriever)
 		end
 	end
 end
--------------------------------------------
---	Drop Point > Marine Point > Near To  --
--------------------------------------------
+-------------------------------------------------------
+--	Artifacts > Drop Point > Marine Point > Near To  --
+-------------------------------------------------------
 --Create marine point near to selected object(s)
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
@@ -22095,9 +21993,9 @@ function createMarineAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	marineCreation(nearx, neary, sox, soy)
 end
------------------------------------
---	Drop Point > Engineer Point  --
------------------------------------
+-----------------------------------------------
+--	Artifacts > Drop Point > Engineer Point  --
+-----------------------------------------------
 -- Button Text			   DF*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
 -- -FROM ENGINEER POINT		F	dropPoint
@@ -22360,9 +22258,9 @@ function engineerPointPickupProcess(self,retriever)
 		end
 	end
 end
----------------------------------------------
---	Drop Point > Engineer Point > Near To  --
----------------------------------------------
+---------------------------------------------------------
+--	Artifacts > Drop Point > Engineer Point > Near To  --
+---------------------------------------------------------
 --Create engineer point near to selected object(s)
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
@@ -22444,9 +22342,9 @@ function createEngineerAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	engineerCreation(nearx, neary, sox, soy)
 end
----------------------------------------
---	Drop Point > Medical Team Point  --
----------------------------------------
+---------------------------------------------------
+--	Artifacts > Drop Point > Medical Team Point  --
+---------------------------------------------------
 -- Button Text			   DF*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
 -- -FROM MEDIC POINT		F	dropPoint
@@ -22711,9 +22609,9 @@ function medicPointPickupProcess(self,retriever)
 		end
 	end
 end
--------------------------------------------------
---	Drop Point > Medical Team Point > Near To  --
--------------------------------------------------
+-------------------------------------------------------------
+--	Artifacts > Drop Point > Medical Team Point > Near To  --
+-------------------------------------------------------------
 --Create medical team point near to selected object(s)
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
@@ -22796,9 +22694,9 @@ function createMedicAway()
 	local sox, soy = vectorFromAngle(angle,createDistance*1000)
 	medicCreation(nearx, neary, sox, soy)
 end
-----------------------------------------
---	Drop Point > Custom Supply Point  --
-----------------------------------------
+----------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point  --
+----------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -FROM SUPPLY			F	dropPoint
 -- +MISSILES N1E1M2H4	D	setCustomMissiles
@@ -22889,9 +22787,9 @@ end
 function gmClickSupplyDrop(x,y)
 	supplyCreation(x,y,0,0)
 end
----------------------------------------------------
---	Drop Point > Custom Supply Point > Missiles  --
----------------------------------------------------
+---------------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Missiles  --
+---------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM MISSILES	F	initialGMFunctions
 -- -DROP POINT			F	dropPoint
@@ -22912,9 +22810,9 @@ function setCustomMissiles()
 	addGMFunction(string.format("+Homing %i",supplyHoming),setSupplyHoming)
 	addGMFunction(string.format("+HVLI %i",supplyHVLI),setSupplyHVLI)
 end
--------------------------------------------------------------------------
---	Drop Point > Custom Supply Point > At Click (drop point location)  --
--------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > At Click (drop point location)  --
+-------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FRM DROP LOC	F	initialGMFunctions
 -- -TO DROP POINT		F	dropPoint
@@ -22943,9 +22841,9 @@ function setSupplyDropLocation()
 		setCustomSupply()
 	end)
 end
--------------------------------------------------
---	Drop Point > Custom Supply Point > Energy  --
--------------------------------------------------
+-------------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Energy  --
+-------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
@@ -22974,9 +22872,9 @@ function add100Energy()
 	supplyEnergy = supplyEnergy + 100
 	setSupplyEnergy()
 end
------------------------------------------------
---	Drop Point > Custom Supply Point > Nuke  --
------------------------------------------------
+-----------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Nuke  --
+-----------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
@@ -23007,9 +22905,9 @@ function addANuke()
 	supplyNuke = supplyNuke + 1
 	setSupplyNuke()
 end
-----------------------------------------------
---	Drop Point > Custom Supply Point > EMP  --
-----------------------------------------------
+----------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > EMP  --
+----------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
@@ -23040,9 +22938,9 @@ function addAnEMP()
 	supplyEMP = supplyEMP + 1
 	setSupplyEMP()
 end
------------------------------------------------
---	Drop Point > Custom Supply Point > Mine  --
------------------------------------------------
+-----------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Mine  --
+-----------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
@@ -23073,9 +22971,9 @@ function addAMine()
 	supplyMine = supplyMine + 1
 	setSupplyMine()
 end
--------------------------------------------------
---	Drop Point > Custom Supply Point > Homing  --
--------------------------------------------------
+-------------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Homing  --
+-------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
@@ -23106,9 +23004,9 @@ function addAHoming()
 	supplyHoming = supplyHoming + 1
 	setSupplyHoming()
 end
------------------------------------------------
---	Drop Point > Custom Supply Point > HVLI  --
------------------------------------------------
+-----------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > HVLI  --
+-----------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
@@ -23138,9 +23036,9 @@ function addAnHVLI()
 	supplyHVLI = supplyHVLI + 1
 	setSupplyHVLI()
 end
-------------------------------------------------------
---	Drop Point > Custom Supply Point > Repair Crew  --
-------------------------------------------------------
+------------------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Repair Crew  --
+------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- -DROP POINT			F	dropPoint
@@ -23168,9 +23066,9 @@ function addARepairCrew()
 	supplyRepairCrew = supplyRepairCrew + 1
 	setSupplyRepairCrew()
 end
---------------------------------------------------
---	Drop Point > Custom Supply Point > Coolant  --
---------------------------------------------------
+--------------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Coolant  --
+--------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -DROP POINT		F	dropPoint
@@ -23216,9 +23114,9 @@ function setSupplyProbes()
 		end)
 	end
 end
---------------------------------------------------
---	Drop Point > Custom Supply Point > Near To  --
---------------------------------------------------
+--------------------------------------------------------------
+--	Artifacts > Drop Point > Custom Supply Point > Near To  --
+--------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
 -- -DROP POINT				F	dropPoint
@@ -23337,9 +23235,9 @@ function supplyPickupProcess(self, player)
 		player:setScanProbeCount(math.min(player:getScanProbeCount() + self.probes,player:getMaxScanProbeCount()))
 	end
 end
-----------------------------
---	Drop Points > Attach  --
-----------------------------
+----------------------------------------
+--	Artifacts > Drop Points > Attach  --
+----------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FROM ATTACH		F	initialGMFunctions
 -- -DROP POINT				F	dropPoint
@@ -23419,9 +23317,9 @@ function attachArtifact()
 		end
 	end
 end
-----------------------------
---	Drop Points > Detach  --
-----------------------------
+----------------------------------------
+--	Artifacts > Drop Points > Detach  --
+----------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FROM DETACH		F	initialGMFunctions
 -- -DROP POINT				F	dropPoint
@@ -23454,16 +23352,12 @@ function detachArtifact()
 		update_system:removeUpdateNamed(current_selected_object,"attached")
 	end
 end
---	*											   *  --
---	**											  **  --
---	************************************************  --
---	****				Scan Clue				****  --
---	************************************************  --
---	**											  **  --
---	*											   *  --
------------------------------------------
---  Scan Clue > Unscanned Description  --
------------------------------------------
+--	********************************************************  --
+--	****				Artifacts Scan Clue				****  --
+--	********************************************************  --
+-----------------------------------------------------
+--  Artifacts > Scan Clue > Unscanned Description  --
+-----------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- -FROM UNSCAN DESC	F	scanClue
@@ -23483,9 +23377,9 @@ function setUnscannedDescription()
 		end)
 	end
 end
----------------------------------------
---	Scan Clue > Scanned Description  --
----------------------------------------
+---------------------------------------------------
+--	Artifacts > Scan Clue > Scanned Description  --
+---------------------------------------------------
 -- -MAIN			F	initialGMFunctions
 -- -FROM SCAN DESC	F	scanClue
 -- +NONE			D	scannedClue1
@@ -23503,9 +23397,9 @@ function setScannedDescription()
 	addGMFunction(string.format("+%s",scannedClueKey4),scannedClue4)
 	addGMFunction(string.format("+%s",scannedClueKey5),scannedClue5)
 end
-------------------------------------------------------------
---	Scan Clue > Scan Complexity (Set How Many Scan Bars)  --
-------------------------------------------------------------
+------------------------------------------------------------------------
+--	Artifacts > Scan Clue > Scan Complexity (Set How Many Scan Bars)  --
+------------------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -SCAN			F	scanClue
@@ -23528,9 +23422,9 @@ function setScanComplexity()
 		end)
 	end
 end
-------------------------------------------------------------
---	Scan Clue > Scan Depth (Set How Many Scan Screens)  --
-------------------------------------------------------------
+----------------------------------------------------------------------
+--	Artifacts > Scan Clue > Scan Depth (Set How Many Scan Screens)  --
+----------------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -MAIN			F	initialGMFunctions
 -- -SCAN			F	scanClue
@@ -23553,129 +23447,9 @@ function setScanDepth()
 		end)
 	end
 end
--------------------------------------------------------
---	Scan Clue > Scanned Descriptions > None (first)  --
--------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SCAN			F	scanClue
--- -FROM DESC 1		F	setScannedDescription
--- Button for each item in table scannedClues1 defined in constants
-function scannedClue1()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Scan",scanClue)
-	addGMFunction("-From Desc 1",setScannedDescription)
-	for sck, scv in pairs(scannedClues1) do
-		local GMShortScannedClue = sck
-		if sck == scannedClueKey1 then
-			GMShortScannedClue = sck .. "*"
-		end
-		addGMFunction(GMShortScannedClue, function()
-			scannedClueKey1 = sck
-			scannedClue1()
-		end)
-	end
-end
---------------------------------------------------------
---	Scan Clue > Scanned Descriptions > None (second)  --
---------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SCAN			F	scanClue
--- -FROM DESC 2		F	setScannedDescription
--- Button for each item in table scannedClues2 defined in constants
-function scannedClue2()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Scan",scanClue)
-	addGMFunction("-From Desc 2",setScannedDescription)
-	for sck, scv in pairs(scannedClues2) do
-		local GMShortScannedClue = sck
-		if sck == scannedClueKey2 then
-			GMShortScannedClue = sck .. "*"
-		end
-		addGMFunction(GMShortScannedClue, function()
-			scannedClueKey2 = sck
-			scannedClue2()
-		end)
-	end
-end
--------------------------------------------------------
---	Scan Clue > Scanned Descriptions > None (third)  --
--------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SCAN			F	scanClue
--- -FROM DESC 3		F	setScannedDescription
--- Button for each item in table scannedClues3 defined in constants
-function scannedClue3()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Scan",scanClue)
-	addGMFunction("-From Desc 3",setScannedDescription)
-	for sck, scv in pairs(scannedClues3) do
-		local GMShortScannedClue = sck
-		if sck == scannedClueKey3 then
-			GMShortScannedClue = sck .. "*"
-		end
-		addGMFunction(GMShortScannedClue, function()
-			scannedClueKey3 = sck
-			scannedClue3()
-		end)
-	end
-end
---------------------------------------------------------
---	Scan Clue > Scanned Descriptions > None (fourth)  --
---------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SCAN			F	scanClue
--- -FROM DESC 4		F	setScannedDescription
--- Button for each item in table scannedClues4 defined in constants
-function scannedClue4()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Scan",scanClue)
-	addGMFunction("-From Desc 4",setScannedDescription)
-	for sck, scv in pairs(scannedClues4) do
-		local GMShortScannedClue = sck
-		if sck == scannedClueKey4 then
-			GMShortScannedClue = sck .. "*"
-		end
-		addGMFunction(GMShortScannedClue, function()
-			scannedClueKey4 = sck
-			scannedClue4()
-		end)
-	end
-end
--------------------------------------------------------
---	Scan Clue > Scanned Descriptions > None (fifth)  --
--------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SCAN			F	scanClue
--- -FROM DESC 5		F	setScannedDescription
--- Button for each item in table scannedClues5 defined in constants
-function scannedClue5()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Scan",scanClue)
-	addGMFunction("-From Desc 5",setScannedDescription)
-	for sck, scv in pairs(scannedClues5) do
-		local GMShortScannedClue = sck
-		if sck == scannedClueKey5 then
-			GMShortScannedClue = sck .. "*"
-		end
-		addGMFunction(GMShortScannedClue, function()
-			scannedClueKey5 = sck
-			scannedClue5()
-		end)
-	end
-end
------------------------------------------------------
---	Scan Clue > At Click (Set scan clue location)  --
------------------------------------------------------
+-----------------------------------------------------------------
+--	Artifacts > Scan Clue > At Click (Set scan clue location)  --
+-----------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FRM CLUE LOC		F	initialGMFunctions
 -- -TO SCAN CLUE			F	scanClue
@@ -23702,9 +23476,9 @@ function setScanClueLocation()
 		scanClue()
 	end)
 end
-----------------------------
---	Scan Clue >  Near To  --
-----------------------------
+----------------------------------------
+--	Artifacts > Scan Clue >  Near To  --
+----------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
 -- -FROM SCAN NEAR TO		F	scanClue
@@ -23776,6 +23550,9 @@ function scanClueCreation(originx, originy, vectorx, vectory, associatedObjectNa
 		update_system:addTimeToLiveUpdate(scanCluePoint)
 	end
 end
+--	********************************************************  --
+--	****				Artifacts Set Model				****  --
+--	********************************************************  --
 --------------------------------------
 --	Artifacts > Set Model > Normal  --
 --------------------------------------
@@ -23943,6 +23720,9 @@ function shipArtifactModels()
 	addGMFunction("+Color Groups",colorGroupShipModels)
 	addGMFunction("+Transports",transportShipModels)
 end
+--	************************************************************  --
+--	****				Artifacts Set Model	Ship			****  --
+--	************************************************************  --
 -------------------------------------------
 --	Artifacts > Set Model > Ship > Misc  --
 -------------------------------------------
@@ -24106,6 +23886,81 @@ function colorGroupShipModels()
 	addGMFunction("+Wespe Scouts",wespeShipModels)
 	addGMFunction("+Corvettes",corvetteShipModels)
 end
+-------------------------------------------------
+--	Artifacts > Set Model > Ship > Transports  --
+-------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -FROM TRANSPORTS			F	shipArtifactModels
+-- PERSONNEL FREIGHTER 1	D	inline
+-- PERSONNEL FREIGHTER 2	D	inline
+-- PERSONNEL FREIGHTER 3	D	inline
+-- PERSONNEL FREIGHTER 4	D	inline
+-- PERSONNEL FREIGHTER 5	D	inline
+-- GOODS FREIGHTER 1		D	inline
+-- GOODS FREIGHTER 2		D	inline
+-- GOODS FREIGHTER 3		D	inline
+-- GOODS FREIGHTER 4		D	inline
+-- GOODS FREIGHTER 5		D	inline
+-- GARBAGE FREIGHTER 1		D	inline
+-- GARBAGE FREIGHTER 2		D	inline
+-- GARBAGE FREIGHTER 3		D	inline
+-- GARBAGE FREIGHTER 4		D	inline
+-- GARBAGE FREIGHTER 5		D	inline
+-- EQUIPMENT FREIGHTER 1	D	inline
+-- EQUIPMENT FREIGHTER 2	D	inline
+-- EQUIPMENT FREIGHTER 3	D	inline
+-- EQUIPMENT FREIGHTER 4	D	inline
+-- EQUIPMENT FREIGHTER 5	D	inline
+-- FUEL FREIGHTER 1			D	inline
+-- FUEL FREIGHTER 2			D	inline
+-- FUEL FREIGHTER 3			D	inline
+-- FUEL FREIGHTER 4			D	inline
+-- FUEL FREIGHTER 5			D	inline
+function transportShipModels()
+	local object_list = getGMSelection()
+	if object_list == nil or #object_list ~= 1 then
+		fiddleWithArtifacts()
+		return
+	else
+		if object_list[1].typeName ~= "Artifact" then
+			fiddleWithArtifacts()
+			return
+		end
+	end
+	clearGMFunctions()
+	addGMFunction("-From Transports",shipArtifactModels)
+	local transport_ship_models = {
+		{model_name = "transport_1_1", game_name = {"Personnel Freighter 1","Transport1x1"}},
+		{model_name = "transport_1_2", game_name = {"Personnel Freighter 2","Transport1x2"}},
+		{model_name = "transport_1_3", game_name = {"Personnel Freighter 3","Personnel Jump Freighter 3","Transport1x3"}},
+		{model_name = "transport_1_4", game_name = {"Personnel Freighter 4","Personnel Jump Freighter 4","Transport1x4"}},
+		{model_name = "transport_1_5", game_name = {"Personnel Freighter 5","Personnel Jump Freighter 5","Transport1x5"}},
+		{model_name = "transport_2_1", game_name = {"Goods Freighter 1","Transport2x1"}},
+		{model_name = "transport_2_2", game_name = {"Goods Freighter 2","Transport2x2"}},
+		{model_name = "transport_2_3", game_name = {"Goods Freighter 3","Goods Jump Freighter 3","Transport2x3"}},
+		{model_name = "transport_2_4", game_name = {"Goods Freighter 4","Goods Jump Freighter 4","Transport2x4"}},
+		{model_name = "transport_2_5", game_name = {"Goods Freighter 5","Goods Jump Freighter 5","Transport2x5"}},
+		{model_name = "transport_3_1", game_name = {"Garbage Freighter 1","Transport3x1"}},
+		{model_name = "transport_3_2", game_name = {"Garbage Freighter 2","Transport3x2"}},
+		{model_name = "transport_3_3", game_name = {"Garbage Freighter 3","Garbage Jump Freighter 3","Transport3x3"}},
+		{model_name = "transport_3_4", game_name = {"Garbage Freighter 4","Garbage Jump Freighter 4","Transport3x4"}},
+		{model_name = "transport_3_5", game_name = {"Garbage Freighter 5","Garbage Jump Freighter 5","Transport3x5"}},
+		{model_name = "transport_4_1", game_name = {"Equipment Freighter 1","Transport4x1"}},
+		{model_name = "transport_4_2", game_name = {"Equipment Freighter 2","Transport4x2"}},
+		{model_name = "transport_4_3", game_name = {"Equipment Freighter 3","Equipment Jump Freighter 3","Transport4x3"}},
+		{model_name = "transport_4_4", game_name = {"Equipment Freighter 4","Equipment Jump Freighter 4","Transport4x4"}},
+		{model_name = "transport_4_5", game_name = {"Equipment Freighter 5","Equipment Jump Freighter 5","Transport4x5"}},
+		{model_name = "transport_5_1", game_name = {"Fuel Freighter 1","Transport5x1"}},
+		{model_name = "transport_5_2", game_name = {"Fuel Freighter 2","Transport5x2"}},
+		{model_name = "transport_5_3", game_name = {"Fuel Freighter 3","Equipment Jump Freighter 3","Transport5x3"}},
+		{model_name = "transport_5_4", game_name = {"Fuel Freighter 4","Equipment Jump Freighter 4","Transport5x4"}},
+		{model_name = "transport_5_5", game_name = {"Fuel Freighter 5","Equipment Jump Freighter 5","Transport5x5"}},
+	}
+	addShipModelButtons(transport_ship_models)
+end
+--	************************************************************************  --
+--	****				Artifacts Set Model	Ship Color Groups			****  --
+--	************************************************************************  --
 ---------------------------------------------------------------
 --	Artifacts > Set Model > Ship > Color Groups > Corvettes  --
 ---------------------------------------------------------------
@@ -24300,6 +24155,9 @@ function wespeShipModels()
 	}
 	addShipModelButtons(wespe_ship_models)
 end
+--	************************************************************************************  --
+--	****				Artifacts Set Model	Ship Color Groups Corvettes				****  --
+--	************************************************************************************  --
 -----------------------------------------------------------------------
 --	Artifacts > Set Model > Ship > Color Groups > Corvettes > Heavy  --
 -----------------------------------------------------------------------
@@ -24504,78 +24362,130 @@ function multiGunCorvetteShipModels()
 	}
 	addShipModelButtons(multi_gun_corvette_ship_models)
 end
--------------------------------------------------
---	Artifacts > Set Model > Ship > Transports  --
--------------------------------------------------
--- Button Text			   FD*	Related Function(s)
--- -FROM TRANSPORTS			F	shipArtifactModels
--- PERSONNEL FREIGHTER 1	D	inline
--- PERSONNEL FREIGHTER 2	D	inline
--- PERSONNEL FREIGHTER 3	D	inline
--- PERSONNEL FREIGHTER 4	D	inline
--- PERSONNEL FREIGHTER 5	D	inline
--- GOODS FREIGHTER 1		D	inline
--- GOODS FREIGHTER 2		D	inline
--- GOODS FREIGHTER 3		D	inline
--- GOODS FREIGHTER 4		D	inline
--- GOODS FREIGHTER 5		D	inline
--- GARBAGE FREIGHTER 1		D	inline
--- GARBAGE FREIGHTER 2		D	inline
--- GARBAGE FREIGHTER 3		D	inline
--- GARBAGE FREIGHTER 4		D	inline
--- GARBAGE FREIGHTER 5		D	inline
--- EQUIPMENT FREIGHTER 1	D	inline
--- EQUIPMENT FREIGHTER 2	D	inline
--- EQUIPMENT FREIGHTER 3	D	inline
--- EQUIPMENT FREIGHTER 4	D	inline
--- EQUIPMENT FREIGHTER 5	D	inline
--- FUEL FREIGHTER 1			D	inline
--- FUEL FREIGHTER 2			D	inline
--- FUEL FREIGHTER 3			D	inline
--- FUEL FREIGHTER 4			D	inline
--- FUEL FREIGHTER 5			D	inline
-function transportShipModels()
-	local object_list = getGMSelection()
-	if object_list == nil or #object_list ~= 1 then
-		fiddleWithArtifacts()
-		return
-	else
-		if object_list[1].typeName ~= "Artifact" then
-			fiddleWithArtifacts()
-			return
-		end
-	end
+--	********************************************************************************  --
+--	****				Artifacts Scan Clue Scanned Descriptions				****  --
+--	********************************************************************************  --
+-------------------------------------------------------------------
+--	Artifacts > Scan Clue > Scanned Descriptions > None (first)  --
+-------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 1		F	setScannedDescription
+-- Button for each item in table scannedClues1 defined in constants
+function scannedClue1()
 	clearGMFunctions()
-	addGMFunction("-From Transports",shipArtifactModels)
-	local transport_ship_models = {
-		{model_name = "transport_1_1", game_name = {"Personnel Freighter 1","Transport1x1"}},
-		{model_name = "transport_1_2", game_name = {"Personnel Freighter 2","Transport1x2"}},
-		{model_name = "transport_1_3", game_name = {"Personnel Freighter 3","Personnel Jump Freighter 3","Transport1x3"}},
-		{model_name = "transport_1_4", game_name = {"Personnel Freighter 4","Personnel Jump Freighter 4","Transport1x4"}},
-		{model_name = "transport_1_5", game_name = {"Personnel Freighter 5","Personnel Jump Freighter 5","Transport1x5"}},
-		{model_name = "transport_2_1", game_name = {"Goods Freighter 1","Transport2x1"}},
-		{model_name = "transport_2_2", game_name = {"Goods Freighter 2","Transport2x2"}},
-		{model_name = "transport_2_3", game_name = {"Goods Freighter 3","Goods Jump Freighter 3","Transport2x3"}},
-		{model_name = "transport_2_4", game_name = {"Goods Freighter 4","Goods Jump Freighter 4","Transport2x4"}},
-		{model_name = "transport_2_5", game_name = {"Goods Freighter 5","Goods Jump Freighter 5","Transport2x5"}},
-		{model_name = "transport_3_1", game_name = {"Garbage Freighter 1","Transport3x1"}},
-		{model_name = "transport_3_2", game_name = {"Garbage Freighter 2","Transport3x2"}},
-		{model_name = "transport_3_3", game_name = {"Garbage Freighter 3","Garbage Jump Freighter 3","Transport3x3"}},
-		{model_name = "transport_3_4", game_name = {"Garbage Freighter 4","Garbage Jump Freighter 4","Transport3x4"}},
-		{model_name = "transport_3_5", game_name = {"Garbage Freighter 5","Garbage Jump Freighter 5","Transport3x5"}},
-		{model_name = "transport_4_1", game_name = {"Equipment Freighter 1","Transport4x1"}},
-		{model_name = "transport_4_2", game_name = {"Equipment Freighter 2","Transport4x2"}},
-		{model_name = "transport_4_3", game_name = {"Equipment Freighter 3","Equipment Jump Freighter 3","Transport4x3"}},
-		{model_name = "transport_4_4", game_name = {"Equipment Freighter 4","Equipment Jump Freighter 4","Transport4x4"}},
-		{model_name = "transport_4_5", game_name = {"Equipment Freighter 5","Equipment Jump Freighter 5","Transport4x5"}},
-		{model_name = "transport_5_1", game_name = {"Fuel Freighter 1","Transport5x1"}},
-		{model_name = "transport_5_2", game_name = {"Fuel Freighter 2","Transport5x2"}},
-		{model_name = "transport_5_3", game_name = {"Fuel Freighter 3","Equipment Jump Freighter 3","Transport5x3"}},
-		{model_name = "transport_5_4", game_name = {"Fuel Freighter 4","Equipment Jump Freighter 4","Transport5x4"}},
-		{model_name = "transport_5_5", game_name = {"Fuel Freighter 5","Equipment Jump Freighter 5","Transport5x5"}},
-	}
-	addShipModelButtons(transport_ship_models)
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Scan",scanClue)
+	addGMFunction("-From Desc 1",setScannedDescription)
+	for sck, scv in pairs(scannedClues1) do
+		local GMShortScannedClue = sck
+		if sck == scannedClueKey1 then
+			GMShortScannedClue = sck .. "*"
+		end
+		addGMFunction(GMShortScannedClue, function()
+			scannedClueKey1 = sck
+			scannedClue1()
+		end)
+	end
 end
+--------------------------------------------------------------------
+--	Artifacts > Scan Clue > Scanned Descriptions > None (second)  --
+--------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 2		F	setScannedDescription
+-- Button for each item in table scannedClues2 defined in constants
+function scannedClue2()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Scan",scanClue)
+	addGMFunction("-From Desc 2",setScannedDescription)
+	for sck, scv in pairs(scannedClues2) do
+		local GMShortScannedClue = sck
+		if sck == scannedClueKey2 then
+			GMShortScannedClue = sck .. "*"
+		end
+		addGMFunction(GMShortScannedClue, function()
+			scannedClueKey2 = sck
+			scannedClue2()
+		end)
+	end
+end
+-------------------------------------------------------------------
+--	Artifacts > Scan Clue > Scanned Descriptions > None (third)  --
+-------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 3		F	setScannedDescription
+-- Button for each item in table scannedClues3 defined in constants
+function scannedClue3()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Scan",scanClue)
+	addGMFunction("-From Desc 3",setScannedDescription)
+	for sck, scv in pairs(scannedClues3) do
+		local GMShortScannedClue = sck
+		if sck == scannedClueKey3 then
+			GMShortScannedClue = sck .. "*"
+		end
+		addGMFunction(GMShortScannedClue, function()
+			scannedClueKey3 = sck
+			scannedClue3()
+		end)
+	end
+end
+--------------------------------------------------------------------
+--	Artifacts > Scan Clue > Scanned Descriptions > None (fourth)  --
+--------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 4		F	setScannedDescription
+-- Button for each item in table scannedClues4 defined in constants
+function scannedClue4()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Scan",scanClue)
+	addGMFunction("-From Desc 4",setScannedDescription)
+	for sck, scv in pairs(scannedClues4) do
+		local GMShortScannedClue = sck
+		if sck == scannedClueKey4 then
+			GMShortScannedClue = sck .. "*"
+		end
+		addGMFunction(GMShortScannedClue, function()
+			scannedClueKey4 = sck
+			scannedClue4()
+		end)
+	end
+end
+-------------------------------------------------------------------
+--	Artifacts > Scan Clue > Scanned Descriptions > None (fifth)  --
+-------------------------------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -SCAN			F	scanClue
+-- -FROM DESC 5		F	setScannedDescription
+-- Button for each item in table scannedClues5 defined in constants
+function scannedClue5()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Scan",scanClue)
+	addGMFunction("-From Desc 5",setScannedDescription)
+	for sck, scv in pairs(scannedClues5) do
+		local GMShortScannedClue = sck
+		if sck == scannedClueKey5 then
+			GMShortScannedClue = sck .. "*"
+		end
+		addGMFunction(GMShortScannedClue, function()
+			scannedClueKey5 = sck
+			scannedClue5()
+		end)
+	end
+end
+
 --	*												   *  --
 --	**												  **  --
 --	****************************************************  --
@@ -24604,6 +24514,272 @@ function updateEditor()
 		editSelected()
 	end)
 end
+--------------------------------------------
+--	Tweak Terrain > Station Manipulation  --
+--------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- +STATION OPERATIONS	F	stationOperations
+-- +STATION DEFENSE		F	stationDefense
+function stationManipulation()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("+Station Operations",stationOperations)
+	addGMFunction("+Station defense",stationDefense)
+end
+
+---------------------------------
+--	Tweak Terrain > Minefield  --
+---------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM MINEFIELD	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- +SHAPE: ARC			D	setMineShape
+-- +WIDTH: 1			D	setMineWidth
+-- CENTER POINT			D	mineArcCenterPoint
+function mineField()
+	clearGMFunctions()
+	addGMFunction("-Main From Minefield",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction(string.format("+Shape: %s",mine_shape),setMineShape)
+	if mine_shape ~= "Cubic" then
+		addGMFunction(string.format("+Width: %i",mine_width),setMineWidth)
+	end
+	if mine_shape == "Circle" then
+		addGMFunction(string.format("+Radius: %i",mine_radius),setMineRadius)
+	end
+	if mine_shape == "Line" then
+		if gm_click_mode == "mine line start" then
+			addGMFunction(">Start Point<",mineLineStartPoint)
+		elseif gm_click_mode == "mine line end" then
+			addGMFunction(">End Point<",mineLineEndPoint)
+		else
+			addGMFunction("Start Point",mineLineStartPoint)
+		end
+	elseif mine_shape == "Arc" then
+		if gm_click_mode == "mine arc center" then
+			addGMFunction(">Center Point<",mineArcCenterPoint)
+		elseif gm_click_mode == "mine arc start" then
+			addGMFunction(">Start Arc<",mineArcStartPoint)
+		elseif gm_click_mode == "mine arc end" then
+			addGMFunction(">End Arc<",mineArcEndPoint)
+		else
+			addGMFunction("Center Point",mineArcCenterPoint)
+		end
+	elseif mine_shape == "Circle" then
+		if gm_click_mode == "mine circle" then
+			addGMFunction(">Center of Circle<",mineCircle)
+		else
+			addGMFunction("Center of Circle",mineCircle)
+		end
+	elseif mine_shape == "Cubic" then
+		if gm_click_mode == "mine Cubic" then
+			addGMFunction(">add point<",addCubicMineMarker)
+		else
+			addGMFunction("add point",addCubicMineMarker)
+		end
+		addGMFunction("finalize",
+			function ()
+				CubicMineUpdateObject:finalize()
+				mineField()
+			end)
+		addGMFunction("cancel",
+			function ()
+				CubicMineUpdateObject:cancel()
+				mineField()
+			end)
+	end
+end
+------------------------------
+--	Tweak Terrain > Probes  --
+------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PROBES	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- STOP					F	inline
+-- RESUME				F	inline
+-- DIVERT				D	divertProbe
+-- CREATE				D	createProbe
+-- Optionally (when probe selected)
+-- 1.0 ACCELERATE 1.1	D	inline
+-- 1.0 DECELERATE 0.9	D	inline
+function tweakProbes()
+	clearGMFunctions()
+	addGMFunction("-Main From Probes",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("Stop",function()
+		local object_list = getGMSelection()
+		if object_list == nil then
+			addGMMessage("Select something first")
+		else
+			if #object_list < 1 or #object_list > 1 then
+				addGMMessage("Select one thing")
+			else
+				local probe = object_list[1]
+				if probe.typeName ~= "ScanProbe" then
+					addGMMessage("Select a probe")
+				else
+					if probe.original_target_x == nil then
+						local ptx, pty = probe:getTarget()
+						probe.original_target_x = ptx
+						probe.original_target_y = pty
+					end
+					local px, py = probe:getPosition()
+					probe:setTarget(px,py)
+				end
+			end
+		end
+		tweakProbes()
+	end)
+	addGMFunction("Resume",function()
+		local object_list = getGMSelection()
+		if object_list == nil then
+			addGMMessage("Select something first")
+		else
+			if #object_list < 1 or #object_list > 1 then
+				addGMMessage("Select one thing")
+			else
+				local probe = object_list[1]
+				if probe.typeName ~= "ScanProbe" then
+					addGMMessage("Select a probe")
+				else
+					if probe.original_target_x == nil then
+						addGMMessage("Probe was not stopped or diverted")
+					else
+						probe:setTarget(probe.original_target_x,probe.original_target_y)
+					end
+				end
+			end
+		end
+		tweakProbes()
+	end)
+	if gm_click_mode == "divert probe" then
+		addGMFunction(">Divert<",divertProbe)
+	else
+		addGMFunction("Divert",divertProbe)
+	end
+	if gm_click_mode == "create probe" then
+		addGMFunction(">Create<",createProbe)
+	else
+		addGMFunction("Create",createProbe)
+	end
+	local accelerate_button_label = "Accelerate"
+	local decelerate_button_label = "Decelerate"
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			local probe = object_list[1]
+			if probe.typeName == "ScanProbe" then
+				accelerate_button_label = string.format("%.1f Accelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() + 100)/1000)
+				decelerate_button_label = string.format("%.1f Decelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() - 100)/1000)
+			end
+		end
+	end
+	addGMFunction(accelerate_button_label,function()
+		local object_list = getGMSelection()
+		if object_list ~= nil then
+			if #object_list == 1 then
+				local probe = object_list[1]
+				if probe.typeName == "ScanProbe" then
+					if probe:getSpeed() < 5000 then
+						probe:setSpeed(probe:getSpeed() + 100)
+					else
+						addGMMessage("Maximum probe speed reached")
+					end
+				else
+					addGMMessage("Select a probe")
+				end
+			else
+				addGMMessage("Select one object")
+			end
+		else
+			addGMMessage("Select something first")
+		end
+		tweakProbes()
+	end)
+	addGMFunction(decelerate_button_label,function()
+		local object_list = getGMSelection()
+		if object_list ~= nil then
+			if #object_list == 1 then
+				local probe = object_list[1]
+				if probe.typeName == "ScanProbe" then
+					if probe:getSpeed() > 100 then
+						probe:setSpeed(probe:getSpeed() - 100)
+					else
+						addGMMessage("Minimum probe speed reached")
+					end
+				else
+					addGMMessage("Select a probe")
+				end
+			else
+				addGMMessage("Select one object")
+			end
+		else
+			addGMMessage("Select something first")
+		end
+		tweakProbes()
+	end)
+end
+function createProbe()
+	if gm_click_mode == "create probe" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "create probe"
+		onGMClick(gmClickCreateProbe)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   create probe\nGM click mode.",prev_mode))
+		end
+	end
+	tweakProbes()
+end
+function gmClickCreateProbe(x,y)
+	ScanProbe():setPosition(x,y):setFaction(fleetSpawnFaction):setTarget(x,y)
+end
+function divertProbe()
+	if gm_click_mode == "divert probe" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "divert probe"
+		onGMClick(gmClickDivertProbe)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   divert probe\nGM click mode.",prev_mode))
+		end
+	end
+	tweakProbes()
+end
+function gmClickDivertProbe(x,y)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Select something first")
+	else
+		if #object_list < 1 or #object_list > 1 then
+			addGMMessage("Select one thing")
+		else
+			local probe = object_list[1]
+			if probe.typeName ~= "ScanProbe" then
+				addGMMessage("Select a probe")
+			else
+				if probe.original_target_x == nil then
+					local ptx, pty = probe:getTarget()
+					probe.original_target_x = ptx
+					probe.original_target_y = pty
+				end
+				probe:setTarget(x,y)
+				local ntx, nty = probe:getTarget()
+			end
+		end
+	end
+	tweakProbes()
+end
+--	****************************************************************  --
+--	****				Tweak Terrain Update Editor				****  --
+--	****************************************************************  --
 ------------------------------------------------------------------------
 -- Tweak Terrain > Update editor > List of edits for selected object  --
 ------------------------------------------------------------------------
@@ -24611,7 +24787,7 @@ end
 -- -MAIN				F	initialGMFunctions
 -- -TWEAK				F	tweakTerrain
 -- -UPDATE EDITOR		F	updateEditor
--- ---OBJECT EDIT---	F	none - UI element
+-- ---OBJECT EDIT---	F	none - UI element to divide buttons
 -- followed by a dynamically generated list of updates on the object
 function editSelected()
 	if updateEditObjectValid() then
@@ -24675,9 +24851,12 @@ function editUpdate(name,editElements)
 		end
 	end
 end
-------------------------------------------
---	Tweak Terrain > Station Operations  --
-------------------------------------------
+--	************************************************************************  --
+--	****				Tweak Terrain Station Manipulation				****  --
+--	************************************************************************  --
+-----------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Operations  --
+-----------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- -TWEAK TERRAIN		F	tweakTerrain
@@ -24921,9 +25100,9 @@ function stationOperations()
 		end
 	end
 end
----------------------------------------
---	Tweak Terrain > Station Defense  --
----------------------------------------
+--------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense  --
+--------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN				F	initialGMFunctions
 -- -TWEAK TERRAIN		F	tweakTerrain
@@ -24991,247 +25170,12 @@ function stationDefense()
 		end
 	end
 end
----------------------------------
---	Tweak Terrain > Minefield  --
----------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM MINEFIELD	F	initialGMFunctions
--- -TWEAK TERRAIN		F	tweakTerrain
--- +SHAPE: ARC			D	setMineShape
--- +WIDTH: 1			D	setMineWidth
--- CENTER POINT			D	mineArcCenterPoint
-function mineField()
-	clearGMFunctions()
-	addGMFunction("-Main From Minefield",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction(string.format("+Shape: %s",mine_shape),setMineShape)
-	if mine_shape ~= "Cubic" then
-		addGMFunction(string.format("+Width: %i",mine_width),setMineWidth)
-	end
-	if mine_shape == "Circle" then
-		addGMFunction(string.format("+Radius: %i",mine_radius),setMineRadius)
-	end
-	if mine_shape == "Line" then
-		if gm_click_mode == "mine line start" then
-			addGMFunction(">Start Point<",mineLineStartPoint)
-		elseif gm_click_mode == "mine line end" then
-			addGMFunction(">End Point<",mineLineEndPoint)
-		else
-			addGMFunction("Start Point",mineLineStartPoint)
-		end
-	elseif mine_shape == "Arc" then
-		if gm_click_mode == "mine arc center" then
-			addGMFunction(">Center Point<",mineArcCenterPoint)
-		elseif gm_click_mode == "mine arc start" then
-			addGMFunction(">Start Arc<",mineArcStartPoint)
-		elseif gm_click_mode == "mine arc end" then
-			addGMFunction(">End Arc<",mineArcEndPoint)
-		else
-			addGMFunction("Center Point",mineArcCenterPoint)
-		end
-	elseif mine_shape == "Circle" then
-		if gm_click_mode == "mine circle" then
-			addGMFunction(">Center of Circle<",mineCircle)
-		else
-			addGMFunction("Center of Circle",mineCircle)
-		end
-	elseif mine_shape == "Cubic" then
-		if gm_click_mode == "mine Cubic" then
-			addGMFunction(">add point<",addCubicMineMarker)
-		else
-			addGMFunction("add point",addCubicMineMarker)
-		end
-		addGMFunction("finalize",
-			function ()
-				CubicMineUpdateObject:finalize()
-				mineField()
-			end)
-		addGMFunction("cancel",
-			function ()
-				CubicMineUpdateObject:cancel()
-				mineField()
-			end)
-	end
-end
-------------------------------
---	Tweak Terrain > Probes  --
-------------------------------
--- Button Text		   FD*	Related Function(s)
-function tweakProbes()
-	clearGMFunctions()
-	addGMFunction("-Main From Probes",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("Stop",function()
-		local object_list = getGMSelection()
-		if object_list == nil then
-			addGMMessage("Select something first")
-		else
-			if #object_list < 1 or #object_list > 1 then
-				addGMMessage("Select one thing")
-			else
-				local probe = object_list[1]
-				if probe.typeName ~= "ScanProbe" then
-					addGMMessage("Select a probe")
-				else
-					if probe.original_target_x == nil then
-						local ptx, pty = probe:getTarget()
-						probe.original_target_x = ptx
-						probe.original_target_y = pty
-					end
-					local px, py = probe:getPosition()
-					probe:setTarget(px,py)
-				end
-			end
-		end
-		tweakProbes()
-	end)
-	addGMFunction("Resume",function()
-		local object_list = getGMSelection()
-		if object_list == nil then
-			addGMMessage("Select something first")
-		else
-			if #object_list < 1 or #object_list > 1 then
-				addGMMessage("Select one thing")
-			else
-				local probe = object_list[1]
-				if probe.typeName ~= "ScanProbe" then
-					addGMMessage("Select a probe")
-				else
-					if probe.original_target_x == nil then
-						addGMMessage("Probe was not stopped or diverted")
-					else
-						probe:setTarget(probe.original_target_x,probe.original_target_y)
-					end
-				end
-			end
-		end
-		tweakProbes()
-	end)
-	if gm_click_mode == "divert probe" then
-		addGMFunction(">Divert<",divertProbe)
-	else
-		addGMFunction("Divert",divertProbe)
-	end
-	if gm_click_mode == "create probe" then
-		addGMFunction(">Create<",createProbe)
-	else
-		addGMFunction("Create",createProbe)
-	end
-	local accelerate_button_label = "Accelerate"
-	local decelerate_button_label = "Decelerate"
-	local object_list = getGMSelection()
-	if object_list ~= nil then
-		if #object_list == 1 then
-			local probe = object_list[1]
-			if probe.typeName == "ScanProbe" then
-				accelerate_button_label = string.format("%.1f Accelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() + 100)/1000)
-				decelerate_button_label = string.format("%.1f Decelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() - 100)/1000)
-			end
-		end
-	end
-	addGMFunction(accelerate_button_label,function()
-		local object_list = getGMSelection()
-		if object_list ~= nil then
-			if #object_list == 1 then
-				local probe = object_list[1]
-				if probe.typeName == "ScanProbe" then
-					if probe:getSpeed() < 5000 then
-						probe:setSpeed(probe:getSpeed() + 100)
-					else
-						addGMMessage("Maximum probe speed reached")
-					end
-				else
-					addGMMessage("Select a probe")
-				end
-			else
-				addGMMessage("Select one object")
-			end
-		else
-			addGMMessage("Select something first")
-		end
-		tweakProbes()
-	end)
-	addGMFunction(decelerate_button_label,function()
-		local object_list = getGMSelection()
-		if object_list ~= nil then
-			if #object_list == 1 then
-				local probe = object_list[1]
-				if probe.typeName == "ScanProbe" then
-					if probe:getSpeed() > 100 then
-						probe:setSpeed(probe:getSpeed() - 100)
-					else
-						addGMMessage("Minimum probe speed reached")
-					end
-				else
-					addGMMessage("Select a probe")
-				end
-			else
-				addGMMessage("Select one object")
-			end
-		else
-			addGMMessage("Select something first")
-		end
-		tweakProbes()
-	end)
-end
-function createProbe()
-	if gm_click_mode == "create probe" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "create probe"
-		onGMClick(gmClickCreateProbe)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   create probe\nGM click mode.",prev_mode))
-		end
-	end
-	tweakProbes()
-end
-function gmClickCreateProbe(x,y)
-	ScanProbe():setPosition(x,y):setFaction(fleetSpawnFaction):setTarget(x,y)
-end
-function divertProbe()
-	if gm_click_mode == "divert probe" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "divert probe"
-		onGMClick(gmClickDivertProbe)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   divert probe\nGM click mode.",prev_mode))
-		end
-	end
-	tweakProbes()
-end
-function gmClickDivertProbe(x,y)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Select something first")
-	else
-		if #object_list < 1 or #object_list > 1 then
-			addGMMessage("Select one thing")
-		else
-			local probe = object_list[1]
-			if probe.typeName ~= "ScanProbe" then
-				addGMMessage("Select a probe")
-			else
-				if probe.original_target_x == nil then
-					local ptx, pty = probe:getTarget()
-					probe.original_target_x = ptx
-					probe.original_target_y = pty
-				end
-				probe:setTarget(x,y)
-				local ntx, nty = probe:getTarget()
-			end
-		end
-	end
-	tweakProbes()
-end
----------------------------------------------------------
---	Tweak Terrain > Station Defense > Defensive Fleet  --
----------------------------------------------------------
+--	****************************************************************************************  --
+--	****				Tweak Terrain Station Manipulation Station Defense				****  --
+--	****************************************************************************************  --
+--------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Defensive Fleet  --
+--------------------------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN					F	initialGMFunctions
 -- -TWEAK TERRAIN			F	tweakTerrain
@@ -25329,9 +25273,9 @@ function spawnDefensiveFleet()
 	end
 	table.insert(fleet_list,fleet)
 end
-----------------------------------------------------
---	Tweak Terrain > Station Defense > Inner Ring  --
-----------------------------------------------------
+---------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Inner Ring  --
+---------------------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FRM IN RING		F	initialGMFunctions
 -- -TWEAK TERRAIN			F	tweakTerrain
@@ -25391,9 +25335,9 @@ function createOrbitingObject(obj,travel_angle,orbit_speed,origin_x,origin_y,dis
 		update_system:addOrbitUpdate(obj,origin_x,origin_y,distance,orbit_speed,travel_angle)
 	end
 end
-----------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring  --
-----------------------------------------------------
+---------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring  --
+---------------------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FRM OUT RING		F	initialGMFunctions
 -- -TWEAK TERRAIN			F	tweakTerrain
@@ -25479,9 +25423,9 @@ function stationDefensiveOuterRing()
 		end)
 	end
 end
------------------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Defensive Fleet > Relative Strength  --
------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Defensive Fleet > Relative Strength  --
+----------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM REL STR	F	initialGMFunctions
 -- -STATION DEF FLT		F	stationDefensiveFleet
@@ -25497,9 +25441,9 @@ function setDefensiveFleetStrength()
 	addGMFunction("-Station Def Flt",stationDefensiveFleet)
 	setFleetStrength(setDefensiveFleetStrength)
 end
---------------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Defensive Fleet > Fixed Strength  --
---------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Defensive Fleet > Fixed Strength  --
+-------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM REL STR	F	initialGMFunctions
 -- -STATION DEF FLT		F	stationDefensiveFleet
@@ -25513,9 +25457,9 @@ function setDefensiveFleetFixedStrength()
 	addGMFunction("-Fixed Strength " .. fleetStrengthFixedValue,stationDefensiveFleet)
 	fixFleetStrength(setDefensiveFleetFixedStrength)
 end
----------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Inner Ring > Platform Count  --
----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Inner Ring > Platform Count  --
+--------------------------------------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FRM DP NO.			F	initialGMFunctions
 -- -TWEAK TERRAIN			F	tweakTerrain
@@ -25542,9 +25486,9 @@ function setInnerPlatformCount()
 		end)
 	end
 end
-------------------------------------------------------------
---	Tweak Terrain > Station Defense > Inner Ring > Orbit  --
-------------------------------------------------------------
+-----------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Inner Ring > Orbit  --
+-----------------------------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -INNER RING		F	stationDefensiveInnerRing
 -- ORBIT > FAST		*	inline
@@ -25614,9 +25558,9 @@ function setInnerPlatformOrbit()
 		setInnerPlatformOrbit()
 	end)
 end
----------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Platform Count  --
----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Platform Count  --
+--------------------------------------------------------------------------------------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FRM OUT RING		F	initialGMFunctions
 -- -TWEAK TERRAIN			F	tweakTerrain
@@ -25643,9 +25587,9 @@ function setOuterPlatformCount()
 		end)
 	end
 end
-------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Mines  --
-------------------------------------------------------------
+-----------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Mines  --
+-----------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM MINES		F	initialGMFunctions
 -- -TWEAK TERRAIN		F	tweakTerrain
@@ -25664,9 +25608,9 @@ function setOuterMines()
 	addGMFunction(string.format("+Inside: %i",inside_mines),setInsideMines)
 	addGMFunction(string.format("+Outside: %i",outside_mines),setOutsideMines)
 end
----------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Platform Orbit  --
----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Platform Orbit  --
+--------------------------------------------------------------------------------------------
 -- -OUTER FRM DP ORBIT
 -- ORBIT > FAST		*	inline
 -- ORBIT > NORMAL	*	inline
@@ -25680,9 +25624,9 @@ function setOuterPlatformOrbit()
 	addGMFunction("-Outer Frm DP Orbit",stationDefensiveOuterRing)
 	setCommonOuterOrbit(setOuterPlatformOrbit)
 end
----------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Mines > Inline  --
----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Mines > Inline  --
+--------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -FROM INLINE MINE	F	setOuterMines
 -- ^ FROM 0 TO 1		D	inline
@@ -25725,9 +25669,9 @@ function setInlineMines()
 		end
 	end
 end
----------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Mines > Inside  --
----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Mines > Inside  --
+--------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM INSIDE	F	initialGMFunctions
 -- -TWEAK TERRAIN		F	tweakTerrain
@@ -25776,9 +25720,9 @@ function setInsideMines()
 		end)
 	end
 end
-----------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Mines > Outside  --
-----------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Mines > Outside  --
+---------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM OUTSIDE	F	initialGMFunctions
 -- -TWEAK TERRAIN		F	tweakTerrain
@@ -25827,9 +25771,9 @@ function setOutsideMines()
 		end)
 	end
 end
------------------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Mines > Inline > Orbit  --
------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Mines > Inline > Orbit  --
+----------------------------------------------------------------------------------------------------
 -- Button Text	   FD*	Related Function(s)
 -- -Outer RING		F	stationDefensiveOuterRing
 -- ORBIT > FAST		*	inline
@@ -25902,9 +25846,9 @@ function setCommonOuterOrbit(caller)
 		caller()
 	end)
 end
------------------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Mines > Inside > Orbit  --
------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Mines > Inside > Orbit  --
+----------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -OUTER MINES INSIDE	F	setInsideMines
 -- ORBIT > FAST			*	inline
@@ -25974,9 +25918,9 @@ function setOuterInnerMineOrbit()
 		setOuterInnerMineOrbit()
 	end)
 end
-------------------------------------------------------------------------------
---	Tweak Terrain > Station Defense > Outer Ring > Mines > Outside > Orbit  --
-------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station Defense > Outer Ring > Mines > Outside > Orbit  --
+-----------------------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -OUTER MINES OUTSIDE	F	setOutsideMines
 -- ORBIT > FAST			*	inline
@@ -26046,6 +25990,9 @@ function setOuterOuterMineOrbit()
 		setOuterOuterMineOrbit()
 	end)
 end
+--	****************************************************************  --
+--	****				Tweak Terrain Minefield					****  --
+--	****************************************************************  --
 -----------------------------------------
 --	Tweak Terrain > Minefield > Shape  --
 -----------------------------------------
@@ -27050,12 +26997,318 @@ function snippetButtons()
 			update_system:addTimeToLiveUpdate(v)
 		end
 	end)
+	-- Test science database content
+	-- Can't think of a good section for this
+	addGMFunction("+Science DB",scienceDatabase)
+	-- Customize the sound made when the tractor beam is engaged
+	-- Will remove once experimentation is complete (and defaults set)
+	addGMFunction("+Tractor Sound",tractorSound)
+end
+-------------------------
+--	Custom > One-Offs  --
+-------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM 1-OFFS	F	initialGMFunctions
+-- -CUSTOM				F	customButtons
+-- +MOTM				F	mmotmOneOff
+-- +STARRY				F	starryOneOff
+function oneOffs()
+	clearGMFunctions()
+	addGMFunction("-Main From 1-Offs",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("+MMOTM",mmotmOneOff)
+	addGMFunction("+Starry",starryOneOff)
+end
+----------------------------------------------
+--	Custom > Dangerous description grabber  --
+----------------------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN			F	initialGMFunctions
+-- -CUSTOM			F	customButtons
+-- BREAK MY GAME	F	inline
+function mollyGuardLoadDescription()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("break my game",singleObjectFunction(function(o)load(o:getDescription("notscanned"))()end))
+end
+-- eh this should live somewhere else, but let it be a reminder to simplify other code
+-- there also should be some similar ones for playerships, spaceships etc
+function singleObjectFunction(fn)
+	return function ()
+		local object_list = getGMSelection()
+		if #object_list ~= 1 then
+			addGMMessage("you must select one object")
+			return
+		end
+		fn(object_list[1])
+	end
+end
+--	****************************************************************  --
+--	****				Custom Snippets							****  --
+--	****************************************************************  --
+-------------------------------------------
+--	Custom > Snippets > Call Sign Cycle  --
+-------------------------------------------
+-- -MAIN		F	initialGMFunctions
+-- -CUSTOM		F	customButtons
+-- -SNIPPETS	F	snippetButtons
+-- List of buttons to select a parameter
+function callsignCycle()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-Snippets",snippetButtons)
+	local params = {
+		{"setup",450,200,1,2,0},
+		{"drone",75,60,1,2,200},
+		{"fighter",50,60,1,2,100},
+		{"beam",100,150,1,2,400},
+		{"missile",100,150,1,2,600},
+		{"chaser",50,30,1,2,500},
+		{"adder",75,60,1,2,350}
+	}
+	for param_index=1,#params do
+		local param = params[param_index]
+		addGMFunction(param[1],function()
+			local objectList = getGMSelection()
+			if #objectList == 0 then
+				addGMMessage("Need to select a target(s) for this to apply to")
+				return
+			end
+			for index = 1,#objectList do
+				local callbackFunction = function(self,obj)
+					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
+					local str=string.format("%.2f",num)
+					self:setCallSign(str)
+				end
+				update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
+			end
+		end)
+	end
+end
+--------------------------------------------
+--	Custom > Snippets > Science Database  --
+--------------------------------------------
+-- -MAIN FROM SCIENCE DB	F	initialGMFunctions
+-- -CUSTOM					F	customButtons
+-- -SNIPPETS				F	snippetButtons
+-- TRAVERSE					F	inline
+-- DUMP						F	inline
+function scienceDatabase()
+	clearGMFunctions()
+	addGMFunction("-Main From Science DB",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-Snippets",snippetButtons)
+	addGMFunction("Traverse",function()
+		local function printDb(entry, indent)
+			indent = indent or 0
+			local pad = ""
+			for _=1,indent do 
+				pad = pad .. " " 
+			end
+			print(pad .. "* " .. entry:getName())
+			if (entry:hasEntries()) then
+				for _, child in pairs(entry:getEntries()) do
+					printDb(child, indent + 2)
+				end
+			end
+		end
+		for _, entry in pairs(getScienceDatabases()) do
+			printDb(entry)
+		end
+	end)
+	addGMFunction("Dump",function()
+		local dump_db = queryScienceDatabase("Ships", "Corvette", "Atlantis X23")
+		print(dump_db:getName() .. "\n\n" .. dump_db:getLongDescription())
+		local extracted_image = dump_db:getImage()
+		print(extracted_image)
+		for key, value in pairs(dump_db:getKeyValues()) do
+			print(string.format("%20s: %25s", key, value))
+		end
+	end)
+end
+-----------------------------------------
+--	Custom > Snippets > Tractor Sound  --
+-----------------------------------------
+-- -MAIN FROM TRACTOR SOUND	F	initialGMFunctions
+-- -CUSTOM					F	customButtons
+-- -SNIPPETS				F	snippetButtons
+-- 0.2 POWER ^ -> 1.2		D	inline
+-- 0.2 POWER ^ -> 0.3		D	inline
+-- 0.2 POWER V -> -0.8		D	inline
+-- 0.2 POWER V -> 0.1		D	inline
+-- List of sound types to choose from with * on current selection
+function tractorSound()
+	clearGMFunctions()
+	addGMFunction("-Main From Tractor Sound",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-Snippets",snippetButtons)
+	addGMFunction(string.format("%.1f Power ^ -> %.1f",tractor_sound_power, tractor_sound_power + 1),function()
+		tractor_sound_power = tractor_sound_power + 1
+		tractorSound()
+	end)
+	addGMFunction(string.format("%.1f Power ^ -> %.1f",tractor_sound_power, tractor_sound_power + .1),function()
+		tractor_sound_power = tractor_sound_power + .1
+		tractorSound()
+	end)
+	addGMFunction(string.format("%.1f Power V -> %.1f",tractor_sound_power, tractor_sound_power - 1),function()
+		tractor_sound_power = tractor_sound_power - 1
+		tractorSound()
+	end)
+	addGMFunction(string.format("%.1f Power V -> %.1f",tractor_sound_power, tractor_sound_power - .1),function()
+		tractor_sound_power = tractor_sound_power - .1
+		tractorSound()
+	end)
+	local stock_sounds = {
+		["Button"] = "button.wav",
+		["Explosion"] = "explosion.wav",
+		["Laser"] = "laser.wav",
+		["Missile Launch"] = "missile_launch.wav",
+		["EMP Explosion"] = "sfx/emp_explosion.wav",
+		["Engine Fighter"] = "sfx/engine_fighter.wav",
+		["Engine"] = "sfx/engine.wav",
+		["HVLI Fire"] = "sfx/hvli_fire.wav",
+		["Laser Fire"] = "sfx/laser_fire.wav",
+		["Nuke Explosion"] = "sfx/nuke_explosion.wav",
+		["R Launch"] = "sfx/rlaunch.wav",
+		["Shield Down"] = "shield_down.wav",
+		["Shield Up"] = "shield_up.wav",
+	}
+	for sound_name, file_name in pairs(stock_sounds) do
+		if tractor_sound == file_name then
+			sound_name = sound_name .. "*"
+		end
+		addGMFunction(sound_name,function()
+			tractor_sound = file_name
+			local tractor_sound_message = string.format("Tractor sound set to %s",file_name)
+			addGMMessage(tractor_sound_message)
+			tractorSound()
+		end)
+	end
+end
+--	****************************************************************  --
+--	****				Custom One-Offs							****  --
+--	****************************************************************  --
+---------------------------------
+--	Custom > One-Offs > MMOTM  --
+---------------------------------
+-- Button Text	   FD*	Related Function(s)
+-- -MAIN FROM MMOTM	F	initialGMFunctions
+-- -CUSTOM			F	customButtons
+-- -ONE-OFFS		F	oneOffs
+-- GHOST SETUP		F	inline
+-- BOSS BATTLE		F	inline
+function mmotmOneOff()
+	clearGMFunctions()
+	addGMFunction("-Main From MMOTM",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-One-Offs",oneOffs)
+	addGMFunction("ghost setup",function()
+		CpuShip():setFaction("Ghosts"):setTemplate("Defense platform"):setCallSign("DP2"):setPosition(583206, 296210)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("NC9"):setPosition(586733, 288815):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("VS10"):setPosition(585369, 288737):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("SS11"):setPosition(585379, 289271)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("CV16"):setPosition(586718, 288183)
+		CpuShip():setFaction("Ghosts"):setTemplate("Storm"):setCallSign("UTI20"):setPosition(586045, 288149):setWeaponStorage("Homing", 10)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("VK15"):setPosition(585369, 288257)
+		CpuShip():setFaction("Ghosts"):setTemplate("Defense platform"):setCallSign("DP6"):setPosition(589491, 296139)
+		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("terminus"):setPosition(586037, 289433):setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("VS12"):setPosition(586289, 289313)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("S8"):setPosition(585402, 303565):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12.M"):setCallSign("BR7"):setPosition(586766, 303705):setWeaponStorage("Nuke", 0):setWeaponStorage("HVLI", 6)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("NC18"):setPosition(586766, 304106)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("SS13"):setPosition(585660, 303233)
+		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("SCMODS"):setPosition(586067, 303113):setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
+		CpuShip():setFaction("Ghosts"):setTemplate("Transport5x5"):setCallSign("talos"):setPosition(586469, 302949)
+		CpuShip():setFaction("Ghosts"):setTemplate("Storm"):setCallSign("VK19"):setPosition(586033, 304397):setWeaponStorage("Homing", 10)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("CCN14"):setPosition(586733, 303249)
+		CpuShip():setFaction("Ghosts"):setTemplate("Nirvana R5A"):setCallSign("CSS17"):setPosition(585402, 304253)
+		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("CSS50"):setPosition(643734, 296415):orderRoaming():setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
+		CpuShip():setFaction("Ghosts"):setTemplate("WX-Lindworm"):setCallSign("SS56"):setPosition(642146, 297017):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 0):setWeaponStorage("HVLI", 4)
+		CpuShip():setFaction("Ghosts"):setTemplate("Starhammer II"):setCallSign("UTI51"):setPosition(643661, 299810):orderRoaming():setWeaponStorage("Homing", 3):setWeaponStorage("EMP", 1)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("SS55"):setPosition(644829, 299901):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("S52"):setPosition(645157, 297255):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
+		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("CSS58"):setPosition(642310, 297784):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
+		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("CCN59"):setPosition(642182, 298496):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
+		CpuShip():setFaction("Ghosts"):setTemplate("WX-Lindworm"):setCallSign("VK57"):setPosition(642274, 299335):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 0):setWeaponStorage("HVLI", 4)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("NC54"):setPosition(645522, 298989):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
+		CpuShip():setFaction("Ghosts"):setTemplate("Piranha F12"):setCallSign("CCN53"):setPosition(645522, 298039):orderRoaming():setJumpDrive(true):setWeaponStorage("Homing", 4):setWeaponStorage("HVLI", 16)
+		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("VK61"):setPosition(641251, 298623):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
+		CpuShip():setFaction("Ghosts"):setTemplate("Strikeship"):setCallSign("CV60"):setPosition(641233, 297912):orderRoaming():setJumpDrive(true):setWarpDrive(false):setWarpSpeed(0.00)
+	end)
+	addGMFunction("boss battle",function()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("UTI44"):setPosition(601834, 599635):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("NC49"):setPosition(602814, 600718):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("UTI45"):setPosition(602824, 599604):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS33"):setPosition(598977, 602372):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("SS46"):setPosition(596845, 600551):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CV47"):setPosition(598084, 600739):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CV43"):setPosition(597980, 599208):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("VS32"):setPosition(604980, 591314):orderRoaming():setWeaponStorage("Homing", 968)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3209"):setPosition(603890, 596151)
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("SS30"):setPosition(608741, 605018):orderRoaming():setWeaponStorage("Homing", 968)
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("NC31"):setPosition(609563, 597669):orderRoaming():setWeaponStorage("Homing", 968)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3210"):setPosition(603862, 603779)
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("NC29"):setPosition(602602, 609125):orderRoaming():setWeaponStorage("Homing", 968)
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("CV28"):setPosition(595034, 608656):orderRoaming():setWeaponStorage("Homing", 968)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3211"):setPosition(596356, 603757)
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS35"):setPosition(601070, 602580):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS39"):setPosition(601119, 603375):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CV34"):setPosition(600103, 602433):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("NC48"):setPosition(601678, 600843):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("CSS40"):setPosition(600703, 597848):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("VK38"):setPosition(601706, 598411):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("SS41"):setPosition(599356, 597358):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("S42"):setPosition(597511, 599072):orderRoaming()
+		CpuShip():setFaction("Kraylor"):setTemplate("Strikeship"):setCallSign("SS32"):setPosition(598331, 596825):orderRoaming()
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS3208"):setPosition(596308, 596165)
+		SpaceStation():setTemplate("Large Station"):setFaction("Kraylor"):setCallSign("DS3206"):setPosition(600024, 600006)
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("BR27"):setPosition(597433, 590779):orderRoaming():setWeaponStorage("Homing", 968)
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("CCN25"):setPosition(590869, 602565):orderRoaming():setWeaponStorage("Homing", 968)
+		CpuShip():setFaction("Kraylor"):setTemplate("Odin"):setCallSign("VS26"):setPosition(591360, 594996):orderRoaming():setWeaponStorage("Homing", 968)
+	end)
+end
+----------------------------------
+--	Custom > One-Offs > Starry  --
+----------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM STARRY	F	initialGMFunctions
+-- -CUSTOM				F	customButtons
+-- -ONE-OFFS			F	oneOffs
+-- +CHRISTMAS			F	starryChristmas
+-- WJ AROUND RIGIL		F	inline
+-- SALE BOUY			F	inline
+function starryOneOff()
+	clearGMFunctions()
+	addGMFunction("-Main From Starry",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-One-Offs",oneOffs)
+	addGMFunction("+Christmas",starryChristmas)
+	addGMFunction("wj around rigil",function ()
+		local x,y=planet_rigil:getPosition()
+		local jammers=createObjectCircle{x=x,y=y,callback=WarpJammer,number=40}
+	    for i=1,#jammers do
+			local orbit_distance = 59000
+			local s_orbit = .95
+			local f_orbit = 1.65
+			jammers[i]:setRange(10000)
+			jammers[i].orbit_influencer = planet_ergot
+			update_system:addOrbitTargetWithInfluenceUpdate(jammers[i],planet_rigil,orbit_distance,s_orbit,f_orbit,planet_ergot,10000,30000)
+		end
+	end)
+	addGMFunction("sale Bouy",function()
+		onGMClick(function(x,y)
+			local tbl={"50% off marked ships","cheapest deals in the sector","unmatched prices","best discounts for black turkey"}
+			update_system:addNameCycleUpdate(Artifact():setPosition(x,y), 10,tbl,random(1,40))
+		end) 
+	end)
 	-- spawn the research base used on 2020-06-06
 	-- the location is fixed, the design is fixed
 	-- with both of those being fixed it is hard to make it generic
 	-- and we aren't (probably) going back there making it not applicable for the sandbox
 	-- but the code is something that could be edited into generic code for circular base designs in time
-	addGMFunction("base", function ()
+	addGMFunction("Kraylor Research Base", function ()
 		local cx=27200
 		local cy=227000
 		local inner_ring_speed=90
@@ -27103,6 +27356,69 @@ function snippetButtons()
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
 	end)
 end
+----------------------------------------------
+--	Custom > One-Offs > Starry > Christmas  --
+----------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM CHRISTMAS	F	initialGMFunctions
+-- -CUSTOM				F	customButtons
+-- -ONE-OFFS			F	oneOffs
+-- -STARRY				F	starryOneOff
+-- XMAS ARTIFACT		F	christmasArtifact
+-- CAROL				F	inline
+-- SPAWN				F	inline
+-- !ELF RENAME			F	inline
+-- !SLEIGH RENAME		F	inline
+function starryChristmas()
+	clearGMFunctions()
+	addGMFunction("-Main From Christmas",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-One-Offs",oneOffs)
+	addGMFunction("-Starry",starryOneOff)
+	addGMFunction("xmas artifact",christmasArtifact)
+	addGMFunction("carol",function ()
+		clearGMFunctions()
+		addGMFunction("-Custom",customButtons)
+		for i=1,12 do
+			addGMFunction("carol "..i,function() carolStage(i) customButtons() end)
+		end
+	end)
+	addGMFunction("spawn",function ()
+		clearGMFunctions()
+		addGMFunction("-Custom",customButtons)
+		for i=1,12 do
+			addGMFunction("spawn "..i,function() onGMClick(function (x,y) carolSpawnSingle(i,"human navy"):setPosition(x,y):orderStandGround() end) end)
+		end
+	end)
+	addGMFunction("!elf rename",function ()
+		local objs=getGMSelection()
+		for i=1,#objs do
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				objs[i]:setCallSign("elf "..irandom(1,99))
+			end
+		end
+	end)
+	addGMFunction("!sleigh rename",function ()
+		local objs=getGMSelection()
+		local full_name_list={"Rudolph","Dasher","Dancer","Prancer","Vixen","Comet","Cupid","Dunder","Blixem"}
+		local name_list={}
+		for i=1,#objs do
+			if #name_list==0 then
+				for j=1,#full_name_list do
+					table.insert(name_list,full_name_list[j])
+				end
+			end
+			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+				local num=irandom(1,#name_list)
+				objs[i]:setCallSign(name_list[num])
+				table.remove(name_list,num)
+			end
+		end
+	end)
+end
+
+
+
 -----------------------------
 --	Object creation utils  --
 -----------------------------
@@ -27168,39 +27484,6 @@ function mineRingShim(args)
 		angle=angle+increment
 	end
 end
-function callsignCycle()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction("-Snippets",snippetButtons)
-	local params = {
-		{"setup",450,200,1,2,0},
-		{"drone",75,60,1,2,200},
-		{"fighter",50,60,1,2,100},
-		{"beam",100,150,1,2,400},
-		{"missile",100,150,1,2,600},
-		{"chaser",50,30,1,2,500},
-		{"adder",75,60,1,2,350}
-	}
-	for param_index=1,#params do
-		local param = params[param_index]
-		addGMFunction(param[1],function()
-			local objectList = getGMSelection()
-			if #objectList == 0 then
-				addGMMessage("Need to select a target(s) for this to apply to")
-				return
-			end
-			for index = 1,#objectList do
-				local callbackFunction = function(self,obj)
-					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
-					local str=string.format("%.2f",num)
-					self:setCallSign(str)
-				end
-				update_system:addPeriodicCallback(objectList[index],callbackFunction,0.1);
-			end
-		end)
-	end
-end
 -- in several places it would be nice to get more errors reported
 -- this is to assist with that
 -- the popupGMDebug may want to go in the next version of EE
@@ -27208,39 +27491,6 @@ end
 -- which means without that if there is an error in update
 -- you can end with hundreds of popups which need to be closed
 -- for the next sim
-
-function scienceDatabase()
-	clearGMFunctions()
-	addGMFunction("-Main From Science DB",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction("Traverse",function()
-		local function printDb(entry, indent)
-			indent = indent or 0
-			local pad = ""
-			for _=1,indent do 
-				pad = pad .. " " 
-			end
-			print(pad .. "* " .. entry:getName())
-			if (entry:hasEntries()) then
-				for _, child in pairs(entry:getEntries()) do
-					printDb(child, indent + 2)
-				end
-			end
-		end
-		for _, entry in pairs(getScienceDatabases()) do
-			printDb(entry)
-		end
-	end)
-	addGMFunction("Dump",function()
-		local dump_db = queryScienceDatabase("Ships", "Corvette", "Atlantis X23")
-		print(dump_db:getName() .. "\n\n" .. dump_db:getLongDescription())
-		local extracted_image = dump_db:getImage()
-		print(extracted_image)
-		for key, value in pairs(dump_db:getKeyValues()) do
-			print(string.format("%20s: %25s", key, value))
-		end
-	end)
-end
 -- returns a function which wraps the fun function in error handling logic
 -- the error handling logic for the sandbox is a popup and printing to the console
 -- this is useful for callbacks and gm buttons (as both of those don't in the current
