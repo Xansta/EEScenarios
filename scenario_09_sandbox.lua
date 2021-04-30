@@ -25,7 +25,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.4.1"
+	scenario_version = "3.4.2"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -4962,6 +4962,7 @@ function createIcarusStations()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         sensor_boost = {value = 10000, cost = 5},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
@@ -5011,6 +5012,7 @@ function createIcarusStations()
         },
         probe_launch_repair =	true,
         scan_repair =			true,
+        fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5089,6 +5091,7 @@ function createIcarusStations()
         hack_repair =			true,
         scan_repair =			true,
         tube_slow_down_repair =	true,
+        fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5207,6 +5210,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
         probe_launch_repair =	true,
         scan_repair =			true,
+        fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5291,6 +5295,7 @@ function createIcarusStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
+        fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5372,6 +5377,7 @@ function createIcarusStations()
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
         probe_launch_repair =	true,
         scan_repair =			true,
+        fast_probes = {name = "Screamer", cost = math.random(8,15), quantity = math.random(1,5), speed = 4000},
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -10085,6 +10091,7 @@ function createLafrinaStations()
         weapon_available = 	{Homing = false,			HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	random(1,100) < 63,
+        fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         hack_repair =			true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -29589,6 +29596,71 @@ function handleDockedState()
 			end
 		end
 	end
+	if comms_target.comms_data.fast_probes ~= nil then
+		if comms_target.comms_data.fast_probes.quantity > 0 then
+			addCommsReply("Get specialty probes",function()
+				setCommsMessage(string.format("We've got %i batches left",comms_target.comms_data.fast_probes.quantity))
+				addCommsReply("What exactly are specialty probes?",function()
+					setCommsMessage("They are mini boosters that come in kits that you use in conjunction with your normal scan probes. The kits are bundled in batches of 5. When you attach the kits to the probes you launch, the probes travel faster to get to their destination. You don't actually get additional probes, rather, you enhance the probes you already have")
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply(string.format("Purchase 5 %s type probes for %i reputation",comms_target.comms_data.fast_probes.name,comms_target.comms_data.fast_probes.cost), function()
+					if comms_target.comms_data.fast_probes.quantity > 0 then
+						if comms_source:takeReputationPoints(comms_target.comms_data.fast_probes.cost) then
+							comms_target.comms_data.fast_probes.quantity = comms_target.comms_data.fast_probes.quantity - 1
+							if comms_source.probe_type_list == nil then
+								comms_source.probe_type_list = {}
+								table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
+							end
+							print("Initial player probe type list table:")
+							for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+								print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count)
+							end
+							local matching_index = 0
+							for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+								if probe_type_item.name == comms_target.comms_data.fast_probes.name then
+									matching_index = probe_type_index
+									break
+								end
+							end
+							if matching_index > 0 then
+								comms_source.probe_type_list[matching_index].count = comms_source.probe_type_list[matching_index].count + 5
+							else
+								table.insert(comms_source.probe_type_list,{name = comms_target.comms_data.fast_probes.name, count = 5, speed = comms_target.comms_data.fast_probes.speed})
+							end
+							print("After update player probe type list table:")
+							for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+								print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count)
+							end
+							comms_target.comms_data.fast_probes.quantity = comms_target.comms_data.fast_probes.quantity - 1
+							setCommsMessage(string.format("5 %s type probes have been added",comms_target.comms_data.fast_probes.name))
+							comms_source.probe_type = "standard"
+							if comms_source:hasPlayerAtPosition("Relay") then
+								comms_source.probe_type_button = "probe_type_button"
+								comms_source:addCustomButton("Relay",comms_source.probe_type_button,"Probes: standard",function()
+									string.format("")
+									cycleProbeType(comms_source)
+								end)
+							end
+							if comms_source:hasPlayerAtPosition("Operations") then
+								comms_source.probe_type_button_ops = "probe_type_button_ops"
+								comms_source:addCustomButton("Operations",comms_source.probe_type_button_ops,"Probes: standard",function()
+									string.format("")
+									cycleProbeType(comms_source)
+								end)
+							end
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+					else
+						setCommsMessage("We ran out of those")
+					end
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("Back", commsStation)
+			end)
+		end
+	end
 	local goodCount = 0
 	for good, goodData in pairs(ctd.goods) do
 		goodCount = goodCount + 1
@@ -31802,6 +31874,7 @@ function runAllTests()
 	math.extraTests()
 	updateSystem():_test()
 end
+--	Probe functions
 function togglePatrolProbeState(p)
 	if p.patrol_probe_state == "Off" then
 		p.patrol_probe_state = "On"
@@ -31846,6 +31919,92 @@ function patrolProbe(self)
 		self:onArrival(nil)
 	end
 end
+function cycleProbeType(p,probe_type)
+	if p.probe_type ~= nil then
+		local type_cycled = false
+		if probe_type ~= nil then
+			if p.probe_type ~= probe_type then
+				type_cycled = true
+				p.probe_type = probe_type
+			end
+		else
+			if p.probe_type_list == nil then
+				p.probe_type_list = {}
+				table.insert(p.probe_type_list,{name = "standard", count = -1})
+			end
+			local matching_index = 0
+			for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+				if probe_type_item.name == p.probe_type then
+					matching_index = probe_type_index
+					break
+				end
+			end
+			if matching_index > 0 then
+				matching_index = matching_index + 1
+				if matching_index > #p.probe_type_list then
+					matching_index = 1
+				end
+				if p.probe_type ~= p.probe_type_list[matching_index].name then
+					p.probe_type = p.probe_type_list[matching_index].name
+					type_cycled = true
+				end
+				if p.probe_type_list[matching_index].count == 0 then
+					cycleProbeType(p)
+				end
+			else
+				if p.probe_type ~= "standard" then
+					p.probe_type = "standard"
+					type_cycled = true
+				end
+			end
+		end
+		if type_cycled then
+			if p.probe_type_button ~= nil then
+				p:removeCustom(p.probe_type_button)
+			end
+			if p.probe_type_button_ops ~= nil then
+				p:removeCustom(p.probe_type_button_ops)
+			end
+		end
+		if p.probe_type_list ~= nil and #p.probe_type_list > 1 then
+			local non_standard_probes = 0
+			for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+				if probe_type_item.name ~= "standard" then
+					non_standard_probes = non_standard_probes + probe_type_item.count
+				end
+			end
+			if non_standard_probes > 0 then
+				local button_label = string.format("Probes: %s",p.probe_type)
+				if p.probe_type ~= "standard" then
+					local probe_quantity = 0
+					for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+						if probe_type_item.name == p.probe_type then
+							if probe_type_item.count ~= nil then
+								probe_quantity = math.min(probe_type_item.count,p:getScanProbeCount())
+							end
+						end
+					end
+					button_label = string.format("%s (%i)",button_label,probe_quantity)
+				end
+				if p:hasPlayerAtPosition("Relay") then
+					p.probe_type_button = "probe_type_button"
+					p:addCustomButton("Relay",p.probe_type_button,button_label,function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p.probe_type_button_ops = "probe_type_button_ops"
+					p:addCustomButton("Operations",p.probe_type_button_ops,button_label,function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+				end
+			end
+		end
+	end
+end		
+
 function updateInner(delta)
 	getScenarioTimePreStandardAddDelta(delta) -- this can be removed in the next version of EE
 	if updateDiagnostic then print("update: top of update function") end
@@ -33373,6 +33532,7 @@ function updateInner(delta)
 					p.patrol_probe = 5
 				end
 				if p.patrol_probe_state == "On" then
+					cycleProbeType(p,"standard")
 					local object_list = p:getObjectsInRange(100)
 					if object_list ~= nil then
 						for _, obj in ipairs(object_list) do
@@ -33399,6 +33559,35 @@ function updateInner(delta)
 												p:addCustomMessage("Operations","max_patrol_probes_reached_ops",string.format("Reached maximum number of patrol probes: %i",max_patrol))
 											end
 											togglePatrolProbeState(p)
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+			if p.probe_type ~= nil and p.probe_type ~= "standard" then
+				local matching_index = 0
+				for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+					if probe_type_item.name == p.probe_type and probe_type_item.count > 0 then
+						matching_index = probe_type_index
+						break
+					end
+				end
+				if matching_index > 0 then
+					local object_list = p:getObjectsInRange(100)
+					if object_list ~= nil then
+						for _, obj in ipairs(object_list) do
+							if obj ~= p then
+								if obj.typeName == "ScanProbe" then
+									if obj:getOwner() == p then
+										if obj.probe_speed == nil then
+											obj.probe_speed = p.probe_type_list[matching_index].speed
+											obj:setSpeed(obj.probe_speed)
+											print("probe speed:",obj.probe_speed)
+											p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+											cycleProbeType(p,p.probe_type_list[matching_index].name)
 										end
 									end
 								end
