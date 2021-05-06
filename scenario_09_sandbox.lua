@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.4.3"
+	scenario_version = "3.4.4"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -32984,662 +32984,574 @@ function updateInner(delta)
 			end
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
-				local goodCount = 0
-				if p.goods ~= nil then
-					for good, goodQuantity in pairs(p.goods) do
-						goodCount = goodCount + 1
-					end
-				end
-				if goodCount > 0 or p.pods < p.max_pods then		--add inventory button when cargo or pods acquired
-					if p:hasPlayerAtPosition("Relay") then
-						if p.inventoryButton == nil then
-							local tbi = "inventory" .. player_name
-							p:addCustomButton("Relay",tbi,"Inventory",function () playerShipCargoInventory(p) end)
-							p.inventoryButton = true
-						end
-					end
-					if p:hasPlayerAtPosition("Operations") then
-						if p.inventoryButton == nil then
-							local tbi = "inventoryOp" .. player_name
-							p:addCustomButton("Operations",tbi,"Inventory", function () playerShipCargoInventory(p) end)
-							p.inventoryButton = true
-						end
-					end
-					
-				end
+				updatePlayerInventoryButton(p)
 			end
 			if updateDiagnostic then print("update: valid player: rendezvous point message") end
 			if #rendezvousPoints > 0 then
-				for _,rp in pairs(rendezvousPoints) do	--send rendezvous point message when applicable
-					if rp.message == nil then
-						rp.message = "sent"
-						if p.rpMessage == nil then
-							p.rpMessage = {}
-						end
-						rpCallSign = rp:getCallSign()
-						if rpCallSign ~= nil then
-							if p.rpMessage[rpCallSign] == nil then
-								p:addToShipLog(string.format("Coordinates for %s saved and ready for Engineering and Helm to transport",rpCallSign),"Green")
-								p.rpMessage[rpCallSign] = "sent"
-							end
-						end
-					end
-				end
+				updatePlayerRendezvousPoints(p)
 			end
 			if updateDiagnostic then print("update: valid player: mortal repair crew") end
 			if healthCheckTimer < 0 then	--check to see if any crew perish due to excessive damage
-				if p:getRepairCrewCount() > 0 then
-					local fatalityChance = 0
-					local currentShield = 0
-					if p:getShieldCount() > 1 then
-						currentShield = (p:getSystemHealth("frontshield") + p:getSystemHealth("rearshield"))/2
-					else
-						currentShield = p:getSystemHealth("frontshield")
+				updatePlayerDamageConsequences(p)
+			end	--health check branch
+			updatePlayerDamageControl(p)
+			if p.expedite_dock then
+				updatePlayerExpediteDock(delta,p)
+			end
+			updatePlayerTimerWidgets(p)
+			if p.normal_long_range_radar == nil then
+				p.normal_long_range_radar = p:getLongRangeRadarRange()
+			end
+			if regionStations ~= nil then
+				updatePlayerLongRangeSensors(p)
+			end
+			local vx, vy = p:getVelocity()
+			local player_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
+			local nearby_objects = p:getObjectsInRange(1000)
+			if p.tractor then
+				updatePlayerTractor(p,player_velocity,nearby_objects)
+			end		--end of tractor checks
+			if p.mining and p.cargo > 0 then
+				updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
+			end
+			if p.carrier_space_group ~= nil then
+				updatePlayerCarrierSpaceGroup(delta,p)
+			end
+			if p.patrol_probe > 0 then
+				updatePlayerPatrolProbes(p)
+			end
+			if p.probe_type ~= nil and p.probe_type ~= "standard" then
+				updatePlayerSpecialtyProbes(p)
+			end
+			if p.turbo_torp then
+				updatePlayerTurboTorpedo(delta,p)
+			end
+			if updateDiagnostic then print("update: end of player loop") end
+		end	--player loop
+	end
+	if updateDiagnostic then print("update: outside player loop") end
+	updateCarrierDeployedFighter(delta)
+	if healthCheckTimer < 0 then
+		healthCheckTimer = delta + healthCheckTimerInterval
+	end
+	if plotRevert ~= nil then
+		plotRevert(delta)
+	end
+	if plotMobile ~= nil then
+		plotMobile(delta)
+	end
+	if plotPulse ~= nil then
+		plotPulse(delta)
+	end
+	if jump_train ~= nil then
+		updateJumpTrain()
+	end
+	if updateDiagnostic then print("update: end of update function") end
+end
+function updatePlayerInventoryButton(p)
+	local goodCount = 0
+	if p.goods ~= nil then
+		for good, goodQuantity in pairs(p.goods) do
+			goodCount = goodCount + 1
+		end
+	end
+	if goodCount > 0 or p.pods < p.max_pods then		--add inventory button when cargo or pods acquired
+		if p:hasPlayerAtPosition("Relay") then
+			if p.inventoryButton == nil then
+				local tbi = "inventory" .. player_name
+				p:addCustomButton("Relay",tbi,"Inventory",function () playerShipCargoInventory(p) end)
+				p.inventoryButton = true
+			end
+		end
+		if p:hasPlayerAtPosition("Operations") then
+			if p.inventoryButton == nil then
+				local tbi = "inventoryOp" .. player_name
+				p:addCustomButton("Operations",tbi,"Inventory", function () playerShipCargoInventory(p) end)
+				p.inventoryButton = true
+			end
+		end
+	end
+end
+function updatePlayerRendezvousPoints(p)
+	for _,rp in pairs(rendezvousPoints) do	--send rendezvous point message when applicable
+		if rp.message == nil then
+			rp.message = "sent"
+			if p.rpMessage == nil then
+				p.rpMessage = {}
+			end
+			local rpCallSign = rp:getCallSign()
+			if rpCallSign ~= nil then
+				if p.rpMessage[rpCallSign] == nil then
+					p:addToShipLog(string.format("Coordinates for %s saved and ready for Engineering and Helm to transport",rpCallSign),"Green")
+					p.rpMessage[rpCallSign] = "sent"
+				end
+			end
+		end
+	end
+end
+function updatePlayerDamageConsequences(p)
+	if p:getRepairCrewCount() > 0 then
+		local fatalityChance = 0
+		local currentShield = 0
+		if p:getShieldCount() > 1 then
+			currentShield = (p:getSystemHealth("frontshield") + p:getSystemHealth("rearshield"))/2
+		else
+			currentShield = p:getSystemHealth("frontshield")
+		end
+		fatalityChance = fatalityChance + (p.prevShield - currentShield)
+		p.prevShield = currentShield
+		local currentReactor = p:getSystemHealth("reactor")
+		fatalityChance = fatalityChance + (p.prevReactor - currentReactor)
+		p.prevReactor = currentReactor
+		local currentManeuver = p:getSystemHealth("maneuver")
+		fatalityChance = fatalityChance + (p.prevManeuver - currentManeuver)
+		p.prevManeuver = currentManeuver
+		local currentImpulse = p:getSystemHealth("impulse")
+		fatalityChance = fatalityChance + (p.prevImpulse - currentImpulse)
+		p.prevImpulse = currentImpulse
+		if p:getBeamWeaponRange(0) > 0 then
+			if p.healthyBeam == nil then
+				p.healthyBeam = 1.0
+				p.prevBeam = 1.0
+			end
+			local currentBeam = p:getSystemHealth("beamweapons")
+			fatalityChance = fatalityChance + (p.prevBeam - currentBeam)
+			p.prevBeam = currentBeam
+		end
+		if p:getWeaponTubeCount() > 0 then
+			if p.healthyMissile == nil then
+				p.healthyMissile = 1.0
+				p.prevMissile = 1.0
+			end
+			local currentMissile = p:getSystemHealth("missilesystem")
+			fatalityChance = fatalityChance + (p.prevMissile - currentMissile)
+			p.prevMissile = currentMissile
+		end
+		if p:hasWarpDrive() then
+			if p.healthyWarp == nil then
+				p.healthyWarp = 1.0
+				p.prevWarp = 1.0
+			end
+			local currentWarp = p:getSystemHealth("warp")
+			fatalityChance = fatalityChance + (p.prevWarp - currentWarp)
+			p.prevWarp = currentWarp
+		end
+		if p:hasJumpDrive() then
+			if p.healthyJump == nil then
+				p.healthyJump = 1.0
+				p.prevJump = 1.0
+			end
+			local currentJump = p:getSystemHealth("jumpdrive")
+			fatalityChance = fatalityChance + (p.prevJump - currentJump)
+			p.prevJump = currentJump
+		end
+		if p:getRepairCrewCount() == 1 then
+			fatalityChance = fatalityChance/2	-- increase survival chances of last repair crew standing
+		end
+		if fatalityChance > 0 then
+			if math.random() < (fatalityChance) then
+				if p.initialCoolant == nil then
+					p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+					if p:hasPlayerAtPosition("Engineering") then
+						local repairCrewFatality = "repairCrewFatality"
+						p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
 					end
-					fatalityChance = fatalityChance + (p.prevShield - currentShield)
-					p.prevShield = currentShield
-					local currentReactor = p:getSystemHealth("reactor")
-					fatalityChance = fatalityChance + (p.prevReactor - currentReactor)
-					p.prevReactor = currentReactor
-					local currentManeuver = p:getSystemHealth("maneuver")
-					fatalityChance = fatalityChance + (p.prevManeuver - currentManeuver)
-					p.prevManeuver = currentManeuver
-					local currentImpulse = p:getSystemHealth("impulse")
-					fatalityChance = fatalityChance + (p.prevImpulse - currentImpulse)
-					p.prevImpulse = currentImpulse
-					if p:getBeamWeaponRange(0) > 0 then
-						if p.healthyBeam == nil then
-							p.healthyBeam = 1.0
-							p.prevBeam = 1.0
-						end
-						local currentBeam = p:getSystemHealth("beamweapons")
-						fatalityChance = fatalityChance + (p.prevBeam - currentBeam)
-						p.prevBeam = currentBeam
+					if p:hasPlayerAtPosition("Engineering+") then
+						local repairCrewFatalityPlus = "repairCrewFatalityPlus"
+						p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
+					end
+				else
+					local consequence = 0
+					local upper_consequence = 2
+					local consequence_list = {}
+					if p:getCanLaunchProbe() then
+						upper_consequence = upper_consequence + 1
+						table.insert(consequence_list,"probe")
+					end
+					if p:getCanHack() then
+						upper_consequence = upper_consequence + 1
+						table.insert(consequence_list,"hack")
+					end
+					if p:getCanScan() then
+						upper_consequence = upper_consequence + 1
+						table.insert(consequence_list,"scan")
+					end
+					if p:getCanCombatManeuver() then
+						upper_consequence = upper_consequence + 1
+						table.insert(consequence_list,"combat_maneuver")
+					end
+					if p:getCanSelfDestruct() then
+						upper_consequence = upper_consequence + 1
+						table.insert(consequence_list,"self_destruct")
 					end
 					if p:getWeaponTubeCount() > 0 then
-						if p.healthyMissile == nil then
-							p.healthyMissile = 1.0
-							p.prevMissile = 1.0
-						end
-						local currentMissile = p:getSystemHealth("missilesystem")
-						fatalityChance = fatalityChance + (p.prevMissile - currentMissile)
-						p.prevMissile = currentMissile
+						upper_consequence = upper_consequence + 1
+						table.insert(consequence_list,"tube_time")
 					end
-					if p:hasWarpDrive() then
-						if p.healthyWarp == nil then
-							p.healthyWarp = 1.0
-							p.prevWarp = 1.0
-						end
-						local currentWarp = p:getSystemHealth("warp")
-						fatalityChance = fatalityChance + (p.prevWarp - currentWarp)
-						p.prevWarp = currentWarp
-					end
-					if p:hasJumpDrive() then
-						if p.healthyJump == nil then
-							p.healthyJump = 1.0
-							p.prevJump = 1.0
-						end
-						local currentJump = p:getSystemHealth("jumpdrive")
-						fatalityChance = fatalityChance + (p.prevJump - currentJump)
-						p.prevJump = currentJump
-					end
-					if p:getRepairCrewCount() == 1 then
-						fatalityChance = fatalityChance/2	-- increase survival chances of last repair crew standing
-					end
-					if fatalityChance > 0 then
-						if math.random() < (fatalityChance) then
-							if p.initialCoolant == nil then
-								p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-								if p:hasPlayerAtPosition("Engineering") then
-									local repairCrewFatality = "repairCrewFatality"
-									p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-								end
-								if p:hasPlayerAtPosition("Engineering+") then
-									local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-									p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-								end
-							else
-								local consequence = 0
-								local upper_consequence = 2
-								local consequence_list = {}
-								if p:getCanLaunchProbe() then
-									upper_consequence = upper_consequence + 1
-									table.insert(consequence_list,"probe")
-								end
-								if p:getCanHack() then
-									upper_consequence = upper_consequence + 1
-									table.insert(consequence_list,"hack")
-								end
-								if p:getCanScan() then
-									upper_consequence = upper_consequence + 1
-									table.insert(consequence_list,"scan")
-								end
-								if p:getCanCombatManeuver() then
-									upper_consequence = upper_consequence + 1
-									table.insert(consequence_list,"combat_maneuver")
-								end
-								if p:getCanSelfDestruct() then
-									upper_consequence = upper_consequence + 1
-									table.insert(consequence_list,"self_destruct")
-								end
-								if p:getWeaponTubeCount() > 0 then
-									upper_consequence = upper_consequence + 1
-									table.insert(consequence_list,"tube_time")
-								end
-								consequence = math.random(1,upper_consequence)
-								if consequence == 1 then
-									p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-									if p:hasPlayerAtPosition("Engineering") then
-										local repairCrewFatality = "repairCrewFatality"
-										p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-									end
-									if p:hasPlayerAtPosition("Engineering+") then
-										local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-										p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-									end
-								elseif consequence == 2 then
-									local current_coolant = p:getMaxCoolant()
-									local lost_coolant = 0
-									if current_coolant >= 10 then
-										lost_coolant = current_coolant*random(.25,.5)	--lose between 25 and 50 percent
-									else
-										lost_coolant = current_coolant*random(.15,.35)	--lose between 15 and 35 percent
-									end
-									p:setMaxCoolant(current_coolant - lost_coolant)
-									if p.reclaimable_coolant == nil then
-										p.reclaimable_coolant = 0
-									end
-									p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
-									if p:hasPlayerAtPosition("Engineering") then
-										local coolantLoss = "coolantLoss"
-										p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
-									end
-									if p:hasPlayerAtPosition("Engineering+") then
-										local coolantLossPlus = "coolantLossPlus"
-										p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
-									end
-								else
-									local named_consequence = consequence_list[consequence-2]
-									if named_consequence == "probe" then
-										p:setCanLaunchProbe(false)
-										if p:hasPlayerAtPosition("Engineering") then
-											p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
-										end
-										if p:hasPlayerAtPosition("Engineering+") then
-											p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
-										end
-									elseif named_consequence == "hack" then
-										p:setCanHack(false)
-										if p:hasPlayerAtPosition("Engineering") then
-											p:addCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
-										end
-										if p:hasPlayerAtPosition("Engineering+") then
-											p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
-										end
-									elseif named_consequence == "scan" then
-										p:setCanScan(false)
-										if p:hasPlayerAtPosition("Engineering") then
-											p:addCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
-										end
-										if p:hasPlayerAtPosition("Engineering+") then
-											p:addCustomMessage("Engineering+","scan_damage_message_plus","The scanners have been damaged")
-										end
-									elseif named_consequence == "combat_maneuver" then
-										p:setCanCombatManeuver(false)
-										if p:hasPlayerAtPosition("Engineering") then
-											p:addCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
-										end
-										if p:hasPlayerAtPosition("Engineering+") then
-											p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus","Combat maneuver has been damaged")
-										end
-									elseif named_consequence == "self_destruct" then
-										p:setCanSelfDestruct(false)
-										if p:hasPlayerAtPosition("Engineering") then
-											p:addCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
-										end
-										if p:hasPlayerAtPosition("Engineering+") then
-											p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
-										end
-									elseif named_consequence == "tube_time" then
-										local tube_count = p:getWeaponTubeCount()
-										local tube_index = 0
-										if p.normal_tube_load_time == nil then
-											p.normal_tube_load_time = {}
-											repeat
-												p.normal_tube_load_time[tube_index] = p:getTubeLoadTime(tube_index)
-												tube_index = tube_index + 1
-											until(tube_index >= tube_count)
-											tube_index = 0
-										end
-										repeat
-											p:setTubeLoadTime(tube_index,p:getTubeLoadTime(tube_index) + 2)
-											tube_index = tube_index + 1
-										until(tube_index >= tube_count)
-										if p:hasPlayerAtPosition("Engineering") then
-											p:addCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
-										end
-										if p:hasPlayerAtPosition("Engineering+") then
-											p:addCustomMessage("Engineering+","tube_slow_down_message_plus","Tube damage has caused tube load time to increase")
-										end
-									end
-								end	--coolant loss branch
-							end	--could lose coolant branch
-						end	--bad consequences of damage branch
-					end	--possible chance of bad consequences branch
-				else	--no repair crew left
-					if random(1,100) <= 4 then
-						p:setRepairCrewCount(1)
+					consequence = math.random(1,upper_consequence)
+					if consequence == 1 then
+						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
 						if p:hasPlayerAtPosition("Engineering") then
-							local repairCrewRecovery = "repairCrewRecovery"
-							p:addCustomMessage("Engineering",repairCrewRecovery,"Medical team has revived one of your repair crew")
+							local repairCrewFatality = "repairCrewFatality"
+							p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
 						end
 						if p:hasPlayerAtPosition("Engineering+") then
-							local repairCrewRecoveryPlus = "repairCrewRecoveryPlus"
-							p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,"Medical team has revived one of your repair crew")
+							local repairCrewFatalityPlus = "repairCrewFatalityPlus"
+							p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
 						end
-						resetPreviousSystemHealth(p)
-					end	--medical science triumph branch
-				end	--no repair crew left
-				if p.initialCoolant ~= nil then
-					current_coolant = p:getMaxCoolant()
-					if current_coolant < 20 then
-						if random(1,100) <= 4 then
-							local reclaimed_coolant = 0
-							if p.reclaimable_coolant ~= nil and p.reclaimable_coolant > 0 then
-								reclaimed_coolant = p.reclaimable_coolant*random(.1,.5)	--get back 10 to 50 percent of reclaimable coolant
-								p:setMaxCoolant(math.min(20,current_coolant + reclaimed_coolant))
-								p.reclaimable_coolant = p.reclaimable_coolant - reclaimed_coolant
-							end
-							local noticable_reclaimed_coolant = math.floor(reclaimed_coolant)
-							if noticable_reclaimed_coolant > 0 then
-								if p:hasPlayerAtPosition("Engineering") then
-									local coolant_recovery = "coolant_recovery"
-									p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
-								end
-								if p:hasPlayerAtPosition("Engineering+") then
-									local coolant_recovery_plus = "coolant_recovery_plus"
-									p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
-								end
-							end
-							resetPreviousSystemHealth(p)
+					elseif consequence == 2 then
+						local current_coolant = p:getMaxCoolant()
+						local lost_coolant = 0
+						if current_coolant >= 10 then
+							lost_coolant = current_coolant*random(.25,.5)	--lose between 25 and 50 percent
+						else
+							lost_coolant = current_coolant*random(.15,.35)	--lose between 15 and 35 percent
 						end
-					end
-				end
-			end	--health check branch
-			local secondary_systems_optimal = true
-			if not p:getCanLaunchProbe() then
-				secondary_systems_optimal = false
-			end
-			if secondary_systems_optimal and not p:getCanHack() then
-				secondary_systems_optimal = false
-			end
-			if secondary_systems_optimal and not p:getCanScan() then
-				secondary_systems_optimal = false
-			end
-			if secondary_systems_optimal and not p:getCanCombatManeuver() then
-				secondary_systems_optimal = false
-			end
-			if secondary_systems_optimal and not p:getCanSelfDestruct() then
-				secondary_systems_optimal = false
-			end
-			if secondary_systems_optimal then
-				local tube_count = p:getWeaponTubeCount()
-				if tube_count > 0 and p.normal_tube_load_time ~= nil then
-					local tube_index = 0
-					repeat
-						if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
-							secondary_systems_optimal = false
-							break
+						p:setMaxCoolant(current_coolant - lost_coolant)
+						if p.reclaimable_coolant == nil then
+							p.reclaimable_coolant = 0
 						end
-						tube_index = tube_index + 1
-					until(tube_index >= tube_count)
-				end
-			end
-			if secondary_systems_optimal then
-				if p.damage_report ~= nil then
-					p:removeCustom(p.damage_report)
-					p.damage_report = nil
-				end
-				if p.damage_report_plus ~= nil then
-					p:removeCustom(p.damage_report_plus)
-					p.damage_report_plus = nil
-				end
-			else
-				if p:hasPlayerAtPosition("Engineering") then
-					p.damage_report = "damage_report"
-					p:addCustomButton("Engineering",p.damage_report,"Damage Report",function()
-						local dmg_msg = "In addition to the primary systems constantly monitored in engineering, the following secondary systems have also been damaged requiring docking repair facilities:"
-						if not p:getCanLaunchProbe() then
-							dmg_msg = dmg_msg .. "\nProbe launch system"
+						p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
+						if p:hasPlayerAtPosition("Engineering") then
+							local coolantLoss = "coolantLoss"
+							p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
 						end
-						if not p:getCanHack() then
-							dmg_msg = dmg_msg .. "\nHacking system"
+						if p:hasPlayerAtPosition("Engineering+") then
+							local coolantLossPlus = "coolantLossPlus"
+							p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
 						end
-						if not p:getCanScan() then
-							dmg_msg = dmg_msg .. "\nScanning system"
-						end
-						if not p:getCanCombatManeuver() then
-							dmg_msg = dmg_msg .. "\nCombat maneuvering system"
-						end
-						if not p:getCanSelfDestruct() then
-							dmg_msg = dmg_msg .. "\nSelf destruct system"
-						end
-						local tube_count = p:getWeaponTubeCount()
-						if tube_count > 0 then
-							if tube_count > 0 and p.normal_tube_load_time ~= nil then
-								local tube_index = 0
-								repeat
-									if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
-										dmg_msg = dmg_msg .. "\nWeapon tube load time degraded"
-										break
-									end
-									tube_index = tube_index + 1
-								until(tube_index >= tube_count)
-							end
-						end
-						p.dmg_msg = "dmg_msg"
-						p:addCustomMessage("Engineering",p.dmg_msg,dmg_msg)
-					end)
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p.damage_report_plus = "damage_report_plus"
-					p:addCustomButton("Engineering+",p.damage_report_plus,"Damage Report",function()
-						local dmg_msg = "In addition to the primary systems constantly monitored in engineering, the following secondary systems have also been damaged requiring docking repair facilities:"
-						if not p:getCanLaunchProbe() then
-							dmg_msg = dmg_msg .. "\nProbe launch system"
-						end
-						if not p:getCanHack() then
-							dmg_msg = dmg_msg .. "\nHacking system"
-						end
-						if not p:getCanScan() then
-							dmg_msg = dmg_msg .. "\nScanning system"
-						end
-						if not p:getCanCombatManeuver() then
-							dmg_msg = dmg_msg .. "\nCombat maneuvering system"
-						end
-						if not p:getCanSelfDestruct() then
-							dmg_msg = dmg_msg .. "\nSelf destruct system"
-						end
-						local tube_count = p:getWeaponTubeCount()
-						if tube_count > 0 then
-							if tube_count > 0 and p.normal_tube_load_time ~= nil then
-								local tube_index = 0
-								repeat
-									if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
-										dmg_msg = dmg_msg .. "\nWeapon tube load time degraded"
-										break
-									end
-									tube_index = tube_index + 1
-								until(tube_index >= tube_count)
-							end
-						end
-						p.dmg_msg = "dmg_msg"
-						p:addCustomMessage("Engineering+",p.dmg_msg,dmg_msg)
-					end)
-				end
-			end
-			if p.expedite_dock then
-				if p.expedite_dock_timer == nil then
-					p.expedite_dock_timer = p.expedite_dock_timer_max + delta
-				end
-				p.expedite_dock_timer = p.expedite_dock_timer - delta
-				if p.expedite_dock_timer < 0 then
-					if p.expedite_dock_timer < -1 then
-						if p.expedite_dock_timer_info ~= nil then
-							p:removeCustom(p.expedite_dock_timer_info)
-							p.expedite_dock_timer_info = nil
-						end
-						if p.expedite_dock_timer_info_ops ~= nil then
-							p:removeCustom(p.expedite_dock_timer_info_ops)
-							p.expedite_dock_timer_info_ops = nil
-						end
---						p:addToShipLog(string.format("Docking crew of station %s returned to their normal duties",p.expedite_doc_station:getCallSign()),"Yellow")
-						p:addToShipLog("Docking crew of station returned to their normal duties","Yellow")
-						p.expedite_dock = nil
-						p.expedite_timer = nil
-						p.expedite_dock_station = nil
-						p.preorder_hvli = nil
-						p.preorder_homing = nil
-						p.preorder_emp = nil
-						p.preorder_nuke = nil
-						p.preorder_repair_crew = nil
-						p.preorder_coolant = nil
 					else
-						if p:hasPlayerAtPosition("Relay") then
-							p.expedite_dock_timer_info = "expedite_dock_timer_info"
-							p:addCustomInfo("Relay",p.expedite_dock_timer_info,"Fast Dock Expired")						
-						end
-						if p:hasPlayerAtPosition("Operations") then
-							p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
-							p:addCustomInfo("Relay",p.expedite_dock_timer_info_ops,"Fast Dock Expired")						
-						end
-					end
-				else	--timer not expired
-					local expedite_dock_timer_status = "Fast Dock"
-					local expedite_dock_timer_minutes = math.floor(p.expedite_dock_timer / 60)
-					local expedite_dock_timer_seconds = math.floor(p.expedite_dock_timer % 60)
-					if expedite_dock_timer_minutes <= 0 then
-						expedite_dock_timer_status = string.format("%s %i",expedite_dock_timer_status,expedite_dock_timer_seconds)
-					else
-						expedite_dock_timer_status = string.format("%s %i:%.2i",expedite_dock_timer_status,expedite_dock_timer_minutes,expedite_dock_timer_seconds)
-					end
-					if p:hasPlayerAtPosition("Relay") then
-						p.expedite_dock_timer_info = "expedite_dock_timer_info"
-						p:addCustomInfo("Relay",p.expedite_dock_timer_info,expedite_dock_timer_status)
-					end
-					if p:hasPlayerAtPosition("Operations") then
-						p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
-						p:addCustomInfo("Operations",p.expedite_dock_timer_info_ops,expedite_dock_timer_status)
-					end					
-				end
-				if p.expedite_dock_station ~= nil and p.expedite_dock_station:isValid() then
-					if p:isDocked(p.expedite_dock_station) then
-						p:setEnergy(p:getMaxEnergy())
-						p:setScanProbeCount(p:getMaxScanProbeCount())
-						if p.preorder_hvli ~= nil then
-							local new_amount = math.min(p:getWeaponStorage("HVLI") + p.preorder_hvli,p:getWeaponStorageMax("HVLI"))
-							p:setWeaponStorage("HVLI",new_amount)
-						end
-						if p.preorder_homing ~= nil then
-							new_amount = math.min(p:getWeaponStorage("Homing") + p.preorder_homing,p:getWeaponStorageMax("Homing"))
-							p:setWeaponStorage("Homing",new_amount)
-						end
-						if p.preorder_mine ~= nil then
-							new_amount = math.min(p:getWeaponStorage("Mine") + p.preorder_mine,p:getWeaponStorageMax("Mine"))
-							p:setWeaponStorage("Mine",new_amount)
-						end
-						if p.preorder_emp ~= nil then
-							new_amount = math.min(p:getWeaponStorage("EMP") + p.preorder_emp,p:getWeaponStorageMax("EMP"))
-							p:setWeaponStorage("EMP",new_amount)
-						end
-						if p.preorder_nuke ~= nil then
-							new_amount = math.min(p:getWeaponStorage("Nuke") + p.preorder_nuke,p:getWeaponStorageMax("Nuke"))
-							p:setWeaponStorage("Nuke",new_amount)
-						end
-						if p.preorder_repair_crew ~= nil then
-							p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-							resetPreviousSystemHealth(p)
-						end
-						if p.preorder_coolant ~= nil then
-							p:setMaxCoolant(p:getMaxCoolant() + 2)
-						end
-						if p.expedite_dock_timer_info ~= nil then
-							p:removeCustom(p.expedite_dock_timer_info)
-							p.expedite_dock_timer_info = nil
-						end
-						if p.expedite_dock_timer_info_ops ~= nil then
-							p:removeCustom(p.expedite_dock_timer_info_ops)
-							p.expedite_dock_timer_info_ops = nil
-						end
-						p:addToShipLog(string.format("Docking crew at station %s completed replenishment as requested",p.expedite_dock_station:getCallSign()),"Yellow")
-						p.expedite_dock = nil
-						p.expedite_timer = nil
-						p.expedite_dock_station = nil
-						p.preorder_hvli = nil
-						p.preorder_homing = nil
-						p.preorder_emp = nil
-						p.preorder_nuke = nil
-						p.preorder_repair_crew = nil
-						p.preorder_coolant = nil
-					end
-				end
-			end
-			if timer_started then
-				if timer_value < 0 then	--timer expired
-					if timer_value < -1 then	--timer expired condition expired
-						if p.timer_helm ~= nil then
-							p:removeCustom(p.timer_helm)
-							p.timer_helm = nil
-						end
-						if p.timer_weapons ~= nil then
-							p:removeCustom(p.timer_weapons)
-							p.timer_weapons = nil
-						end
-						if p.timer_engineer ~= nil then
-							p:removeCustom(p.timer_engineer)
-							p.timer_engineer = nil
-						end
-						if p.timer_science ~= nil then
-							p:removeCustom(p.timer_science)
-							p.timer_science = nil
-						end
-						if p.timer_relay ~= nil then
-							p:removeCustom(p.timer_relay)
-							p.timer_relay = nil
-						end
-						if p.timer_tactical ~= nil then
-							p:removeCustom(p.timer_tactical)
-							p.timer_tactical = nil
-						end
-						if p.timer_operations ~= nil then
-							p:removeCustom(p.timer_operations)
-							p.timer_operations = nil
-						end
-						if p.timer_engineer_plus ~= nil then
-							p:removeCustom(p.timer_engineer_plus)
-							p.timer_engineer_plus = nil
-						end
-						timer_started = false
-						timer_value = nil
-						timer_gm_message = nil
-					else	--timer expired (less than 0 but not less than -1)
-						local final_status = timer_purpose .. " Expired"
-						if timer_gm_message == nil then
-							timer_gm_message = "sent"
-							addGMMessage(final_status)
-						end
-						if timer_display_helm then
-							if p:hasPlayerAtPosition("Helms") then
-								p.timer_helm = "timer_helm"
-								p:addCustomInfo("Helms",p.timer_helm,final_status)
-							end
-							if p:hasPlayerAtPosition("Tactical") then
-								p.timer_tactical = "timer_tactical"
-								p:addCustomInfo("Tactical",p.timer_tactical,final_status)
-							end
-						end
-						if timer_display_weapons then
-							if p:hasPlayerAtPosition("Weapons") then
-								p.timer_weapons = "timer_weapons"
-								p:addCustomInfo("Weapons",p.timer_weapons,final_status)
-							end
-							if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
-								p.timer_tactical = "timer_tactical"
-								p:addCustomInfo("Tactical",p.timer_tactical,final_status)
-							end
-						end
-						if timer_display_engineer then
+						local named_consequence = consequence_list[consequence-2]
+						if named_consequence == "probe" then
+							p:setCanLaunchProbe(false)
 							if p:hasPlayerAtPosition("Engineering") then
-								p.timer_engineer = "timer_engineer"
-								p:addCustomInfo("Engineering",p.timer_engineer,final_status)
+								p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
 							end
 							if p:hasPlayerAtPosition("Engineering+") then
-								p.timer_engineer_plus = "timer_engineer_plus"
-								p:addCustomInfo("Engineering+",p.timer_engineer_plus,final_status)
+								p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
+							end
+						elseif named_consequence == "hack" then
+							p:setCanHack(false)
+							if p:hasPlayerAtPosition("Engineering") then
+								p:addCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
+							end
+						elseif named_consequence == "scan" then
+							p:setCanScan(false)
+							if p:hasPlayerAtPosition("Engineering") then
+								p:addCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								p:addCustomMessage("Engineering+","scan_damage_message_plus","The scanners have been damaged")
+							end
+						elseif named_consequence == "combat_maneuver" then
+							p:setCanCombatManeuver(false)
+							if p:hasPlayerAtPosition("Engineering") then
+								p:addCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus","Combat maneuver has been damaged")
+							end
+						elseif named_consequence == "self_destruct" then
+							p:setCanSelfDestruct(false)
+							if p:hasPlayerAtPosition("Engineering") then
+								p:addCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
+							end
+						elseif named_consequence == "tube_time" then
+							local tube_count = p:getWeaponTubeCount()
+							local tube_index = 0
+							if p.normal_tube_load_time == nil then
+								p.normal_tube_load_time = {}
+								repeat
+									p.normal_tube_load_time[tube_index] = p:getTubeLoadTime(tube_index)
+									tube_index = tube_index + 1
+								until(tube_index >= tube_count)
+								tube_index = 0
+							end
+							repeat
+								p:setTubeLoadTime(tube_index,p:getTubeLoadTime(tube_index) + 2)
+								tube_index = tube_index + 1
+							until(tube_index >= tube_count)
+							if p:hasPlayerAtPosition("Engineering") then
+								p:addCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
+							end
+							if p:hasPlayerAtPosition("Engineering+") then
+								p:addCustomMessage("Engineering+","tube_slow_down_message_plus","Tube damage has caused tube load time to increase")
 							end
 						end
-						if timer_display_science then
-							if p:hasPlayerAtPosition("Science") then
-								p.timer_science = "timer_science"
-								p:addCustomInfo("Science",p.timer_science,final_status)
+					end	--coolant loss branch
+				end	--could lose coolant branch
+			end	--bad consequences of damage branch
+		end	--possible chance of bad consequences branch
+	else	--no repair crew left
+		if random(1,100) <= 4 then
+			p:setRepairCrewCount(1)
+			if p:hasPlayerAtPosition("Engineering") then
+				local repairCrewRecovery = "repairCrewRecovery"
+				p:addCustomMessage("Engineering",repairCrewRecovery,"Medical team has revived one of your repair crew")
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				local repairCrewRecoveryPlus = "repairCrewRecoveryPlus"
+				p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,"Medical team has revived one of your repair crew")
+			end
+			resetPreviousSystemHealth(p)
+		end	--medical science triumph branch
+	end	--no repair crew left
+	if p.initialCoolant ~= nil then
+		current_coolant = p:getMaxCoolant()
+		if current_coolant < 20 then
+			if random(1,100) <= 4 then
+				local reclaimed_coolant = 0
+				if p.reclaimable_coolant ~= nil and p.reclaimable_coolant > 0 then
+					reclaimed_coolant = p.reclaimable_coolant*random(.1,.5)	--get back 10 to 50 percent of reclaimable coolant
+					p:setMaxCoolant(math.min(20,current_coolant + reclaimed_coolant))
+					p.reclaimable_coolant = p.reclaimable_coolant - reclaimed_coolant
+				end
+				local noticable_reclaimed_coolant = math.floor(reclaimed_coolant)
+				if noticable_reclaimed_coolant > 0 then
+					if p:hasPlayerAtPosition("Engineering") then
+						local coolant_recovery = "coolant_recovery"
+						p:addCustomMessage("Engineering",coolant_recovery,"Automated systems have recovered some coolant")
+					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						local coolant_recovery_plus = "coolant_recovery_plus"
+						p:addCustomMessage("Engineering+",coolant_recovery_plus,"Automated systems have recovered some coolant")
+					end
+				end
+				resetPreviousSystemHealth(p)
+			end
+		end
+	end
+end
+function updatePlayerDamageControl(p)
+	local secondary_systems_optimal = true
+	if not p:getCanLaunchProbe() then
+		secondary_systems_optimal = false
+	end
+	if secondary_systems_optimal and not p:getCanHack() then
+		secondary_systems_optimal = false
+	end
+	if secondary_systems_optimal and not p:getCanScan() then
+		secondary_systems_optimal = false
+	end
+	if secondary_systems_optimal and not p:getCanCombatManeuver() then
+		secondary_systems_optimal = false
+	end
+	if secondary_systems_optimal and not p:getCanSelfDestruct() then
+		secondary_systems_optimal = false
+	end
+	if secondary_systems_optimal then
+		local tube_count = p:getWeaponTubeCount()
+		if tube_count > 0 and p.normal_tube_load_time ~= nil then
+			local tube_index = 0
+			repeat
+				if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
+					secondary_systems_optimal = false
+					break
+				end
+				tube_index = tube_index + 1
+			until(tube_index >= tube_count)
+		end
+	end
+	if secondary_systems_optimal then
+		if p.damage_report ~= nil then
+			p:removeCustom(p.damage_report)
+			p.damage_report = nil
+		end
+		if p.damage_report_plus ~= nil then
+			p:removeCustom(p.damage_report_plus)
+			p.damage_report_plus = nil
+		end
+	else
+		if p:hasPlayerAtPosition("Engineering") then
+			p.damage_report = "damage_report"
+			p:addCustomButton("Engineering",p.damage_report,"Damage Report",function()
+				local dmg_msg = "In addition to the primary systems constantly monitored in engineering, the following secondary systems have also been damaged requiring docking repair facilities:"
+				if not p:getCanLaunchProbe() then
+					dmg_msg = dmg_msg .. "\nProbe launch system"
+				end
+				if not p:getCanHack() then
+					dmg_msg = dmg_msg .. "\nHacking system"
+				end
+				if not p:getCanScan() then
+					dmg_msg = dmg_msg .. "\nScanning system"
+				end
+				if not p:getCanCombatManeuver() then
+					dmg_msg = dmg_msg .. "\nCombat maneuvering system"
+				end
+				if not p:getCanSelfDestruct() then
+					dmg_msg = dmg_msg .. "\nSelf destruct system"
+				end
+				local tube_count = p:getWeaponTubeCount()
+				if tube_count > 0 then
+					if tube_count > 0 and p.normal_tube_load_time ~= nil then
+						local tube_index = 0
+						repeat
+							if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
+								dmg_msg = dmg_msg .. "\nWeapon tube load time degraded"
+								break
 							end
-							if p:hasPlayerAtPosition("Operations") then
-								p.timer_operations = "timer_operations"
-								p:addCustomInfo("Operations",p.timer_operations,final_status)
+							tube_index = tube_index + 1
+						until(tube_index >= tube_count)
+					end
+				end
+				p.dmg_msg = "dmg_msg"
+				p:addCustomMessage("Engineering",p.dmg_msg,dmg_msg)
+			end)
+		end
+		if p:hasPlayerAtPosition("Engineering+") then
+			p.damage_report_plus = "damage_report_plus"
+			p:addCustomButton("Engineering+",p.damage_report_plus,"Damage Report",function()
+				local dmg_msg = "In addition to the primary systems constantly monitored in engineering, the following secondary systems have also been damaged requiring docking repair facilities:"
+				if not p:getCanLaunchProbe() then
+					dmg_msg = dmg_msg .. "\nProbe launch system"
+				end
+				if not p:getCanHack() then
+					dmg_msg = dmg_msg .. "\nHacking system"
+				end
+				if not p:getCanScan() then
+					dmg_msg = dmg_msg .. "\nScanning system"
+				end
+				if not p:getCanCombatManeuver() then
+					dmg_msg = dmg_msg .. "\nCombat maneuvering system"
+				end
+				if not p:getCanSelfDestruct() then
+					dmg_msg = dmg_msg .. "\nSelf destruct system"
+				end
+				local tube_count = p:getWeaponTubeCount()
+				if tube_count > 0 then
+					if tube_count > 0 and p.normal_tube_load_time ~= nil then
+						local tube_index = 0
+						repeat
+							if p.normal_tube_load_time[tube_index] ~= p:getTubeLoadTime(tube_index) then
+								dmg_msg = dmg_msg .. "\nWeapon tube load time degraded"
+								break
 							end
-						end
-						if timer_display_relay then
-							if p:hasPlayerAtPosition("Relay") then
-								p.timer_relay = "timer_relay"
-								p:addCustomInfo("Relay",p.timer_relay,final_status)
-							end
-							if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
-								p.timer_operations = "timer_operations"
-								p:addCustomInfo("Operations",p.timer_operations,final_status)
-							end
-						end	--relay timer display final status
-					end	--end of timer value less than -1 checks
-				else	--time has not yet expired
-					local timer_status = timer_purpose
-					local timer_minutes = math.floor(timer_value / 60)
-					local timer_seconds = math.floor(timer_value % 60)
-					if timer_minutes <= 0 then
-						timer_status = string.format("%s %i",timer_status,timer_seconds)
-					else
-						timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
+							tube_index = tube_index + 1
+						until(tube_index >= tube_count)
 					end
-					if timer_display_helm then
-						if p:hasPlayerAtPosition("Helms") then
-							p.timer_helm = "timer_helm"
-							p:addCustomInfo("Helms",p.timer_helm,timer_status)
-						end
-						if p:hasPlayerAtPosition("Tactical") then
-							p.timer_tactical = "timer_tactical"
-							p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
-						end
-					end
-					if timer_display_weapons then
-						if p:hasPlayerAtPosition("Weapons") then
-							p.timer_weapons = "timer_weapons"
-							p:addCustomInfo("Weapons",p.timer_weapons,timer_status)
-						end
-						if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
-							p.timer_tactical = "timer_tactical"
-							p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
-						end
-					end
-					if timer_display_engineer then
-						if p:hasPlayerAtPosition("Engineering") then
-							p.timer_engineer = "timer_engineer"
-							p:addCustomInfo("Engineering",p.timer_engineer,timer_status)
-						end
-						if p:hasPlayerAtPosition("Engineering+") then
-							p.timer_engineer_plus = "timer_engineer_plus"
-							p:addCustomInfo("Engineering+",p.timer_engineer_plus,timer_status)
-						end
-					end
-					if timer_display_science then
-						if p:hasPlayerAtPosition("Science") then
-							p.timer_science = "timer_science"
-							p:addCustomInfo("Science",p.timer_science,timer_status)
-						end
-						if p:hasPlayerAtPosition("Operations") then
-							p.timer_operations = "timer_operations"
-							p:addCustomInfo("Operations",p.timer_operations,timer_status)
-						end
-					end
-					if timer_display_relay then
-						if p:hasPlayerAtPosition("Relay") then
-							p.timer_relay = "timer_relay"
-							p:addCustomInfo("Relay",p.timer_relay,timer_status)
-						end
-						if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
-							p.timer_operations = "timer_operations"
-							p:addCustomInfo("Operations",p.timer_operations,timer_status)
-						end
-					end	--end relay timer display
-				end	--end of timer started boolean checks
-			else	--timer started boolean is false
+				end
+				p.dmg_msg = "dmg_msg"
+				p:addCustomMessage("Engineering+",p.dmg_msg,dmg_msg)
+			end)
+		end
+	end
+end
+function updatePlayerExpediteDock(delta,p)
+	if p.expedite_dock_timer == nil then
+		p.expedite_dock_timer = p.expedite_dock_timer_max + delta
+	end
+	p.expedite_dock_timer = p.expedite_dock_timer - delta
+	if p.expedite_dock_timer < 0 then
+		if p.expedite_dock_timer < -1 then
+			if p.expedite_dock_timer_info ~= nil then
+				p:removeCustom(p.expedite_dock_timer_info)
+				p.expedite_dock_timer_info = nil
+			end
+			if p.expedite_dock_timer_info_ops ~= nil then
+				p:removeCustom(p.expedite_dock_timer_info_ops)
+				p.expedite_dock_timer_info_ops = nil
+			end
+--						p:addToShipLog(string.format("Docking crew of station %s returned to their normal duties",p.expedite_doc_station:getCallSign()),"Yellow")
+			p:addToShipLog("Docking crew of station returned to their normal duties","Yellow")
+			p.expedite_dock = nil
+			p.expedite_timer = nil
+			p.expedite_dock_station = nil
+			p.preorder_hvli = nil
+			p.preorder_homing = nil
+			p.preorder_emp = nil
+			p.preorder_nuke = nil
+			p.preorder_repair_crew = nil
+			p.preorder_coolant = nil
+		else
+			if p:hasPlayerAtPosition("Relay") then
+				p.expedite_dock_timer_info = "expedite_dock_timer_info"
+				p:addCustomInfo("Relay",p.expedite_dock_timer_info,"Fast Dock Expired")						
+			end
+			if p:hasPlayerAtPosition("Operations") then
+				p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
+				p:addCustomInfo("Relay",p.expedite_dock_timer_info_ops,"Fast Dock Expired")						
+			end
+		end
+	else	--timer not expired
+		local expedite_dock_timer_status = "Fast Dock"
+		local expedite_dock_timer_minutes = math.floor(p.expedite_dock_timer / 60)
+		local expedite_dock_timer_seconds = math.floor(p.expedite_dock_timer % 60)
+		if expedite_dock_timer_minutes <= 0 then
+			expedite_dock_timer_status = string.format("%s %i",expedite_dock_timer_status,expedite_dock_timer_seconds)
+		else
+			expedite_dock_timer_status = string.format("%s %i:%.2i",expedite_dock_timer_status,expedite_dock_timer_minutes,expedite_dock_timer_seconds)
+		end
+		if p:hasPlayerAtPosition("Relay") then
+			p.expedite_dock_timer_info = "expedite_dock_timer_info"
+			p:addCustomInfo("Relay",p.expedite_dock_timer_info,expedite_dock_timer_status)
+		end
+		if p:hasPlayerAtPosition("Operations") then
+			p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
+			p:addCustomInfo("Operations",p.expedite_dock_timer_info_ops,expedite_dock_timer_status)
+		end					
+	end
+	if p.expedite_dock_station ~= nil and p.expedite_dock_station:isValid() then
+		if p:isDocked(p.expedite_dock_station) then
+			p:setEnergy(p:getMaxEnergy())
+			p:setScanProbeCount(p:getMaxScanProbeCount())
+			if p.preorder_hvli ~= nil then
+				local new_amount = math.min(p:getWeaponStorage("HVLI") + p.preorder_hvli,p:getWeaponStorageMax("HVLI"))
+				p:setWeaponStorage("HVLI",new_amount)
+			end
+			if p.preorder_homing ~= nil then
+				new_amount = math.min(p:getWeaponStorage("Homing") + p.preorder_homing,p:getWeaponStorageMax("Homing"))
+				p:setWeaponStorage("Homing",new_amount)
+			end
+			if p.preorder_mine ~= nil then
+				new_amount = math.min(p:getWeaponStorage("Mine") + p.preorder_mine,p:getWeaponStorageMax("Mine"))
+				p:setWeaponStorage("Mine",new_amount)
+			end
+			if p.preorder_emp ~= nil then
+				new_amount = math.min(p:getWeaponStorage("EMP") + p.preorder_emp,p:getWeaponStorageMax("EMP"))
+				p:setWeaponStorage("EMP",new_amount)
+			end
+			if p.preorder_nuke ~= nil then
+				new_amount = math.min(p:getWeaponStorage("Nuke") + p.preorder_nuke,p:getWeaponStorageMax("Nuke"))
+				p:setWeaponStorage("Nuke",new_amount)
+			end
+			if p.preorder_repair_crew ~= nil then
+				p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+				resetPreviousSystemHealth(p)
+			end
+			if p.preorder_coolant ~= nil then
+				p:setMaxCoolant(p:getMaxCoolant() + 2)
+			end
+			if p.expedite_dock_timer_info ~= nil then
+				p:removeCustom(p.expedite_dock_timer_info)
+				p.expedite_dock_timer_info = nil
+			end
+			if p.expedite_dock_timer_info_ops ~= nil then
+				p:removeCustom(p.expedite_dock_timer_info_ops)
+				p.expedite_dock_timer_info_ops = nil
+			end
+			p:addToShipLog(string.format("Docking crew at station %s completed replenishment as requested",p.expedite_dock_station:getCallSign()),"Yellow")
+			p.expedite_dock = nil
+			p.expedite_timer = nil
+			p.expedite_dock_station = nil
+			p.preorder_hvli = nil
+			p.preorder_homing = nil
+			p.preorder_emp = nil
+			p.preorder_nuke = nil
+			p.preorder_repair_crew = nil
+			p.preorder_coolant = nil
+		end
+	end
+end
+function updatePlayerTimerWidgets(p)
+	if timer_started then
+		if timer_value < 0 then	--timer expired
+			if timer_value < -1 then	--timer expired condition expired
 				if p.timer_helm ~= nil then
 					p:removeCustom(p.timer_helm)
 					p.timer_helm = nil
@@ -33672,813 +33584,956 @@ function updateInner(delta)
 					p:removeCustom(p.timer_engineer_plus)
 					p.timer_engineer_plus = nil
 				end
+				timer_started = false
 				timer_value = nil
 				timer_gm_message = nil
-			end	--end of timer started boolean checks
-			if p.normal_long_range_radar == nil then
-				p.normal_long_range_radar = p:getLongRangeRadarRange()
+			else	--timer expired (less than 0 but not less than -1)
+				local final_status = timer_purpose .. " Expired"
+				if timer_gm_message == nil then
+					timer_gm_message = "sent"
+					addGMMessage(final_status)
+				end
+				if timer_display_helm then
+					if p:hasPlayerAtPosition("Helms") then
+						p.timer_helm = "timer_helm"
+						p:addCustomInfo("Helms",p.timer_helm,final_status)
+					end
+					if p:hasPlayerAtPosition("Tactical") then
+						p.timer_tactical = "timer_tactical"
+						p:addCustomInfo("Tactical",p.timer_tactical,final_status)
+					end
+				end
+				if timer_display_weapons then
+					if p:hasPlayerAtPosition("Weapons") then
+						p.timer_weapons = "timer_weapons"
+						p:addCustomInfo("Weapons",p.timer_weapons,final_status)
+					end
+					if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
+						p.timer_tactical = "timer_tactical"
+						p:addCustomInfo("Tactical",p.timer_tactical,final_status)
+					end
+				end
+				if timer_display_engineer then
+					if p:hasPlayerAtPosition("Engineering") then
+						p.timer_engineer = "timer_engineer"
+						p:addCustomInfo("Engineering",p.timer_engineer,final_status)
+					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						p.timer_engineer_plus = "timer_engineer_plus"
+						p:addCustomInfo("Engineering+",p.timer_engineer_plus,final_status)
+					end
+				end
+				if timer_display_science then
+					if p:hasPlayerAtPosition("Science") then
+						p.timer_science = "timer_science"
+						p:addCustomInfo("Science",p.timer_science,final_status)
+					end
+					if p:hasPlayerAtPosition("Operations") then
+						p.timer_operations = "timer_operations"
+						p:addCustomInfo("Operations",p.timer_operations,final_status)
+					end
+				end
+				if timer_display_relay then
+					if p:hasPlayerAtPosition("Relay") then
+						p.timer_relay = "timer_relay"
+						p:addCustomInfo("Relay",p.timer_relay,final_status)
+					end
+					if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
+						p.timer_operations = "timer_operations"
+						p:addCustomInfo("Operations",p.timer_operations,final_status)
+					end
+				end	--relay timer display final status
+			end	--end of timer value less than -1 checks
+		else	--time has not yet expired
+			local timer_status = timer_purpose
+			local timer_minutes = math.floor(timer_value / 60)
+			local timer_seconds = math.floor(timer_value % 60)
+			if timer_minutes <= 0 then
+				timer_status = string.format("%s %i",timer_status,timer_seconds)
+			else
+				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
 			end
-			if regionStations ~= nil then
-				local free_sensor_boost = false
-				local sensor_boost_present = false
-				local sensor_boost_amount = 0
-				if p.station_sensor_boost == nil then
-					for i=1,#regionStations do
-						local sensor_station = regionStations[i]
-						if sensor_station:isValid() and p:isDocked(sensor_station) then
-							if sensor_station.comms_data.sensor_boost ~= nil then
-								sensor_boost_present = true
-								if sensor_station.comms_data.sensor_boost.cost < 1 then
-									free_sensor_boost = true
-									p.station_sensor_boost = sensor_station.comms_data.sensor_boost.value
-									break
-								end
-								sensor_boost_amount = sensor_station.comms_data.sensor_boost.value
+			if timer_display_helm then
+				if p:hasPlayerAtPosition("Helms") then
+					p.timer_helm = "timer_helm"
+					p:addCustomInfo("Helms",p.timer_helm,timer_status)
+				end
+				if p:hasPlayerAtPosition("Tactical") then
+					p.timer_tactical = "timer_tactical"
+					p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
+				end
+			end
+			if timer_display_weapons then
+				if p:hasPlayerAtPosition("Weapons") then
+					p.timer_weapons = "timer_weapons"
+					p:addCustomInfo("Weapons",p.timer_weapons,timer_status)
+				end
+				if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
+					p.timer_tactical = "timer_tactical"
+					p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
+				end
+			end
+			if timer_display_engineer then
+				if p:hasPlayerAtPosition("Engineering") then
+					p.timer_engineer = "timer_engineer"
+					p:addCustomInfo("Engineering",p.timer_engineer,timer_status)
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p.timer_engineer_plus = "timer_engineer_plus"
+					p:addCustomInfo("Engineering+",p.timer_engineer_plus,timer_status)
+				end
+			end
+			if timer_display_science then
+				if p:hasPlayerAtPosition("Science") then
+					p.timer_science = "timer_science"
+					p:addCustomInfo("Science",p.timer_science,timer_status)
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p.timer_operations = "timer_operations"
+					p:addCustomInfo("Operations",p.timer_operations,timer_status)
+				end
+			end
+			if timer_display_relay then
+				if p:hasPlayerAtPosition("Relay") then
+					p.timer_relay = "timer_relay"
+					p:addCustomInfo("Relay",p.timer_relay,timer_status)
+				end
+				if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
+					p.timer_operations = "timer_operations"
+					p:addCustomInfo("Operations",p.timer_operations,timer_status)
+				end
+			end	--end relay timer display
+		end	--end of timer started boolean checks
+	else	--timer started boolean is false
+		if p.timer_helm ~= nil then
+			p:removeCustom(p.timer_helm)
+			p.timer_helm = nil
+		end
+		if p.timer_weapons ~= nil then
+			p:removeCustom(p.timer_weapons)
+			p.timer_weapons = nil
+		end
+		if p.timer_engineer ~= nil then
+			p:removeCustom(p.timer_engineer)
+			p.timer_engineer = nil
+		end
+		if p.timer_science ~= nil then
+			p:removeCustom(p.timer_science)
+			p.timer_science = nil
+		end
+		if p.timer_relay ~= nil then
+			p:removeCustom(p.timer_relay)
+			p.timer_relay = nil
+		end
+		if p.timer_tactical ~= nil then
+			p:removeCustom(p.timer_tactical)
+			p.timer_tactical = nil
+		end
+		if p.timer_operations ~= nil then
+			p:removeCustom(p.timer_operations)
+			p.timer_operations = nil
+		end
+		if p.timer_engineer_plus ~= nil then
+			p:removeCustom(p.timer_engineer_plus)
+			p.timer_engineer_plus = nil
+		end
+		timer_value = nil
+		timer_gm_message = nil
+	end	--end of timer started boolean checks
+end
+function updatePlayerLongRangeSensors(p)
+	local free_sensor_boost = false
+	local sensor_boost_present = false
+	local sensor_boost_amount = 0
+	if p.station_sensor_boost == nil then
+		for i=1,#regionStations do
+			local sensor_station = regionStations[i]
+			if sensor_station:isValid() and p:isDocked(sensor_station) then
+				if sensor_station.comms_data.sensor_boost ~= nil then
+					sensor_boost_present = true
+					if sensor_station.comms_data.sensor_boost.cost < 1 then
+						free_sensor_boost = true
+						p.station_sensor_boost = sensor_station.comms_data.sensor_boost.value
+						break
+					end
+					sensor_boost_amount = sensor_station.comms_data.sensor_boost.value
+				end
+			end
+		end
+	end
+	local base_range = p.normal_long_range_radar
+	if p.station_sensor_boost ~= nil then
+		base_range = base_range + p.station_sensor_boost
+	end
+	if p:getDockedWith() == nil then
+		base_range = p.normal_long_range_radar
+		p.station_sensor_boost = nil
+	end
+	local impact_range = math.max(base_range*sensor_impact,p:getShortRangeRadarRange())
+	local sensor_jammer_impact = 0
+	for jammer_name, sensor_jammer in pairs(sensor_jammer_list) do
+		if sensor_jammer ~= nil and sensor_jammer:isValid() then
+			local jammer_distance = distance(p,sensor_jammer)
+			if jammer_distance < sensor_jammer.jam_range then
+				sensor_jammer_impact = math.max(sensor_jammer_impact,sensor_jammer.jam_impact*(1-(jammer_distance/sensor_jammer.jam_range)))
+			end
+		else
+			sensor_jammer_list[jammer_name] = nil
+		end
+	end
+	impact_range = math.max(p:getShortRangeRadarRange(),impact_range - sensor_jammer_impact)
+	p:setLongRangeRadarRange(impact_range)
+end
+function updatePlayerTractor(p,player_velocity,nearby_objects)
+	local cpx, cpy = p:getPosition()
+	if player_velocity < 1 then
+		--print(string.format("%s velocity: %.1f slow enough to establish tractor",player_name,player_velocity))
+		if p.tractor_target_lock then
+			if p.tractor_target ~= nil and p.tractor_target:isValid() then
+				p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
+				p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
+				if random(1,100) < 27 then
+					BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)]):setBeamFireSound(tractor_sound):setBeamFireSoundPower(tractor_sound_power + player_velocity/100)
+				end
+				if p.disengage_tractor_button == nil then
+					p.disengage_tractor_button = "disengage_tractor_button"
+					p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
+						p.tractor_target_lock = false
+						p:removeCustom(p.disengage_tractor_button)
+						p:removeCustom(p.disengage_tractor_button_plus)
+						p.disengage_tractor_button = nil
+						p.disengage_tractor_button_plus = nil
+					end)
+				end
+				if p.disengage_tractor_button_plus == nil then
+					p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
+					p:addCustomButton("Engineering+",p.disengage_tractor_button_plus,"Disengage Tractor",function()
+						p.tractor_target_lock = false
+						p:removeCustom(p.disengage_tractor_button)
+						p:removeCustom(p.disengage_tractor_button_plus)
+						p.disengage_tractor_button = nil
+						p.disengage_tractor_button_plus = nil
+					end)
+				end
+			else
+				p.tractor_target_lock = false
+				p:removeCustom(p.disengage_tractor_button)
+				p:removeCustom(p.disengage_tractor_button_plus)
+				p.disengage_tractor_button = nil
+				p.disengage_tractor_button_plus = nil
+			end
+		else	--tractor not locked on target
+			local tractor_objects = {}
+			if nearby_objects ~= nil and #nearby_objects > 1 then
+				for _, obj in ipairs(nearby_objects) do
+					if p ~= obj then
+						local object_type = obj.typeName
+						if object_type ~= nil then
+							if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+								table.insert(tractor_objects,obj)
 							end
 						end
 					end
-				end
-				local base_range = p.normal_long_range_radar
-				if p.station_sensor_boost ~= nil then
-					base_range = base_range + p.station_sensor_boost
-				end
-				if p:getDockedWith() == nil then
-					base_range = p.normal_long_range_radar
-					p.station_sensor_boost = nil
-				end
-				local impact_range = math.max(base_range*sensor_impact,p:getShortRangeRadarRange())
-				local sensor_jammer_impact = 0
-				for jammer_name, sensor_jammer in pairs(sensor_jammer_list) do
-					if sensor_jammer ~= nil and sensor_jammer:isValid() then
-						local jammer_distance = distance(p,sensor_jammer)
-						if jammer_distance < sensor_jammer.jam_range then
-							sensor_jammer_impact = math.max(sensor_jammer_impact,sensor_jammer.jam_impact*(1-(jammer_distance/sensor_jammer.jam_range)))
+				end		--end of nearby object list loop
+				if #tractor_objects > 0 then
+					--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
+					if p.tractor_target ~= nil and p.tractor_target:isValid() then
+						local target_in_list = false
+						for i=1,#tractor_objects do
+							if tractor_objects[i] == p.tractor_target then
+								target_in_list = true
+								break
+							end
+						end		--end of check for the current target in list loop
+						if not target_in_list then
+							p.tractor_target = tractor_objects[1]
+							removeTractorObjectButtons(p)
 						end
 					else
-						sensor_jammer_list[jammer_name] = nil
+						p.tractor_target = tractor_objects[1]
+					end
+					addTractorObjectButtons(p,tractor_objects)
+				else	--no nearby tractorable objects
+					if p.tractor_target ~= nil then
+						removeTractorObjectButtons(p)
+						p.tractor_target = nil
 					end
 				end
-				impact_range = math.max(p:getShortRangeRadarRange(),impact_range - sensor_jammer_impact)
-				p:setLongRangeRadarRange(impact_range)
+			else	--no nearby objects
+				if p.tractor_target ~= nil then
+					removeTractorObjectButtons(p)
+					p.tractor_target = nil
+				end
 			end
-			local vx, vy = p:getVelocity()
-			local dx=math.abs(vx)
-			local dy=math.abs(vy)
-			local player_velocity = math.sqrt((dx*dx)+(dy*dy))
-			local cpx, cpy = p:getPosition()
-			local nearby_objects = p:getObjectsInRange(1000)
-			if p.tractor then
-				if player_velocity < 1 then
-					--print(string.format("%s velocity: %.1f slow enough to establish tractor",player_name,player_velocity))
-					if p.tractor_target_lock then
-						if p.tractor_target ~= nil and p.tractor_target:isValid() then
-							p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
-							p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
-							if random(1,100) < 27 then
-								BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)]):setBeamFireSound(tractor_sound):setBeamFireSoundPower(tractor_sound_power + player_velocity/100)
-							end
-							if p.disengage_tractor_button == nil then
-								p.disengage_tractor_button = "disengage_tractor_button"
-								p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
-									p.tractor_target_lock = false
-									p:removeCustom(p.disengage_tractor_button)
-									p:removeCustom(p.disengage_tractor_button_plus)
-									p.disengage_tractor_button = nil
-									p.disengage_tractor_button_plus = nil
-								end)
-							end
-							if p.disengage_tractor_button_plus == nil then
-								p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
-								p:addCustomButton("Engineering+",p.disengage_tractor_button_plus,"Disengage Tractor",function()
-									p.tractor_target_lock = false
-									p:removeCustom(p.disengage_tractor_button)
-									p:removeCustom(p.disengage_tractor_button_plus)
-									p.disengage_tractor_button = nil
-									p.disengage_tractor_button_plus = nil
-								end)
-							end
-						else
+		end
+	else	--not moving slowly enough to establish tractor
+		removeTractorObjectButtons(p)
+		--print(string.format("%s velocity: %.1f too fast to establish tractor",player_name,player_velocity))
+		if player_velocity > 50 then
+			--print(string.format("%s velocity: %.1f too fast to continue tractor",player_name,player_velocity))
+			p.tractor_target_lock = false
+			if p.disengage_tractor_button ~= nil then
+				p:removeCustom(p.disengage_tractor_button)
+				p.disengage_tractor_button = nil
+			end
+			if p.disengage_tractor_button_plus ~= nil then
+				p:removeCustom(p.disengage_tractor_button_plus)
+				p.disengage_tractor_button_plus = nil
+			end
+		else
+			if p.tractor_target_lock then
+				if p.tractor_target ~= nil and p.tractor_target:isValid() then
+					p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
+					p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
+					if random(1,100) < 27 then
+						BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)]):setBeamFireSound(tractor_sound):setBeamFireSoundPower(tractor_sound_power + player_velocity/100)
+					end
+					if p.disengage_tractor_button == nil then
+						p.disengage_tractor_button = "disengage_tractor_button"
+						p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
 							p.tractor_target_lock = false
 							p:removeCustom(p.disengage_tractor_button)
-							p:removeCustom(p.disengage_tractor_button_plus)
 							p.disengage_tractor_button = nil
-							p.disengage_tractor_button_plus = nil
-						end
-					else	--tractor not locked on target
-						local tractor_objects = {}
-						if nearby_objects ~= nil and #nearby_objects > 1 then
-							for _, obj in ipairs(nearby_objects) do
-								if p ~= obj then
-									local object_type = obj.typeName
-									if object_type ~= nil then
-										if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
-											table.insert(tractor_objects,obj)
-										end
-									end
-								end
-							end		--end of nearby object list loop
-							if #tractor_objects > 0 then
-								--print(string.format("%i tractorable objects under 1 unit away",#tractor_objects))
-								if p.tractor_target ~= nil and p.tractor_target:isValid() then
-									local target_in_list = false
-									for i=1,#tractor_objects do
-										if tractor_objects[i] == p.tractor_target then
-											target_in_list = true
-											break
-										end
-									end		--end of check for the current target in list loop
-									if not target_in_list then
-										p.tractor_target = tractor_objects[1]
-										removeTractorObjectButtons(p)
-									end
-								else
-									p.tractor_target = tractor_objects[1]
-								end
-								addTractorObjectButtons(p,tractor_objects)
-							else	--no nearby tractorable objects
-								if p.tractor_target ~= nil then
-									removeTractorObjectButtons(p)
-									p.tractor_target = nil
-								end
-							end
-						else	--no nearby objects
-							if p.tractor_target ~= nil then
-								removeTractorObjectButtons(p)
-								p.tractor_target = nil
-							end
-						end
+						end)
 					end
-				else	--not moving slowly enough to establish tractor
-					removeTractorObjectButtons(p)
-					--print(string.format("%s velocity: %.1f too fast to establish tractor",player_name,player_velocity))
-					if player_velocity > 50 then
-						--print(string.format("%s velocity: %.1f too fast to continue tractor",player_name,player_velocity))
-						p.tractor_target_lock = false
-						if p.disengage_tractor_button ~= nil then
-							p:removeCustom(p.disengage_tractor_button)
-							p.disengage_tractor_button = nil
-						end
-						if p.disengage_tractor_button_plus ~= nil then
+					if p.disengage_tractor_button_plus == nil then
+						p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
+						p:addCustomButton("Engineering+",p.disengage_tractor_button_plus,"Disengage Tractor",function()
+							p.tractor_target_lock = false
 							p:removeCustom(p.disengage_tractor_button_plus)
 							p.disengage_tractor_button_plus = nil
-						end
-					else
-						if p.tractor_target_lock then
-							if p.tractor_target ~= nil and p.tractor_target:isValid() then
-								p.tractor_target:setPosition(cpx+p.tractor_vector_x,cpy+p.tractor_vector_y)
-								p:setEnergy(p:getEnergy() - p:getMaxEnergy()*tractor_drain)
-								if random(1,100) < 27 then
-									BeamEffect():setSource(p,0,0,0):setTarget(p.tractor_target,0,0):setDuration(1):setRing(false):setTexture(tractor_beam_string[math.random(1,#tractor_beam_string)]):setBeamFireSound(tractor_sound):setBeamFireSoundPower(tractor_sound_power + player_velocity/100)
-								end
-								if p.disengage_tractor_button == nil then
-									p.disengage_tractor_button = "disengage_tractor_button"
-									p:addCustomButton("Engineering",p.disengage_tractor_button,"Disengage Tractor",function()
-										p.tractor_target_lock = false
-										p:removeCustom(p.disengage_tractor_button)
-										p.disengage_tractor_button = nil
-									end)
-								end
-								if p.disengage_tractor_button_plus == nil then
-									p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
-									p:addCustomButton("Engineering+",p.disengage_tractor_button_plus,"Disengage Tractor",function()
-										p.tractor_target_lock = false
-										p:removeCustom(p.disengage_tractor_button_plus)
-										p.disengage_tractor_button_plus = nil
-									end)
-								end
-							else	--invalid tractor target
-								p.tractor_target_lock = false
-								p:removeCustom(p.disengage_tractor_button)
-								p:removeCustom(p.disengage_tractor_button_plus)
-								p.disengage_tractor_button = nil
-								p.disengage_tractor_button_plus = nil
-							end
-						end		--end of tractor lock processing				
-					end		--end of player moving slow enough to tractor branch
-				end		--end of speed checks for tractoring
-			end		--end of tractor checks
-			if p.mining and p.cargo > 0 then
-				if player_velocity < 10 then
-					if p.mining_target_lock then
-						if p.mining_target ~= nil and p.mining_target:isValid() then
-							if p.mining_in_progress then
-								p.mining_timer = p.mining_timer - delta
-								if p.mining_timer < 0 then
-									p.mining_in_progress = false
-									if p.mining_timer_info ~= nil then
-										p:removeCustom(p.mining_timer_info)
-										p.mining_timer_info = nil
-									end
-									p.mining_target_lock = false
-									p.mining_timer = nil
-									if p.mining_target.trace_minerals ~= nil and #p.mining_target.trace_minerals > 0 then
-										local good = p.mining_target.trace_minerals[math.random(1,#p.mining_target.trace_minerals)]
-										if p.goods == nil then
-											p.goods = {}
-										end
-										if p.goods[good] == nil then
-											p.goods[good] = 0
-										end
-										p.goods[good] = p.goods[good] + 1
-										p.cargo = p.cargo - 1
-										if p:hasPlayerAtPosition("Science") then
-											local mined_mineral_message = "mined_mineral_message"
-											p:addCustomMessage("Science",mined_mineral_message,string.format("Mining obtained %s which has been stored in the cargo hold",good))
-										end
-										if p:hasPlayerAtPosition("Operations") then
-											local mined_mineral_message_ops = "mined_mineral_message_ops"
-											p:addCustomMessage("Operations",mined_mineral_message_ops,string.format("Mining obtained %s which has been stored in the cargo hold",good))
-										end
-									else	--no minerals in asteroid
-										if p:hasPlayerAtPosition("Science") then
-											local mined_mineral_message = "mined_mineral_message"
-											p:addCustomMessage("Science",mined_mineral_message,"mining failed to extract any minerals")
-										end										
-										if p:hasPlayerAtPosition("Operations") then
-											local mined_mineral_message_ops = "mined_mineral_message_ops"
-											p:addCustomMessage("Operations",mined_mineral_message_ops,"mining failed to extract any minerals")
-										end										
-									end
-								else	--still mining, update timer display, energy and heat
-									p:setEnergy(p:getEnergy() - p:getMaxEnergy()*mining_drain)
-									p:setSystemHeat("beamweapons",p:getSystemHeat("beamweapons") + .0025)
-									local mining_seconds = math.floor(p.mining_timer % 60)
-									if random(1,100) < 38 then
-										BeamEffect():setSource(p,0,0,0):setTarget(p.mining_target,0,0):setRing(false):setDuration(1):setTexture(mining_beam_string[math.random(1,#mining_beam_string)])
-									end
-									if p:hasPlayerAtPosition("Weapons") then
-										p.mining_timer_info = "mining_timer_info"
-										p:addCustomInfo("Weapons",p.mining_timer_info,string.format("Mining %i",mining_seconds))
-									end
-									if p:hasPlayerAtPosition("Tactical") then
-										p.mining_timer_info_tac = "mining_timer_info_tac"
-										p:addCustomInfo("Tactical",p.mining_timer_info_tac,string.format("Mining %i",mining_seconds))
-									end
-								end
-							else	--mining not in progress
-								if p.trigger_mine_beam_button == nil then
-									if p:hasPlayerAtPosition("Weapons") then
-										p.trigger_mine_beam_button = "trigger_mine_beam_button"
-										p:addCustomButton("Weapons",p.trigger_mine_beam_button,"Start Mining",function()
-											p.mining_in_progress = true
-											p.mining_timer = delta + 5
-											p:removeCustom(p.trigger_mine_beam_button)
-											p.trigger_mine_beam_button = nil
-										end)
-									end
-								end
-								if p.trigger_mine_beam_button_tac == nil then
-									if p:hasPlayerAtPosition("Tactical") then
-										p.trigger_mine_beam_button_tac = "trigger_mine_beam_button_tac"
-										p:addCustomButton("Tactical",p.trigger_mine_beam_button_tac,"Start Mining",function()
-											p.mining_in_progress = true
-											p.mining_timer = delta + 5
-											p:removeCustom(p.trigger_mine_beam_button_tac)
-											p.trigger_mine_beam_button_tac = nil
-										end)
-									end
-								end
-							end
-						else	--no mining target or mining target invalid
-							p.mining_target_lock = false
-							if p.mining_timer_info ~= nil then
-								p:removeCustom(p.mining_timer_info)
-								p.mining_timer_info = nil
-							end
-							if p.mining_timer_info_tac ~= nil then
-								p:removeCustom(p.mining_timer_info_tac)
-								p.mining_timer_info_tac = nil
-							end
-						end
-					else	--not locked
-						local mining_objects = {}
-						if nearby_objects ~= nil and #nearby_objects > 1 then
-							for _, obj in ipairs(nearby_objects) do
-								if p ~= obj then
-									local object_type = obj.typeName
-									if object_type ~= nil then
-										if object_type == "Asteroid" or object_type == "VisualAsteroid" then
-											table.insert(mining_objects,obj)
-										end
-									end
-								end
-							end		--end of nearby object list loop
-							if #mining_objects > 0 then
-								if p.mining_target ~= nil and p.mining_target:isValid() then
-									local target_in_list = false
-									for i=1,#mining_objects do
-										if mining_objects[i] == p.mining_target then
-											target_in_list = true
-											break
-										end
-									end		--end of check for the current target in list loop
-									if not target_in_list then
-										p.mining_target = mining_objects[1]
-										removeMiningButtons(p)
-									end
-								else
-									p.mining_target = mining_objects[1]
-								end
-								addMiningButtons(p,mining_objects)
-							else	--no mining objects
-								if p.mining_target ~= nil then
-									removeMiningButtons(p)
-									p.mining_target = nil
-								end
-							end
-						else	--no nearby objects
-							if p.mining_target ~= nil then
-								removeMiningButtons(p)
-								p.mining_target = nil
-							end
-						end
+						end)
 					end
-				else	--not moving slowly enough to mine
-					removeMiningButtons(p)
-					if p.mining_timer_info ~= nil then
-						p:removeCustom(p.mining_timer_info)
-						p.mining_timer_info = nil
-					end
-					if p.mining_timer_info_tac ~= nil then
-						p:removeCustom(p.mining_timer_info_tac)
-						p.mining_timer_info_tac = nil
-					end
-					if p.trigger_mine_beam_button then
-						p:removeCustom(p.trigger_mine_beam_button)
-						p.trigger_mine_beam_button = nil
-					end
-					if p.trigger_mine_beam_button_tac then
-						p:removeCustom(p.trigger_mine_beam_button_tac)
-						p.trigger_mine_beam_button_tac = nil
-					end
-					p.mining_target_lock = false
-					p.mining_in_progress = false
-					p.mining_timer = nil
+				else	--invalid tractor target
+					p.tractor_target_lock = false
+					p:removeCustom(p.disengage_tractor_button)
+					p:removeCustom(p.disengage_tractor_button_plus)
+					p.disengage_tractor_button = nil
+					p.disengage_tractor_button_plus = nil
 				end
-			end
-			if p.carrier_space_group ~= nil then
-				if p.launch_bay == "empty" then
-					for fighter_name, fighter_details in pairs(p.carrier_space_group) do
-						if fighter_details.state == "aboard" then
+			end		--end of tractor lock processing				
+		end		--end of player moving slow enough to tractor branch
+	end		--end of speed checks for tractoring
+end
+function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
+	if player_velocity < 10 then
+		if p.mining_target_lock then
+			if p.mining_target ~= nil and p.mining_target:isValid() then
+				if p.mining_in_progress then
+					p.mining_timer = p.mining_timer - delta
+					if p.mining_timer < 0 then
+						p.mining_in_progress = false
+						if p.mining_timer_info ~= nil then
+							p:removeCustom(p.mining_timer_info)
+							p.mining_timer_info = nil
+						end
+						p.mining_target_lock = false
+						p.mining_timer = nil
+						if p.mining_target.trace_minerals ~= nil and #p.mining_target.trace_minerals > 0 then
+							local good = p.mining_target.trace_minerals[math.random(1,#p.mining_target.trace_minerals)]
+							if p.goods == nil then
+								p.goods = {}
+							end
+							if p.goods[good] == nil then
+								p.goods[good] = 0
+							end
+							p.goods[good] = p.goods[good] + 1
+							p.cargo = p.cargo - 1
 							if p:hasPlayerAtPosition("Science") then
-								p:addCustomButton("Science",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
-									p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-									p:addCustomMessage("Science",p.launch_start_message,p.launch_start_message)
-									for f_name, f_details in pairs(p.carrier_space_group) do
-										p:removeCustom(f_details.launch_button)
-									end
-									p.launch_bay = "loaded"
-									fighter_details.state = "charge"
-								end)
+								local mined_mineral_message = "mined_mineral_message"
+								p:addCustomMessage("Science",mined_mineral_message,string.format("Mining obtained %s which has been stored in the cargo hold",good))
 							end
 							if p:hasPlayerAtPosition("Operations") then
-								p:addCustomButton("Operations",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
-									p.launch_start_message_ops = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-									p:addCustomMessage("Operations",p.launch_start_message_ops,p.launch_start_message_ops)
-									for f_name, f_details in pairs(p.carrier_space_group) do
-										p:removeCustom(f_details.launch_button)
-									end
-									p.launch_bay = "loaded"
-									fighter_details.state = "charge"
-								end)
+								local mined_mineral_message_ops = "mined_mineral_message_ops"
+								p:addCustomMessage("Operations",mined_mineral_message_ops,string.format("Mining obtained %s which has been stored in the cargo hold",good))
+							end
+						else	--no minerals in asteroid
+							if p:hasPlayerAtPosition("Science") then
+								local mined_mineral_message = "mined_mineral_message"
+								p:addCustomMessage("Science",mined_mineral_message,"mining failed to extract any minerals")
+							end										
+							if p:hasPlayerAtPosition("Operations") then
+								local mined_mineral_message_ops = "mined_mineral_message_ops"
+								p:addCustomMessage("Operations",mined_mineral_message_ops,"mining failed to extract any minerals")
+							end										
+						end
+					else	--still mining, update timer display, energy and heat
+						p:setEnergy(p:getEnergy() - p:getMaxEnergy()*mining_drain)
+						p:setSystemHeat("beamweapons",p:getSystemHeat("beamweapons") + .0025)
+						local mining_seconds = math.floor(p.mining_timer % 60)
+						if random(1,100) < 38 then
+							BeamEffect():setSource(p,0,0,0):setTarget(p.mining_target,0,0):setRing(false):setDuration(1):setTexture(mining_beam_string[math.random(1,#mining_beam_string)])
+						end
+						if p:hasPlayerAtPosition("Weapons") then
+							p.mining_timer_info = "mining_timer_info"
+							p:addCustomInfo("Weapons",p.mining_timer_info,string.format("Mining %i",mining_seconds))
+						end
+						if p:hasPlayerAtPosition("Tactical") then
+							p.mining_timer_info_tac = "mining_timer_info_tac"
+							p:addCustomInfo("Tactical",p.mining_timer_info_tac,string.format("Mining %i",mining_seconds))
+						end
+					end
+				else	--mining not in progress
+					if p.trigger_mine_beam_button == nil then
+						if p:hasPlayerAtPosition("Weapons") then
+							p.trigger_mine_beam_button = "trigger_mine_beam_button"
+							p:addCustomButton("Weapons",p.trigger_mine_beam_button,"Start Mining",function()
+								p.mining_in_progress = true
+								p.mining_timer = delta + 5
+								p:removeCustom(p.trigger_mine_beam_button)
+								p.trigger_mine_beam_button = nil
+							end)
+						end
+					end
+					if p.trigger_mine_beam_button_tac == nil then
+						if p:hasPlayerAtPosition("Tactical") then
+							p.trigger_mine_beam_button_tac = "trigger_mine_beam_button_tac"
+							p:addCustomButton("Tactical",p.trigger_mine_beam_button_tac,"Start Mining",function()
+								p.mining_in_progress = true
+								p.mining_timer = delta + 5
+								p:removeCustom(p.trigger_mine_beam_button_tac)
+								p.trigger_mine_beam_button_tac = nil
+							end)
+						end
+					end
+				end
+			else	--no mining target or mining target invalid
+				p.mining_target_lock = false
+				if p.mining_timer_info ~= nil then
+					p:removeCustom(p.mining_timer_info)
+					p.mining_timer_info = nil
+				end
+				if p.mining_timer_info_tac ~= nil then
+					p:removeCustom(p.mining_timer_info_tac)
+					p.mining_timer_info_tac = nil
+				end
+			end
+		else	--not locked
+			local mining_objects = {}
+			if nearby_objects ~= nil and #nearby_objects > 1 then
+				for _, obj in ipairs(nearby_objects) do
+					if p ~= obj then
+						local object_type = obj.typeName
+						if object_type ~= nil then
+							if object_type == "Asteroid" or object_type == "VisualAsteroid" then
+								table.insert(mining_objects,obj)
 							end
 						end
 					end
-				elseif p.launch_bay == "loaded" then
-					for fighter_name, fighter_details in pairs(p.carrier_space_group) do
-						if fighter_details.state == "charge" then
-							p.charge_launch = "charge_launch"
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomButton("Engineering",p.charge_launch,"Charge Launch Sys",function()
-									if p:getEnergyLevel() > 50 then
-										p.launch_timer = 20
-										p:setEnergyLevel(p:getEnergyLevel() - 50)
-										p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
-										p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
-										p:removeCustom(p.charge_launch)
-										fighter_details.state = "gather"
-									else
-										p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
-										p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
-									end
-								end)
+				end		--end of nearby object list loop
+				if #mining_objects > 0 then
+					if p.mining_target ~= nil and p.mining_target:isValid() then
+						local target_in_list = false
+						for i=1,#mining_objects do
+							if mining_objects[i] == p.mining_target then
+								target_in_list = true
+								break
 							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomButton("Engineering+",p.charge_launch,"Charge Launch Sys",function()
-									if p:getEnergyLevel() > 50 then
-										p.launch_timer = 20		--final:10
-										p:setEnergyLevel(p:getEnergyLevel() - 50)
-										p.launch_charged_message_plus = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
-										p:addCustomMessage("Engineering+",p.launch_charged_message_plus,p.launch_charged_message_plus)
-										p:removeCustom(p.charge_launch)
-										fighter_details.state = "gather"
-									else
-										p.insufficient_launch_charge_energy_message_plus = "insufficient_launch_charge_energy_message_plus"
-										p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message_plus,"Insufficient energy to charge launch systems")
-									end
-								end)
+						end		--end of check for the current target in list loop
+						if not target_in_list then
+							p.mining_target = mining_objects[1]
+							removeMiningButtons(p)
+						end
+					else
+						p.mining_target = mining_objects[1]
+					end
+					addMiningButtons(p,mining_objects)
+				else	--no mining objects
+					if p.mining_target ~= nil then
+						removeMiningButtons(p)
+						p.mining_target = nil
+					end
+				end
+			else	--no nearby objects
+				if p.mining_target ~= nil then
+					removeMiningButtons(p)
+					p.mining_target = nil
+				end
+			end
+		end
+	else	--not moving slowly enough to mine
+		removeMiningButtons(p)
+		if p.mining_timer_info ~= nil then
+			p:removeCustom(p.mining_timer_info)
+			p.mining_timer_info = nil
+		end
+		if p.mining_timer_info_tac ~= nil then
+			p:removeCustom(p.mining_timer_info_tac)
+			p.mining_timer_info_tac = nil
+		end
+		if p.trigger_mine_beam_button then
+			p:removeCustom(p.trigger_mine_beam_button)
+			p.trigger_mine_beam_button = nil
+		end
+		if p.trigger_mine_beam_button_tac then
+			p:removeCustom(p.trigger_mine_beam_button_tac)
+			p.trigger_mine_beam_button_tac = nil
+		end
+		p.mining_target_lock = false
+		p.mining_in_progress = false
+		p.mining_timer = nil
+	end
+end
+function updatePlayerCarrierSpaceGroup(delta,p)
+	if p.launch_bay == "empty" then
+		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
+			if fighter_details.state == "aboard" then
+				if p:hasPlayerAtPosition("Science") then
+					p:addCustomButton("Science",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
+						p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+						p:addCustomMessage("Science",p.launch_start_message,p.launch_start_message)
+						for f_name, f_details in pairs(p.carrier_space_group) do
+							p:removeCustom(f_details.launch_button)
+						end
+						p.launch_bay = "loaded"
+						fighter_details.state = "charge"
+					end)
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p:addCustomButton("Operations",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
+						p.launch_start_message_ops = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+						p:addCustomMessage("Operations",p.launch_start_message_ops,p.launch_start_message_ops)
+						for f_name, f_details in pairs(p.carrier_space_group) do
+							p:removeCustom(f_details.launch_button)
+						end
+						p.launch_bay = "loaded"
+						fighter_details.state = "charge"
+					end)
+				end
+			end
+		end
+	elseif p.launch_bay == "loaded" then
+		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
+			if fighter_details.state == "charge" then
+				p.charge_launch = "charge_launch"
+				if p:hasPlayerAtPosition("Engineering") then
+					p:addCustomButton("Engineering",p.charge_launch,"Charge Launch Sys",function()
+						if p:getEnergyLevel() > 50 then
+							p.launch_timer = 20
+							p:setEnergyLevel(p:getEnergyLevel() - 50)
+							p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
+							p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
+							p:removeCustom(p.charge_launch)
+							fighter_details.state = "gather"
+						else
+							p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
+							p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
+						end
+					end)
+				end
+				if p:hasPlayerAtPosition("Engineering+") then
+					p:addCustomButton("Engineering+",p.charge_launch,"Charge Launch Sys",function()
+						if p:getEnergyLevel() > 50 then
+							p.launch_timer = 20		--final:10
+							p:setEnergyLevel(p:getEnergyLevel() - 50)
+							p.launch_charged_message_plus = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
+							p:addCustomMessage("Engineering+",p.launch_charged_message_plus,p.launch_charged_message_plus)
+							p:removeCustom(p.charge_launch)
+							fighter_details.state = "gather"
+						else
+							p.insufficient_launch_charge_energy_message_plus = "insufficient_launch_charge_energy_message_plus"
+							p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message_plus,"Insufficient energy to charge launch systems")
+						end
+					end)
+				end
+			end
+			if fighter_details.state == "gather" then
+				p.launch_timer = p.launch_timer - delta
+				if p.launch_timer < 0 then
+					if p.launch_countdown ~= nil then
+						p:removeCustom(p.launch_countdown)
+						p.launch_countdown = nil
+					end
+					if p.helm_equivalent ~= nil and p.weapons_equivalent ~= nil then
+						local fx, fy = p:getPosition()
+						local fighter = fighter_details.create(fighter_details.template)
+						fighter:setPosition(fx,fy):setCallSign(fighter_name)
+						for _, transfer in ipairs(p.transfer_map) do
+							p:transferPlayersAtPositionToShip(transfer.carrier,fighter,transfer.fighter)
+							local transfer_message = "transfer_message" .. transfer.carrier
+							fighter:addCustomMessage(transfer.carrier,transfer_message,string.format("You have been transferred to %s\nPlease take the %s console",fighter:getCallSign(),transfer.fighter))
+						end
+						fighter.transfer_map = p.transfer_map
+						carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
+						fighter_details.state = "deployed"
+						p:addToShipLog(string.format("Launch of %s complete",fighter_name),"Green")
+					else
+						p:setEnergyLevel(math.min(p:getEnergyLevelMax(),p:getEnergyLevel() + 50))
+						fighter_details.state = "aboard"
+						p:addToShipLog("Launch cancelled due to lack of personnel","Yellow")
+					end
+					p.launch_bay = "empty"
+					if p.science_button_removal ~= nil then
+						for button_name, button_string in pairs(p.science_button_removal) do
+							p:removeCustom(button_name)
+						end
+						p.science_button_removal = nil
+					end
+					if p.helm_button_removal ~= nil then
+						for button_name, button_string in pairs(p.helm_button_removal) do
+							p:removeCustom(button_name)
+						end
+						p.helm_button_removal = nil
+					end
+					if p.engineering_button_removal ~= nil then
+						for button_name, button_string in pairs(p.engineering_button_removal) do
+							p:removeCustom(button_name)
+						end
+						p.engineering_button_removal = nil
+					end
+					if p.weapons_equivalent == nil and p.helm_equivalent then
+						for _, cons in ipairs(console_list) do
+							if p[cons] ~= nil then
+								p:removeCustom(p[cons])
 							end
 						end
-						if fighter_details.state == "gather" then
-							p.launch_timer = p.launch_timer - delta
-							if p.launch_timer < 0 then
-								if p.launch_countdown ~= nil then
-									p:removeCustom(p.launch_countdown)
-									p.launch_countdown = nil
-								end
-								if p.helm_equivalent ~= nil and p.weapons_equivalent ~= nil then
-									local fx, fy = p:getPosition()
-									local fighter = fighter_details.create(fighter_details.template)
-									fighter:setPosition(fx,fy):setCallSign(fighter_name)
-									for _, transfer in ipairs(p.transfer_map) do
-										p:transferPlayersAtPositionToShip(transfer.carrier,fighter,transfer.fighter)
-										local transfer_message = "transfer_message" .. transfer.carrier
-										fighter:addCustomMessage(transfer.carrier,transfer_message,string.format("You have been transferred to %s\nPlease take the %s console",fighter:getCallSign(),transfer.fighter))
-									end
-									fighter.transfer_map = p.transfer_map
-									carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
-									fighter_details.state = "deployed"
-									p:addToShipLog(string.format("Launch of %s complete",fighter_name),"Green")
-								else
-									p:setEnergyLevel(math.min(p:getEnergyLevelMax(),p:getEnergyLevel() + 50))
-									fighter_details.state = "aboard"
-									p:addToShipLog("Launch cancelled due to lack of personnel","Yellow")
-								end
-								p.launch_bay = "empty"
-								if p.science_button_removal ~= nil then
-									for button_name, button_string in pairs(p.science_button_removal) do
-										p:removeCustom(button_name)
-									end
-									p.science_button_removal = nil
-								end
-								if p.helm_button_removal ~= nil then
+					end
+					p.helm_equivalent = nil
+					p.weapons_equivalent = nil
+					p.transfer_map = nil
+				else
+					local button_name = ""
+					if p:hasPlayerAtPosition("Relay") then
+						p.launch_countdown = "launch_countdown"
+						p:addCustomInfo("Relay",p.launch_countdown,string.format("Launch: %i",math.floor(p.launch_timer)))
+					end
+					if p.transfer_map == nil then
+						p.transfer_map = {}
+					end
+					if p.helm_equivalent == nil then
+						p.helm_button_removal = {}
+						for _, console in ipairs(console_list) do
+							if p:hasPlayerAtPosition(console) then
+								button_name = console .. "helm"
+								p.helm_button_removal[button_name] = button_name
+								p:addCustomButton(console,button_name,string.format("%s Helm",fighter_name),function()
+									string.format("")
+									table.insert(p.transfer_map,{carrier = console, fighter = "Helms"})
+									p.helm_equivalent = true
 									for button_name, button_string in pairs(p.helm_button_removal) do
 										p:removeCustom(button_name)
 									end
 									p.helm_button_removal = nil
-								end
-								if p.engineering_button_removal ~= nil then
-									for button_name, button_string in pairs(p.engineering_button_removal) do
+								end)
+								button_name = console .. "tactical"
+								p.helm_button_removal[button_name] = button_name
+								p:addCustomButton(console,button_name,string.format("%s Tactical",fighter_name),function()
+									string.format("")
+									table.insert(p.transfer_map,{carrier = console, fighter = "Tactical"})
+									p.helm_equivalent = true
+									p.weapons_equivalent = true
+									for button_name, button_string in pairs(p.helm_button_removal) do
 										p:removeCustom(button_name)
 									end
-									p.engineering_button_removal = nil
-								end
-								if p.weapons_equivalent == nil and p.helm_equivalent then
-									for _, cons in ipairs(console_list) do
-										if p[cons] ~= nil then
-											p:removeCustom(p[cons])
-										end
+									p.helm_button_removal = nil
+								end)
+								button_name = console .. "singlepilot"
+								p.helm_button_removal[button_name] = button_name
+								p:addCustomButton(console,button_name,string.format("%s Single Pilot",fighter_name),function()
+									string.format("")
+									table.insert(p.transfer_map,{carrier = console, fighter = "SinglePilot"})
+									p.helm_equivalent = true
+									p.weapons_equivalent = true
+									p.relay_equivalent = true
+									for button_name, button_string in pairs(p.helm_button_removal) do
+										p:removeCustom(button_name)
 									end
-								end
-								p.helm_equivalent = nil
-								p.weapons_equivalent = nil
-								p.transfer_map = nil
-							else
-								local button_name = ""
-								if p:hasPlayerAtPosition("Relay") then
-									p.launch_countdown = "launch_countdown"
-									p:addCustomInfo("Relay",p.launch_countdown,string.format("Launch: %i",math.floor(p.launch_timer)))
-								end
-								if p.transfer_map == nil then
-									p.transfer_map = {}
-								end
-								if p.helm_equivalent == nil then
-									p.helm_button_removal = {}
-									for _, console in ipairs(console_list) do
-										if p:hasPlayerAtPosition(console) then
-											button_name = console .. "helm"
-											p.helm_button_removal[button_name] = button_name
-											p:addCustomButton(console,button_name,string.format("%s Helm",fighter_name),function()
-												string.format("")
-												table.insert(p.transfer_map,{carrier = console, fighter = "Helms"})
-												p.helm_equivalent = true
-												for button_name, button_string in pairs(p.helm_button_removal) do
-													p:removeCustom(button_name)
-												end
-												p.helm_button_removal = nil
-											end)
-											button_name = console .. "tactical"
-											p.helm_button_removal[button_name] = button_name
-											p:addCustomButton(console,button_name,string.format("%s Tactical",fighter_name),function()
-												string.format("")
-												table.insert(p.transfer_map,{carrier = console, fighter = "Tactical"})
-												p.helm_equivalent = true
-												p.weapons_equivalent = true
-												for button_name, button_string in pairs(p.helm_button_removal) do
-													p:removeCustom(button_name)
-												end
-												p.helm_button_removal = nil
-											end)
-											button_name = console .. "singlepilot"
-											p.helm_button_removal[button_name] = button_name
-											p:addCustomButton(console,button_name,string.format("%s Single Pilot",fighter_name),function()
-												string.format("")
-												table.insert(p.transfer_map,{carrier = console, fighter = "SinglePilot"})
-												p.helm_equivalent = true
-												p.weapons_equivalent = true
-												p.relay_equivalent = true
-												for button_name, button_string in pairs(p.helm_button_removal) do
-													p:removeCustom(button_name)
-												end
-												p.helm_button_removal = nil
-											end)
-										end
-									end
-								elseif p.weapons_equivalent == nil and p.helm_equivalent then
-									for _, console in ipairs(console_list) do
-										local already_chosen = false
-										for _, transfer in ipairs(p.transfer_map) do
-											if console == transfer.carrier then
-												already_chosen = true
-												break
-											end
-										end
-										if not already_chosen then
-											if p:hasPlayerAtPosition(console) then
-												p[console] = console
-												p:addCustomButton(console,p[console],string.format("%s Weapons",fighter_name),function()
-													string.format("")
-													table.insert(p.transfer_map,{carrier = console, fighter = "Weapons"})
-													p.weapons_equivalent = true
-													for _, cons in ipairs(console_list) do
-														if p[cons] ~= nil then
-															p:removeCustom(p[cons])
-														end
-													end
-												end)
-											end
-										end
-									end
-								elseif p.engineering_equivalent == nil and p.helm_equivalent and p.weapons_equivalent then
-									p.engineering_button_removal = {}
-									for _, console in ipairs(console_list) do
-										local already_chosen = false
-										for _, transfer in ipairs(p.transfer_map) do
-											if console == transfer.carrier then
-												already_chosen = true
-												break
-											end
-										end
-										if not already_chosen then
-											if p:hasPlayerAtPosition(console) then
-												button_name = console .. "engineering"
-												p.engineering_button_removal[button_name] = button_name
-												p:addCustomButton(console,button_name,string.format("%s Engineering",fighter_name),function()
-													string.format("")
-													table.insert(p.transfer_map,{carrier = console, fighter = "Engineering"})
-													p.engineering_equivalent = true
-													for button_name, button_string in pairs(p.engineering_button_removal) do
-														p:removeCustom(button_name)
-													end
-													p.engineering_button_removal = nil
-												end)
-												button_name = console .. "engineeringplus"
-												p.engineering_button_removal[button_name] = button_name
-												p:addCustomButton(console,button_name,string.format("%s Engineering+",fighter_name),function()
-													string.format("")
-													table.insert(p.transfer_map,{carrier = console, fighter = "Engineering+"})
-													p.engineering_equivalent = true
-													for button_name, button_string in pairs(p.engineering_button_removal) do
-														p:removeCustom(button_name)
-													end
-													p.engineering_button_removal = nil
-												end)
-											end
-										end
-									end
-								elseif p.science_equivalent == nil and p.helm_equivalent and p.weapons_equivalent and p.engineering_equivalent then
-									p.science_button_removal = {}
-									for _, console in ipairs(console_list) do
-										local already_chosen = false
-										for _, transfer in ipairs(p.transfer_map) do
-											if console == transfer.carrier then
-												already_chosen = true
-												break
-											end
-										end
-										if not already_chosen then
-											if p:hasPlayerAtPosition(console) then
-												button_name = console .. "science"
-												p.science_button_removal[button_name] = button_name
-												p:addCustomButton(console,button_name,string.format("%s Science",fighter_name),function()
-													string.format("")
-													table.insert(p.transfer_map,{
-														carrier = console, 
-														fighter = "Science"
-													})
-													p.science_equivalent = true
-													for button_name, button_string in pairs(p.science_button_removal) do
-														p:removeCustom(button_name)
-													end
-													p.science_button_removal = nil
-												end)
-												if not p.relay_equivalent then
-													button_name = console .. "relay"
-													p.science_button_removal[button_name] = button_name
-													p:addCustomButton(console,button_name,string.format("%s Relay",fighter_name),function()
-														string.format("")
-														table.insert(p.transfer_map,{carrier = console, fighter = "Relay"})
-														p.relay_equivalent = true
-														for button_name, button_string in pairs(p.science_button_removal) do
-															p:removeCustom(button_name)
-														end
-														p.science_button_removal = nil
-													end)
-													button_name = console .. "operations"
-													p.science_button_removal[button_name] = button_name
-													p:addCustomButton(console,button_name,string.format("%s Operations",fighter_name),function()
-														string.format("")
-														table.insert(p.transfer_map,{carrier = console, fighter = "Operations"})
-														p.science_equivalent = true
-														p.relay_equivalent = true
-														for button_name, button_string in pairs(p.science_button_removal) do
-															p:removeCustom(button_name)
-														end
-														p.science_button_removal = nil
-													end)
-												end
-											end
-										end
-									end
-								end
+									p.helm_button_removal = nil
+								end)
 							end
 						end
-					end
-				end
-			end
-			if p.patrol_probe > 0 then
-				if p.patrol_probe > 5 then
-					p.patrol_probe = 5
-				end
-				if p.patrol_probe_state == "On" then
-					cycleProbeType(p,"standard")
-					local object_list = p:getObjectsInRange(100)
-					if object_list ~= nil then
-						for _, obj in ipairs(object_list) do
-							if obj ~= p then
-								if obj.typeName == "ScanProbe" then
-									if obj:getOwner() == p then
-										if p.patrol_probe_count == nil then
-											p.patrol_probe_count = 0
-										end
-										local max_patrol = math.floor((1 - p.patrol_probe/5) * p:getMaxScanProbeCount())
-										if p.patrol_probe_count < max_patrol then
-											if obj.patrol == nil then
-												obj:setSpeed(p.patrol_probe*1000)
-												obj.patrol = true
-												obj:onArrival(patrolProbe)
-												obj:onDestruction(patrolProbeDone)
-												p.patrol_probe_count = p.patrol_probe_count + 1
-											end
-										else
-											if p:hasPlayerAtPosition("Relay") then
-												p:addCustomMessage("Relay","max_patrol_probes_reached",string.format("Reached maximum number of patrol probes: %i",max_patrol))
-											end
-											if p:hasPlayerAtPosition("Operations") then
-												p:addCustomMessage("Operations","max_patrol_probes_reached_ops",string.format("Reached maximum number of patrol probes: %i",max_patrol))
-											end
-											togglePatrolProbeState(p)
-										end
-									end
-								end
-							end
-						end
-					end
-				end
-			end
-			if p.probe_type ~= nil and p.probe_type ~= "standard" then
-				local matching_index = 0
-				for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
-					if probe_type_item.name == p.probe_type and probe_type_item.count > 0 then
-						matching_index = probe_type_index
-						break
-					end
-				end
-				if matching_index > 0 then
-					local object_list = p:getObjectsInRange(100)
-					if object_list ~= nil then
-						for _, obj in ipairs(object_list) do
-							if obj ~= p then
-								if obj.typeName == "ScanProbe" then
-									if obj:getOwner() == p then
-										if obj.probe_speed == nil then
-											obj.probe_speed = p.probe_type_list[matching_index].speed
-											obj:setSpeed(obj.probe_speed)
-											print("probe speed:",obj.probe_speed)
-											p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
-											if p.probe_type_list[matching_index].warp_jam_range ~= nil then
-												obj.warp_jam_range = p.probe_type_list[matching_index].warp_jam_range
-												obj:onArrival(probeWarpJammer)
-											end
-											cycleProbeType(p,p.probe_type_list[matching_index].name)
-										end
-									end
-								end
-							end
-						end
-					end
-				end
-			end
-			if p.turbo_torp then
-				if p.turbo_missile ~= nil then
-					if p.turbo_missile:isValid() then
-						if p.turbo_torp_factor == nil then
-							p.turbo_torp_factor = 1
-						end
-						local tvx, tvy = p.turbo_missile:getVelocity()
-						local mx, my = p.turbo_missile:getPosition()
-						p.turbo_missile:setPosition(mx+tvx*delta*p.turbo_torp_factor,my+tvy*delta*p.turbo_torp_factor)
-					else
-						p.turbo_missile = nil
-					end
-				else
-					if p.turbo_torp_active then
-						local missile_list = p:getObjectsInRange(100)
-						for _, obj in ipairs(missile_list) do
-							if obj ~= p then
-								local type_name = obj.typeName
-								local heading = -1
-								if obj:getHeading() ~= nil then
-									heading = obj:getHeading()
-								end
-								local vx = 0
-								local vy = 0
-								if obj:getVelocity() ~= nil then
-									vx, vy = obj:getVelocity()
-								end
-								if p.turbo_torpedo_type == nil then
-									p.turbo_torpedo_type = {}
-									table.insert(p.turbo_torpedo_type,"HomingMissile")
-								end
---								local md = distance(p,obj)
---								print(type_name,heading,vx,vy,md)
-								for _, ttt in ipairs(p.turbo_torpedo_type) do
-									if type_name == ttt then
-										if obj:getOwner() == p then
-											p.turbo_missile = obj
-											p.turbo_torp_active = false
-											p.turbo_torp_timer = p.turbo_torp_charge_interval
-											local applicable_missiles = ""
-											for _, amt in ipairs(p.turbo_torpedo_type) do
-												applicable_missiles = applicable_missiles .. "\n" .. amt
-											end
-											if p:hasPlayerAtPosition("Weapons") then
-												p.turbo_timer_reset_message = "turbo_timer_reset_message"
-												p:addCustomMessage("Weapons",p.turbo_timer_reset_message,string.format("Turbo Torpedo will become available again %i seconds after the %s expires.\nTurbo applies to the following missile types:%s",p.turbo_torp_charge_interval,type_name,applicable_missiles))
-											end
-											if p:hasPlayerAtPosition("Tactical") then
-												p.turbo_timer_reset_message_tac = "turbo_timer_reset_message_tac"
-												p:addCustomMessage("Weapons",p.turbo_timer_reset_message_tac,string.format("Turbo Torpedo will become available again %i seconds after the %s expires.\nTurbo applies to the following missile types:%s",p.turbo_torp_charge_interval,type_name,applicable_missiles))
-											end
-											break
-										end
-									end
-								end
-								if p.turbo_missile == obj then
+					elseif p.weapons_equivalent == nil and p.helm_equivalent then
+						for _, console in ipairs(console_list) do
+							local already_chosen = false
+							for _, transfer in ipairs(p.transfer_map) do
+								if console == transfer.carrier then
+									already_chosen = true
 									break
 								end
 							end
+							if not already_chosen then
+								if p:hasPlayerAtPosition(console) then
+									p[console] = console
+									p:addCustomButton(console,p[console],string.format("%s Weapons",fighter_name),function()
+										string.format("")
+										table.insert(p.transfer_map,{carrier = console, fighter = "Weapons"})
+										p.weapons_equivalent = true
+										for _, cons in ipairs(console_list) do
+											if p[cons] ~= nil then
+												p:removeCustom(p[cons])
+											end
+										end
+									end)
+								end
+							end
 						end
-					else
-						if p.turbo_torp_timer < 0 then
-							if p.turbo_torp_button == nil then
-								if p:hasPlayerAtPosition("Weapons") then
-									p.turbo_torp_button = "turbo_torp_button"
-									p:addCustomButton("Weapons",p.turbo_torp_button,"Turbo Torpedo",function()
-										p.turbo_torp_active = true
-										p:removeCustom(p.turbo_torp_button)
-										p.turbo_torp_button = nil
+					elseif p.engineering_equivalent == nil and p.helm_equivalent and p.weapons_equivalent then
+						p.engineering_button_removal = {}
+						for _, console in ipairs(console_list) do
+							local already_chosen = false
+							for _, transfer in ipairs(p.transfer_map) do
+								if console == transfer.carrier then
+									already_chosen = true
+									break
+								end
+							end
+							if not already_chosen then
+								if p:hasPlayerAtPosition(console) then
+									button_name = console .. "engineering"
+									p.engineering_button_removal[button_name] = button_name
+									p:addCustomButton(console,button_name,string.format("%s Engineering",fighter_name),function()
+										string.format("")
+										table.insert(p.transfer_map,{carrier = console, fighter = "Engineering"})
+										p.engineering_equivalent = true
+										for button_name, button_string in pairs(p.engineering_button_removal) do
+											p:removeCustom(button_name)
+										end
+										p.engineering_button_removal = nil
+									end)
+									button_name = console .. "engineeringplus"
+									p.engineering_button_removal[button_name] = button_name
+									p:addCustomButton(console,button_name,string.format("%s Engineering+",fighter_name),function()
+										string.format("")
+										table.insert(p.transfer_map,{carrier = console, fighter = "Engineering+"})
+										p.engineering_equivalent = true
+										for button_name, button_string in pairs(p.engineering_button_removal) do
+											p:removeCustom(button_name)
+										end
+										p.engineering_button_removal = nil
 									end)
 								end
 							end
-							if p.turbo_torp_button_tac == nil then
-								if p:hasPlayerAtPosition("Tactical") then
-									p.turbo_torp_button_tac = "turbo_torp_button_tac"
-									p:addCustomButton("Tactical",p.turbo_torp_button_tac,"Turbo Torpedo",function()
-										p.turbo_torp_active = true
-										p:removeCustom(p.turbo_torp_button_tac)
-										p.turbo_torp_button_tac = nil
-									end)
+						end
+					elseif p.science_equivalent == nil and p.helm_equivalent and p.weapons_equivalent and p.engineering_equivalent then
+						p.science_button_removal = {}
+						for _, console in ipairs(console_list) do
+							local already_chosen = false
+							for _, transfer in ipairs(p.transfer_map) do
+								if console == transfer.carrier then
+									already_chosen = true
+									break
 								end
 							end
-						else
-							p.turbo_torp_timer = p.turbo_torp_timer - delta
-							if p.turbo_torp_button ~= nil then
-								p:removeCustom(p.turbo_torp_button)
-								p.turbo_torp_button = nil
-							end
-							if p.turbo_torp_button_tac ~= nil then
-								p:removeCustom(p.turbo_torp_button_tac)
-								p.turbo_torp_button_tac = nil
+							if not already_chosen then
+								if p:hasPlayerAtPosition(console) then
+									button_name = console .. "science"
+									p.science_button_removal[button_name] = button_name
+									p:addCustomButton(console,button_name,string.format("%s Science",fighter_name),function()
+										string.format("")
+										table.insert(p.transfer_map,{
+											carrier = console, 
+											fighter = "Science"
+										})
+										p.science_equivalent = true
+										for button_name, button_string in pairs(p.science_button_removal) do
+											p:removeCustom(button_name)
+										end
+										p.science_button_removal = nil
+									end)
+									if not p.relay_equivalent then
+										button_name = console .. "relay"
+										p.science_button_removal[button_name] = button_name
+										p:addCustomButton(console,button_name,string.format("%s Relay",fighter_name),function()
+											string.format("")
+											table.insert(p.transfer_map,{carrier = console, fighter = "Relay"})
+											p.relay_equivalent = true
+											for button_name, button_string in pairs(p.science_button_removal) do
+												p:removeCustom(button_name)
+											end
+											p.science_button_removal = nil
+										end)
+										button_name = console .. "operations"
+										p.science_button_removal[button_name] = button_name
+										p:addCustomButton(console,button_name,string.format("%s Operations",fighter_name),function()
+											string.format("")
+											table.insert(p.transfer_map,{carrier = console, fighter = "Operations"})
+											p.science_equivalent = true
+											p.relay_equivalent = true
+											for button_name, button_string in pairs(p.science_button_removal) do
+												p:removeCustom(button_name)
+											end
+											p.science_button_removal = nil
+										end)
+									end
+								end
 							end
 						end
 					end
 				end
 			end
-			if updateDiagnostic then print("update: end of player loop") end
-		end	--player loop
+		end
 	end
-	if updateDiagnostic then print("update: outside player loop") end
+end
+function updatePlayerPatrolProbes(p)
+	if p.patrol_probe > 5 then
+		p.patrol_probe = 5
+	end
+	if p.patrol_probe_state == "On" then
+		cycleProbeType(p,"standard")
+		local object_list = p:getObjectsInRange(100)
+		if object_list ~= nil then
+			for _, obj in ipairs(object_list) do
+				if obj ~= p then
+					if obj.typeName == "ScanProbe" then
+						if obj:getOwner() == p then
+							if p.patrol_probe_count == nil then
+								p.patrol_probe_count = 0
+							end
+							local max_patrol = math.floor((1 - p.patrol_probe/5) * p:getMaxScanProbeCount())
+							if p.patrol_probe_count < max_patrol then
+								if obj.patrol == nil then
+									obj:setSpeed(p.patrol_probe*1000)
+									obj.patrol = true
+									obj:onArrival(patrolProbe)
+									obj:onDestruction(patrolProbeDone)
+									p.patrol_probe_count = p.patrol_probe_count + 1
+								end
+							else
+								if p:hasPlayerAtPosition("Relay") then
+									p:addCustomMessage("Relay","max_patrol_probes_reached",string.format("Reached maximum number of patrol probes: %i",max_patrol))
+								end
+								if p:hasPlayerAtPosition("Operations") then
+									p:addCustomMessage("Operations","max_patrol_probes_reached_ops",string.format("Reached maximum number of patrol probes: %i",max_patrol))
+								end
+								togglePatrolProbeState(p)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+function updatePlayerSpecialtyProbes(p)
+	local matching_index = 0
+	for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+		if probe_type_item.name == p.probe_type and probe_type_item.count > 0 then
+			matching_index = probe_type_index
+			break
+		end
+	end
+	if matching_index > 0 then
+		local object_list = p:getObjectsInRange(100)
+		if object_list ~= nil then
+			for _, obj in ipairs(object_list) do
+				if obj ~= p then
+					if obj.typeName == "ScanProbe" then
+						if obj:getOwner() == p then
+							if obj.probe_speed == nil then
+								obj.probe_speed = p.probe_type_list[matching_index].speed
+								obj:setSpeed(obj.probe_speed)
+--								print("probe speed:",obj.probe_speed)
+								p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+								if p.probe_type_list[matching_index].warp_jam_range ~= nil then
+									obj.warp_jam_range = p.probe_type_list[matching_index].warp_jam_range
+									obj:onArrival(probeWarpJammer)
+								end
+								cycleProbeType(p,p.probe_type_list[matching_index].name)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+function updatePlayerTurboTorpedo(delta,p)
+	if p.turbo_missile ~= nil then
+		if p.turbo_missile:isValid() then
+			if p.turbo_torp_factor == nil then
+				p.turbo_torp_factor = 1
+			end
+			local tvx, tvy = p.turbo_missile:getVelocity()
+			local mx, my = p.turbo_missile:getPosition()
+			p.turbo_missile:setPosition(mx+tvx*delta*p.turbo_torp_factor,my+tvy*delta*p.turbo_torp_factor)
+		else
+			p.turbo_missile = nil
+		end
+	else
+		if p.turbo_torp_active then
+			local missile_list = p:getObjectsInRange(100)
+			for _, obj in ipairs(missile_list) do
+				if obj ~= p then
+					local type_name = obj.typeName
+					local heading = -1
+					if obj:getHeading() ~= nil then
+						heading = obj:getHeading()
+					end
+					local vx = 0
+					local vy = 0
+					if obj:getVelocity() ~= nil then
+						vx, vy = obj:getVelocity()
+					end
+					if p.turbo_torpedo_type == nil then
+						p.turbo_torpedo_type = {}
+						table.insert(p.turbo_torpedo_type,"HomingMissile")
+					end
+--								local md = distance(p,obj)
+--								print(type_name,heading,vx,vy,md)
+					for _, ttt in ipairs(p.turbo_torpedo_type) do
+						if type_name == ttt then
+							if obj:getOwner() == p then
+								p.turbo_missile = obj
+								p.turbo_torp_active = false
+								p.turbo_torp_timer = p.turbo_torp_charge_interval
+								local applicable_missiles = ""
+								for _, amt in ipairs(p.turbo_torpedo_type) do
+									applicable_missiles = applicable_missiles .. "\n" .. amt
+								end
+								if p:hasPlayerAtPosition("Weapons") then
+									p.turbo_timer_reset_message = "turbo_timer_reset_message"
+									p:addCustomMessage("Weapons",p.turbo_timer_reset_message,string.format("Turbo Torpedo will become available again %i seconds after the %s expires.\nTurbo applies to the following missile types:%s",p.turbo_torp_charge_interval,type_name,applicable_missiles))
+								end
+								if p:hasPlayerAtPosition("Tactical") then
+									p.turbo_timer_reset_message_tac = "turbo_timer_reset_message_tac"
+									p:addCustomMessage("Weapons",p.turbo_timer_reset_message_tac,string.format("Turbo Torpedo will become available again %i seconds after the %s expires.\nTurbo applies to the following missile types:%s",p.turbo_torp_charge_interval,type_name,applicable_missiles))
+								end
+								break
+							end
+						end
+					end
+					if p.turbo_missile == obj then
+						break
+					end
+				end
+			end
+		else
+			if p.turbo_torp_timer < 0 then
+				if p.turbo_torp_button == nil then
+					if p:hasPlayerAtPosition("Weapons") then
+						p.turbo_torp_button = "turbo_torp_button"
+						p:addCustomButton("Weapons",p.turbo_torp_button,"Turbo Torpedo",function()
+							p.turbo_torp_active = true
+							p:removeCustom(p.turbo_torp_button)
+							p.turbo_torp_button = nil
+						end)
+					end
+				end
+				if p.turbo_torp_button_tac == nil then
+					if p:hasPlayerAtPosition("Tactical") then
+						p.turbo_torp_button_tac = "turbo_torp_button_tac"
+						p:addCustomButton("Tactical",p.turbo_torp_button_tac,"Turbo Torpedo",function()
+							p.turbo_torp_active = true
+							p:removeCustom(p.turbo_torp_button_tac)
+							p.turbo_torp_button_tac = nil
+						end)
+					end
+				end
+			else
+				p.turbo_torp_timer = p.turbo_torp_timer - delta
+				if p.turbo_torp_button ~= nil then
+					p:removeCustom(p.turbo_torp_button)
+					p.turbo_torp_button = nil
+				end
+				if p.turbo_torp_button_tac ~= nil then
+					p:removeCustom(p.turbo_torp_button_tac)
+					p.turbo_torp_button_tac = nil
+				end
+			end
+		end
+	end
+end
+function updateCarrierDeployedFighter(delta)
 	for fighter_name, fighter_details in pairs(carrier_deployed_fighter) do
 		if fighter_details.fighter ~= nil and fighter_details.fighter:isValid() then
 			if fighter_details.carrier ~= nil and fighter_details.carrier:isValid() then
@@ -34533,41 +34588,28 @@ function updateInner(delta)
 			carrier_deployed_fighter[fighter_name] = nil
 		end
 	end
-	if healthCheckTimer < 0 then
-		healthCheckTimer = delta + healthCheckTimerInterval
-	end
-	if plotRevert ~= nil then
-		plotRevert(delta)
-	end
-	if plotMobile ~= nil then
-		plotMobile(delta)
-	end
-	if plotPulse ~= nil then
-		plotPulse(delta)
-	end
-	if jump_train ~= nil then
-		if #jump_train > 0 then
-			for index, ship in ipairs(jump_train) do
-				local px, py = ship:getPosition()
-				if math.abs(px - ship.jump_corridor_x) < 5000 and math.abs(py - ship.jump_corridor_y) < 5000 then
-					ship.move_test_count = ship.move_test_count + 1
-					if ship.move_test_count > 5 then
-						ship.move_test_count = nil
-						ship.jump_corridor_x = nil
-						ship.jump_corridor_y = nil
-						table.remove(jump_train,index)
-						break
-					end
-				else
-					ship.move_test_count = 0
-					ship:setPosition(ship.jump_corridor_x,ship.jump_corridor_y)
+end
+function updateJumpTrain()
+	if #jump_train > 0 then
+		for index, ship in ipairs(jump_train) do
+			local px, py = ship:getPosition()
+			if math.abs(px - ship.jump_corridor_x) < 5000 and math.abs(py - ship.jump_corridor_y) < 5000 then
+				ship.move_test_count = ship.move_test_count + 1
+				if ship.move_test_count > 5 then
+					ship.move_test_count = nil
+					ship.jump_corridor_x = nil
+					ship.jump_corridor_y = nil
+					table.remove(jump_train,index)
+					break
 				end
+			else
+				ship.move_test_count = 0
+				ship:setPosition(ship.jump_corridor_x,ship.jump_corridor_y)
 			end
-		else
-			jump_train = nil
 		end
+	else
+		jump_train = nil
 	end
-	if updateDiagnostic then print("update: end of update function") end
 end
 function update(delta)
 	callWithErrorHandling(updateInner,delta)
