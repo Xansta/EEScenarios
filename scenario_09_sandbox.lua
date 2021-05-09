@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.4.4"
+	scenario_version = "3.4.5"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -4882,9 +4882,9 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
-			dp6Zone:setColor(0,128,0)
+--		if i == 6 then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
+--			dp6Zone:setColor(0,128,0)
 --		elseif i == 4 then
 --			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
 --			dp4Zone:setColor(0,128,0)
@@ -4894,12 +4894,12 @@ function createIcarusColor()
 --		elseif i == 1 then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
 --			dp1Zone:setColor(0,128,0)
-		else		
-			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("DP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
+--		else		
+			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -5118,9 +5118,8 @@ function createIcarusStations()
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
 	--Cindy's Folly
-	local cindyZone = squareZone(81075, -1304, "Cindy's Folly 3 E9")
-	cindyZone:setColor(51,153,255)
-	--[[
+	--local cindyZone = squareZone(81075, -1304, "Cindy's Folly 3 E9")
+	--cindyZone:setColor(51,153,255)
     stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 3"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 37 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 44 then hvliAvail = true else hvliAvail = false end
@@ -5155,11 +5154,9 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationCindyFolly:setSharesEnergyWithDocked(false) end
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
-	--]]
 	--Elysium F4m2.5 
-	local elysiumZone = squareZone(-7504, 1384, "Elysium 5 F4.3")
-	elysiumZone:setColor(51,153,255)
-	--[[
+	--local elysiumZone = squareZone(-7504, 1384, "Elysium 5 F4.3")
+	--elysiumZone:setColor(51,153,255)
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 5"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5197,7 +5194,6 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
-	--]]
 	--Finnegan
 	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
 	--finneganZone:setColor(51,153,255)
@@ -5320,9 +5316,8 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
-	maximilianZone:setColor(51,153,255)
-	--[[
+	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
+	--maximilianZone:setColor(51,153,255)
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 6"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5359,7 +5354,6 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
-	--]]
 	--Mermaid
 	--local mermaidZone = squareZone(28889, -4417, "Mermaid 6 E6")
 	--mermaidZone:setColor(51,153,255)
@@ -5534,9 +5528,8 @@ function createIcarusStations()
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
 	--Relay-13
-	local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
-	relay13Zone:setColor(0,255,0)
-	--[[
+	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
+	--relay13Zone:setColor(0,255,0)
     stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 F"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     stationRelay13:setShortRangeRadarRange(12000)
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
@@ -5577,7 +5570,6 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
-	--]]
 	--Slurry
 	--local slurryZone = squareZone(100342, 27871, "Slurry V G10")
 	--slurryZone:setColor(51,153,255)
@@ -5670,9 +5662,10 @@ function createIcarusStations()
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	--Speculator
-	--local speculatorZone = squareZone(55000,108000, "Speculator K7")
-	--speculatorZone:setColor(51,153,255)
-    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local speculatorZone = squareZone(55000,108000, "Speculator 2 K7")
+	speculatorZone:setColor(51,153,255)
+	--[[
+    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 2"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationSpeculator:setShortRangeRadarRange(13000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5713,6 +5706,7 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationSpeculator:setSharesEnergyWithDocked(false) end
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
+	--]]
 	--Stromboli
 	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3 F10")
 	--stromboliZone:setColor(51,153,255)
@@ -10873,6 +10867,40 @@ function createTereshAsteroids()
     table.insert(asteroid_list,Asteroid():setPosition(843945, 27262):setSize(129))
     table.insert(asteroid_list,Asteroid():setPosition(818920, 26270):setSize(115))
     table.insert(asteroid_list,Asteroid():setPosition(839066, 30340):setSize(116))
+    --	East
+    table.insert(asteroid_list,Asteroid():setPosition(915532, 112440):setSize(114))
+    table.insert(asteroid_list,Asteroid():setPosition(919124, 102799):setSize(153))
+    table.insert(asteroid_list,Asteroid():setPosition(904946, 104689):setSize(129))
+    table.insert(asteroid_list,Asteroid():setPosition(908727, 117544):setSize(172))
+    table.insert(asteroid_list,Asteroid():setPosition(896061, 108281):setSize(286))
+    table.insert(asteroid_list,Asteroid():setPosition(888500, 105823):setSize(122))
+    table.insert(asteroid_list,Asteroid():setPosition(902299, 113385):setSize(124))
+    table.insert(asteroid_list,Asteroid():setPosition(891524, 95804):setSize(299))
+    table.insert(asteroid_list,Asteroid():setPosition(897952, 81249):setSize(48))
+    table.insert(asteroid_list,Asteroid():setPosition(900409, 91079):setSize(118))
+    table.insert(asteroid_list,Asteroid():setPosition(907214, 94481):setSize(645))
+    table.insert(asteroid_list,Asteroid():setPosition(924984, 89377):setSize(164))
+    table.insert(asteroid_list,Asteroid():setPosition(916099, 94481):setSize(120))
+    table.insert(asteroid_list,Asteroid():setPosition(887177, 123593):setSize(93))
+    table.insert(asteroid_list,Asteroid():setPosition(886231, 115464):setSize(121))
+    table.insert(asteroid_list,Asteroid():setPosition(898519, 121702):setSize(128))
+    table.insert(asteroid_list,Asteroid():setPosition(885286, 133234):setSize(74))
+    table.insert(asteroid_list,Asteroid():setPosition(883396, 128697):setSize(153))
+    table.insert(asteroid_list,Asteroid():setPosition(860712, 136825):setSize(48))
+    table.insert(asteroid_list,Asteroid():setPosition(843887, 140417):setSize(20))
+    table.insert(asteroid_list,Asteroid():setPosition(832545, 141551):setSize(182))
+    table.insert(asteroid_list,Asteroid():setPosition(873755, 138148):setSize(23))
+    table.insert(asteroid_list,Mine():setPosition(903722, 133420))
+    table.insert(asteroid_list,Mine():setPosition(902383, 133141))
+    table.insert(asteroid_list,Mine():setPosition(901178, 133789))
+    table.insert(asteroid_list,Mine():setPosition(900671, 135059))
+    table.insert(asteroid_list,Mine():setPosition(901099, 136358))
+    table.insert(asteroid_list,Mine():setPosition(902263, 137078))
+    table.insert(asteroid_list,Mine():setPosition(903617, 136882))
+    table.insert(asteroid_list,Mine():setPosition(904528, 135861))
+    table.insert(asteroid_list,Mine():setPosition(904569, 134494))
+    table.insert(asteroid_list,WarpJammer():setFaction("Human Navy"):setPosition(902678, 135124):setRange(25000))
+    table.insert(asteroid_list,BlackHole():setPosition(917143, 136163))
 	return asteroid_list
 end
 function createTereshNebulae()
@@ -10898,6 +10926,14 @@ function createTereshNebulae()
     table.insert(nebula_list,Nebula():setPosition(817910, 47437))
     table.insert(nebula_list,Nebula():setPosition(809029, 48509))
     table.insert(nebula_list,Nebula():setPosition(815000, 55705))
+    --	East
+	Nebula():setPosition(887177, 116787)
+    Nebula():setPosition(894738, 122648)
+    Nebula():setPosition(884719, 126617)
+    Nebula():setPosition(852583, 146655)
+    Nebula():setPosition(824228, 139472)
+    Nebula():setPosition(871108, 136258)
+    Nebula():setPosition(845400, 140984)
     return nebula_list
 end
 function createTereshStations()
@@ -10910,6 +10946,43 @@ function createTereshStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
+	--	Bastion
+	stationBastion = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Bastion"):setPosition(891524, 130398):setDescription("Research and Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationBastion:setShortRangeRadarRange(15000)
+    stationBastion.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 63,
+        fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
+        hack_repair =			random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We research the interactions between nebulae and black holes. We mine the asteroids to help support the research.",
+    	history = "We started as a dedicated research station. We added mining to supplement the waning academic support. The mineral deposits in the asteroids were rich enough to let us thumb our noses at those academics that thought our research was trivial. Unfortunately, the mineral deposits were valuable enough that we installed a warp jammer to help deter casual piracy (even from nominally friendly transports). The warp jammer was destroyed so many times, we had mines installed around it as yet another deterrent. We renamed our station from Research-91 to Bastion to represent the last bastion of truly independent research, free from government influence",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 14 then stationBastion:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationBastion:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationBastion:setSharesEnergyWithDocked(false) end
+	station_names[stationBastion:getCallSign()] = {stationBastion:getSectorName(), stationBastion}
+	table.insert(stations,stationBastion)
 	--	Dristan
     stationDristan = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Dristan"):setPosition(723186, 65027):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationDristan.comms_data = {
@@ -25436,8 +25509,86 @@ function stationManipulation()
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station defense",stationDefense)
+	addGMFunction("+Station Report",stationReport)
 end
-
+function stationReport()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Stn Rpt",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Stn Manipulation",stationManipulation)
+	if regionStations ~= nil and #regionStations > 0 then
+		for _, station in ipairs(regionStations) do
+			if station ~= nil and station:isValid() and station.comms_data ~= nil then
+				addGMFunction(string.format("%s %s",station:getCallSign(),station:getSectorName()),function()
+					local out = string.format("%s %s  %s  %s  Friendliness:%s",station:getSectorName(),station:getCallSign(),station:getTypeName(),station:getFaction(),station.comms_data.friendlyness)
+					out = string.format("%s\nShares Energy: %s,  Repairs Hull: %s,  Restocks Scan Probes: %s",out,station:getSharesEnergyWithDocked(),station:getRepairDocked(),station:getRestocksScanProbes())
+					out = string.format("%s\nFix Probes: %s,  Fix Hack: %s,  Fix Scan: %s,  Fix Combat Maneuver: %s,  Fix Destruct: %s, Fix Slow Tube: %s",out,station.comms_data.probe_launch_repair,station.comms_data.hack_repair,station.comms_data.scan_repair,station.comms_data.combat_maneuver_repair,station.comms_data.self_destruct_repair,station.comms_data.self_destruct_repair,station.comms_data.tube_slow_down_repair)
+					out = string.format("%s\nHoming: %s %s %s,   Nuke: %s %s %s,   Mine: %s %s %s,   EMP: %s %s %s,   HVLI: %s %s %s",out,station.comms_data.weapon_available.Homing,station.comms_data.weapons.Homing,station.comms_data.weapon_cost.Homing,station.comms_data.weapon_available.Nuke,station.comms_data.weapons.Nuke,station.comms_data.weapon_cost.Nuke,station.comms_data.weapon_available.Mine,station.comms_data.weapons.Mine,station.comms_data.weapon_cost.Mine,station.comms_data.weapon_available.EMP,station.comms_data.weapons.EMP,station.comms_data.weapon_cost.EMP,station.comms_data.weapon_available.HVLI,station.comms_data.weapons.HVLI,station.comms_data.weapon_cost.HVLI)
+					out = string.format("%s\n      Cost multipliers and Max Refill:   Friend: %.1f %.1f,   Neutral: %.1f %.1f",out,station.comms_data.reputation_cost_multipliers.friend,station.comms_data.max_weapon_refill_amount.friend,station.comms_data.reputation_cost_multipliers.neutral,station.comms_data.max_weapon_refill_amount.neutral)
+					out = string.format("%s\nServices and their costs:",out)
+					for service, cost in pairs(station.comms_data.service_cost) do
+						if service == "shield_overcharge" then
+							out = string.format("%s\n      %s: %s (%s)",out,service,cost,station.comms_data.shield_overcharge)
+						else
+							out = string.format("%s\n      %s: %s",out,service,cost)
+						end
+					end
+					if station.comms_data.fast_probes ~= nil then
+						out = string.format("%s\nFast Probes: Name:%s   Cost:%s   Quantity:%s   Speed:%s",out,station.comms_data.fast_probes.name,station.comms_data.fast_probes.cost,station.comms_data.fast_probes.quantity,station.comms_data.fast_probes.speed/1000)
+					end
+					if station.comms_data.remote_warp_jammer ~= nil then
+						out = string.format("%s\nRemote Warp Jammer: Name:%s   Cost:%s   Quantity:%s   Speed:%s   Jam Range:%s",out,station.comms_data.remote_warp_jammer.name,station.comms_data.remote_warp_jammer.cost,station.comms_data.remote_warp_jammer.quantity,station.comms_data.remote_warp_jammer.speed/1000,station.comms_data.remote_warp_jammer.warp_jam_range/1000)
+					end
+					if station.comms_data.sensor_boost ~= nil then
+						out = string.format("%s\nSensor Boost: Range:%s   Cost:%s",out,station.comms_data.sensor_boost.value/1000,station.comms_data.sensor_boost.cost)
+					end
+					if station.comms_data.idle_defense_fleet ~= nil then
+						local df_list = ""
+						local df_count = 0
+						for name, template in pairs(station.comms_data.idle_defense_fleet) do
+							if name ~= nil then
+								df_count = df_count + 1
+								if df_list == "" then
+									df_list = string.format("    %s:%s",name,template)
+								else
+									df_list = string.format("%s, %s:%s",df_list,name,template)
+								end
+							end
+						end
+						if df_count > 0 then
+							out = string.format("%s\n%i ships in the idle defense fleet:\n%s",out,df_count,df_list)
+						end
+					end
+					if station.comms_data.goods ~= nil or station.comms_data.trade ~= nil or station.comms_data.buy ~= nil then
+						out = string.format("%s\nGoods:",out)
+						if station.comms_data.goods ~= nil then
+							out = string.format("%s\n    Sell:",out)
+							for good, good_detail in pairs(station.comms_data.goods) do
+								out = string.format("%s\n        %s: Cost:%s   Quantity:%s",out,good,good_detail.cost,good_detail.quantity)
+							end
+						end
+						if station.comms_data.trade ~= nil then
+							out = string.format("%s\n    Trade:",out)
+							for good, trade in pairs(station.comms_data.trade) do
+								out = string.format("%s\n        %s: %s",out,good,trade)
+							end
+						end
+						if station.comms_data.buy ~= nil then
+							out = string.format("%s\n    Buy:",out)
+							for good, amount in pairs(station.comms_data.buy) do
+								out = string.format("%s\n        %s: %s",out,good,amount)
+							end
+						end
+					end
+					addGMMessage(out)
+					stationReport()
+				end)
+			end
+		end
+	else
+		addGMMessage("No region stations. No Action taken. Set player start point to get region stations")
+	end
+end
 ---------------------------------
 --	Tweak Terrain > Minefield  --
 ---------------------------------
@@ -32984,7 +33135,7 @@ function updateInner(delta)
 			end
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
-				updatePlayerInventoryButton(p)
+				updatePlayerInventoryButton(p,player_name)
 			end
 			if updateDiagnostic then print("update: valid player: rendezvous point message") end
 			if #rendezvousPoints > 0 then
@@ -33048,7 +33199,7 @@ function updateInner(delta)
 	end
 	if updateDiagnostic then print("update: end of update function") end
 end
-function updatePlayerInventoryButton(p)
+function updatePlayerInventoryButton(p,player_name)
 	local goodCount = 0
 	if p.goods ~= nil then
 		for good, goodQuantity in pairs(p.goods) do
