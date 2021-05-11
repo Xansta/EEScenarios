@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.4.5"
+	scenario_version = "3.4.6"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -99,6 +99,7 @@ function createSkeletonUniverse()
     	},
 	}
 	station_names[stationIcarus:getCallSign()] = {stationIcarus:getSectorName(), stationIcarus}
+	stationIcarus.skeleton_station = true
 	table.insert(skeleton_stations,stationIcarus)
 	--Kentar
 	kentar_x = 246000
@@ -147,6 +148,7 @@ function createSkeletonUniverse()
     	},
 	}
 	table.insert(skeleton_stations,stationKentar)
+	stationKentar.skeleton_station = true
 	station_names[stationKentar:getCallSign()] = {stationKentar:getSectorName(), stationKentar}
 	createFleurNebula()
 	BlackHole():setPosition(-12443,-23245)
@@ -232,6 +234,7 @@ function createSkeletonUniverse()
     	},
 	}
 	table.insert(skeleton_stations,stationAstron)
+	stationAstron.skeleton_station = true
 	station_names[stationAstron:getCallSign()] = {stationAstron:getSectorName(), stationAstron}
 	--Lafrina
 	lafrina_x = -250369
@@ -278,6 +281,7 @@ function createSkeletonUniverse()
     	},
 	}
 	table.insert(skeleton_stations,stationLafrina)
+	stationLafrina.skeleton_station = true
 	station_names[stationLafrina:getCallSign()] = {stationLafrina:getSectorName(), stationLafrina}
 	--Teresh
 	teresh_x = 791712
@@ -325,6 +329,7 @@ function createSkeletonUniverse()
     	},
 	}
 	station_names[stationTeresh:getCallSign()] = {stationTeresh:getSectorName(), stationTeresh}
+	stationTeresh.skeleton_station = true
 	table.insert(skeleton_stations,stationTeresh)
 end
 function createFleurNebula()
@@ -4849,7 +4854,7 @@ function icarusSector()
 		objects = {}
 	}
 	-- Ghost jump trace (from moons GM session @ 2020-07-18)
-	local art=Artifact():setPosition(37333, 27778)
+	local art=Artifact():setPosition(23387, 73994)
 	update_system:addPeriodicCallback(art,
 		function (self, obj)
 			self:setCallSign(string.format("%.2f",450*(200*math.cos(getScenarioTimePreStandard()))))
@@ -4991,7 +4996,9 @@ function removeIcarusColor()
 	finneganFeatures = nil
 	if icarusStations ~= nil then
 		for _,s in pairs(icarusStations) do
-			s:destroy()
+			if not s.skeleton_station then
+				s:destroy()
+			end
 		end
 	end
 	icarusStations = nil
@@ -7080,9 +7087,10 @@ function createKentarStations()
 	station_names[stationMonocle:getCallSign()] = {stationMonocle:getSectorName(), stationMonocle}
 	table.insert(stations,stationMonocle)
 	--Nereus
-	--local NereusZone = squareZone(174288, 321668, "Nereus B V13")
-	--NereusZone:setColor(0,128,0)
-    stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Nereus B"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	local NereusZone = squareZone(174288, 321668, "Nereus C V13")
+	NereusZone:setColor(0,128,0)
+	--[[
+    stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus C"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     stationNereus:setShortRangeRadarRange(8500)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7127,6 +7135,7 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationNereus:setSharesEnergyWithDocked(false) end
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
+	--]]
 	--Pastern (Orbiting Ergot which orbits Rigil in N25. Look in the square bounded by Q22, K22, K28 and Q28)
 	local ergot_x, ergot_y = planet_ergot:getPosition()
     stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
@@ -7832,7 +7841,9 @@ function removeKentarColor()
 	
 	if kentar_stations ~= nil then
 		for _,ks in pairs(kentar_stations) do
-			ks:destroy()
+			if not ks.skeleton_station then
+				ks:destroy()
+			end
 		end
 	end
 	kentar_stations = nil
@@ -10185,8 +10196,6 @@ function ghostNebulaSector()
 	--station_names[stationBrillo:getCallSign()] = {stationBrillo:getSectorName(), stationBrillo}
 	--table.insert(stations,stationBrillo)
 	table.insert(wip.all_objects,stationBrillo)
-
-
 	return wip
 end
 --	Lafrina area stations, asteroids, planets, etc.
@@ -10714,7 +10723,9 @@ function removeLafrinaColor()
 	
 	if lafrina_stations ~= nil then
 		for _, ls in pairs(lafrina_stations) do
-			ls:destroy()
+			if not ls.skeleton_station then
+				ls:destroy()
+			end
 		end
 	end
 	lafrina_stations = nil
@@ -11151,7 +11162,16 @@ function removeTereshColor()
 		end
 	end
 	teresh_mines = nil
+	if teresh_stations ~= nil then
+		for _, ts in pairs(teresh_stations) do
+			if not ts.skeleton_station then
+				ts:destroy()
+			end
+		end
+	end
+	teresh_stations = nil
 end
+
 function placeTknolgBase()
 	if gm_click_mode == "tknolg base" then
 		gm_click_mode = nil
@@ -14031,7 +14051,7 @@ function createPlayerShipHolmes()
 	playerHolmes:setBeamWeapon(2, 10,  90, 1000.0, 		6.0, 7)	
 	playerHolmes:setBeamWeapon(3, 60,  90,  500.0, 		6.0, 7)	
 	for i=0,3 do
-		playerHolmes:setBeamWeaponHeatPerFire(i,0.45)
+		playerHolmes:setBeamWeaponHeatPerFire(i,0.3)
 		playerHolmes:setBeamWeaponEnergyPerFire(i,6)
 	end
 	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
@@ -16044,6 +16064,8 @@ function assignPlayerShipScore(p)
 					end)
 				end
 				p.score_settings_source = tempTypeName
+			else
+				addGMMessage(string.format("Player ship %s's template type (%s) could not be found in table PlayerShipStats",p:getCallSign(),tempTypeName))
 			end
 		end
 	end
