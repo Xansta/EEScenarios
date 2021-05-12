@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.4.6"
+	scenario_version = "3.4.7"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -5103,6 +5103,8 @@ function createIcarusStations()
         			cobalt ={quantity = math.random(6,12),	cost = math.random(75,95)},
         			luxury ={quantity = math.random(2,8),	cost = math.random(55,95)} },
         trade = {	food = false, medicine = tradeMedicine, luxury = false },
+        buy = {		circuit =	math.random(95,140),
+        			warp =		math.random(125,150)},
         public_relations = true,
         general_information = "Mining and resupply, New and improved",
     	history = "Station success based on location and ingenuity of original builder to provide supplies for all the miners wanting to strike it rich",
@@ -5649,6 +5651,8 @@ function createIcarusStations()
         goods = {	beam =	 	{quantity = math.random(4,8),	cost = math.random(40,80)},
         			tritanium =	{quantity = math.random(6,12),	cost = math.random(45,65)}	},
         trade = {	food = false, medicine = tradeMedicine, luxury = tradeLuxury },
+        buy = {		filament = math.random(90,120),
+        			impulse = math.random(105,130)	},
         public_relations = true,
         general_information = "We manufacture beam components from the resources gathered from the nearby asteroids. We specialize in plasma based beam systems",
     	history = "Our station recognizes Sovinec, an early computer simulation researcher in plasma based weaponry in the late 20th century on Earth",
