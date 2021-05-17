@@ -506,6 +506,7 @@ function setConstants()
 	}
 	sandbox = getScriptStorage()
 	sandbox.npc = ship_template
+	getScriptStorage()._gm_cuf_env=_ENV;
 	print([[Usage stock/both: curl --data "getScriptStorage().npc['Phobos T3'].create('Exuari','Phobos T3')" http://localhost:8080/exec.lua]])
 	print([[Usage custom only: curl --data "getScriptStorage().npc['Elara P2'].create('Exuari')" http://localhost:8080/exec.lua]])
 	sandbox.spawnNPCs = spawnNPCs
