@@ -11385,7 +11385,12 @@ function activePlayerShip()
 	for shipNum = 1, #playerShipInfo do
 		if playerShipInfo[shipNum][2] == "active" then
 			local desc = playerShipInfo[shipNum][1]
-			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum][4].strength,playerShipInfo[shipNum][4].ftl,playerShipInfo[shipNum][4].lrs,desc),playerShipInfo[shipNum][3])
+			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum][4].strength,playerShipInfo[shipNum][4].ftl,playerShipInfo[shipNum][4].lrs,desc),
+				function ()
+					playerShipInfo[shipNum][3]()
+					playerShipInfo[shipNum][2] = "inactive"
+					activePlayerShip()
+			end)
 		end
 	end
 end
@@ -13313,7 +13318,6 @@ function createPlayerShipAmalgam()
 	playerAmalgam:setWeaponStorageMax("HVLI", 0)		--less (vs 20)
 	playerAmalgam:setWeaponStorage("HVLI", 0)
 	playerAmalgam:addReputationPoints(50)
-	playerShipSpawned("Amalgam")
 	return playerAmalgam
 end
 function createPlayerShipAmbition()
@@ -13344,7 +13348,6 @@ function createPlayerShipAmbition()
 	playerAmbition:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
 	playerAmbition:setWeaponStorage("HVLI",10)
 	playerAmbition:addReputationPoints(50)
-	playerShipSpawned("Ambition")
 	return playerAmbition
 end
 function createPlayerShipArgonaut()
@@ -13365,7 +13368,6 @@ function createPlayerShipArgonaut()
 	playerArgonaut:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
 	playerArgonaut:setWeaponStorage("Mine", 8)				
 	playerArgonaut:addReputationPoints(50)
-	playerShipSpawned("Argonaut")
 	return playerArgonaut
 end
 function createPlayerShipArwine()
@@ -13406,7 +13408,6 @@ function createPlayerShipArwine()
 	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerArwine:setWeaponStorage("Nuke", 4)				
 	playerArwine:addReputationPoints(50)
-	playerShipSpawned("Arwine")
 	return playerArwine
 end
 function createPlayerShipBarracuda()
@@ -13454,7 +13455,6 @@ function createPlayerShipBarracuda()
 	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerBarracuda:setWeaponStorage("Nuke", 4)				
 	playerBarracuda:addReputationPoints(50)
-	playerShipSpawned("Barracuda")
 	return playerBarracuda
 end
 function createPlayerShipBarrow()
@@ -13472,7 +13472,6 @@ function createPlayerShipBarrow()
 	}
 	playerBarrow.launch_bay = "empty"
 	playerBarrow:addReputationPoints(50)
-	playerShipSpawned("Barrow")
 	return playerBarrow
 end
 function createPlayerShipBlaire()
@@ -13511,7 +13510,6 @@ function createPlayerShipBlaire()
 	playerBlaire:setWeaponStorageMax("HVLI", 17)		--more (vs 10)
 	playerBlaire:setWeaponStorage("HVLI", 17)				
 	playerBlaire:addReputationPoints(50)
-	playerShipSpawned("Blaire")
 	return playerBlaire
 end
 function createPlayerShipBlazon()
@@ -13542,7 +13540,6 @@ function createPlayerShipBlazon()
 	playerBlazon:setWeaponStorageMax("Mine",4)
 	playerBlazon:setWeaponStorage("Mine",4)
 	playerBlazon:addReputationPoints(50)
-	playerShipSpawned("Blazon")
 	return playerBlazon
 end
 function createPlayerShipChavez()
@@ -13589,7 +13586,6 @@ function createPlayerShipChavez()
 	playerChavez:setTubeLoadTime(2,15)
 	playerChavez:setTubeLoadTime(3,20)
 	playerChavez:addReputationPoints(50)
-	playerShipSpawned("Chavez")
 	return playerChavez
 end
 function createPlayerShipCobra()
@@ -13631,7 +13627,6 @@ function createPlayerShipCobra()
 	playerCobra.normal_long_range_radar = 20000
 	playerCobra:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerCobra:addReputationPoints(50)
-	playerShipSpawned("Cobra")
 	return playerCobra
 end
 function createPlayerShipDarkstar()
@@ -13660,7 +13655,6 @@ function createPlayerShipDarkstar()
 	playerDarkstar:setWeaponStorageMax("HVLI",6)			--more (vs 0)
 	playerDarkstar:setWeaponStorage("HVLI", 6)				
 	playerDarkstar:addReputationPoints(50)
-	playerShipSpawned("Darkstar")
 	return playerDarkstar
 end
 function createPlayerShipEagle()
@@ -13677,7 +13671,6 @@ function createPlayerShipEagle()
 	playerEagle:setLongRangeRadarRange(50000)							--longer long range sensors (vs 30000)
 	playerEagle.normal_long_range_radar = 50000
 	playerEagle:addReputationPoints(50)
-	playerShipSpawned("Eagle")
 	return playerEagle
 end
 function createPlayerShipEndeavor()
@@ -13704,7 +13697,6 @@ function createPlayerShipEndeavor()
 	playerEndeavor:setWeaponTubeDirection(2, 180)
 	playerEndeavor:setWeaponTubeExclusiveFor(2,"Mine")
 	playerEndeavor:addReputationPoints(50)
-	playerShipSpawned("Endeavor")
 	return playerEndeavor
 end
 function createPlayerShipEnola()
@@ -13746,7 +13738,6 @@ function createPlayerShipEnola()
 	playerEnola:setWeaponStorageMax("Mine", 3)			--fewer (vs 6)
 	playerEnola:setWeaponStorage("Mine", 3)				
 	playerEnola:addReputationPoints(50)
-	playerShipSpawned("Enola")
 	return playerEnola
 end
 function createPlayerShipFalcon()
@@ -13773,7 +13764,6 @@ function createPlayerShipFalcon()
 	playerFalcon:setBeamWeaponTurret(0,	 90,  -90,			 .3)		--slow turret
 	playerFalcon:setBeamWeaponTurret(1,	 90,   90,			 .3)
 	playerFalcon:addReputationPoints(50)
-	playerShipSpawned("Falcon")
 	return playerFalcon
 end
 function createPlayerShipFresnel()
@@ -13806,7 +13796,6 @@ function createPlayerShipFresnel()
 	playerFresnel:setWeaponStorage("Homing",   4)
 	playerFresnel.turbo_torp_factor = 3
 	playerFresnel:addReputationPoints(50)
-	playerShipSpawned("Fresnel")
 	return playerFresnel
 end
 function createPlayerShipGabble()
@@ -13844,7 +13833,6 @@ function createPlayerShipGabble()
 	playerGabble:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
 	playerGabble.normal_long_range_radar = 25000
 	playerGabble:addReputationPoints(50)
-	playerShipSpawned("Ink")
 	return playerGabble
 end
 function createPlayerShipGadfly()
@@ -13882,7 +13870,6 @@ function createPlayerShipGadfly()
 	playerGadfly:setWeaponStorageMax("HVLI", 8)			--more (vs 0)
 	playerGadfly:setWeaponStorage("HVLI", 8)				
 	playerGadfly:addReputationPoints(50)
-	playerShipSpawned("Gadfly")
 	return playerGadfly
 end
 function createPlayerShipGorn()
@@ -13908,7 +13895,6 @@ function createPlayerShipGorn()
 	playerGorn:setLongRangeRadarRange(28000)			--shorter longer range sensors (vs 30000)
 	playerGorn.normal_long_range_radar = 28000
 	playerGorn:addReputationPoints(50)
-	playerShipSpawned("Gorn")
 	return playerGorn
 end
 function createPlayerShipGuinevere()
@@ -13939,7 +13925,6 @@ function createPlayerShipGuinevere()
 	playerGuinevere:setWeaponStorageMax("Mine",3)			--fewer (vs 6)
 	playerGuinevere:setWeaponStorage("Mine", 3)				
 	playerGuinevere:addReputationPoints(50)
-	playerShipSpawned("Guinevere")
 	return playerGuinevere
 end
 function createPlayerShipHalberd()
@@ -13973,7 +13958,6 @@ function createPlayerShipHalberd()
 	playerHalberd:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs all but Mine)
 	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
 	playerHalberd:addReputationPoints(50)
-	playerShipSpawned("Halberd")
 	return playerHalberd
 end
 function createPlayerShipHeadhunter()
@@ -14012,7 +13996,6 @@ function createPlayerShipHeadhunter()
 	playerHeadhunter:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerHeadhunter:setWeaponStorage("Nuke", 4)				
 	playerHeadhunter:addReputationPoints(50)
-	playerShipSpawned("Headhunter")
 	return playerHeadhunter
 end
 function createPlayerShipHearken()
@@ -14045,7 +14028,6 @@ function createPlayerShipHearken()
 	playerHearken:setWeaponStorageMax("Nuke",0)				--fewer Nukes (vs 6)
 	playerHearken:setWeaponStorage("Nuke", 0)				
 	playerHearken:addReputationPoints(50)
-	playerShipSpawned("Hearken")
 	return playerHearken
 end
 function createPlayerShipHolmes()
@@ -14079,7 +14061,6 @@ function createPlayerShipHolmes()
 	playerHolmes.normal_long_range_radar = 35000
 	playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
 	playerHolmes:addReputationPoints(50)
-	playerShipSpawned("Holmes")
 --	print("energy per beam for watson:",playerHolmes:getBeamWeaponEnergyPerFire(0))
 	return playerHolmes
 end
@@ -14116,7 +14097,6 @@ function createPlayerShipInterlock()
 	playerInterlock:setWeaponStorageMax("Mine", 4)			--more mines (vs 0)
 	playerInterlock:setWeaponStorage("Mine", 4)				
 	playerInterlock:addReputationPoints(50)
-	playerShipSpawned("Interlock")
 	return playerInterlock
 end
 function createPlayerShipJarvis()
@@ -14147,7 +14127,6 @@ function createPlayerShipJarvis()
 	playerJarvis:setWeaponStorageMax("Mine",0)				--fewer (vs 6)
 	playerJarvis:setWeaponStorage("Mine", 0)				
 	playerJarvis:addReputationPoints(50)
-	playerShipSpawned("Jarvis")
 	return playerJarvis
 end
 function createPlayerShipJeeves()
@@ -14175,7 +14154,6 @@ function createPlayerShipJeeves()
 	playerJeeves:setWeaponStorageMax("Mine",3)				--fewer (vs 6)
 	playerJeeves:setWeaponStorage("Mine", 3)				
 	playerJeeves:addReputationPoints(50)
-	playerShipSpawned("Jeeves")
 	return playerJeeves
 end
 function createPlayerShipKindling()
@@ -14217,7 +14195,6 @@ function createPlayerShipKindling()
 		name = "dynamic kindling beams"
 	}
 	update_system:addUpdate(playerKindling,"dynamic beams",update_data)
-	playerShipSpawned("Kindling")
 	return playerKindling
 end
 function createPlayerShipKnick()
@@ -14227,7 +14204,6 @@ function createPlayerShipKnick()
 	playerKnick:setTubeSize(1, "large")
 	playerKnick:setTubeSize(2, "large")
 	playerKnick:addReputationPoints(50)
-	playerShipSpawned("Knick")
 	return playerKnick
 end
 function createPlayerShipLancelot()
@@ -14283,7 +14259,6 @@ function createPlayerShipLancelot()
 	playerLancelot:setWeaponStorage("HVLI", 8)				
 	playerLancelot:setCombatManeuver(200,200)				--less (vs 400,250)
 	playerLancelot:addReputationPoints(50)
-	playerShipSpawned("Lancelot")
 	return playerLancelot
 end
 function createPlayerShipMagnum()
@@ -14317,7 +14292,6 @@ function createPlayerShipMagnum()
 	playerMagnum.turbo_torp_factor = 3
 	playerMagnum.turbo_torp_charge_interval = 90
 	playerMagnum:addReputationPoints(50)
-	playerShipSpawned("Magnum")
 	return playerMagnum
 end
 function createPlayerShipMantis()
@@ -14354,7 +14328,6 @@ function createPlayerShipMantis()
 	playerMantis.turbo_torp_factor = 3
 	playerMantis.turbo_torp_charge_interval = 60
 	playerMantis:addReputationPoints(50)
-	playerShipSpawned("Mantis")
 	return playerMantis
 end
 function createPlayerShipManxman()
@@ -14373,7 +14346,6 @@ function createPlayerShipManxman()
 	playerManxman:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
 	playerManxman:setWeaponStorage("Mine", 8)				
 	playerManxman:addReputationPoints(50)
-	playerShipSpawned("Manxman")
 	return playerManxman
 end
 function createPlayerShipNarsil()
@@ -14403,7 +14375,6 @@ function createPlayerShipNarsil()
 	playerNarsil:setWeaponTubeDirection(5,180)			--rear facing
 	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
 	playerNarsil:addReputationPoints(50)
-	playerShipSpawned("Narsil")
 	return playerNarsil
 end
 function createPlayerShipNimbus()
@@ -14431,7 +14402,6 @@ function createPlayerShipNimbus()
 	playerNimbus:setWeaponStorageMax("HVLI",10)			--reduce HVLI storage (vs 20)
 	playerNimbus:setWeaponStorage("HVLI",10)
 	playerNimbus:addReputationPoints(50)
-	playerShipSpawned("Nimbus")
 	return playerNimbus
 end
 function createPlayerShipNusret()
@@ -14463,7 +14433,6 @@ function createPlayerShipNusret()
 	playerNusret:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
 	playerNusret:setWeaponStorage("Mine", 8)				
 	playerNusret:addReputationPoints(50)
-	playerShipSpawned("Nusret")
 	return playerNusret
 end
 function createPlayerShipOsprey()
@@ -14491,7 +14460,6 @@ function createPlayerShipOsprey()
 	playerOsprey:setWeaponStorageMax("Homing",4)			--more (vs 3)
 	playerOsprey:setWeaponStorage("Homing", 4)				
 	playerOsprey:addReputationPoints(50)
-	playerShipSpawned("Osprey")
 	return playerOsprey
 end
 function createPlayerShipOutcast()
@@ -14513,7 +14481,6 @@ function createPlayerShipOutcast()
 --										   Arc, Dir, Rotate speed
 	playerOutcast:setBeamWeaponTurret(3,	90,	180,	 .4)		--slow turret
 	playerOutcast:addReputationPoints(50)
-	playerShipSpawned("Outcast")
 	return playerOutcast
 end
 function createPlayerShipPeacock()
@@ -14559,7 +14526,6 @@ function createPlayerShipPeacock()
 	playerPeacock:setWeaponStorageMax("EMP",5)			--less (vs 6)
 	playerPeacock:setWeaponStorage("EMP", 5)
 	playerPeacock:addReputationPoints(50)
-	playerShipSpawned("Peacock")
 	return playerPeacock
 end
 function createPlayerShipPhobosT2()
@@ -14591,7 +14557,6 @@ function createPlayerShipPhobosT2()
 	playerPhobosT2:setWeaponStorageMax("HVLI",16)			--reduce HVLI storage (vs 20)
 	playerPhobosT2:setWeaponStorage("HVLI",16)
 	playerPhobosT2:addReputationPoints(50)
-	playerShipSpawned("Phobos T2")
 	return playerPhobosT2
 end
 function createPlayerShipQuick()
@@ -14614,7 +14579,6 @@ function createPlayerShipQuick()
 	playerQuick:setWeaponStorageMax("EMP",3)	--more EMPs (vs 0)
 	playerQuick:setWeaponStorage("EMP", 3)				
 	playerQuick:addReputationPoints(50)
-	playerShipSpawned("Quicksilver")
 	return playerQuick
 end
 function createPlayerShipQuill()
@@ -14671,7 +14635,6 @@ function createPlayerShipQuill()
 	playerQuill:addReputationPoints(50)
 	playerQuill:setLongRangeRadarRange(25000)
 	playerQuill.normal_long_range_radar = 25000
-	playerShipSpawned("Quill")
 	return playerQuill
 end
 function createPlayerShipRaptor()
@@ -14700,7 +14663,6 @@ function createPlayerShipRaptor()
 	playerRaptor:setWeaponStorageMax("HVLI",6)				--more (vs 0)
 	playerRaptor:setWeaponStorage("HVLI", 6)				
 	playerRaptor:addReputationPoints(50)
-	playerShipSpawned("Raptor")
 	return playerRaptor
 end
 function createPlayerShipRattler()
@@ -14716,7 +14678,6 @@ function createPlayerShipRattler()
 	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
 	playerRattler:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
 	playerRattler:addReputationPoints(50)
-	playerShipSpawned("Rattler")
 	return playerRattler
 end
 function createPlayerShipRaven()
@@ -14761,7 +14722,6 @@ function createPlayerShipRaven()
 	playerRaven:setWeaponStorageMax("Mine",4)			--less (vs 8)
 	playerRaven:setWeaponStorage("Mine",4)
 	playerRaven:addReputationPoints(50)
-	playerShipSpawned("Raven")
 	return playerRaven
 end
 function createPlayerShipRodent()
@@ -14808,7 +14768,6 @@ function createPlayerShipRodent()
 	playerRodent:setWeaponTubeExclusiveFor(2,"Mine")	--only Mine (vs any)
 	playerRodent:setTubeLoadTime(2,15)					--slower (vs 10)
 	playerRodent:addReputationPoints(50)
-	playerShipSpawned("Rodent")
 	return playerRodent
 end
 function createPlayerShipRogue()
@@ -14836,7 +14795,6 @@ function createPlayerShipRogue()
 	playerRogue.normal_long_range_radar = 25000
 	playerRogue:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
 	playerRogue:addReputationPoints(50)
-	playerShipSpawned("Rogue")
 	return playerRogue
 end
 function createPlayerShipRotor()
@@ -14870,7 +14828,6 @@ function createPlayerShipRotor()
 	playerRotor:setWeaponStorageMax("Nuke", 0)				--fewer (vs 2)
 	playerRotor:setWeaponStorage("Nuke", 0)
 	playerRotor:addReputationPoints(50)
-	playerShipSpawned("Rotor")
 	return playerRotor
 end
 function createPlayerShipSafari()
@@ -14903,7 +14860,6 @@ function createPlayerShipSafari()
 	playerSafari:setWeaponStorageMax("Mine", 3)							--more (vs 1)
 	playerSafari:setWeaponStorage("Mine", 3)
 	playerSafari:addReputationPoints(50)
-	playerShipSpawned("Safari")
 	return playerSafari
 end
 function createPlayerShipSimian()
@@ -14940,7 +14896,6 @@ function createPlayerShipSimian()
 	playerSimian:setWeaponStorage("HVLI", 10)				
 	playerSimian:setLongRangeRadarRange(20000)				--shorter longer range sensors (vs 30000)
 	playerSimian:addReputationPoints(50)
-	playerShipSpawned("Knuckle Drag")
 	return playerSimian
 end
 function createplayerShipSneak()
@@ -14957,7 +14912,6 @@ function createplayerShipSneak()
 	playerSneak:setBeamWeaponTurret(1,	 30,   70,			5)
 	playerSneak:setShortRangeRadarRange(7500)
 	playerSneak:addReputationPoints(50)
-	playerShipSpawned("Skray")
 	return playerSneak
 end
 function createPlayerShipSparrow()
@@ -14980,7 +14934,6 @@ function createPlayerShipSparrow()
 	playerSparrow:setWeaponStorageMax("Mine",4)				--more Mines (vs 0)
 	playerSparrow:setWeaponStorage("Mine",4)
 	playerSparrow:addReputationPoints(50)
-	playerShipSpawned("Sparrow")
 	return playerSparrow
 end
 function createPlayerShipSpyder()
@@ -14999,7 +14952,6 @@ function createPlayerShipSpyder()
 	playerSpyder:setWeaponTubeDirection(2,60)			--right front facing
 	playerSpyder:setWeaponTubeDirection(3,120)			--right rear facing
 	playerSpyder:addReputationPoints(50)
-	playerShipSpawned("Spyder")
 	return playerSpyder
 end
 function createPlayerShipStick()
@@ -15030,7 +14982,6 @@ function createPlayerShipStick()
 	playerStick:setWeaponTubeDirection(2,180)
 	playerStick:setWeaponTubeExclusiveFor(2,"Mine")
 	playerStick:addReputationPoints(50)
-	playerShipSpawned("Stick")
 	return playerStick
 end
 function createPlayerShipSting()
@@ -15061,7 +15012,6 @@ function createPlayerShipSting()
 	playerSting:setWeaponTubeDirection(2,180)
 	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
 	playerSting:addReputationPoints(50)
-	playerShipSpawned("Sting")
 	return playerSting
 end
 function createPlayerShipThelonius()
@@ -15093,7 +15043,6 @@ function createPlayerShipThelonius()
 	playerThelonius:setWeaponStorageMax("HVLI",10)			--fewer (vs 24)
 	playerThelonius:setWeaponStorage("HVLI", 10)				
 	playerThelonius:addReputationPoints(50)
-	playerShipSpawned("Thelonius")
 	return playerThelonius
 end
 function createPlayerShipThunderbird()
@@ -15123,7 +15072,6 @@ function createPlayerShipThunderbird()
 	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
 	playerThunderbird:setWeaponStorage("HVLI", 6)				
 	playerThunderbird:addReputationPoints(50)
-	playerShipSpawned("Thunderbird")
 	return playerThunderbird
 end
 function createPlayerShipTwister()
@@ -15179,7 +15127,6 @@ function createPlayerShipTwister()
 	playerTwister:setWeaponStorage("Nuke",      4)
 	playerTwister:setWeaponStorage("Mine",      4)
 	playerTwister:addReputationPoints(50)
-	playerShipSpawned("Twister")
 	return playerTwister
 end
 function createPlayerShipVision()
@@ -15196,7 +15143,6 @@ function createPlayerShipVision()
 	playerVision:setLongRangeRadarRange(50000)							--longer long range sensors (vs 30000)
 	playerVision.normal_long_range_radar = 50000
 	playerVision:addReputationPoints(50)
-	playerShipSpawned("Vision")
 	return playerVision
 end
 function createPlayerShipWiggy()
@@ -15221,7 +15167,6 @@ function createPlayerShipWiggy()
 	playerWiggy:setLongRangeRadarRange(40000)			--longer long range sensors (vs 30000)
 	playerWiggy.normal_long_range_radar = 40000
 	playerWiggy:addReputationPoints(50)
-	playerShipSpawned("Wiggy")
 	return playerWiggy
 end
 function createPlayerShipWindmill()
@@ -15267,7 +15212,6 @@ function createPlayerShipWindmill()
 	playerWindmill:setWeaponStorageMax("HVLI", 8)			--more (vs 5)
 	playerWindmill:setWeaponStorage("HVLI", 8)
 	playerWindmill:addReputationPoints(50)
-	playerShipSpawned("Windmill")
 	return playerWindmill
 end
 function createPlayerShipWombat()
@@ -15314,7 +15258,6 @@ function createPlayerShipWombat()
 	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
 	playerWombat:setWeaponStorage("Homing",   8)				
 	playerWombat:addReputationPoints(50)
-	playerShipSpawned("Wombat")
 	return playerWombat
 end
 function createPlayerShipWrocket()
@@ -15344,7 +15287,6 @@ function createPlayerShipWrocket()
 	playerWrocket:setWeaponStorageMax("EMP",8)			--more (vs 0)
 	playerWrocket:setWeaponStorage("EMP", 8)
 	playerWrocket:addReputationPoints(50)
-	playerShipSpawned("Wrocket")
 	return playerWrocket
 end
 function createPlayerShipYorik()
@@ -15382,7 +15324,6 @@ function createPlayerShipYorik()
 	playerYorik:setWeaponStorageMax("Mine", 5)			--more (vs 0)
 	playerYorik:setWeaponStorage("Mine", 5)				
 	playerYorik:addReputationPoints(50)
-	playerShipSpawned("Yorik")
 	return playerYorik
 end
 --	Specialized ships spawned by a carrier
@@ -15420,26 +15361,11 @@ function createPlayerShipPhargus()
 	playerPhargus:setBeamWeaponTurret(0,	70,	-15,		 .4)		--slow turret, narrower overall arc (vs 90)
 	playerPhargus:setBeamWeaponTurret(1,	70,	 15,		 .4)
 --	playerPhargus:addReputationPoints(50)	--avoid if spawned by carrier
---	playerShipSpawned("Barrow")	--Avoid if spawned by carrier
 	return playerPhargus
 end
 function stockPlayer(template)
 	local ship = PlayerSpaceship():setTemplate(template):setFaction("Human Navy")
 	return ship
-end
-function playerShipSpawned(shipName)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][1] == shipName then
-			if playerShipInfo[shipNum][2] == "active" then
-				playerShipInfo[shipNum][2] = "inactive"
-				activePlayerShip()
-				return
-			else
-				inactivePlayerShip()
-				return
-			end
-		end
-	end
 end
 --	************************************************************  --
 --	****				Initial Set Up Zones				****  --
