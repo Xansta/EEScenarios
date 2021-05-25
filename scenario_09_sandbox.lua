@@ -518,12 +518,7 @@ function setConstants()
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	create = stockTemplate},
 		["Loki"] =				{strength = 260,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	create = loki},
 	}
-	sandbox = getScriptStorage()
-	sandbox.npc = ship_template
 	getScriptStorage()._gm_cuf_env=_ENV;
-	print([[Usage stock/both: curl --data "getScriptStorage().npc['Phobos T3'].create('Exuari','Phobos T3')" http://localhost:8080/exec.lua]])
-	print([[Usage custom only: curl --data "getScriptStorage().npc['Elara P2'].create('Exuari')" http://localhost:8080/exec.lua]])
-	sandbox.spawnNPCs = spawnNPCs
 	fleet_group = {
 		["adder"] = "Adders",
 		["Adders"] = "adder",
