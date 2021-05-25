@@ -15960,48 +15960,45 @@ function assignPlayerShipScore(p)
 --	print("assign player ship score, temp type name",tempTypeName)
 	if tempTypeName ~= nil then
 		if playerShipStats[tempTypeName] ~= nil then
-			local shipScore = playerShipStats[tempTypeName].strength
-			if shipScore ~= nil and shipScore > 0 then
-				--set values from list
-				p.shipScore = shipScore
-				p.maxCargo = playerShipStats[tempTypeName].cargo
-				p.cargo = p.maxCargo
-				p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
-				p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
-				p:setMaxScanProbeCount(playerShipStats[tempTypeName].probes)
-				p:setScanProbeCount(p:getMaxScanProbeCount())
-				p.tractor = playerShipStats[tempTypeName].tractor
-				p.tractor_target_lock = false
-				p.mining = playerShipStats[tempTypeName].mining
-				p.max_pods = playerShipStats[tempTypeName].pods
-				p.pods = p.max_pods
-				p.turbo_torp = playerShipStats[tempTypeName].turbo_torp
-				if p.turbo_torp then
-					if p.turbo_torp_charge_interval == nil then
-						p.turbo_torp_charge_interval = 55
-					end
-					p.turbo_torp_timer = p.turbo_torp_charge_interval
-					p.turbo_torp_active = false
+			--set values from list
+			p.shipScore = playerShipStats[tempTypeName].strength
+			p.maxCargo = playerShipStats[tempTypeName].cargo
+			p.cargo = p.maxCargo
+			p:setLongRangeRadarRange(playerShipStats[tempTypeName].long_range_radar)
+			p:setShortRangeRadarRange(playerShipStats[tempTypeName].short_range_radar)
+			p:setMaxScanProbeCount(playerShipStats[tempTypeName].probes)
+			p:setScanProbeCount(p:getMaxScanProbeCount())
+			p.tractor = playerShipStats[tempTypeName].tractor
+			p.tractor_target_lock = false
+			p.mining = playerShipStats[tempTypeName].mining
+			p.max_pods = playerShipStats[tempTypeName].pods
+			p.pods = p.max_pods
+			p.turbo_torp = playerShipStats[tempTypeName].turbo_torp
+			if p.turbo_torp then
+				if p.turbo_torp_charge_interval == nil then
+					p.turbo_torp_charge_interval = 55
 				end
-				p.probe_boost = playerShipStats[tempTypeName].probe_boost
-				p.patrol_probe = playerShipStats[tempTypeName].patrol_probe
-				if p.patrol_probe > 0 then
-					p.patrol_probe_state = "Off"
-					p.patrol_probe_button = "patrol_probe_button"
-					p:addCustomButton("Relay",p.patrol_probe_button,"Patrol Probe Off",function()
-						string.format("")
-						togglePatrolProbeState(p)
-					end)
-					p.patrol_probe_button_ops = "patrol_probe_button_ops"
-					p:addCustomButton("Operations",p.patrol_probe_button_ops,"Patrol Probe Off",function()
-						string.format("")
-						togglePatrolProbeState(p)
-					end)
-				end
-				p.score_settings_source = tempTypeName
-			else
-				addGMMessage(string.format("Player ship %s's template type (%s) could not be found in table PlayerShipStats",p:getCallSign(),tempTypeName))
+				p.turbo_torp_timer = p.turbo_torp_charge_interval
+				p.turbo_torp_active = false
 			end
+			p.probe_boost = playerShipStats[tempTypeName].probe_boost
+			p.patrol_probe = playerShipStats[tempTypeName].patrol_probe
+			if p.patrol_probe > 0 then
+				p.patrol_probe_state = "Off"
+				p.patrol_probe_button = "patrol_probe_button"
+				p:addCustomButton("Relay",p.patrol_probe_button,"Patrol Probe Off",function()
+					string.format("")
+					togglePatrolProbeState(p)
+				end)
+				p.patrol_probe_button_ops = "patrol_probe_button_ops"
+				p:addCustomButton("Operations",p.patrol_probe_button_ops,"Patrol Probe Off",function()
+					string.format("")
+					togglePatrolProbeState(p)
+				end)
+			end
+			p.score_settings_source = tempTypeName
+		else
+			addGMMessage(string.format("Player ship %s's template type (%s) could not be found in table PlayerShipStats",p:getCallSign(),tempTypeName))
 		end
 	end
 	p.maxRepairCrew = p:getRepairCrewCount()
