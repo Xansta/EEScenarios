@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.1"
+	scenario_version = "3.5.2"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -436,6 +436,7 @@ function setConstants()
 		["Missile Pod TX16"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 4500,	create = missilePodTX16},
 		["Missile Pod S1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	create = missilePodS1},
 		["Missile Pod S4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	create = missilePodS4},
+		["Transport"] =			{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	create = auxiliaryCruiser},
 		-- normal ships that are part of the fleet spawn process
 		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	base = false,	short_range_radar = 4500,	create = gnat},
 		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	short_range_radar = 5000,	create = droneLite},
@@ -5690,7 +5691,7 @@ function createIcarusStations()
 	table.insert(stations,stationSovinec)	
 	--Speculator
 	local speculatorZone = squareZone(55000,108000, "Speculator 2 K7")
-	speculatorZone:setColor(51,153,255)
+	speculatorZone:setColor(0,255,0)
 	--[[
     stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 2"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationSpeculator:setShortRangeRadarRange(13000)
@@ -10202,8 +10203,9 @@ function ghostNebulaSector()
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	sensor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
-        			nickel = 	{quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        goods = {	sensor = 		{quantity = math.random(2,5),	cost = math.random(40,70)},
+        			transporter =	{quantity = math.random(2,5),	cost = math.random(50,80)},
+        			nickel = 		{quantity = math.random(2,5),	cost = math.random(55,90)}	},
         trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "We coordinate mining nearby asteroids",
@@ -19970,6 +19972,25 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 	end
 end
 --not included in random fleet spawn lists
+function auxiliaryCruiser(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Transport3x3"):orderRoaming()
+	if ship_template["Transport"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Transport"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setHullMax(180)					--stronger hull (vs 100)
+	ship:setHull(180)
+	ship:setShieldsMax(100,100)				--stronger shields (vs 50, 50)
+	ship:setShields(100,100)
+	ship:setImpulseMaxSpeed(65)				--faster impulse (vs 45)
+	ship:setRotationMaxSpeed(10)			--faster maneuver (vs 6)
+	ship:setWarpDrive(true)					--warp (vs none)
+	ship:setWarpSpeed(200)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	30,	    0,	1200,		4,		 4)		--front & rear beams (vs none)
+	ship:setBeamWeapon(1,	30,	  180,	1200,		4,		 4)
+	return ship
+end
 function leech(enemyFaction)
 	local ship = CpuShip():setTemplate("Defense platform"):setFaction(enemyFaction):orderRoaming()
 	if ship_template["Leech Sat"].short_range_radar ~= nil then
@@ -25723,8 +25744,9 @@ function stationManipulation()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("+Station Operations",stationOperations)
-	addGMFunction("+Station defense",stationDefense)
+	addGMFunction("+Station Defense",stationDefense)
 	addGMFunction("+Station Report",stationReport)
+	addGMFunction("+Station Goods",stationGoods)
 end
 function stationReport()
 	clearGMFunctions()
@@ -25802,6 +25824,305 @@ function stationReport()
 		end
 	else
 		addGMMessage("No region stations. No Action taken. Set player start point to get region stations")
+	end
+end
+function stationGoods()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("+Sell Components",stationSellComponents)
+	addGMFunction("+Sell Minerals",stationSellMinerals)
+	addGMFunction("+Buy Components",stationBuyComponents)
+	addGMFunction("+Buy Minerals",stationBuyMinerals)
+	addGMFunction("+Trade Goods",stationTradeGoods)
+end
+function stationSellComponents()
+	clearGMFunctions()
+	addGMFunction("-From Sell Components",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationSellComponents)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellComponents)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellComponents)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationSellComponents)
+			table.sort(componentGoods)
+			for _, good in ipairs(componentGoods) do
+				local good_quantity = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.goods ~= nil then
+					for station_good, good_detail in pairs(selected_station.comms_data.goods) do
+						if station_good == good and good_detail.quantity > 0 then
+							good_quantity = good_detail.quantity
+						end
+					end
+				end
+				addGMFunction(string.format("%s:%i Add",good,good_quantity),function()
+					string.format("")
+					if selected_station.comms_data == nil then
+						selected_station.comms_data = {}
+					end
+					if selected_station.comms_data.goods == nil then
+						selected_station.comms_data.goods = {}
+					end
+					if selected_station.comms_data.goods[good] == nil then
+						selected_station.comms_data.goods[good] = {cost = math.random(50,80), quantity = 1}
+					else
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity + 1
+					end
+					stationSellComponents()
+				end)
+				if good_quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",good,good_quantity),function()
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity - 1
+						stationSellComponents()
+					end)
+				end
+			end
+		end
+	end
+end
+function stationSellMinerals()
+	clearGMFunctions()
+	addGMFunction("-From Sell Minerals",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationSellMinerals)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellMinerals)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellMinerals)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationSellMinerals)
+			table.sort(mineralGoods)
+			for _, good in ipairs(mineralGoods) do
+				local good_quantity = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.goods ~= nil then
+					for station_good, good_detail in pairs(selected_station.comms_data.goods) do
+						if station_good == good and good_detail.quantity > 0 then
+							good_quantity = good_detail.quantity
+						end
+					end
+				end
+				addGMFunction(string.format("%s:%i Add",good,good_quantity),function()
+					string.format("")
+					if selected_station.comms_data == nil then
+						selected_station.comms_data = {}
+					end
+					if selected_station.comms_data.goods == nil then
+						selected_station.comms_data.goods = {}
+					end
+					if selected_station.comms_data.goods[good] == nil then
+						selected_station.comms_data.goods[good] = {cost = math.random(50,80), quantity = 1}
+					else
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity + 1
+					end
+					stationSellMinerals()
+				end)
+				if good_quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",good,good_quantity),function()
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity - 1
+						stationSellMinerals()
+					end)
+				end
+			end
+		end
+	end
+end
+function stationBuyComponents()
+	clearGMFunctions()
+	addGMFunction("-From Buy Components",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationBuyComponents)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyComponents)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyComponents)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationBuyComponents)
+			table.sort(componentGoods)
+			for _, good in ipairs(componentGoods) do
+				local good_price = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.buy ~= nil then
+					for station_good, price in pairs(selected_station.comms_data.buy) do
+						if station_good == good then
+							good_price = price
+						end
+					end
+				end
+				if good_price == 0 then
+					addGMFunction(string.format("%s Add",good),function()
+						string.format("")
+						if selected_station.comms_data == nil then
+							selected_station.comms_data = {}
+						end
+						if selected_station.comms_data.buy == nil then
+							selected_station.comms_data.buy = {}
+						end
+						selected_station.comms_data.buy[good] = math.random(70,100)
+						stationBuyComponents()
+					end)
+				else
+					addGMFunction(string.format("%s Del",good),function()
+						selected_station.comms_data.buy[good] = nil
+						stationBuyComponents()
+					end)
+				end
+			end
+		end
+	end
+end
+function stationBuyMinerals()
+	clearGMFunctions()
+	addGMFunction("-From Buy Minerals",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationBuyMinerals)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyMinerals)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyMinerals)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationBuyMinerals)
+			table.sort(mineralGoods)
+			for _, good in ipairs(mineralGoods) do
+				local good_price = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.buy ~= nil then
+					for station_good, price in pairs(selected_station.comms_data.buy) do
+						if station_good == good then
+							good_price = price
+						end
+					end
+				end
+				if good_price == 0 then
+					addGMFunction(string.format("%s Add",good),function()
+						string.format("")
+						if selected_station.comms_data == nil then
+							selected_station.comms_data = {}
+						end
+						if selected_station.comms_data.buy == nil then
+							selected_station.comms_data.buy = {}
+						end
+						selected_station.comms_data.buy[good] = math.random(70,100)
+						stationBuyMinerals()
+					end)
+				else
+					addGMFunction(string.format("%s Del",good),function()
+						selected_station.comms_data.buy[good] = nil
+						stationBuyMinerals()
+					end)
+				end
+			end
+		end
+	end
+end
+function stationTradeGoods()
+	clearGMFunctions()
+	addGMFunction("-From Trade Goods",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationTradeGoods)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationTradeGoods)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationTradeGoods)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationTradeGoods)
+			local tradeGoods = {"food","medicine","luxury"}
+			for _, good in ipairs(tradeGoods) do
+				local good_trade = false
+				if selected_station.comms_data ~= nil and selected_station.comms_data.trade ~= nil then
+					for station_good, val in pairs(selected_station.comms_data.trade) do
+						if station_good == good then
+							if val then
+								good_trade = true
+							end
+						end
+					end
+				end
+				if good_trade then
+					addGMFunction(string.format("%s Del",good),function()
+						selected_station.comms_data.trade[good] = false
+						stationTradeGoods()
+					end)
+				else
+					addGMFunction(string.format("%s Add",good),function()
+						string.format("")
+						if selected_station.comms_data == nil then
+							selected_station.comms_data = {}
+						end
+						if selected_station.comms_data.trade == nil then
+							selected_station.comms_data.trade = {}
+						end
+						selected_station.comms_data.trade[good] = true
+						stationTradeGoods()
+					end)
+				end
+			end
+		end
 	end
 end
 ---------------------------------
