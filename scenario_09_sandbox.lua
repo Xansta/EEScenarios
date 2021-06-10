@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.4"
+	scenario_version = "3.5.5"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -422,6 +422,7 @@ function setConstants()
 		["Leech Sat"] =		 	{strength = 80,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = leech},
 		["Command Base"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1000,	create = commandBase},
 		["Military Outpost"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1000,	create = militaryOutpost},
+		["Sniper Tower"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = true,	short_range_radar = 7000,	hop_angle = 0,	hop_range = 1000,	create = sniperTower},
 		["Missile Pod D1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = missilePodD1},
 		["Missile Pod D2"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = missilePodD2},
 		["Missile Pod D4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = missilePodD4},
@@ -1956,6 +1957,60 @@ function updateSystem()
 				end
 			end
 			self:addPeriodicCallback(obj,callback,period)
+		end,
+		addArtifactCyclicalColorUpdate = function(self, obj, red_start, red_min, red_max, red_time, green_start, green_min, green_max, green_time, blue_start, blue_min, blue_max, blue_time)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(red_start)=="number")
+			assert(type(red_min)=="number")
+			assert(type(red_max)=="number")
+			assert(type(red_time)=="number")
+			assert(type(green_start)=="number")
+			assert(type(green_min)=="number")
+			assert(type(green_max)=="number")
+			assert(type(green_time)=="number")
+			assert(type(blue_start)=="number")
+			assert(type(blue_min)=="number")
+			assert(type(blue_max)=="number")
+			assert(type(blue_time)=="number")
+			local update_data = {
+				name = "color",
+				red_start = red_start,
+				red_min = red_min,
+				red_max = red_max,
+				red_time = red_time,
+				red_current = red_start,
+				green_start = green_start,
+				green_min = green_min,
+				green_max = green_max,
+				green_time = green_time,
+				green_current = green_start,
+				blue_start = blue_start,
+				blue_min = blue_min,
+				blue_max = blue_max,
+				blue_time = blue_time,
+				blue_current = blue_start,
+				edit = {},
+				update = function(self, obj, delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					self.red_current = self.red_current + (self.red_max - self.red_min)/self.red_time*delta
+					if self.red_current > self.red_max then
+						self.red_current = self.red_min
+					end
+					self.green_current = self.green_current + (self.green_max - self.green_min)/self.green_time*delta
+					if self.green_current > self.green_max then
+						self.green_current = self.green_min
+					end
+					self.blue_current = self.blue_current + (self.blue_max - self.blue_min)/self.blue_time*delta
+					if self.blue_current > self.blue_max then
+						self.blue_current = self.blue_min
+					end
+					obj:setRadarTraceColor(math.floor(self.red_current),math.floor(self.green_current),math.floor(self.blue_current))
+				end
+			}
+			self:addUpdate(obj,"artifactColor",update_data)
 		end,
 		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle)
 			assert(type(self)=="table")
@@ -3523,6 +3578,79 @@ function customButtons()
 		local all_objs = {}
 		local number_in_ring = 20
 		local clockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#clockwise_objs,1,-1 do
+			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
+			update_system:addOwned(clockwise_objs[i],artifact)
+			table.insert(all_objs,clockwise_objs[i])
+		end
+		local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#counterclockwise_objs,1,-1 do
+			createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
+			update_system:addOwned(counterclockwise_objs[i],artifact)
+			table.insert(all_objs,counterclockwise_objs[i])
+		end
+		local update_data = {
+			all_objs = all_objs,
+			current_radius = 0,
+			max_radius = 3000,
+			max_time = 120,
+			update = function (self, obj, delta)
+				self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+				for i=#all_objs,1,-1 do
+					update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+				end
+				local x,y=obj:getPosition()
+				local objs = getObjectsInRadius(x,y,self.current_radius)
+				for i=#objs,1,-1 do
+					if objs[i].typeName=="PlayerSpaceship" then
+						local player_x,player_y = objs[i]:getPosition()
+						local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
+						setCirclePos(objs[i],x,y,-angle,self.current_radius)
+					end
+				end
+			end,
+			edit = {{name = "max_time", fixedAdjAmount=1}}, -- this really should have more edit controls but I'm feeling lazy
+			name = "subspace rift"
+		}
+		update_system:addUpdate(artifact,"subspace rift",update_data)
+	end)end)
+	addGMFunction("Colored Subspace Rift",function () onGMClick(function (x,y)
+		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+		local all_objs = {}
+		local number_in_ring = 20
+		local clockwise_objs=createObjectCircle{number = number_in_ring}
+		local a_c = {
+		--		red						green					blue
+		--		start	min	max	time	start	min	max	time	start	min	max	time
+			{	128,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
+			{	128,	128,255,4,		32,		32,	255,4,		0,		0,	255,4	},
+			{	128,	128,255,3,		64,		64,	255,3,		0,		0,	255,3	},
+			{	128,	128,255,6,		96,		96,	255,6,		0,		0,	255,6	},
+			{	96,		96, 255,2,		128,	128,255,2,		0,		0,	255,2	},
+			{	64,		64,	255,4,		128,	128,255,4,		0,		0,	255,4	},
+			{	32,		32,	255,3,		128,	128,255,3,		0,		0,	255,3	},
+			{	0,		0,	255,6,		128,	128,255,6,		32,		32,	255,6	},
+			{	0,		0,	255,2,		128,	128,255,2,		64,		64,	255,2	},
+			{	0,		0,	255,4,		128,	128,255,4,		96,		96,	255,4	},
+			{	0,		0,	255,3,		128,	128,255,3,		128,	128,255,3	},
+			{	0,		0,	255,6,		96,		96,	255,6,		128,	128,255,6	},
+			{	0,		0,	255,2,		64,		64,	255,2,		128,	128,255,2	},
+			{	0,		0,	255,4,		0,		0,	255,4,		128,	128,255,4	},
+			{	32,		32,	255,3,		0,		0,	255,3,		128,	128,255,3	},
+			{	64,		64,	255,6,		0,		0,	255,6,		128,	128,255,6	},
+			{	96,		96,	255,2,		0,		0,	255,2,		128,	128,255,2	},
+			{	128,	128,255,4,		0,		0,	255,4,		96,		96,	255,4	},
+			{	128,	128,255,3,		0,		0,	255,3,		64,		64,	255,3	},
+			{	128,	128,255,6,		0,		0,	255,6,		32,		32,	255,6	},
+		}
+		for i=1,#clockwise_objs do
+			if a_c[i] ~= nil then
+				update_system:addArtifactCyclicalColorUpdate(clockwise_objs[i],a_c[i][1],a_c[i][2],a_c[i][3],a_c[i][4],a_c[i][5],a_c[i][6],a_c[i][7],a_c[i][8],a_c[i][9],a_c[i][10],a_c[i][11],a_c[i][12])
+			end
+		end
+--		clockwise_objs[1]:setRadarTraceColor(0,255,0)
 		for i=#clockwise_objs,1,-1 do
 			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
 			update_system:addOwned(clockwise_objs[i],artifact)
@@ -6885,6 +7013,51 @@ function createKentarStations()
 	if random(1,100) <= 17 then stationGamma3:setSharesEnergyWithDocked(false) end
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
+	--Gateway
+	local gatewayZone = squareZone(59893, 373681, "Gateway X7")
+	gatewayZone:setColor(0,128,0)
+	--[[
+    stationGateway = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gateway"):setPosition(59893, 373681):setDescription("Subspace Rift Research and Construction"):setCommsScript(""):setCommsFunction(commsStation)
+    stationGateway:setShortRangeRadarRange(8000)
+    stationGateway.comms_data = {
+    	friendlyness = 68,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
+        weapon_available = 	{Homing = random(1,100)<60,	HVLI = random(1,100<80,	Mine = random(1,100)<50,Nuke = random(1,100)<30,	EMP = random(1,100)<40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
+        sensor_boost = {value = 10000, cost = 10},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	sensor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
+        			beam =		{quantity = math.random(2,5),	cost = math.random(55,90)}	},
+        trade = {	food = true, medicine = random(1,100)<42, luxury = random(1,100)<42 },
+        public_relations = true,
+        general_information = "We serve as the nexus of research and construction of subspace rift manipulation.",
+    	history = "CUF set this base at this location due to the characteristics of the nearby space time continuum. Kraylor have also been using this area as part fo their efforts to further refine their subspace rift creation technology.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "WX-Lindworm",
+			DF6 = "Phobos T3",
+			DF7 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 12 then stationGateway:setRestocksScanProbes(false) end
+	if random(1,100) <= 31 then stationGateway:setRepairDocked(false) end
+	if random(1,100) <= 17 then stationGateway:setSharesEnergyWithDocked(false) end
+	station_names[stationGateway:getCallSign()] = {stationGateway:getSectorName(), stationGateway}
+	table.insert(stations,stationGateway)
+	--]]
 	--Katanga
 	--local katangaZone = squareZone(229513, 224048, "Katanga 2 Q16")
 	--katangaZone:setColor(0,128,0)
@@ -7064,8 +7237,13 @@ function createKentarStations()
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Monocle	(originally Arecibo)
-    stationMonocle = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Monocle"):setPosition(389907,193834):setDescription("Observation and resupply"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMonocle = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(389907,193834):setDescription("Observation and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     stationMonocle:setShortRangeRadarRange(12000)
+    if random(1,100) < 50 then
+    	stationMonocle:setCallSign("Monocle")
+    else
+    	stationMonocle:setCallSign("Arecibo")
+    end
 	nukeAvail =		random(1,100) <= 30
 	empAvail =		random(1,100) <= 40
 	mineAvail =		random(1,100) <= 50
@@ -7096,7 +7274,7 @@ function createKentarStations()
         trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
         general_information = "In conjunction with station Pastern, we observe the asteroids in orbit around Rigil. We also provide supplies for Human Navy ships that might need them",
-    	history = "Estamblished in Nov2020, Monocle was established to help Pastern observe asteroids in exchange for information about T'k'nol'g, suspected of biological research using human tissue illicitly obtained. The results of the research so far have yielded an addictive drug that in large enough doses not only kills the consumer but turns their body into a hyper-acidic blob that tends to eat through the hulls of ships and stations. Certain personnel on Monocle are tasked with watching for T'k'nol'g and reporting any additional sightings or gleaned information",
+    	history = string.format("Established in Nov2020, %s was intended to help Pastern observe asteroids in exchange for information about T'k'nol'g, suspected of biological research using human tissue illicitly obtained. The results of the research so far have yielded an addictive drug that in large enough doses not only kills the consumer but turns their body into a hyper-acidic blob that tends to eat through the hulls of ships and stations. Certain personnel on %s are tasked with watching for T'k'nol'g and reporting any additional sightings or gleaned information",stationMonocle:getCallSign(),stationMonocle:getCallSign()),
     	idle_defense_fleet = {
 			DF3 = "Adder MK4",
 			DF4 = "Adder MK5",
@@ -20241,7 +20419,7 @@ function missilePod(enemyFaction)
 	-- common shared between all the missile pods
 	-- the AI behaves more sensibly with order stand ground in testing
 	local ship=CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderStandGround():setTypeName("Missile Pod")
-	ship:setScanned(true)
+	ship:setScanState("simplescan")
 	ship:onTakingDamage(npcShipDamage)
 	-- no beams for missile platforms
 	ship:setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0)
@@ -20701,7 +20879,7 @@ function commandBase(enemyFaction)
 		ship:setShortRangeRadarRange(ship_template["Command Base"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setScanned(true)
+	ship:setScanState("simplescan")
 	ship:setTypeName("Command Base")
 	ship:setRadarTrace("radartrace_smallstation.png")			--different radar trace
 	ship:setJumpDrive(false)						--no jump drive
@@ -20796,7 +20974,7 @@ function militaryOutpost(enemyFaction)
 		ship:setShortRangeRadarRange(ship_template["Military Outpost"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setScanned(true)
+	ship:setScanState("simplescan")
 	ship:setTypeName("Military Outpost")
 	ship:setShieldsMax(150,150,150,150)				--weaker shields (vs 120,120,120,120,120,120)
 	ship:setShields(150,150,150,150)					
@@ -20881,6 +21059,70 @@ function militaryOutpost(enemyFaction)
 		military_outpost_db:setKeyValue("Tube 270","10 Sec")
 		military_outpost_db:setKeyValue("Storage HVLI",400)
 		military_outpost_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+	end
+	return ship	
+end
+function sniperTower(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderRoaming()
+	if ship_template["Sniper Tower"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Sniper Tower"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setScanState("simplescan")
+	ship:setTypeName("Sniper Tower")
+	ship:setRotationMaxSpeed(3)			--faster maneuver (vs .5)
+	ship:setSharesEnergyWithDocked(true)
+	ship:setRepairDocked(true)
+	ship:setRestocksScanProbes(true)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	10,	   0,	6000,		6,		6)
+	ship:setBeamWeapon(1,	10,	   90,	6000,		6,		6)
+	ship:setBeamWeapon(2,	10,	  180,	6000,		6,		6)
+	ship:setBeamWeapon(3,	10,	  270,	6000,		6,		6)
+	ship:setBeamWeapon(4,	 0,	    0,	   0,		0,		0)
+	ship:setBeamWeapon(5,	 0,	    0,	   0,		0,		0)
+    ship.comms_data = {
+    	friendlyness = random(1,100),
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 83,
+        hack_repair =			random(1,100) < 77,
+        scan_repair =			random(1,100) < 73,
+        combat_maneuver_repair=	random(1,100) < 63,
+        self_destruct_repair=	random(1,100) < 53,
+        sensor_boost = {value = math.random(5,10)*1000, cost = math.random(5,10)},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = math.random(5,9),	cost = 1},},
+        trade = {	food = false, medicine = random(1,10)<3, luxury = random(1,10)<5 },
+        public_relations = false,
+        general_information = "",
+    	history = "",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+    	},
+	}
+	local sniper_tower_db = queryScienceDatabase("Stations","Sniper Tower")
+	if sniper_tower_db == nil then
+		local station_db = queryScienceDatabase("Stations")
+		station_db:addEntry("Sniper Tower")
+		sniper_tower_db = queryScienceDatabase("Stations","Sniper Tower")
+		sniper_tower_db:setLongDescription("A sniper tower allows a limited selection of ship types to dock. It has offensive weapons sytems to help defend against enemy ships")
+		sniper_tower_db:setImage("radartrace_smallstation.png")
+		sniper_tower_db:setKeyValue("Class","Small")
+		sniper_tower_db:setKeyValue("Size",150)
+		sniper_tower_db:setKeyValue("Shield","120/120/120/120/120/120")
+		sniper_tower_db:setKeyValue("Hull",300)
+		sniper_tower_db:setKeyValue("Turn speed","2 deg/sec")
+		sniper_tower_db:setKeyValue("Beam weapon   0:10","6.0 Dmg / 6.0 Sec")
+		sniper_tower_db:setKeyValue("Beam weapon  90:10","6.0 Dmg / 6.0 Sec")
+		sniper_tower_db:setKeyValue("Beam weapon 180:10","6.0 Dmg / 6.0 Sec")
+		sniper_tower_db:setKeyValue("Beam weapon 270:10","6.0 Dmg / 6.0 Sec")
+		sniper_tower_db:setKeyValue("Beam Range","6 Units")
+		sniper_tower_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
 	end
 	return ship	
 end
@@ -30801,6 +31043,16 @@ function handleDockedState()
 	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	for _, missile_type in ipairs(missile_types) do
 		missilePresence = missilePresence + comms_source:getWeaponStorageMax(missile_type)
+	end
+	if comms_target == stationMonocle then
+		if random(1,100) < 4 then
+			if stationMonocle:getCallSign() == "Monocle" then
+				stationMonocle:setCallSign("Arecibo")
+			else
+				stationMonocle:setCallSign("Monocle")
+			end
+   			stationMonocle.comms_data.history = string.format("Established in Nov2020, %s was intended to help Pastern observe asteroids in exchange for information about T'k'nol'g, suspected of biological research using human tissue illicitly obtained. The results of the research so far have yielded an addictive drug that in large enough doses not only kills the consumer but turns their body into a hyper-acidic blob that tends to eat through the hulls of ships and stations. Certain personnel on %s are tasked with watching for T'k'nol'g and reporting any additional sightings or gleaned information",stationMonocle:getCallSign(),stationMonocle:getCallSign())
+		end
 	end
 	if missilePresence > 0 then
 		if 	(ctd.weapon_available.Nuke   and comms_source:getWeaponStorageMax("Nuke") > 0)   or 
