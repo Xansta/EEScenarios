@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.5"
+	scenario_version = "3.5.6"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -6939,17 +6939,17 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
-		if i == 2 then
-			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
-			kentar_zone:setColor(0,128,0)
+--		if i == 2 then
+--			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+--			kentar_zone:setColor(0,128,0)
 --		elseif i == 2 then
 --			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
 --			kentar_zone:setColor(0,128,0)
-		else
+--		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
-		end
+--		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -7014,16 +7014,17 @@ function createKentarStations()
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
 	--Gateway
-	local gatewayZone = squareZone(59893, 373681, "Gateway X7")
-	gatewayZone:setColor(0,128,0)
-	--[[
-    stationGateway = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gateway"):setPosition(59893, 373681):setDescription("Subspace Rift Research and Construction"):setCommsScript(""):setCommsFunction(commsStation)
+	local gateway_x = 59893
+	local gateway_y = 373681
+--	local gatewayZone = squareZone(gateway_x, gateway_y, "Gateway X7")
+--	gatewayZone:setColor(0,128,0)
+    stationGateway = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gateway"):setPosition(gateway_x, gateway_y):setDescription("Subspace Rift Research and Construction"):setCommsScript(""):setCommsFunction(commsStation)
     stationGateway:setShortRangeRadarRange(8000)
     stationGateway.comms_data = {
     	friendlyness = 68,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
-        weapon_available = 	{Homing = random(1,100)<60,	HVLI = random(1,100<80,	Mine = random(1,100)<50,Nuke = random(1,100)<30,	EMP = random(1,100)<40},
+        weapon_available = 	{Homing = random(1,100)<60,	HVLI = random(1,100)<80,Mine = random(1,100)<50,Nuke = random(1,100)<30,	EMP = random(1,100)<40},
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
@@ -7055,9 +7056,16 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationGateway:setRestocksScanProbes(false) end
 	if random(1,100) <= 31 then stationGateway:setRepairDocked(false) end
 	if random(1,100) <= 17 then stationGateway:setSharesEnergyWithDocked(false) end
+	local mo = militaryOutpost("Human Navy")
+	mo:setPosition(gateway_x - 1000, gateway_y - 1000):setCallSign("GMO")
+	local cb = commandBase("Human Navy")
+	cb:setPosition(gateway_x - 1000, gateway_y + 1200):setCallSign("GCB1")
+	cb = commandBase("Human Navy")
+	cb:setPosition(gateway_x + 1200, gateway_y - 1000):setCallSign("GCB2")
+	local st = sniperTower("Human Navy")
+	st:setPosition(gateway_x + 800, gateway_y + 800):setCallSign("GST")
 	station_names[stationGateway:getCallSign()] = {stationGateway:getSectorName(), stationGateway}
 	table.insert(stations,stationGateway)
-	--]]
 	--Katanga
 	--local katangaZone = squareZone(229513, 224048, "Katanga 2 Q16")
 	--katangaZone:setColor(0,128,0)
@@ -18167,44 +18175,55 @@ function npcShipDamage(self, instigator)
 			end
 		end
 	end
-	if self.tactical_hop ~= nil and math.random(1,100) < self.tactical_hop_chance then
-		if instigator ~= nil then
-			if instigator:isEnemy(self) then
-				local self_x, self_y = self:getPosition()
-				local instigator_x, instigator_y = instigator:getPosition()
-				local hop_axis = angleFromVectorNorth(instigator_x,instigator_y,self_x,self_y)
-				local hop_x = 0
-				local hop_y = 0
-				local hop_range = 4000
-				local template_name = self:getTypeName()
-				if self.tactical_hop == 1 or self.tactical_hop == 2 then
-					hop_x, hop_y = vectorFromAngleNorth(hop_axis,4000)
-					self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
-				end
-				if self.tactical_hop == 3 or self.tactical_hop == 4 then
-					if ship_template[template_name] ~= nil and ship_template[template_name].hop_range ~= nil then
-						hop_range = ship_template[template_name].hop_range
+	local tactical_hop_eval = random(1,100)
+	if self.tactical_hop ~= nil and tactical_hop_eval <= self.tactical_hop_chance then
+		local hacked_hop = self.tactical_hop_chance
+		if self:hasSystem("jumpdrive") then
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("jumpdrive") / 2)
+		elseif self:hasSystem("warp") then
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("jumpdrive") / 2)
+		else
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("jumpdrive") / 2)
+		end
+		if tactical_hop_eval < hacked_hop then
+			if instigator ~= nil then
+				if instigator:isEnemy(self) then
+					local self_x, self_y = self:getPosition()
+					local instigator_x, instigator_y = instigator:getPosition()
+					local hop_axis = angleFromVectorNorth(instigator_x,instigator_y,self_x,self_y)
+					local hop_x = 0
+					local hop_y = 0
+					local hop_range = 4000
+					local template_name = self:getTypeName()
+					if self.tactical_hop == 1 or self.tactical_hop == 2 then
+						hop_x, hop_y = vectorFromAngleNorth(hop_axis,4000)
+						self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
 					end
-					hop_x, hop_y = vectorFromAngleNorth(hop_axis,hop_range)
-					self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
-				end
-				if self.tactical_hop == 5 then
-					if self:getHull() < self:getHullMax()/2 then
-						hop_range = 5000
-					else
+					if self.tactical_hop == 3 or self.tactical_hop == 4 then
 						if ship_template[template_name] ~= nil and ship_template[template_name].hop_range ~= nil then
 							hop_range = ship_template[template_name].hop_range
 						end
+						hop_x, hop_y = vectorFromAngleNorth(hop_axis,hop_range)
+						self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
 					end
-					hop_x, hop_y = vectorFromAngleNorth(hop_axis,hop_range)
-					self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
-				end
-				if self.tactical_hop == 2 or self.tactical_hop == 4 or self.tactical_hop == 5 then
-					local hop_angle = (hop_axis + 180) % 360
-					if ship_template[template_name] ~= nil and ship_template[template_name].hop_angle ~= nil then
-						hop_angle = (hop_angle + ship_template[template_name].hop_angle) % 360
+					if self.tactical_hop == 5 then
+						if self:getHull() < self:getHullMax()/2 then
+							hop_range = 5000
+						else
+							if ship_template[template_name] ~= nil and ship_template[template_name].hop_range ~= nil then
+								hop_range = ship_template[template_name].hop_range
+							end
+						end
+						hop_x, hop_y = vectorFromAngleNorth(hop_axis,hop_range)
+						self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
 					end
-					self:setHeading(hop_angle)	
+					if self.tactical_hop == 2 or self.tactical_hop == 4 or self.tactical_hop == 5 then
+						local hop_angle = (hop_axis + 180) % 360
+						if ship_template[template_name] ~= nil and ship_template[template_name].hop_angle ~= nil then
+							hop_angle = (hop_angle + ship_template[template_name].hop_angle) % 360
+						end
+						self:setHeading(hop_angle)	
+					end
 				end
 			end
 		end
@@ -18241,6 +18260,42 @@ function modifiedValue()
 	end
 	return modValue
 end
+function addEnhancementToScienceDatabase(enhancement_type)
+	local enhancement_db = queryScienceDatabase("Ships","Enhancements")
+	if enhancement_db == nil then
+		addEnhancementDatabaseEntry()
+	end
+	enhancement_db = queryScienceDatabase("Ships","Enhancements")
+	if enhancement_type == "Shield Drain Beam" then
+		local shield_drain_beam_db = queryScienceDatabase("Ships","Enhancements","Shield Drain Beam")
+		if shield_drain_beam_db == nil then
+			enhancement_db:addEntry("Shield Drain Beam")
+			shield_drain_beam_db = queryScienceDatabase("Ships","Enhancements","Shield Drain Beam")
+			shield_drain_beam_db:setLongDescription("If a ship is equipped with Shield Drain Beam capability, their beam weapons have been enhanced to particularly negatively impact the target's shields. The damage is applied to all shield arcs and reduces the shield charge. The degree of impact depends on the shield drain factor. In addition to the normal beam damage, the draining damage is the normal beam damage multiplied by the factor applied to all shield arcs.")
+		end
+	elseif enhancement_type == "Shield Frequency Adjuster" then
+		local shield_frequency_adjuster_db = queryScienceDatabase("Ships","Enhancements","Shield Frequency Adjuster")
+		if shield_frequency_adjuster_db == nil then
+			enhancement_db:addEntry("Shield Frequency Adjuster")
+			shield_frequency_adjuster_db = queryScienceDatabase("Ships","Enhancements","Shield Frequency Adjuster")
+			shield_frequency_adjuster_db:setLongDescription("If a ship is equipped with Shield Frequency Adjusters, their shields automatically adjust to the best defensive shield frequency during combat.")
+		end
+	elseif enhancement_type == "Tactical Hop" then
+		local tactical_hop_db = queryScienceDatabase("Ships","Enhancements","Tactical Hop")
+		if tactical_hop_db == nil then
+			enhancement_db:addEntry("Tactical Hop")
+			tactical_hop_db = queryScienceDatabase("Ships","Enhancements","Tactical Hop")
+			tactical_hop_db:setLongDescription("If a ship is equipped with Tactical Hop, they have a rapid-acting quasi-jump drive under computer control that combat conditions can trigger. The combat computer action taken depends on the rating (the integer portion of the number given in the Science description). The likelihood of the computer taking the hop action depends on the reliability (the fractional portion of the number given in the Science description).\n\nRating actions:\n1: Hop to the other side of the target at range 4U.\n2: Hop to the other side of the target at range 4U and face weapons to target.\n3: Hop to the other side of the target at good weapons range.\n4: Hop to the other side of the target at good weapons range and face weapons to target.\n5: If hull damage at 50% or higher, hop to the other side of the target at range 5U otherwise hop to the other side of the target at good weapons range. In either case, face weapons to target.")
+		end
+	elseif enhancement_type == "Spiky Spin" then
+		local spiky_spin_db = queryScienceDatabase("Ships","Enhancements","Spiky Spin")
+		if spiky_spin_db == nil then
+			enhancement_db:addEntry("Spiky Spin")
+			spiky_spin_db = queryScienceDatabase("Ships","Enhancements","Spiky Spin")
+			spiky_spin_db:setLongDescription("If a ship is equipped with Spiky Spin, they can spike up the performance of their maneuvering systems temporarily under combat conditions. This allows them to spin rapidly to bring weapons to bear on a desired target. The number given in the Science description represents the likelihood that the spike will function when desired.")
+		end
+	end
+end
 function setShipEnhancement(ship)
 	local template_name = ship:getTypeName()
 	local enhancements = {}
@@ -18250,22 +18305,26 @@ function setShipEnhancement(ship)
 				local beam_factors = {1,2,3,5,8,13,21}
 				ship.shield_drain_beam_factor = beam_factors[math.random(1,#beam_factors)]
 				table.insert(enhancements,string.format("Shield Drain Beam. Factor:%i",ship.shield_drain_beam_factor))
+				addEnhancementToScienceDatabase("Shield Drain Beam")
 			end
 		end
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
 			if ship:hasSystem("frontshield") then
 				ship.adjust_shield_frequency_automatically = true
 				table.insert(enhancements,"Automatic Shield Frequency Adjusters")
+				addEnhancementToScienceDatabase("Shield Frequency Adjuster")
 			end
 		end
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
 			ship.tactical_hop = math.random(1,5)
 			ship.tactical_hop_chance = math.random(25,50)
 			table.insert(enhancements,string.format("Tactical Hop %i.%i",ship.tactical_hop,ship.tactical_hop_chance))
+			addEnhancementToScienceDatabase("Tactical Hop")
 		end
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
 			ship.spiky_spin = math.random(25,50)
 			table.insert(enhancements,string.format("Spiky Spin %i",ship.spiky_spin))
+			addEnhancementToScienceDatabase("Spiky Spin")
 		end
 	end
 	if #enhancements > 0 then
@@ -18279,6 +18338,12 @@ function setShipEnhancement(ship)
 		end
 		print(msg_out)
 	end
+end
+function addEnhancementDatabaseEntry()
+	local ship_db = queryScienceDatabase("Ships")
+	ship_db:addEntry("Enhancements")
+	local enhancement_db = queryScienceDatabase("Ships","Enhancements")
+	enhancement_db:setLongDescription("Ship enhancements give the ship benefits during combat over and above those things possible with typical assistance from Engineering")
 end
 function stockTemplate(enemyFaction,template)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming()
@@ -21727,6 +21792,7 @@ function setSpecialsOnNPS()
 			if special_ship.adjust_shield_frequency_automatically == nil then
 				special_ship.adjust_shield_frequency_automatically = true
 				setSpecialDescription(special_ship)
+				addEnhancementToScienceDatabase("Shield Frequency Adjuster")
 			else
 				if special_ship.adjust_shield_frequency_automatically then
 					special_ship.adjust_shield_frequency_automatically = false
@@ -21734,6 +21800,7 @@ function setSpecialsOnNPS()
 				else
 					special_ship.adjust_shield_frequency_automatically = true
 					setSpecialDescription(special_ship)
+					addEnhancementToScienceDatabase("Shield Frequency Adjuster")
 				end
 			end
 			setSpecialsOnNPS()
@@ -21858,6 +21925,7 @@ function setShieldDrainBeamFactor()
 				string.format("")
 				special_ship.shield_drain_beam_factor = factor
 				setSpecialDescription(special_ship)
+				addEnhancementToScienceDatabase("Shield Drain Beam")
 				setShieldDrainBeamFactor()
 			end)
 		end
@@ -21920,6 +21988,7 @@ function setSpikySpin()
 			string.format("")
 			special_ship.spiky_spin = 10
 			setSpecialDescription(special_ship)
+			addEnhancementToScienceDatabase("Spiky Spin")
 			setSpikySpin()
 		end)
 		button_label = "Spiky Spin 25"
@@ -21930,6 +21999,7 @@ function setSpikySpin()
 			string.format("")
 			special_ship.spiky_spin = 25
 			setSpecialDescription(special_ship)
+			addEnhancementToScienceDatabase("Spiky Spin")
 			setSpikySpin()
 		end)
 		button_label = "Spiky Spin 50"
@@ -21940,6 +22010,7 @@ function setSpikySpin()
 			string.format("")
 			special_ship.spiky_spin = 50
 			setSpecialDescription(special_ship)
+			addEnhancementToScienceDatabase("Spiky Spin")
 			setSpikySpin()
 		end)
 		button_label = "Spiky Spin 75"
@@ -21950,6 +22021,7 @@ function setSpikySpin()
 			string.format("")
 			special_ship.spiky_spin = 75
 			setSpecialDescription(special_ship)
+			addEnhancementToScienceDatabase("Spiky Spin")
 			setSpikySpin()
 		end)
 		button_label = "Spiky Spin 90"
@@ -21960,6 +22032,7 @@ function setSpikySpin()
 			string.format("")
 			special_ship.spiky_spin = 90
 			setSpecialDescription(special_ship)
+			addEnhancementToScienceDatabase("Spiky Spin")
 			setSpikySpin()
 		end)
 	else
@@ -21979,6 +22052,7 @@ function setHopType()
 		string.format("")
 		special_ship.tactical_hop = 1
 		setSpecialDescription(special_ship)
+		addEnhancementToScienceDatabase("Tactical Hop")
 		setTacticalHop()
 	end)
 	button_label = "Hop Type 2"
@@ -21989,6 +22063,7 @@ function setHopType()
 		string.format("")
 		special_ship.tactical_hop = 2
 		setSpecialDescription(special_ship)
+		addEnhancementToScienceDatabase("Tactical Hop")
 		setTacticalHop()
 	end)
 	button_label = "Hop Type 3"
@@ -21999,6 +22074,7 @@ function setHopType()
 		string.format("")
 		special_ship.tactical_hop = 3
 		setSpecialDescription(special_ship)
+		addEnhancementToScienceDatabase("Tactical Hop")
 		setTacticalHop()
 	end)
 	button_label = "Hop Type 4"
@@ -22009,6 +22085,7 @@ function setHopType()
 		string.format("")
 		special_ship.tactical_hop = 4
 		setSpecialDescription(special_ship)
+		addEnhancementToScienceDatabase("Tactical Hop")
 		setTacticalHop()
 	end)
 	button_label = "Hop Type 5"
@@ -22019,6 +22096,7 @@ function setHopType()
 		string.format("")
 		special_ship.tactical_hop = 5
 		setSpecialDescription(special_ship)
+		addEnhancementToScienceDatabase("Tactical Hop")
 		setTacticalHop()
 	end)
 end
