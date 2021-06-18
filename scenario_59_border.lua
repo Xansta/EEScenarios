@@ -21,7 +21,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.1.1"
+	scenario_version = "5.1.2"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -695,6 +695,7 @@ function setConstants()
 	wreck_mod_debris = {}
 	base_wreck_mod_positive = 80
 	wreck_mod_interval = 20
+	wreck_debris_label_count = 1
 	wreck_mod_type = {
 		{func=wreckModHealthBeam,		desc="Primary ship system component",	scan_desc="Beam system component"},					--1
 		{func=wreckModHealthMissile,	desc="Primary ship system component",	scan_desc="Missile system component"},				--2
@@ -726,6 +727,7 @@ function setConstants()
 		{func=wreckModShieldMax,		desc="Primary ship system component",	scan_desc="Shield capacitor"},						--28 timed
 		{func=wreckModSpinSpeed,		desc="Primary ship system component",	scan_desc="Maneuvering thrusters"},					--29 timed
 		{func=wreckModBatteryMax,		desc="Primary ship system component",	scan_desc="Main power battery"},					--30 timed
+		{func=wreckCargo,				desc="Cargo",							scan_desc="Cargo"},									--31
 	}
 end
 function setGossipSnippets()
@@ -3255,6 +3257,59 @@ function wreckModBatteryMax(x,y)
 					p.reduced_battery_message_plus = "reduced_battery_message_plus"
 					p:addCustomMessage("Engineering+",p.reduced_battery_message_plus,string.format("The %s retrieved reduced maximum battery capacity",full_desc))
 				end
+			end
+		end
+	end)
+	return wma
+end
+function wreckCargo(x,y)
+	local wreck_good = commonGoods[math.random(1,#commonGoods)]
+	local wma = Artifact():setPosition(x,y):setDescriptions(wreck_mod_type[31].desc,string.format("Cargo (type: %s)",wreck_good))
+	wreckModCommonArtifact(wma)
+	wma:onPickup(function(self,p)
+		string.format("")	--serious proton needs global context
+		local scan_bonus = 0
+		if self:isScannedByFaction(p:getFaction()) then
+			scan_bonus = difficulty * 5
+		end
+		if random(1,100) < base_wreck_mod_positive - (difficulty * wreck_mod_interval) + scan_bonus then
+			if p.cargo > 0 then
+				p.cargo = p.cargo - 1
+				if p.goods == nil then
+					p.goods = {}
+				end
+				if p.goods[wreck_good] == nil then
+					p.goods[wreck_good] = 0
+				end
+				p.goods[wreck_good] = p.goods[wreck_good] + 1
+				if p:hasPlayerAtPosition("Relay") then
+					p.good_added = "good_added"
+					p:addCustomMessage("Relay",p.good_added,string.format("One %s added to ship inventory",wreck_good))
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p.good_added_ops = "good_added_ops"
+					p:addCustomMessage("Operations",p.good_added_ops,string.format("One %s added to ship inventory",wreck_good))
+				end
+			else
+				if p:hasPlayerAtPosition("Relay") then
+					p.no_cargo_space = "no_cargo_space"
+					p:addCustomMessage("Relay",p.no_cargo_space,"No cargo space available. Cargo wasted")
+				end
+				if p:hasPlayerAtPosition("Operations") then
+					p.no_cargo_space_ops = "no_cargo_space_ops"
+					p:addCustomMessage("Operations",p.no_cargo_space_ops,"No cargo space available. Cargo wasted")
+				end
+			end
+		else
+			self:explode()
+			p:setHull(p:getHull()-random(1,3))
+			if p:hasPlayerAtPosition("Relay") then
+				p.cargo_sabotage = "cargo_sabotage"
+				p:addCustomMessage("Relay",p.cargo_sabotage,"Booby trapped cargo container. Fortunately automated safety protocols transported the cargo container off the ship before too much damage was taken")
+			end
+			if p:hasPlayerAtPosition("Operations") then
+				p.cargo_sabotage_ops = "cargo_sabotage_ops"
+				p:addCustomMessage("Operations",p.cargo_sabotage_ops,"Booby trapped cargo container. Fortunately automated safety protocols transported the cargo container off the ship before too much damage was taken")
 			end
 		end
 	end)
@@ -18227,8 +18282,8 @@ function enemyVesselDestroyed(self, instigator)
 			end
 			if random(1,100) > 25 then
 				local excluded_mod = false
---				local wmt = wreck_mod_type_index_list[math.random(1,#wreck_mod_type_index_list)]
-				local wmt = 30	--for testing
+				local wmt = wreck_mod_type_index_list[math.random(1,#wreck_mod_type_index_list)]
+--				local wmt = 31	--for testing
 				local wma = wreck_mod_type[wmt].func(self_x, self_y)
 				wma.debris_end_x = self_x + debris_x
 				wma.debris_end_y = self_y + debris_y
@@ -18242,13 +18297,20 @@ function enemyVesselDestroyed(self, instigator)
 		end
 	end
 end
-function flotsamMotion()
+function flotsamAction()
 	for index, flotsam in ipairs(wreck_mod_debris) do
 		if flotsam ~= nil and flotsam:isValid() then
 			local cur_x, cur_y = flotsam:getPosition()
 			if distance(cur_x, cur_y, flotsam.debris_end_x, flotsam.debris_end_y) < 10 then
-				table.remove(wreck_mod_debris,index)
-				break
+				if flotsam:isScannedByFaction("Human Navy") then
+					flotsam:setCallSign(string.format("WD%i",wreck_debris_label_count))
+					wreck_debris_label_count = wreck_debris_label_count + 1
+					if wreck_debris_label_count > 999 then
+						wreck_debris_label_count = 1
+					end
+					table.remove(wreck_mod_debris,index)
+					break
+				end
 			else
 				local mid_x = (cur_x + flotsam.debris_end_x)/2
 				local mid_y = (cur_y + flotsam.debris_end_y)/2
@@ -18269,8 +18331,10 @@ function friendlyVesselDestroyed(self, instigator)
 	table.insert(friendlyVesselDestroyedValue,ship_template[tempShipType].strength)
 end
 function friendlyStationDestroyed(self, instigator)
-	table.insert(friendlyStationDestroyedNameList,self:getCallSign())
-	table.insert(friendlyStationDestroyedValue,self.strength)
+	if self ~= nil then
+		table.insert(friendlyStationDestroyedNameList,self:getCallSign())
+		table.insert(friendlyStationDestroyedValue,self.strength)
+	end
 end
 function enemyStationDestroyed(self, instigator)
 	table.insert(enemyStationDestroyedNameList,self:getCallSign())
@@ -19017,7 +19081,7 @@ function update(delta)
 	end
 	if updateDiagnostic then print("done with player loop") end	
 	if #wreck_mod_debris > 0 then
-		flotsamMotion()
+		flotsamAction()
 	end
 	if active_player_count ~= banner["number_of_players"] then
 		resetBanner()
