@@ -7277,7 +7277,7 @@ function createKentarStations()
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	sensor = 		{quantity = math.random(2,5),	cost = math.random(30,50)},
+        goods = {	sensor = 		{quantity = math.random(5,9),	cost = math.random(30,50)},
         			communication = {quantity = math.random(2,5),	cost = math.random(55,90)}	},
         trade = {	food = true, medicine = tradeMedicine, luxury = tradeLuxury },
         public_relations = true,
