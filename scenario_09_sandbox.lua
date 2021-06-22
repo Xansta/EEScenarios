@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.7"
+	scenario_version = "3.5.8"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -3667,6 +3667,8 @@ function customButtons()
 			current_radius = 0,
 			max_radius = 3000,
 			max_time = 120,
+			destination_x = playerSpawnX,
+			destination_y = playerSpawnY,		
 			update = function (self, obj, delta)
 				self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
 				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
@@ -3678,14 +3680,16 @@ function customButtons()
 				local objs = getObjectsInRadius(x,y,self.current_radius)
 				for i=#objs,1,-1 do
 					if objs[i].typeName=="PlayerSpaceship" then
-						local player_x,player_y = objs[i]:getPosition()
-						local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
-						setCirclePos(objs[i],x,y,-angle,self.current_radius)
+						objs[i]:setPosition(self.destination_x,self.destination_y)
 					end
 				end
 			end,
-			edit = {{name = "max_time", fixedAdjAmount=1}}, -- this really should have more edit controls but I'm feeling lazy
-			name = "subspace rift"
+			edit = {
+				{name = "max_time", fixedAdjAmount=1},
+				{name = "destination_x", fixedAdjAmount=20000},
+				{name = "destination_y", fixedAdjAmount=20000}
+			},
+			name = "Subspace Rift"
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
@@ -7065,9 +7069,9 @@ function createKentarStations()
 	local st = sniperTower("Human Navy")
 	st:setPosition(gateway_x + 800, gateway_y + 800):setCallSign("GST")
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
-	dp:setPosition(gateway_x - 1000, gateway_y - 2200):setCallSign("GDP1")
+	dp:setPosition(gateway_x - 1000, gateway_y - 2200):setCallSign("GDP1"):setScanState("simplescan")
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
-	dp:setPosition(gateway_x - 2200, gateway_y - 1000):setCallSign("GDP2")
+	dp:setPosition(gateway_x - 2200, gateway_y - 1000):setCallSign("GDP2"):setScanState("simplescan")
 	station_names[stationGateway:getCallSign()] = {stationGateway:getSectorName(), stationGateway}
 	table.insert(stations,stationGateway)
 	--Katanga
