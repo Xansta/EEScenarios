@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.6"
+	scenario_version = "3.5.7"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -731,7 +731,7 @@ function setConstants()
 --	addPlayerShip("Blazon"		,"inactive"	,createPlayerShipBlazon
 	addPlayerShip("Chavez"		,"inactive"	,createPlayerShipChavez		,{strength = 21,	ftl = "J", lrs = 25},"(no desc)")
 	addPlayerShip("Cobra"		,"inactive"	,createPlayerShipCobra		,{strength = 16,	ftl = "J", lrs = 20},"Striker LX(Cobra): Starfighter, Patrol   Hull:100   Shield:100,100   Size:200   Repair Crew:3   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:600   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.2\n   Arc:100   Direction:-15   Range:1.1   Cycle:6   Damage:6.5\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6.5\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)")
-	addPlayerShip("Darkstar"	,"active"	,createPlayerShipDarkstar	,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs")
+	addPlayerShip("Darkstar"	,"inactive"	,createPlayerShipDarkstar	,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs")
 	addPlayerShip("Eagle"		,"inactive"	,createPlayerShipEagle		,{strength = 14,	ftl = "W", lrs = 50},"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors")
 	addPlayerShip("Endeavor"	,"inactive"	,createPlayerShipEndeavor	,{strength = 30,	ftl = "J", lrs = 30},"Bermuda (Endeavor): Corvette, Destroyer   Hull:150   Shield:150,150   Size:400   Repair Crew:5   Cargo:4   R.Strength:25\nFTL:Jump (3.5U - 35U)   Speeds: Impulse:70   Spin:10   Accelerate:30   C.Maneuver: Boost:400 Strafe:250   SRS:4.5\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:3   Load Speed:8   Left Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      04 Nuke\n      06 EMP\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, no right tubes, slower impulse, faster acceleration, weaker hull, weaker shields, less energy")
 	addPlayerShip("Enola"		,"inactive"	,createPlayerShipEnola		,{strength = 22,	ftl = "J", lrs = 23},"Fray (Enola): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:22\nFTL:Jump (2U - 20U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:23   SRS:4.5\nBeams:3 1 front, 2 sides Turreted speed:0.3\n   Arc:110   Direction:  0   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction:-90   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction: 90   Range:0.9   Cycle:6   Damage:4\nTubes:4 rear   Load Speed:8\n   Direction:180   Type:HVLI Only - small\n   Direction:180   Type:Homing or EMP\n   Direction:180   Type:Nuke only - Large\n   Ordnance stock and type:\n      05 Homing\n      03 Mine\n      02 Nuke\n      04 EMP\n      12 HVLI\nBased on Crucible: jump instead of warp, 3 turreted beams (weaker, more coverage), tubes facing rear, fewer missiles, large nukes, shorter sensors, fewer probes")
@@ -753,7 +753,7 @@ function setConstants()
 	addPlayerShip("Kindling"	,"inactive"	,createPlayerShipKindling	,{strength = 40,	ftl = "J", lrs = 25},"(no desc)")
 --	addPlayerShip("Knick"		,"inactive"	,createPlayerShipKnick		,{strength = 05,	ftl = "J", lrs = 30),"Experimental - not ready for use"
 	addPlayerShip("Knuckle Drag","inactive"	,createPlayerShipSimian		,{strength = 25,	ftl = "J", lrs = 32},"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower")
-	addPlayerShip("Lancelot"	,"inactive"	,createPlayerShipLancelot	,{strength = 30,	ftl = "J", lrs = 27},"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver")
+	addPlayerShip("Lancelot"	,"active"	,createPlayerShipLancelot	,{strength = 30,	ftl = "J", lrs = 27},"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver")
 	addPlayerShip("Magnum"		,"inactive"	,createPlayerShipMagnum		,{strength = 35,	ftl = "J", lrs = 32},"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles")
 	addPlayerShip("Mantis"		,"inactive"	,createPlayerShipMantis		,{strength = 30,	ftl = "W", lrs = 25},"(no desc)")
 	addPlayerShip("Manxman"		,"active"	,createPlayerShipManxman	,{strength = 16,	ftl = "J", lrs = 25},"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors")
@@ -7059,11 +7059,15 @@ function createKentarStations()
 	local mo = militaryOutpost("Human Navy")
 	mo:setPosition(gateway_x - 1000, gateway_y - 1000):setCallSign("GMO")
 	local cb = commandBase("Human Navy")
-	cb:setPosition(gateway_x - 1000, gateway_y + 1200):setCallSign("GCB1")
+	cb:setPosition(gateway_x - 1000, gateway_y + 1300):setCallSign("GCB1")
 	cb = commandBase("Human Navy")
-	cb:setPosition(gateway_x + 1200, gateway_y - 1000):setCallSign("GCB2")
+	cb:setPosition(gateway_x + 1300, gateway_y - 1000):setCallSign("GCB2")
 	local st = sniperTower("Human Navy")
 	st:setPosition(gateway_x + 800, gateway_y + 800):setCallSign("GST")
+	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp:setPosition(gateway_x - 1000, gateway_y - 2200):setCallSign("GDP1")
+	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp:setPosition(gateway_x - 2200, gateway_y - 1000):setCallSign("GDP2")
 	station_names[stationGateway:getCallSign()] = {stationGateway:getSectorName(), stationGateway}
 	table.insert(stations,stationGateway)
 	--Katanga
@@ -23498,6 +23502,40 @@ function artifactToPod()
 		end
 	end
 end
+function showPodTelemetry(p)
+	string.format("")
+	local pod_count = 0
+	for pod_name, pod in pairs(escapePodList) do
+		if pod ~= nil and pod:isValid() then
+			pod_count = pod_count + 1
+		end
+	end
+	if pod_count > 0 then
+		local pod_msg = "Pod telemetry:"
+		for pod_name, pod in pairs(escapePodList) do
+			if pod ~= nil and pod:isValid() then
+				pod_msg = string.format("%s\n%s can be found in sector %s",pod_msg,pod:getCallSign(),pod:getSectorName())
+			end
+		end
+		if p:hasPlayerAtPosition("Relay") then
+			p.pod_telemetry_msg = "pod_telemetry_msg"
+			p:addCustomMessage("Relay",p.pod_telemetry_msg,pod_msg)
+		end
+		if p:hasPlayerAtPosition("Operations") then
+			p.pod_telemetry_msg_ops = "pod_telemetry_msg_ops"
+			p:addCustomMessage("Operations",p.pod_telemetry_msg_ops,pod_msg)
+		end
+	else
+		if p:hasPlayerAtPosition("Relay") then
+			p.no_more_pods_msg = "no_more_pods_msg"
+			p:addCustomMessage("Relay",p.no_more_pods_msg,"No pod telemetry located")
+		end
+		if p:hasPlayerAtPosition("Operations") then
+			p.no_more_pods_msg_ops = "no_more_pods_msg_ops"
+			p:addCustomMessage("Operations",p.no_more_pods_msg_ops,"No pod telemetry located")
+		end
+	end
+end
 function podCreation(originx, originy, vectorx, vectory)
 	artifactCounter = artifactCounter + 1
 	artifactNumber = artifactNumber + math.random(1,4)
@@ -34384,6 +34422,7 @@ function updateInner(delta)
 				p.name_tag_tac = "name_tag_tac"
 				p:addCustomInfo("Tactical",p.name_tag_tac,name_tag_text)
 			end
+			updatePlayerPodTelemetryButton(p)
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
 				updatePlayerInventoryButton(p,player_name)
@@ -34463,6 +34502,43 @@ function updateInner(delta)
 		updateJumpTrain()
 	end
 	if updateDiagnostic then print("update: end of update function") end
+end
+function updatePlayerPodTelemetryButton(p)
+	local pod_count = 0
+	for pod_name, pod in pairs(escapePodList) do
+		if pod ~= nil and pod:isValid() then
+			pod_count = pod_count + 1
+		end
+	end
+	if pod_count > 0 then
+		if p:hasPlayerAtPosition("Relay") then
+			if p.pod_telemetry == nil then
+				p.pod_telemetry = "pod_telemetry"
+				p:addCustomButton("Relay",p.pod_telemetry,"Pod Telemetry",function()
+					string.format("")	--global context for serious proton
+					showPodTelemetry(p)
+				end)
+			end
+		end
+		if p:hasPlayerAtPosition("Operations") then
+			if p.pod_telemetry_ops == nil then
+				p.pod_telemetry_ops = "pod_telemetry_ops"
+				p:addCustomButton("Operations",p.pod_telemetry_ops,"Pod Telemetry",function()
+					string.format("")	--global context for serious proton
+					showPodTelemetry(p)
+				end)
+			end
+		end
+	else
+		if p.pod_telemetry ~= nil then
+			p:removeCustom("Relay",p.pod_telemetry)
+			p.pod_telemetry = nil
+		end
+		if p.pod_telemetry_ops ~= nil then
+			p:removeCustom("Operations",p.pod_telemetry_ops)
+			p.pod_telemetry_ops = nil
+		end
+	end
 end
 function updatePlayerInventoryButton(p,player_name)
 	local goodCount = 0
