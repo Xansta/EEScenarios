@@ -21,7 +21,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.1.2"
+	scenario_version = "5.1.3"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -14981,7 +14981,8 @@ function phobosR2(enemyFaction)
 			{
 				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"AtlasHeavyFighterYellow"
 		)
 		--[[
 		phobos_r2_db:setLongDescription("The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube")
@@ -15025,7 +15026,8 @@ function hornetMV52(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52",
 			nil,
-			nil
+			nil,
+			"WespeScoutYellow"
 		)
 		--[[
 		hornet_mv52_db:setLongDescription("The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52")
@@ -15059,7 +15061,8 @@ function k2fighter(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"sci_fi_alien_ship_1"
 		)
 		--[[
 		k2_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.")
@@ -15092,7 +15095,8 @@ function k3fighter(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that are stronger and that cycle faster, but the hull is weaker.",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"sci_fi_alien_ship_1"
 		)
 		--[[
 		k3_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is weaker.")
@@ -15133,7 +15137,8 @@ function waddle5(enemyFaction)
 			{
 				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
 		)
 		--[[
 		waddle_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5")
@@ -15179,7 +15184,8 @@ function jade5(enemyFaction)
 			{
 				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 35 U"		--jump range
+			"5 - 35 U",		--jump range
+			"AdlerLongRangeScoutYellow"
 		)
 		--[[
 		jade_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5")
@@ -15218,7 +15224,8 @@ function droneLite(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed",
 			nil,
-			nil
+			nil,
+			"sci_fi_alien_ship_4"
 		)
 		--[[
 		drone_lite_db:setLongDescription("The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed")
@@ -15252,7 +15259,8 @@ function droneHeavy(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower",
 			nil,
-			nil
+			nil,
+			"sci_fi_alien_ship_4"
 		)
 		--[[
 		drone_heavy_db:setLongDescription("The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower")
@@ -15292,7 +15300,8 @@ function droneJacket(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield",
 			nil,
-			nil
+			nil,
+			"sci_fi_alien_ship_4"
 		)
 		--[[
 		drone_jacket_db:setLongDescription("The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield")
@@ -15336,7 +15345,8 @@ function wzLindworm(enemyFaction)
 				{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
 				{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"LindwurmFighterYellow"
 		)
 		--[[
 		wz_lindworm_db:setLongDescription("The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.")
@@ -15406,7 +15416,8 @@ function tempest(enemyFaction)
 				{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"HeavyCorvetteRed"
 		)
 		--[[
 		tempest_db:setLongDescription("Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!")
@@ -15482,7 +15493,8 @@ function enforcer(enemyFaction)
 				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"battleship_destroyer_3_upgraded"
 		)
 		--[[
 		enforcer_db:setLongDescription("The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and stengthened front beams.")
@@ -15567,7 +15579,8 @@ function predator(enemyFaction)
 				{key = "Tube -120", value = "12 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 120", value = "12 sec"},		--torpedo tube direction and load speed
 			},
-			"5 - 35 U"		--jump range
+			"5 - 35 U",		--jump range
+			"HeavyCorvetteRed"
 		)
 		--[[
 		predator_db:setLongDescription("The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.")
@@ -15629,7 +15642,8 @@ function atlantisY42(enemyFaction)
 				{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
 				{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_1_upgraded"
 		)
 		--[[
 		atlantis_y42_db:setLongDescription("The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock")
@@ -15689,7 +15703,8 @@ function starhammerV(enemyFaction)
 				{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
 				{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 		--[[
 		starhammer_v_db:setLongDescription("The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.")
@@ -15755,7 +15770,8 @@ function tyr(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could",
 			nil,
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"Ender Battlecruiser"
 		)
 		--[[
 		tyr_db:setLongDescription("The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could")
@@ -15804,7 +15820,8 @@ function gnat(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"sci_fi_alien_ship_4"
 		)
 	end
 	return ship
@@ -15837,7 +15854,8 @@ function cucaracha(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"space_tug"
 		)
 	end
 	return ship
@@ -15872,7 +15890,8 @@ function starhammerIII(enemyFaction)
 				{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 	end
 	return ship
@@ -15912,7 +15931,8 @@ function k2breaker(enemyFaction)
 				{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"sci_fi_alien_ship_2"
 		)
 	end
 	return ship
@@ -15965,12 +15985,13 @@ function hurricane(enemyFaction)
 				{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
 			},
-			"5 - 40 U"		--jump range
+			"5 - 40 U",		--jump range
+			"HeavyCorvetteRed"
 		)
 	end
 	return ship
 end
-function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range)
+function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
 	modified_db:setImage(base_db:getImage())
 	modified_db:setKeyValue("Class",base_db:getKeyValue("Class"))
@@ -16036,6 +16057,9 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 				modified_db:setKeyValue(string.format("Storage %s",missile_type),string.format("%i",max_storage))
 			end
 		end
+	end
+	if model_name ~= nil then
+		modified_db:setModelDataName(model_name)
 	end
 end
 
