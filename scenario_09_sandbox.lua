@@ -3679,7 +3679,8 @@ function customButtons()
 				local x,y=obj:getPosition()
 				local objs = getObjectsInRadius(x,y,self.current_radius)
 				for i=#objs,1,-1 do
-					if objs[i].typeName=="PlayerSpaceship" then
+					print("object type name",objs[i].typeName)
+					if objs[i].typeName=="PlayerSpaceship" or objs[i].typeName == "CpuShip" then
 						objs[i]:setPosition(self.destination_x,self.destination_y)
 					end
 				end
