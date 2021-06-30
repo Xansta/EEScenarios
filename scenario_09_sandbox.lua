@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.9"
+	scenario_version = "3.5.11"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -473,6 +473,7 @@ function setConstants()
 		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = waddle5},
 		["Jade 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = jade5},
 		["Phobos T3"] =			{strength = 15,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Guard"] =				{strength = 15,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
 		["Piranha F8"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = stockTemplate},
 		["Piranha F12"] =		{strength = 15,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = stockTemplate},
 		["Piranha F12.M"] =		{strength = 16,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = stockTemplate},
@@ -491,23 +492,33 @@ function setConstants()
 		["Piranha F10"] =		{strength = 21,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = piranhaF10},
 		["Farco 11"] =			{strength = 21,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1480,	create = farco11},
 		["Storm"] =				{strength = 22,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Warden"] =			{strength = 22,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
 		["Racer"] =				{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Stalker R5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stalkerR5},
 		["Stalker Q5"] =		{strength = 22,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stalkerQ5},
+		["Strike"] =			{strength = 23,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Dash"] =				{strength = 23,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Farco 13"] =			{strength = 24,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = farco13},
+		["Sentinel"] =			{strength = 24,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
 		["Ranus U"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Flash"] =				{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Ranger"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Buster"] =			{strength = 25,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
 		["Stalker Q7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Stalker R7"] =		{strength = 25,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Whirlwind"] =			{strength = 26,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = whirlwind},
+		["Hunter"] =			{strength = 26,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Adv. Striker"] =		{strength = 27,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Elara P2"] =			{strength = 28,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1480,	create = elaraP2},
 		["Tempest"] =			{strength = 30,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = tempest},
 		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Munemi"] =			{strength = 32,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = munemi},
 		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG3},
 		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG4},
 		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = cucaracha},
 		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG5},
 		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG6},
+		["Ryder"] =				{strength = 41, adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	hop_angle = 90,	hop_range = 1180,	create = stockTemplate},
 		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7500,	hop_angle = 0,	hop_range = 980,	create = predator},
 		["Predator V2"] =		{strength = 43,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8500,	hop_angle = 0,	hop_range = 980,	create = predatorV2},
 		["Diva"] =				{strength = 44,	adder = false,	missiler = true,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 2500,	create = diva},
@@ -527,6 +538,7 @@ function setConstants()
 		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 12000,	hop_angle = 0,	hop_range = 1480,	create = starhammerIII},
 		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 15000,	hop_angle = 0,	hop_range = 1480,	create = starhammerV},
 		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2480,	create = stockTemplate},
+		["Fortress"] =			{strength = 130,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2380,	create = stockTemplate},
 		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 90,	hop_range = 2480,	create = tyr},
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = stockTemplate},
 		["Loki"] =				{strength = 260,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = loki},
@@ -741,30 +753,30 @@ function setConstants()
 	addPlayerShip("Eagle"		,"inactive"	,createPlayerShipEagle		,{strength = 14,	ftl = "W", lrs = 50},"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors")
 	addPlayerShip("Endeavor"	,"inactive"	,createPlayerShipEndeavor	,{strength = 30,	ftl = "J", lrs = 30},"Bermuda (Endeavor): Corvette, Destroyer   Hull:150   Shield:150,150   Size:400   Repair Crew:5   Cargo:4   R.Strength:25\nFTL:Jump (3.5U - 35U)   Speeds: Impulse:70   Spin:10   Accelerate:30   C.Maneuver: Boost:400 Strafe:250   SRS:4.5\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:3   Load Speed:8   Left Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      04 Nuke\n      06 EMP\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, no right tubes, slower impulse, faster acceleration, weaker hull, weaker shields, less energy")
 	addPlayerShip("Enola"		,"inactive"	,createPlayerShipEnola		,{strength = 22,	ftl = "J", lrs = 23},"Fray (Enola): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:22\nFTL:Jump (2U - 20U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:23   SRS:4.5\nBeams:3 1 front, 2 sides Turreted speed:0.3\n   Arc:110   Direction:  0   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction:-90   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction: 90   Range:0.9   Cycle:6   Damage:4\nTubes:4 rear   Load Speed:8\n   Direction:180   Type:HVLI Only - small\n   Direction:180   Type:Homing or EMP\n   Direction:180   Type:Nuke only - Large\n   Ordnance stock and type:\n      05 Homing\n      03 Mine\n      02 Nuke\n      04 EMP\n      12 HVLI\nBased on Crucible: jump instead of warp, 3 turreted beams (weaker, more coverage), tubes facing rear, fewer missiles, large nukes, shorter sensors, fewer probes")
-	addPlayerShip("Falcon"		,"active"	,createPlayerShipFalcon		,{strength = 20,	ftl = "W", lrs = 24},"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors")
-	addPlayerShip("Flipper"		,"active"	,createPlayerShipFlipper	,{strength = 30,	ftl = "W", lrs = 25},"(no desc)")
-	addPlayerShip("Fresnel"		,"inactive"	,createPlayerShipFresnel	,{strength = 08,	ftl = "J", lrs = 15},"(no desc)")
+	addPlayerShip("Falcon"		,"inactive"	,createPlayerShipFalcon		,{strength = 20,	ftl = "W", lrs = 24},"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors")
+	addPlayerShip("Flipper"		,"inactive"	,createPlayerShipFlipper	,{strength = 30,	ftl = "W", lrs = 25},"(no desc)")
+	addPlayerShip("Fresnel"		,"active"	,createPlayerShipFresnel	,{strength = 08,	ftl = "J", lrs = 15},"(no desc)")
 	addPlayerShip("Gabble"		,"inactive"	,createPlayerShipGabble		,{strength = 14,	ftl = "J", lrs = 25},"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:100,100   Size:200   Repair Crew:5   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS")
 	addPlayerShip("Gadfly"		,"inactive"	,createPlayerShipGadfly		,{strength = 09,	ftl = "J", lrs = 15},"Gadfly: Fighter   Hull:100   Shield:80,80   Size:100   Repair Crew:3   Cargo:4   R.Strength:9\nFTL:Jump (2U - 15U)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600 Strafe:0   Energy:400   LRS:15   SRS:4.5\nBeams:1 Front\n   Arc:50   Direction:0   Range:0.9   Cycle:4   Damage:8\nTubes:3   2 Front, 1 Rear\n   Direction:  0   Load Speed:05   Type:HVLI Only - small\n   Direction:  0   Load Speed:10   Type:Nuke & EMP\n   Direction:180   Load Speed:15   Type:Homing Only - large\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      1 EMP\n      8 HVLI\nBased on Player Fighter: added jump drive, stronger hull, extra and stronger shields, fewer beams (wider, shorter, faster), missile tubes front and rear (no mines)")
-	addPlayerShip("Gorn"		,"active"	,createPlayerShipGorn		,{strength = 40,	ftl = "J", lrs = 30},"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS")
+	addPlayerShip("Gorn"		,"inactive"	,createPlayerShipGorn		,{strength = 40,	ftl = "J", lrs = 30},"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS")
 	addPlayerShip("Guinevere"	,"inactive"	,createPlayerShipGuinevere	,{strength = 23,	ftl = "J", lrs = 35},"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings")
 	addPlayerShip("Halberd"		,"inactive"	,createPlayerShipHalberd	,{strength = 23,	ftl = "J", lrs = 35},"(no desc)")	--proto-atlantis
 	addPlayerShip("Headhunter"	,"inactive"	,createPlayerShipHeadhunter	,{strength = 11,	ftl = "J", lrs = 20},"(no desc)")
 	addPlayerShip("Hearken"		,"inactive"	,createPlayerShipHearken	,{strength = 11,	ftl = "J", lrs = 20},"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs")
 	addPlayerShip("Holmes"		,"inactive"	,createPlayerShipHolmes		,{strength = 35,	ftl = "W", lrs = 35},"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only")
 	addPlayerShip("Hummer"		,"active"	,createPlayerShipHummer		,{strength = 12,	ftl = "W", lrs = 20},"(no desc)")
-	addPlayerShip("Interlock"	,"inactive"	,createPlayerShipInterlock	,{strength = 19,	ftl = "J", lrs = 35},"Interlock: Frigate, Armored Transport   Hull:250   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:19\nFTL:Jump (3.5U-35U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:35   SRS:5.5\nBeams:5 Front 1 rear Turreted Speed:1\n   Arc:100   Direction:  0   Range:0.9   Cycle:6   Damage:6   Turreted\n   Arc:180   Direction:180   Range:0.9   Cycle:6   Damage:4   Turreted\n   Arc:110   Direction:-35   Range:0.3   Cycle:6   Damage:10\n   Arc:110   Direction: 35   Range:0.3   Cycle:6   Damage:10\n   Arc: 60   Direction:-20   Range:0.6   Cycle:6   Damage:8\n   Arc: 60   Direction: 20   Range:0.6   Cycle:6   Damage:8\nTubes:3   Load Speed:20   Large Broadside, Rear\n   Direction:-90   Type:Exclude Mine - Large\n   Direction: 90   Type:Exclude Mine - Large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      4 Homing\n      4 Mine\n      6 HVLI\nBased on Repulse: 6 beams, 5 forward, 1 rear, more damage the closer the enemy gets, hull and shields significantly stronger, more missiles, shorter jump, longer long and short range sensors")
+	addPlayerShip("Fist"		,"active"	,createPlayerShipInterlock	,{strength = 19,	ftl = "J", lrs = 35},"Interlock: Frigate, Armored Transport   Hull:250   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:19\nFTL:Jump (3.5U-35U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:35   SRS:5.5\nBeams:5 Front 1 rear Turreted Speed:1\n   Arc:100   Direction:  0   Range:0.9   Cycle:6   Damage:6   Turreted\n   Arc:180   Direction:180   Range:0.9   Cycle:6   Damage:4   Turreted\n   Arc:110   Direction:-35   Range:0.3   Cycle:6   Damage:10\n   Arc:110   Direction: 35   Range:0.3   Cycle:6   Damage:10\n   Arc: 60   Direction:-20   Range:0.6   Cycle:6   Damage:8\n   Arc: 60   Direction: 20   Range:0.6   Cycle:6   Damage:8\nTubes:3   Load Speed:20   Large Broadside, Rear\n   Direction:-90   Type:Exclude Mine - Large\n   Direction: 90   Type:Exclude Mine - Large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      4 Homing\n      4 Mine\n      6 HVLI\nBased on Repulse: 6 beams, 5 forward, 1 rear, more damage the closer the enemy gets, hull and shields significantly stronger, more missiles, shorter jump, longer long and short range sensors")
 	addPlayerShip("Jarvis"		,"inactive"	,createPlayerShipJarvis		,{strength = 20,	ftl = "W", lrs = 30},"Butler (Jarvis): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:70   Spin:12   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Front/Broadside\n   Arc:160   Direction:-80   Range:0.9   Cycle:6   Damage:6\n   Arc:160   Direction: 80   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP or Nuke Only\n   Direction:  0   Type:HVLI Only - Large\n   Direction:180   Type:Homing Only\n   Ordnance stock and type:\n      04 Homing\n      03 Nuke\n      04 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, front and side beams, fewer tubes, fewer missiles, no mines, Small Nukes, EMPs in front middle tube, large HVLI")
 	addPlayerShip("Jeeves"		,"inactive"	,createPlayerShipJeeves		,{strength = 20,	ftl = "W", lrs = 30},"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings")
 	addPlayerShip("Kindling"	,"inactive"	,createPlayerShipKindling	,{strength = 40,	ftl = "J", lrs = 25},"(no desc)")
 --	addPlayerShip("Knick"		,"inactive"	,createPlayerShipKnick		,{strength = 05,	ftl = "J", lrs = 30),"Experimental - not ready for use"
 	addPlayerShip("Knuckle Drag","inactive"	,createPlayerShipSimian		,{strength = 25,	ftl = "J", lrs = 32},"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower")
-	addPlayerShip("Lancelot"	,"active"	,createPlayerShipLancelot	,{strength = 30,	ftl = "J", lrs = 27},"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver")
+	addPlayerShip("Lancelot"	,"inactive"	,createPlayerShipLancelot	,{strength = 30,	ftl = "J", lrs = 27},"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver")
 	addPlayerShip("Magnum"		,"inactive"	,createPlayerShipMagnum		,{strength = 35,	ftl = "J", lrs = 32},"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles")
 	addPlayerShip("Mantis"		,"inactive"	,createPlayerShipMantis		,{strength = 30,	ftl = "W", lrs = 25},"(no desc)")
-	addPlayerShip("Manxman"		,"active"	,createPlayerShipManxman	,{strength = 16,	ftl = "J", lrs = 25},"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors")
+	addPlayerShip("Manxman"		,"inactive"	,createPlayerShipManxman	,{strength = 16,	ftl = "J", lrs = 25},"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors")
 	addPlayerShip("Narsil"		,"inactive"	,createPlayerShipNarsil		,{strength = 40,	ftl = "W", lrs = 30},"(no desc)")
-	addPlayerShip("Nimbus"		,"inactive"	,createPlayerShipNimbus		,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage")
+	addPlayerShip("Nimbus"		,"active"	,createPlayerShipNimbus		,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage")
 	addPlayerShip("Nusret"		,"inactive"	,createPlayerShipNusret		,{strength = 16,	ftl = "J", lrs = 25},"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors")
 	addPlayerShip("Osprey"		,"inactive"	,createPlayerShipOsprey		,{strength = 25,	ftl = "W", lrs = 30},"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles")
 	addPlayerShip("Outcast"		,"inactive"	,createPlayerShipOutcast	,{strength = 30,	ftl = "J", lrs = 28},"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear")
@@ -775,6 +787,7 @@ function setConstants()
 	addPlayerShip("Raptor"		,"inactive"	,createPlayerShipRaptor		,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs")
 	addPlayerShip("Rattler"		,"inactive"	,createPlayerShipRattler	,{strength = 10,	ftl = "J", lrs = 30},"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret")
 	addPlayerShip("Raven"		,"inactive"	,createPlayerShipRaven		,{strength = 30,	ftl = "W", lrs = 25},"Raven (Claw) Cruiser")
+	addPlayerShip("Rip"			,"active"	,createPlayerShipLurker		,{strength = 18,	ftl = "W", lrs = 18},"(no desc)")
 	addPlayerShip("Rodent"		,"inactive"	,createPlayerShipRodent		,{strength = 23,	ftl = "J", lrs = 40},"Rodent (George): Frigate, Cruiser   Hull:150   Shield:100,50   Size:200   Repair Crew:5   Cargo:8   R.Strength:23   LRS:40   SRS:5.5\nFTL:Jump (4U - 37U)   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front, 2 Turreted Speed:0.4\n   Arc:60   Direction:-15   Range:1.2   Cycle:8   Damage:5\n   Arc:60   Direction: 15   Range:1.2   Cycle:8   Damage:5\n   Arc:270   Direction:  0   Range:0.6   Cycle:8   Damage:3\n   Arc:270   Direction 180   Range:0.5   Cycle:8   Damage:4\nTubes:5   Front:2   Sides:2   Back:1\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:-90   Type:EMP & Nuke only   Load Time:10\n   Direction: 90   Type:EMP & Nuke Only (Large)   Load Time:20\n   Direction:180   Type:Mine Only   Load Time:15\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      06 Mine\n      03 EMP\n      20 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, weaker rear shield, short jump drive, narrower beams, additional slow turreted beams, additional side tubes and rear mine tube")
 	addPlayerShip("Rogue"		,"inactive"	,createPlayerShipRogue		,{strength = 23,	ftl = "J", lrs = 25},"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)")
 	addPlayerShip("Rotor"		,"inactive"	,createPlayerShipRotor		,{strength = 35,	ftl = "W", lrs = 25},"Rotor: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:30\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:4\nBeams:5, 2 Turreted Speed:1\n   Arc:190   Direction:  0   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc:190   Direction:180   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc: 60   Direction:-25   Range:0.8   Cycle:6   Damage:6\n   Arc: 60   Direction: 25   Range:0.8   Cycle:6   Damage:6\n   Arc: 40   Direction:  0   Range:0.6   Cycle:6   Damage:8\nTubes:1   Load Speed:8   Rear:1\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      6 Mine\nBased on Maverick: Fewer beams, one rear tube, slower warp, shorter sensors")
@@ -784,7 +797,7 @@ function setConstants()
 	addPlayerShip("Spyder"		,"inactive"	,createPlayerShipSpyder		,{strength = 60,	ftl = "J", lrs = 30},"(no desc)")
 	addPlayerShip("Stick"		,"inactive"	,createPlayerShipStick		,{strength = 35,	ftl = "W", lrs = 35},"Surkov (Stick): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, stronger shields, faster impulse, add mine tube facing back, remove nukes and EMPs")
 	addPlayerShip("Sting"		,"inactive"	,createPlayerShipSting		,{strength = 35,	ftl = "W", lrs = 35},"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs")
-	addPlayerShip("Thelonius"	,"inactive"	,createPlayerShipThelonius	,{strength = 20,	ftl = "W", lrs = 30},"Crab (Thelonius): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Rear Turreted Speed:0.5\n   Arc:70   Direction:170   Range:1   Cycle:6   Damage:6\n   Arc:70   Direction:190   Range:1   Cycle:6   Damage:6\nTubes:5   Load Speed:8   Front:3   Side:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-20   Type:Homing Only - Small\n   Direction: 20   Type:Homing Only - Small\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      16 Homing\n      02 Nuke\n      03 EMP\n      10 HVLI\nBased on Crucible: Slower warp, rear turreted beams, fewer tubes, fewer missiles, except for more homing missiles, large HVLI in front, small homing in two of the front tubes")
+	addPlayerShip("Thelonius"	,"active"	,createPlayerShipThelonius	,{strength = 20,	ftl = "W", lrs = 30},"Crab (Thelonius): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Rear Turreted Speed:0.5\n   Arc:70   Direction:170   Range:1   Cycle:6   Damage:6\n   Arc:70   Direction:190   Range:1   Cycle:6   Damage:6\nTubes:5   Load Speed:8   Front:3   Side:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-20   Type:Homing Only - Small\n   Direction: 20   Type:Homing Only - Small\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      16 Homing\n      02 Nuke\n      03 EMP\n      10 HVLI\nBased on Crucible: Slower warp, rear turreted beams, fewer tubes, fewer missiles, except for more homing missiles, large HVLI in front, small homing in two of the front tubes")
 	addPlayerShip("Thunderbird"	,"inactive"	,createPlayerShipThunderbird,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Thunderbird) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs")
 	addPlayerShip("Twister"		,"inactive"	,createPlayerShipTwister	,{strength = 30,	ftl = "W", lrs = 23},"(no desc)")
 	addPlayerShip("Vision"		,"inactive"	,createPlayerShipVision		,{strength = 14,	ftl = "W", lrs = 50},"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors")
@@ -836,6 +849,7 @@ function setConstants()
 		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0	},
 		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0	},
 		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false,	patrol_probe = 0	},
+		["Lurker"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 21000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0	},
 		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0	},
 		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0	},
 		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0	},
@@ -936,9 +950,12 @@ function setConstants()
 								["WX-Lindworm"] =					100,
 								["Phobos T3"] =						200,
 								["Phobos M3"] =						200,
+								["Guard"] =							600,
 								["Nirvana R5"] =					200,
+								["Sentinel"] =						600,
 								["Nirvana R5A"] =					200,
 								["Storm"] =							200,
+								["Warden"] =						600,
 								["Piranha F12"] =					200,
 								["Piranha F10"] =					200,
 								["Piranha F12.M"] =					200,
@@ -959,6 +976,8 @@ function setConstants()
 								["Adv. Striker"] = 					300,
 								["Dreadnought"] =					400,
 								["Battlestation"] =					2000,
+								["Ryder"] =							2000,
+								["Fortress"] =						2000,
 								["Weapons platform"] =				200,
 								["Blockade Runner"] =				400,
 								["Ktlitan Fighter"] =				300,
@@ -1045,6 +1064,10 @@ function setConstants()
 								["Phobos R2"] =						200,
 								["MV52 Hornet"] =					100,
 								["Dagger"] =						100,
+								["Flash"] =							100,
+								["Munemi"] =						100,
+								["Ranger"] =						100,
+								["Buster"] =						100,
 								["Blade"] =							300,
 								["Gunner"] =						100,
 								["Shooter"] =						100,
@@ -1052,6 +1075,7 @@ function setConstants()
 								["MT55 Hornet"] =					100,
 								["MU55 Hornet"] =					100,
 								["Nirvana R3"] =					200,
+								["Hunter"] =						200,
 								["Fiend G3"] =						400,
 								["Fiend G4"] =						400,
 								["Fiend G5"] =						400,
@@ -1061,6 +1085,8 @@ function setConstants()
 								["Racer"] =							200,
 								["Stalker Q5"] =					200,
 								["Stalker R5"] =					200,
+								["Strike"] =						200,
+								["Dash"] =							200,
 								["Jade 5"] =						100,
 								["Waddle 5"] =						100,
 								["Lite Drone"] = 					300,
@@ -1345,6 +1371,16 @@ function setConstants()
 	console_list = {
 		"Helms","Weapons","Engineering","Science","Relay","Tactical","Operations","Engineering+","SinglePilot","DamageControl","PowerManagement","Database","altrelay","shiplog"
 	}
+	commerce_timer_interval = 90
+	skeletal_commerce = false
+	skeletal_commerce_assets = {}
+	skeletal_commerce_timer = commerce_timer_interval
+	icarus_commerce = false
+	icarus_commerce_assets = {}
+	icarus_commerce_timer = commerce_timer_interval
+	kentar_commerce = false
+	kentar_commerce_assets = {}
+	kentar_commerce_timer = commerce_timer_interval
 end
 function updateSystem()
 	return {
@@ -3192,6 +3228,7 @@ end
 -- +STATION MANIPULATION	F	stationManipulation
 -- +MINEFIELD				F	mineField
 -- +MOVE SELECTED			D	moveSelectedObjects
+-- +COMMERCE				F	freighterCommerce
 function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -3334,7 +3371,723 @@ function tweakTerrain()
 		end
 	end
 	addGMFunction("+Probes",tweakProbes)
+	addGMFunction("+Commerce",freighterCommerce)
 end
+function freighterCommerce()
+	clearGMFunctions()
+	addGMFunction("-Main from Commerce",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	local button_label = "Skeletal"
+	if skeletal_commerce then
+		button_label = button_label .. " On"
+	else
+		button_label = button_label .. " Off"
+	end
+	addGMFunction(button_label,skeletalFreighterCommerce)
+	if icarus_color then
+		button_label = "Icarus"
+		if icarus_commerce then
+			button_label = button_label .. " On"
+		else
+			button_label = button_label .. " Off"
+		end
+		addGMFunction(button_label,icarusFreighterCommerce)
+	end
+	if kentar_color then
+		button_label = "Kentar"
+		if kentar_commerce then
+			button_label = button_label .. " On"
+		else
+			button_label = button_label .. " Off"
+		end
+		addGMFunction(button_label,kentarFreighterCommerce)
+	end
+end
+function kentarFreighterCommerce()
+	if kentar_commerce then
+		removeKentarCommerce()
+	else
+		--Courier
+		local ship = CpuShip():setTemplate("Personnel Freighter 1")
+		ship:setTypeName("Courier"):setCommsScript(""):setCommsFunction(commsShip)
+		ship:setWarpDrive(true)
+		ship:setWarpSpeed(1500)
+		ship:setRotationMaxSpeed(20)
+		identifyFreighter(ship)
+		addFreighter("Courier",ship)	--update science database if applicable
+		regionCommerceDestination(ship,stationKentar)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(kentar_commerce_assets,ship)
+		--Work Wagon
+		ship = CpuShip():setTemplate("Equipment Freighter 2")
+		ship:setTypeName("Work Wagon"):setCommsScript(""):setCommsFunction(commsShip)
+		ship:setWarpDrive(true)
+		ship:setWarpSpeed(200)
+		identifyFreighter(ship)
+		addFreighter("Work Wagon",ship)	--update science database if applicable
+		regionCommerceDestination(ship,stationKentar)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(kentar_commerce_assets,ship)
+		local escort_ship = nil
+		local escort_count = 0
+		local escort_type = {
+			{chance = 36, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 23, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(kentar_commerce_assets,escort_ship)
+			end
+		end
+		--Space Sedan
+		ship = CpuShip():setTemplate("Personnel Jump Freighter 3")
+		ship:setTypeName("Space Sedan"):setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship)
+		addFreighter("Space Sedan",ship)	--update science database if applicable
+		regionCommerceDestination(ship,stationKentar)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(kentar_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 63, type = "MT52 Hornet"},
+			{chance = 38, type = "MU52 Hornet"},
+			{chance = 21, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(kentar_commerce_assets,escort_ship)
+			end
+		end
+		--Omnibus
+		ship = CpuShip():setTemplate("Personnel Jump Freighter 5")
+		ship:setTypeName("Omnibus"):setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship)
+		addFreighter("Omnibus",ship)	--update science database if applicable
+		regionCommerceDestination(ship,stationKentar)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(kentar_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 47, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 16, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(kentar_commerce_assets,escort_ship)
+			end
+		end
+		--Fuel Freighter 5
+		ship = CpuShip():setTemplate("Fuel Freighter 5")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship)
+		regionCommerceDestination(ship,stationKentar)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(kentar_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 37, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 16, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(kentar_commerce_assets,escort_ship)
+			end
+		end
+		kentar_commerce = true
+	end
+	freighterCommerce()
+end
+function icarusFreighterCommerce()
+	if icarus_commerce then
+		removeIcarusCommerce()
+	else
+		--Garbage Freighter 2
+		local ship = CpuShip():setTemplate("Garbage Freighter 2")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship)
+		regionCommerceDestination(ship,stationIcarus)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(icarus_commerce_assets,ship)
+		--Courier
+		ship = CpuShip():setTemplate("Personnel Freighter 1")
+		ship:setTypeName("Courier"):setCommsScript(""):setCommsFunction(commsShip)
+		ship:setWarpDrive(true)
+		ship:setWarpSpeed(1500)
+		ship:setRotationMaxSpeed(20)
+		identifyFreighter(ship)
+		addFreighter("Courier",ship)	--update science database if applicable
+		regionCommerceDestination(ship,stationIcarus)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(icarus_commerce_assets,ship)
+		--Work Wagon
+		ship = CpuShip():setTemplate("Equipment Freighter 2")
+		ship:setTypeName("Work Wagon"):setCommsScript(""):setCommsFunction(commsShip)
+		ship:setWarpDrive(true)
+		ship:setWarpSpeed(200)
+		identifyFreighter(ship)
+		addFreighter("Work Wagon",ship)	--update science database if applicable
+		regionCommerceDestination(ship,stationIcarus)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(icarus_commerce_assets,ship)
+		local escort_ship = nil
+		local escort_count = 0
+		local escort_type = {
+			{chance = 36, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 23, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(icarus_commerce_assets,escort_ship)
+			end
+		end
+		--Laden Lorry
+		ship = CpuShip():setTemplate("Goods Freighter 3")
+		ship:setTypeName("Laden Lorry"):setCommsScript(""):setCommsFunction(commsShip)
+		ship:setWarpDrive(true)
+		ship:setWarpSpeed(150)
+		identifyFreighter(ship)
+		addFreighter("Laden Lorry",ship)	--update science database if applicable
+		regionCommerceDestination(ship,stationIcarus)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		table.insert(icarus_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 75, type = "MT52 Hornet"},
+			{chance = 55, type = "MU52 Hornet"},
+			{chance = 34, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(icarus_commerce_assets,escort_ship)
+			end
+		end
+		icarus_commerce = true
+	end
+	freighterCommerce()
+end
+function removeKentarCommerce()
+	for index, ship in ipairs(kentar_commerce_assets) do
+		ship:destroy()
+	end
+	kentar_commerce_assets = {}
+	kentar_commerce = false
+end
+function removeIcarusCommerce()
+	for index, ship in ipairs(icarus_commerce_assets) do
+		ship:destroy()
+	end
+	icarus_commerce_assets = {}
+	icarus_commerce = false
+end
+function skeletalFreighterCommerce()
+	if skeletal_commerce then
+		for index, ship in ipairs(skeletal_commerce_assets) do
+			ship:destroy()
+		end
+		skeletal_commerce_assets = {}
+		skeletal_commerce = false
+	else
+		local skeletal_freighters_message = "Skeletal Commerce Assets:"
+		--Space Sedan
+		local ship = CpuShip():setTemplate("Personnel Jump Freighter 3")
+		ship:setTypeName("Space Sedan"):setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship)
+		addFreighter("Space Sedan",ship)	--update science database if applicable
+		skeletalDestination(ship)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
+		table.insert(skeletal_commerce_assets,ship)
+		local escort_ship = nil
+		local escort_count = 0
+		local escort_type = {
+			{chance = 63, type = "MT52 Hornet"},
+			{chance = 38, type = "MU52 Hornet"},
+			{chance = 21, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(skeletal_commerce_assets,escort_ship)
+			end
+		end
+		--Omnibus
+		ship = CpuShip():setTemplate("Personnel Jump Freighter 5")
+		ship:setTypeName("Omnibus"):setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship)
+		addFreighter("Omnibus",ship)	--update science database if applicable
+		skeletalDestination(ship)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
+		table.insert(skeletal_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 47, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 16, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(skeletal_commerce_assets,escort_ship)
+			end
+		end
+		--Service Jonque
+		ship = CpuShip():setTemplate("Equipment Jump Freighter 4")
+		ship:setTypeName("Service Jonque"):setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship)
+		addFreighter("Service Jonque",ship)	--update science database if applicable
+		skeletalDestination(ship)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		ship:orderDock(ship.commerce_target)
+		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
+		table.insert(skeletal_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 38, type = "MT52 Hornet"},
+			{chance = 21, type = "MU52 Hornet"},
+			{chance = 12, type = "Fighter"},
+		}
+		for i=1,3 do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(skeletal_commerce_assets,escort_ship)
+			end
+		end
+		addGMMessage(skeletal_freighters_message)
+		skeletal_commerce = true
+	end
+	freighterCommerce()
+end
+function identifyFreighter(ship)
+	local ship_type = ship:getTypeName()
+	local ship_id = nil
+	if ship_type == "Space Sedan" then
+		if skeletal_space_sedan == nil then
+			skeletal_space_sedan = {}
+		end
+		if #skeletal_space_sedan == 0 then
+			skeletal_space_sedan = {
+				{name = "Bangles N Glitter",	faction = "CUF"},
+				{name = "Mauve Mynock",			faction = "Human Navy"},
+				{name = "Tartan Tram",			faction = "TSN"},
+				{name = "Stardust Deluxe",		faction = "Independent"},
+				{name = "Equitable Exit",		faction = "USN"},
+			}
+		end
+		ship_id = tableRemoveRandom(skeletal_space_sedan)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Omnibus" then
+		if skeletal_omnibus == nil then
+			skeletal_omnibus = {}
+		end
+		if #skeletal_omnibus == 0 then
+			skeletal_omnibus = {
+				{name = "Moya Munge",		faction = "CUF"},
+				{name = "Green Gwaihir",	faction = "Human Navy"},
+				{name = "Metropol",			faction = "TSN"},
+				{name = "Gillig",			faction = "Independent"},
+				{name = "Grech",			faction = "USN"},
+				{name = "Kamaz",			faction = "Independent"},
+			}
+		end
+		ship_id = tableRemoveRandom(skeletal_omnibus)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Service Jonque" then
+		if skeletal_service_jonque == nil then
+			skeletal_service_jonque = {}
+		end
+		if #skeletal_service_jonque == 0 then
+			skeletal_service_jonque = {
+				{name = "Knapheide",		faction = "CUF"},
+				{name = "Gator",			faction = "Human Navy"},
+				{name = "Parry",			faction = "TSN"},
+				{name = "Stahl",			faction = "Independent"},
+				{name = "Crane",			faction = "USN"},
+				{name = "Moran",			faction = "Independent"},
+			}
+		end
+		ship_id = tableRemoveRandom(skeletal_service_jonque)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Garbage Freighter 2" then
+		if garbage_2 == nil then
+			garbage_2 = {}
+		end
+		if #garbage_2 == 0 then
+			garbage_2 = {
+				{name = "Heil",				faction = "CUF"},
+				{name = "Transwest",		faction = "Human Navy"},
+				{name = "Qiufan",			faction = "TSN"},
+				{name = "Garwood",			faction = "Independent"},
+				{name = "Hino",				faction = "USN"},
+				{name = "Gareth",			faction = "Independent"},
+			}
+		end
+		ship_id = tableRemoveRandom(garbage_2)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Fuel Freighter 5" then
+		if fuel_5 == nil then
+			fuel_5 = {}
+		end
+		if #fuel_5 == 0 then
+			fuel_5 = {
+				{name = "Exxon",			faction = "CUF"},
+				{name = "Shell",			faction = "Human Navy"},
+				{name = "Enron",			faction = "TSN"},
+				{name = "WeiChai",			faction = "Independent"},
+				{name = "Bosch",			faction = "USN"},
+				{name = "Nikola",			faction = "Independent"},
+			}
+		end
+		ship_id = tableRemoveRandom(fuel_5)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Courier" then
+		if courier == nil then
+			courier = {}
+		end
+		if #courier == 0 then
+			courier = {
+				{name = "Porsche",			faction = "CUF"},
+				{name = "Razorback",		faction = "Human Navy"},
+				{name = "Orlyonok",			faction = "TSN"},
+				{name = "Benatar",			faction = "Independent"},
+				{name = "Jellyfish",		faction = "USN"},
+				{name = "Hecate",			faction = "Independent"},
+			}
+		end
+		ship_id = tableRemoveRandom(courier)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Work Wagon" then
+		if work_wagon == nil then
+			work_wagon = {}
+		end
+		if #work_wagon == 0 then
+			work_wagon = {
+				{name = "Mangled Metal",	faction = "CUF"},
+				{name = "Banshee",			faction = "Human Navy"},
+				{name = "Thing",			faction = "TSN"},
+				{name = "Torque",			faction = "Independent"},
+				{name = "Hulk",				faction = "USN"},
+				{name = "Forbid",			faction = "Independent"},
+			}
+		end
+		ship_id = tableRemoveRandom(work_wagon)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Laden Lorry" then
+		if laden_lorry == nil then
+			laden_lorry = {}
+		end
+		if #laden_lorry == 0 then
+			laden_lorry = {
+				{name = "Lowboy",			faction = "CUF"},
+				{name = "Luton",			faction = "Human Navy"},
+				{name = "Reefer",			faction = "TSN"},
+				{name = "Convoy",			faction = "Independent"},
+				{name = "Hulk",				faction = "USN"},
+				{name = "Atlas",			faction = "Independent"},
+			}
+		end
+		ship_id = tableRemoveRandom(laden_lorry)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	end
+end
+function skeletalDestination(ship)
+	local station_pool = {}
+	for index, station in ipairs(skeleton_stations) do
+		if station ~= nil and station:isValid() then
+			if ship.commerce_target ~= nil then
+				if station ~= ship.commerce_target then
+					table.insert(station_pool,station)
+				end
+			elseif ship.commerce_origin ~= nil then
+				if station ~= ship.commerce_origin then
+					table.insert(station_pool,station)
+				end
+			else
+				table.insert(station_pool,station)
+			end
+		end
+	end
+	ship.commerce_target = tableRemoveRandom(station_pool)
+	if ship.commerce_origin == nil then
+		ship.commerce_origin = tableRemoveRandom(station_pool)
+	end
+end
+function regionCommerceDestination(ship,region_station)
+--	print("in region commerce destination:",ship:getCallSign(),region_station:getCallSign())
+	local station_pool = {}
+	local region_stations = {}
+	local primary_station = nil
+	if region_station == stationIcarus then
+--		print("Icarus")
+		region_stations = icarusStations
+		if stationIcarus ~= nil and stationIcarus:isValid() then
+			primary_station = stationIcarus
+		end
+	elseif region_station == stationKentar then
+--		print("Kentar")
+		region_stations = kentar_stations
+		if stationKentar ~= nil and stationKentar:isValid() then
+			primary_station = stationKentar
+		end
+	elseif region_station == stationLafrina then
+--		print("Lafrina")
+		region_stations = lafrina_stations
+		if stationLafrina ~= nil and stationLafrina:isValid() then
+			primary_station = stationLafrina
+		end
+	elseif region_station == stationTeresh then
+--		print("Teresh")
+		region_stations = teresh_stations
+		if stationTeresh ~= nil and stationTeresh:isValid() then
+			primary_station = stationTeresh
+		end
+	elseif region_station == stationAstron then
+--		print("Astron")
+		--not enough stations to warrant commercial traffic
+		if stationAstron ~= nil and stationAstron:isValid() then
+			primary_station = stationAstron
+		end
+	end
+	for index, station in ipairs(region_stations) do
+		if station ~= nil and station:isValid() then
+			if ship.commerce_target ~= nil then
+				if station ~= ship.commerce_target then
+					if station ~= stationKeyhole23 then
+						table.insert(station_pool,station)
+					end
+				end
+			elseif ship.commerce_origin ~= nil then
+				if station ~= ship.commerce_origin then
+					if station ~= stationKeyhole23 then
+						table.insert(station_pool,station)
+					end
+				end
+			else
+				if station ~= stationKeyhole23 then
+					table.insert(station_pool,station)
+				end
+			end
+		end
+	end
+	if primary_station ~= nil then
+		table.insert(station_pool,primary_station)
+	end
+--	print("station pool count:",#station_pool)
+	ship.commerce_target = tableRemoveRandom(station_pool)
+	if ship.commerce_origin == nil then
+		ship.commerce_origin = tableRemoveRandom(station_pool)
+	end
+end
+function addFreighters()
+	local freighter_db = queryScienceDatabase("Ships","Freighter")
+	if freighter_db == nil then
+		local ship_db = queryScienceDatabase("Ships")
+		ship_db:addEntry("Freighter")
+		freighter_db = queryScienceDatabase("Ships","Freighter")
+		freighter_db:setImage("radar_transport.png")
+		freighter_db:setLongDescription("Small, medium and large scale transport ships. These are the working ships that keep commerce going in any sector. They may carry personnel, goods, cargo, equipment, garbage, fuel, research material, etc.")
+	end
+	return freighter_db
+end
+function addFreighter(freighter_type,ship)
+	local freighter_db = addFreighters()
+	if freighter_type ~= nil then
+		if freighter_type == "Space Sedan" then
+			local space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
+			if space_sedan_db == nil then
+				freighter_db:addEntry("Space Sedan")
+				space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
+				genericFreighterScienceInfo(space_sedan_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 3"),ship)
+				setScienceModel(space_sedan_db,"transport_1_3")
+				space_sedan_db:setLongDescription("The Space Sedan was built around a surplus Personnel Jump Freighter 3. It's designed to provide relatively low cost transportation primarily for people, but there is also a limited amount of cargo space available")
+			end
+		elseif freighter_type == "Omnibus" then
+			local omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
+			if omnibus_db == nil then
+				freighter_db:addEntry("Omnibus")
+				omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
+				genericFreighterScienceInfo(omnibus_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 5"),ship)
+				setScienceModel(omnibus_db,"transport_1_5")
+				omnibus_db:setLongDescription("The Omnibus was designed from the Personnel Jump Freighter 5. It's made to transport large numbers of passengers of various types along with their luggage and any associated cargo")
+			end
+		elseif freighter_type == "Service Jonque" then
+			local service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
+			if service_jonque_db == nil then
+				freighter_db:addEntry("Service Jonque")
+				service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
+				genericFreighterScienceInfo(service_jonque_db,queryScienceDatabase("Ships","Corvette","Equipment Jump Freighter 4"),ship)
+				setScienceModel(service_jonque_db,"transport_4_4")
+				service_jonque_db:setLongDescription("The Service Jonque is a modified Equipment Jump Freighter 4. It's designed to carry spare parts and equipment as well as the necessary repair personnel to where it's needed to repair stations and ships")
+			end
+		elseif freighter_type == "Courier" then
+			local courier_db = queryScienceDatabase("Ships","Freighter","Courier")
+			if courier_db == nil then
+				freighter_db:addEntry("Courier")
+				courier_db = queryScienceDatabase("Ships","Freighter","Courier")
+				genericFreighterScienceInfo(courier_db,queryScienceDatabase("Ships","Corvette","Personnel Freighter 1"),ship)
+				setScienceModel(courier_db,"transport_1_1")
+				courier_db:setLongDescription("The Courier is a souped up Personnel Freighter 1. It's made to deliver people and messages fast. Very fast")
+			end
+		elseif freighter_type == "Work Wagon" then
+			local work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
+			if work_wagon_db == nil then
+				freighter_db:addEntry("Work Wagon")
+				work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
+				genericFreighterScienceInfo(work_wagon_db,queryScienceDatabase("Ships","Corvette","Equipment Freighter 2"),ship)
+				setScienceModel(work_wagon_db,"transport_4_2")
+				work_wagon_db:setLongDescription("The Work Wagon is a conversion of an Equipment Freighter 2 designed to carry equipment and parts where they are needed for repair or construction.")
+			end
+		elseif freighter_type == "Laden Lorry" then
+			local laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
+			if laden_lorry_db == nil then
+				freighter_db:addEntry("Laden Lorry")
+				laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
+				genericFreighterScienceInfo(laden_lorry_db,queryScienceDatabase("Ships","Corvette","Goods Freighter 3"),ship)
+				setScienceModel(laden_lorry_db,"transport_4_2")
+				laden_lorry_db:setLongDescription("As a side contract, Conversion R Us put together the Laden Lorry from some recently acquired Goods Freighter 3 hulls. The added warp drive makes for a more versatile goods carrying vessel.")
+			end
+		end
+	end
+end
+function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
+	specific_freighter_db:setImage("radar_transport.png")
+	specific_freighter_db:setKeyValue("Sub-class","Freighter")
+	specific_freighter_db:setKeyValue("Size",base_db:getKeyValue("Size"))
+	local shields = ship:getShieldCount()
+	if shields > 0 then
+		local shield_string = ""
+		for i=1,shields do
+			if shield_string == "" then
+				shield_string = string.format("%i",math.floor(ship:getShieldMax(i-1)))
+			else
+				shield_string = string.format("%s/%i",shield_string,math.floor(ship:getShieldMax(i-1)))
+			end
+		end
+		specific_freighter_db:setKeyValue("Shield",shield_string)
+	end
+	specific_freighter_db:setKeyValue("Hull",string.format("%i",math.floor(ship:getHullMax())))
+	specific_freighter_db:setKeyValue("Move speed",string.format("%.1f u/min",ship:getImpulseMaxSpeed()*60/1000))
+	specific_freighter_db:setKeyValue("Turn speed",string.format("%.1f deg/sec",ship:getRotationMaxSpeed()))
+	if ship:hasJumpDrive() then
+		local base_jump_range = base_db:getKeyValue("Jump range")
+		if base_jump_range ~= nil and base_jump_range ~= "" then
+			specific_freighter_db:setKeyValue("Jump range",base_jump_range)
+		else
+			specific_freighter_db:setKeyValue("Jump range","5 - 50 u")
+		end
+	end
+	if ship:hasWarpDrive() then
+		specific_freighter_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
+	end
+end
+
 function moveSelectedObjects()
 	if gm_click_mode == "move selected" then
 		gm_click_mode = nil
@@ -5165,6 +5918,9 @@ function removeIcarusColor()
 		end
 	end
 	icarusStations = nil
+	if icarus_commerce then
+		removeIcarusCommerce()
+	end
 end
 function squareZone(x,y,name)
 	local zone = Zone():setPoints(x+500,y+500,x-500,y+500,x-500,y-500,x+500,y-500)
@@ -13494,6 +14250,41 @@ end
 ----------------------------------------------------
 --	Support the creation of various player ships  --
 ----------------------------------------------------
+--	Models with specific weapons emplacements: 
+--		Atlantis			battleship_destroyer_1_upgraded
+--			4 beams (negative, positive, negative, positive)
+--			2 tubes (negative then positive)
+--		Phobos				AtlasHeavyFighter
+--			2 beams (positive then negative)
+--			2 tubes (positive then negative)
+--		Hornet				WespeScout
+--			2 beams (positive then negative)
+--		Player Cruiser		battleship_destroyer_5_upgraded	
+--			2 beams (negative then positive)
+--			2 tubes (centered, but -Z values)
+--		Player Misslie Cr.	space_cruiser_4
+--			2 tubes (negative then positive)
+--		Player Fighter		small_fighter_1
+--			1 beam (centered, but negative z)
+--		Striker				dark_fighter_6
+--			2 beams (negative then positive)
+--		ZX-Lindworm			LindwurmFighter
+--			3 tubes (center, positive, negative)
+--		(none)				space_frigate_6
+--			2 beams (negative then positive)
+--			2 tubes (centered but negative z)
+--		(none) Corsair DX	battleship_destroyer_2_upgraded
+--			6 beams (neg, pos, neg, pos, neg, pos)
+--		Blockade Runner		battleship_destroyer_3_upgraded
+--			4 beams (pos, neg, pos, neg)
+--		Starhammer			battleship_destroyer_4_upgraded
+--			2 beams (neg, pos)
+--			2 tubes (neg, pos)
+--		Battlestation		Ender Battlecruiser
+--			12 beams (2neg, 2pos, 2neg, 2pos, 2neg, 2pos)	
+--		Adder				AdlerLongRangeScout
+--			2 beams (centered, pos, neg
+--			1 tube (centered, positive z)
 function createPlayerShipAmalgam()
 	playerAmalgam = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Mixer")
 	playerAmalgam:setTypeName("Amalgam")
@@ -14595,6 +15386,66 @@ function createPlayerShipLancelot()
 	playerLancelot:onTakingDamage(playerShipDamage)
 	playerLancelot:addReputationPoints(50)
 	return playerLancelot
+end
+function createPlayerShipLurker()
+	playerLurker = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rip")
+	playerLurker:setTypeName("Lurker")
+	playerLurker:setHullMax(100)						--stronger hull (vs 75)
+	playerLurker:setHull(100)
+	playerLurker:setShieldsMax(100)						--stronger shield (vs 40)
+	playerLurker:setShields(100)
+	playerLurker:setRotationMaxSpeed(12)				--slower spin (vs 15)
+	playerLurker:setAcceleration(18)					--slower (vs 25)
+	playerLurker:setWarpDrive(true)						--add warp (vs none)
+	playerLurker:setWarpSpeed(300)
+	playerLurker:setRepairCrewCount(2)					--more repair crew (vs 1)
+--                 				 Arc, Dir, Range, CycleTime, Damage
+	playerLurker:setBeamWeapon(0, 10, 180,	1000,		2.0, 2)		--faster, longer, (vs 6 Cyc, .9 U) 
+--										 Arc,	Dir, Rotate speed
+	playerLurker:setBeamWeaponTurret( 0, 180,	180, .3)			--narrower, slower (vs 270 arc, 4 rotate)
+	playerLurker:setTubeSize(1,"medium")				--medium (vs small)
+	playerLurker:setTubeSize(2,"medium")				--medium (vs small)
+	playerLurker:setTubeLoadTime(1,15)					--slower load time (vs 10)
+	playerLurker:setTubeLoadTime(2,15)					--slower load time (vs 10)
+	playerLurker:setWeaponTubeDirection(1, 5)			--more angled (vs  1)	
+	playerLurker:setWeaponTubeDirection(2,-5)			--more angled (vs -1)	
+	playerLurker:setWeaponTubeExclusiveFor(0,"HVLI")	--only HVLI (vs any)
+	playerLurker:setWeaponTubeExclusiveFor(1,"Homing")	--Homing, Nuke, EMP (vs only HVLI)
+	playerLurker:weaponTubeAllowMissle(1,"EMP")
+	playerLurker:weaponTubeAllowMissle(1,"Nuke")
+	playerLurker:setWeaponTubeExclusiveFor(2,"Homing")	--Homing, Nuke, EMP (vs only HVLI)
+	playerLurker:weaponTubeAllowMissle(2,"EMP")
+	playerLurker:weaponTubeAllowMissle(2,"Nuke")
+	playerLurker:setWeaponStorageMax("Homing",6)			--more (vs 3)
+	playerLurker:setWeaponStorage("Homing",   6)				
+	playerLurker:setWeaponStorageMax("EMP",   4)			--more (vs 0)
+	playerLurker:setWeaponStorage("EMP",      4)				
+	playerLurker:setWeaponStorageMax("Nuke",  2)			--more (vs 0)
+	playerLurker:setWeaponStorage("Nuke",     2)
+	playerLurker:setSystemCoolantRate("reactor",		1.1)	--less (vs 1.2)
+	playerLurker:setSystemCoolantRate("beamweapons",	1.1)	--less (vs 1.2)
+	playerLurker:setSystemCoolantRate("missilesystem",	1.7)	--more (vs 1.2)
+	playerLurker:setSystemCoolantRate("maneuver",		1.1)	--less (vs 1.2)
+	playerLurker:setSystemCoolantRate("impulse",		1.1)	--less (vs 1.2)
+	playerLurker:setSystemCoolantRate("warp",			1.1)	--less (vs 1.2)
+	playerLurker:setSystemCoolantRate("frontshield",	1.1)	--less (vs 1.2)
+	playerLurker:setSystemHeatRate("reactor",			0.04)	--less (vs 0.05)
+	playerLurker:setSystemHeatRate("beamweapons",		0.04)	--less (vs 0.05)
+	playerLurker:setSystemHeatRate("missilesystem",		0.11)	--more (vs 0.05)
+	playerLurker:setSystemHeatRate("maneuver",			0.04)	--less (vs 0.05)
+	playerLurker:setSystemHeatRate("impulse",			0.04)	--less (vs 0.05)
+	playerLurker:setSystemHeatRate("warp",				0.04)	--less (vs 0.05)
+	playerLurker:setSystemHeatRate("frontshield",		0.04)	--less (vs 0.05)
+	playerLurker:setSystemPowerRate("reactor",			0.20)	--less (vs 0.30)
+	playerLurker:setSystemPowerRate("beamweapons",		0.20)	--less (vs 0.30)
+	playerLurker:setSystemPowerRate("missilesystem",	0.90)	--more (vs 0.30)
+	playerLurker:setSystemPowerRate("maneuver",			0.20)	--less (vs 0.30)
+	playerLurker:setSystemPowerRate("impulse",			0.20)	--less (vs 0.30)
+	playerLurker:setSystemPowerRate("warp",				0.20)	--less (vs 0.30)
+	playerLurker:setSystemPowerRate("frontshield",		0.20)	--less (vs 0.30)
+	playerLurker:onTakingDamage(playerShipDamage)
+	playerLurker:addReputationPoints(50)
+	return playerLurker	
 end
 function createPlayerShipMagnum()
 	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
@@ -18400,7 +19251,8 @@ function phobosR2(enemyFaction)
 			{
 				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"AtlasHeavyFighterYellow"
 		)
 		--[[
 		phobos_r2_db:setLongDescription("The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube")
@@ -18443,7 +19295,8 @@ function hornetMV52(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52",
 			nil,
-			nil
+			nil,
+			"WespeScoutYellow"
 		)
 		--[[
 		hornet_mv52_db:setLongDescription("The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52")
@@ -18482,7 +19335,8 @@ function fiendG3(enemyFaction)
 			{
 				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 35 U"		--jump range
+			"5 - 35 U",		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 		--[[
 		fiend_g3_db:setLongDescription("The Fiend G3 was the first model produced by Conversions R Us. They got a good deal on a number of used Gunships. They added a cheap jump drive to the Gunship and viola! they made the Fiend G3. Like the Gunship, it has a homing missile tube and beams to readily take down weaker ships. With the jump drive, it becomes quite a bit more dangerous than the stock Gunship.")
@@ -18525,7 +19379,8 @@ function fiendG4(enemyFaction)
 			{
 				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 		--[[
 		fiend_g4_db:setLongDescription("The Fiend G4 was among the first models produced by Conversions R Us. They got a good deal on a number of used Gunships. They added a cheap warp drive to the Gunship and viola! they made the Fiend G4. Like the Gunship, it has a homing missile tube and beams to readily take down weaker ships. With the warp drive, it becomes quite a bit more dangerous than the stock Gunship.")
@@ -18569,7 +19424,8 @@ function fiendG5(enemyFaction)
 				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
 				{key = " Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 35 U"		--jump range
+			"5 - 35 U",		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 		--[[
 		fiend_g5_db:setLongDescription("With the success of the Fiend G3 and G4 models, Conversions R Us continued their streak with the Fiend G5. They acquired some used Advanced Gunships and added cheap jump drives to them and made the Fiend G5. Like the Advanced Gunship, it has two homing missile tubes and beams to readily take down weaker ships. The jump drive makes it all the more dangerous.")
@@ -18614,7 +19470,8 @@ function fiendG6(enemyFaction)
 				{key = "Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
 				{key = " Tube 0", value = "8 sec"},	--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 		--[[
 		fiend_g6_db:setLongDescription("With the success of the Fiend G3 and G4 models, Conversions R Us continued their streak with the Fiend G6. They acquired some used Advanced Gunships and added cheap warp drives to them and made the Fiend G6. Like the Advanced Gunship, it has two homing missile tubes and beams to readily take down weaker ships. The warp drive makes it all the more dangerous.")
@@ -18656,7 +19513,8 @@ function k2fighter(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.",
 			nil,
-			nil		--jump range
+			nil,	--jump range
+			"sci_fi_alien_ship_1"
 		)
 		--[[
 		k2_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.")
@@ -18692,7 +19550,8 @@ function k3fighter(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that are stronger and that cycle faster, but the hull is weaker.",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"sci_fi_alien_ship_1"
 		)
 		--[[
 		k3_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is weaker.")
@@ -18731,7 +19590,8 @@ function stalkerQ5(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"small_frigate_3"
 		)
 		--[[
 		stalker_q5_db:setLongDescription("The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed")
@@ -18773,7 +19633,8 @@ function stalkerR5(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"small_frigate_3"
 		)
 		--[[
 		stalker_r5_db:setLongDescription("The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed")
@@ -18815,7 +19676,8 @@ function waddle5(enemyFaction)
 			{
 				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
 		)
 		--[[
 		waddle_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5")
@@ -18859,7 +19721,8 @@ function jade5(enemyFaction)
 			{
 				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 35 U"		--jump range
+			"5 - 35 U",		--jump range
+			"AdlerLongRangeScoutYellow"
 		)
 		--[[
 		jade_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5")
@@ -18901,7 +19764,8 @@ function droneLite(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed",
 			nil,
-			nil
+			nil,
+			"sci_fi_alien_ship_4"
 		)
 		--[[
 		drone_lite_db:setLongDescription("The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed")
@@ -18938,7 +19802,8 @@ function droneHeavy(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower",
 			nil,
-			nil
+			nil,
+			"sci_fi_alien_ship_4"
 		)
 		--[[
 		drone_heavy_db:setLongDescription("The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower")
@@ -18976,7 +19841,8 @@ function droneJacket(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield",
 			nil,
-			nil
+			nil,
+			"sci_fi_alien_ship_4"
 		)
 		--[[
 		drone_jacket_db:setLongDescription("The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield")
@@ -19018,7 +19884,8 @@ function elaraP2(enemyFaction)
 				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"AtlasHeavyFighterYellow"
 		)
 		--[[
 		elara_p2_db:setLongDescription("Inspired by the Phobos T3, the Elara P2 is nearly identical. With the addition of a warp drive and stronger front shields, the Elara P2 poses a greater threat than the Phobos")
@@ -19072,7 +19939,8 @@ function wzLindworm(enemyFaction)
 				{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
 				{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"LindwurmFighterYellow"
 		)
 		--[[
 		wz_lindworm_db:setLongDescription("The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.")
@@ -19140,7 +20008,8 @@ function tempest(enemyFaction)
 				{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"HeavyCorvetteRed"
 		)
 		--[[
 		tempest_db:setLongDescription("Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!")
@@ -19214,7 +20083,8 @@ function enforcer(enemyFaction)
 				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"battleship_destroyer_3_upgraded"
 		)
 		--[[
 		enforcer_db:setLongDescription("The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and stengthened front beams.")
@@ -19297,7 +20167,8 @@ function predator(enemyFaction)
 				{key = "Tube -120", value = "12 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 120", value = "12 sec"},		--torpedo tube direction and load speed
 			},
-			"5 - 35 U"		--jump range
+			"5 - 35 U",		--jump range
+			"HeavyCorvetteRed"
 		)
 		--[[
 		predator_db:setLongDescription("The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.")
@@ -19357,7 +20228,8 @@ function atlantisY42(enemyFaction)
 				{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
 				{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_1_upgraded"
 		)
 		--[[
 		atlantis_y42_db:setLongDescription("The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock")
@@ -19415,7 +20287,8 @@ function starhammerV(enemyFaction)
 				{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
 				{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 		--[[
 		starhammer_v_db:setLongDescription("The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.")
@@ -19479,7 +20352,8 @@ function tyr(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could",
 			nil,
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"Ender Battlecruiser"
 		)
 		--[[
 		tyr_db:setLongDescription("The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could")
@@ -19531,7 +20405,8 @@ function gnat(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"sci_fi_alien_ship_4"
 		)
 	end
 	return ship
@@ -19562,7 +20437,8 @@ function cucaracha(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
 			nil,
-			nil		--jump range
+			nil,		--jump range
+			"space_tug"
 		)
 	end
 	return ship
@@ -19595,7 +20471,8 @@ function starhammerIII(enemyFaction)
 				{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 	end
 	return ship
@@ -19633,7 +20510,8 @@ function k2breaker(enemyFaction)
 				{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"sci_fi_alien_ship_2"
 		)
 	end
 	return ship
@@ -19684,7 +20562,8 @@ function hurricane(enemyFaction)
 				{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
 			},
-			"5 - 40 U"		--jump range
+			"5 - 40 U",		--jump range
+			"HeavyCorvetteRed"
 		)
 	end
 	return ship
@@ -19716,7 +20595,8 @@ function phobosT4(enemyFaction)
 				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
 		)
 	end
 	return ship
@@ -19763,7 +20643,8 @@ function whirlwind(enemyFaction)
 				{key = "Tube   2", value = "15 sec"},	--torpedo tube direction and load speed
 				{key = "Tube  -2", value = "15 sec"},	--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"HeavyCorvetteYellow"
 		)
 	end
 	return ship
@@ -19794,7 +20675,8 @@ function farco3(enemyFaction)
 				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
 		)
 	end
 	return ship
@@ -19824,7 +20706,8 @@ function farco5(enemyFaction)
 				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
 		)
 	end
 	return ship
@@ -19857,7 +20740,8 @@ function farco8(enemyFaction)
 				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
 		)
 	end
 	return ship
@@ -19890,7 +20774,8 @@ function farco11(enemyFaction)
 				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
 		)
 	end
 	return ship
@@ -19929,7 +20814,8 @@ function farco13(enemyFaction)
 				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
 				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
 		)
 	end
 	return ship
@@ -19955,7 +20841,8 @@ function hornetMT55(enemyFaction)
 			ship,			--ship just created, long description on the next line
 			"The MT55 Hornet is similar to the 52 series Hornet models. Its speed is faster but it turns more slowly",
 			nil,
-			nil
+			nil,
+			"WespeScoutYellow"
 		)
 	end
 	return ship
@@ -19988,7 +20875,8 @@ function hornetMU55(enemyFaction)
 			{
 				{key = "Small Tube 0", value = "40 sec"},	--torpedo tube size, direction and load speed
 			},
-			nil
+			nil,
+			"WespeScoutYellow"
 		)
 	end
 	return ship
@@ -20037,7 +20925,8 @@ function piranhaF10(enemyFaction)
 				{key = "Tube 90", value = "20 sec"},			--torpedo tube size, direction and load speed
 				{key = "Large tube 90", value = "15 sec"},		--torpedo tube size, direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"HeavyCorvetteRed"
 		)
 	end
 	return ship
@@ -20112,7 +21001,8 @@ function predatorV2(enemyFaction)
 				{key = " Tube 90", value = "13 sec"},		--torpedo tube size, direction and load speed
 				{key = "Large Tube 90", value = "18 sec"},	--torpedo tube size, direction and load speed
 			},
-			"5 - 35 U"		--jump range
+			"5 - 35 U",		--jump range
+			"HeavyCorvetteRed"
 		)
 		predator_v2_db:setImage("radar_missile_cruiser.png")		--override default radar image
 	end
@@ -20163,7 +21053,8 @@ function enforcerV2(enemyFaction)
 				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
 				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
 			},
-			nil
+			nil,
+			"battleship_destroyer_3_upgraded"
 		)
 		enforcer_v2_db:setImage("radar_ktlitan_destroyer.png")		--override default radar image
 	end
@@ -20221,7 +21112,8 @@ function gulper(enemyFaction)
 				{key = "   Tube 0", value = "12 sec"},		--torpedo tube size, direction and load speed
 				{key = "Large tube 0", value = "14 sec"},	--torpedo tube size, direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_4_upgraded"
 		)
 	end
 	return ship		
@@ -20251,7 +21143,8 @@ function diva(enemyFaction)
 				{key = "Tube 0", value = "15 sec"},			--torpedo tube size, direction and load speed
 				{key = "Tube 180", value = "15 sec"},		--torpedo tube size, direction and load speed
 			},
-			nil		--jump range
+			nil,		--jump range
+			"sci_fi_alien_ship_8"
 		)
 	end
 	return ship		
@@ -20307,12 +21200,51 @@ function loki(enemyFaction)
 				{key = "Tube 315", value = "3.5 sec"},		--torpedo tube size, direction and load speed
 				{key = "Large Tube 337.5", value = "3 sec"},--torpedo tube size, direction and load speed
 			},
-			"5 - 50 U"		--jump range
+			"5 - 50 U",		--jump range
+			"Ender Battlecruiser"
 		)
 	end
 	return ship		
 end
-function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range)
+function munemi(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Flash"):orderRoaming()
+	if ship_template["Munemi"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Munemi"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Munemi")
+	ship:setWarpDrive(true)
+	ship:setWarpSpeed(650)
+	ship:setTubeSize(1,"small")
+	ship:setWeaponTubeExclusiveFor(1,"EMP")
+	ship:setWeaponStorageMax("Homing", 12)		--more (vs 6)
+	ship:setWeaponStorage("Homing",    12)
+	ship:setWeaponStorageMax("EMP",    4)		--more (vs 0)
+	ship:setWeaponStorage("EMP",       4)
+	ship:setWeaponStorageMax("Nuke",   4)		--more (vs 2)
+	ship:setWeaponStorage("Nuke",      4)
+	local munemi_db = queryScienceDatabase("Ships","Frigate","Munemi")
+	if munemi_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Munemi")
+		munemi_db = queryScienceDatabase("Ships","Frigate","Munemi")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Exuari","Flash"),	--base ship database entry
+			munemi_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Munemi is loosely based on the Flash, but with a warp drive, twice the missiles and a stock of small EMPs",
+			{
+				{key = "Tube 0", value = "15 sec"},			--torpedo tube size, direction and load speed
+				{key = "Small Tube 0", value = "15 sec"},	--torpedo tube size, direction and load speed
+				{key = " Tube 0", value = "15 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil,
+			"small_frigate_2"
+		)
+	end
+	return ship		
+end
+function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
 	modified_db:setImage(base_db:getImage())
 	modified_db:setKeyValue("Class",base_db:getKeyValue("Class"))
@@ -20378,6 +21310,9 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 				modified_db:setKeyValue(string.format("Storage %s",missile_type),string.format("%i",max_storage))
 			end
 		end
+	end
+	if model_name ~= nil then
+		setScienceModel(modified_db,model_name)
 	end
 end
 --not included in random fleet spawn lists
@@ -20551,6 +21486,7 @@ function missilePod(enemyFaction)
 		missile_pod_db:setKeyValue("Class","Small")
 		missile_pod_db:setKeyValue("Size",300)
 		missile_pod_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_db,"space_station_4")
 	end
 	return ship
 end
@@ -20592,6 +21528,7 @@ function missilePodD1(enemyFaction)
 		missile_pod_d1_db:setKeyValue("Small Tube 0","5-10 Sec")
 		missile_pod_d1_db:setKeyValue("Storage HVLI",400)
 		missile_pod_d1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_d1_db,"space_station_4")
 	end
 	return ship
 end
@@ -20619,6 +21556,7 @@ function missilePodD2(enemyFaction)
 		missile_pod_d2_db:setKeyValue("Tube 0","11-15 Sec")
 		missile_pod_d2_db:setKeyValue("Storage HVLI",400)
 		missile_pod_d2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_d2_db,"space_station_4")
 	end
 	return ship
 end
@@ -20646,6 +21584,7 @@ function missilePodD4(enemyFaction)
 		missile_pod_d4_db:setKeyValue("Large Tube 0","15-20 Sec")
 		missile_pod_d4_db:setKeyValue("Storage HVLI",400)
 		missile_pod_d4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_d4_db,"space_station_4")
 	end
 	return ship
 end
@@ -20673,6 +21612,7 @@ function missilePodT1(enemyFaction)
 		missile_pod_t1_db:setKeyValue("Small Tube 0","12-17 Sec")
 		missile_pod_t1_db:setKeyValue("Storage Homing",400)
 		missile_pod_t1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_t1_db,"space_station_4")
 	end
 	return ship
 end
@@ -20700,6 +21640,7 @@ function missilePodT2(enemyFaction)
 		missile_pod_t2_db:setKeyValue("Tube 0","12-17 Sec")
 		missile_pod_t2_db:setKeyValue("Storage Homing",400)
 		missile_pod_t2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_t2_db,"space_station_4")
 	end
 	return ship
 end
@@ -20730,6 +21671,7 @@ function missilePodTI2(enemyFaction)
 		missile_pod_ti2_db:setKeyValue("Small Tube 270","12-17 Sec")
 		missile_pod_ti2_db:setKeyValue("Storage Homing",400)
 		missile_pod_ti2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_ti2_db,"space_station_4")
 	end
 	return ship
 end
@@ -20760,6 +21702,7 @@ function missilePodTI4(enemyFaction)
 		missile_pod_ti4_db:setKeyValue("Tube 270","16-22 Sec")
 		missile_pod_ti4_db:setKeyValue("Storage Homing",400)
 		missile_pod_ti4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_ti4_db,"space_station_4")
 	end
 	return ship
 end
@@ -20790,6 +21733,7 @@ function missilePodTI8(enemyFaction)
 		missile_pod_ti8_db:setKeyValue("Large Tube 270","21-27 Sec")
 		missile_pod_ti8_db:setKeyValue("Storage Homing",400)
 		missile_pod_ti8_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_ti8_db,"space_station_4")
 	end
 	return ship
 end
@@ -20826,6 +21770,7 @@ function missilePodTX4(enemyFaction)
 		missile_pod_tx4_db:setKeyValue("Small Tube 270","12-19 Sec")
 		missile_pod_tx4_db:setKeyValue("Storage Homing",400)
 		missile_pod_tx4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_tx4_db,"space_station_4")
 	end
 	return ship
 end
@@ -20862,6 +21807,7 @@ function missilePodTX8(enemyFaction)
 		missile_pod_tx8_db:setKeyValue("Tube 270","16-23 Sec")
 		missile_pod_tx8_db:setKeyValue("Storage Homing",400)
 		missile_pod_tx8_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_tx8_db,"space_station_4")
 	end
 	return ship
 end
@@ -20898,6 +21844,7 @@ function missilePodTX16(enemyFaction)
 		missile_pod_tx16_db:setKeyValue("Large Tube 270","21-28 Sec")
 		missile_pod_tx16_db:setKeyValue("Storage Homing",400)
 		missile_pod_tx16_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_tx16_db,"space_station_4")
 	end
 	return ship
 end
@@ -20926,6 +21873,7 @@ function missilePodS1(enemyFaction)
 		missile_pod_s1_db:setKeyValue("Small Tube 0","17-22 Sec")
 		missile_pod_s1_db:setKeyValue("Storage EMP",200)
 		missile_pod_s1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_s1_db,"space_station_4")
 	end
 	return ship
 end
@@ -20954,6 +21902,7 @@ function missilePodS4(enemyFaction)
 		missile_pod_s4_db:setKeyValue("Large Tube 0","45-70 Sec")
 		missile_pod_s4_db:setKeyValue("Storage EMP",200)
 		missile_pod_s4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(missile_pod_s4_db,"space_station_4")
 	end
 	return ship
 end
@@ -21050,6 +21999,7 @@ function commandBase(enemyFaction)
 		command_base_db:setKeyValue("Tube 270","10 Sec")
 		command_base_db:setKeyValue("Storage Homing",400)
 		command_base_db:setKeyValue("Allowed to Dock","Starfighter/Frigate/Corvette")
+		setScienceModel(command_base_db,"transport_4_2")
 	end
 	return ship	
 end
@@ -21144,6 +22094,7 @@ function militaryOutpost(enemyFaction)
 		military_outpost_db:setKeyValue("Tube 270","10 Sec")
 		military_outpost_db:setKeyValue("Storage HVLI",400)
 		military_outpost_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(military_outpost_db,"space_station_4")
 	end
 	return ship	
 end
@@ -21208,8 +22159,23 @@ function sniperTower(enemyFaction)
 		sniper_tower_db:setKeyValue("Beam weapon 270:10","6.0 Dmg / 6.0 Sec")
 		sniper_tower_db:setKeyValue("Beam Range","6 Units")
 		sniper_tower_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
+		setScienceModel(sniper_tower_db,"space_station_4")
 	end
 	return ship	
+end
+function setScienceModel(sci_db,model_name)
+	local ee_version = getEEVersion()
+	local year = string.sub(ee_version,1,4)
+	local year_number = tonumber(year)
+	if year_number < 2021 then
+		return
+	end
+	local month_day = string.sub(ee_version,5)
+	local month_day_number = tonumber(month_day)
+	if month_day_number == 331 or month_day_number == 316 then
+		return
+	end
+	sci_db:setModelDataName(model_name)
 end
 --	*											   *  --
 --	**											  **  --
@@ -30173,27 +31139,29 @@ function friendlyComms(comms_data)
 		commsSwitchToGM()
 		addCommsReply("Back", commsShip)
 	end)
-	addCommsReply("Defend a waypoint", function()
-		if comms_source:getWaypointCount() == 0 then
-			setCommsMessage("No waypoints set. Please set a waypoint first.");
-			addCommsReply("Back", commsShip)
-		else
-			setCommsMessage("Which waypoint should we defend?");
-			for n=1,comms_source:getWaypointCount() do
-				addCommsReply("Defend WP" .. n, function()
-					comms_target:orderDefendLocation(comms_source:getWaypoint(n))
-					setCommsMessage("We are heading to assist at WP" .. n ..".");
-					addCommsReply("Back", commsShip)
-				end)
+	if comms_target.commerce_target == nil then
+		addCommsReply("Defend a waypoint", function()
+			if comms_source:getWaypointCount() == 0 then
+				setCommsMessage("No waypoints set. Please set a waypoint first.");
+				addCommsReply("Back", commsShip)
+			else
+				setCommsMessage("Which waypoint should we defend?");
+				for n=1,comms_source:getWaypointCount() do
+					addCommsReply("Defend WP" .. n, function()
+						comms_target:orderDefendLocation(comms_source:getWaypoint(n))
+						setCommsMessage("We are heading to assist at WP" .. n ..".");
+						addCommsReply("Back", commsShip)
+					end)
+				end
 			end
-		end
-	end)
-	if comms_data.friendlyness > 0.2 then
-		addCommsReply("Assist me", function()
-			setCommsMessage("Heading toward you to assist.");
-			comms_target:orderDefendTarget(comms_source)
-			addCommsReply("Back", commsShip)
 		end)
+		if comms_data.friendlyness > 0.2 then
+			addCommsReply("Assist me", function()
+				setCommsMessage("Heading toward you to assist.");
+				comms_target:orderDefendTarget(comms_source)
+				addCommsReply("Back", commsShip)
+			end)
+		end
 	end
 	addCommsReply("Report status", function()
 		msg = "Hull: " .. math.floor(comms_target:getHull() / comms_target:getHullMax() * 100) .. "%\n"
@@ -34517,6 +35485,27 @@ function updateInner(delta)
 	if jump_train ~= nil then
 		updateJumpTrain()
 	end
+	if skeletal_commerce then
+		skeletal_commerce_timer = skeletal_commerce_timer - delta
+		if skeletal_commerce_timer < 0 then
+			updateCommerce(skeletal_commerce_assets)
+			skeletal_commerce_timer = commerce_timer_interval
+		end
+	end
+	if icarus_commerce then
+		icarus_commerce_timer = icarus_commerce_timer - delta
+		if icarus_commerce_timer < 0 then
+			updateCommerce(icarus_commerce_assets,stationIcarus)
+			icarus_commerce_timer = commerce_timer_interval
+		end
+	end
+	if kentar_commerce then
+		kentar_commerce_timer = kentar_commerce_timer - delta
+		if kentar_commerce_timer < 0 then
+			updateCommerce(kentar_commerce_assets,stationKentar)
+			kentar_commerce_timer = commerce_timer_interval
+		end
+	end
 	if updateDiagnostic then print("update: end of update function") end
 end
 function updatePlayerPodTelemetryButton(p)
@@ -36118,6 +37107,60 @@ function updateJumpTrain()
 	else
 		jump_train = nil
 	end
+end
+function updateCommerce(assets,region_station)
+	local display_region_station = "none (skeletal)"
+	if region_station ~= nil then
+		display_region_station = region_station:getCallSign()
+	end
+--	print("commerce timer expired:",display_region_station,"Count of assets:",#assets)
+	if assets ~= nil then
+		if #assets > 0 then
+			for index, ship in ipairs(assets) do
+				if ship ~= nil and ship:isValid() and ship.commerce_escort == nil then
+--					print("Checking ship (not an escort):",ship:getCallSign())
+					local docked_object = ship:getDockedWith()
+					if docked_object ~= nil then
+--						print("    Docked")
+						if ship.commerce_target == docked_object then
+							if region_station == nil then
+								skeletalDestination(ship)
+							else
+								regionCommerceDestination(ship,region_station)
+							end
+						elseif ship.commerce_origin ~= docked_object then
+							if region_station == nil then
+								skeletalDestination(ship)
+							else
+								regionCommerceDestination(ship,region_station)
+							end
+						end
+						ship:orderDock(ship.commerce_target)
+					else	--not docked
+--						print("    Not Docked")
+						if not string.find(ship:getOrder(),"Dock") then
+							if ship.commerce_target == nil then
+								if region_station == nil then
+									skeletalDestination(ship)
+								else
+									regionCommerceDestination(ship,region_station)
+								end
+							else
+								if not ship.commerce_target:isValid() then
+									if region_station == nil then
+										skeletalDestination(ship)
+									else
+										regionCommerceDestination(ship,region_station)
+									end
+								end
+							end
+							ship:orderDock(ship.commerce_target)
+						end	--of not ordered to dock
+					end	--of not docked else branch
+				end	--of ship is not nil and valid branch
+			end	--of skeletal commerce asset loop
+		end	--of zero item check branch
+	end	--not nil commercial asset list check branch
 end
 function update(delta)
 	callWithErrorHandling(updateInner,delta)
