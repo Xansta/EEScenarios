@@ -8843,6 +8843,9 @@ function removeKentarColor()
 		end
 	end
 	kentar_defense_platforms = nil
+	if kentar_commerce then
+		removeKentarCommerce()
+	end
 end
 --	Eris area stations, asteroids, mines, etc.
 function erisSector(x,y)
