@@ -2093,9 +2093,7 @@ function updateSystem()
 				center_y = center_y,
 				distance = distance,
 				orbit_time = orbit_time/(2*math.pi),
-				initial_angle = initial_angle, -- this looks obsolete, test removal with proper testing
 				start_offset = (initial_angle/360)*orbit_time,
-				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
 				edit = {
 					-- center x and y should be added when it can be - it probably wants an onclick handler
 					{name = "distance" , fixedAdjAmount=1000},
@@ -2106,8 +2104,7 @@ function updateSystem()
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
 					assert(type(delta)=="number")
-					self.time = self.time + delta
-					local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+					local orbit_pos=((getScenarioTime() + self.start_offset)/self.orbit_time)
 					obj:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
 				end
 			}
