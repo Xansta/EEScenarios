@@ -2032,56 +2032,48 @@ function updateSystem()
 			end
 			self:addPeriodicCallback(obj,callback,period)
 		end,
-		addArtifactCyclicalColorUpdate = function(self, obj, red_start, red_min, red_max, red_time, green_start, green_min, green_max, green_time, blue_start, blue_min, blue_max, blue_time)
+		addArtifactCyclicalColorUpdate = function(self, obj, red_start, red1, red2, red_time, green_start, green1, green2, green_time, blue_start, blue1, blue2, blue_time)
+			-- cycles from colour1 to colour2 in colour_time
+			-- at the end of the cycle it will jump from colour2 to colour1
+			-- colour_start specifices how many seconds it should of been running by the time the function is called
+			-- so 0 = starts with colour1, getScenarioTime() starts as if it has been running and cycling since the start of the scenario
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(red_start)=="number")
-			assert(type(red_min)=="number")
-			assert(type(red_max)=="number")
+			assert(type(red1)=="number")
+			assert(type(red2)=="number")
 			assert(type(red_time)=="number")
 			assert(type(green_start)=="number")
-			assert(type(green_min)=="number")
-			assert(type(green_max)=="number")
+			assert(type(green1)=="number")
+			assert(type(green2)=="number")
 			assert(type(green_time)=="number")
 			assert(type(blue_start)=="number")
-			assert(type(blue_min)=="number")
-			assert(type(blue_max)=="number")
+			assert(type(blue1)=="number")
+			assert(type(blue2)=="number")
 			assert(type(blue_time)=="number")
 			local update_data = {
 				name = "color",
-				red_start = red_start,
-				red_min = red_min,
-				red_max = red_max,
+				red_start = red_start - getScenarioTime(),
+				red1 = red1,
+				red2 = red2,
 				red_time = red_time,
-				red_current = red_start,
-				green_start = green_start,
-				green_min = green_min,
-				green_max = green_max,
+				green_start = green_start - getScenarioTime(),
+				green1 = green1,
+				green2 = green2,
 				green_time = green_time,
-				green_current = green_start,
-				blue_start = blue_start,
-				blue_min = blue_min,
-				blue_max = blue_max,
+				blue_start = blue_start - getScenarioTime(),
+				blue1 = blue1,
+				blue2 = blue2,
 				blue_time = blue_time,
-				blue_current = blue_start,
 				edit = {},
 				update = function(self, obj, delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
 					assert(type(delta)=="number")
-					self.red_current = self.red_current + (self.red_max - self.red_min)/self.red_time*delta
-					if self.red_current > self.red_max then
-						self.red_current = self.red_min
-					end
-					self.green_current = self.green_current + (self.green_max - self.green_min)/self.green_time*delta
-					if self.green_current > self.green_max then
-						self.green_current = self.green_min
-					end
-					self.blue_current = self.blue_current + (self.blue_max - self.blue_min)/self.blue_time*delta
-					if self.blue_current > self.blue_max then
-						self.blue_current = self.blue_min
-					end
-					obj:setRadarTraceColor(math.floor(self.red_current),math.floor(self.green_current),math.floor(self.blue_current))
+					local r = math.lerp(self.red1,self.red2,((getScenarioTime()+self.red_start) % self.red_time)/self.red_time)
+					local g = math.lerp(self.green1,self.green2,((getScenarioTime()+self.green_start) % self.green_time)/self.green_time)
+					local b = math.lerp(self.blue1,self.blue2,((getScenarioTime()+self.blue_start) % self.blue_time)/self.blue_time)
+					obj:setRadarTraceColor(math.floor(r),math.floor(g),math.floor(b))
 				end
 			}
 			self:addUpdate(obj,"artifactColor",update_data)
@@ -4414,28 +4406,28 @@ function customButtons()
 		local number_in_ring = 20
 		local clockwise_objs=createObjectCircle{number = number_in_ring}
 		local a_c = {
-		--		red						green					blue
-		--		start	min	max	time	start	min	max	time	start	min	max	time
-			{	128,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
-			{	128,	128,255,4,		32,		32,	255,4,		0,		0,	255,4	},
-			{	128,	128,255,3,		64,		64,	255,3,		0,		0,	255,3	},
-			{	128,	128,255,6,		96,		96,	255,6,		0,		0,	255,6	},
-			{	96,		96, 255,2,		128,	128,255,2,		0,		0,	255,2	},
-			{	64,		64,	255,4,		128,	128,255,4,		0,		0,	255,4	},
-			{	32,		32,	255,3,		128,	128,255,3,		0,		0,	255,3	},
-			{	0,		0,	255,6,		128,	128,255,6,		32,		32,	255,6	},
-			{	0,		0,	255,2,		128,	128,255,2,		64,		64,	255,2	},
-			{	0,		0,	255,4,		128,	128,255,4,		96,		96,	255,4	},
-			{	0,		0,	255,3,		128,	128,255,3,		128,	128,255,3	},
-			{	0,		0,	255,6,		96,		96,	255,6,		128,	128,255,6	},
-			{	0,		0,	255,2,		64,		64,	255,2,		128,	128,255,2	},
-			{	0,		0,	255,4,		0,		0,	255,4,		128,	128,255,4	},
-			{	32,		32,	255,3,		0,		0,	255,3,		128,	128,255,3	},
-			{	64,		64,	255,6,		0,		0,	255,6,		128,	128,255,6	},
-			{	96,		96,	255,2,		0,		0,	255,2,		128,	128,255,2	},
-			{	128,	128,255,4,		0,		0,	255,4,		96,		96,	255,4	},
-			{	128,	128,255,3,		0,		0,	255,3,		64,		64,	255,3	},
-			{	128,	128,255,6,		0,		0,	255,6,		32,		32,	255,6	},
+		--	red						green					blue
+		--	start	min	max	time	start	min	max	time	start	min	max	time
+			{	0,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
+			{	0,	128,255,4,		0,		32,	255,4,		0,		0,	255,4	},
+			{	0,	128,255,3,		0,		64,	255,3,		0,		0,	255,3	},
+			{	0,	128,255,6,		0,		96,	255,6,		0,		0,	255,6	},
+			{	0,	96, 255,2,		0,		128,255,2,		0,		0,	255,2	},
+			{	0,	64,	255,4,		0,		128,255,4,		0,		0,	255,4	},
+			{	0,	32,	255,3,		0,		128,255,3,		0,		0,	255,3	},
+			{	0,	0,	255,6,		0,		128,255,6,		0,		32,	255,6	},
+			{	0,	0,	255,2,		0,		128,255,2,		0,		64,	255,2	},
+			{	0,	0,	255,4,		0,		128,255,4,		0,		96,	255,4	},
+			{	0,	0,	255,3,		0,		128,255,3,		0,		128,255,3	},
+			{	0,	0,	255,6,		0,		96,	255,6,		0,		128,255,6	},
+			{	0,	0,	255,2,		0,		64,	255,2,		0,		128,255,2	},
+			{	0,	0,	255,4,		0,		0,	255,4,		0,		128,255,4	},
+			{	0,	32,	255,3,		0,		0,	255,3,		0,		128,255,3	},
+			{	0,	64,	255,6,		0,		0,	255,6,		0,		128,255,6	},
+			{	0,	96,	255,2,		0,		0,	255,2,		0,		128,255,2	},
+			{	0,	128,255,4,		0,		0,	255,4,		0,		96,	255,4	},
+			{	0,	128,255,3,		0,		0,	255,3,		0,		64,	255,3	},
+			{	0,	128,255,6,		0,		0,	255,6,		0,		32,	255,6	},
 		}
 		for i=1,#clockwise_objs do
 			if a_c[i] ~= nil then
