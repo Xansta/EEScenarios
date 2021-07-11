@@ -1564,6 +1564,31 @@ function updateSystem()
 			end
 			return ret
 		end,
+		-- move an object along a list of points, cycling every repeat_time
+		-- due to the copy made of points it is kind of memory hungry
+		-- caution should be used if you are creating a lot of these objects
+		addUpdateFixedPositions = function (self, obj, repeat_time, points)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(repeat_time)=="number")
+			assert(type(points)=="table")
+			-- points is really an array of objects with an x & y location
+			local update_data = {
+					name = "fixedPositions",
+					repeat_time = repeat_time,
+					points = points,
+					edit = {
+					},
+				update = function (self,obj,delta)
+					assert(type(self)=="table")
+					assert(type(obj)=="table")
+					assert(type(delta)=="number")
+					local orbit_pos = math.floor(((getScenarioTime() % self.repeat_time) / self.repeat_time) * #points)+1
+					obj:setPosition(points[orbit_pos].x,points[orbit_pos].y)
+				end
+			}
+			self:addUpdate(obj,"absolutePosition",update_data)
+		end,
 		-- I am less than sure this is the best setup
 		-- should it take an angle?
 		-- should dx and dy not be scaled by speed
