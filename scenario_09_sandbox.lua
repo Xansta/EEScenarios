@@ -1589,6 +1589,66 @@ function updateSystem()
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
+		addSlowAndAccurateElliptical = function (self, obj, cx, cy, orbit_duration, rotation, e, semi_major_axis, start_angle)
+			-- much of the cost of this is in the making the orbit speed up in the center
+			-- there is a fairly heavy computational cost in generating the orbit
+			-- and a fairly large array used after calculation
+			-- in other words be very mindful when using this elsewhere
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(cx)=="number")
+			assert(type(cy)=="number")
+			assert(type(orbit_duration)=="number")
+			assert(type(rotation)=="number")
+			assert(type(e)=="number")
+			assert(type(semi_major_axis)=="number")
+			assert(type(start_angle)=="number")
+			local locs = {}
+			local triangles = {}
+			local area = {}
+			local total_area = 0
+			local desired_points = orbit_duration * 50
+			local total_segments = desired_points * 10
+			-- we generate more points at an equal angle around the ellipse
+			-- we are then going to calculate the area under a triangle made
+			-- by each point
+			for i = 0, total_segments do
+				local angle = ((start_angle/360)*math.pi*2) + ((math.pi * 2)/total_segments * -i)
+				local minor_axis = semi_major_axis * (math.sqrt(1-e*e))
+				local c = semi_major_axis * e
+				local r = minor_axis * minor_axis / (semi_major_axis - c * math.cos(angle))
+				angle = angle + ((rotation/360) * math.pi*2)
+				locs[i]={x=math.cos(angle) * r,y = math.sin(angle) * r, r=r}
+				-- we start with the fomula for the area of a triangle with 2 sides and 1 angle
+				-- which given the lines a, b & angle c is
+				-- which is 0.5*a*b*sin(C)
+				-- the real area isnt the goal - just the relative scaling between the triangles
+				-- as C is a constant sin(C) is a constant, and the 0.5 and sin(C) for each triangle can be ignored
+				-- thus for our purpose the area is a*b
+				if i ~= 0 then
+					area[i-1] = locs[i].r *locs[i-1].r
+					total_area = total_area + area[i-1]
+				end
+				if i == total_segments then
+					area[i] = locs[i].r *locs[0].r
+					total_area = total_area + area[i]
+				end
+			end
+			-- we now know the total area
+			-- we also know the area of each triangle
+			-- we also know from kepler's second law that an orbit will go over the same area with the same amount of time
+			-- using this we will calculate the number of points requested
+			local end_points = {}
+			local desired_area = 0
+			for i=0,total_segments do
+				if desired_area <= 0 then
+					desired_area = desired_area + total_area / desired_points
+					end_points[#end_points+1] = {x = locs[i].x + cx, y = locs[i].y + cy}
+				end
+				desired_area = desired_area - area[i]
+			end
+			update_system:addUpdateFixedPositions(obj,orbit_duration,end_points)
+		end,
 		-- I am less than sure this is the best setup
 		-- should it take an angle?
 		-- should dx and dy not be scaled by speed
