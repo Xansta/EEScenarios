@@ -30697,6 +30697,31 @@ function starryOneOff()
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy+i_2)
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
 	end)
+	addGMFunction("Kraylor Rift Base", function () -- based on Kraylor Research Base
+		local cx=349706
+		local cy=329658
+		local inner_ring_speed=180
+		local i_rad=5200
+		local i_1=15000
+		local i_2=math.sqrt(2)*i_1/2
+		mineRingShim{dist=20000	,x=cx		,y=cy		,gap=3,gap_size=20,speed=1800,segments=6}
+		mineRingShim{dist=7000	,x=cx		,y=cy		,gap=12,gap_size=30,speed=120 ,segments=8}
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=9,gap_size=40,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=9,gap_size=40,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=9,gap_size=40,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=9,gap_size=40,speed= inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=9,gap_size=40,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=9,gap_size=40,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=9,gap_size=40,speed=-inner_ring_speed,segments=2}
+		mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=9,gap_size=40,speed=-inner_ring_speed,segments=2}
+		createObjectCircle{radius=5000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction("Kraylor") end}
+		createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return WarpJammer():setFaction("Kraylor") end}
+		leech("Kraylor"):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
+		leech("Kraylor"):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
+		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
+		leech("Kraylor"):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
+		Artifact():setPosition(cx+0,cy+0):setCallSign("Rift Scanner")
+	end)
 end
 ----------------------------------------------
 --	Custom > One-Offs > Starry > Christmas  --
