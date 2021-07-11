@@ -7862,7 +7862,7 @@ function createKentarStations()
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
 
-	-- Gateway
+	--Gateway
 	local gateway_x = 59893
 	local gateway_y = 373681
 	local e = 0.95
@@ -7939,9 +7939,6 @@ function createKentarStations()
 	local gateway_offset = orbit_inner + 7000
 	local gateway_station_x = gateway_x + math.sin(((60  )/360)*math.pi*2)*gateway_offset
 	local gateway_station_y = gateway_y - math.cos(((60  )/360)*math.pi*2)*gateway_offset
-
-	militaryOutpost("Human Navy"):setPosition(gateway_station_x - 1000, gateway_station_y - 1000):setCallSign("GMO")
-	sniperTower("Human Navy"):setPosition(gateway_station_x - 1500, gateway_station_y + 1500):setCallSign("GST")
 
 	-- these command bases are semi temporary
 	-- at some point
