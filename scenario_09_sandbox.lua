@@ -7861,12 +7861,94 @@ function createKentarStations()
 	if random(1,100) <= 17 then stationGamma3:setSharesEnergyWithDocked(false) end
 	station_names[stationGamma3:getCallSign()] = {stationGamma3:getSectorName(), stationGamma3}
 	table.insert(stations,stationGamma3)
-	--Gateway
+
+	-- Gateway
 	local gateway_x = 59893
 	local gateway_y = 373681
---	local gatewayZone = squareZone(gateway_x, gateway_y, "Gateway X7")
---	gatewayZone:setColor(0,128,0)
-    stationGateway = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gateway"):setPosition(gateway_x, gateway_y):setDescription("Subspace Rift Research and Construction"):setCommsScript(""):setCommsFunction(commsStation)
+	local e = 0.95
+	local semi_major_axis = 10000
+	local orbit_inner = 5000
+	local orbit_focal = orbit_inner + semi_major_axis*(1-e) -- width of central offset + distance at perihelion
+	local orbit_mid = orbit_inner + semi_major_axis
+	local orbit_far = orbit_inner + semi_major_axis*2
+	local orbit_time = 30
+	local o = orbit_time
+	local l = 50 -- low_colour
+	local low2 = 128
+	local h =255 -- high_colour
+	local red_artifact = Artifact()
+	update_system:addArtifactCyclicalColorUpdate(red_artifact,getScenarioTime(),low2,h,o,l,l,l,o,l,l,l,o)
+	local green_artifact = Artifact()
+	update_system:addArtifactCyclicalColorUpdate(green_artifact,l,l,l,o,getScenarioTime(),low2,h,o,l,l,l,o)
+	local blue_artifact = Artifact()
+	update_system:addArtifactCyclicalColorUpdate(blue_artifact,l,l,l,o,l,l,l,o,getScenarioTime(),low2,h,o)
+	update_system:addSlowAndAccurateElliptical(red_artifact, gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_focal, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_focal, orbit_time, -90, e, semi_major_axis,180)
+	update_system:addSlowAndAccurateElliptical(green_artifact, gateway_x + math.sin(((120)/360)*math.pi*2)*orbit_focal, gateway_y - math.cos(((120)/360)*math.pi*2)*orbit_focal, orbit_time, 120-90, e,semi_major_axis,180)
+	update_system:addSlowAndAccurateElliptical(blue_artifact, gateway_x + math.sin(((240)/360)*math.pi*2)*orbit_focal, gateway_y - math.cos(((240)/360)*math.pi*2)*orbit_focal, orbit_time, 240-90, e,semi_major_axis,180)
+
+	-- there is an internal logic to the callsigns
+	-- I dont mind if the style is changed, but the internal logic is important IMO
+	-- I feel that an internal logic is important, even if its not completely self evidence
+	-- general form is (colour)(reason for station)(station itteration)
+
+	-- the color near stations
+	-- coms scripts are disabled due to not wantint players to have unlimited restock
+	-- ideally it would be changed to an automated message, but I havent got round to it
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RN1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_inner, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_inner):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GN1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_inner, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_inner):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BN1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_inner, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_inner):setCommsFunction(SwitchToGM)
+
+	-- the color far stations
+	SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM)
+
+	-- the mid way "guidance" stations, split to left center and right
+	local guidance_width = 14
+	SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+	SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  - guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  -guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+	SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGR1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0    +guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  + guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGR1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  +guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  + guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGR1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  +guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  + guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM)
+
+	-- outer defence platforms
+	local outer_defence_dist = orbit_far + 2000
+	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp:setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((0  )/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
+	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
+	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
+
+	local orbit_time = 15
+	local red_artifact = Artifact()
+	update_system:addArtifactCyclicalColorUpdate(red_artifact,getScenarioTime(),h,low2,o,l,l,l,o,l,l,l,o)
+	local green_artifact = Artifact()
+	update_system:addArtifactCyclicalColorUpdate(green_artifact,l,l,l,o,getScenarioTime(),h,low2,o,l,l,l,o)
+	local blue_artifact = Artifact()
+	update_system:addArtifactCyclicalColorUpdate(blue_artifact,l,l,l,o,l,l,l,o,getScenarioTime(),h,low2,o)
+
+	update_system:addOrbitUpdate(red_artifact,gateway_x,gateway_y,orbit_inner,orbit_time,90+180)
+	update_system:addOrbitUpdate(green_artifact:setRadarTraceColor(0,255,0),gateway_x,gateway_y,orbit_inner,orbit_time,120+90+180)
+	update_system:addOrbitUpdate(blue_artifact:setRadarTraceColor(0,0,255),gateway_x,gateway_y,orbit_inner,orbit_time,240+90+180)
+
+	local gateway_offset = orbit_inner + 7000
+	local gateway_station_x = gateway_x + math.sin(((60  )/360)*math.pi*2)*gateway_offset
+	local gateway_station_y = gateway_y - math.cos(((60  )/360)*math.pi*2)*gateway_offset
+
+	militaryOutpost("Human Navy"):setPosition(gateway_station_x - 1000, gateway_station_y - 1000):setCallSign("GMO")
+	sniperTower("Human Navy"):setPosition(gateway_station_x - 1500, gateway_station_y + 1500):setCallSign("GST")
+
+	-- these command bases are semi temporary
+	-- at some point
+	commandBase("Human Navy"):setPosition(gateway_x + math.sin(((180  )/360)*math.pi*2)*gateway_offset,gateway_y - math.cos(((180  )/360)*math.pi*2)*gateway_offset ):setCallSign("GCB1")
+	commandBase("Human Navy"):setPosition(gateway_x + math.sin(((300  )/360)*math.pi*2)*gateway_offset,gateway_y - math.cos(((300  )/360)*math.pi*2)*gateway_offset ):setCallSign("GCB2")
+
+    stationGateway = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Gateway"):setPosition(gateway_station_x, gateway_station_y):setDescription("Subspace Rift Research and Construction"):setCommsScript(""):setCommsFunction(commsStation)
     stationGateway:setShortRangeRadarRange(8000)
     stationGateway.comms_data = {
     	friendlyness = 68,
@@ -7904,18 +7986,6 @@ function createKentarStations()
 	if random(1,100) <= 12 then stationGateway:setRestocksScanProbes(false) end
 	if random(1,100) <= 31 then stationGateway:setRepairDocked(false) end
 	if random(1,100) <= 17 then stationGateway:setSharesEnergyWithDocked(false) end
-	local mo = militaryOutpost("Human Navy")
-	mo:setPosition(gateway_x - 1000, gateway_y - 1000):setCallSign("GMO")
-	local cb = commandBase("Human Navy")
-	cb:setPosition(gateway_x - 1000, gateway_y + 1300):setCallSign("GCB1")
-	cb = commandBase("Human Navy")
-	cb:setPosition(gateway_x + 1300, gateway_y - 1000):setCallSign("GCB2")
-	local st = sniperTower("Human Navy")
-	st:setPosition(gateway_x + 800, gateway_y + 800):setCallSign("GST")
-	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
-	dp:setPosition(gateway_x - 1000, gateway_y - 2200):setCallSign("GDP1"):setScanState("simplescan")
-	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
-	dp:setPosition(gateway_x - 2200, gateway_y - 1000):setCallSign("GDP2"):setScanState("simplescan")
 	station_names[stationGateway:getCallSign()] = {stationGateway:getSectorName(), stationGateway}
 	table.insert(stations,stationGateway)
 	--Katanga
