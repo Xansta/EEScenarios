@@ -358,7 +358,7 @@ function addPlayerShip(name,active,func,data)
 	assert(type(data.strength)=="number")
 	assert(type(data.ftl)=="string")
 	assert(type(data.lrs)=="number")
-	table.insert(playerShipInfo,{name,active,func,data,desc})
+	table.insert(playerShipInfo,{name = name,active = active,spawn = func,data = data})
 end
 function setConstants()
 	universe=universe()
@@ -12501,12 +12501,11 @@ function activePlayerShip()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
 	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][2] == "active" then
-			local desc = playerShipInfo[shipNum][1]
-			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum][4].strength,playerShipInfo[shipNum][4].ftl,playerShipInfo[shipNum][4].lrs,desc),
+		if playerShipInfo[shipNum]["active"] == "active" then
+			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum]["data"].strength,playerShipInfo[shipNum]["data"].ftl,playerShipInfo[shipNum]["data"].lrs,playerShipInfo[shipNum]["name"]),
 				function ()
-					playerShipInfo[shipNum][3]()
-					playerShipInfo[shipNum][2] = "inactive"
+					playerShipInfo[shipNum]["spawn"]()
+					playerShipInfo[shipNum]["active"] = "inactive"
 					activePlayerShip()
 			end)
 		end
@@ -12529,9 +12528,9 @@ function inactivePlayerShip()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
 	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][2] == "inactive" then
-			local desc = playerShipInfo[shipNum][1]
-			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum][4].strength,playerShipInfo[shipNum][4].ftl,playerShipInfo[shipNum][4].lrs,desc),playerShipInfo[shipNum][3])
+		if playerShipInfo[shipNum]["active"] == "inactive" then
+			local desc = playerShipInfo[shipNum]["name"]
+			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum]["data"].strength,playerShipInfo[shipNum]["data"].ftl,playerShipInfo[shipNum]["data"].lrs,desc),playerShipInfo[shipNum]["spawn"])
 		end
 	end
 end
