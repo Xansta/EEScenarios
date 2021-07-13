@@ -24,7 +24,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.12"
+	scenario_version = "3.5.13"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -787,7 +787,7 @@ function setConstants()
 		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3	},
 		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0	},
 		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0	},
-		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0	},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5	},
 		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0	},
 		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0	},
 		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0	},
@@ -885,6 +885,7 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,{ftl = "J", lrs = 41})
 	makePlayerShipActive("Spyder")
 	makePlayerShipActive("Enola")
+	makePlayerShipActive("Arwine")
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
 	defendFleetFunction = {orderFleetDefend1,orderFleetDefend2,orderFleetDefend3,orderFleetDefend4,orderFleetDefend5,orderFleetDefend6,orderFleetDefend7,orderFleetDefend8}
@@ -1539,7 +1540,7 @@ function updateSystem()
 						display_name = display_name .. "[" .. array_index .. "]"
 					end
 					table.insert(edit,{
-						getter = function ()
+						getter = function()
 							-- note the time that this is executed the number of updates and their order may of changed
 							-- as such we have to fetch them from scratch
 							-- this probably could use being tested better, ideally added into the testing code
@@ -1550,7 +1551,7 @@ function updateSystem()
 							assert(type(ret)=="number")
 							return ret
 						end,
-						setter = function (val)
+						setter = function(val)
 							if array_index == nil then
 								self:getUpdateNamed(obj,update_name)[name]=val
 							else
@@ -1568,32 +1569,32 @@ function updateSystem()
 			end
 			return ret
 		end,
-		-- move an object along a list of points, cycling every repeat_time
+		-- move an object along a list of points, cycling every again_time 
+		-- Note: my text editor tries to pair repeat_time with other bits of code, so I changed it to again_time
 		-- due to the copy made of points it is kind of memory hungry
 		-- caution should be used if you are creating a lot of these objects
-		addUpdateFixedPositions = function (self, obj, repeat_time, points)
+		addUpdateFixedPositions = function(self, obj, again_time, points)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
-			assert(type(repeat_time)=="number")
+			assert(type(again_time)=="number")
 			assert(type(points)=="table")
 			-- points is really an array of objects with an x & y location
 			local update_data = {
-					name = "fixedPositions",
-					repeat_time = repeat_time,
-					points = points,
-					edit = {
-					},
-				update = function (self,obj,delta)
+				name = "fixedPositions",
+				again_time = again_time,
+				points = points,
+				edit = {},
+				update = function(self,obj,delta)
 					assert(type(self)=="table")
 					assert(type(obj)=="table")
 					assert(type(delta)=="number")
-					local orbit_pos = math.floor(((getScenarioTime() % self.repeat_time) / self.repeat_time) * #points)+1
+					local orbit_pos = math.floor(((getScenarioTime() % self.again_time) / self.again_time) * #points) + 1
 					obj:setPosition(points[orbit_pos].x,points[orbit_pos].y)
 				end
 			}
 			self:addUpdate(obj,"absolutePosition",update_data)
 		end,
-		addSlowAndAccurateElliptical = function (self, obj, cx, cy, orbit_duration, rotation, e, semi_major_axis, start_angle)
+		addSlowAndAccurateElliptical = function(self, obj, cx, cy, orbit_duration, rotation, e, semi_major_axis, start_angle)
 			-- much of the cost of this is in the making the orbit speed up in the center
 			-- there is a fairly heavy computational cost in generating the orbit
 			-- and a fairly large array used after calculation
@@ -1642,16 +1643,17 @@ function updateSystem()
 			-- we also know the area of each triangle
 			-- we also know from kepler's second law that an orbit will go over the same area with the same amount of time
 			-- using this we will calculate the number of points requested
-			local end_points = {}
+			-- Note: my text editor tries to pair end_points with other bits of code, so I changed it to completion_points
+			local completion_points = {}
 			local desired_area = 0
 			for i=0,total_segments do
 				if desired_area <= 0 then
 					desired_area = desired_area + total_area / desired_points
-					end_points[#end_points+1] = {x = locs[i].x + cx, y = locs[i].y + cy}
+					completion_points[#completion_points+1] = {x = locs[i].x + cx, y = locs[i].y + cy}
 				end
 				desired_area = desired_area - area[i]
 			end
-			update_system:addUpdateFixedPositions(obj,orbit_duration,end_points)
+			update_system:addUpdateFixedPositions(obj,orbit_duration,completion_points)
 		end,
 		-- I am less than sure this is the best setup
 		-- should it take an angle?
@@ -14442,8 +14444,8 @@ function createPlayerShipArwine()
 	playerArwine:setImpulseMaxSpeed(70)						--faster impulse max (vs 40)
 	playerArwine:setHullMax(150)							--stronger hull (vs 120)
 	playerArwine:setHull(150)
-	playerArwine:setShieldsMax(100,100)						--stronger shields (vs 70, 70)
-	playerArwine:setShields(100,100)
+	playerArwine:setShieldsMax(120,120)						--stronger shields (vs 70, 70)
+	playerArwine:setShields(120,120)
 	playerArwine:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
 	playerArwine:setBeamWeaponTurret(0, 80, 0, .2)			--slow turret
 	playerArwine:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
@@ -14467,6 +14469,21 @@ function createPlayerShipArwine()
 	playerArwine:setWeaponStorage("EMP", 4)					
 	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerArwine:setWeaponStorage("Nuke", 4)				
+	playerArwine:setSystemCoolantRate("reactor",		1.3)	--more (vs 1.2)
+	playerArwine:setSystemCoolantRate("beamweapons",	1.15)	--less (vs 1.2)
+	playerArwine:setSystemCoolantRate("missilesystem",	1.0)	--less (vs 1.2)
+	playerArwine:setSystemCoolantRate("maneuver",		1.15)	--less (vs 1.2)
+	playerArwine:setSystemCoolantRate("impulse",		1.35)	--more (vs 1.2) pump is here
+	playerArwine:setSystemCoolantRate("frontshield",	1.3)	--more (vs 1.2)
+	playerArwine:setSystemCoolantRate("rearshield",		1.0)	--less (vs 1.2)
+	playerArwine:setSystemPowerRate("reactor",			0.40)	--more (vs 0.30)
+	playerArwine:setSystemPowerRate("beamweapons",		0.275)	--less (vs 0.30)
+	playerArwine:setSystemPowerRate("missilesystem",	0.2)	--less (vs 0.30)
+	playerArwine:setSystemPowerRate("maneuver",			0.275)	--less (vs 0.30)
+	playerArwine:setSystemPowerRate("impulse",			0.375)	--more (vs 0.30)
+	playerArwine:setSystemPowerRate("jumpdrive",		0.325)	--more (vs 0.30)
+	playerArwine:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
+	playerArwine:setSystemPowerRate("rearshield",		0.2)	--less (vs 0.30)
 	playerArwine:onTakingDamage(playerShipDamage)
 	playerArwine:addReputationPoints(50)
 	return playerArwine
