@@ -12511,7 +12511,10 @@ function activePlayerShip()
 	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
-	for name,shipInfo in pairs(playerShipInfo) do
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	for _,name in pairs(sorted) do
 		if playerShipInfo[name]["active"] == "active" then
 			local strength = playerShipStats[playerShipInfo[name].typeName].strength
 			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,playerShipInfo[name]["data"].lrs,name),
@@ -12539,7 +12542,10 @@ function inactivePlayerShip()
 	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
-	for name,shipInfo in pairs(playerShipInfo) do
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	for _,name in pairs(sorted) do
 		if playerShipInfo[name]["active"] == "inactive" then
 			local strength = playerShipStats[playerShipInfo[name].typeName].strength
 			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,playerShipInfo[name]["data"].lrs,name),playerShipInfo[name]["spawn"])
