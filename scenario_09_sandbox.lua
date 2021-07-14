@@ -351,15 +351,14 @@ function createFleurNebula()
     Nebula():setPosition(86671, 36861)
     Nebula():setPosition(96857, 44322)
 end
-function addPlayerShip(name,active,func,data,desc)
+function addPlayerShip(name,typeName,func,data)
 	assert(type(name)=="string")
-	assert(type(active)=="string")
+	assert(type(typeName)=="string")
+	assert(type(playerShipStats[typeName])=="table")
 	assert(type(func)=="function")
-	assert(type(data.strength)=="number")
 	assert(type(data.ftl)=="string")
 	assert(type(data.lrs)=="number")
-	assert(type(desc)=="string")
-	table.insert(playerShipInfo,{name,active,func,data,desc})
+	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, data = data}
 end
 function setConstants()
 	universe=universe()
@@ -738,74 +737,6 @@ function setConstants()
 		["Jump"]	= {letter = "J", exclude = false},
 		["Unusual"]	= {letter = "U", exclude = true},
 	}
-	playerShipInfo = {}
-	addPlayerShip("Amalgam"		,"inactive"	,createPlayerShipAmalgam	,{strength = 42,	ftl = "J", lrs = 36},"")
-	addPlayerShip("Ambition"	,"inactive"	,createPlayerShipAmbition	,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2(Ambition): Frigate, Cruiser   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage")
-	addPlayerShip("Argonaut"	,"inactive"	,createPlayerShipArgonaut	,{strength = 16,	ftl = "J", lrs = 25},"Nusret (Argonaut): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors")
-	addPlayerShip("Arwine"		,"active"	,createPlayerShipArwine		,{strength = 18,	ftl = "J", lrs = 20},"Pacu(Arwine): Frigate, Cruiser: Light Artillery   Hull:150   Shield:100,100   Size:200   Repair Crew:5   Cargo:7   R.Strength:18\nFTL:Jump (2U - 25U)   Speeds: Impulse:70   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeam:1 Front Turreted Speed:0.2\n   Arc:80   Direction:0   Range:1.2   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, faster impulse, stronger hull, stronger shields, one turreted beam, one less mine tube, fewer mines and nukes, more EMPs")
-	addPlayerShip("Barracuda"	,"inactive"	,createPlayerShipBarracuda	,{strength = 11,	ftl = "J", lrs = 20},"Redhook (Barracuda), Frigate, Cruiser: Light Artillery    Hull:140   Shield:100,100   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs")
-	addPlayerShip("Barrow"		,"inactive"	,createPlayerShipBarrow		,{strength = 9,		ftl = "J", lrs = 35},"Barrow: Corvette, Freighter/Carrier\nSee science database for details")
-	addPlayerShip("Blaire"		,"inactive"	,createPlayerShipBlaire		,{strength = 22,	ftl = "B", lrs = 35},"Kludge (Blaire), Corvette, Gunner... incomplete description")
---	addPlayerShip("Blazon"		,"inactive"	,createPlayerShipBlazon
-	addPlayerShip("Chavez"		,"inactive"	,createPlayerShipChavez		,{strength = 21,	ftl = "J", lrs = 25},"(no desc)")
-	addPlayerShip("Cobra"		,"inactive"	,createPlayerShipCobra		,{strength = 16,	ftl = "J", lrs = 20},"Striker LX(Cobra): Starfighter, Patrol   Hull:100   Shield:100,100   Size:200   Repair Crew:3   Cargo:4   R.Strength:15\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:600   LRS:20   SRS:4\nBeams:2 Turreted Speed:0.2\n   Arc:100   Direction:-15   Range:1.1   Cycle:6   Damage:6.5\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6.5\nTubes:2 Rear:2\n   Direction:180   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      3 Mine\n      3 EMP\n      6 HVLI\nBased on Striker: stronger shields, more energy, jump drive (vs none), faster impulse, slower turret, two rear tubes (vs none)")
-	addPlayerShip("Darkstar"	,"inactive"	,createPlayerShipDarkstar	,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Darkstar) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs")
-	addPlayerShip("Eagle"		,"inactive"	,createPlayerShipEagle		,{strength = 14,	ftl = "W", lrs = 50},"Era(Eagle): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors")
-	addPlayerShip("Endeavor"	,"inactive"	,createPlayerShipEndeavor	,{strength = 30,	ftl = "J", lrs = 30},"Bermuda (Endeavor): Corvette, Destroyer   Hull:150   Shield:150,150   Size:400   Repair Crew:5   Cargo:4   R.Strength:25\nFTL:Jump (3.5U - 35U)   Speeds: Impulse:70   Spin:10   Accelerate:30   C.Maneuver: Boost:400 Strafe:250   SRS:4.5\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:3   Load Speed:8   Left Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      04 Nuke\n      06 EMP\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, no right tubes, slower impulse, faster acceleration, weaker hull, weaker shields, less energy")
-	addPlayerShip("Enola"		,"active"	,createPlayerShipEnola		,{strength = 22,	ftl = "J", lrs = 23},"Fray (Enola): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:22\nFTL:Jump (2U - 20U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:23   SRS:4.5\nBeams:3 1 front, 2 sides Turreted speed:0.3\n   Arc:110   Direction:  0   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction:-90   Range:0.9   Cycle:6   Damage:4\n   Arc: 90   Direction: 90   Range:0.9   Cycle:6   Damage:4\nTubes:4 rear   Load Speed:8\n   Direction:180   Type:HVLI Only - small\n   Direction:180   Type:Homing or EMP\n   Direction:180   Type:Nuke only - Large\n   Ordnance stock and type:\n      05 Homing\n      03 Mine\n      02 Nuke\n      04 EMP\n      12 HVLI\nBased on Crucible: jump instead of warp, 3 turreted beams (weaker, more coverage), tubes facing rear, fewer missiles, large nukes, shorter sensors, fewer probes")
-	addPlayerShip("Falcon"		,"inactive"	,createPlayerShipFalcon		,{strength = 20,	ftl = "W", lrs = 24},"Eldridge (Falcon): Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Warp (400)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:24   SRS:8\nBeams:2 Broadside Turreted Speed:0.3\n   Arc:90   Direction:-90   Range:1.2   Cycle:6   Damage:6\n   Arc:90   Direction: 90   Range:1.2   Cycle:6   Damage:6\nTubes:3   Load Speed:10   2 Front, 1 Back\n   Direction:  0   Type:Homing Only\n   Direction:  0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: warp drive, two of three mine tubes converted to front homing tubes, broadside turreted beams, fewer mines, slightly longer sensors")
-	addPlayerShip("Flipper"		,"inactive"	,createPlayerShipFlipper	,{strength = 30,	ftl = "W", lrs = 25},"(no desc)")
-	addPlayerShip("Fresnel"		,"inactive"	,createPlayerShipFresnel	,{strength = 08,	ftl = "J", lrs = 15},"(no desc)")
-	addPlayerShip("Gabble"		,"inactive"	,createPlayerShipGabble		,{strength = 14,	ftl = "J", lrs = 25},"Squid(Gabble): Frigate, Cruiser: Light Artillery   Hull:120   Shield:100,100   Size:200   Repair Crew:5   Cargo:8   R.Strength:14\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25\nBeam:1 Front Turreted Speed:1\n   Arc:40   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:8   Load Speed:8   Front:2   Side:4   Back:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Homing Only - Large\n   Direction:  0   Type:HVLI Only - Large\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Homing Only - Large\n   Direction:170   Type:Mine only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      4 Mine\n      4 EMP\n      8 HVLI\nBased on Piranha: more repair crew, shorter jump drive range, one turreted beam, two large tubes forward for HVLI, large side tubes for Homing, fewer missile type, added EMPs, shorter LRS")
-	addPlayerShip("Gadfly"		,"inactive"	,createPlayerShipGadfly		,{strength = 09,	ftl = "J", lrs = 15},"Gadfly: Fighter   Hull:100   Shield:80,80   Size:100   Repair Crew:3   Cargo:4   R.Strength:9\nFTL:Jump (2U - 15U)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600 Strafe:0   Energy:400   LRS:15   SRS:4.5\nBeams:1 Front\n   Arc:50   Direction:0   Range:0.9   Cycle:4   Damage:8\nTubes:3   2 Front, 1 Rear\n   Direction:  0   Load Speed:05   Type:HVLI Only - small\n   Direction:  0   Load Speed:10   Type:Nuke & EMP\n   Direction:180   Load Speed:15   Type:Homing Only - large\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      1 EMP\n      8 HVLI\nBased on Player Fighter: added jump drive, stronger hull, extra and stronger shields, fewer beams (wider, shorter, faster), missile tubes front and rear (no mines)")
-	addPlayerShip("Gorn"		,"inactive"	,createPlayerShipGorn		,{strength = 40,	ftl = "J", lrs = 30},"Proto-Atlantis(Gorn): Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:5   Cargo:4   R.Strength:40\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:28\nBeam:2 Front\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:8   Side:4   Back:1\n   Direction:-90   Type:HVLI Only\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:HVLI Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      12 Homing\n      08 Mine\n      20 HVLI\nBased on Atlantis: more repair crew, shorter jump drive range, hotter and more inefficient beams, fewer missile types, dedicated tubes for Homing and HVLI left and right, shorter LRS")
-	addPlayerShip("Guinevere"	,"inactive"	,createPlayerShipGuinevere	,{strength = 23,	ftl = "J", lrs = 35},"Caretaker (Guinevere): Corvette, Popper   Hull:160   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:23\nFTL:Jump (4U - 40U)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:35   SRS:5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:5   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:5   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP & Nuke & HVLI\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: jump, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings")
-	addPlayerShip("Halberd"		,"inactive"	,createPlayerShipHalberd	,{strength = 23,	ftl = "J", lrs = 35},"(no desc)")	--proto-atlantis
-	addPlayerShip("Headhunter"	,"inactive"	,createPlayerShipHeadhunter	,{strength = 11,	ftl = "J", lrs = 20},"(no desc)")
-	addPlayerShip("Hearken"		,"inactive"	,createPlayerShipHearken	,{strength = 11,	ftl = "J", lrs = 20},"Redhook (Hearken): Frigate, Cruiser: Light Artillery    Hull:120   Shield:70,70   Size:200   Repair Crew:4    Cargo:8    R.Strength:11\nFTL:Jump (2.5U - 25U)   Speeds: Impulst:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:20   SRS:6\nBeams:1 Turreted Speed:0.5\n   Arc:80   Direction:0   Range:1   Cycle:4   Damage:4\nTubes:7   Load Speed:8   Side:6   Back:1\n   Direction:-90   Type:HVLI or Homing - Large\n   Direction:-90   Type:HVLI or EMP\n   Direction:-90   Type:HVLI Only - Large\n   Direction: 90   Type:HVLI or Homing - Large\n   Direction: 90   Type:HVLI or EMP\n   Direction: 90   Type:HVLI Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Mine\n      04 EMP\n      20 HVLI\nBased on Piranha: more repair crew, shorter jump, add one turreted beam, one fewer rear facing tube, no nukes, added EMPs")
-	addPlayerShip("Holmes"		,"inactive"	,createPlayerShipHolmes		,{strength = 35,	ftl = "W", lrs = 35},"Holmes: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:35\nFTL:Warp (750)   Speeds: Impulse:70   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:35   SRS:4\nBeams:4 Broadside\n   Arc:60   Direction:-85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction:-95   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 85   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 95   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:   0   Type:Homing Only - Small\n   Direction:   0   Type:Homing Only\n   Direction:   0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Mine\nBased on Crucible: Slower impulse, broadside beams, no side tubes, front tubes homing only")
-	addPlayerShip("Hummer"		,"inactive"	,createPlayerShipHummer		,{strength = 12,	ftl = "W", lrs = 20},"(no desc)")
-	addPlayerShip("Fist"		,"inactive"	,createPlayerShipInterlock	,{strength = 19,	ftl = "J", lrs = 35},"Interlock: Frigate, Armored Transport   Hull:250   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:19\nFTL:Jump (3.5U-35U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:35   SRS:5.5\nBeams:5 Front 1 rear Turreted Speed:1\n   Arc:100   Direction:  0   Range:0.9   Cycle:6   Damage:6   Turreted\n   Arc:180   Direction:180   Range:0.9   Cycle:6   Damage:4   Turreted\n   Arc:110   Direction:-35   Range:0.3   Cycle:6   Damage:10\n   Arc:110   Direction: 35   Range:0.3   Cycle:6   Damage:10\n   Arc: 60   Direction:-20   Range:0.6   Cycle:6   Damage:8\n   Arc: 60   Direction: 20   Range:0.6   Cycle:6   Damage:8\nTubes:3   Load Speed:20   Large Broadside, Rear\n   Direction:-90   Type:Exclude Mine - Large\n   Direction: 90   Type:Exclude Mine - Large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      4 Homing\n      4 Mine\n      6 HVLI\nBased on Repulse: 6 beams, 5 forward, 1 rear, more damage the closer the enemy gets, hull and shields significantly stronger, more missiles, shorter jump, longer long and short range sensors")
-	addPlayerShip("Jarvis"		,"inactive"	,createPlayerShipJarvis		,{strength = 20,	ftl = "W", lrs = 30},"Butler (Jarvis): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:70   Spin:12   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Front/Broadside\n   Arc:160   Direction:-80   Range:0.9   Cycle:6   Damage:6\n   Arc:160   Direction: 80   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:HVLI Only - Small\n   Direction:  0   Type:EMP or Nuke Only\n   Direction:  0   Type:HVLI Only - Large\n   Direction:180   Type:Homing Only\n   Ordnance stock and type:\n      04 Homing\n      03 Nuke\n      04 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, front and side beams, fewer tubes, fewer missiles, no mines, Small Nukes, EMPs in front middle tube, large HVLI")
-	addPlayerShip("Jeeves"		,"inactive"	,createPlayerShipJeeves		,{strength = 20,	ftl = "W", lrs = 30},"Butler (Jeeves): Corvette, Popper   Hull:100   Shield:100,100   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (400)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Broadside\n   Arc:80   Direction:-90   Range:0.9   Cycle:6   Damage:6\n   Arc:80   Direction: 90   Range:0.9   Cycle:6   Damage:6\nTubes:4   Load Speed:8   Front:3   Back:1\n   Direction:  0   Type:Nuke Only - Small\n   Direction:  0   Type:EMP Only\n   Direction:  0   Type:Homing Only - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      24 HVLI\nBased on Crucible: Slower warp, weaker hull, weaker shields, side beams, fewer tubes, fewer missiles, EMPs and Nukes in front middle tube, large homings")
-	addPlayerShip("Kindling"	,"inactive"	,createPlayerShipKindling	,{strength = 40,	ftl = "J", lrs = 25},"(no desc)")
---	addPlayerShip("Knick"		,"inactive"	,createPlayerShipKnick		,{strength = 05,	ftl = "J", lrs = 30),"Experimental - not ready for use"
-	addPlayerShip("Knuckle Drag","inactive"	,createPlayerShipSimian		,{strength = 25,	ftl = "J", lrs = 32},"Destroyer III(Knuckle Drag):   Hull:120   Shield:110,70   Size:200   Repair Crew:3   Cargo:7   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150   LRS:20\nBeam:1 Turreted Speed:0.2\n   Arc:270   Direction:0   Range:0.8   Cycle:5   Damage:6\nTubes:5   Load Speed:20 for 1, 8 for rest   Front:2   Side:2   Back:1\n   Direction:  0   Type:Exclude HVLI only - Large\n   Direction:  0   Type:Exclude Mine\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      04 Nuke\n      06 Mine\n      05 EMP\n      10 HVLI\nBased on player missile cruiser: short jump drive (no warp), weaker hull, added one turreted beam, fewer tubes on side, fewer homing, nuke, EMP, mine and added HVLI, first tube shoots large HVLI, but loads slower")
-	addPlayerShip("Lancelot"	,"inactive"	,createPlayerShipLancelot	,{strength = 30,	ftl = "J", lrs = 27},"Noble (Lancelot) Cruiser   Hull:200   Shield:80,80   Size:400   Repair Crew:5   Cargo:5   R.Strength:40   LRS:27\nFTL:Jump (3U - 30U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:200 Strafe:200   Energy:850\nBeams:4 NW, NE, SW, SE\n   Arc:40   Direction: -45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:  45   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:-135   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction:135   Range:1   Cycle:6   Damage:8\nTubes:4   Load Speed:8  Left, Right, Front, Rear\n   Direction:-90   Type:Exclude Mine & HVLI\n   Direction: 90   Type:Exclude Mine & HVLI\n   Direction:  0   Type:HVLI Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      4 Nuke\n      6 Mine\n      6 EMP\n      8 HVLI\nBased on Player Cruiser: shorter jump drive; less efficient, narrower, weaker, more, none overlapping beams; more tubes; fewer missiles; added HVLIs; reduced combat maneuver")
-	addPlayerShip("Magnum"		,"inactive"	,createPlayerShipMagnum		,{strength = 35,	ftl = "J", lrs = 32},"Focus (Magnum): Corvette, Popper   Hull:100   Shield:100:100   Size:200   Repair Crew:4   Cargo:4   R.Strength:35\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:70   Spin:20   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:32\nBeams:2 Front\n   Arc:60   Direction:-20   Range:1   Cycle:6   Damage:5\n   Arc:60   Direction: 20   Range:1   Cycle:6   Damage:5\nTubes:4   Load Speed:8 Front:3, Rear:1\n   Direction:  0   Type:HVLI only - small\n   Direction:  0   Type:HVLI only\n   Direction:  0   Type:Exclude Mine - large\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      02 Homing\n      02 Nuke\n      02 Mine\n      02 EMP\n      24 HVLI\nBased on Crucible: short jump drive (no warp), faster impulse and spin, weaker shields and hull, narrower beams, fewer tubes, large tube accomodates nukes, EMPs and homing missiles")
-	addPlayerShip("Mantis"		,"inactive"	,createPlayerShipMantis		,{strength = 30,	ftl = "W", lrs = 25},"(no desc)")
-	addPlayerShip("Manxman"		,"inactive"	,createPlayerShipManxman	,{strength = 16,	ftl = "J", lrs = 25},"Nusret (Manxman): Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:15\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:2 Front Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Front Left, Front Right, Back\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors")
-	addPlayerShip("Narsil"		,"inactive"	,createPlayerShipNarsil		,{strength = 40,	ftl = "W", lrs = 30},"(no desc)")
-	addPlayerShip("Nimbus"		,"inactive"	,createPlayerShipNimbus		,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2(Nimbus): Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:5   Cargo:9   R.Strength:19\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   LRS:25\nBeams:2 Front Turreted Speed:0.2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:2   Load Speed:10   Front:1   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      03 Mine\n      03 EMP\n      10 HVLI\nBased on Phobos M3P: more repair crew, short jump drive, faster spin, slow turreted beams, only one tube in front, reduced homing and HVLI storage")
-	addPlayerShip("Nusret"		,"inactive"	,createPlayerShipNusret		,{strength = 16,	ftl = "J", lrs = 25},"Nusret: Frigate, Mine Layer   Hull:100   Shield:100,100   Size:200   Repair Crew:6   Cargo:7   R.Strength:16\nFTL:Jump (2.5U - 25U)   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150   LRS:25   SRS:4\nBeams:3 Front 2 Turreted Speed:0.4 Front short, slow, strong\n   Arc:90   Direction: 35   Range:  1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:  1   Cycle:6   Damage:6\n   Arc:30   Direction:  0   Range:0.5   Cycle:8   Damage:9\nTubes:3   Front Angled Load Speed:10, Rear load speed:8\n   Direction:-60   Type:Homing Only\n   Direction: 60   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      8 Homing\n      8 Mine\nBased on Nautilus: short jump drive, stronger shields, stronger hull, additional short, strong beam, two of three mine tubes converted to angled front homing tubes, fewer mines, slightly longer sensors")
-	addPlayerShip("Osprey"		,"inactive"	,createPlayerShipOsprey		,{strength = 25,	ftl = "W", lrs = 30},"Flavia 2C (Osprey): Frigate, Light Transport   Hull:100   Shield:120,120   Size:200   Repair Crew:8   Cargo:12   R.Strength:25\nFTL:Warp (500)   Speeds: Impulse:70   Spin:20   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1.2   Cycle:5.5   Damage:6.5\n   Arc:40   Direction: 10   Range:1.2   Cycle:5.5   Damage:6.5\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      2 Nuke\n      2 Mine\n      2 EMP\nBased on Falvia Falcon: faster spin and impulse, stronger shields, stronger, faster forward beams, more tubes and missiles")
-	addPlayerShip("Outcast"		,"inactive"	,createPlayerShipOutcast	,{strength = 30,	ftl = "J", lrs = 28},"Scatter (Outcast): Frigate, Cruiser: Sniper   Hull:120   Shield:100,100   Size:200   Repair Crew:4   Cargo:6   R.Strength:30\nFTL:Jump (2.8U - 25U)   Speeds: Impulse:65   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:25   SRS:5\nBeams:4   Front:3   Back:1 Turreted Speed:0.4\n   Arc: 10   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc: 80   Direction:-20   Range:1.0   Cycle:6   Damage:4\n   Arc: 80   Direction: 20   Range:1.0   Cycle:6   Damage:4\n   Arc: 90   Direction:180   Range:1.0   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nBased on Hathcock: shorter jump drive, more repair crew, stronger shields, faster impulse, change beams: 3 front, 1 rear")
-	addPlayerShip("Peacock"		,"inactive"	,createPlayerShipPeacock	,{strength = 30,	ftl = "J", lrs = 25},"(no desc)")
-	addPlayerShip("Phobos T2"	,"inactive"	,createPlayerShipPhobosT2	,{strength = 19,	ftl = "J", lrs = 25},"Phobos T2 (Terror)   Hull:200   Shield:120,80   Size:200   Repair Crew:4   Cargo:9   R.Strength:19   LRS:25U\nFTL:Jump (2U - 25U)   Speeds: Impulse:80   Spin:20   Accelerate:20   C.Maneuver: Boost:400 Strafe:250   Energy:800\nBeams:2 front Turreted Speed:0.2\n   Arc:40   Direction:-30   Range:1.2U   Cycle:4   Damage:6\n   Arc:40   Direction: 30   Range:1.2U   Cycle:4   Damage:6\nTubes:2   Load Speed:10   Front:1,   Rear:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      02 Nuke\n      03 EMP\n      04 Mine\n      16 HVLI\nBased on Phobos M3P: More repair crew, jump drive, faster spin, stronger front shield, weaker rear shield, less maximum energy, turreted and faster beams, one fewer tube forward, fewer missiles")
-	addPlayerShip("Quicksilver"	,"inactive"	,createPlayerShipQuick		,{strength = 12,	ftl = "W", lrs = 20},"XR-Lindworm (Quicksilver): Starfighter, Bomber   Hull:75   Shield:90,30   Size:100   Repair Crew:2   Cargo:3   R.Strength:11\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400  LRS:20   SRS:6\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      02 Nuke\n      03 EMP\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, warp drive, nukes and EMPs, two shields: stronger in front, weaker in rear")
-	addPlayerShip("Quill"		,"inactive"	,createPlayerShipQuill		,{strength = 30,	ftl = "W", lrs = 30},"(no desc)")
-	addPlayerShip("Raptor"		,"inactive"	,createPlayerShipRaptor		,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Raptor) Cruiser   Hull:120   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (2U - 20U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs")
-	addPlayerShip("Rattler"		,"inactive"	,createPlayerShipRattler	,{strength = 10,	ftl = "J", lrs = 30},"MX-Lindworm (Rattler): Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:2   Cargo:3   R.Strength:10\nFTL:Jump (3U - 20U)   Speeds: Impulse:85   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   SRS:6\nBeam:1 Turreted Speed:1\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI\nBased on ZX-Lindworm: More repair crew, faster impulse, jump drive, slower turret")
-	addPlayerShip("Raven"		,"inactive"	,createPlayerShipRaven		,{strength = 30,	ftl = "W", lrs = 25},"Raven (Claw) Cruiser")
-	addPlayerShip("Rip"			,"inactive"	,createPlayerShipLurker		,{strength = 18,	ftl = "W", lrs = 18},"(no desc)")
-	addPlayerShip("Rodent"		,"inactive"	,createPlayerShipRodent		,{strength = 23,	ftl = "J", lrs = 40},"Rodent (George): Frigate, Cruiser   Hull:150   Shield:100,50   Size:200   Repair Crew:5   Cargo:8   R.Strength:23   LRS:40   SRS:5.5\nFTL:Jump (4U - 37U)   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front, 2 Turreted Speed:0.4\n   Arc:60   Direction:-15   Range:1.2   Cycle:8   Damage:5\n   Arc:60   Direction: 15   Range:1.2   Cycle:8   Damage:5\n   Arc:270   Direction:  0   Range:0.6   Cycle:8   Damage:3\n   Arc:270   Direction 180   Range:0.5   Cycle:8   Damage:4\nTubes:5   Front:2   Sides:2   Back:1\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:  0   Type:HVLI & Homing Only (Small)   Load Time:8\n   Direction:-90   Type:EMP & Nuke only   Load Time:10\n   Direction: 90   Type:EMP & Nuke Only (Large)   Load Time:20\n   Direction:180   Type:Mine Only   Load Time:15\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      06 Mine\n      03 EMP\n      20 HVLI\nBased on Phobos M3P: more repair crew, weaker hull, weaker rear shield, short jump drive, narrower beams, additional slow turreted beams, additional side tubes and rear mine tube")
-	addPlayerShip("Rogue"		,"inactive"	,createPlayerShipRogue		,{strength = 23,	ftl = "J", lrs = 25},"Maverick XP(Rogue): Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:23\nFTL:Jump (2U - 20U)   Speeds: Impulse:65   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:6\nBeams:1 Turreted Speed:0.1   5X heat   5X energy\n   Arc:270   Direction:  0   Range:1.8   Cycle:18   Damage:18\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nBased on Maverick: slower impulse, jump (no warp), one heavy slow turreted beam (not 6 beams)")
-	addPlayerShip("Rotor"		,"inactive"	,createPlayerShipRotor		,{strength = 35,	ftl = "W", lrs = 25},"Rotor: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:30\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250   LRS:25   SRS:4\nBeams:5, 2 Turreted Speed:1\n   Arc:190   Direction:  0   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc:190   Direction:180   Range:1.0   Cycle:6   Damage: 4   Turreted\n   Arc: 60   Direction:-25   Range:0.8   Cycle:6   Damage:6\n   Arc: 60   Direction: 25   Range:0.8   Cycle:6   Damage:6\n   Arc: 40   Direction:  0   Range:0.6   Cycle:6   Damage:8\nTubes:1   Load Speed:8   Rear:1\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      6 Mine\nBased on Maverick: Fewer beams, one rear tube, slower warp, shorter sensors")
-	addPlayerShip("Safari"		,"inactive"	,createPlayerShipSafari		,{strength = 15,	ftl = "W", lrs = 33},"Safari: Frigate, Light Transport   Hull:100   Shield:100,60   Size:200   Repair Crew:8   Cargo:10   R.Strength:15\nFTL:Warp (500)   Speeds: Impulse:60   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:4.5\nBeams:2 Front 1 Turreted Speed:0.4\n   Arc:40   Direction:0   Range:1.2   Cycle:6   Damage:6\n   Arc:80   Direction:0   Range:0.6   Cycle:8   Damage:12\nTubes:3   2 small broadside load speed 8, 1 rear Load Speed:20\n   Direction:-90   Type:HVLI only - small\n   Direction: 90   Type:HVLI only - small\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      03 Mine\n      20 HVLI\nBased on Flavia P.Falcon: front beams, one long and turreted, one short and strong, weaker rear shield, stronger front shield, small, fast broadside HVLI shooters, only mines in rear, longer long range sensors, shorter short range sensors")
-	addPlayerShip("Skray"		,"inactive"	,createplayerShipSneak      ,{strength = 15,	ftl = "J", lrs = 30},"Skray: Frigate, Armored Transport   Hull:120   Shield:80,80   Size:200   Repair Crew:8   Cargo:3   R.Strength:15\nFTL:Jump (5U - 50U)   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   SRS:7.5\nBeams:2 Turreted Speed:5\n   Arc:30   Direction:-70   Range:1.2   Cycle:6   Damage:5\n   Arc:30   Direction: 70   Range:1.2   Cycle:6   Damage:5\nTubes:2   Load Speed:20   Front, Rear\n   Direction:  0   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      10 Homing\n      10 HVLI\nBased on Repulse: more missiles, non-overlapping beams, longer short range sensors")
-	addPlayerShip("Sparrow"		,"inactive"	,createPlayerShipSparrow	,{strength = 10,	ftl = "W", lrs = 22},"Vermin (Sparrow):   Hull:60   Shield:100,60   Size:100   Repair Crew:4   Cargo:3   R.Strength:10   LRS:22   SRS:4\nFTL:Warp (400)   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:500   LRS:22   SRS:4\nBeam:3 Front\n   Arc:12   Direction:  0   Range:1.0   Cycle:6   Damage:4\n   Arc:40   Direction:-10   Range:0.8   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:0.8   Cycle:6   Damage:6\nTubes:1   Load Speed:10   Rear\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Mine\nBased on player fighter: more repair crew, more energy, warp drive, stronger shields, more beams, mine laying tube")
-	addPlayerShip("Spyder"		,"active"	,createPlayerShipSpyder		,{strength = 60,	ftl = "J", lrs = 30},"(no desc)")
-	addPlayerShip("Stick"		,"inactive"	,createPlayerShipStick		,{strength = 35,	ftl = "W", lrs = 35},"Surkov (Stick): Frigate, Cruiser: Sniper   Hull:120   Shield:100,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, stronger shields, faster impulse, add mine tube facing back, remove nukes and EMPs")
-	addPlayerShip("Sting"		,"inactive"	,createPlayerShipSting		,{strength = 35,	ftl = "W", lrs = 35},"Surkov (Sting): Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:3   Cargo:6   R.Strength:35\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150   LRS:35   SRS:6\nBeams:4 Front\n   Arc: 4   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:3   Load Speed:15   Side:2   Back:1\n   Direction:-90   Type:Homing and HVLI\n   Direction: 90   Type:Homing and HVLI\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      4 Homing\n      3 Mine\n      8 HVLI\nBased on Hathcock: Warp (not jump), more repair crew, faster impulse, add mine tube facing back, remove nukes and EMPs")
-	addPlayerShip("Thelonius"	,"inactive"	,createPlayerShipThelonius	,{strength = 20,	ftl = "W", lrs = 30},"Crab (Thelonius): Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:6   R.Strength:20\nFTL:Warp (450)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400   Strafe:250   LRS:30   SRS:5.5\nBeams:2 Rear Turreted Speed:0.5\n   Arc:70   Direction:170   Range:1   Cycle:6   Damage:6\n   Arc:70   Direction:190   Range:1   Cycle:6   Damage:6\nTubes:5   Load Speed:8   Front:3   Side:2\n   Direction:  0   Type:HVLI Only - Large\n   Direction:-20   Type:Homing Only - Small\n   Direction: 20   Type:Homing Only - Small\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      16 Homing\n      02 Nuke\n      03 EMP\n      10 HVLI\nBased on Crucible: Slower warp, rear turreted beams, fewer tubes, fewer missiles, except for more homing missiles, large HVLI in front, small homing in two of the front tubes")
-	addPlayerShip("Thunderbird"	,"inactive"	,createPlayerShipThunderbird,{strength = 22,	ftl = "J", lrs = 30},"Destroyer IV (Thunderbird) Cruiser   Hull:100   Shield:100,100   Size:400   Repair Crew:3   Cargo:5   R.Strength:25\nFTL:Jump (3U - 28U)   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Front\n   Arc:40   Direction:-10   Range:1   Cycle:5   Damage:6\n   Arc:40   Direction: 10   Range:1   Cycle:5   Damage:6\nTubes:2   Load Speed:8  Angled Front\n   Direction:-60   Type:Exclude Mine\n   Direction: 60   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      2 Nuke\n      4 Mine\n      3 EMP\n      6 HVLI\nBased on Player Cruiser: shorter jump drive, stronger shields, weaker hull, narrower, faster, weaker beams, angled tubes, fewer missiles, added HVLIs")
-	addPlayerShip("Twister"		,"inactive"	,createPlayerShipTwister	,{strength = 30,	ftl = "W", lrs = 23},"(no desc)")
-	addPlayerShip("Vision"		,"inactive"	,createPlayerShipVision		,{strength = 14,	ftl = "W", lrs = 50},"Era(Vision): Frigate, Light Transport   Hull:100   Shield:70,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Warp (500)   Speeds: Impulse:60   Spin:15   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:50   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.2   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, longer long range sensors")
-	addPlayerShip("Wiggy"		,"inactive"	,createPlayerShipWiggy		,{strength = 14,	ftl = "J", lrs = 40},"Gull (Wiggy): Frigate, Light Transport   Hull:120   Shield:70,120   Size:200   Repair Crew:8   Cargo:14   R.Strength:14\nFTL:Jump (3U-30U)   Speeds: Impulse:60   Spin:12   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:40   SRS:5\nBeams:2 1 Rear 1 Turreted Speed:0.5\n   Arc:40   Direction:180   Range:1.1   Cycle:6   Damage:6\n   Arc:270   Direction:180   Range:1.1   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Rear\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nBased on Flavia P.Falcon: faster spin, 270 degree turreted beam, stronger rear shield, shorter beam, stronger hull, jump instead of warp, longer long range sensors")
-	addPlayerShip("Windmill"	,"inactive"	,createPlayerShipWindmill	,{strength = 19,	ftl = "W", lrs = 33},"Windmill: Frigate, Light Transport   Hull:100   Shield:100,70   Size:200   Repair Crew:5   Cargo:11   R.Strength:19\nFTL:Warp (350)   Speeds: Impulse:100   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:33   SRS:5\nBeams:4 Cardinal directions, sides Turreted Speed:0.5\n   Arc: 60   Direction:  0   Range:1.0   Cycle:6   Damage:6\n   Arc: 60   Direction:180   Range:1.0   Cycle:6   Damage:6\n   Arc:140   Direction:-90   Range:1.2   Cycle:6   Damage:4\n   Arc:140   Direction: 90   Range:1.2   Cycle:6   Damage:4\nTubes:5   Load Speeds: Small:5   Normal:10   Large:15   Mine:20\n   Direction:  0   Type:Exclude Mine - small\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Exclude Mine - Large\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      5 Homing\n      1 Nuke\n      3 Mine\n      2 EMP\n      8 HVLI\nBased on Flavia P.Falcon: faster impulse, slower warp, stronger front shield, fewer repair crew,more beams in more directions, more tubes in more directions, more missiles, longer long range sensors")
-	addPlayerShip("Wombat"		,"inactive"	,createPlayerShipWombat		,{strength = 17,	ftl = "W", lrs = 18},"Wombat (Shannon): Starfighter, Bomber   Hull:100   Shield:80,80   Size:100   Repair Crew:4   Cargo:3   R.Strength:18\nFTL:Warp (400)   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400   LRS:18   SRS:6\nBeam:2 Turreted Speed:0.3\n   Arc:80   Direction:-20   Range:0.9   Cycle:4   Damage:3\n   Arc:80   Direction: 20   Range:0.9   Cycle:4   Damage:3\nTubes:5   Load Speed:10   Rear, 2 small, 1 large, 2 normal\n   Direction:180   Type:Only HVLI - small\n   Direction:180   Type:Only HVLI or Homing - small\n   Direction:180   Type:Only HVLI or Homing - large\n   Direction:180   Type:Only HVLI, EMP or Nuke\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      08 Homing\n      01 Nuke\n      02 Mine\n      02 EMP\n      12 HVLI\nBased on Lindworm: stronger hull and shields, more repair crew, warp drive, stringer, longer, faster beam x2, more tubes including a large tube that fires homing and HVLI, 2 EMPs and 1 nuke added, more homing missiles")
-	addPlayerShip("Wrocket"		,"inactive"	,createPlayerShipWrocket	,{strength = 19,	ftl = "J", lrs = 32},"Wrocket (Slingshot): ")
-	addPlayerShip("Yorik"		,"inactive"	,createPlayerShipYorik		,{strength = 15,	ftl = "J", lrs = 41},"Rook (Yorik): Frigate, Armored Transport   Hull:200   Shield:200,100   Size:200   Repair Crew:8   Cargo:14   R.Strength:15\nFTL:Jump (3U-30U)   Speeds: Impulse:75   Spin:8   Accelerate:10   C.Maneuver: Boost:250 Strafe:150   LRS:41   SRS:5.5\nBeams:2 Front 1 Turreted Speed:0.15\n   Arc:90   Direction:0   Range:0.9   Cycle:6   Damage:4\n   Arc:30   Direction:0   Range:0.9   Cycle:6   Damage:4\nTubes:3   Load Speed:20   Broadside, Rear\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine only\n   Ordnance stock and type:\n      8 Homing\n      3 Nuke\n      5 Mine\n      6 EMP\n      6 HVLI\nBased on Repulse: slower spin, faster impiulse, 1 turreted beam, both beams forward, hull and shields stronger, relatively weaker rear shield, shorter and weaker beams, more missiles, stronger hull, shorter jump, longer long and short range sensors")
 --	patrol_probe value should be between 0 and 5 not inclusive (0 = no patrol probes). The higher the value, the faster the patrol probe and the fewer patrol probes available 
 	playerShipStats = {	
 		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0	},
@@ -881,6 +812,80 @@ function setConstants()
 		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0	},
 		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9	},
 	}	
+	-- this table has ended up not in alphabetical order
+	-- likewise the creation functions are no longer in alphabetical order
+	-- this probably wants to be fixed after the upcomming merge conflict has been dealt with
+	playerShipInfo = {}
+	addPlayerShip("Mixer",		"Amalgam",		createPlayerShipMixer		,{ftl = "J", lrs = 36})
+	addPlayerShip("Ambition",	"Phobos T2",	createPlayerShipAmbition	,{ftl = "J", lrs = 25})
+	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,{ftl = "J", lrs = 25})
+	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,{ftl = "J", lrs = 20})
+	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,{ftl = "J", lrs = 20})
+	addPlayerShip("Quarter",	"Barrow",		createPlayerShipQuarter		,{ftl = "J", lrs = 35})
+	addPlayerShip("Blaire",		"Kludge",		createPlayerShipBlaire		,{ftl = "B", lrs = 35})
+--	addPlayerShip("Blazon"		,createPlayerShipBlazon
+	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,{ftl = "J", lrs = 25})
+	addPlayerShip("Cobra",		"Striker LX",	createPlayerShipCobra		,{ftl = "J", lrs = 20})
+	addPlayerShip("Darkstar",	"Destroyer IV",	createPlayerShipDarkstar	,{ftl = "J", lrs = 30})
+	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,{ftl = "W", lrs = 50})
+	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,{ftl = "J", lrs = 30})
+	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,{ftl = "J", lrs = 23})
+	addPlayerShip("Falcon",		"Eldridge",		createPlayerShipFalcon		,{ftl = "W", lrs = 24})
+	addPlayerShip("Flipper",	"Midian",		createPlayerShipFlipper		,{ftl = "W", lrs = 25})
+	addPlayerShip("Splinter",	"Fresnel",		createPlayerShipSplinter	,{ftl = "J", lrs = 15})
+	addPlayerShip("Gabble",		"Squid",		createPlayerShipGabble		,{ftl = "J", lrs = 25})
+	addPlayerShip("Bling",		"Gadfly",		createPlayerShipBling		,{ftl = "J", lrs = 15})
+	addPlayerShip("Gorn",		"Proto-Atlantis",createPlayerShipGorn		,{ftl = "J", lrs = 30})
+	addPlayerShip("Guinevere",	"Caretaker",	createPlayerShipGuinevere	,{ftl = "J", lrs = 35})
+	addPlayerShip("Halberd",	"Proto-Atlantis",createPlayerShipHalberd	,{ftl = "J", lrs = 35})	--proto-atlantis
+	addPlayerShip("Headhunter",	"Redhook",		createPlayerShipHeadhunter	,{ftl = "J", lrs = 20})
+	addPlayerShip("Hearken",	"Redhook",		createPlayerShipHearken		,{ftl = "J", lrs = 20})
+	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,{ftl = "W", lrs = 35})
+	addPlayerShip("Hummer",		"XR-Lindworm",	createPlayerShipHummer		,{ftl = "W", lrs = 20})
+	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,{ftl = "J", lrs = 35})
+	addPlayerShip("Jarvis",		"Butler",		createPlayerShipJarvis		,{ftl = "W", lrs = 30})
+	addPlayerShip("Jeeves",		"Butler",		createPlayerShipJeeves		,{ftl = "W", lrs = 30})
+	addPlayerShip("Kindling",	"Phoenix",		createPlayerShipKindling	,{ftl = "J", lrs = 25})
+--	addPlayerShip("Knick",		"Glass Cannon",createPlayerShipKnick		,{ftl = "J", lrs = 30),"Experimental - not ready for use"
+	addPlayerShip("Knuckle Drag","Destroyer III",createPlayerShipSimian		,{ftl = "J", lrs = 32})
+	addPlayerShip("Lancelot",	"Noble",		createPlayerShipLancelot	,{ftl = "J", lrs = 27})
+	addPlayerShip("Magnum",		"Focus",		createPlayerShipMagnum		,{ftl = "J", lrs = 32})
+	addPlayerShip("Crux",		"Mantis",		createPlayerShipCrux		,{ftl = "W", lrs = 25})
+	addPlayerShip("Manxman",	"Nusret",		createPlayerShipManxman		,{ftl = "J", lrs = 25})
+	addPlayerShip("Narsil",		"Proto-Atlantis",createPlayerShipNarsil		,{ftl = "W", lrs = 30})
+	addPlayerShip("Nimbus",		"Phobos T2",	createPlayerShipNimbus		,{ftl = "J", lrs = 25})
+	addPlayerShip("Hrothgar",	"Nusret",		createPlayerShipHrothgar	,{ftl = "J", lrs = 25})
+	addPlayerShip("Osprey",		"Flavia 2C",	createPlayerShipOsprey		,{ftl = "W", lrs = 30})
+	addPlayerShip("Outcast",	"Scatter",		createPlayerShipOutcast		,{ftl = "J", lrs = 28})
+	addPlayerShip("Flaire",		"Peacock",		createPlayerShipFlaire		,{ftl = "J", lrs = 25})
+	addPlayerShip("Terror",		"Phobos T2",	createPlayerShipTerror		,{ftl = "J", lrs = 25})
+	addPlayerShip("Quicksilver","XR-Lindworm",	createPlayerShipQuick		,{ftl = "W", lrs = 20})
+	addPlayerShip("Quill",		"Porcupine",	createPlayerShipQuill		,{ftl = "W", lrs = 30})
+	addPlayerShip("Raptor",		"Destroyer IV",	createPlayerShipRaptor		,{ftl = "J", lrs = 30})
+	addPlayerShip("Rattler",	"MX-Lindworm",	createPlayerShipRattler		,{ftl = "J", lrs = 30})
+	addPlayerShip("Claw",		"Raven",		createPlayerShipClaw		,{ftl = "W", lrs = 25})
+	addPlayerShip("Rip",		"Lurker",		createPlayerShipRIP			,{ftl = "W", lrs = 18})
+	addPlayerShip("George",		"Rodent",		createPlayerShipGeorge		,{ftl = "J", lrs = 40})
+	addPlayerShip("Rogue",		"Maverick XP",	createPlayerShipRogue		,{ftl = "J", lrs = 25})
+	addPlayerShip("Pinwheel",	"Rotor"	,		createPlayerShipPinwheel	,{ftl = "W", lrs = 25})
+	addPlayerShip("Florentine",	"Safari",		createPlayerShipFlorentine	,{ftl = "W", lrs = 33})
+	addPlayerShip("Skray",		"Skray",		createplayerShipSneak		,{ftl = "J", lrs = 30})
+	addPlayerShip("Sparrow",	"Vermin",		createPlayerShipSparrow		,{ftl = "W", lrs = 22})
+	addPlayerShip("Spyder",		"Atlantis II",	createPlayerShipSpyder		,{ftl = "J", lrs = 30})
+	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,{ftl = "W", lrs = 35})
+	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,{ftl = "W", lrs = 35})
+	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,{ftl = "W", lrs = 30})
+	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,{ftl = "J", lrs = 30})
+	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,{ftl = "W", lrs = 23})
+	addPlayerShip("Vision",		"Era",			createPlayerShipVision		,{ftl = "W", lrs = 50})
+	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,{ftl = "J", lrs = 40})
+	addPlayerShip("Rocinante",	"Windmill",		createPlayerShipRocinante	,{ftl = "W", lrs = 33})
+	addPlayerShip("Devon",		"Wombat",		createPlayerShipDevon		,{ftl = "W", lrs = 18})
+	addPlayerShip("Slingshot",	"Wrocket",		createPlayerShipSlingshot	,{ftl = "J", lrs = 32})
+	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,{ftl = "J", lrs = 41})
+	makePlayerShipActive("Spyder")
+	makePlayerShipActive("Enola")
+	makePlayerShipActive("Arwine")
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
 	defendFleetFunction = {orderFleetDefend1,orderFleetDefend2,orderFleetDefend3,orderFleetDefend4,orderFleetDefend5,orderFleetDefend6,orderFleetDefend7,orderFleetDefend8}
@@ -5592,7 +5597,6 @@ end
 -- +TWEAK PLAYER		F	tweakPlayerShip
 -- +CURRENT				F	activePlayerShip
 -- +SCRAPPED			F	inactivePlayerShip
--- +DESCRIPTIONS		F	describePlayerShips
 -- +TELEPORT PLAYERS	F	teleportPlayers
 function playerShip()
 	clearGMFunctions()
@@ -5601,7 +5605,6 @@ function playerShip()
 	addGMFunction("+Tweak player",tweakPlayerShip)
 	addGMFunction("+Current",activePlayerShip)
 	addGMFunction("+Scrapped",inactivePlayerShip)
-	addGMFunction("+Descriptions",describePlayerShips)
 	addGMFunction("+Teleport Players",teleportPlayers)
 end
 ----------------------------------
@@ -12496,6 +12499,12 @@ end
 -- -SETUP			F	initialSetUp
 -- -PLAYER SHIP		F	playerShip
 -- Button to spawn each currently active player ship name
+function makePlayerShipActive(ship_name)
+	assert(type(ship_name) == "string")
+	assert(type(playerShipInfo[ship_name]) == "table")
+	playerShipInfo[ship_name]["active"] = "active"
+end
+
 function activePlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -12504,13 +12513,16 @@ function activePlayerShip()
 	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][2] == "active" then
-			local desc = playerShipInfo[shipNum][1]
-			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum][4].strength,playerShipInfo[shipNum][4].ftl,playerShipInfo[shipNum][4].lrs,desc),
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	for _,name in pairs(sorted) do
+		if playerShipInfo[name]["active"] == "active" then
+			local strength = playerShipStats[playerShipInfo[name].typeName].strength
+			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,playerShipInfo[name]["data"].lrs,name),
 				function ()
-					playerShipInfo[shipNum][3]()
-					playerShipInfo[shipNum][2] = "inactive"
+					playerShipInfo[name]["spawn"]()
+					playerShipInfo[name]["active"] = "inactive"
 					activePlayerShip()
 			end)
 		end
@@ -12532,30 +12544,15 @@ function inactivePlayerShip()
 	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][2] == "inactive" then
-			local desc = playerShipInfo[shipNum][1]
-			addGMFunction(string.format("%i%s%i %s",playerShipInfo[shipNum][4].strength,playerShipInfo[shipNum][4].ftl,playerShipInfo[shipNum][4].lrs,desc),playerShipInfo[shipNum][3])
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	for _,name in pairs(sorted) do
+		if playerShipInfo[name]["active"] == "inactive" then
+			local strength = playerShipStats[playerShipInfo[name].typeName].strength
+			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,playerShipInfo[name]["data"].lrs,name),playerShipInfo[name]["spawn"])
 		end
 	end
-end
-----------------------------------------------------
---	Initial Set Up > Player Ships > Descriptions  --
-----------------------------------------------------
--- -MAIN			   FD*	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -PLAYER SHIPS		F	playerShip
--- +DESCRIBE CURRENT	F	describeCurrentSpecialPlayerShips
--- +DESCRIBE SCRAPPED	F	describeScrappedSpecialPlayerShips
--- +DESCRIBE STOCK		F	describeStockPlayerShips
-function describePlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ships",playerShip)
-	addGMFunction("+Describe Current",describeCurrentSpecialPlayerShips)
-	addGMFunction("+Describe Scrapped",describeScrappedSpecialPlayerShips)
-	addGMFunction("+Describe Stock",describeStockPlayerShips)
 end
 --------------------------------------------------------
 --	Initial Set Up > Player Ships > Teleport Players  --
@@ -14296,104 +14293,9 @@ function changePlayerMaxRearShield()
 		addGMFunction("+Select Player",changePlayerMaxRearShield)
 	end
 end
---	****************************************************************************  --
---	****				Initial Set Up Player Ships	Descriptions			****  --
---	****************************************************************************  --
------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Descriptions > Describe Current  --
------------------------------------------------------------------------
--- -BACK		F	describePlayerShips
--- Button to describe each currently active player ship name
-function describeCurrentSpecialPlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Back",describePlayerShips)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][5] ~= nil and playerShipInfo[shipNum][2] == "active" then
-			addGMFunction(playerShipInfo[shipNum][1],function()
-				addGMMessage(playerShipInfo[shipNum][5])
-			end)
-		end
-	end
-end
-------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Descriptions > Describe Scrapped  --
-------------------------------------------------------------------------
--- -BACK		F	describePlayerShips
--- Button to describe each scrapped or inactive player ship name
-function describeScrappedSpecialPlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Back",describePlayerShips)
-	for shipNum = 1, #playerShipInfo do
-		if playerShipInfo[shipNum][5] ~= nil and playerShipInfo[shipNum][2] == "inactive" then
-			addGMFunction(playerShipInfo[shipNum][1],function()
-				addGMMessage(playerShipInfo[shipNum][5])
-			end)
-		end
-	end
-end
----------------------------------------------------------------------
---	Initial Set Up > Player Ships > Descriptions > Describe Stock  --
----------------------------------------------------------------------
--- -BACK		F	describePlayerShips
--- Button to describe each player ship that can be spawned from the standard spawn player ship screen
-function describeStockPlayerShips()
-	clearGMFunctions()
-	addGMFunction("-Back",describePlayerShips)
-	addGMFunction("Atlantis",function()
-		addGMMessage("Atlantis: Corvette, Destroyer   Hull:250   Shield:200,200   Size:400   Repair Crew:3   Cargo:6   R.Strength:52\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:100   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc:100   Direction: 20   Range:1.5   Cycle:6   Damage:8\nTubes:5   Load Speed:10   Side:4   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP\n      20 HVLI\nA refitted Atlantis X23 for more general tasks. The large shield system has been replaced with an advanced combat maneuvering systems and improved impulse engines. Its missile loadout is also more diverse. Mistaking the modified Atlantis for an Atlantis X23 would be a deadly mistake.")
-	end)
-	addGMFunction("Benedict",function()
-		addGMMessage("Benedict: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Jump (5U - 90U)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nBenedict is an improved version of the Jump Carrier")
-	end)
-	addGMFunction("Crucible",function()
-		addGMMessage("Crucible: Corvette, Popper   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo Space:5   R.Strength:45\nDefault advanced engine:Warp (750)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:70   Direction:-30   Range:1   Cycle:6   Damage:5\n   Arc:70   Direction: 30   Range:1   Cycle:6   Damage:5\nTubes:6   Load Speed:8   Front:3   Side:2   Back:1\n   Direction:   0   Type:HVLI Only - Small\n   Direction:   0   Type:HVLI Only\n   Direction:   0   Type:HVLI Only - Large\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      08 Homing\n      04 Nuke\n      06 Mine\n      06 EMP\n      24 HVLI\nA number of missile tubes range around this ship. Beams were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
-	end)
-	addGMFunction("Ender",function()
-		addGMMessage("Ender: Dreadnaught, Battlecruiser   Hull:100   Shield:1200,1200   Size:2000   Repair Crew:8   Cargo Space:20   R.Strength:100\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette   Energy:1200\nDefault advanced engine:Jump   Speeds: Impulse:30   Spin:2   Accelerate:6   C.Maneuver: Boost:800 Strafe:500\nBeams:12 6 left, 6 right turreted Speed:6\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.1   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.0   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.8   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.3   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.9   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.4   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.7   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:5.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:6.6   Damage:4\n   Arc:120   Direction:-90   Range:2.5   Cycle:5.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.5   Damage:4\n   Arc:120   Direction: 90   Range:2.5   Cycle:6.2   Damage:4\nTubes:2   Load Speed:8   Front:1   Back:1\n   Direction:   0   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      6 Homing\n      6 Mine")
-	end)
-	addGMFunction("Flavia P.Falcon",function()
-		addGMMessage("Flavia P.Falcon: Frigate, Light Transport   Hull:100   Shield:70,70   Size:200   Repair Crew:8   Cargo Space:15   R.Strength:13\nDefault advanced engine:Warp (500)   Speeds: Impulse:60   Spin:10   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 rear facing\n   Arc:40   Direction:170   Range:1.2   Cycle:6   Damage:6\n   Arc:40   Direction:190   Range:1.2   Cycle:6   Damage:6\nTubes:1   Load Speed:20   Back:1\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      3 Homing\n      1 Nuke\n      1 Mine\n      5 HVLI\nThe Flavia P.Falcon has a nuclear-capable rear-facing weapon tube and a warp drive.")
-	end)
-	addGMFunction("Hathcock",function()
-		addGMMessage("Hathcock: Frigate, Cruiser: Sniper   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo Space:6   R.Strength:30\nDefault advanced engine:Jump   Speeds: Impulse:50   Spin:15   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nBeams:4 front facing\n   Arc:04   Direction:0   Range:1.4   Cycle:6   Damage:4\n   Arc:20   Direction:0   Range:1.2   Cycle:6   Damage:4\n   Arc:60   Direction:0   Range:1.0   Cycle:6   Damage:4\n   Arc:90   Direction:0   Range:0.8   Cycle:6   Damage:4\nTubes:2   Load Speed:15   Side:2\n   Direction:-90   Type:Any\n   Direction: 90   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      1 Nuke\n      2 EMP\n      8 HVLI\nLong range narrow beam and some point defense beams, broadside missiles. Agile for a frigate")
-	end)
-	addGMFunction("Kiriya",function()
-		addGMMessage("Kiriya: Corvette, Freighter/Carrier   Hull:200   Shield:70,70   Size:400   Repair Crew:3   Cargo Space:9   R.Strength:10\nShip classes that may dock with Benedict:Starfighter, Frigate, Corvette\nDefault advanced engine:Warp (750)   Speeds: Impulse:60   Spin:6   Accelerate:8   C.Maneuver: Boost:400 Strafe:250\nBeams:2 Turreted Speed:6\n   Arc:90   Direction:  0   Range:1.5   Cycle:6   Damage:4\n   Arc:90   Direction:180   Range:1.5   Cycle:6   Damage:4\nKiriya is an improved warp drive version of the Jump Carrier")
-	end)
-	addGMFunction("MP52 Hornet",function()
-		addGMMessage("MP52 Hornet: Starfighter, Interceptor   Hull:70   Shield:60   Size:100   Repair Crew:1   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:125   Spin:32   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:30   Direction: 5   Range:.9   Cycle:4   Damage:2.5\n   Arc:30   Direction:-5   Range:.9   Cycle:4   Damage:2.5\nThe MP52 Hornet is a significantly upgraded version of MU52 Hornet, with nearly twice the hull strength, nearly three times the shielding, better acceleration, impulse boosters, and a second laser cannon.")
-	end)
-	addGMFunction("Maverick",function()
-		addGMMessage("Maverick: Corvette, Gunner   Hull:160   Shield:160,160   Size:200   Repair Crew:4   Cargo:5   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:80   Spin:15   Accelerate:40   C.Maneuver: Boost:400 Strafe:250\nBeams:6   3 forward, 2 side, 1 back (turreted speed .5)\n   Arc:10   Direction:  0   Range:2.0   Cycle:6   Damage:6\n   Arc: 90   Direction:-20   Range:1.5   Cycle:6   Damage:8\n   Arc: 90   Direction: 20   Range:1.5   Cycle:6   Damage:8\n   Arc: 40   Direction:-70   Range:1.0   Cycle:4   Damage:6\n   Arc: 40   Direction: 70   Range:1.0   Cycle:4   Damage:6\n   Arc:180   Direction:180   Range:0.8   Cycle:6   Damage:4   (turreted speed: .5)\nTubes:3   Load Speed:8   Side:2   Back:1\n   Direction:-90   Type:Exclude Mine\n   Direction: 90   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      06 Homing\n      02 Nuke\n      02 Mine\n      04 EMP\n      10 HVLI\nA number of beams bristle from various points on this gunner. Missiles were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis")
-	end)
-	addGMFunction("Nautilus",function()
-		addGMMessage("Nautilus: Frigate, Mine Layer   Hull:100   Shield:60,60   Size:200   Repair Crew:4   Cargo:7   R.Strength:12\nDefault advanced engine:Jump   Speeds: Impulse:100   Spin:10   Accelerate:15   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:6\n   Arc:90   Direction: 35   Range:1   Cycle:6   Damage:6\n   Arc:90   Direction:-35   Range:1   Cycle:6   Damage:6\nTubes:3   Load Speed:10   Back:3\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Mine\nSmall mine laying vessel with minimal armament, shields and hull")
-	end)
-	addGMFunction("Phobos MP3",function()
-		addGMMessage("Phobos MP3: Frigate, Cruiser   Hull:200   Shield:100,100   Size:200   Repair Crew:3   Cargo:10   R.Strength:19\nDefault advanced engine:None   Speeds: Impulse:80   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1.2   Cycle:8   Damage:6\n   Arc:90   Direction: 15   Range:1.2   Cycle:8   Damage:6\nTubes:3   Load Speed:10   Front:2   Back:1\n   Direction: -1   Type:Exclude Mine\n   Direction:  1   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      10 Homing\n      02 Nuke\n      04 Mine\n      03 EMP\n      20 HVLI\nPlayer variant of the Phobos M3, not as strong as the atlantis, but has front firing tubes, making it an easier to use ship in some scenarios.")
-	end)
-	addGMFunction("Piranha",function()
-		addGMMessage("Piranha: Frigate, Cruiser: Light Artillery   Hull:120   Shield:70,70   Size:200   Repair Crew:2   Cargo:8   R.Strength:16\nDefault advanced engine:None   Speeds: Impulse:60   Spin:10   Accelerate:8   C.Maneuver: Boost:200 Strafe:150\nTubes:8   Load Speed:8   Side:6   Back:2\n   Direction:-90   Type:HVLI and Homing Only\n   Direction:-90   Type:Any\n   Direction:-90   Type:HVLI and Homing Only\n   Direction: 90   Type:HVLI and Homing Only\n   Direction: 90   Type:Any\n   Direction: 90   Type:HVLI and Homing Only\n   Direction:170   Type:Mine Only\n   Direction:190   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      06 Nuke\n      08 Mine\n      20 HVLI\nThis combat-specialized Piranha F12 adds mine-laying tubes, combat maneuvering systems, and a jump drive.")
-	end)	
-	addGMFunction("Player Cruiser",function()
-		addGMMessage("Player Cruiser:   Hull:200   Shield:80,80   Size:400   Repair Crew:3   Cargo:6   R.Strength:40\nDefault advanced engine:Jump   Speeds: Impulse:90   Spin:10   Accelerate:20   C.Maneuver: Boost:400 Strafe:250\nBeams:2\n   Arc:90   Direction:-15   Range:1   Cycle:6   Damage:10\n   Arc:90   Direction: 15   Range:1   Cycle:6   Damage:10\nTubes:3   Load Speed:8   Front:2   Back:1\n   Direction: -5   Type:Exclude Mine\n   Direction:  5   Type:Exclude Mine\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      12 Homing\n      04 Nuke\n      08 Mine\n      06 EMP")
-	end)
-	addGMFunction("Player Fighter",function()
-		addGMMessage("Player Fighter:   Hull:60   Shield:40   Size:100   Repair Crew:3   Cargo:3   R.Strength:7\nDefault advanced engine:None   Speeds: Impulse:110   Spin:20   Accelerate:40   C.Maneuver: Boost:600   Energy:400\nBeams:2\n   Arc:40   Direction:-10   Range:1   Cycle:6   Damage:8\n   Arc:40   Direction: 10   Range:1   Cycle:6   Damage:8\nTube:1   Load Speed:10   Front:1\n   Direction:0   Type:HVLI Only\n   Ordnance stock and type:\n      4 HVLI")
-	end)
-	addGMFunction("Player Missile Cr.",function()
-		addGMMessage("Player Missile Cr.:   Hull:200   Shield:110,70   Size:200   Repair Crew:3   Cargo:8   R.Strength:45\nDefault advanced engine:Warp (800)   Speeds: Impulse:60   Spin:8   Accelerate:15   C.Maneuver: Boost:450 Strafe:150\nTubes:7   Load Speed:8   Front:2   Side:4   Back:1\n   Direction:  0   Type:Exclude Mine\n   Direction:  0   Type:Exclude Mine\n   Direction: 90   Type:Homing Only\n   Direction: 90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:-90   Type:Homing Only\n   Direction:180   Type:Mine Only\n   Ordnance stock and type:\n      30 Homing\n      08 Nuke\n      12 Mine\n      10 EMP")
-	end)	
-	addGMFunction("Repulse",function()
-		addGMMessage("Repulse: Frigate, Armored Transport   Hull:120   Shield:80,80   Size:200   Repair Crew:8   Cargo:12   R.Strength:14\nDefault advanced engine:Jump   Speeds: Impulse:55   Spin:9   Accelerate:10   C.Maneuver: Boost:250 Strafe:150\nBeams:2 Turreted Speed:5\n   Arc:200   Direction: 90   Range:1.2   Cycle:6   Damage:5\n   Arc:200   Direction:-90   Range:1.2   Cycle:6   Damage:5\nTubes:2   Load Speed:20   Front:1   Back:1\n   Direction:  0   Type:Any\n   Direction:180   Type:Any\n   Ordnance stock and type:\n      4 Homing\n      6 HVLI\nJump/Turret version of Flavia Falcon")
-	end)
-	addGMFunction("Striker",function()
-		addGMMessage("Striker: Starfighter, Patrol   Hull:120   Shield:50,30   Size:200   Repair Crew:2   Cargo:4   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:45   Spin:15   Accelerate:30   C.Maneuver: Boost:250 Strafe:150   Energy:500\nBeams:2 Turreted Speed:6\n   Arc:100   Direction:-15   Range:1   Cycle:6   Damage:6\n   Arc:100   Direction: 15   Range:1   Cycle:6   Damage:6\nThe Striker is the predecessor to the advanced striker, slow but agile, but does not do an extreme amount of damage, and lacks in shields")
-	end)
-	addGMFunction("ZX-Lindworm",function()
-		addGMMessage("ZX-Lindworm: Starfighter, Bomber   Hull:75   Shield:40   Size:100   Repair Crew:1   Cargo:3   R.Strength:8\nDefault advanced engine:None   Speeds: Impulse:70   Spin:15   Accelerate:25   C.Maneuver: Boost:250 Strafe:150   Energy:400\nBeam:1 Turreted Speed:4\n   Arc:270   Direction:180   Range:0.7   Cycle:6   Damage:2\nTubes:3   Load Speed:10   Front:3 (small)\n   Direction: 0   Type:Any - small\n   Direction: 1   Type:HVLI Only - small\n   Direction:-1   Type:HVLI Only - small\n   Ordnance stock and type:\n      03 Homing\n      12 HVLI")
-	end)
-end
+--	****************************************************************
+--	****				Initial Set Up Player Ships				****  --
+--	****************************************************************
 ----------------------------------------------------
 --	Support the creation of various player ships  --
 ----------------------------------------------------
@@ -14432,7 +14334,7 @@ end
 --		Adder				AdlerLongRangeScout
 --			2 beams (centered, pos, neg
 --			1 tube (centered, positive z)
-function createPlayerShipAmalgam()
+function createPlayerShipMixer()
 	playerAmalgam = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Mixer")
 	playerAmalgam:setTypeName("Amalgam")
 	playerAmalgam:setRepairCrewCount(5)					--more repair crew (vs 3)
@@ -14634,7 +14536,7 @@ function createPlayerShipBarracuda()
 	playerBarracuda:addReputationPoints(50)
 	return playerBarracuda
 end
-function createPlayerShipBarrow()
+function createPlayerShipQuarter()
 	playerBarrow = PlayerSpaceship():setTemplate("Benedict"):setFaction("Human Navy"):setCallSign("Quarter")
 	playerBarrow:setTypeName("Barrow")
 	playerBarrow:setShieldsMax(100, 100)				--stronger shields (vs 70, 70)
@@ -14722,7 +14624,7 @@ function createPlayerShipBlazon()
 	playerBlazon:addReputationPoints(50)
 	return playerBlazon
 end
-function createPlayerShipChavez()
+function createPlayerShipWesson()
 	playerChavez = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Wesson")
 	playerChavez:setTypeName("Chavez")
 	playerChavez:setRepairCrewCount(5)		--more (vs 2)
@@ -14998,7 +14900,7 @@ function createPlayerShipFlipper()
 	playerFlipper:addReputationPoints(50)
 	return playerFlipper
 end
-function createPlayerShipFresnel()
+function createPlayerShipSplinter()
 	playerFresnel = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Splinter")
 	playerFresnel:setTypeName("Fresnel")
 	playerFresnel:setRadarTrace("radar_ktlitan_fighter.png")	--different radar trace
@@ -15069,7 +14971,7 @@ function createPlayerShipGabble()
 	playerGabble:addReputationPoints(50)
 	return playerGabble
 end
-function createPlayerShipGadfly()
+function createPlayerShipBling()
 	playerGadfly = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Bling")
 	playerGadfly:setTypeName("Gadfly")
 	playerGadfly:setHullMax(100)						--stronger (vs 60)
@@ -15270,7 +15172,7 @@ function createPlayerShipHearken()
 	playerHearken:addReputationPoints(50)
 	return playerHearken
 end
-function createPlayerShipHolmes()
+function createPlayerShipWatson()
 	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
 	playerHolmes:setTypeName("Holmes")
 	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
@@ -15346,7 +15248,7 @@ function createPlayerShipHummer()
 	playerHummer:addReputationPoints(50)
 	return playerHummer
 end
-function createPlayerShipInterlock()
+function createPlayerShipFist()
 	playerInterlock = PlayerSpaceship():setTemplate("Repulse"):setFaction("Human Navy"):setCallSign("Fist")
 	playerInterlock:setTypeName("Interlock")
 	playerInterlock:setHullMax(250)							--stronger hull (vs 120)
@@ -15549,7 +15451,7 @@ function createPlayerShipLancelot()
 	playerLancelot:addReputationPoints(50)
 	return playerLancelot
 end
-function createPlayerShipLurker()
+function createPlayerShipRIP()
 	playerLurker = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rip")
 	playerLurker:setTypeName("Lurker")
 	playerLurker:setHullMax(100)						--stronger hull (vs 75)
@@ -15643,7 +15545,7 @@ function createPlayerShipMagnum()
 	playerMagnum:addReputationPoints(50)
 	return playerMagnum
 end
-function createPlayerShipMantis()
+function createPlayerShipCrux()
 	playerMantis = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Crux")
 	playerMantis:setTypeName("Mantis")
 --                  			  Arc, Dir,  Range, CycleTime, Dmg
@@ -15757,7 +15659,7 @@ function createPlayerShipNimbus()
 	playerNimbus:addReputationPoints(50)
 	return playerNimbus
 end
-function createPlayerShipNusret()
+function createPlayerShipHrothgar()
 	playerNusret = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Hrothgar")
 	playerNusret:setTypeName("Nusret")
 	playerNusret:setHullMax(150)						--stronger hull (vs 100)
@@ -15839,7 +15741,7 @@ function createPlayerShipOutcast()
 	playerOutcast:addReputationPoints(50)
 	return playerOutcast
 end
-function createPlayerShipPeacock()
+function createPlayerShipFlaire()
 	playerPeacock = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Flaire")
 	playerPeacock:setTypeName("Peacock")
 	playerPeacock:setRepairCrewCount(4)					--more repair crew (vs 3)
@@ -15885,7 +15787,7 @@ function createPlayerShipPeacock()
 	playerPeacock:addReputationPoints(50)
 	return playerPeacock
 end
-function createPlayerShipPhobosT2()
+function createPlayerShipTerror()
 	playerPhobosT2 = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Terror")
 	playerPhobosT2:setTypeName("Phobos T2")
 	playerPhobosT2:setRepairCrewCount(4)					--more repair crew (vs 3)
@@ -16042,7 +15944,7 @@ function createPlayerShipRattler()
 	playerRattler:addReputationPoints(50)
 	return playerRattler
 end
-function createPlayerShipRaven()
+function createPlayerShipClaw()
 	playerRaven = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Claw")
 	playerRaven:setTypeName("Raven")
 	playerRaven:setJumpDrive(false)						
@@ -16087,7 +15989,7 @@ function createPlayerShipRaven()
 	playerRaven:addReputationPoints(50)
 	return playerRaven
 end
-function createPlayerShipRodent()
+function createPlayerShipGeorge()
 	playerRodent = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("George")
 	playerRodent:setTypeName("Rodent")
 	playerRodent:setRepairCrewCount(5)					--more repair crew (vs 3)
@@ -16162,7 +16064,7 @@ function createPlayerShipRogue()
 	playerRogue:addReputationPoints(50)
 	return playerRogue
 end
-function createPlayerShipRotor()
+function createPlayerShipPinwheel()
 	playerRotor = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Pinwheel")
 	playerRotor:setTypeName("Rotor")
 	playerRotor:setWarpSpeed(450)							--slower (vs 800)
@@ -16196,7 +16098,7 @@ function createPlayerShipRotor()
 	playerRotor:addReputationPoints(50)
 	return playerRotor
 end
-function createPlayerShipSafari()
+function createPlayerShipFlorentine()
 	playerSafari = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Florentine")
 	playerSafari:setTypeName("Safari")
 	playerSafari:setShieldsMax(100, 60)					--stronger front, weaker rear (vs 70, 70)
@@ -16449,7 +16351,7 @@ function createPlayerShipThunderbird()
 	playerThunderbird:addReputationPoints(50)
 	return playerThunderbird
 end
-function createPlayerShipTwister()
+function createPlayerShipTango()
 	playerTwister = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Tango")
 	playerTwister:setTypeName("Twister")
 	playerTwister:setRadarTrace("radar_ktlitan_destroyer.png")				--different radar trace
@@ -16547,7 +16449,7 @@ function createPlayerShipWiggy()
 	playerWiggy:addReputationPoints(50)
 	return playerWiggy
 end
-function createPlayerShipWindmill()
+function createPlayerShipRocinante()
 	playerWindmill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Rocinante")
 	playerWindmill:setTypeName("Windmill")
 	playerWindmill:setImpulseMaxSpeed(100)	--faster impulse max (vs 60)
@@ -16593,7 +16495,7 @@ function createPlayerShipWindmill()
 	playerWindmill:addReputationPoints(50)
 	return playerWindmill
 end
-function createPlayerShipWombat()
+function createPlayerShipDevon()
 	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(100)							--stronger hull (vs 75)
@@ -16640,7 +16542,7 @@ function createPlayerShipWombat()
 	playerWombat:addReputationPoints(50)
 	return playerWombat
 end
-function createPlayerShipWrocket()
+function createPlayerShipSlingshot()
 	playerWrocket = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Slingshot")
 	playerWrocket:setTypeName("Wrocket")
 	playerWrocket:setShieldsMax(100,100)				--stronger shields (vs 80,80)
