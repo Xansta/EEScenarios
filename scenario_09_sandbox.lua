@@ -840,7 +840,7 @@ function setConstants()
 	addPlayerShip("Halberd",	"Proto-Atlantis",createPlayerShipHalberd	,{ftl = "J", lrs = 35})	--proto-atlantis
 	addPlayerShip("Headhunter",	"Redhook",		createPlayerShipHeadhunter	,{ftl = "J", lrs = 20})
 	addPlayerShip("Hearken",	"Redhook",		createPlayerShipHearken		,{ftl = "J", lrs = 20})
-	addPlayerShip("Holmes",		"Holmes",		createPlayerShipHolmes		,{ftl = "W", lrs = 35})
+	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,{ftl = "W", lrs = 35})
 	addPlayerShip("Hummer",		"XR-Lindworm",	createPlayerShipHummer		,{ftl = "W", lrs = 20})
 	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,{ftl = "J", lrs = 35})
 	addPlayerShip("Jarvis",		"Butler",		createPlayerShipJarvis		,{ftl = "W", lrs = 30})
@@ -15172,7 +15172,7 @@ function createPlayerShipHearken()
 	playerHearken:addReputationPoints(50)
 	return playerHearken
 end
-function createPlayerShipHolmes()
+function createPlayerShipWatson()
 	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
 	playerHolmes:setTypeName("Holmes")
 	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
