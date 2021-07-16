@@ -8,7 +8,7 @@
 --	sensor buoy drop
 
 -- Starry's todo list
--- test spliting out region and update code, understand what is necessary and consider switching away from the table returning everything if it works
+-- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
 -- getScenarioTime should allow some small simplifcations
 -- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
@@ -362,7 +362,7 @@ function addPlayerShip(name,typeName,func,data)
 end
 function setConstants()
 	universe=universe()
-	update_system=updateSystem()
+	update_system=updateSystem:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
@@ -1391,1149 +1391,1155 @@ function setConstants()
 	kentar_commerce_assets = {}
 	kentar_commerce_timer = commerce_timer_interval
 end
-function updateSystem()
-	return {
-		-- treat _update_objects as private to updateSystem
-		-- my lack of lua knowledge is showing here
-		-- _update_objects is an array, which probably is probably non optimal
-		-- in particular random removal and checking if an item is within are slow
-		-- this was not a issue with the few thousand entries tested with, but may need revisiting if performance issue surface
-		_update_objects={},
-		-- update should be called each time the main update is called
-		-- it will run all updates on all objects
-		-- it will also handle the case that objects are deleted
-		-- TODO it should have a way to say "remove this update", but currently doesn't
-		update = function(self,delta)
-			assert(type(self)=="table")
-			assert(type(delta)=="number")
-			-- we iterate through the _update_objects in reverse order so removed entries don't result in skipped updates
-			for index = #self._update_objects,1,-1 do
-				if self._update_objects[index]:isValid() then
-					local obj=self._update_objects[index]
-					for index = #obj.update_list,1,-1 do
-						obj.update_list[index]:update(obj,delta)
-					end
-				else
-					table.remove(self._update_objects,index)
-				end
+
+updateSystem = {}
+updateSystem.__index = updateSystem
+
+function updateSystem:create()
+	local update_sys = {}
+	setmetatable(update_sys,updateSystem)
+	-- treat _update_objects as private to updateSystem
+	-- my lack of lua knowledge is showing here
+	-- _update_objects is an array, which probably is probably non optimal
+	-- in particular random removal and checking if an item is within are slow
+	-- this was not a issue with the few thousand entries tested with, but may need revisiting if performance issue surface
+	update_sys._update_objects={}
+	return update_sys
+end
+
+-- update should be called each time the main update is called
+-- it will run all updates on all objects
+-- it will also handle the case that objects are deleted
+-- TODO it should have a way to say "remove this update", but currently doesn't
+function updateSystem:update(delta)
+	assert(type(self)=="table")
+	assert(type(delta)=="number")
+	-- we iterate through the _update_objects in reverse order so removed entries don't result in skipped updates
+	for index = #self._update_objects,1,-1 do
+		if self._update_objects[index]:isValid() then
+			local obj=self._update_objects[index]
+			for index = #obj.update_list,1,-1 do
+				obj.update_list[index]:update(obj,delta)
 			end
-		end,
-		-- mostly to assist in testing
-		-- while it could easily be done inline it hopefully will make it easier to change data structures if needed
-		_clear_update_list = function(self)
-			assert(type(self)=="table")
-			self._update_objects = {}
-		end,
-		-- treat _addToUpdateList as private to updateSystem
-		-- this adds a object to the update list, while ensuring it isn't duplicated
-		_addToUpdateList = function(self,obj)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			for index = 0,#self._update_objects do
-				if self._update_objects[index]==obj then
-					return
-				end
+		else
+			table.remove(self._update_objects,index)
+		end
+	end
+end
+-- mostly to assist in testing
+-- while it could easily be done inline it hopefully will make it easier to change data structures if needed
+function updateSystem:_clear_update_list()
+	assert(type(self)=="table")
+	self._update_objects = {}
+end
+-- treat _addToUpdateList as private to updateSystem
+-- this adds a object to the update list, while ensuring it isn't duplicated
+function updateSystem:_addToUpdateList(obj)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	for index = 0,#self._update_objects do
+		if self._update_objects[index]==obj then
+			return
+		end
+	end
+	table.insert(self._update_objects,obj)
+end
+-- treat _eraseUpdateType as private
+-- remove updates of update_type
+function updateSystem._eraseUpdateType(obj,update_type)
+	assert(type(obj)=="table")
+	assert(type(update_type)=="string")
+	if obj.update_list == nil then
+		return
+	end
+	for index = #obj.update_list,1,-1 do
+		if obj.update_list[index].type==update_type then
+			table.remove(obj.update_list,index)
+		end
+	end
+end
+-- this really wants to be merged into _eraseUpdateType
+-- however at this time they are used differently so its hard
+-- _eraseUpdateType removes a type, this removes a particular update
+-- types probably need work/thought sooner rather than later
+-- but the names probably can stay stable (at least after the periodic functions are fixed)
+-- thus this should work for a public facing function, _eraseUpdateType should be private
+function updateSystem:removeUpdateNamed(obj,name)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(name)=="string")
+	if obj.update_list ~= nil then
+		for index = 1,#obj.update_list do
+			assert(type(obj.update_list[index].name)=="string")
+			if obj.update_list[index].name==name then
+				table.remove(obj.update_list,index)
 			end
-			table.insert(self._update_objects,obj)
-		end,
-		-- treat _eraseUpdateType as private
-		-- remove updates of update_type
-		_eraseUpdateType = function(obj,update_type)
-			assert(type(obj)=="table")
-			assert(type(update_type)=="string")
-			if obj.update_list == nil then
+		end
+	end
+end
+function updateSystem:removeThisUpdate(obj,update)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(update)=="table")
+	if obj.update_list ~= nil then
+		for index = 1,#obj.update_list do
+			if obj.update_list[index]==update then
+				table.remove(obj.update_list,index)
 				return
 			end
-			for index = #obj.update_list,1,-1 do
-				if obj.update_list[index].type==update_type then
-					table.remove(obj.update_list,index)
-				end
+		end
+	end
+end
+function updateSystem:getUpdateNamed(obj,name)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(name)=="string")
+	if obj.update_list ~= nil then
+		for index = 1,#obj.update_list do
+			if obj.update_list[index].name==name then
+				return obj.update_list[index]
 			end
-		end,
-		-- this really wants to be merged into _eraseUpdateType
-		-- however at this time they are used differently so its hard
-		-- _eraseUpdateType removes a type, this removes a particular update
-		-- types probably need work/thought sooner rather than later
-		-- but the names probably can stay stable (at least after the periodic functions are fixed)
-		-- thus this should work for a public facing function, _eraseUpdateType should be private
-		removeUpdateNamed = function(self,obj,name)
+		end
+	end
+	return nil
+end
+-- there is only one update function of each update_type
+-- it is intended that the update_types are picked such that incompatible types aren't merged
+-- the obvious example is multiple functions setting a object x & y location
+-- update_type is a string which makes multiple incompatibles impossible to express
+-- in an ideal world that would be fixed, however as of writing this it sounds manageable  to do without
+-- update_data is a table with at a minimum a function called update which takes 3 arguments
+-- argument 1 - self (the table)
+-- argument 2 - delta - delta (as passed from the main update function)
+-- argument 3 - obj - the object being updated
+-- it is expected that data needed needed for the update function will be stored in the obj or the update_data table
+function updateSystem:addUpdate(obj,update_type,update_data)
+	assert(type(obj)=="table")
+	assert(type(update_type)=="string")
+	assert(type(update_data)=="table")
+	assert(type(update_data.name)=="string","addUpdate update_data must be a table with a member name as a string update="..update_type)
+	assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_type)
+	assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_type)
+	self._eraseUpdateType(obj,update_type)
+	if obj.update_list == nil then
+		obj.update_list = {}
+	end
+	update_data.type=update_type
+	table.insert(obj.update_list,update_data)
+	self:_addToUpdateList(obj)
+end
+function updateSystem:getUpdateNamesOnObject(obj)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	if obj.update_list == nil then
+		return {}
+	end
+	local ret={}
+	for index = 1,#obj.update_list do
+		local update_name=obj.update_list[index].name
+		assert(type(update_name)=="string")
+		local edit={}
+		assert(type(obj.update_list[index].edit)=="table","each update object must have an edit table")
+		for index2 = 1,#obj.update_list[index].edit do
+			local name=obj.update_list[index].edit[index2].name
+			local array_index=obj.update_list[index].edit[index2].index
+			local fixedAdjAmount=obj.update_list[index].edit[index2].fixedAdjAmount
+			assert(type(name)=="string")
+			local display_name=name
+			assert(array_index==nil or type(array_index)=="number")
+			if array_index ~= nil then
+				display_name = display_name .. "[" .. array_index .. "]"
+			end
+			table.insert(edit,{
+				getter = function()
+					-- note the time that this is executed the number of updates and their order may of changed
+					-- as such we have to fetch them from scratch
+					-- this probably could use being tested better, ideally added into the testing code
+					local ret=self:getUpdateNamed(obj,update_name)[name]
+					if array_index ~= nil then
+						ret=ret[array_index]
+					end
+					assert(type(ret)=="number")
+					return ret
+				end,
+				setter = function(val)
+					if array_index == nil then
+						self:getUpdateNamed(obj,update_name)[name]=val
+					else
+						self:getUpdateNamed(obj,update_name)[name][array_index]=val
+					end
+				end,
+				fixedAdjAmount=fixedAdjAmount,
+				name=display_name
+			})
+		end
+		table.insert(ret,{
+			name=update_name,
+			edit=edit
+		})
+	end
+	return ret
+end
+-- move an object along a list of points, cycling every again_time 
+-- Note: my text editor tries to pair repeat_time with other bits of code, so I changed it to again_time
+-- due to the copy made of points it is kind of memory hungry
+-- caution should be used if you are creating a lot of these objects
+function updateSystem:addUpdateFixedPositions(obj, again_time, points)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(again_time)=="number")
+	assert(type(points)=="table")
+	-- points is really an array of objects with an x & y location
+	local update_data = {
+		name = "fixedPositions",
+		again_time = again_time,
+		points = points,
+		edit = {},
+		update = function(self,obj,delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
-			assert(type(name)=="string")
-			if obj.update_list ~= nil then
-				for index = 1,#obj.update_list do
-					assert(type(obj.update_list[index].name)=="string")
-					if obj.update_list[index].name==name then
-						table.remove(obj.update_list,index)
-					end
-				end
+			assert(type(delta)=="number")
+			local orbit_pos = math.floor(((getScenarioTime() % self.again_time) / self.again_time) * #points) + 1
+			obj:setPosition(points[orbit_pos].x,points[orbit_pos].y)
+		end
+	}
+	self:addUpdate(obj,"absolutePosition",update_data)
+end
+function updateSystem:addSlowAndAccurateElliptical(obj, cx, cy, orbit_duration, rotation, e, semi_major_axis, start_angle)
+	-- much of the cost of this is in the making the orbit speed up in the center
+	-- there is a fairly heavy computational cost in generating the orbit
+	-- and a fairly large array used after calculation
+	-- in other words be very mindful when using this elsewhere
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(cx)=="number")
+	assert(type(cy)=="number")
+	assert(type(orbit_duration)=="number")
+	assert(type(rotation)=="number")
+	assert(type(e)=="number")
+	assert(type(semi_major_axis)=="number")
+	assert(type(start_angle)=="number")
+	local locs = {}
+	local triangles = {}
+	local area = {}
+	local total_area = 0
+	local desired_points = orbit_duration * 50
+	local total_segments = desired_points * 10
+	-- we generate more points at an equal angle around the ellipse
+	-- we are then going to calculate the area under a triangle made
+	-- by each point
+	for i = 0, total_segments do
+		local angle = ((start_angle/360)*math.pi*2) + ((math.pi * 2)/total_segments * -i)
+		local minor_axis = semi_major_axis * (math.sqrt(1-e*e))
+		local c = semi_major_axis * e
+		local r = minor_axis * minor_axis / (semi_major_axis - c * math.cos(angle))
+		angle = angle + ((rotation/360) * math.pi*2)
+		locs[i]={x=math.cos(angle) * r,y = math.sin(angle) * r, r=r}
+		-- we start with the fomula for the area of a triangle with 2 sides and 1 angle
+		-- which given the lines a, b & angle c is
+		-- which is 0.5*a*b*sin(C)
+		-- the real area isnt the goal - just the relative scaling between the triangles
+		-- as C is a constant sin(C) is a constant, and the 0.5 and sin(C) for each triangle can be ignored
+		-- thus for our purpose the area is a*b
+		if i ~= 0 then
+			area[i-1] = locs[i].r *locs[i-1].r
+			total_area = total_area + area[i-1]
+		end
+		if i == total_segments then
+			area[i] = locs[i].r *locs[0].r
+			total_area = total_area + area[i]
+		end
+	end
+	-- we now know the total area
+	-- we also know the area of each triangle
+	-- we also know from kepler's second law that an orbit will go over the same area with the same amount of time
+	-- using this we will calculate the number of points requested
+	-- Note: my text editor tries to pair end_points with other bits of code, so I changed it to completion_points
+	local completion_points = {}
+	local desired_area = 0
+	for i=0,total_segments do
+		if desired_area <= 0 then
+			desired_area = desired_area + total_area / desired_points
+			completion_points[#completion_points+1] = {x = locs[i].x + cx, y = locs[i].y + cy}
+		end
+		desired_area = desired_area - area[i]
+	end
+	update_system:addUpdateFixedPositions(obj,orbit_duration,completion_points)
+end
+-- I am less than sure this is the best setup
+-- should it take an angle?
+-- should dx and dy not be scaled by speed
+-- should it be addLinearTo?
+-- all very good questions, also questions I dont have time to deal with right now
+-- so future code readers, feel free to come up with better answers and swtich over to them
+function updateSystem:addLinear(obj, dx, dy, speed)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(dx)=="number")
+	assert(type(dy)=="number")
+	assert(type(speed)=="number")
+	local update_data = {
+		name = "linearTo",
+		edit = {},
+		speed = speed,
+		dx = dx,
+		dy = dy,
+		update = function (self, obj, delta)
+			local x,y=obj:getPosition()
+			obj:setPosition(x+self.dx*self.speed*delta,y+self.dy*self.speed*delta)
+		end
+	}
+	self:addUpdate(obj,"absolutePosition",update_data)
+end
+-- when the owner is destroyed the owned objects is also destroyed
+function updateSystem:addOwned(owned, owner)
+	assert(type(self)=="table")
+	assert(type(owned)=="table")
+	assert(type(owner)=="table")
+	local update_data = {
+		name = "owned",
+		edit = {},
+		owner = owner,
+		update = function (self, obj, delta)
+			assert(type(self)=="table")
+			assert(type(owned)=="table")
+			if self.owner == nil or not self.owner:isValid() then
+				obj:destroy()
+			end
+		end
+	}
+	self:addUpdate(owned,"owned",update_data)
+end
+ -- addShieldDecayCurve and addEnergyDecayCurve are mostly the same, they probably should be merged in some way
+function updateSystem:addEnergyDecayCurve(obj, total_time, curve_x, curve_y)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(total_time)=="number")
+	assert(type(curve_x)=="table")
+	assert(#curve_x==4)
+	assert(type(curve_x[1])=="number")
+	assert(type(curve_x[2])=="number")
+	assert(type(curve_x[3])=="number")
+	assert(type(curve_x[4])=="number")
+	assert(type(curve_y)=="table")
+	assert(#curve_y==4)
+	assert(type(curve_y[1])=="number")
+	assert(type(curve_y[2])=="number")
+	assert(type(curve_y[3])=="number")
+	assert(type(curve_y[4])=="number")
+	local update_data = {
+		name = "energy decay",
+		total_time = total_time,
+		curve_x = curve_x,
+		curve_y = curve_y,
+		elapsed_time = 0,
+		edit = {
+			{name = "total_time", fixedAdjAmount=1},
+			{name = "elapsed_time", fixedAdjAmount=60},
+			{name = "curve_x", index = 1, fixedAdjAmount=0.01},
+			{name = "curve_x", index = 2, fixedAdjAmount=0.01},
+			{name = "curve_x", index = 3, fixedAdjAmount=0.01},
+			{name = "curve_x", index = 4, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 1, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 2, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 3, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 4, fixedAdjAmount=0.01}
+		},
+		update = function (self, obj, delta)
+			self.elapsed_time = self.elapsed_time + delta
+			local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
+			local curve={-- bah this is bad but until the update edit is better its needed
+				{x = self.curve_x[1], y = self.curve_y[1]},
+				{x = self.curve_x[2], y = self.curve_y[2]},
+				{x = self.curve_x[3], y = self.curve_y[3]},
+				{x = self.curve_x[4], y = self.curve_y[4]}
+			}
+			local energy_drain_per_second=math.CosineInterpolateTable(curve,time_ratio)
+			local new_energy=obj:getEnergy()+energy_drain_per_second*delta
+			obj:setEnergy(math.clamp(0,obj:getMaxEnergy(),new_energy))
+		end
+	}
+	self:addUpdate(obj,"energy decay",update_data)
+end
+function updateSystem:addShieldDecayCurve(obj, total_time, curve_x, curve_y)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(total_time)=="number")
+	assert(type(curve_x)=="table")
+	assert(#curve_x==4)
+	assert(type(curve_x[1])=="number")
+	assert(type(curve_x[2])=="number")
+	assert(type(curve_x[3])=="number")
+	assert(type(curve_x[4])=="number")
+	assert(type(curve_y)=="table")
+	assert(#curve_y==4)
+	assert(type(curve_y[1])=="number")
+	assert(type(curve_y[2])=="number")
+	assert(type(curve_y[3])=="number")
+	assert(type(curve_y[4])=="number")
+	local update_data = {
+		name = "shield decay",
+		total_time = total_time,
+		curve_x = curve_x,
+		curve_y = curve_y,
+		elapsed_time = 0,
+		edit = {
+			{name = "total_time", fixedAdjAmount=1},
+			{name = "elapsed_time", fixedAdjAmount=60},
+			{name = "curve_x", index = 1, fixedAdjAmount=0.01},
+			{name = "curve_x", index = 2, fixedAdjAmount=0.01},
+			{name = "curve_x", index = 3, fixedAdjAmount=0.01},
+			{name = "curve_x", index = 4, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 1, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 2, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 3, fixedAdjAmount=0.01},
+			{name = "curve_y", index = 4, fixedAdjAmount=0.01}
+		},
+		update = function (self, obj, delta)
+			self.elapsed_time = self.elapsed_time + delta
+			local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
+			local curve={-- bah this is bad but until the update edit is better its needed
+				{x = self.curve_x[1], y = self.curve_y[1]},
+				{x = self.curve_x[2], y = self.curve_y[2]},
+				{x = self.curve_x[3], y = self.curve_y[3]},
+				{x = self.curve_x[4], y = self.curve_y[4]}
+			}
+			local maxShieldRatio=math.CosineInterpolateTable(curve,time_ratio)
+			local shields = {}
+			for i=0,obj:getShieldCount()-1 do
+				table.insert(shields,math.min((obj:getShieldMax(i)*maxShieldRatio),obj:getShieldLevel(i)))
+			end
+			obj:setShields(table.unpack(shields))
+		end
+	}
+	self:addUpdate(obj,"shield decay",update_data)
+end
+function updateSystem:_addGenericOverclock(obj, overboosted_time, boost_time, overclock_name, data_mirror ,add_extra_update_data, inner_update)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(overboosted_time)=="number")
+	assert(type(boost_time)=="number")
+	assert(type(overclock_name)=="string")
+	assert(type(data_mirror)=="function")
+	assert(type(inner_update)=="function")
+	assert(type(add_extra_update_data)=="function")
+	local update_self = self
+	local update_data = {
+		name = overclock_name,
+		boost_time = boost_time,
+		overboosted_time = overboosted_time,
+
+		time = overboosted_time + boost_time,
+		mirrored_data = data_mirror(self,obj),
+		edit = {
+			{name = "boost_time", fixedAdjAmount=1},
+			{name = "overboosted_time", fixedAdjAmount=1},
+			{name = "time", fixedAdjAmount=1}
+			-- mirrored data would be nice to export but not realistic
+			-- refresh would be nice as an exported button
+		},
+		refresh = function (self)
+			assert(type(self)=="table")
+			self.time = self.overboosted_time + self.boost_time
+		end,
+		update = function (self, obj, delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			self.time = self.time - delta
+			local scale = math.clamp(self.time/self.boost_time,0,1)
+			inner_update(self, obj, scale)
+			-- if scale == 0 inner_update has already been called with 0, resulting in overclocks being turned off
+			if scale == 0 then
+				update_self:removeThisUpdate(obj,self)
 			end
 		end,
-		removeThisUpdate = function(self,obj,update)
+	}
+	add_extra_update_data(self,obj,update_data)
+	self:addUpdate(obj,overclock_name,update_data)
+end
+-- note calling this on a object that already has a boost enabled will probably not work as expected
+-- as it will pull the beam range/cycle time off of the boosted values rather than the default
+-- this should be fixed at some time
+function updateSystem:addBeamBoostOverclock(obj, overboosted_time, boost_time, max_range_boosted, max_cycle_boosted)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(overboosted_time)=="number")
+	assert(type(boost_time)=="number")
+	assert(type(max_range_boosted)=="number")
+	assert(type(max_cycle_boosted)=="number")
+
+	self:_addGenericOverclock(obj,overboosted_time, boost_time,"beam overclock",
+		-- 16 seems to be the max number of beams (seen via tweak menu)
+		-- if the engine exports max number of beams it should be used rather than mirror all data
+		function (self, obj)
+			local mirrored_data={}
+			for index=0,16 do
+				table.insert(mirrored_data,
+				{
+					range = obj:getBeamWeaponRange(index),
+					cycle_time = obj:getBeamWeaponCycleTime(index)
+				})
+			end
+			return mirrored_data
+		end,
+		function (self, obj, update)
+			update.max_range_boosted = max_range_boosted
+			update.max_cycle_boosted = max_cycle_boosted
+			table.insert(update.edit,{name = "max_range_boosted", fixedAdjAmount=0.1})
+			table.insert(update.edit,{name = "max cycle_damage_boosted", fixedAdjAmount=0.1})
+		end,
+		function (self, obj, scale)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(scale)=="number")
+				-- 16 seems to be the max number of beams (seen via tweak menu)
+				-- if the engine exports max number of beams it should be used rather than mirror all data
+			for index=0,16 do
+				local beam_range = math.lerp(1,self.max_range_boosted,scale)*self.mirrored_data[index+1].range
+				compatSetBeamWeaponRange(obj,index,beam_range)
+				local beam_cycle = math.lerp(1,self.max_cycle_boosted,scale)*self.mirrored_data[index+1].cycle_time
+				compatSetBeamWeaponCycleTime(obj,index,beam_cycle)
+			end
+		end
+	)
+end
+function updateSystem:addEngineBoostUpdate(obj, overboosted_time, boost_time, max_impulse_boosted, max_turn_boosted)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(overboosted_time)=="number")
+	assert(type(boost_time)=="number")
+	assert(type(max_impulse_boosted)=="number")
+	assert(type(max_turn_boosted)=="number")
+	self:_addGenericOverclock(obj,overboosted_time, boost_time,"engine overclock",
+		function (self, obj)
+			return {
+				impulse = obj:getImpulseMaxSpeed(index),
+				turn_rate = obj:getRotationMaxSpeed(index)
+			}
+		end,
+		function (self, obj, update)
+			update.max_impulse_boosted = max_impulse_boosted
+			update.max_turn_boosted = max_turn_boosted
+			table.insert(update.edit,{name = "max_impulse_boosted", fixedAdjAmount=0.1})
+			table.insert(update.edit,{name = "max max_turn_boosted", fixedAdjAmount=0.1})
+		end,
+		function (self, obj, scale)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(scale)=="number")
+			obj:setImpulseMaxSpeed(math.lerp(1,self.max_impulse_boosted,scale)*self.mirrored_data.impulse)
+			obj:setRotationMaxSpeed(math.lerp(1,self.max_turn_boosted,scale)*self.mirrored_data.turn_rate)
+		end
+	)
+end
+-- this is horrifically specialized and I don't think there is any way around that
+function updateSystem:addOverclockableTractor(obj, spawnFunc)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(spawnFunc)=="function")
+	local update_self=self
+	local max_dist=1500
+	self:_addGenericOverclock(obj,5, 30, "overclockable tractor",
+		function (self, obj)end,
+		function (self, obj, update)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(update)=="table")
-			if obj.update_list ~= nil then
-				for index = 1,#obj.update_list do
-					if obj.update_list[index]==update then
-						table.remove(obj.update_list,index)
-						return
+			update.orbitingObj= {}
+			for i=1,12 do
+				local spawned = spawnFunc()
+				self:addOrbitTargetUpdate(spawned,obj, max_dist, 30, i*30)
+				table.insert(update.orbitingObj,spawned)
+			end
+		end,
+		function (self, obj, scale)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(scale)=="number")
+			for i=#self.orbitingObj,1,-1 do
+				local orbiting=self.orbitingObj[i]
+				if orbiting:isValid() then
+					local orbiting_update=update_self:getUpdateNamed(orbiting,"orbit target")
+					if orbiting_update ~= nil then
+						orbiting_update.distance=math.lerp(0,max_dist,scale)
 					end
+				else
+					table.remove(self.orbitingObj,i)
 				end
 			end
-		end,
-		getUpdateNamed = function(self,obj,name)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(name)=="string")
-			if obj.update_list ~= nil then
-				for index = 1,#obj.update_list do
-					if obj.update_list[index].name==name then
-						return obj.update_list[index]
+		end
+	)
+end
+function updateSystem:_addGenericOverclocker(obj, period, updateName, addUpdate, updateRange, filterFun, playerApply)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(period)=="number")
+	assert(type(updateName)=="string")
+	assert(type(addUpdate)=="function")
+	assert(type(updateRange)=="number")
+	assert(filterFun==nil or type(filterFun)=="function")
+	assert(playerApply==nil or type(playerApply)=="function")
+	local callback = function(obj)
+		assert(type(obj)=="table")
+		local x,y=obj:getPosition()
+		local objs=getObjectsInRadius(x,y,updateRange)
+		-- filter to spaceShips that are our faction
+		for index=#objs,1,-1 do
+			if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
+				if filterFun == nil or filterFun(objs[index]) then
+					local art=Artifact():setPosition(x,y):setDescription("encrypted data")
+					if playerApply ~= nil then
+						art:onPlayerCollision(playerApply)
 					end
-				end
-			end
-			return nil
-		end,
-		-- there is only one update function of each update_type
-		-- it is intended that the update_types are picked such that incompatible types aren't merged
-		-- the obvious example is multiple functions setting a object x & y location
-		-- update_type is a string which makes multiple incompatibles impossible to express
-		-- in an ideal world that would be fixed, however as of writing this it sounds manageable  to do without
-		-- update_data is a table with at a minimum a function called update which takes 3 arguments
-		-- argument 1 - self (the table)
-		-- argument 2 - delta - delta (as passed from the main update function)
-		-- argument 3 - obj - the object being updated
-		-- it is expected that data needed needed for the update function will be stored in the obj or the update_data table
-		addUpdate = function(self,obj,update_type,update_data)
-			assert(type(obj)=="table")
-			assert(type(update_type)=="string")
-			assert(type(update_data)=="table")
-			assert(type(update_data.name)=="string","addUpdate update_data must be a table with a member name as a string update="..update_type)
-			assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_type)
-			assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_type)
-			self._eraseUpdateType(obj,update_type)
-			if obj.update_list == nil then
-				obj.update_list = {}
-			end
-			update_data.type=update_type
-			table.insert(obj.update_list,update_data)
-			self:_addToUpdateList(obj)
-		end,
-		getUpdateNamesOnObject = function(self, obj)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			if obj.update_list == nil then
-				return {}
-			end
-			local ret={}
-			for index = 1,#obj.update_list do
-				local update_name=obj.update_list[index].name
-				assert(type(update_name)=="string")
-				local edit={}
-				assert(type(obj.update_list[index].edit)=="table","each update object must have an edit table")
-				for index2 = 1,#obj.update_list[index].edit do
-					local name=obj.update_list[index].edit[index2].name
-					local array_index=obj.update_list[index].edit[index2].index
-					local fixedAdjAmount=obj.update_list[index].edit[index2].fixedAdjAmount
-					assert(type(name)=="string")
-					local display_name=name
-					assert(array_index==nil or type(array_index)=="number")
-					if array_index ~= nil then
-						display_name = display_name .. "[" .. array_index .. "]"
+					local callback=function (self, obj, target)
+						assert(type(self)=="table")
+						assert(type(obj)=="table")
+						assert(type(target)=="table")
+						local update = self:getUpdateNamed(target,updateName)
+						if update == nil then
+							addUpdate(target)
+						else
+							update:refresh()
+						end
 					end
-					table.insert(edit,{
-						getter = function()
-							-- note the time that this is executed the number of updates and their order may of changed
-							-- as such we have to fetch them from scratch
-							-- this probably could use being tested better, ideally added into the testing code
-							local ret=self:getUpdateNamed(obj,update_name)[name]
-							if array_index ~= nil then
-								ret=ret[array_index]
-							end
-							assert(type(ret)=="number")
-							return ret
-						end,
-						setter = function(val)
-							if array_index == nil then
-								self:getUpdateNamed(obj,update_name)[name]=val
-							else
-								self:getUpdateNamed(obj,update_name)[name][array_index]=val
-							end
-						end,
-						fixedAdjAmount=fixedAdjAmount,
-						name=display_name
-					})
-				end
-				table.insert(ret,{
-					name=update_name,
-					edit=edit
-				})
-			end
-			return ret
-		end,
-		-- move an object along a list of points, cycling every again_time 
-		-- Note: my text editor tries to pair repeat_time with other bits of code, so I changed it to again_time
-		-- due to the copy made of points it is kind of memory hungry
-		-- caution should be used if you are creating a lot of these objects
-		addUpdateFixedPositions = function(self, obj, again_time, points)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(again_time)=="number")
-			assert(type(points)=="table")
-			-- points is really an array of objects with an x & y location
-			local update_data = {
-				name = "fixedPositions",
-				again_time = again_time,
-				points = points,
-				edit = {},
-				update = function(self,obj,delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					local orbit_pos = math.floor(((getScenarioTime() % self.again_time) / self.again_time) * #points) + 1
-					obj:setPosition(points[orbit_pos].x,points[orbit_pos].y)
-				end
-			}
-			self:addUpdate(obj,"absolutePosition",update_data)
-		end,
-		addSlowAndAccurateElliptical = function(self, obj, cx, cy, orbit_duration, rotation, e, semi_major_axis, start_angle)
-			-- much of the cost of this is in the making the orbit speed up in the center
-			-- there is a fairly heavy computational cost in generating the orbit
-			-- and a fairly large array used after calculation
-			-- in other words be very mindful when using this elsewhere
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(cx)=="number")
-			assert(type(cy)=="number")
-			assert(type(orbit_duration)=="number")
-			assert(type(rotation)=="number")
-			assert(type(e)=="number")
-			assert(type(semi_major_axis)=="number")
-			assert(type(start_angle)=="number")
-			local locs = {}
-			local triangles = {}
-			local area = {}
-			local total_area = 0
-			local desired_points = orbit_duration * 50
-			local total_segments = desired_points * 10
-			-- we generate more points at an equal angle around the ellipse
-			-- we are then going to calculate the area under a triangle made
-			-- by each point
-			for i = 0, total_segments do
-				local angle = ((start_angle/360)*math.pi*2) + ((math.pi * 2)/total_segments * -i)
-				local minor_axis = semi_major_axis * (math.sqrt(1-e*e))
-				local c = semi_major_axis * e
-				local r = minor_axis * minor_axis / (semi_major_axis - c * math.cos(angle))
-				angle = angle + ((rotation/360) * math.pi*2)
-				locs[i]={x=math.cos(angle) * r,y = math.sin(angle) * r, r=r}
-				-- we start with the fomula for the area of a triangle with 2 sides and 1 angle
-				-- which given the lines a, b & angle c is
-				-- which is 0.5*a*b*sin(C)
-				-- the real area isnt the goal - just the relative scaling between the triangles
-				-- as C is a constant sin(C) is a constant, and the 0.5 and sin(C) for each triangle can be ignored
-				-- thus for our purpose the area is a*b
-				if i ~= 0 then
-					area[i-1] = locs[i].r *locs[i-1].r
-					total_area = total_area + area[i-1]
-				end
-				if i == total_segments then
-					area[i] = locs[i].r *locs[0].r
-					total_area = total_area + area[i]
+					self:addChasingUpdate(art,objs[index],1000,callback)
 				end
 			end
-			-- we now know the total area
-			-- we also know the area of each triangle
-			-- we also know from kepler's second law that an orbit will go over the same area with the same amount of time
-			-- using this we will calculate the number of points requested
-			-- Note: my text editor tries to pair end_points with other bits of code, so I changed it to completion_points
-			local completion_points = {}
-			local desired_area = 0
-			for i=0,total_segments do
-				if desired_area <= 0 then
-					desired_area = desired_area + total_area / desired_points
-					completion_points[#completion_points+1] = {x = locs[i].x + cx, y = locs[i].y + cy}
-				end
-				desired_area = desired_area - area[i]
-			end
-			update_system:addUpdateFixedPositions(obj,orbit_duration,completion_points)
-		end,
-		-- I am less than sure this is the best setup
-		-- should it take an angle?
-		-- should dx and dy not be scaled by speed
-		-- should it be addLinearTo?
-		-- all very good questions, also questions I dont have time to deal with right now
-		-- so future code readers, feel free to come up with better answers and swtich over to them
-		addLinear = function (self, obj, dx, dy, speed)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(dx)=="number")
-			assert(type(dy)=="number")
-			assert(type(speed)=="number")
-			local update_data = {
-				name = "linearTo",
-				edit = {},
-				speed = speed,
-				dx = dx,
-				dy = dy,
-				update = function (self, obj, delta)
+		end
+	end
+	self:addPeriodicCallback(obj,callback,period)
+end
+function updateSystem:addBeamOverclocker(obj, period)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(period)=="number")
+	local addUpdate = function (target)
+		assert(type(target)=="table")
+		self:addBeamBoostOverclock(target, 5, 10, 2, 0.75)
+	end
+	-- defense platforms are too scary to be beam boosted
+	local filter = function(possibleTarget)
+		return possibleTarget:getTypeName() ~= "Defense platform"
+	end
+	local playerApply = function(artifact, player)
+		artifact:destroy()
+		local update = self:getUpdateNamed(player,"beam overclock")
+		if update == nil then
+			self:addBeamBoostOverclock(player, 10, 30, 0.5, 1.5)
+		else
+			update:refresh()
+		end
+		artifact:destroy()
+	end
+	self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate, 5000, filter, playerApply)
+end
+function updateSystem:addShieldOverclocker(obj, period)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(period)=="number")
+	local addUpdate = function (target)
+		assert(type(target)=="table")
+		local shields = {}
+		for i=0,target:getShieldCount()-1 do
+			table.insert(shields,math.min(target:getShieldMax(i),target:getShieldLevel(i)+10))
+		end
+		target:setShields(table.unpack(shields))
+	end
+	local playerApply = function(artifact, player)
+		local shields = {}
+		for i=0,player:getShieldCount()-1 do
+			table.insert(shields,math.max(0,player:getShieldLevel(i)-20))
+		end
+		player:setShields(table.unpack(shields))
+		artifact:destroy()
+	end
+	self:_addGenericOverclocker(obj, period, "shield overclock", addUpdate, 5000, nil, playerApply)
+end
+function updateSystem:addEngineOverclocker(obj, period)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(period)=="number")
+	local addUpdate = function (target)
+		assert(type(target)=="table")
+		self:addEngineBoostUpdate(target, 5, 10, 2, 2)
+	end
+	local playerApply = function(artifact, player)
+		local update = self:getUpdateNamed(player, "engine overclock")
+		if update == nil then
+			self:addEngineBoostUpdate(player, 10, 30, 0.5, 0.5)
+		else
+			update:refresh()
+		end
+		artifact:destroy()
+	end
+	self:_addGenericOverclocker(obj, period, "engine overclock", addUpdate, 5000, nil, playerApply)
+end
+function updateSystem:addOrbitingOverclocker(obj, period)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(period)=="number")
+	local addUpdate = function (target) end -- we are not adding updates, only refreshing existing ones
+	local filterFun = function (possibleTarget)
+		return self:getUpdateNamed(possibleTarget,"overclockable tractor") ~= nil
+	end
+	self:_addGenericOverclocker(obj, period, "overclockable tractor", addUpdate, 10000, filterFun)
+end
+function updateSystem:addOverclockOptimizer(obj, period)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(period)=="number")
+	local callback = function (obj)
+		assert(type(obj)=="table")
+		local objs = getAllObjects()
+		for index = #objs,1,-1 do
+			if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
+				-- this is mostly wrong, we really want to check if an overclocker
+				-- callback was in the update function, however this is not exposed
+				-- currently it is almost always correct to say if there is a periodic callback
+				-- then it is an overclocker ship, this is possible to ensure via being aware of
+				-- this fact and GMing around it, this is however sub optimal
+				if self:getUpdateNamed(objs[index],"periodic callback") ~= nil then
 					local x,y=obj:getPosition()
-					obj:setPosition(x+self.dx*self.speed*delta,y+self.dy*self.speed*delta)
-				end
-			}
-			self:addUpdate(obj,"absolutePosition",update_data)
-		end,
-		-- when the owner is destroyed the owned objects is also destroyed
-		addOwned = function (self, owned, owner)
-			assert(type(self)=="table")
-			assert(type(owned)=="table")
-			assert(type(owner)=="table")
-			local update_data = {
-				name = "owned",
-				edit = {},
-				owner = owner,
-				update = function (self, obj, delta)
-					assert(type(self)=="table")
-					assert(type(owned)=="table")
-					if self.owner == nil or not self.owner:isValid() then
-						obj:destroy()
-					end
-				end
-			}
-			self:addUpdate(owned,"owned",update_data)
-		end,
-		 -- addShieldDecayCurve and addEnergyDecayCurve are mostly the same, they probably should be merged in some way
-		addEnergyDecayCurve = function (self, obj, total_time, curve_x, curve_y)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(total_time)=="number")
-			assert(type(curve_x)=="table")
-			assert(#curve_x==4)
-			assert(type(curve_x[1])=="number")
-			assert(type(curve_x[2])=="number")
-			assert(type(curve_x[3])=="number")
-			assert(type(curve_x[4])=="number")
-			assert(type(curve_y)=="table")
-			assert(#curve_y==4)
-			assert(type(curve_y[1])=="number")
-			assert(type(curve_y[2])=="number")
-			assert(type(curve_y[3])=="number")
-			assert(type(curve_y[4])=="number")
-			local update_data = {
-				name = "energy decay",
-				total_time = total_time,
-				curve_x = curve_x,
-				curve_y = curve_y,
-				elapsed_time = 0,
-				edit = {
-					{name = "total_time", fixedAdjAmount=1},
-					{name = "elapsed_time", fixedAdjAmount=60},
-					{name = "curve_x", index = 1, fixedAdjAmount=0.01},
-					{name = "curve_x", index = 2, fixedAdjAmount=0.01},
-					{name = "curve_x", index = 3, fixedAdjAmount=0.01},
-					{name = "curve_x", index = 4, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 1, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 2, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 3, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 4, fixedAdjAmount=0.01}
-				},
-				update = function (self, obj, delta)
-					self.elapsed_time = self.elapsed_time + delta
-					local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
-					local curve={-- bah this is bad but until the update edit is better its needed
-						{x = self.curve_x[1], y = self.curve_y[1]},
-						{x = self.curve_x[2], y = self.curve_y[2]},
-						{x = self.curve_x[3], y = self.curve_y[3]},
-						{x = self.curve_x[4], y = self.curve_y[4]}
-					}
-					local energy_drain_per_second=math.CosineInterpolateTable(curve,time_ratio)
-					local new_energy=obj:getEnergy()+energy_drain_per_second*delta
-					obj:setEnergy(math.clamp(0,obj:getMaxEnergy(),new_energy))
-				end
-			}
-			self:addUpdate(obj,"energy decay",update_data)
-		end,
-		addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(total_time)=="number")
-			assert(type(curve_x)=="table")
-			assert(#curve_x==4)
-			assert(type(curve_x[1])=="number")
-			assert(type(curve_x[2])=="number")
-			assert(type(curve_x[3])=="number")
-			assert(type(curve_x[4])=="number")
-			assert(type(curve_y)=="table")
-			assert(#curve_y==4)
-			assert(type(curve_y[1])=="number")
-			assert(type(curve_y[2])=="number")
-			assert(type(curve_y[3])=="number")
-			assert(type(curve_y[4])=="number")
-			local update_data = {
-				name = "shield decay",
-				total_time = total_time,
-				curve_x = curve_x,
-				curve_y = curve_y,
-				elapsed_time = 0,
-				edit = {
-					{name = "total_time", fixedAdjAmount=1},
-					{name = "elapsed_time", fixedAdjAmount=60},
-					{name = "curve_x", index = 1, fixedAdjAmount=0.01},
-					{name = "curve_x", index = 2, fixedAdjAmount=0.01},
-					{name = "curve_x", index = 3, fixedAdjAmount=0.01},
-					{name = "curve_x", index = 4, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 1, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 2, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 3, fixedAdjAmount=0.01},
-					{name = "curve_y", index = 4, fixedAdjAmount=0.01}
-				},
-				update = function (self, obj, delta)
-					self.elapsed_time = self.elapsed_time + delta
-					local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
-					local curve={-- bah this is bad but until the update edit is better its needed
-						{x = self.curve_x[1], y = self.curve_y[1]},
-						{x = self.curve_x[2], y = self.curve_y[2]},
-						{x = self.curve_x[3], y = self.curve_y[3]},
-						{x = self.curve_x[4], y = self.curve_y[4]}
-					}
-					local maxShieldRatio=math.CosineInterpolateTable(curve,time_ratio)
-					local shields = {}
-					for i=0,obj:getShieldCount()-1 do
-						table.insert(shields,math.min((obj:getShieldMax(i)*maxShieldRatio),obj:getShieldLevel(i)))
-					end
-					obj:setShields(table.unpack(shields))
-				end
-			}
-			self:addUpdate(obj,"shield decay",update_data)
-		end,
-		_addGenericOverclock = function (self, obj, overboosted_time, boost_time, overclock_name, data_mirror ,add_extra_update_data, inner_update)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(overboosted_time)=="number")
-			assert(type(boost_time)=="number")
-			assert(type(overclock_name)=="string")
-			assert(type(data_mirror)=="function")
-			assert(type(inner_update)=="function")
-			assert(type(add_extra_update_data)=="function")
-			local update_self = self
-			local update_data = {
-				name = overclock_name,
-				boost_time = boost_time,
-				overboosted_time = overboosted_time,
-
-				time = overboosted_time + boost_time,
-				mirrored_data = data_mirror(self,obj),
-				edit = {
-					{name = "boost_time", fixedAdjAmount=1},
-					{name = "overboosted_time", fixedAdjAmount=1},
-					{name = "time", fixedAdjAmount=1}
-					-- mirrored data would be nice to export but not realistic
-					-- refresh would be nice as an exported button
-				},
-				refresh = function (self)
-					assert(type(self)=="table")
-					self.time = self.overboosted_time + self.boost_time
-				end,
-				update = function (self, obj, delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					self.time = self.time - delta
-					local scale = math.clamp(self.time/self.boost_time,0,1)
-					inner_update(self, obj, scale)
-					-- if scale == 0 inner_update has already been called with 0, resulting in overclocks being turned off
-					if scale == 0 then
-						update_self:removeThisUpdate(obj,self)
-					end
-				end,
-			}
-			add_extra_update_data(self,obj,update_data)
-			self:addUpdate(obj,overclock_name,update_data)
-		end,
-		-- note calling this on a object that already has a boost enabled will probably not work as expected
-		-- as it will pull the beam range/cycle time off of the boosted values rather than the default
-		-- this should be fixed at some time
-		addBeamBoostOverclock = function (self, obj, overboosted_time, boost_time, max_range_boosted, max_cycle_boosted)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(overboosted_time)=="number")
-			assert(type(boost_time)=="number")
-			assert(type(max_range_boosted)=="number")
-			assert(type(max_cycle_boosted)=="number")
-
-			self:_addGenericOverclock(obj,overboosted_time, boost_time,"beam overclock",
-				-- 16 seems to be the max number of beams (seen via tweak menu)
-				-- if the engine exports max number of beams it should be used rather than mirror all data
-				function (self, obj)
-					local mirrored_data={}
-					for index=0,16 do
-						table.insert(mirrored_data,
-						{
-							range = obj:getBeamWeaponRange(index),
-							cycle_time = obj:getBeamWeaponCycleTime(index)
-						})
-					end
-					return mirrored_data
-				end,
-				function (self, obj, update)
-					update.max_range_boosted = max_range_boosted
-					update.max_cycle_boosted = max_cycle_boosted
-					table.insert(update.edit,{name = "max_range_boosted", fixedAdjAmount=0.1})
-					table.insert(update.edit,{name = "max cycle_damage_boosted", fixedAdjAmount=0.1})
-				end,
-				function (self, obj, scale)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(scale)=="number")
-						-- 16 seems to be the max number of beams (seen via tweak menu)
-						-- if the engine exports max number of beams it should be used rather than mirror all data
-					for index=0,16 do
-						local beam_range = math.lerp(1,self.max_range_boosted,scale)*self.mirrored_data[index+1].range
-						compatSetBeamWeaponRange(obj,index,beam_range)
-						local beam_cycle = math.lerp(1,self.max_cycle_boosted,scale)*self.mirrored_data[index+1].cycle_time
-						compatSetBeamWeaponCycleTime(obj,index,beam_cycle)
-					end
-				end
-			)
-		end,
-		addEngineBoostUpdate = function (self, obj, overboosted_time, boost_time, max_impulse_boosted, max_turn_boosted)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(overboosted_time)=="number")
-			assert(type(boost_time)=="number")
-			assert(type(max_impulse_boosted)=="number")
-			assert(type(max_turn_boosted)=="number")
-			self:_addGenericOverclock(obj,overboosted_time, boost_time,"engine overclock",
-				function (self, obj)
-					return {
-						impulse = obj:getImpulseMaxSpeed(index),
-						turn_rate = obj:getRotationMaxSpeed(index)
-					}
-				end,
-				function (self, obj, update)
-					update.max_impulse_boosted = max_impulse_boosted
-					update.max_turn_boosted = max_turn_boosted
-					table.insert(update.edit,{name = "max_impulse_boosted", fixedAdjAmount=0.1})
-					table.insert(update.edit,{name = "max max_turn_boosted", fixedAdjAmount=0.1})
-				end,
-				function (self, obj, scale)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(scale)=="number")
-					obj:setImpulseMaxSpeed(math.lerp(1,self.max_impulse_boosted,scale)*self.mirrored_data.impulse)
-					obj:setRotationMaxSpeed(math.lerp(1,self.max_turn_boosted,scale)*self.mirrored_data.turn_rate)
-				end
-			)
-		end,
-		-- this is horrifically specialized and I don't think there is any way around that
-		addOverclockableTractor = function (self, obj, spawnFunc)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(spawnFunc)=="function")
-			local update_self=self
-			local max_dist=1500
-			self:_addGenericOverclock(obj,5, 30, "overclockable tractor",
-				function (self, obj)end,
-				function (self, obj, update)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(update)=="table")
-					update.orbitingObj= {}
-					for i=1,12 do
-						local spawned = spawnFunc()
-						self:addOrbitTargetUpdate(spawned,obj, max_dist, 30, i*30)
-						table.insert(update.orbitingObj,spawned)
-					end
-				end,
-				function (self, obj, scale)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(scale)=="number")
-					for i=#self.orbitingObj,1,-1 do
-						local orbiting=self.orbitingObj[i]
-						if orbiting:isValid() then
-							local orbiting_update=update_self:getUpdateNamed(orbiting,"orbit target")
-							if orbiting_update ~= nil then
-								orbiting_update.distance=math.lerp(0,max_dist,scale)
-							end
-						else
-							table.remove(self.orbitingObj,i)
-						end
-					end
-				end
-			)
-		end,
-		_addGenericOverclocker = function (self, obj, period, updateName, addUpdate, updateRange, filterFun, playerApply)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(period)=="number")
-			assert(type(updateName)=="string")
-			assert(type(addUpdate)=="function")
-			assert(type(updateRange)=="number")
-			assert(filterFun==nil or type(filterFun)=="function")
-			assert(playerApply==nil or type(playerApply)=="function")
-			local callback = function(obj)
-				assert(type(obj)=="table")
-				local x,y=obj:getPosition()
-				local objs=getObjectsInRadius(x,y,updateRange)
-				-- filter to spaceShips that are our faction
-				for index=#objs,1,-1 do
-					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
-						if filterFun == nil or filterFun(objs[index]) then
-							local art=Artifact():setPosition(x,y):setDescription("encrypted data")
-							if playerApply ~= nil then
-								art:onPlayerCollision(playerApply)
-							end
-							local callback=function (self, obj, target)
-								assert(type(self)=="table")
-								assert(type(obj)=="table")
-								assert(type(target)=="table")
-								local update = self:getUpdateNamed(target,updateName)
-								if update == nil then
-									addUpdate(target)
-								else
-									update:refresh()
-								end
-							end
-							self:addChasingUpdate(art,objs[index],1000,callback)
-						end
-					end
+					local art=Artifact():setPosition(x,y)
+					self:addChasingUpdate(art,objs[index],2000)
 				end
 			end
-			self:addPeriodicCallback(obj,callback,period)
-		end,
-		addBeamOverclocker = function (self, obj, period)
+		end
+	end
+	self:addPeriodicCallback(obj,callback,period)
+end
+function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2, red_time, green_start, green1, green2, green_time, blue_start, blue1, blue2, blue_time)
+	-- cycles from colour1 to colour2 in colour_time
+	-- at the end of the cycle it will jump from colour2 to colour1
+	-- colour_start specifices how many seconds it should of been running by the time the function is called
+	-- so 0 = starts with colour1, getScenarioTime() starts as if it has been running and cycling since the start of the scenario
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(red_start)=="number")
+	assert(type(red1)=="number")
+	assert(type(red2)=="number")
+	assert(type(red_time)=="number")
+	assert(type(green_start)=="number")
+	assert(type(green1)=="number")
+	assert(type(green2)=="number")
+	assert(type(green_time)=="number")
+	assert(type(blue_start)=="number")
+	assert(type(blue1)=="number")
+	assert(type(blue2)=="number")
+	assert(type(blue_time)=="number")
+	local update_data = {
+		name = "color",
+		red_start = red_start - getScenarioTime(),
+		red1 = red1,
+		red2 = red2,
+		red_time = red_time,
+		green_start = green_start - getScenarioTime(),
+		green1 = green1,
+		green2 = green2,
+		green_time = green_time,
+		blue_start = blue_start - getScenarioTime(),
+		blue1 = blue1,
+		blue2 = blue2,
+		blue_time = blue_time,
+		edit = {},
+		update = function(self, obj, delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
-			assert(type(period)=="number")
-			local addUpdate = function (target)
-				assert(type(target)=="table")
-				self:addBeamBoostOverclock(target, 5, 10, 2, 0.75)
-			end
-			-- defense platforms are too scary to be beam boosted
-			local filter = function(possibleTarget)
-				return possibleTarget:getTypeName() ~= "Defense platform"
-			end
-			local playerApply = function(artifact, player)
-				artifact:destroy()
-				local update = self:getUpdateNamed(player,"beam overclock")
-				if update == nil then
-					self:addBeamBoostOverclock(player, 10, 30, 0.5, 1.5)
-				else
-					update:refresh()
-				end
-				artifact:destroy()
-			end
-			self:_addGenericOverclocker(obj, period, "beam overclock", addUpdate, 5000, filter, playerApply)
-		end,
-		addShieldOverclocker = function (self, obj, period)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(period)=="number")
-			local addUpdate = function (target)
-				assert(type(target)=="table")
-				local shields = {}
-				for i=0,target:getShieldCount()-1 do
-					table.insert(shields,math.min(target:getShieldMax(i),target:getShieldLevel(i)+10))
-				end
-				target:setShields(table.unpack(shields))
-			end
-			local playerApply = function(artifact, player)
-				local shields = {}
-				for i=0,player:getShieldCount()-1 do
-					table.insert(shields,math.max(0,player:getShieldLevel(i)-20))
-				end
-				player:setShields(table.unpack(shields))
-				artifact:destroy()
-			end
-			self:_addGenericOverclocker(obj, period, "shield overclock", addUpdate, 5000, nil, playerApply)
-		end,
-		addEngineOverclocker = function (self, obj, period)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(period)=="number")
-			local addUpdate = function (target)
-				assert(type(target)=="table")
-				self:addEngineBoostUpdate(target, 5, 10, 2, 2)
-			end
-			local playerApply = function(artifact, player)
-				local update = self:getUpdateNamed(player, "engine overclock")
-				if update == nil then
-					self:addEngineBoostUpdate(player, 10, 30, 0.5, 0.5)
-				else
-					update:refresh()
-				end
-				artifact:destroy()
-			end
-			self:_addGenericOverclocker(obj, period, "engine overclock", addUpdate, 5000, nil, playerApply)
-		end,
-		addOrbitingOverclocker = function (self, obj, period)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(period)=="number")
-			local addUpdate = function (target) end -- we are not adding updates, only refreshing existing ones
-			local filterFun = function (possibleTarget)
-				return self:getUpdateNamed(possibleTarget,"overclockable tractor") ~= nil
-			end
-			self:_addGenericOverclocker(obj, period, "overclockable tractor", addUpdate, 10000, filterFun)
-		end,
-		addOverclockOptimizer = function (self, obj, period)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(period)=="number")
-			local callback = function (obj)
-				assert(type(obj)=="table")
-				local objs = getAllObjects()
-				for index = #objs,1,-1 do
-					if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
-						-- this is mostly wrong, we really want to check if an overclocker
-						-- callback was in the update function, however this is not exposed
-						-- currently it is almost always correct to say if there is a periodic callback
-						-- then it is an overclocker ship, this is possible to ensure via being aware of
-						-- this fact and GMing around it, this is however sub optimal
-						if self:getUpdateNamed(objs[index],"periodic callback") ~= nil then
-							local x,y=obj:getPosition()
-							local art=Artifact():setPosition(x,y)
-							self:addChasingUpdate(art,objs[index],2000)
-						end
-					end
-				end
-			end
-			self:addPeriodicCallback(obj,callback,period)
-		end,
-		addArtifactCyclicalColorUpdate = function(self, obj, red_start, red1, red2, red_time, green_start, green1, green2, green_time, blue_start, blue1, blue2, blue_time)
-			-- cycles from colour1 to colour2 in colour_time
-			-- at the end of the cycle it will jump from colour2 to colour1
-			-- colour_start specifices how many seconds it should of been running by the time the function is called
-			-- so 0 = starts with colour1, getScenarioTime() starts as if it has been running and cycling since the start of the scenario
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(red_start)=="number")
-			assert(type(red1)=="number")
-			assert(type(red2)=="number")
-			assert(type(red_time)=="number")
-			assert(type(green_start)=="number")
-			assert(type(green1)=="number")
-			assert(type(green2)=="number")
-			assert(type(green_time)=="number")
-			assert(type(blue_start)=="number")
-			assert(type(blue1)=="number")
-			assert(type(blue2)=="number")
-			assert(type(blue_time)=="number")
-			local update_data = {
-				name = "color",
-				red_start = red_start - getScenarioTime(),
-				red1 = red1,
-				red2 = red2,
-				red_time = red_time,
-				green_start = green_start - getScenarioTime(),
-				green1 = green1,
-				green2 = green2,
-				green_time = green_time,
-				blue_start = blue_start - getScenarioTime(),
-				blue1 = blue1,
-				blue2 = blue2,
-				blue_time = blue_time,
-				edit = {},
-				update = function(self, obj, delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					local r = math.lerp(self.red1,self.red2,((getScenarioTime()+self.red_start) % self.red_time)/self.red_time)
-					local g = math.lerp(self.green1,self.green2,((getScenarioTime()+self.green_start) % self.green_time)/self.green_time)
-					local b = math.lerp(self.blue1,self.blue2,((getScenarioTime()+self.blue_start) % self.blue_time)/self.blue_time)
-					obj:setRadarTraceColor(math.floor(r),math.floor(g),math.floor(b))
-				end
-			}
-			self:addUpdate(obj,"artifactColor",update_data)
-		end,
-		addOrbitUpdate = function(self, obj, center_x, center_y, distance, orbit_time, initial_angle)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(center_x)=="number")
-			assert(type(center_y)=="number")
-			assert(type(distance)=="number")
-			assert(type(orbit_time)=="number")
-			assert(type(initial_angle)=="number" or initial_angle == nil)
-			initial_angle = initial_angle or 0
-			local update_data = {
-				name = "orbit",
-				center_x = center_x,
-				center_y = center_y,
-				distance = distance,
-				orbit_time = orbit_time/(2*math.pi),
-				start_offset = (initial_angle/360)*orbit_time,
-				edit = {
-					-- center x and y should be added when it can be - it probably wants an onclick handler
-					{name = "distance" , fixedAdjAmount=1000},
-					{name = "orbit_time", fixedAdjAmount=1},
-					{name = "start_offset", fixedAdjAmount=1}
-				},
-				update = function (self,obj,delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					local orbit_pos=((getScenarioTime() + self.start_offset)/self.orbit_time)
-					obj:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
-				end
-			}
-			self:addUpdate(obj,"absolutePosition",update_data)
-		end,
-		addAttachedUpdate = function(self, obj, attach_target, relative_attach_x, relative_attach_y)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(attach_target)=="table")
-			assert(type(relative_attach_x)=="number")
-			assert(type(relative_attach_y)=="number")
-			local update_data = {
-				name = "attached",
-				attach_target = attach_target,
-				relative_attach_x = relative_attach_x,
-				relative_attach_y = relative_attach_y,
-				edit={},
-				update = function (self,obj)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					if self.attach_target ~= nil and self.attach_target:isValid() then
-						local attach_x, attach_y = self.attach_target:getPosition()
-						obj:setPosition(attach_x+self.relative_attach_x,attach_y+self.relative_attach_y)
-					else
-						update_system:removeUpdateNamed(obj,"attached")
-					end
-				end
-			}
-			self:addUpdate(obj,"absolutePosition",update_data)
-		end,
-		addChasingUpdate = function (self, obj, target, speed, callback_on_contact)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(target)=="table")
-			assert(type(speed)=="number")
-			assert(callback_on_contact==nil or type(callback_on_contact)=="function")
-			local update_self = self -- this is so it can be captured for later
-			local update_data = {
-				name = "chasing",
-				speed = speed,
-				target = target,
-				callback_on_contact = callback_on_contact,
-				edit = {
-					-- todo add target
-					{name = "speed", fixedAdjAmount = 100}
-				},
-				update = function (self, obj, delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					if target==nil or not target:isValid() then
-						obj:destroy()
-					else
-						local update_speed=speed*delta
-						local my_x, my_y = obj:getPosition()
-						local target_x, target_y = target:getPosition()
-						local dist=distance(my_x, my_y, target_x, target_y)
-						if dist > update_speed then
-							local dx=target_x-my_x
-							local dy=target_y-my_y
-							local angle=math.atan2(dx,dy)
-							local ny=math.cos(angle)*update_speed
-							local nx=math.sin(angle)*update_speed
-							obj:setPosition(my_x+nx,my_y+ny)
-						else
-							if self.callback_on_contact ~= nil then
-								self.callback_on_contact(update_self, obj, target)
-							end
-							obj:destroy()
-						end
-					end
-				end
-			}
-			self:addUpdate(obj,"absolutePosition",update_data)
-		end,
-		addOrbitTargetUpdate = function (self, obj, orbit_target, distance, orbit_time, initial_angle)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")			--generally another reference to self that is orbiting
-			assert(type(orbit_target)=="table")	--the thing that self is orbiting
-			assert(type(distance)=="number")	--how far away self is orbiting orbit_target
-			assert(type(orbit_time)=="number")	--how long to complete one orbit
-			assert(type(initial_angle)=="number" or 
-				initial_angle == nil)			--angle at which to start the orbit
-			initial_angle = initial_angle or 0
-			local update_data = {
-				name = "orbit target",
-				orbit_target = orbit_target,
-				distance = distance,
-				orbit_time = orbit_time/(2*math.pi),
-				initial_angle = initial_angle, -- this looks obsolete, test removal with proper testing
-				start_offset = (initial_angle/360)*orbit_time,
-				time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
-				edit = {
-					-- orbit target wants to be exposed when we have a object selection control
-					{name = "distance" , fixedAdjAmount=1000},
-					{name = "orbit_time", fixedAdjAmount=1},
-					{name = "start_offset", fixedAdjAmount=1}
-				},
-				update = function (self,obj,delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					self.time = self.time + delta
-					local orbit_pos=(self.time+self.start_offset)/self.orbit_time
-					if self.orbit_target ~= nil and self.orbit_target:isValid() then
-						local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-						obj:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
-					end
-				end
-			}
-			self:addUpdate(obj,"absolutePosition",update_data)
-		end,
-		addOrbitTargetWithInfluenceUpdate = function (self, obj, orbit_target, orbit_radius, slow_orbit_speed, fast_orbit_speed, orbit_influencer, slow_distance, fast_distance)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")				--generally another reference to self that is orbiting
-			assert(type(orbit_target)=="table")		--the thing that self is orbiting
-			assert(type(orbit_radius)=="number")	--how far away self is orbiting orbit_target
-			assert(type(slow_orbit_speed)=="number")	--how fast to orbit while in slow region; deg/sec
-			assert(type(fast_orbit_speed)=="number")	--how fast to orbit while in fast region; deg/sec
-			assert(type(orbit_influencer)=="table")	--the thing that influences how fast self orbits orbit_target
-			assert(type(slow_distance)=="number")	--boundary distance between slow and transition speed
-			assert(type(fast_distance)=="number")	--boundary distance between fast and transition speed
-			local ot_x, ot_y = orbit_target:getPosition()
-			local obj_x, obj_y = obj:getPosition()
-			local orbit_angle = angleFromVectorNorth(ot_x,ot_y,obj_x,obj_y)
-			local update_data = {
-				name = "orbit target with influence",
-				orbit_target = orbit_target,
-				orbit_radius = orbit_radius,
-				slow_orbit_speed = slow_orbit_speed,
-				fast_orbit_speed = fast_orbit_speed,
-				orbit_influencer = orbit_influencer,
-				slow_distance = slow_distance,
-				fast_distance = fast_distance,
-				orbit_angle = orbit_angle,
-				edit = {
-					{name = "orbit_radius" , fixedAdjAmount=100},
-				},
-				update = function (self,obj,delta)
-					if self.orbit_target ~= nil and self.orbit_target:isValid() then
-						local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
-						local orbit_speed = 0
-						if self.orbit_influencer ~= nil and self.orbit_influencer:isValid() then
-							local orbit_influencer_x, orbit_influencer_y = self.orbit_influencer:getPosition()
-							local influence_distance = distance(obj,obj.orbit_influencer)
-							if influence_distance < self.slow_distance then
-								orbit_speed = self.slow_orbit_speed
-							elseif influence_distance > self.fast_distance then
-								orbit_speed = self.fast_orbit_speed
-							else
-								orbit_speed = influence_distance/self.fast_distance*self.fast_orbit_speed
-							end
-						else
-							orbit_speed = self.fast_orbit_speed
-						end
-						self.orbit_angle = (self.orbit_angle + (orbit_speed*delta)) % 360
-						local new_pos_x, new_pos_y = vectorFromAngleNorth(self.orbit_angle,self.orbit_radius)
-						obj:setPosition(orbit_target_x + new_pos_x,orbit_target_y + new_pos_y)
-					end
-				end
-			}
-			self:addUpdate(obj,"absoluteVariablePosition",update_data)
-		end,
-		addPatrol = function (self, obj, patrol_points, patrol_point_index, patrol_check_timer_interval)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(patrol_points)=="table")
-			assert(type(patrol_point_index)=="number")
-			assert(type(patrol_check_timer_interval)=="number")
-			local update_self = self
-			obj.patrol_points = patrol_points
-			obj.patrol_point_index = patrol_point_index
-			obj.patrol_check_timer_interval = patrol_check_timer_interval
-			obj.patrol_check_timer = patrol_check_timer_interval
-			local update_data = {
-				name = "patrol",
-				edit = {},
-				update = function (self, obj, delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					if obj.patrol_points == nil then
-						obj.patrol_point_index = nil
-						obj.patrol_check_timer_interval = nil
-						obj.patrol_check_timer = nil
-						update_self:removeThisUpdate(obj,self)
-					else
-						obj.patrol_check_timer = obj.patrol_check_timer - delta
-						if obj.patrol_check_timer < 0 then
-							if string.find(obj:getOrder(),"Defend") then
-								obj.patrol_point_index = obj.patrol_point_index + 1
-								if obj.patrol_point_index > #obj.patrol_points then
-									obj.patrol_point_index = 1
-								end
-								obj:orderFlyTowards(obj.patrol_points[obj.patrol_point_index].x,obj.patrol_points[obj.patrol_point_index].y)
-							end
-							obj.patrol_check_timer = obj.patrol_check_timer_interval
-						end
-					end
-				end
-			}
-			self:addUpdate(obj,"patrol",update_data)
-		end,
-		-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
-		-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
-		-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
-		addPeriodicCallback = function(self, obj, callback, period, accumulated_time, random_jitter)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(callback)=="function")
-			assert(type(period)=="number")
-			assert(accumulated_time==nil or type(accumulated_time)=="number")
-			assert(random_jitter==nil or type(random_jitter)=="number")
-			assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
-			local update_data = {
-				name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
-				callback = callback,
-				period = period,
-				accumulated_time = accumulated_time or 0,
-				random_jitter = random_jitter or 0,
-				edit = {
-					-- orbit target wants to be exposed when we have a object selection control
-					{name = "period" , fixedAdjAmount=1},
-					{name = "accumulated_time", fixedAdjAmount=1}
-				},
-				update = function (self,obj,delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					self.accumulated_time = self.accumulated_time + delta
-					if self.accumulated_time > self.period then
-						self.callback(obj)
-						self.accumulated_time = self.accumulated_time - self.period - random(0,self.random_jitter)
-						-- we could do this via a loop
-						-- or via calling back into this own function
-						-- technically this is probably slower (as we will end up with calling a function and the assert logic)
-						-- I am going to be surprised if that matters
-						-- a callback is pretty easy to do, so we will do it that way
-						self:update(obj,0)
-					end
-				end
-			}
-			self:addUpdate(obj,"periodic",update_data)
-		end,
-		addNameCycleUpdate = function(self, obj, period, nameTable, accumulated_time)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(period)=="number")
-			assert(type(nameTable)=="table")
-			assert(#nameTable~=0)
-			assert(accumulated_time==nil or type(accumulated_time)=="number")
-			obj.nameNum=0
-			local callback = function(obj)
-				obj.nameNum = (obj.nameNum + 1) % #nameTable
-				obj:setCallSign(nameTable[obj.nameNum + 1])
-			end
-			self:addPeriodicCallback(obj,callback,period,accumulated_time)
-		end,
-		addTimeToLiveUpdate = function(self, obj, timeToLive)
-			assert(type(self)=="table")
-			assert(type(obj)=="table")
-			assert(type(timeToLive)=="number" or TimeToLive==nil)
-			timeToLive = timeToLive or 300
-			local update_data = {
-				name = "time to live",
-				timeToLive = timeToLive,
-				edit = {
-					{name = "timeToLive", fixedAdjAmount=1}
-				},
-				update = function (self,obj,delta)
-					assert(type(self)=="table")
-					assert(type(obj)=="table")
-					assert(type(delta)=="number")
-					self.timeToLive = self.timeToLive - delta
-					if self.timeToLive < 0 then
-						obj:destroy()
-					end
-				end
-			}
-			self:addUpdate(obj,"timeToLive",update_data)
-		end,
-		_test = function(self)
-			assert(type(self)=="table")
-			---------------------------------------------------------------------------------------------------------------
-			-- first up we are going to ensure that _addToUpdateList doesn't add the same element multiple times
-			-- this likely would be annoying to debug (as things would run faster for no real reason) and hard to spot
-			-- (as many of the ways it will fail would not result in errors)
-			---------------------------------------------------------------------------------------------------------------
-			local tmp1={}
-			local tmp2={}
-			-- starting
-			assert(#self._update_objects==0)
-			-- add the first element
-			self:_addToUpdateList(tmp1)
-			assert(#self._update_objects==1)
-			-- ensure we cant add one more
-			self:_addToUpdateList(tmp1)
-			assert(#self._update_objects==1)
-			-- add the second element
-			self:_addToUpdateList(tmp2)
-			assert(#self._update_objects==2)
-			-- ensure both the first and last element are checked
-			self:_addToUpdateList(tmp1)
-			assert(#self._update_objects==2)
-			self:_addToUpdateList(tmp2)
-			assert(#self._update_objects==2)
-
-			-- reset for next test
-			self:_clear_update_list()
-			assert(#self._update_objects==0)
-			---------------------------------------------------------------------------------------------------------------
-			-- now onto testing addUpdate
-			-- we are going to ensure that multiple updates of the same type cant be added (as that will break in non obvious ways)
-			-- note the testObj is not a spaceObject, which will break some functions like update
-			-- if this blocks fails asserts later, it is possible that checks have been added to addUpdate to ensure that the object is a spaceObject
-			---------------------------------------------------------------------------------------------------------------
-			local testObj={}
-			assert(testObj.update_list==nil)
-			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
-			assert(testObj.update_list~=nil)
-			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
-			assert(#testObj.update_list==1)
-			self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
-			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
-			assert(#testObj.update_list==2)
-			self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
-			assert(#testObj.update_list==2)
-
-			-- reset for next test
-			self:_clear_update_list()
-			assert(#self._update_objects==0)
-			---------------------------------------------------------------------------------------------------------------
-			-- addPeriodicCallback
-			---------------------------------------------------------------------------------------------------------------
-			local testObj=newPhonySpaceObject()
-			local captured=0
-			local captured_fun = function ()
-				captured = captured + 1
-			end
-			self:addPeriodicCallback(testObj,captured_fun,1)
-			assert(captured==0)
-			-- insufficient to run the callback
-			self:update(0.9)
-			assert(captured==0)
-			-- check that the callback being called once results in the callback running once
-			self:update(1)
-			assert(captured==1)
-			-- check that the callback being overdue results in multiple calls
-			self:update(2)
-			assert(captured==3)
-			-- TODO check with different periodic values
-			--assert(captured==0)
-
-			-- reset for next test
-			self:_clear_update_list()
-			assert(#self._update_objects==0)
+			assert(type(delta)=="number")
+			local r = math.lerp(self.red1,self.red2,((getScenarioTime()+self.red_start) % self.red_time)/self.red_time)
+			local g = math.lerp(self.green1,self.green2,((getScenarioTime()+self.green_start) % self.green_time)/self.green_time)
+			local b = math.lerp(self.blue1,self.blue2,((getScenarioTime()+self.blue_start) % self.blue_time)/self.blue_time)
+			obj:setRadarTraceColor(math.floor(r),math.floor(g),math.floor(b))
 		end
 	}
+	self:addUpdate(obj,"artifactColor",update_data)
+end
+function updateSystem:addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, initial_angle)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(center_x)=="number")
+	assert(type(center_y)=="number")
+	assert(type(distance)=="number")
+	assert(type(orbit_time)=="number")
+	assert(type(initial_angle)=="number" or initial_angle == nil)
+	initial_angle = initial_angle or 0
+	local update_data = {
+		name = "orbit",
+		center_x = center_x,
+		center_y = center_y,
+		distance = distance,
+		orbit_time = orbit_time/(2*math.pi),
+		start_offset = (initial_angle/360)*orbit_time,
+		edit = {
+			-- center x and y should be added when it can be - it probably wants an onclick handler
+			{name = "distance" , fixedAdjAmount=1000},
+			{name = "orbit_time", fixedAdjAmount=1},
+			{name = "start_offset", fixedAdjAmount=1}
+		},
+		update = function (self,obj,delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			local orbit_pos=((getScenarioTime() + self.start_offset)/self.orbit_time)
+			obj:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
+		end
+	}
+	self:addUpdate(obj,"absolutePosition",update_data)
+end
+function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, relative_attach_y)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(attach_target)=="table")
+	assert(type(relative_attach_x)=="number")
+	assert(type(relative_attach_y)=="number")
+	local update_data = {
+		name = "attached",
+		attach_target = attach_target,
+		relative_attach_x = relative_attach_x,
+		relative_attach_y = relative_attach_y,
+		edit={},
+		update = function (self,obj)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			if self.attach_target ~= nil and self.attach_target:isValid() then
+				local attach_x, attach_y = self.attach_target:getPosition()
+				obj:setPosition(attach_x+self.relative_attach_x,attach_y+self.relative_attach_y)
+			else
+				update_system:removeUpdateNamed(obj,"attached")
+			end
+		end
+	}
+	self:addUpdate(obj,"absolutePosition",update_data)
+end
+function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(target)=="table")
+	assert(type(speed)=="number")
+	assert(callback_on_contact==nil or type(callback_on_contact)=="function")
+	local update_self = self -- this is so it can be captured for later
+	local update_data = {
+		name = "chasing",
+		speed = speed,
+		target = target,
+		callback_on_contact = callback_on_contact,
+		edit = {
+			-- todo add target
+			{name = "speed", fixedAdjAmount = 100}
+		},
+		update = function (self, obj, delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			if target==nil or not target:isValid() then
+				obj:destroy()
+			else
+				local update_speed=speed*delta
+				local my_x, my_y = obj:getPosition()
+				local target_x, target_y = target:getPosition()
+				local dist=distance(my_x, my_y, target_x, target_y)
+				if dist > update_speed then
+					local dx=target_x-my_x
+					local dy=target_y-my_y
+					local angle=math.atan2(dx,dy)
+					local ny=math.cos(angle)*update_speed
+					local nx=math.sin(angle)*update_speed
+					obj:setPosition(my_x+nx,my_y+ny)
+				else
+					if self.callback_on_contact ~= nil then
+						self.callback_on_contact(update_self, obj, target)
+					end
+					obj:destroy()
+				end
+			end
+		end
+	}
+	self:addUpdate(obj,"absolutePosition",update_data)
+end
+function updateSystem:addOrbitTargetUpdate(obj, orbit_target, distance, orbit_time, initial_angle)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")			--generally another reference to self that is orbiting
+	assert(type(orbit_target)=="table")	--the thing that self is orbiting
+	assert(type(distance)=="number")	--how far away self is orbiting orbit_target
+	assert(type(orbit_time)=="number")	--how long to complete one orbit
+	assert(type(initial_angle)=="number" or 
+		initial_angle == nil)			--angle at which to start the orbit
+	initial_angle = initial_angle or 0
+	local update_data = {
+		name = "orbit target",
+		orbit_target = orbit_target,
+		distance = distance,
+		orbit_time = orbit_time/(2*math.pi),
+		initial_angle = initial_angle, -- this looks obsolete, test removal with proper testing
+		start_offset = (initial_angle/360)*orbit_time,
+		time = 0, -- this can be removed after getScenarioTime gets into the current version of EE
+		edit = {
+			-- orbit target wants to be exposed when we have a object selection control
+			{name = "distance" , fixedAdjAmount=1000},
+			{name = "orbit_time", fixedAdjAmount=1},
+			{name = "start_offset", fixedAdjAmount=1}
+		},
+		update = function (self,obj,delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			self.time = self.time + delta
+			local orbit_pos=(self.time+self.start_offset)/self.orbit_time
+			if self.orbit_target ~= nil and self.orbit_target:isValid() then
+				local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+				obj:setPosition(orbit_target_x+(math.cos(orbit_pos)*self.distance),orbit_target_y+(math.sin(orbit_pos)*self.distance))
+			end
+		end
+	}
+	self:addUpdate(obj,"absolutePosition",update_data)
+end
+function updateSystem:addOrbitTargetWithInfluenceUpdate(obj, orbit_target, orbit_radius, slow_orbit_speed, fast_orbit_speed, orbit_influencer, slow_distance, fast_distance)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")				--generally another reference to self that is orbiting
+	assert(type(orbit_target)=="table")		--the thing that self is orbiting
+	assert(type(orbit_radius)=="number")	--how far away self is orbiting orbit_target
+	assert(type(slow_orbit_speed)=="number")	--how fast to orbit while in slow region; deg/sec
+	assert(type(fast_orbit_speed)=="number")	--how fast to orbit while in fast region; deg/sec
+	assert(type(orbit_influencer)=="table")	--the thing that influences how fast self orbits orbit_target
+	assert(type(slow_distance)=="number")	--boundary distance between slow and transition speed
+	assert(type(fast_distance)=="number")	--boundary distance between fast and transition speed
+	local ot_x, ot_y = orbit_target:getPosition()
+	local obj_x, obj_y = obj:getPosition()
+	local orbit_angle = angleFromVectorNorth(ot_x,ot_y,obj_x,obj_y)
+	local update_data = {
+		name = "orbit target with influence",
+		orbit_target = orbit_target,
+		orbit_radius = orbit_radius,
+		slow_orbit_speed = slow_orbit_speed,
+		fast_orbit_speed = fast_orbit_speed,
+		orbit_influencer = orbit_influencer,
+		slow_distance = slow_distance,
+		fast_distance = fast_distance,
+		orbit_angle = orbit_angle,
+		edit = {
+			{name = "orbit_radius" , fixedAdjAmount=100},
+		},
+		update = function (self,obj,delta)
+			if self.orbit_target ~= nil and self.orbit_target:isValid() then
+				local orbit_target_x, orbit_target_y = self.orbit_target:getPosition()
+				local orbit_speed = 0
+				if self.orbit_influencer ~= nil and self.orbit_influencer:isValid() then
+					local orbit_influencer_x, orbit_influencer_y = self.orbit_influencer:getPosition()
+					local influence_distance = distance(obj,obj.orbit_influencer)
+					if influence_distance < self.slow_distance then
+						orbit_speed = self.slow_orbit_speed
+					elseif influence_distance > self.fast_distance then
+						orbit_speed = self.fast_orbit_speed
+					else
+						orbit_speed = influence_distance/self.fast_distance*self.fast_orbit_speed
+					end
+				else
+					orbit_speed = self.fast_orbit_speed
+				end
+				self.orbit_angle = (self.orbit_angle + (orbit_speed*delta)) % 360
+				local new_pos_x, new_pos_y = vectorFromAngleNorth(self.orbit_angle,self.orbit_radius)
+				obj:setPosition(orbit_target_x + new_pos_x,orbit_target_y + new_pos_y)
+			end
+		end
+	}
+	self:addUpdate(obj,"absoluteVariablePosition",update_data)
+end
+function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_check_timer_interval)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(patrol_points)=="table")
+	assert(type(patrol_point_index)=="number")
+	assert(type(patrol_check_timer_interval)=="number")
+	local update_self = self
+	obj.patrol_points = patrol_points
+	obj.patrol_point_index = patrol_point_index
+	obj.patrol_check_timer_interval = patrol_check_timer_interval
+	obj.patrol_check_timer = patrol_check_timer_interval
+	local update_data = {
+		name = "patrol",
+		edit = {},
+		update = function (self, obj, delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			if obj.patrol_points == nil then
+				obj.patrol_point_index = nil
+				obj.patrol_check_timer_interval = nil
+				obj.patrol_check_timer = nil
+				update_self:removeThisUpdate(obj,self)
+			else
+				obj.patrol_check_timer = obj.patrol_check_timer - delta
+				if obj.patrol_check_timer < 0 then
+					if string.find(obj:getOrder(),"Defend") then
+						obj.patrol_point_index = obj.patrol_point_index + 1
+						if obj.patrol_point_index > #obj.patrol_points then
+							obj.patrol_point_index = 1
+						end
+						obj:orderFlyTowards(obj.patrol_points[obj.patrol_point_index].x,obj.patrol_points[obj.patrol_point_index].y)
+					end
+					obj.patrol_check_timer = obj.patrol_check_timer_interval
+				end
+			end
+		end
+	}
+	self:addUpdate(obj,"patrol",update_data)
+end
+-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
+-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
+-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
+function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_time, random_jitter)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(callback)=="function")
+	assert(type(period)=="number")
+	assert(accumulated_time==nil or type(accumulated_time)=="number")
+	assert(random_jitter==nil or type(random_jitter)=="number")
+	assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
+	local update_data = {
+		name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
+		callback = callback,
+		period = period,
+		accumulated_time = accumulated_time or 0,
+		random_jitter = random_jitter or 0,
+		edit = {
+			-- orbit target wants to be exposed when we have a object selection control
+			{name = "period" , fixedAdjAmount=1},
+			{name = "accumulated_time", fixedAdjAmount=1}
+		},
+		update = function (self,obj,delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			self.accumulated_time = self.accumulated_time + delta
+			if self.accumulated_time > self.period then
+				self.callback(obj)
+				self.accumulated_time = self.accumulated_time - self.period - random(0,self.random_jitter)
+				-- we could do this via a loop
+				-- or via calling back into this own function
+				-- technically this is probably slower (as we will end up with calling a function and the assert logic)
+				-- I am going to be surprised if that matters
+				-- a callback is pretty easy to do, so we will do it that way
+				self:update(obj,0)
+			end
+		end
+	}
+	self:addUpdate(obj,"periodic",update_data)
+end
+function updateSystem:addNameCycleUpdate(obj, period, nameTable, accumulated_time)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(period)=="number")
+	assert(type(nameTable)=="table")
+	assert(#nameTable~=0)
+	assert(accumulated_time==nil or type(accumulated_time)=="number")
+	obj.nameNum=0
+	local callback = function(obj)
+		obj.nameNum = (obj.nameNum + 1) % #nameTable
+		obj:setCallSign(nameTable[obj.nameNum + 1])
+	end
+	self:addPeriodicCallback(obj,callback,period,accumulated_time)
+end
+function updateSystem:addTimeToLiveUpdate(obj, timeToLive)
+	assert(type(self)=="table")
+	assert(type(obj)=="table")
+	assert(type(timeToLive)=="number" or TimeToLive==nil)
+	timeToLive = timeToLive or 300
+	local update_data = {
+		name = "time to live",
+		timeToLive = timeToLive,
+		edit = {
+			{name = "timeToLive", fixedAdjAmount=1}
+		},
+		update = function (self,obj,delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			self.timeToLive = self.timeToLive - delta
+			if self.timeToLive < 0 then
+				obj:destroy()
+			end
+		end
+	}
+	self:addUpdate(obj,"timeToLive",update_data)
+end
+function updateSystem:_test()
+	assert(type(self)=="table")
+	---------------------------------------------------------------------------------------------------------------
+	-- first up we are going to ensure that _addToUpdateList doesn't add the same element multiple times
+	-- this likely would be annoying to debug (as things would run faster for no real reason) and hard to spot
+	-- (as many of the ways it will fail would not result in errors)
+	---------------------------------------------------------------------------------------------------------------
+	local tmp1={}
+	local tmp2={}
+	-- starting
+	assert(#self._update_objects==0)
+	-- add the first element
+	self:_addToUpdateList(tmp1)
+	assert(#self._update_objects==1)
+	-- ensure we cant add one more
+	self:_addToUpdateList(tmp1)
+	assert(#self._update_objects==1)
+	-- add the second element
+	self:_addToUpdateList(tmp2)
+	assert(#self._update_objects==2)
+	-- ensure both the first and last element are checked
+	self:_addToUpdateList(tmp1)
+	assert(#self._update_objects==2)
+	self:_addToUpdateList(tmp2)
+	assert(#self._update_objects==2)
+
+	-- reset for next test
+	self:_clear_update_list()
+	assert(#self._update_objects==0)
+	---------------------------------------------------------------------------------------------------------------
+	-- now onto testing addUpdate
+	-- we are going to ensure that multiple updates of the same type cant be added (as that will break in non obvious ways)
+	-- note the testObj is not a spaceObject, which will break some functions like update
+	-- if this blocks fails asserts later, it is possible that checks have been added to addUpdate to ensure that the object is a spaceObject
+	---------------------------------------------------------------------------------------------------------------
+	local testObj={}
+	assert(testObj.update_list==nil)
+	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	assert(testObj.update_list~=nil)
+	assert(#testObj.update_list==1)
+	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	assert(#testObj.update_list==1)
+	self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
+	assert(#testObj.update_list==2)
+	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	assert(#testObj.update_list==2)
+	self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
+	assert(#testObj.update_list==2)
+
+	-- reset for next test
+	self:_clear_update_list()
+	assert(#self._update_objects==0)
+	---------------------------------------------------------------------------------------------------------------
+	-- addPeriodicCallback
+	---------------------------------------------------------------------------------------------------------------
+	local testObj=newPhonySpaceObject()
+	local captured=0
+	local captured_fun = function ()
+		captured = captured + 1
+	end
+	self:addPeriodicCallback(testObj,captured_fun,1)
+	assert(captured==0)
+	-- insufficient to run the callback
+	self:update(0.9)
+	assert(captured==0)
+	-- check that the callback being called once results in the callback running once
+	self:update(1)
+	assert(captured==1)
+	-- check that the callback being overdue results in multiple calls
+	self:update(2)
+	assert(captured==3)
+	-- TODO check with different periodic values
+	--assert(captured==0)
+
+	-- reset for next test
+	self:_clear_update_list()
+	assert(#self._update_objects==0)
 end
 function universe()
 	return {
@@ -35309,7 +35315,7 @@ end
 function runAllTests()
 	getNumberOfObjectsStringTest()
 	math.extraTests()
-	updateSystem():_test()
+	updateSystem:create():_test()
 end
 --	Probe functions
 function togglePatrolProbeState(p)
