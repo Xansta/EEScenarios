@@ -5862,7 +5862,7 @@ function icarusSector()
 	local art=Artifact():setPosition(23387, 73994)
 	update_system:addPeriodicCallback(art,
 		function (self, obj)
-			self:setCallSign(string.format("%.2f",450*(200*math.cos(getScenarioTimePreStandard()))))
+			self:setCallSign(string.format("%.2f",450*(200*math.cos(getScenarioTime()))))
 		end
 		,0.1)
 	table.insert(ret.objects,art)
@@ -30540,7 +30540,7 @@ function callsignCycle()
 			end
 			for index = 1,#objectList do
 				local callbackFunction = function(self,obj)
-					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
+					local num=param[2]*(param[3]*math.cos(getScenarioTime()*param[4])/getScenarioTime()*param[5])+param[6]
 					local str=string.format("%.2f",num)
 					self:setCallSign(str)
 				end
@@ -31135,16 +31135,6 @@ function getNumberOfObjectsStringTest()
 	assert(getNumberOfObjectsString({{typeName ="test"},{typeName ="test"}})=="test: 2\n\nTotal: 2")
 	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"}})=="testA: 1\ntestB: 1\n\nTotal: 2")
 	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"},{typeName ="testB"}})=="testA: 1\ntestB: 2\n\nTotal: 3")
-end
-------------------------------
---	Time related functions  --
-------------------------------
--- these 2 functions and variable be removed in the next version of EE
-function getScenarioTimePreStandard()
-	return scenarioTime
-end
-function getScenarioTimePreStandardAddDelta(delta)
-	scenarioTime = scenarioTime + delta
 end
 ------------------------------
 --	Math related functions  --
@@ -35453,7 +35443,6 @@ function probeWarpJammer(self,x,y)
 end
 
 function updateInner(delta)
-	getScenarioTimePreStandardAddDelta(delta) -- this can be removed in the next version of EE
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
 	if timer_started then
