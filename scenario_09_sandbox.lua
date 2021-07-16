@@ -357,7 +357,6 @@ function addPlayerShip(name,typeName,func,data)
 	assert(type(playerShipStats[typeName])=="table")
 	assert(type(func)=="function")
 	assert(type(data.ftl)=="string")
-	assert(type(data.lrs)=="number")
 	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, data = data}
 end
 function setConstants()
@@ -816,73 +815,73 @@ function setConstants()
 	-- likewise the creation functions are no longer in alphabetical order
 	-- this probably wants to be fixed after the upcomming merge conflict has been dealt with
 	playerShipInfo = {}
-	addPlayerShip("Ambition",	"Phobos T2",	createPlayerShipAmbition	,{ftl = "J", lrs = 25})
-	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,{ftl = "J", lrs = 25})
-	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,{ftl = "J", lrs = 20})
-	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,{ftl = "J", lrs = 20})
-	addPlayerShip("Blaire",		"Kludge",		createPlayerShipBlaire		,{ftl = "B", lrs = 35})
+	addPlayerShip("Ambition",	"Phobos T2",	createPlayerShipAmbition	,{ftl = "J"})
+	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,{ftl = "J"})
+	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,{ftl = "J"})
+	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,{ftl = "J"})
+	addPlayerShip("Blaire",		"Kludge",		createPlayerShipBlaire		,{ftl = "B"})
 --	addPlayerShip("Blazon"		,createPlayerShipBlazon
-	addPlayerShip("Bling",		"Gadfly",		createPlayerShipBling		,{ftl = "J", lrs = 15})
-	addPlayerShip("Claw",		"Raven",		createPlayerShipClaw		,{ftl = "W", lrs = 25})
-	addPlayerShip("Cobra",		"Striker LX",	createPlayerShipCobra		,{ftl = "J", lrs = 20})
-	addPlayerShip("Crux",		"Mantis",		createPlayerShipCrux		,{ftl = "W", lrs = 25})
-	addPlayerShip("Darkstar",	"Destroyer IV",	createPlayerShipDarkstar	,{ftl = "J", lrs = 30})
-	addPlayerShip("Devon",		"Wombat",		createPlayerShipDevon		,{ftl = "W", lrs = 18})
-	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,{ftl = "W", lrs = 50})
-	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,{ftl = "J", lrs = 30})
-	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,{ftl = "J", lrs = 23})
-	addPlayerShip("Falcon",		"Eldridge",		createPlayerShipFalcon		,{ftl = "W", lrs = 24})
-	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,{ftl = "J", lrs = 35})
-	addPlayerShip("Flaire",		"Peacock",		createPlayerShipFlaire		,{ftl = "J", lrs = 25})
-	addPlayerShip("Flipper",	"Midian",		createPlayerShipFlipper		,{ftl = "W", lrs = 25})
-	addPlayerShip("Florentine",	"Safari",		createPlayerShipFlorentine	,{ftl = "W", lrs = 33})
-	addPlayerShip("Gabble",		"Squid",		createPlayerShipGabble		,{ftl = "J", lrs = 25})
-	addPlayerShip("George",		"Rodent",		createPlayerShipGeorge		,{ftl = "J", lrs = 40})
-	addPlayerShip("Gorn",		"Proto-Atlantis",createPlayerShipGorn		,{ftl = "J", lrs = 30})
-	addPlayerShip("Guinevere",	"Caretaker",	createPlayerShipGuinevere	,{ftl = "J", lrs = 35})
-	addPlayerShip("Halberd",	"Proto-Atlantis",createPlayerShipHalberd	,{ftl = "J", lrs = 35})	--proto-atlantis
-	addPlayerShip("Headhunter",	"Redhook",		createPlayerShipHeadhunter	,{ftl = "J", lrs = 20})
-	addPlayerShip("Hearken",	"Redhook",		createPlayerShipHearken		,{ftl = "J", lrs = 20})
-	addPlayerShip("Hrothgar",	"Nusret",		createPlayerShipHrothgar	,{ftl = "J", lrs = 25})
-	addPlayerShip("Hummer",		"XR-Lindworm",	createPlayerShipHummer		,{ftl = "W", lrs = 20})
-	addPlayerShip("Jarvis",		"Butler",		createPlayerShipJarvis		,{ftl = "W", lrs = 30})
-	addPlayerShip("Jeeves",		"Butler",		createPlayerShipJeeves		,{ftl = "W", lrs = 30})
-	addPlayerShip("Kindling",	"Phoenix",		createPlayerShipKindling	,{ftl = "J", lrs = 25})
---	addPlayerShip("Knick",		"Glass Cannon",	createPlayerShipKnick		,{ftl = "J", lrs = 30),"Experimental - not ready for use"
-	addPlayerShip("Knuckle Drag","Destroyer III",createPlayerShipSimian		,{ftl = "J", lrs = 32})
-	addPlayerShip("Lancelot",	"Noble",		createPlayerShipLancelot	,{ftl = "J", lrs = 27})
-	addPlayerShip("Magnum",		"Focus",		createPlayerShipMagnum		,{ftl = "J", lrs = 32})
-	addPlayerShip("Manxman",	"Nusret",		createPlayerShipManxman		,{ftl = "J", lrs = 25})
-	addPlayerShip("Mixer",		"Amalgam",		createPlayerShipMixer		,{ftl = "J", lrs = 36})
-	addPlayerShip("Narsil",		"Proto-Atlantis",createPlayerShipNarsil		,{ftl = "W", lrs = 30})
-	addPlayerShip("Nimbus",		"Phobos T2",	createPlayerShipNimbus		,{ftl = "J", lrs = 25})
-	addPlayerShip("Osprey",		"Flavia 2C",	createPlayerShipOsprey		,{ftl = "W", lrs = 30})
-	addPlayerShip("Outcast",	"Scatter",		createPlayerShipOutcast		,{ftl = "J", lrs = 28})
-	addPlayerShip("Pinwheel",	"Rotor"	,		createPlayerShipPinwheel	,{ftl = "W", lrs = 25})
-	addPlayerShip("Quarter",	"Barrow",		createPlayerShipQuarter		,{ftl = "J", lrs = 35})
-	addPlayerShip("Quicksilver","XR-Lindworm",	createPlayerShipQuick		,{ftl = "W", lrs = 20})
-	addPlayerShip("Quill",		"Porcupine",	createPlayerShipQuill		,{ftl = "W", lrs = 30})
-	addPlayerShip("Raptor",		"Destroyer IV",	createPlayerShipRaptor		,{ftl = "J", lrs = 30})
-	addPlayerShip("Rattler",	"MX-Lindworm",	createPlayerShipRattler		,{ftl = "J", lrs = 30})
-	addPlayerShip("Rip",		"Lurker",		createPlayerShipRip			,{ftl = "W", lrs = 18})
-	addPlayerShip("Rocinante",	"Windmill",		createPlayerShipRocinante	,{ftl = "W", lrs = 33})
-	addPlayerShip("Rogue",		"Maverick XP",	createPlayerShipRogue		,{ftl = "J", lrs = 25})
-	addPlayerShip("Skray",		"Skray",		createplayerShipSneak		,{ftl = "J", lrs = 30})
-	addPlayerShip("Sparrow",	"Vermin",		createPlayerShipSparrow		,{ftl = "W", lrs = 22})
-	addPlayerShip("Slingshot",	"Wrocket",		createPlayerShipSlingshot	,{ftl = "J", lrs = 32})
-	addPlayerShip("Splinter",	"Fresnel",		createPlayerShipSplinter	,{ftl = "J", lrs = 15})
-	addPlayerShip("Spyder",		"Atlantis II",	createPlayerShipSpyder		,{ftl = "J", lrs = 30})
-	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,{ftl = "W", lrs = 35})
-	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,{ftl = "W", lrs = 35})
-	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,{ftl = "W", lrs = 23})
-	addPlayerShip("Terror",		"Phobos T2",	createPlayerShipTerror		,{ftl = "J", lrs = 25})
-	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,{ftl = "W", lrs = 30})
-	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,{ftl = "J", lrs = 30})
-	addPlayerShip("Vision",		"Era",			createPlayerShipVision		,{ftl = "W", lrs = 50})
-	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,{ftl = "J", lrs = 40})
-	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,{ftl = "W", lrs = 35})
-	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,{ftl = "J", lrs = 25})
-	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,{ftl = "J", lrs = 41})
+	addPlayerShip("Bling",		"Gadfly",		createPlayerShipBling		,{ftl = "J"})
+	addPlayerShip("Claw",		"Raven",		createPlayerShipClaw		,{ftl = "W"})
+	addPlayerShip("Cobra",		"Striker LX",	createPlayerShipCobra		,{ftl = "J"})
+	addPlayerShip("Crux",		"Mantis",		createPlayerShipCrux		,{ftl = "W"})
+	addPlayerShip("Darkstar",	"Destroyer IV",	createPlayerShipDarkstar	,{ftl = "J"})
+	addPlayerShip("Devon",		"Wombat",		createPlayerShipDevon		,{ftl = "W"})
+	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,{ftl = "W"})
+	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,{ftl = "J"})
+	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,{ftl = "J"})
+	addPlayerShip("Falcon",		"Eldridge",		createPlayerShipFalcon		,{ftl = "W"})
+	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,{ftl = "J"})
+	addPlayerShip("Flaire",		"Peacock",		createPlayerShipFlaire		,{ftl = "J"})
+	addPlayerShip("Flipper",	"Midian",		createPlayerShipFlipper		,{ftl = "W"})
+	addPlayerShip("Florentine",	"Safari",		createPlayerShipFlorentine	,{ftl = "W"})
+	addPlayerShip("Gabble",		"Squid",		createPlayerShipGabble		,{ftl = "J"})
+	addPlayerShip("George",		"Rodent",		createPlayerShipGeorge		,{ftl = "J"})
+	addPlayerShip("Gorn",		"Proto-Atlantis",createPlayerShipGorn		,{ftl = "J"})
+	addPlayerShip("Guinevere",	"Caretaker",	createPlayerShipGuinevere	,{ftl = "J"})
+	addPlayerShip("Halberd",	"Proto-Atlantis",createPlayerShipHalberd	,{ftl = "J"})	--proto-atlantis
+	addPlayerShip("Headhunter",	"Redhook",		createPlayerShipHeadhunter	,{ftl = "J"})
+	addPlayerShip("Hearken",	"Redhook",		createPlayerShipHearken		,{ftl = "J"})
+	addPlayerShip("Hrothgar",	"Nusret",		createPlayerShipHrothgar	,{ftl = "J"})
+	addPlayerShip("Hummer",		"XR-Lindworm",	createPlayerShipHummer		,{ftl = "W"})
+	addPlayerShip("Jarvis",		"Butler",		createPlayerShipJarvis		,{ftl = "W"})
+	addPlayerShip("Jeeves",		"Butler",		createPlayerShipJeeves		,{ftl = "W"})
+	addPlayerShip("Kindling",	"Phoenix",		createPlayerShipKindling	,{ftl = "J"})
+--	addPlayerShip("Knick",		"Glass Cannon",	createPlayerShipKnick		,{ftl = "J")},"Experimental - not ready for use"
+	addPlayerShip("Knuckle Drag","Destroyer III",createPlayerShipSimian		,{ftl = "J"})
+	addPlayerShip("Lancelot",	"Noble",		createPlayerShipLancelot	,{ftl = "J"})
+	addPlayerShip("Magnum",		"Focus",		createPlayerShipMagnum		,{ftl = "J"})
+	addPlayerShip("Manxman",	"Nusret",		createPlayerShipManxman		,{ftl = "J"})
+	addPlayerShip("Mixer",		"Amalgam",		createPlayerShipMixer		,{ftl = "J"})
+	addPlayerShip("Narsil",		"Proto-Atlantis",createPlayerShipNarsil		,{ftl = "W"})
+	addPlayerShip("Nimbus",		"Phobos T2",	createPlayerShipNimbus		,{ftl = "J"})
+	addPlayerShip("Osprey",		"Flavia 2C",	createPlayerShipOsprey		,{ftl = "W"})
+	addPlayerShip("Outcast",	"Scatter",		createPlayerShipOutcast		,{ftl = "J"})
+	addPlayerShip("Pinwheel",	"Rotor"	,		createPlayerShipPinwheel	,{ftl = "W"})
+	addPlayerShip("Quarter",	"Barrow",		createPlayerShipQuarter		,{ftl = "J"})
+	addPlayerShip("Quicksilver","XR-Lindworm",	createPlayerShipQuick		,{ftl = "W"})
+	addPlayerShip("Quill",		"Porcupine",	createPlayerShipQuill		,{ftl = "W"})
+	addPlayerShip("Raptor",		"Destroyer IV",	createPlayerShipRaptor		,{ftl = "J"})
+	addPlayerShip("Rattler",	"MX-Lindworm",	createPlayerShipRattler		,{ftl = "J"})
+	addPlayerShip("Rip",		"Lurker",		createPlayerShipRip			,{ftl = "W"})
+	addPlayerShip("Rocinante",	"Windmill",		createPlayerShipRocinante	,{ftl = "W"})
+	addPlayerShip("Rogue",		"Maverick XP",	createPlayerShipRogue		,{ftl = "J"})
+	addPlayerShip("Skray",		"Skray",		createplayerShipSneak		,{ftl = "J"})
+	addPlayerShip("Sparrow",	"Vermin",		createPlayerShipSparrow		,{ftl = "W"})
+	addPlayerShip("Slingshot",	"Wrocket",		createPlayerShipSlingshot	,{ftl = "J"})
+	addPlayerShip("Splinter",	"Fresnel",		createPlayerShipSplinter	,{ftl = "J"})
+	addPlayerShip("Spyder",		"Atlantis II",	createPlayerShipSpyder		,{ftl = "J"})
+	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,{ftl = "W"})
+	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,{ftl = "W"})
+	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,{ftl = "W"})
+	addPlayerShip("Terror",		"Phobos T2",	createPlayerShipTerror		,{ftl = "J"})
+	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,{ftl = "W"})
+	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,{ftl = "J"})
+	addPlayerShip("Vision",		"Era",			createPlayerShipVision		,{ftl = "W"})
+	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,{ftl = "J"})
+	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,{ftl = "W"})
+	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,{ftl = "J"})
+	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,{ftl = "J"})
 	makePlayerShipActive("Spyder")
 	makePlayerShipActive("Enola")
 	makePlayerShipActive("Arwine")
@@ -5862,7 +5861,7 @@ function icarusSector()
 	local art=Artifact():setPosition(23387, 73994)
 	update_system:addPeriodicCallback(art,
 		function (self, obj)
-			self:setCallSign(string.format("%.2f",450*(200*math.cos(getScenarioTimePreStandard()))))
+			self:setCallSign(string.format("%.2f",450*(200*math.cos(getScenarioTime()))))
 		end
 		,0.1)
 	table.insert(ret.objects,art)
@@ -12463,7 +12462,6 @@ end
 -- -PLAYER SHIP		F	playerShip
 -- +ENGINEERING		F	tweakEngineering
 -- +CARGO			F	changePlayerCargo
--- +PROBES			F	changePlayerProbes
 -- +REPUTATION		F	changePlayerReputation
 -- +PLAYER MESSAGE	F	playerMessage
 function tweakPlayerShip()
@@ -12528,7 +12526,8 @@ function activePlayerShip()
 	for _,name in pairs(sorted) do
 		if playerShipInfo[name]["active"] == "active" then
 			local strength = playerShipStats[playerShipInfo[name].typeName].strength
-			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,playerShipInfo[name]["data"].lrs,name),
+			local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,lrs,name),
 				function ()
 					playerShipInfo[name]["spawn"]()
 					playerShipInfo[name]["active"] = "inactive"
@@ -12559,7 +12558,8 @@ function inactivePlayerShip()
 	for _,name in pairs(sorted) do
 		if playerShipInfo[name]["active"] == "inactive" then
 			local strength = playerShipStats[playerShipInfo[name].typeName].strength
-			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,playerShipInfo[name]["data"].lrs,name),playerShipInfo[name]["spawn"])
+			local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,lrs,name),playerShipInfo[name]["spawn"])
 		end
 	end
 end
@@ -12683,7 +12683,6 @@ end
 -- -PLAYER SHIP			F	playerShip
 -- -TWEAK PLAYER		F	tweakPlayerShip
 -- +CARGO				F	changePlayerCargo
--- +PROBES				F	changePlayerProbes
 -- +REPUTATION			F	changePlayerReputation
 -- +WAYPOINT			F	addWaypoint
 function tweakRelay()
@@ -12693,7 +12692,6 @@ function tweakRelay()
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
 	addGMFunction("+Cargo",changePlayerCargo)
-	addGMFunction("+Probes",changePlayerProbes)
 	addGMFunction("+Reputation",changePlayerReputation)
 	addGMFunction("+Waypoint",addWaypoint)
 end
@@ -13397,42 +13395,6 @@ function changePlayerCargo()
 	addGMFunction("+Remove Cargo",removeCargo)
 	addGMFunction("+Add Mineral",addMineralCargo)
 	addGMFunction("+Add Component",addComponentCargo)
-end
----------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Probes  --
----------------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM PROBES	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- DEL PROBE 8 -> 7		D	inline
-function changePlayerProbes()
-	clearGMFunctions()
-	addGMFunction("-Main from Probes",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Tweak Relay",tweakRelay)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local probe_count = p:getScanProbeCount()
-		local max_probe_count = p:getMaxScanProbeCount()
-		if probe_count < max_probe_count then
-			addGMFunction(string.format("Add Probe %i -> %i",probe_count,probe_count + 1),function()
-				p:setScanProbeCount(probe_count + 1)
-				changePlayerProbes()
-			end)
-		end
-		if probe_count > 0 then
-			addGMFunction(string.format("Del Probe %i -> %i",probe_count,probe_count - 1),function()
-				p:setScanProbeCount(probe_count - 1)
-				changePlayerProbes()
-			end)
-		end
-	else
-		addGMFunction("+Select player ship",function()
-			changePlayerProbes()
-		end)
-	end
 end
 -------------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Reputation  --
@@ -30540,7 +30502,7 @@ function callsignCycle()
 			end
 			for index = 1,#objectList do
 				local callbackFunction = function(self,obj)
-					local num=param[2]*(param[3]*math.cos(getScenarioTimePreStandard()*param[4])/getScenarioTimePreStandard()*param[5])+param[6]
+					local num=param[2]*(param[3]*math.cos(getScenarioTime()*param[4])/getScenarioTime()*param[5])+param[6]
 					local str=string.format("%.2f",num)
 					self:setCallSign(str)
 				end
@@ -31135,16 +31097,6 @@ function getNumberOfObjectsStringTest()
 	assert(getNumberOfObjectsString({{typeName ="test"},{typeName ="test"}})=="test: 2\n\nTotal: 2")
 	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"}})=="testA: 1\ntestB: 1\n\nTotal: 2")
 	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"},{typeName ="testB"}})=="testA: 1\ntestB: 2\n\nTotal: 3")
-end
-------------------------------
---	Time related functions  --
-------------------------------
--- these 2 functions and variable be removed in the next version of EE
-function getScenarioTimePreStandard()
-	return scenarioTime
-end
-function getScenarioTimePreStandardAddDelta(delta)
-	scenarioTime = scenarioTime + delta
 end
 ------------------------------
 --	Math related functions  --
@@ -35453,7 +35405,6 @@ function probeWarpJammer(self,x,y)
 end
 
 function updateInner(delta)
-	getScenarioTimePreStandardAddDelta(delta) -- this can be removed in the next version of EE
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
 	if timer_started then
