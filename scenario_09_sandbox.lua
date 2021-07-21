@@ -1493,7 +1493,9 @@ function updateSystem:addUpdate(obj,update_name,update_data)
 	assert(type(update_data)=="table")
 	update_data.name=update_name
 	assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_name)
-	assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_name)
+	if update_data.edit == nil then
+		update_data.edit = {}
+	end
 	self:removeUpdateNamed(obj,update_name)
 	if obj.update_list == nil then
 		obj.update_list = {}
@@ -1566,7 +1568,6 @@ function updateSystem:addUpdateFixedPositions(obj, again_time, points)
 	local update_data = {
 		again_time = again_time,
 		points = points,
-		edit = {},
 		update = function(self,obj,delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -1651,7 +1652,6 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 	assert(type(dy)=="number")
 	assert(type(speed)=="number")
 	local update_data = {
-		edit = {},
 		speed = speed,
 		dx = dx,
 		dy = dy,
@@ -1668,7 +1668,6 @@ function updateSystem:addOwned(owned, owner)
 	assert(type(owned)=="table")
 	assert(type(owner)=="table")
 	local update_data = {
-		edit = {},
 		owner = owner,
 		update = function (self, obj, delta)
 			assert(type(self)=="table")
@@ -2108,7 +2107,6 @@ function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2,
 		blue1 = blue1,
 		blue2 = blue2,
 		blue_time = blue_time,
-		edit = {},
 		update = function(self, obj, delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -2162,7 +2160,6 @@ function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, r
 		attach_target = attach_target,
 		relative_attach_x = relative_attach_x,
 		relative_attach_y = relative_attach_y,
-		edit={},
 		update = function (self,obj)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -2319,7 +2316,6 @@ function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_c
 	obj.patrol_check_timer_interval = patrol_check_timer_interval
 	obj.patrol_check_timer = patrol_check_timer_interval
 	local update_data = {
-		edit = {},
 		update = function (self, obj, delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -2460,16 +2456,16 @@ function updateSystem:_test()
 	---------------------------------------------------------------------------------------------------------------
 	local testObj={}
 	assert(testObj.update_list==nil)
-	self:addUpdate(testObj,"test",{update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end})
 	assert(testObj.update_list~=nil)
 	assert(#testObj.update_list==1)
-	self:addUpdate(testObj,"test",{update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end})
 	assert(#testObj.update_list==1)
-	self:addUpdate(testObj,"test2",{update=function()end,edit={}})
+	self:addUpdate(testObj,"test2",{update=function()end})
 	assert(#testObj.update_list==2)
-	self:addUpdate(testObj,"test",{update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end})
 	assert(#testObj.update_list==2)
-	self:addUpdate(testObj,"test2",{update=function()end,edit={}})
+	self:addUpdate(testObj,"test2",{update=function()end})
 	assert(#testObj.update_list==2)
 
 	-- reset for next test
@@ -4748,7 +4744,6 @@ function addChristmasArtifact(waypoints)
 			current = 1,
 			desiredSpeed=500,
 			tickSize=0.000001,
-			edit = {},
 			waypoints = waypoints
 		}
 			local texts={
@@ -4863,8 +4858,7 @@ function carolStage(stage)
 					setCirclePos(objs[i],x,y,-angle,self.current_radius)
 				end
 			end
-		end,
-		edit = {}
+		end
 	}
 	update_system:addUpdate(newPhonySpaceObject(),"carol",update_data)
 end
@@ -15451,8 +15445,7 @@ function createPlayerShipKindling()
 				heat=heat/0.90 -- scale to that 0.90 = 1
 				obj:setBeamWeapon(0, math.lerp(120,15,heat), math.lerp(-90,5,heat), math.lerp(500,1250,heat), 6, 8)
 				obj:setBeamWeapon(1, math.lerp(120,15,heat), math.lerp(90,-5,heat), math.lerp(500,1250,heat), 6, 8)
-			end,
-		edit = {}
+			end
 	}
 	update_system:addUpdate(playerKindling,"dynamic kindling beams",update_data)
 	return playerKindling
@@ -29688,8 +29681,7 @@ function CubicMineObject:addToUpdate()
 		update = function (self, obj, delta)
 			-- in testing network use and CPU is minimal, so call the recalculation each update
 			obj:updateNow(delta)
-			end,
-		edit = {},
+		end
 	}
 	update_system:addUpdate(self,"Cubic GM control",update_data)
 end
@@ -30846,8 +30838,7 @@ function createInterdictor(p)
 			else
 				p.my_interdictor:destroy()
 			end
-		end,
-		edit = {},
+		end
 	}
 	update_system:addUpdate(p.my_interdictor,"interdictor timer logic",update_data)
 	local impulse_speed = p:getImpulseMaxSpeed()
@@ -30887,8 +30878,7 @@ function rechargeInterdictor(p)
 					p:addCustomButton("Engineering","interdictor"..playerKindling.name,"interdictor",function() createInterdictor(playerKindling) end)
 					update_system:removeUpdateNamed(p,"interdictor recharge logic")
 				end
-			end,
-		edit = {}
+			end
 		}
 		update_system:addUpdate(p,"interdictor recharge logic",update_data)
 	end
