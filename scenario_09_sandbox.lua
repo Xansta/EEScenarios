@@ -5554,16 +5554,14 @@ end
 -- -MAIN				F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- +TWEAK PLAYER		F	tweakPlayerShip
--- +CURRENT				F	activePlayerShip
--- +SCRAPPED			F	inactivePlayerShip
+-- +SPAWN				F	spawnPlayerShip
 -- +TELEPORT PLAYERS	F	teleportPlayers
 function playerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Tweak player",tweakPlayerShip)
-	addGMFunction("+Current",activePlayerShip)
-	addGMFunction("+Scrapped",inactivePlayerShip)
+	addGMFunction("+Spawn",spawnPlayerShip)
 	addGMFunction("+Teleport Players",teleportPlayers)
 end
 ----------------------------------
@@ -12456,14 +12454,14 @@ end
 -- -MAIN			F	initialGMFunctions
 -- -SETUP			F	initialSetUp
 -- -PLAYER SHIP		F	playerShip
--- Button to spawn each currently active player ship name
+-- Button to spawn each player ship name
 function makePlayerShipActive(ship_name)
 	assert(type(ship_name) == "string")
 	assert(type(playerShipInfo[ship_name]) == "table")
 	playerShipInfo[ship_name]["active"] = "active"
 end
 
-function activePlayerShip()
+function spawnPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
@@ -12482,30 +12480,11 @@ function activePlayerShip()
 				function ()
 					playerShipInfo[name]["spawn"]()
 					playerShipInfo[name]["active"] = "inactive"
-					activePlayerShip()
+					spawnPlayerShip()
 			end)
 		end
 	end
-end
-------------------------------------------------
---	Initial Set Up > Player Ships > Scrapped  --
-------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -PLAYER SHIP		F	playerShip
--- Button to spawn each currently inactive or scrapped player ship name
-function inactivePlayerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("Ship Button Info",function()
-		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
-	end)
-	local sorted = {}
-	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
-	table.sort(sorted)
+	addGMFunction("--------------")
 	for _,name in pairs(sorted) do
 		if playerShipInfo[name]["active"] == "inactive" then
 			local strength = playerShipStats[playerShipInfo[name].typeName].strength
