@@ -12,7 +12,6 @@
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
 -- getScenarioTime should allow some small simplifcations
 -- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
--- object updates stupidly have 2 strings for names rather than 1, this should be simplified
 -- the edit I made to use onNewPlayerShip I think will be missfiring with the setTemplate type rather than the rebuilt type fix
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
@@ -1443,32 +1442,12 @@ function updateSystem:_addToUpdateList(obj)
 	end
 	table.insert(self._update_objects,obj)
 end
--- treat _eraseUpdateType as private
--- remove updates of update_type
-function updateSystem._eraseUpdateType(obj,update_type)
-	assert(type(obj)=="table")
-	assert(type(update_type)=="string")
-	if obj.update_list == nil then
-		return
-	end
-	for index = #obj.update_list,1,-1 do
-		if obj.update_list[index].type==update_type then
-			table.remove(obj.update_list,index)
-		end
-	end
-end
--- this really wants to be merged into _eraseUpdateType
--- however at this time they are used differently so its hard
--- _eraseUpdateType removes a type, this removes a particular update
--- types probably need work/thought sooner rather than later
--- but the names probably can stay stable (at least after the periodic functions are fixed)
--- thus this should work for a public facing function, _eraseUpdateType should be private
 function updateSystem:removeUpdateNamed(obj,name)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(name)=="string")
 	if obj.update_list ~= nil then
-		for index = 1,#obj.update_list do
+		for index = #obj.update_list,1,-1 do
 			assert(type(obj.update_list[index].name)=="string")
 			if obj.update_list[index].name==name then
 				table.remove(obj.update_list,index)
@@ -1502,28 +1481,23 @@ function updateSystem:getUpdateNamed(obj,name)
 	end
 	return nil
 end
--- there is only one update function of each update_type
--- it is intended that the update_types are picked such that incompatible types aren't merged
--- the obvious example is multiple functions setting a object x & y location
--- update_type is a string which makes multiple incompatibles impossible to express
--- in an ideal world that would be fixed, however as of writing this it sounds manageable  to do without
+-- there is only one update function of each update_name
 -- update_data is a table with at a minimum a function called update which takes 3 arguments
 -- argument 1 - self (the table)
 -- argument 2 - delta - delta (as passed from the main update function)
 -- argument 3 - obj - the object being updated
 -- it is expected that data needed needed for the update function will be stored in the obj or the update_data table
-function updateSystem:addUpdate(obj,update_type,update_data)
+function updateSystem:addUpdate(obj,update_name,update_data)
 	assert(type(obj)=="table")
-	assert(type(update_type)=="string")
+	assert(type(update_name)=="string")
 	assert(type(update_data)=="table")
-	assert(type(update_data.name)=="string","addUpdate update_data must be a table with a member name as a string update="..update_type)
-	assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_type)
-	assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_type)
-	self._eraseUpdateType(obj,update_type)
+	update_data.name=update_name
+	assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_name)
+	assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_name)
+	self:removeUpdateNamed(obj,update_name)
 	if obj.update_list == nil then
 		obj.update_list = {}
 	end
-	update_data.type=update_type
 	table.insert(obj.update_list,update_data)
 	self:_addToUpdateList(obj)
 end
@@ -1590,7 +1564,6 @@ function updateSystem:addUpdateFixedPositions(obj, again_time, points)
 	assert(type(points)=="table")
 	-- points is really an array of objects with an x & y location
 	local update_data = {
-		name = "fixedPositions",
 		again_time = again_time,
 		points = points,
 		edit = {},
@@ -1602,7 +1575,7 @@ function updateSystem:addUpdateFixedPositions(obj, again_time, points)
 			obj:setPosition(points[orbit_pos].x,points[orbit_pos].y)
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"fixed positions",update_data)
 end
 function updateSystem:addSlowAndAccurateElliptical(obj, cx, cy, orbit_duration, rotation, e, semi_major_axis, start_angle)
 	-- much of the cost of this is in the making the orbit speed up in the center
@@ -1678,7 +1651,6 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 	assert(type(dy)=="number")
 	assert(type(speed)=="number")
 	local update_data = {
-		name = "linearTo",
 		edit = {},
 		speed = speed,
 		dx = dx,
@@ -1688,7 +1660,7 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 			obj:setPosition(x+self.dx*self.speed*delta,y+self.dy*self.speed*delta)
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"linear to",update_data)
 end
 -- when the owner is destroyed the owned objects is also destroyed
 function updateSystem:addOwned(owned, owner)
@@ -1696,7 +1668,6 @@ function updateSystem:addOwned(owned, owner)
 	assert(type(owned)=="table")
 	assert(type(owner)=="table")
 	local update_data = {
-		name = "owned",
 		edit = {},
 		owner = owner,
 		update = function (self, obj, delta)
@@ -1727,7 +1698,6 @@ function updateSystem:addEnergyDecayCurve(obj, total_time, curve_x, curve_y)
 	assert(type(curve_y[3])=="number")
 	assert(type(curve_y[4])=="number")
 	local update_data = {
-		name = "energy decay",
 		total_time = total_time,
 		curve_x = curve_x,
 		curve_y = curve_y,
@@ -1777,7 +1747,6 @@ function updateSystem:addShieldDecayCurve(obj, total_time, curve_x, curve_y)
 	assert(type(curve_y[3])=="number")
 	assert(type(curve_y[4])=="number")
 	local update_data = {
-		name = "shield decay",
 		total_time = total_time,
 		curve_x = curve_x,
 		curve_y = curve_y,
@@ -1824,7 +1793,6 @@ function updateSystem:_addGenericOverclock(obj, overboosted_time, boost_time, ov
 	assert(type(add_extra_update_data)=="function")
 	local update_self = self
 	local update_data = {
-		name = overclock_name,
 		boost_time = boost_time,
 		overboosted_time = overboosted_time,
 
@@ -2128,7 +2096,6 @@ function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2,
 	assert(type(blue2)=="number")
 	assert(type(blue_time)=="number")
 	local update_data = {
-		name = "color",
 		red_start = red_start - getScenarioTime(),
 		red1 = red1,
 		red2 = red2,
@@ -2152,7 +2119,7 @@ function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2,
 			obj:setRadarTraceColor(math.floor(r),math.floor(g),math.floor(b))
 		end
 	}
-	self:addUpdate(obj,"artifactColor",update_data)
+	self:addUpdate(obj,"Artifact Color",update_data)
 end
 function updateSystem:addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, initial_angle)
 	assert(type(self)=="table")
@@ -2164,7 +2131,6 @@ function updateSystem:addOrbitUpdate(obj, center_x, center_y, distance, orbit_ti
 	assert(type(initial_angle)=="number" or initial_angle == nil)
 	initial_angle = initial_angle or 0
 	local update_data = {
-		name = "orbit",
 		center_x = center_x,
 		center_y = center_y,
 		distance = distance,
@@ -2184,7 +2150,7 @@ function updateSystem:addOrbitUpdate(obj, center_x, center_y, distance, orbit_ti
 			obj:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"orbit",update_data)
 end
 function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, relative_attach_y)
 	assert(type(self)=="table")
@@ -2193,7 +2159,6 @@ function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, r
 	assert(type(relative_attach_x)=="number")
 	assert(type(relative_attach_y)=="number")
 	local update_data = {
-		name = "attached",
 		attach_target = attach_target,
 		relative_attach_x = relative_attach_x,
 		relative_attach_y = relative_attach_y,
@@ -2209,7 +2174,7 @@ function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, r
 			end
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"attached",update_data)
 end
 function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
 	assert(type(self)=="table")
@@ -2219,7 +2184,6 @@ function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
 	assert(callback_on_contact==nil or type(callback_on_contact)=="function")
 	local update_self = self -- this is so it can be captured for later
 	local update_data = {
-		name = "chasing",
 		speed = speed,
 		target = target,
 		callback_on_contact = callback_on_contact,
@@ -2254,7 +2218,7 @@ function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
 			end
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"chasing",update_data)
 end
 function updateSystem:addOrbitTargetUpdate(obj, orbit_target, distance, orbit_time, initial_angle)
 	assert(type(self)=="table")
@@ -2291,7 +2255,7 @@ function updateSystem:addOrbitTargetUpdate(obj, orbit_target, distance, orbit_ti
 			end
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"orbit target",update_data)
 end
 function updateSystem:addOrbitTargetWithInfluenceUpdate(obj, orbit_target, orbit_radius, slow_orbit_speed, fast_orbit_speed, orbit_influencer, slow_distance, fast_distance)
 	assert(type(self)=="table")
@@ -2307,7 +2271,6 @@ function updateSystem:addOrbitTargetWithInfluenceUpdate(obj, orbit_target, orbit
 	local obj_x, obj_y = obj:getPosition()
 	local orbit_angle = angleFromVectorNorth(ot_x,ot_y,obj_x,obj_y)
 	local update_data = {
-		name = "orbit target with influence",
 		orbit_target = orbit_target,
 		orbit_radius = orbit_radius,
 		slow_orbit_speed = slow_orbit_speed,
@@ -2342,7 +2305,7 @@ function updateSystem:addOrbitTargetWithInfluenceUpdate(obj, orbit_target, orbit
 			end
 		end
 	}
-	self:addUpdate(obj,"absoluteVariablePosition",update_data)
+	self:addUpdate(obj,"orbit target with influence",update_data)
 end
 function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_check_timer_interval)
 	assert(type(self)=="table")
@@ -2356,7 +2319,6 @@ function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_c
 	obj.patrol_check_timer_interval = patrol_check_timer_interval
 	obj.patrol_check_timer = patrol_check_timer_interval
 	local update_data = {
-		name = "patrol",
 		edit = {},
 		update = function (self, obj, delta)
 			assert(type(self)=="table")
@@ -2387,6 +2349,7 @@ end
 -- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 -- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 -- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
+-- consider moving to the scheduler code that hemmond made
 function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_time, random_jitter)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
@@ -2396,7 +2359,6 @@ function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_tim
 	assert(random_jitter==nil or type(random_jitter)=="number")
 	assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
 	local update_data = {
-		name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
 		callback = callback,
 		period = period,
 		accumulated_time = accumulated_time or 0,
@@ -2423,7 +2385,7 @@ function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_tim
 			end
 		end
 	}
-	self:addUpdate(obj,"periodic",update_data)
+	self:addUpdate(obj,"periodic callback",update_data)
 end
 function updateSystem:addNameCycleUpdate(obj, period, nameTable, accumulated_time)
 	assert(type(self)=="table")
@@ -2445,7 +2407,6 @@ function updateSystem:addTimeToLiveUpdate(obj, timeToLive)
 	assert(type(timeToLive)=="number" or TimeToLive==nil)
 	timeToLive = timeToLive or 300
 	local update_data = {
-		name = "time to live",
 		timeToLive = timeToLive,
 		edit = {
 			{name = "timeToLive", fixedAdjAmount=1}
@@ -2460,7 +2421,7 @@ function updateSystem:addTimeToLiveUpdate(obj, timeToLive)
 			end
 		end
 	}
-	self:addUpdate(obj,"timeToLive",update_data)
+	self:addUpdate(obj,"time To Live",update_data)
 end
 function updateSystem:_test()
 	assert(type(self)=="table")
@@ -2499,16 +2460,16 @@ function updateSystem:_test()
 	---------------------------------------------------------------------------------------------------------------
 	local testObj={}
 	assert(testObj.update_list==nil)
-	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end,edit={}})
 	assert(testObj.update_list~=nil)
 	assert(#testObj.update_list==1)
-	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end,edit={}})
 	assert(#testObj.update_list==1)
-	self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test2",{update=function()end,edit={}})
 	assert(#testObj.update_list==2)
-	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end,edit={}})
 	assert(#testObj.update_list==2)
-	self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test2",{update=function()end,edit={}})
 	assert(#testObj.update_list==2)
 
 	-- reset for next test
@@ -4466,8 +4427,7 @@ function customButtons()
 					end
 				end
 			end,
-			edit = {{name = "max_time", fixedAdjAmount=1}}, -- this really should have more edit controls but I'm feeling lazy
-			name = "subspace rift"
+			edit = {{name = "max_time", fixedAdjAmount=1}} -- this really should have more edit controls but I'm feeling lazy
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
@@ -4543,8 +4503,7 @@ function customButtons()
 				{name = "max_time", fixedAdjAmount=1},
 				{name = "destination_x", fixedAdjAmount=20000},
 				{name = "destination_y", fixedAdjAmount=20000}
-			},
-			name = "Subspace Rift"
+			}
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
@@ -4790,7 +4749,6 @@ function addChristmasArtifact(waypoints)
 			desiredSpeed=500,
 			tickSize=0.000001,
 			edit = {},
-			name = "xmas waypoints",
 			waypoints = waypoints
 		}
 			local texts={
@@ -4906,8 +4864,7 @@ function carolStage(stage)
 				end
 			end
 		end,
-		edit = {},
-		name = "carol"
+		edit = {}
 	}
 	update_system:addUpdate(newPhonySpaceObject(),"carol",update_data)
 end
@@ -15495,10 +15452,9 @@ function createPlayerShipKindling()
 				obj:setBeamWeapon(0, math.lerp(120,15,heat), math.lerp(-90,5,heat), math.lerp(500,1250,heat), 6, 8)
 				obj:setBeamWeapon(1, math.lerp(120,15,heat), math.lerp(90,-5,heat), math.lerp(500,1250,heat), 6, 8)
 			end,
-		edit = {},
-		name = "dynamic kindling beams"
+		edit = {}
 	}
-	update_system:addUpdate(playerKindling,"dynamic beams",update_data)
+	update_system:addUpdate(playerKindling,"dynamic kindling beams",update_data)
 	return playerKindling
 end
 function createPlayerShipKnick()
@@ -29734,7 +29690,6 @@ function CubicMineObject:addToUpdate()
 			obj:updateNow(delta)
 			end,
 		edit = {},
-		name = "Cubic GM control"
 	}
 	update_system:addUpdate(self,"Cubic GM control",update_data)
 end
@@ -30893,9 +30848,8 @@ function createInterdictor(p)
 			end
 		end,
 		edit = {},
-		name = "interdictor timer logic"
 	}
-	update_system:addUpdate(p.my_interdictor,"interdictor logic",update_data)
+	update_system:addUpdate(p.my_interdictor,"interdictor timer logic",update_data)
 	local impulse_speed = p:getImpulseMaxSpeed()
 	impulse_speed = impulse_speed*(3/4)
 	p:setImpulseMaxSpeed(impulse_speed)
@@ -30934,8 +30888,7 @@ function rechargeInterdictor(p)
 					update_system:removeUpdateNamed(p,"interdictor recharge logic")
 				end
 			end,
-		edit = {},
-		name = "interdictor recharge logic"	
+		edit = {}
 		}
 		update_system:addUpdate(p,"interdictor recharge logic",update_data)
 	end
