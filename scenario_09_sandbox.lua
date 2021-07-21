@@ -12496,38 +12496,26 @@ function teleportPlayers()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ships",playerShip)
 	addGMFunction("To Icarus",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(0,0)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(0,0)
 		end
 		addGMMessage("Players teleported to Icarus")
 	end)
 	addGMFunction("To Kentar",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(250000,250000)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(250000,250000)
 		end
 		addGMMessage("Players teleported to Kentar")
 	end)
 	addGMFunction("To Lafrina",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(-237666,296975)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(-237666,296975)
 		end
 		addGMMessage("Players teleported to Lafrina")
 	end)
 	addGMFunction("To Astron",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(460500, 320500)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(460500, 320500)
 		end
 		addGMMessage("Players teleported to Astron")
 	end)
