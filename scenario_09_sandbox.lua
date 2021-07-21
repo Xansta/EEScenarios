@@ -2611,18 +2611,7 @@ function initialSetUp()
 	clearGMFunctions()
 	addGMFunction("-Main from Initial",initialGMFunctions)
 	addGMFunction("+Start Region",setStartRegion)
-	local playerShipCount = 0
-	local highestPlayerIndex = 0
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
-		if p ~= nil then
-			if p:isValid() then
-				playerShipCount = playerShipCount + 1
-			end
-			highestPlayerIndex = pidx
-		end
-	end
-	addGMFunction(string.format("+Player ships %i/%i",playerShipCount,highestPlayerIndex),playerShip)
+	addGMFunction(string.format("+Player ships %i",#getActivePlayerShips()),playerShip)
 	addGMFunction("+Wormholes",setWormholes)
 	addGMFunction("+Zones",changeZones)
 	local button_label = "+Warn"
