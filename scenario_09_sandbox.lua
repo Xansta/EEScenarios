@@ -12531,8 +12531,6 @@ end
 -- -SETUP				F	initialSetUp
 -- -PLAYER SHIP			F	playerShip
 -- -TWEAK PLAYER		F	tweakPlayerShip
--- +AUTO COOL			F	autoCool
--- +AUTO REPAIR			F	autoRepair
 -- +COOLANT				F	changePlayerCoolant
 -- +REPAIR CREW			F	changePlayerRepairCrew
 -- +MAX SYSTEM			F	changePlayerMaxSystem
@@ -12547,8 +12545,6 @@ function tweakEngineering()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("+Auto Cool",autoCool)
-	addGMFunction("+Auto Repair",autoRepair)
 	addGMFunction("+Coolant",changePlayerCoolant)
 	addGMFunction("+Repair Crew",changePlayerRepairCrew)
 	addGMFunction("+Max System",changePlayerMaxSystem)
@@ -12988,84 +12984,6 @@ function changePlayerBeams()
 		end
 		changePlayerBeams()
 	end)
-end
------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Cool --
------------------------------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -FROM AUTO COOL	F	tweakPlayerShip
--- Button to toggle auto cool for each player ship already spawned
-function autoCool()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-From Auto Cool",tweakEngineering)
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
-		if p ~= nil and p:isValid() then
-			if p.autoCoolant == nil then
-				p.autoCoolant = false
-			end
-			local button_label = p:getCallSign()
-			if p.autoCoolant then
-				button_label = button_label .. " on"
-			else
-				button_label = button_label .. " off"
-			end
-			addGMFunction(button_label,function()
-				if p.autoCoolant then
-					p.autoCoolant = false
-					p:setAutoCoolant(false)
-				else
-					p.autoCoolant = true
-					p:setAutoCoolant(true)
-				end
-				autoCool()
-			end)
-		end
-	end
-end
--------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Repair --
--------------------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -FROM AUTO REPAIR	F	tweakPlayerShip
--- Button to toggle auto cool for each player ship already spawned
-function autoRepair()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-From Auto Repair",tweakEngineering)
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
-		if p ~= nil and p:isValid() then
-			if p.auto_repair == nil then
-				p.auto_repair = false
-			end
-			local button_label = p:getCallSign()
-			if p.auto_repair then
-				button_label = button_label .. " on"
-			else
-				button_label = button_label .. " off"
-			end
-			addGMFunction(button_label,function()
-				if p.auto_repair then
-					p.auto_repair = false
-					p:commandSetAutoRepair(false)
-				else
-					p.auto_repair = true
-					p:commandSetAutoRepair(true)
-				end
-				autoRepair()
-			end)
-		end
-	end
 end
 ----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Engineering > Coolant  --
