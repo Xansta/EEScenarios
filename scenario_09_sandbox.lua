@@ -12,7 +12,6 @@
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
 -- getScenarioTime should allow some small simplifcations
 -- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
--- object updates stupidly have 2 strings for names rather than 1, this should be simplified
 -- the edit I made to use onNewPlayerShip I think will be missfiring with the setTemplate type rather than the rebuilt type fix
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
@@ -351,13 +350,13 @@ function createFleurNebula()
     Nebula():setPosition(86671, 36861)
     Nebula():setPosition(96857, 44322)
 end
-function addPlayerShip(name,typeName,func,data)
+function addPlayerShip(name,typeName,func,ftl)
 	assert(type(name)=="string")
 	assert(type(typeName)=="string")
 	assert(type(playerShipStats[typeName])=="table")
 	assert(type(func)=="function")
-	assert(type(data.ftl)=="string")
-	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, data = data}
+	assert(type(ftl)=="string")
+	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
 end
 function setConstants()
 	universe=universe()
@@ -815,73 +814,73 @@ function setConstants()
 	-- likewise the creation functions are no longer in alphabetical order
 	-- this probably wants to be fixed after the upcomming merge conflict has been dealt with
 	playerShipInfo = {}
-	addPlayerShip("Ambition",	"Phobos T2",	createPlayerShipAmbition	,{ftl = "J"})
-	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,{ftl = "J"})
-	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,{ftl = "J"})
-	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,{ftl = "J"})
-	addPlayerShip("Blaire",		"Kludge",		createPlayerShipBlaire		,{ftl = "B"})
+	addPlayerShip("Ambition",	"Phobos T2",	createPlayerShipAmbition	,"J")
+	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,"J")
+	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,"J")
+	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,"J")
+	addPlayerShip("Blaire",		"Kludge",		createPlayerShipBlaire		,"B")
 --	addPlayerShip("Blazon"		,createPlayerShipBlazon
-	addPlayerShip("Bling",		"Gadfly",		createPlayerShipBling		,{ftl = "J"})
-	addPlayerShip("Claw",		"Raven",		createPlayerShipClaw		,{ftl = "W"})
-	addPlayerShip("Cobra",		"Striker LX",	createPlayerShipCobra		,{ftl = "J"})
-	addPlayerShip("Crux",		"Mantis",		createPlayerShipCrux		,{ftl = "W"})
-	addPlayerShip("Darkstar",	"Destroyer IV",	createPlayerShipDarkstar	,{ftl = "J"})
-	addPlayerShip("Devon",		"Wombat",		createPlayerShipDevon		,{ftl = "W"})
-	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,{ftl = "W"})
-	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,{ftl = "J"})
-	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,{ftl = "J"})
-	addPlayerShip("Falcon",		"Eldridge",		createPlayerShipFalcon		,{ftl = "W"})
-	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,{ftl = "J"})
-	addPlayerShip("Flaire",		"Peacock",		createPlayerShipFlaire		,{ftl = "J"})
-	addPlayerShip("Flipper",	"Midian",		createPlayerShipFlipper		,{ftl = "W"})
-	addPlayerShip("Florentine",	"Safari",		createPlayerShipFlorentine	,{ftl = "W"})
-	addPlayerShip("Gabble",		"Squid",		createPlayerShipGabble		,{ftl = "J"})
-	addPlayerShip("George",		"Rodent",		createPlayerShipGeorge		,{ftl = "J"})
-	addPlayerShip("Gorn",		"Proto-Atlantis",createPlayerShipGorn		,{ftl = "J"})
-	addPlayerShip("Guinevere",	"Caretaker",	createPlayerShipGuinevere	,{ftl = "J"})
-	addPlayerShip("Halberd",	"Proto-Atlantis",createPlayerShipHalberd	,{ftl = "J"})	--proto-atlantis
-	addPlayerShip("Headhunter",	"Redhook",		createPlayerShipHeadhunter	,{ftl = "J"})
-	addPlayerShip("Hearken",	"Redhook",		createPlayerShipHearken		,{ftl = "J"})
-	addPlayerShip("Hrothgar",	"Nusret",		createPlayerShipHrothgar	,{ftl = "J"})
-	addPlayerShip("Hummer",		"XR-Lindworm",	createPlayerShipHummer		,{ftl = "W"})
-	addPlayerShip("Jarvis",		"Butler",		createPlayerShipJarvis		,{ftl = "W"})
-	addPlayerShip("Jeeves",		"Butler",		createPlayerShipJeeves		,{ftl = "W"})
-	addPlayerShip("Kindling",	"Phoenix",		createPlayerShipKindling	,{ftl = "J"})
---	addPlayerShip("Knick",		"Glass Cannon",	createPlayerShipKnick		,{ftl = "J")},"Experimental - not ready for use"
-	addPlayerShip("Knuckle Drag","Destroyer III",createPlayerShipSimian		,{ftl = "J"})
-	addPlayerShip("Lancelot",	"Noble",		createPlayerShipLancelot	,{ftl = "J"})
-	addPlayerShip("Magnum",		"Focus",		createPlayerShipMagnum		,{ftl = "J"})
-	addPlayerShip("Manxman",	"Nusret",		createPlayerShipManxman		,{ftl = "J"})
-	addPlayerShip("Mixer",		"Amalgam",		createPlayerShipMixer		,{ftl = "J"})
-	addPlayerShip("Narsil",		"Proto-Atlantis",createPlayerShipNarsil		,{ftl = "W"})
-	addPlayerShip("Nimbus",		"Phobos T2",	createPlayerShipNimbus		,{ftl = "J"})
-	addPlayerShip("Osprey",		"Flavia 2C",	createPlayerShipOsprey		,{ftl = "W"})
-	addPlayerShip("Outcast",	"Scatter",		createPlayerShipOutcast		,{ftl = "J"})
-	addPlayerShip("Pinwheel",	"Rotor"	,		createPlayerShipPinwheel	,{ftl = "W"})
-	addPlayerShip("Quarter",	"Barrow",		createPlayerShipQuarter		,{ftl = "J"})
-	addPlayerShip("Quicksilver","XR-Lindworm",	createPlayerShipQuick		,{ftl = "W"})
-	addPlayerShip("Quill",		"Porcupine",	createPlayerShipQuill		,{ftl = "W"})
-	addPlayerShip("Raptor",		"Destroyer IV",	createPlayerShipRaptor		,{ftl = "J"})
-	addPlayerShip("Rattler",	"MX-Lindworm",	createPlayerShipRattler		,{ftl = "J"})
-	addPlayerShip("Rip",		"Lurker",		createPlayerShipRip			,{ftl = "W"})
-	addPlayerShip("Rocinante",	"Windmill",		createPlayerShipRocinante	,{ftl = "W"})
-	addPlayerShip("Rogue",		"Maverick XP",	createPlayerShipRogue		,{ftl = "J"})
-	addPlayerShip("Skray",		"Skray",		createplayerShipSneak		,{ftl = "J"})
-	addPlayerShip("Sparrow",	"Vermin",		createPlayerShipSparrow		,{ftl = "W"})
-	addPlayerShip("Slingshot",	"Wrocket",		createPlayerShipSlingshot	,{ftl = "J"})
-	addPlayerShip("Splinter",	"Fresnel",		createPlayerShipSplinter	,{ftl = "J"})
-	addPlayerShip("Spyder",		"Atlantis II",	createPlayerShipSpyder		,{ftl = "J"})
-	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,{ftl = "W"})
-	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,{ftl = "W"})
-	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,{ftl = "W"})
-	addPlayerShip("Terror",		"Phobos T2",	createPlayerShipTerror		,{ftl = "J"})
-	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,{ftl = "W"})
-	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,{ftl = "J"})
-	addPlayerShip("Vision",		"Era",			createPlayerShipVision		,{ftl = "W"})
-	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,{ftl = "J"})
-	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,{ftl = "W"})
-	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,{ftl = "J"})
-	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,{ftl = "J"})
+	addPlayerShip("Bling",		"Gadfly",		createPlayerShipBling		,"J")
+	addPlayerShip("Claw",		"Raven",		createPlayerShipClaw		,"W")
+	addPlayerShip("Cobra",		"Striker LX",	createPlayerShipCobra		,"J")
+	addPlayerShip("Crux",		"Mantis",		createPlayerShipCrux		,"W")
+	addPlayerShip("Darkstar",	"Destroyer IV",	createPlayerShipDarkstar	,"J")
+	addPlayerShip("Devon",		"Wombat",		createPlayerShipDevon		,"W")
+	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,"W")
+	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,"J")
+	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,"J")
+	addPlayerShip("Falcon",		"Eldridge",		createPlayerShipFalcon		,"W")
+	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,"J")
+	addPlayerShip("Flaire",		"Peacock",		createPlayerShipFlaire		,"J")
+	addPlayerShip("Flipper",	"Midian",		createPlayerShipFlipper		,"W")
+	addPlayerShip("Florentine",	"Safari",		createPlayerShipFlorentine	,"W")
+	addPlayerShip("Gabble",		"Squid",		createPlayerShipGabble		,"J")
+	addPlayerShip("George",		"Rodent",		createPlayerShipGeorge		,"J")
+	addPlayerShip("Gorn",		"Proto-Atlantis",createPlayerShipGorn		,"J")
+	addPlayerShip("Guinevere",	"Caretaker",	createPlayerShipGuinevere	,"J")
+	addPlayerShip("Halberd",	"Proto-Atlantis",createPlayerShipHalberd	,"J")	--proto-atlantis
+	addPlayerShip("Headhunter",	"Redhook",		createPlayerShipHeadhunter	,"J")
+	addPlayerShip("Hearken",	"Redhook",		createPlayerShipHearken		,"J")
+	addPlayerShip("Hrothgar",	"Nusret",		createPlayerShipHrothgar	,"J")
+	addPlayerShip("Hummer",		"XR-Lindworm",	createPlayerShipHummer		,"W")
+	addPlayerShip("Jarvis",		"Butler",		createPlayerShipJarvis		,"W")
+	addPlayerShip("Jeeves",		"Butler",		createPlayerShipJeeves		,"W")
+	addPlayerShip("Kindling",	"Phoenix",		createPlayerShipKindling	,"J")
+--	addPlayerShip("Knick",		"Glass Cannon",	createPlayerShipKnick		,"J"},"Experimental - not ready for use"
+	addPlayerShip("Knuckle Drag","Destroyer III",createPlayerShipSimian		,"J")
+	addPlayerShip("Lancelot",	"Noble",		createPlayerShipLancelot	,"J")
+	addPlayerShip("Magnum",		"Focus",		createPlayerShipMagnum		,"J")
+	addPlayerShip("Manxman",	"Nusret",		createPlayerShipManxman		,"J")
+	addPlayerShip("Mixer",		"Amalgam",		createPlayerShipMixer		,"J")
+	addPlayerShip("Narsil",		"Proto-Atlantis",createPlayerShipNarsil		,"W")
+	addPlayerShip("Nimbus",		"Phobos T2",	createPlayerShipNimbus		,"J")
+	addPlayerShip("Osprey",		"Flavia 2C",	createPlayerShipOsprey		,"W")
+	addPlayerShip("Outcast",	"Scatter",		createPlayerShipOutcast		,"J")
+	addPlayerShip("Pinwheel",	"Rotor"	,		createPlayerShipPinwheel	,"W")
+	addPlayerShip("Quarter",	"Barrow",		createPlayerShipQuarter		,"J")
+	addPlayerShip("Quicksilver","XR-Lindworm",	createPlayerShipQuick		,"W")
+	addPlayerShip("Quill",		"Porcupine",	createPlayerShipQuill		,"W")
+	addPlayerShip("Raptor",		"Destroyer IV",	createPlayerShipRaptor		,"J")
+	addPlayerShip("Rattler",	"MX-Lindworm",	createPlayerShipRattler		,"J")
+	addPlayerShip("Rip",		"Lurker",		createPlayerShipRip			,"W")
+	addPlayerShip("Rocinante",	"Windmill",		createPlayerShipRocinante	,"W")
+	addPlayerShip("Rogue",		"Maverick XP",	createPlayerShipRogue		,"J")
+	addPlayerShip("Skray",		"Skray",		createplayerShipSneak		,"J")
+	addPlayerShip("Sparrow",	"Vermin",		createPlayerShipSparrow		,"W")
+	addPlayerShip("Slingshot",	"Wrocket",		createPlayerShipSlingshot	,"J")
+	addPlayerShip("Splinter",	"Fresnel",		createPlayerShipSplinter	,"J")
+	addPlayerShip("Spyder",		"Atlantis II",	createPlayerShipSpyder		,"J")
+	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,"W")
+	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,"W")
+	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,"W")
+	addPlayerShip("Terror",		"Phobos T2",	createPlayerShipTerror		,"J")
+	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,"W")
+	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,"J")
+	addPlayerShip("Vision",		"Era",			createPlayerShipVision		,"W")
+	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
+	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,"W")
+	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
+	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Spyder")
 	makePlayerShipActive("Enola")
 	makePlayerShipActive("Arwine")
@@ -1443,32 +1442,12 @@ function updateSystem:_addToUpdateList(obj)
 	end
 	table.insert(self._update_objects,obj)
 end
--- treat _eraseUpdateType as private
--- remove updates of update_type
-function updateSystem._eraseUpdateType(obj,update_type)
-	assert(type(obj)=="table")
-	assert(type(update_type)=="string")
-	if obj.update_list == nil then
-		return
-	end
-	for index = #obj.update_list,1,-1 do
-		if obj.update_list[index].type==update_type then
-			table.remove(obj.update_list,index)
-		end
-	end
-end
--- this really wants to be merged into _eraseUpdateType
--- however at this time they are used differently so its hard
--- _eraseUpdateType removes a type, this removes a particular update
--- types probably need work/thought sooner rather than later
--- but the names probably can stay stable (at least after the periodic functions are fixed)
--- thus this should work for a public facing function, _eraseUpdateType should be private
 function updateSystem:removeUpdateNamed(obj,name)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(name)=="string")
 	if obj.update_list ~= nil then
-		for index = 1,#obj.update_list do
+		for index = #obj.update_list,1,-1 do
 			assert(type(obj.update_list[index].name)=="string")
 			if obj.update_list[index].name==name then
 				table.remove(obj.update_list,index)
@@ -1502,28 +1481,25 @@ function updateSystem:getUpdateNamed(obj,name)
 	end
 	return nil
 end
--- there is only one update function of each update_type
--- it is intended that the update_types are picked such that incompatible types aren't merged
--- the obvious example is multiple functions setting a object x & y location
--- update_type is a string which makes multiple incompatibles impossible to express
--- in an ideal world that would be fixed, however as of writing this it sounds manageable  to do without
+-- there is only one update function of each update_name
 -- update_data is a table with at a minimum a function called update which takes 3 arguments
 -- argument 1 - self (the table)
 -- argument 2 - delta - delta (as passed from the main update function)
 -- argument 3 - obj - the object being updated
 -- it is expected that data needed needed for the update function will be stored in the obj or the update_data table
-function updateSystem:addUpdate(obj,update_type,update_data)
+function updateSystem:addUpdate(obj,update_name,update_data)
 	assert(type(obj)=="table")
-	assert(type(update_type)=="string")
+	assert(type(update_name)=="string")
 	assert(type(update_data)=="table")
-	assert(type(update_data.name)=="string","addUpdate update_data must be a table with a member name as a string update="..update_type)
-	assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_type)
-	assert(type(update_data.edit)=="table","addUpdate update_data must be a table with a member edit as a table update="..update_type)
-	self._eraseUpdateType(obj,update_type)
+	update_data.name=update_name
+	assert(type(update_data.update)=="function","addUpdate update_data must be a table with a member update as a function update="..update_name)
+	if update_data.edit == nil then
+		update_data.edit = {}
+	end
+	self:removeUpdateNamed(obj,update_name)
 	if obj.update_list == nil then
 		obj.update_list = {}
 	end
-	update_data.type=update_type
 	table.insert(obj.update_list,update_data)
 	self:_addToUpdateList(obj)
 end
@@ -1590,10 +1566,8 @@ function updateSystem:addUpdateFixedPositions(obj, again_time, points)
 	assert(type(points)=="table")
 	-- points is really an array of objects with an x & y location
 	local update_data = {
-		name = "fixedPositions",
 		again_time = again_time,
 		points = points,
-		edit = {},
 		update = function(self,obj,delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -1602,7 +1576,7 @@ function updateSystem:addUpdateFixedPositions(obj, again_time, points)
 			obj:setPosition(points[orbit_pos].x,points[orbit_pos].y)
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"fixed positions",update_data)
 end
 function updateSystem:addSlowAndAccurateElliptical(obj, cx, cy, orbit_duration, rotation, e, semi_major_axis, start_angle)
 	-- much of the cost of this is in the making the orbit speed up in the center
@@ -1678,8 +1652,6 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 	assert(type(dy)=="number")
 	assert(type(speed)=="number")
 	local update_data = {
-		name = "linearTo",
-		edit = {},
 		speed = speed,
 		dx = dx,
 		dy = dy,
@@ -1688,7 +1660,7 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 			obj:setPosition(x+self.dx*self.speed*delta,y+self.dy*self.speed*delta)
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"linear to",update_data)
 end
 -- when the owner is destroyed the owned objects is also destroyed
 function updateSystem:addOwned(owned, owner)
@@ -1696,8 +1668,6 @@ function updateSystem:addOwned(owned, owner)
 	assert(type(owned)=="table")
 	assert(type(owner)=="table")
 	local update_data = {
-		name = "owned",
-		edit = {},
 		owner = owner,
 		update = function (self, obj, delta)
 			assert(type(self)=="table")
@@ -1727,7 +1697,6 @@ function updateSystem:addEnergyDecayCurve(obj, total_time, curve_x, curve_y)
 	assert(type(curve_y[3])=="number")
 	assert(type(curve_y[4])=="number")
 	local update_data = {
-		name = "energy decay",
 		total_time = total_time,
 		curve_x = curve_x,
 		curve_y = curve_y,
@@ -1777,7 +1746,6 @@ function updateSystem:addShieldDecayCurve(obj, total_time, curve_x, curve_y)
 	assert(type(curve_y[3])=="number")
 	assert(type(curve_y[4])=="number")
 	local update_data = {
-		name = "shield decay",
 		total_time = total_time,
 		curve_x = curve_x,
 		curve_y = curve_y,
@@ -1824,7 +1792,6 @@ function updateSystem:_addGenericOverclock(obj, overboosted_time, boost_time, ov
 	assert(type(add_extra_update_data)=="function")
 	local update_self = self
 	local update_data = {
-		name = overclock_name,
 		boost_time = boost_time,
 		overboosted_time = overboosted_time,
 
@@ -2128,7 +2095,6 @@ function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2,
 	assert(type(blue2)=="number")
 	assert(type(blue_time)=="number")
 	local update_data = {
-		name = "color",
 		red_start = red_start - getScenarioTime(),
 		red1 = red1,
 		red2 = red2,
@@ -2141,7 +2107,6 @@ function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2,
 		blue1 = blue1,
 		blue2 = blue2,
 		blue_time = blue_time,
-		edit = {},
 		update = function(self, obj, delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -2152,7 +2117,7 @@ function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2,
 			obj:setRadarTraceColor(math.floor(r),math.floor(g),math.floor(b))
 		end
 	}
-	self:addUpdate(obj,"artifactColor",update_data)
+	self:addUpdate(obj,"Artifact Color",update_data)
 end
 function updateSystem:addOrbitUpdate(obj, center_x, center_y, distance, orbit_time, initial_angle)
 	assert(type(self)=="table")
@@ -2164,7 +2129,6 @@ function updateSystem:addOrbitUpdate(obj, center_x, center_y, distance, orbit_ti
 	assert(type(initial_angle)=="number" or initial_angle == nil)
 	initial_angle = initial_angle or 0
 	local update_data = {
-		name = "orbit",
 		center_x = center_x,
 		center_y = center_y,
 		distance = distance,
@@ -2184,7 +2148,7 @@ function updateSystem:addOrbitUpdate(obj, center_x, center_y, distance, orbit_ti
 			obj:setPosition(self.center_x+(math.cos(orbit_pos)*self.distance),self.center_y+(math.sin(orbit_pos)*self.distance))
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"orbit",update_data)
 end
 function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, relative_attach_y)
 	assert(type(self)=="table")
@@ -2193,11 +2157,9 @@ function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, r
 	assert(type(relative_attach_x)=="number")
 	assert(type(relative_attach_y)=="number")
 	local update_data = {
-		name = "attached",
 		attach_target = attach_target,
 		relative_attach_x = relative_attach_x,
 		relative_attach_y = relative_attach_y,
-		edit={},
 		update = function (self,obj)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -2209,7 +2171,7 @@ function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, r
 			end
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"attached",update_data)
 end
 function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
 	assert(type(self)=="table")
@@ -2219,7 +2181,6 @@ function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
 	assert(callback_on_contact==nil or type(callback_on_contact)=="function")
 	local update_self = self -- this is so it can be captured for later
 	local update_data = {
-		name = "chasing",
 		speed = speed,
 		target = target,
 		callback_on_contact = callback_on_contact,
@@ -2254,7 +2215,7 @@ function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
 			end
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"chasing",update_data)
 end
 function updateSystem:addOrbitTargetUpdate(obj, orbit_target, distance, orbit_time, initial_angle)
 	assert(type(self)=="table")
@@ -2291,7 +2252,7 @@ function updateSystem:addOrbitTargetUpdate(obj, orbit_target, distance, orbit_ti
 			end
 		end
 	}
-	self:addUpdate(obj,"absolutePosition",update_data)
+	self:addUpdate(obj,"orbit target",update_data)
 end
 function updateSystem:addOrbitTargetWithInfluenceUpdate(obj, orbit_target, orbit_radius, slow_orbit_speed, fast_orbit_speed, orbit_influencer, slow_distance, fast_distance)
 	assert(type(self)=="table")
@@ -2307,7 +2268,6 @@ function updateSystem:addOrbitTargetWithInfluenceUpdate(obj, orbit_target, orbit
 	local obj_x, obj_y = obj:getPosition()
 	local orbit_angle = angleFromVectorNorth(ot_x,ot_y,obj_x,obj_y)
 	local update_data = {
-		name = "orbit target with influence",
 		orbit_target = orbit_target,
 		orbit_radius = orbit_radius,
 		slow_orbit_speed = slow_orbit_speed,
@@ -2342,7 +2302,7 @@ function updateSystem:addOrbitTargetWithInfluenceUpdate(obj, orbit_target, orbit
 			end
 		end
 	}
-	self:addUpdate(obj,"absoluteVariablePosition",update_data)
+	self:addUpdate(obj,"orbit target with influence",update_data)
 end
 function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_check_timer_interval)
 	assert(type(self)=="table")
@@ -2356,8 +2316,6 @@ function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_c
 	obj.patrol_check_timer_interval = patrol_check_timer_interval
 	obj.patrol_check_timer = patrol_check_timer_interval
 	local update_data = {
-		name = "patrol",
-		edit = {},
 		update = function (self, obj, delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
@@ -2387,6 +2345,7 @@ end
 -- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 -- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 -- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
+-- consider moving to the scheduler code that hemmond made
 function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_time, random_jitter)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
@@ -2396,7 +2355,6 @@ function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_tim
 	assert(random_jitter==nil or type(random_jitter)=="number")
 	assert(period>0.0001) -- really just needs to be positive, but this is low enough to probably not be an issue
 	local update_data = {
-		name = "periodic callback", -- note this is kind of wrong, needs editing when multiple periodic callbacks are supported
 		callback = callback,
 		period = period,
 		accumulated_time = accumulated_time or 0,
@@ -2423,7 +2381,7 @@ function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_tim
 			end
 		end
 	}
-	self:addUpdate(obj,"periodic",update_data)
+	self:addUpdate(obj,"periodic callback",update_data)
 end
 function updateSystem:addNameCycleUpdate(obj, period, nameTable, accumulated_time)
 	assert(type(self)=="table")
@@ -2445,7 +2403,6 @@ function updateSystem:addTimeToLiveUpdate(obj, timeToLive)
 	assert(type(timeToLive)=="number" or TimeToLive==nil)
 	timeToLive = timeToLive or 300
 	local update_data = {
-		name = "time to live",
 		timeToLive = timeToLive,
 		edit = {
 			{name = "timeToLive", fixedAdjAmount=1}
@@ -2460,7 +2417,7 @@ function updateSystem:addTimeToLiveUpdate(obj, timeToLive)
 			end
 		end
 	}
-	self:addUpdate(obj,"timeToLive",update_data)
+	self:addUpdate(obj,"time To Live",update_data)
 end
 function updateSystem:_test()
 	assert(type(self)=="table")
@@ -2499,16 +2456,16 @@ function updateSystem:_test()
 	---------------------------------------------------------------------------------------------------------------
 	local testObj={}
 	assert(testObj.update_list==nil)
-	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end})
 	assert(testObj.update_list~=nil)
 	assert(#testObj.update_list==1)
-	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end})
 	assert(#testObj.update_list==1)
-	self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test2",{update=function()end})
 	assert(#testObj.update_list==2)
-	self:addUpdate(testObj,"test",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test",{update=function()end})
 	assert(#testObj.update_list==2)
-	self:addUpdate(testObj,"test2",{name="",update=function()end,edit={}})
+	self:addUpdate(testObj,"test2",{update=function()end})
 	assert(#testObj.update_list==2)
 
 	-- reset for next test
@@ -2654,18 +2611,7 @@ function initialSetUp()
 	clearGMFunctions()
 	addGMFunction("-Main from Initial",initialGMFunctions)
 	addGMFunction("+Start Region",setStartRegion)
-	local playerShipCount = 0
-	local highestPlayerIndex = 0
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
-		if p ~= nil then
-			if p:isValid() then
-				playerShipCount = playerShipCount + 1
-			end
-			highestPlayerIndex = pidx
-		end
-	end
-	addGMFunction(string.format("+Player ships %i/%i",playerShipCount,highestPlayerIndex),playerShip)
+	addGMFunction(string.format("+Player ships %i",#getActivePlayerShips()),playerShip)
 	addGMFunction("+Wormholes",setWormholes)
 	addGMFunction("+Zones",changeZones)
 	local button_label = "+Warn"
@@ -4466,8 +4412,7 @@ function customButtons()
 					end
 				end
 			end,
-			edit = {{name = "max_time", fixedAdjAmount=1}}, -- this really should have more edit controls but I'm feeling lazy
-			name = "subspace rift"
+			edit = {{name = "max_time", fixedAdjAmount=1}} -- this really should have more edit controls but I'm feeling lazy
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
@@ -4543,8 +4488,7 @@ function customButtons()
 				{name = "max_time", fixedAdjAmount=1},
 				{name = "destination_x", fixedAdjAmount=20000},
 				{name = "destination_y", fixedAdjAmount=20000}
-			},
-			name = "Subspace Rift"
+			}
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
@@ -4789,8 +4733,6 @@ function addChristmasArtifact(waypoints)
 			current = 1,
 			desiredSpeed=500,
 			tickSize=0.000001,
-			edit = {},
-			name = "xmas waypoints",
 			waypoints = waypoints
 		}
 			local texts={
@@ -4905,9 +4847,7 @@ function carolStage(stage)
 					setCirclePos(objs[i],x,y,-angle,self.current_radius)
 				end
 			end
-		end,
-		edit = {},
-		name = "carol"
+		end
 	}
 	update_system:addUpdate(newPhonySpaceObject(),"carol",update_data)
 end
@@ -5603,16 +5543,14 @@ end
 -- -MAIN				F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- +TWEAK PLAYER		F	tweakPlayerShip
--- +CURRENT				F	activePlayerShip
--- +SCRAPPED			F	inactivePlayerShip
+-- +SPAWN				F	spawnPlayerShip
 -- +TELEPORT PLAYERS	F	teleportPlayers
 function playerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Tweak player",tweakPlayerShip)
-	addGMFunction("+Current",activePlayerShip)
-	addGMFunction("+Scrapped",inactivePlayerShip)
+	addGMFunction("+Spawn",spawnPlayerShip)
 	addGMFunction("+Teleport Players",teleportPlayers)
 end
 ----------------------------------
@@ -12505,14 +12443,14 @@ end
 -- -MAIN			F	initialGMFunctions
 -- -SETUP			F	initialSetUp
 -- -PLAYER SHIP		F	playerShip
--- Button to spawn each currently active player ship name
+-- Button to spawn each player ship name
 function makePlayerShipActive(ship_name)
 	assert(type(ship_name) == "string")
 	assert(type(playerShipInfo[ship_name]) == "table")
 	playerShipInfo[ship_name]["active"] = "active"
 end
 
-function activePlayerShip()
+function spawnPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
@@ -12527,39 +12465,20 @@ function activePlayerShip()
 		if playerShipInfo[name]["active"] == "active" then
 			local strength = playerShipStats[playerShipInfo[name].typeName].strength
 			local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
-			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,lrs,name),
+			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name),
 				function ()
 					playerShipInfo[name]["spawn"]()
 					playerShipInfo[name]["active"] = "inactive"
-					activePlayerShip()
+					spawnPlayerShip()
 			end)
 		end
 	end
-end
-------------------------------------------------
---	Initial Set Up > Player Ships > Scrapped  --
-------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -PLAYER SHIP		F	playerShip
--- Button to spawn each currently inactive or scrapped player ship name
-function inactivePlayerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("Ship Button Info",function()
-		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
-	end)
-	local sorted = {}
-	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
-	table.sort(sorted)
+	addGMFunction("--------------")
 	for _,name in pairs(sorted) do
 		if playerShipInfo[name]["active"] == "inactive" then
 			local strength = playerShipStats[playerShipInfo[name].typeName].strength
 			local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
-			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name]["data"].ftl,lrs,name),playerShipInfo[name]["spawn"])
+			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name),playerShipInfo[name]["spawn"])
 		end
 	end
 end
@@ -12577,38 +12496,26 @@ function teleportPlayers()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ships",playerShip)
 	addGMFunction("To Icarus",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(0,0)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(0,0)
 		end
 		addGMMessage("Players teleported to Icarus")
 	end)
 	addGMFunction("To Kentar",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(250000,250000)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(250000,250000)
 		end
 		addGMMessage("Players teleported to Kentar")
 	end)
 	addGMFunction("To Lafrina",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(-237666,296975)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(-237666,296975)
 		end
 		addGMMessage("Players teleported to Lafrina")
 	end)
 	addGMFunction("To Astron",function()
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
-			if p ~= nil and p:isValid() then
-				p:setPosition(460500, 320500)
-			end
+		for _,p in next, getActivePlayerShips() do
+			p:setPosition(460500, 320500)
 		end
 		addGMMessage("Players teleported to Astron")
 	end)
@@ -12624,8 +12531,6 @@ end
 -- -SETUP				F	initialSetUp
 -- -PLAYER SHIP			F	playerShip
 -- -TWEAK PLAYER		F	tweakPlayerShip
--- +AUTO COOL			F	autoCool
--- +AUTO REPAIR			F	autoRepair
 -- +COOLANT				F	changePlayerCoolant
 -- +REPAIR CREW			F	changePlayerRepairCrew
 -- +MAX SYSTEM			F	changePlayerMaxSystem
@@ -12640,8 +12545,6 @@ function tweakEngineering()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("+Auto Cool",autoCool)
-	addGMFunction("+Auto Repair",autoRepair)
 	addGMFunction("+Coolant",changePlayerCoolant)
 	addGMFunction("+Repair Crew",changePlayerRepairCrew)
 	addGMFunction("+Max System",changePlayerMaxSystem)
@@ -13081,84 +12984,6 @@ function changePlayerBeams()
 		end
 		changePlayerBeams()
 	end)
-end
------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Cool --
------------------------------------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -FROM AUTO COOL	F	tweakPlayerShip
--- Button to toggle auto cool for each player ship already spawned
-function autoCool()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-From Auto Cool",tweakEngineering)
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
-		if p ~= nil and p:isValid() then
-			if p.autoCoolant == nil then
-				p.autoCoolant = false
-			end
-			local button_label = p:getCallSign()
-			if p.autoCoolant then
-				button_label = button_label .. " on"
-			else
-				button_label = button_label .. " off"
-			end
-			addGMFunction(button_label,function()
-				if p.autoCoolant then
-					p.autoCoolant = false
-					p:setAutoCoolant(false)
-				else
-					p.autoCoolant = true
-					p:setAutoCoolant(true)
-				end
-				autoCool()
-			end)
-		end
-	end
-end
--------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Engineering > Auto Repair --
--------------------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -FROM AUTO REPAIR	F	tweakPlayerShip
--- Button to toggle auto cool for each player ship already spawned
-function autoRepair()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-From Auto Repair",tweakEngineering)
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
-		if p ~= nil and p:isValid() then
-			if p.auto_repair == nil then
-				p.auto_repair = false
-			end
-			local button_label = p:getCallSign()
-			if p.auto_repair then
-				button_label = button_label .. " on"
-			else
-				button_label = button_label .. " off"
-			end
-			addGMFunction(button_label,function()
-				if p.auto_repair then
-					p.auto_repair = false
-					p:commandSetAutoRepair(false)
-				else
-					p.auto_repair = true
-					p:commandSetAutoRepair(true)
-				end
-				autoRepair()
-			end)
-		end
-	end
 end
 ----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Engineering > Coolant  --
@@ -15494,11 +15319,9 @@ function createPlayerShipKindling()
 				heat=heat/0.90 -- scale to that 0.90 = 1
 				obj:setBeamWeapon(0, math.lerp(120,15,heat), math.lerp(-90,5,heat), math.lerp(500,1250,heat), 6, 8)
 				obj:setBeamWeapon(1, math.lerp(120,15,heat), math.lerp(90,-5,heat), math.lerp(500,1250,heat), 6, 8)
-			end,
-		edit = {},
-		name = "dynamic kindling beams"
+			end
 	}
-	update_system:addUpdate(playerKindling,"dynamic beams",update_data)
+	update_system:addUpdate(playerKindling,"dynamic kindling beams",update_data)
 	return playerKindling
 end
 function createPlayerShipKnick()
@@ -29732,9 +29555,7 @@ function CubicMineObject:addToUpdate()
 		update = function (self, obj, delta)
 			-- in testing network use and CPU is minimal, so call the recalculation each update
 			obj:updateNow(delta)
-			end,
-		edit = {},
-		name = "Cubic GM control"
+		end
 	}
 	update_system:addUpdate(self,"Cubic GM control",update_data)
 end
@@ -30891,11 +30712,9 @@ function createInterdictor(p)
 			else
 				p.my_interdictor:destroy()
 			end
-		end,
-		edit = {},
-		name = "interdictor timer logic"
+		end
 	}
-	update_system:addUpdate(p.my_interdictor,"interdictor logic",update_data)
+	update_system:addUpdate(p.my_interdictor,"interdictor timer logic",update_data)
 	local impulse_speed = p:getImpulseMaxSpeed()
 	impulse_speed = impulse_speed*(3/4)
 	p:setImpulseMaxSpeed(impulse_speed)
@@ -30933,9 +30752,7 @@ function rechargeInterdictor(p)
 					p:addCustomButton("Engineering","interdictor"..playerKindling.name,"interdictor",function() createInterdictor(playerKindling) end)
 					update_system:removeUpdateNamed(p,"interdictor recharge logic")
 				end
-			end,
-		edit = {},
-		name = "interdictor recharge logic"	
+			end
 		}
 		update_system:addUpdate(p,"interdictor recharge logic",update_data)
 	end
