@@ -23,7 +23,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.15"
+	scenario_version = "3.5.16"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -409,6 +409,15 @@ function setConstants()
 	spiky_spin_ships = {}
 
 	ship_template = {	--ordered by relative strength
+		-- unarmed
+		["Courier"] =			{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1000,	create = courier},
+		["Laden Lorry"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 4000,	hop_angle = 0,	hop_range = 1000,	create = ladenLorry},
+		["Omnibus"] =			{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 1000,	create = omnibus},
+		["Physics Research"] =	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 1000,	create = physicsResearch},
+		["Service Jonque"] =	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 4500,	hop_angle = 0,	hop_range = 1000,	create = serviceJonque},
+		["Space Sedan"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = spaceSedan},
+		["Work Wagon"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 1000,	create = workWagon},
+		-- unusual
 		["OClock Beam"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = beamOverclocker},
 		["OClock Engine"] = 	{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = engineOverclocker},
 		["OClock Shield"] =		{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = shieldOverclocker},
@@ -882,11 +891,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Spyder")
-	makePlayerShipActive("Enola")
+	makePlayerShipActive("Rocinante")
+	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Arwine")
 	makePlayerShipActive("Ambition")
-	makePlayerShipActive("Stick")
 	makePlayerShipActive("Jarvis")
+	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
 	defendFleetFunction = {orderFleetDefend1,orderFleetDefend2,orderFleetDefend3,orderFleetDefend4,orderFleetDefend5,orderFleetDefend6,orderFleetDefend7,orderFleetDefend8}
@@ -3444,13 +3454,8 @@ function kentarFreighterCommerce()
 		removeKentarCommerce()
 	else
 		--Courier
-		local ship = CpuShip():setTemplate("Personnel Freighter 1")
-		ship:setTypeName("Courier"):setCommsScript(""):setCommsFunction(commsShip)
-		ship:setWarpDrive(true)
-		ship:setWarpSpeed(1500)
-		ship:setRotationMaxSpeed(20)
+		local ship = courier()
 		identifyFreighter(ship)
-		addFreighter("Courier",ship)	--update science database if applicable
 		regionCommerceDestination(ship,stationKentar)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3458,12 +3463,8 @@ function kentarFreighterCommerce()
 		ship:orderDock(ship.commerce_target)
 		table.insert(kentar_commerce_assets,ship)
 		--Work Wagon
-		ship = CpuShip():setTemplate("Equipment Freighter 2")
-		ship:setTypeName("Work Wagon"):setCommsScript(""):setCommsFunction(commsShip)
-		ship:setWarpDrive(true)
-		ship:setWarpSpeed(200)
+		ship = workWagon()
 		identifyFreighter(ship)
-		addFreighter("Work Wagon",ship)	--update science database if applicable
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3491,8 +3492,7 @@ function kentarFreighterCommerce()
 			end
 		end
 		--Space Sedan
-		ship = CpuShip():setTemplate("Personnel Jump Freighter 3")
-		ship:setTypeName("Space Sedan"):setCommsScript(""):setCommsFunction(commsShip)
+		ship = spaceSedan()
 		identifyFreighter(ship)
 		addFreighter("Space Sedan",ship)	--update science database if applicable
 		regionCommerceDestination(ship,stationKentar)
@@ -3521,10 +3521,8 @@ function kentarFreighterCommerce()
 			end
 		end
 		--Omnibus
-		ship = CpuShip():setTemplate("Personnel Jump Freighter 5")
-		ship:setTypeName("Omnibus"):setCommsScript(""):setCommsFunction(commsShip)
+		ship = omnibus()
 		identifyFreighter(ship)
-		addFreighter("Omnibus",ship)	--update science database if applicable
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3644,12 +3642,8 @@ function icarusFreighterCommerce()
 			end
 		end
 		--Laden Lorry
-		ship = CpuShip():setTemplate("Goods Freighter 3")
-		ship:setTypeName("Laden Lorry"):setCommsScript(""):setCommsFunction(commsShip)
-		ship:setWarpDrive(true)
-		ship:setWarpSpeed(150)
+		ship = ladenLorry()
 		identifyFreighter(ship)
-		addFreighter("Laden Lorry",ship)	--update science database if applicable
 		regionCommerceDestination(ship,stationIcarus)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3766,10 +3760,8 @@ function skeletalFreighterCommerce()
 			end
 		end
 		--Service Jonque
-		ship = CpuShip():setTemplate("Equipment Jump Freighter 4")
-		ship:setTypeName("Service Jonque"):setCommsScript(""):setCommsFunction(commsShip)
+		ship = serviceJonque()
 		identifyFreighter(ship)
-		addFreighter("Service Jonque",ship)	--update science database if applicable
 		skeletalDestination(ship)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -4086,8 +4078,17 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Laden Lorry")
 				laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
 				genericFreighterScienceInfo(laden_lorry_db,queryScienceDatabase("Ships","Corvette","Goods Freighter 3"),ship)
-				setScienceModel(laden_lorry_db,"transport_4_2")
+				setScienceModel(laden_lorry_db,"transport_2_3")
 				laden_lorry_db:setLongDescription("As a side contract, Conversion R Us put together the Laden Lorry from some recently acquired Goods Freighter 3 hulls. The added warp drive makes for a more versatile goods carrying vessel.")
+			end
+		elseif freighter_type == "Physics Research" then
+			local physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
+			if physics_research_db == nil then
+				freighter_db:addEntry("Physics Research")
+				physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
+				genericFreighterScienceInfo(physics_research_db,queryScienceDatabase("Ships","Corvette","Garbage Freighter 3"),ship)
+				setScienceModel(physics_research_db,"transport_3_3")
+				physics_research_db:setLongDescription("Conversion R Us cleaned up and converted excess freighter hulls into Physics Research vessels. The reduced weight improved the impulse speed and maneuverability.")
 			end
 		end
 	end
@@ -12452,34 +12453,52 @@ end
 
 function spawnPlayerShip()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
+--	addGMFunction("-Main",initialGMFunctions)
+--	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
 	end)
+	
 	local sorted = {}
 	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
 	table.sort(sorted)
-	for _,name in pairs(sorted) do
-		if playerShipInfo[name]["active"] == "active" then
-			local strength = playerShipStats[playerShipInfo[name].typeName].strength
-			local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
-			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name),
-				function ()
+	if active_player_ship then
+		addGMFunction("--Active Ships--",function()
+			active_player_ship = false
+			spawnPlayerShip()
+		end)
+		for _,name in pairs(sorted) do
+			if playerShipInfo[name]["active"] == "active" then
+				local strength = playerShipStats[playerShipInfo[name].typeName].strength
+				local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+				addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name), function()
 					playerShipInfo[name]["spawn"]()
 					playerShipInfo[name]["active"] = "inactive"
 					spawnPlayerShip()
-			end)
+				end)
+			end
 		end
-	end
-	addGMFunction("--------------")
-	for _,name in pairs(sorted) do
-		if playerShipInfo[name]["active"] == "inactive" then
-			local strength = playerShipStats[playerShipInfo[name].typeName].strength
-			local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
-			addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name),playerShipInfo[name]["spawn"])
+		addGMFunction("--Active Ships--",function()
+			active_player_ship = false
+			spawnPlayerShip()
+		end)
+	else
+		addGMFunction("--Scrapped Ships--",function()
+			active_player_ship = true
+			spawnPlayerShip()
+		end)
+		for _,name in pairs(sorted) do
+			if playerShipInfo[name]["active"] == "inactive" then
+				local strength = playerShipStats[playerShipInfo[name].typeName].strength
+				local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+				addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name),playerShipInfo[name]["spawn"])
+			end
 		end
+		addGMFunction("--Scrapped Ships--",function()
+			active_player_ship = true
+			spawnPlayerShip()
+		end)
 	end
 end
 --------------------------------------------------------
@@ -22087,6 +22106,117 @@ function setScienceModel(sci_db,model_name)
 	end
 	sci_db:setModelDataName(model_name)
 end
+--unarmed ships
+function spaceSedan(enemyFaction)
+	local ship = CpuShip():setTemplate("Personnel Jump Freighter 3")
+	if enemyFaction ~= nil then
+		ship:setFaction(enemyFaction)
+	end
+	ship:setTypeName("Space Sedan"):setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Space Sedan"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Space Sedan"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Space Sedan")
+	addFreighter("Space Sedan",ship)	--update science database if applicable
+	return ship
+end
+function courier(enemyFaction)
+	local ship = CpuShip():setTemplate("Personnel Freighter 1")
+	if enemyFaction ~= nil then
+		ship:setFaction(enemyFaction)
+	end
+	ship:setTypeName("Courier"):setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Courier"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Courier"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Courier")
+	ship:setWarpDrive(true)
+	ship:setWarpSpeed(1500)
+	ship:setRotationMaxSpeed(20)
+	addFreighter("Courier",ship)	--update science database if applicable
+	return ship
+end
+function workWagon(enemyFaction)
+	local ship = CpuShip():setTemplate("Equipment Freighter 2")
+	if enemyFaction ~= nil then
+		ship:setFaction(enemyFaction)
+	end
+	ship:setTypeName("Work Wagon"):setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Work Wagon"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Work Wagon"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Work Wagon")
+	ship:setWarpDrive(true)
+	ship:setWarpSpeed(200)
+	addFreighter("Work Wagon",ship)	--update science database if applicable
+	return ship
+end
+function omnibus(enemyFaction)
+	local ship = CpuShip():setTemplate("Personnel Jump Freighter 5")
+	if enemyFaction ~= nil then
+		ship:setFaction(enemyFaction)
+	end
+	ship:setTypeName("Omnibus"):setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Omnibus"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Omnibus"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Omnibus")
+	addFreighter("Omnibus",ship)	--update science database if applicable
+	return ship
+end
+function ladenLorry(enemyFaction)
+	local ship = CpuShip():setTemplate("Goods Freighter 3")
+	if enemyFaction ~= nil then
+		ship:setFaction(enemyFaction)
+	end
+	ship:setTypeName("Laden Lorry"):setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Laden Lorry"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Laden Lorry"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Laden Lorry")
+	ship:setWarpDrive(true)
+	ship:setWarpSpeed(150)
+	addFreighter("Laden Lorry",ship)	--update science database if applicable
+	return ship
+end
+function serviceJonque(enemyFaction)
+	local ship = CpuShip():setTemplate("Equipment Jump Freighter 4")
+	if enemyFaction ~= nil then
+		ship:setFaction(enemyFaction)
+	end
+	ship:setTypeName("Service Jonque"):setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Service Jonque"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Service Jonque"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Service Jonque")
+	addFreighter("Service Jonque",ship)	--update science database if applicable
+	return ship
+end
+function physicsResearch(enemyFaction)
+	local ship = CpuShip():setTemplate("Garbage Freighter 3")
+	if enemyFaction ~= nil then
+		ship:setFaction(enemyFaction)
+	end
+	ship:setTypeName("Physics Research"):setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Physics Research"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Physics Research"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Physics Research")
+	ship:setImpulseMaxSpeed(65)				--faster impulse (vs 45)
+	ship:setRotationMaxSpeed(10)			--faster maneuver (vs 6)
+	ship:setShieldsMax(80, 80)				--stronger shields (vs 50, 50)
+	ship:setShields(80, 80)					
+	addFreighter("Physics Research",ship)	--update science database if applicable
+	return ship
+end
+
 --	*											   *  --
 --	**											  **  --
 --	************************************************  --
