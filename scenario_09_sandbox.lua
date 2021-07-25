@@ -23,7 +23,7 @@ require("utils.lua")
 require("science_database.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.16"
+	scenario_version = "3.5.17"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -891,11 +891,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Spyder")
-	makePlayerShipActive("Rocinante")
 	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Arwine")
-	makePlayerShipActive("Ambition")
 	makePlayerShipActive("Jarvis")
+	makePlayerShipActive("Tango")
+	makePlayerShipActive("Knuckle Drag")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -7870,10 +7870,10 @@ function createKentarStations()
 	local outer_defence_dist = orbit_far + 2000
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
 	dp:setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((0  )/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
+--	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+--	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
-	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
-	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
-	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
+	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPB1"):setScanState("fullscan")
 
 	local orbit_time = 15
 	local red_artifact = Artifact()
@@ -15959,6 +15959,14 @@ function createPlayerShipSimian()
 	playerSimian:setWeaponStorage("Mine", 6)				
 	playerSimian:setWeaponStorageMax("HVLI",10)						--more (vs 0)
 	playerSimian:setWeaponStorage("HVLI", 10)				
+	playerSimian:setSystemCoolantRate("reactor",		1.4)	--more (vs 1.2)
+	playerSimian:setSystemCoolantRate("jumpdrive",		1.3)	--more (vs 1.2)
+	playerSimian:setSystemCoolantRate("beamweapons",	1.25)	--more (vs 1.2)
+	playerSimian:setSystemCoolantRate("maneuver",		1.15)	--less (vs 1.2)
+	playerSimian:setSystemCoolantRate("impulse",		1.3)	--more (vs 1.2)
+	playerSimian:setSystemCoolantRate("frontshield",	1.15)	--less (vs 1.2)
+	playerSimian:setSystemCoolantRate("rearshield",		1.25)	--more (vs 1.2)
+	playerSimian:setSystemCoolantRate("missilesystem",	1.4)	--more (vs 1.2)
 	playerSimian:setLongRangeRadarRange(20000)				--shorter longer range sensors (vs 30000)
 	playerSimian:onTakingDamage(playerShipDamage)
 	playerSimian:addReputationPoints(50)
