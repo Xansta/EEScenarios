@@ -17132,7 +17132,7 @@ end
 function wrapAddCustomButtons(p)
 	p.wrappedAddCustomButton = function(...) customElements:addCustomButton(...) end -- count - 45
 	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end -- count 5
-	p.wrappedAddCustomMessageWithCallback = function(...) customElements:wrappedAddCustomMessageWithCallback(...) end
+	p.wrappedAddCustomMessageWithCallback = function(...) customElements:addCustomMessageWithCallback(...) end
 	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end -- count 45
 	p.wrappedRemoveCustom = function(...) customElements:removeCustom(...) end -- count 68
 end
