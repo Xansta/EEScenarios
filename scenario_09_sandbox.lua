@@ -21,6 +21,7 @@
 
 require("utils.lua")
 require("science_database.lua")
+require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
 	scenario_version = "3.5.18"
@@ -17175,7 +17176,15 @@ function playerPower()
 	end
 	return playerShipScore
 end
+function wrapAddCustomButtons(p)
+	p.wrappedAddCustomButton = function(...) customElements:addCustomButton(...) end -- count - 45
+	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end -- count 5
+	p.wrappedAddCustomMessageWithCallback = function(...) customElements:wrappedAddCustomMessageWithCallback(...) end
+	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end -- count 45
+	p.wrappedRemoveCustom = function(...) customElements:removeCustom(...) end -- count 68
+end
 function assignPlayerShipScore(p)
+	wrapAddCustomButtons(p)
 --	print("assign player ship score",p:getCallSign())
 	local spawn_x,spawn_y=p:getPosition()
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
