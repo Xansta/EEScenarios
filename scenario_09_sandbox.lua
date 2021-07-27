@@ -21,6 +21,7 @@
 
 require("utils.lua")
 require("science_database.lua")
+require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
 	scenario_version = "3.5.18"
@@ -359,6 +360,7 @@ function addPlayerShip(name,typeName,func,ftl)
 	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
 end
 function setConstants()
+	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
 	update_system=updateSystem:create()
 	update_edit_object=nil
@@ -13033,25 +13035,13 @@ function changePlayerCoolant()
 			addGMMessage(string.format("%.1f coolant added to %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
 			for i=1,#regionStations do
 				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","coolant_bonus_message",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","coolant_bonus_message_plus",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
+					p:wrappedAddCustomMessage("Engineering","coolant_bonus_message",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
+					coolant_reason_given = true
+					break
 				end
 			end
 			if not coolant_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","coolant_bonus_message","Additional coolant was added. It was missed during the last inventory cycle")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p:addCustomMessage("Engineering+","coolant_bonus_message_plus","Additional coolant was added. It was missed during the last inventory cycle")
-				end
+				p:wrappedAddCustomMessage("Engineering","coolant_bonus_message","Additional coolant was added. It was missed during the last inventory cycle")
 			end
 		else
 			addGMMessage("No player selected. No action taken")
@@ -13066,25 +13056,13 @@ function changePlayerCoolant()
 			addGMMessage(string.format("%.1f coolant removed from %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
 			for i=1,#regionStations do
 				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","coolant_loss_message",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","coolant_loss_message_plus",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
+					p:wrappedAddCustomMessage("Engineering","coolant_loss_message",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
+					coolant_reason_given = true
+					break
 				end
 			end
 			if not coolant_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","coolant_loss_message","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p:addCustomMessage("Engineering+","coolant_loss_message_plus","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
-				end
+				p:wrappedAddCustomMessage("Engineering","coolant_loss_message","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
 			end
 		else
 			addGMMessage("No player selected. No action taken")
@@ -13127,25 +13105,13 @@ function changePlayerRepairCrew()
 			addGMMessage(string.format("1 repair crew added to %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
 			for i=1,#regionStations do
 				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","added_repair_crew_message",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
-						crew_reason_given = true
-						break
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","added_repair_crew_message_plus",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
-						crew_reason_given = true
-						break
-					end
+					p:wrappedAddCustomMessage("Engineering","added_repair_crew_message",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
+					crew_reason_given = true
+					break
 				end
 			end
 			if not crew_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","added_repair_crew_message","A crew member from a different department has completed training and has transferred to your repair crew")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p:addCustomMessage("Engineering+","added_repair_crew_message_plus","A crew member from a different department has completed training and has transferred to your repair crew")
-				end
+				p:wrappedAddCustomMessage("Engineering","added_repair_crew_message","A crew member from a different department has completed training and has transferred to your repair crew")
 			end
 		else
 			addGMMessage("No player selected. No action taken")
@@ -13161,25 +13127,13 @@ function changePlayerRepairCrew()
 				addGMMessage(string.format("1 repair crew removed from %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
 				for i=1,#regionStations do
 					if p:isDocked(regionStations[i]) then
-						if p:hasPlayerAtPosition("Engineering") then
-							p:addCustomMessage("Engineering","removed_repair_crew_message",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
-							crew_reason_given = true
-							break
-						end
-						if p:hasPlayerAtPosition("Engineering+") then
-							p:addCustomMessage("Engineering+","removed_repair_crew_message_plus",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
-							crew_reason_given = true
-							break
-						end
+						p:wrappedAddCustomMessage("Engineering","removed_repair_crew_message",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
+						crew_reason_given = true
+						break
 					end
 				end
 				if not crew_reason_given then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","removed_repair_crew_message","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","removed_repair_crew_message_plus","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
-					end
+					p:wrappedAddCustomMessage("Engineering","removed_repair_crew_message","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
 				end
 			end
 		else
@@ -17175,7 +17129,15 @@ function playerPower()
 	end
 	return playerShipScore
 end
+function wrapAddCustomButtons(p)
+	p.wrappedAddCustomButton = function(...) customElements:addCustomButton(...) end -- count - 45
+	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end -- count 5
+	p.wrappedAddCustomMessageWithCallback = function(...) customElements:addCustomMessageWithCallback(...) end
+	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end -- count 45
+	p.wrappedRemoveCustom = function(...) customElements:removeCustom(...) end -- count 68
+end
 function assignPlayerShipScore(p)
+	wrapAddCustomButtons(p)
 --	print("assign player ship score",p:getCallSign())
 	local spawn_x,spawn_y=p:getPosition()
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
@@ -35613,27 +35575,7 @@ function updateInner(delta)
 			if warning_ship ~= nil then
 				p:addToShipLog(ship_warning_message,"Red")
 			end
-			local name_tag_text = string.format("%s in %s",player_name,p:getSectorName())
-			if p:hasPlayerAtPosition("Relay") then
-				p.name_tag = "name_tag"
-				p:addCustomInfo("Relay",p.name_tag,name_tag_text)
-			end
-			if p:hasPlayerAtPosition("Operations") then
-				p.name_tag_ops = "name_tag_ops"
-				p:addCustomInfo("Operations",p.name_tag_ops,name_tag_text)
-			end
-			if p:hasPlayerAtPosition("ShipLog") then
-				p.name_tag_log = "name_tag_log"
-				p:addCustomInfo("ShipLog",p.name_tag_log,name_tag_text)
-			end
-			if p:hasPlayerAtPosition("Helms") then
-				p.name_tag_helm = "name_tag_helm"
-				p:addCustomInfo("Helms",p.name_tag_helm,name_tag_text)
-			end
-			if p:hasPlayerAtPosition("Tactical") then
-				p.name_tag_tac = "name_tag_tac"
-				p:addCustomInfo("Tactical",p.name_tag_tac,name_tag_text)
-			end
+			p:wrappedAddCustomInfo("name_tag_positions","name_tag",string.format("%s in %s",player_name,p:getSectorName()))
 			updatePlayerPodTelemetryButton(p)
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
@@ -36273,42 +36215,12 @@ function updatePlayerExpediteDock(delta,p)
 		end
 	end
 end
+-- note I think this is bugged re removing stations while the timer is running
 function updatePlayerTimerWidgets(p)
 	if timer_started then
 		if timer_value < 0 then	--timer expired
 			if timer_value < -1 then	--timer expired condition expired
-				if p.timer_helm ~= nil then
-					p:removeCustom(p.timer_helm)
-					p.timer_helm = nil
-				end
-				if p.timer_weapons ~= nil then
-					p:removeCustom(p.timer_weapons)
-					p.timer_weapons = nil
-				end
-				if p.timer_engineer ~= nil then
-					p:removeCustom(p.timer_engineer)
-					p.timer_engineer = nil
-				end
-				if p.timer_science ~= nil then
-					p:removeCustom(p.timer_science)
-					p.timer_science = nil
-				end
-				if p.timer_relay ~= nil then
-					p:removeCustom(p.timer_relay)
-					p.timer_relay = nil
-				end
-				if p.timer_tactical ~= nil then
-					p:removeCustom(p.timer_tactical)
-					p.timer_tactical = nil
-				end
-				if p.timer_operations ~= nil then
-					p:removeCustom(p.timer_operations)
-					p.timer_operations = nil
-				end
-				if p.timer_engineer_plus ~= nil then
-					p:removeCustom(p.timer_engineer_plus)
-					p.timer_engineer_plus = nil
-				end
+				p:wrappedRemoveCustom("timer")
 				timer_started = false
 				timer_value = nil
 				timer_gm_message = nil
@@ -36319,54 +36231,19 @@ function updatePlayerTimerWidgets(p)
 					addGMMessage(final_status)
 				end
 				if timer_display_helm then
-					if p:hasPlayerAtPosition("Helms") then
-						p.timer_helm = "timer_helm"
-						p:addCustomInfo("Helms",p.timer_helm,final_status)
-					end
-					if p:hasPlayerAtPosition("Tactical") then
-						p.timer_tactical = "timer_tactical"
-						p:addCustomInfo("Tactical",p.timer_tactical,final_status)
-					end
+					p:wrappedAddCustomInfo("Helms","timer",final_status)
 				end
 				if timer_display_weapons then
-					if p:hasPlayerAtPosition("Weapons") then
-						p.timer_weapons = "timer_weapons"
-						p:addCustomInfo("Weapons",p.timer_weapons,final_status)
-					end
-					if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
-						p.timer_tactical = "timer_tactical"
-						p:addCustomInfo("Tactical",p.timer_tactical,final_status)
-					end
+					p:wrappedAddCustomInfo("Weapons","timer",final_status)
 				end
 				if timer_display_engineer then
-					if p:hasPlayerAtPosition("Engineering") then
-						p.timer_engineer = "timer_engineer"
-						p:addCustomInfo("Engineering",p.timer_engineer,final_status)
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p.timer_engineer_plus = "timer_engineer_plus"
-						p:addCustomInfo("Engineering+",p.timer_engineer_plus,final_status)
-					end
+					p:wrappedAddCustomInfo("Engineering","timer",final_status)
 				end
 				if timer_display_science then
-					if p:hasPlayerAtPosition("Science") then
-						p.timer_science = "timer_science"
-						p:addCustomInfo("Science",p.timer_science,final_status)
-					end
-					if p:hasPlayerAtPosition("Operations") then
-						p.timer_operations = "timer_operations"
-						p:addCustomInfo("Operations",p.timer_operations,final_status)
-					end
+					p:wrappedAddCustomInfo("Science","timer",final_status)
 				end
 				if timer_display_relay then
-					if p:hasPlayerAtPosition("Relay") then
-						p.timer_relay = "timer_relay"
-						p:addCustomInfo("Relay",p.timer_relay,final_status)
-					end
-					if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
-						p.timer_operations = "timer_operations"
-						p:addCustomInfo("Operations",p.timer_operations,final_status)
-					end
+					p:wrappedAddCustomInfo("Relay","timer",final_status)
 				end	--relay timer display final status
 			end	--end of timer value less than -1 checks
 		else	--time has not yet expired
@@ -36379,89 +36256,23 @@ function updatePlayerTimerWidgets(p)
 				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
 			end
 			if timer_display_helm then
-				if p:hasPlayerAtPosition("Helms") then
-					p.timer_helm = "timer_helm"
-					p:addCustomInfo("Helms",p.timer_helm,timer_status)
-				end
-				if p:hasPlayerAtPosition("Tactical") then
-					p.timer_tactical = "timer_tactical"
-					p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
-				end
+				p:wrappedAddCustomInfo("Helms","timer",timer_status)
 			end
 			if timer_display_weapons then
-				if p:hasPlayerAtPosition("Weapons") then
-					p.timer_weapons = "timer_weapons"
-					p:addCustomInfo("Weapons",p.timer_weapons,timer_status)
-				end
-				if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
-					p.timer_tactical = "timer_tactical"
-					p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
-				end
+				p:wrappedAddCustomInfo("Weapons","timer",timer_status)
 			end
 			if timer_display_engineer then
-				if p:hasPlayerAtPosition("Engineering") then
-					p.timer_engineer = "timer_engineer"
-					p:addCustomInfo("Engineering",p.timer_engineer,timer_status)
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p.timer_engineer_plus = "timer_engineer_plus"
-					p:addCustomInfo("Engineering+",p.timer_engineer_plus,timer_status)
-				end
+				p:wrappedAddCustomInfo("Engineering","timer",timer_status)
 			end
 			if timer_display_science then
-				if p:hasPlayerAtPosition("Science") then
-					p.timer_science = "timer_science"
-					p:addCustomInfo("Science",p.timer_science,timer_status)
-				end
-				if p:hasPlayerAtPosition("Operations") then
-					p.timer_operations = "timer_operations"
-					p:addCustomInfo("Operations",p.timer_operations,timer_status)
-				end
+				p:wrappedAddCustomInfo("Science","timer",timer_status)
 			end
 			if timer_display_relay then
-				if p:hasPlayerAtPosition("Relay") then
-					p.timer_relay = "timer_relay"
-					p:addCustomInfo("Relay",p.timer_relay,timer_status)
-				end
-				if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
-					p.timer_operations = "timer_operations"
-					p:addCustomInfo("Operations",p.timer_operations,timer_status)
-				end
+				p:wrappedAddCustomInfo("Relay","timer",timer_status)
 			end	--end relay timer display
 		end	--end of timer started boolean checks
 	else	--timer started boolean is false
-		if p.timer_helm ~= nil then
-			p:removeCustom(p.timer_helm)
-			p.timer_helm = nil
-		end
-		if p.timer_weapons ~= nil then
-			p:removeCustom(p.timer_weapons)
-			p.timer_weapons = nil
-		end
-		if p.timer_engineer ~= nil then
-			p:removeCustom(p.timer_engineer)
-			p.timer_engineer = nil
-		end
-		if p.timer_science ~= nil then
-			p:removeCustom(p.timer_science)
-			p.timer_science = nil
-		end
-		if p.timer_relay ~= nil then
-			p:removeCustom(p.timer_relay)
-			p.timer_relay = nil
-		end
-		if p.timer_tactical ~= nil then
-			p:removeCustom(p.timer_tactical)
-			p.timer_tactical = nil
-		end
-		if p.timer_operations ~= nil then
-			p:removeCustom(p.timer_operations)
-			p.timer_operations = nil
-		end
-		if p.timer_engineer_plus ~= nil then
-			p:removeCustom(p.timer_engineer_plus)
-			p.timer_engineer_plus = nil
-		end
+		p:wrappedRemoveCustom("timer")
 		timer_value = nil
 		timer_gm_message = nil
 	end	--end of timer started boolean checks
