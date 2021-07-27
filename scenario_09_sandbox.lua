@@ -13035,25 +13035,13 @@ function changePlayerCoolant()
 			addGMMessage(string.format("%.1f coolant added to %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
 			for i=1,#regionStations do
 				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","coolant_bonus_message",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","coolant_bonus_message_plus",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
+					p:wrappedAddCustomMessage("Engineering","coolant_bonus_message",string.format("A kind-hearted quartermaster on %s donated some coolant to your coolant supply",regionStations[i]:getCallSign()))
+					coolant_reason_given = true
+					break
 				end
 			end
 			if not coolant_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","coolant_bonus_message","Additional coolant was added. It was missed during the last inventory cycle")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p:addCustomMessage("Engineering+","coolant_bonus_message_plus","Additional coolant was added. It was missed during the last inventory cycle")
-				end
+				p:wrappedAddCustomMessage("Engineering","coolant_bonus_message","Additional coolant was added. It was missed during the last inventory cycle")
 			end
 		else
 			addGMMessage("No player selected. No action taken")
@@ -13068,25 +13056,13 @@ function changePlayerCoolant()
 			addGMMessage(string.format("%.1f coolant removed from %s for a new total of %.1f coolant",coolant_amount,p:getCallSign(),p:getMaxCoolant()))
 			for i=1,#regionStations do
 				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","coolant_loss_message",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","coolant_loss_message_plus",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
-						coolant_reason_given = true
-						break
-					end
+					p:wrappedAddCustomMessage("Engineering","coolant_loss_message",string.format("Station docking fees for %s were paid for in coolant",regionStations[i]:getCallSign()))
+					coolant_reason_given = true
+					break
 				end
 			end
 			if not coolant_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","coolant_loss_message","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p:addCustomMessage("Engineering+","coolant_loss_message_plus","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
-				end
+				p:wrappedAddCustomMessage("Engineering","coolant_loss_message","Coolant was lost due to a malfunctioning system. You corrected the problem before it got any worse")
 			end
 		else
 			addGMMessage("No player selected. No action taken")
@@ -13129,25 +13105,13 @@ function changePlayerRepairCrew()
 			addGMMessage(string.format("1 repair crew added to %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
 			for i=1,#regionStations do
 				if p:isDocked(regionStations[i]) then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","added_repair_crew_message",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
-						crew_reason_given = true
-						break
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","added_repair_crew_message_plus",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
-						crew_reason_given = true
-						break
-					end
+					p:wrappedAddCustomMessage("Engineering","added_repair_crew_message",string.format("A volunteer from station %s has boarded to work as one of your repair crew",regionStations[i]:getCallSign()))
+					crew_reason_given = true
+					break
 				end
 			end
 			if not crew_reason_given then
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomMessage("Engineering","added_repair_crew_message","A crew member from a different department has completed training and has transferred to your repair crew")
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p:addCustomMessage("Engineering+","added_repair_crew_message_plus","A crew member from a different department has completed training and has transferred to your repair crew")
-				end
+				p:wrappedAddCustomMessage("Engineering","added_repair_crew_message","A crew member from a different department has completed training and has transferred to your repair crew")
 			end
 		else
 			addGMMessage("No player selected. No action taken")
@@ -13163,25 +13127,13 @@ function changePlayerRepairCrew()
 				addGMMessage(string.format("1 repair crew removed from %s for a new total of %i repair crew",p:getCallSign(),p:getRepairCrewCount()))
 				for i=1,#regionStations do
 					if p:isDocked(regionStations[i]) then
-						if p:hasPlayerAtPosition("Engineering") then
-							p:addCustomMessage("Engineering","removed_repair_crew_message",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
-							crew_reason_given = true
-							break
-						end
-						if p:hasPlayerAtPosition("Engineering+") then
-							p:addCustomMessage("Engineering+","removed_repair_crew_message_plus",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
-							crew_reason_given = true
-							break
-						end
+						p:wrappedAddCustomMessage("Engineering","removed_repair_crew_message",string.format("One of your repair crew has disembarked on to station %s claiming his work contract has been fulfilled",regionStations[i]:getCallSign()))
+						crew_reason_given = true
+						break
 					end
 				end
 				if not crew_reason_given then
-					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","removed_repair_crew_message","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","removed_repair_crew_message_plus","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
-					end
+					p:wrappedAddCustomMessage("Engineering","removed_repair_crew_message","One of your repair crew has become debilitatingly ill and can no longer conduct any repairs")
 				end
 			end
 		else
