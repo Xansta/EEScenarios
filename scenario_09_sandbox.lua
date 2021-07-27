@@ -36282,42 +36282,12 @@ function updatePlayerExpediteDock(delta,p)
 		end
 	end
 end
+-- note I think this is bugged re removing stations while the timer is running
 function updatePlayerTimerWidgets(p)
 	if timer_started then
 		if timer_value < 0 then	--timer expired
 			if timer_value < -1 then	--timer expired condition expired
-				if p.timer_helm ~= nil then
-					p:removeCustom(p.timer_helm)
-					p.timer_helm = nil
-				end
-				if p.timer_weapons ~= nil then
-					p:removeCustom(p.timer_weapons)
-					p.timer_weapons = nil
-				end
-				if p.timer_engineer ~= nil then
-					p:removeCustom(p.timer_engineer)
-					p.timer_engineer = nil
-				end
-				if p.timer_science ~= nil then
-					p:removeCustom(p.timer_science)
-					p.timer_science = nil
-				end
-				if p.timer_relay ~= nil then
-					p:removeCustom(p.timer_relay)
-					p.timer_relay = nil
-				end
-				if p.timer_tactical ~= nil then
-					p:removeCustom(p.timer_tactical)
-					p.timer_tactical = nil
-				end
-				if p.timer_operations ~= nil then
-					p:removeCustom(p.timer_operations)
-					p.timer_operations = nil
-				end
-				if p.timer_engineer_plus ~= nil then
-					p:removeCustom(p.timer_engineer_plus)
-					p.timer_engineer_plus = nil
-				end
+				p:wrappedRemoveCustom("timer")
 				timer_started = false
 				timer_value = nil
 				timer_gm_message = nil
@@ -36328,54 +36298,19 @@ function updatePlayerTimerWidgets(p)
 					addGMMessage(final_status)
 				end
 				if timer_display_helm then
-					if p:hasPlayerAtPosition("Helms") then
-						p.timer_helm = "timer_helm"
-						p:addCustomInfo("Helms",p.timer_helm,final_status)
-					end
-					if p:hasPlayerAtPosition("Tactical") then
-						p.timer_tactical = "timer_tactical"
-						p:addCustomInfo("Tactical",p.timer_tactical,final_status)
-					end
+					p:wrappedAddCustomInfo("Helms","timer",final_status)
 				end
 				if timer_display_weapons then
-					if p:hasPlayerAtPosition("Weapons") then
-						p.timer_weapons = "timer_weapons"
-						p:addCustomInfo("Weapons",p.timer_weapons,final_status)
-					end
-					if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
-						p.timer_tactical = "timer_tactical"
-						p:addCustomInfo("Tactical",p.timer_tactical,final_status)
-					end
+					p:wrappedAddCustomInfo("Weapons","timer",final_status)
 				end
 				if timer_display_engineer then
-					if p:hasPlayerAtPosition("Engineering") then
-						p.timer_engineer = "timer_engineer"
-						p:addCustomInfo("Engineering",p.timer_engineer,final_status)
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						p.timer_engineer_plus = "timer_engineer_plus"
-						p:addCustomInfo("Engineering+",p.timer_engineer_plus,final_status)
-					end
+					p:wrappedAddCustomInfo("Engineering","timer",final_status)
 				end
 				if timer_display_science then
-					if p:hasPlayerAtPosition("Science") then
-						p.timer_science = "timer_science"
-						p:addCustomInfo("Science",p.timer_science,final_status)
-					end
-					if p:hasPlayerAtPosition("Operations") then
-						p.timer_operations = "timer_operations"
-						p:addCustomInfo("Operations",p.timer_operations,final_status)
-					end
+					p:wrappedAddCustomInfo("Science","timer",final_status)
 				end
 				if timer_display_relay then
-					if p:hasPlayerAtPosition("Relay") then
-						p.timer_relay = "timer_relay"
-						p:addCustomInfo("Relay",p.timer_relay,final_status)
-					end
-					if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
-						p.timer_operations = "timer_operations"
-						p:addCustomInfo("Operations",p.timer_operations,final_status)
-					end
+					p:wrappedAddCustomInfo("Relay","timer",final_status)
 				end	--relay timer display final status
 			end	--end of timer value less than -1 checks
 		else	--time has not yet expired
@@ -36388,89 +36323,23 @@ function updatePlayerTimerWidgets(p)
 				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
 			end
 			if timer_display_helm then
-				if p:hasPlayerAtPosition("Helms") then
-					p.timer_helm = "timer_helm"
-					p:addCustomInfo("Helms",p.timer_helm,timer_status)
-				end
-				if p:hasPlayerAtPosition("Tactical") then
-					p.timer_tactical = "timer_tactical"
-					p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
-				end
+				p:wrappedAddCustomInfo("Helms","timer",timer_status)
 			end
 			if timer_display_weapons then
-				if p:hasPlayerAtPosition("Weapons") then
-					p.timer_weapons = "timer_weapons"
-					p:addCustomInfo("Weapons",p.timer_weapons,timer_status)
-				end
-				if p:hasPlayerAtPosition("Tactical") and p.timer_tactical == nil then
-					p.timer_tactical = "timer_tactical"
-					p:addCustomInfo("Tactical",p.timer_tactical,timer_status)
-				end
+				p:wrappedAddCustomInfo("Weapons","timer",timer_status)
 			end
 			if timer_display_engineer then
-				if p:hasPlayerAtPosition("Engineering") then
-					p.timer_engineer = "timer_engineer"
-					p:addCustomInfo("Engineering",p.timer_engineer,timer_status)
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p.timer_engineer_plus = "timer_engineer_plus"
-					p:addCustomInfo("Engineering+",p.timer_engineer_plus,timer_status)
-				end
+				p:wrappedAddCustomInfo("Engineering","timer",timer_status)
 			end
 			if timer_display_science then
-				if p:hasPlayerAtPosition("Science") then
-					p.timer_science = "timer_science"
-					p:addCustomInfo("Science",p.timer_science,timer_status)
-				end
-				if p:hasPlayerAtPosition("Operations") then
-					p.timer_operations = "timer_operations"
-					p:addCustomInfo("Operations",p.timer_operations,timer_status)
-				end
+				p:wrappedAddCustomInfo("Science","timer",timer_status)
 			end
 			if timer_display_relay then
-				if p:hasPlayerAtPosition("Relay") then
-					p.timer_relay = "timer_relay"
-					p:addCustomInfo("Relay",p.timer_relay,timer_status)
-				end
-				if p:hasPlayerAtPosition("Operations") and p.timer_operations == nil then
-					p.timer_operations = "timer_operations"
-					p:addCustomInfo("Operations",p.timer_operations,timer_status)
-				end
+				p:wrappedAddCustomInfo("Relay","timer",timer_status)
 			end	--end relay timer display
 		end	--end of timer started boolean checks
 	else	--timer started boolean is false
-		if p.timer_helm ~= nil then
-			p:removeCustom(p.timer_helm)
-			p.timer_helm = nil
-		end
-		if p.timer_weapons ~= nil then
-			p:removeCustom(p.timer_weapons)
-			p.timer_weapons = nil
-		end
-		if p.timer_engineer ~= nil then
-			p:removeCustom(p.timer_engineer)
-			p.timer_engineer = nil
-		end
-		if p.timer_science ~= nil then
-			p:removeCustom(p.timer_science)
-			p.timer_science = nil
-		end
-		if p.timer_relay ~= nil then
-			p:removeCustom(p.timer_relay)
-			p.timer_relay = nil
-		end
-		if p.timer_tactical ~= nil then
-			p:removeCustom(p.timer_tactical)
-			p.timer_tactical = nil
-		end
-		if p.timer_operations ~= nil then
-			p:removeCustom(p.timer_operations)
-			p.timer_operations = nil
-		end
-		if p.timer_engineer_plus ~= nil then
-			p:removeCustom(p.timer_engineer_plus)
-			p.timer_engineer_plus = nil
-		end
+		p:wrappedRemoveCustom("timer")
 		timer_value = nil
 		timer_gm_message = nil
 	end	--end of timer started boolean checks
