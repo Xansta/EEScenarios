@@ -24,7 +24,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.18"
+	scenario_version = "3.5.20"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -2599,7 +2599,7 @@ end
 -- +END SESSION			F	endSession
 function initialGMFunctions()
 	clearGMFunctions()
-	addGMFunction("+Initial Set Up",initialSetUp)
+	addGMFunction(string.format("+Initial Set Up %s",scenario_version),initialSetUp)
 	addGMFunction("+Spawn Ship(s)",spawnGMShips)
 	addGMFunction("+Order Fleet",orderFleet)
 	addGMFunction("+Order Ship",orderShip)
@@ -7872,6 +7872,8 @@ function createKentarStations()
 	local outer_defence_dist = orbit_far + 2000
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
 	dp:setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((0  )/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
+	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
+	dpg1zone:setColor(0,128,0):setLabel("DPG1")
 --	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
 --	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
