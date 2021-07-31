@@ -30989,6 +30989,7 @@ function mineRingShim(args)
 	half_gap_size=half_gap_size/2
 	local gap=args.gap or 3
 	local increment=(360/segments)
+	local create_fn = args.create_fn or Mine
 	if segments == 0 then
 		segments=1
 		half_gap_size=0
@@ -30997,7 +30998,7 @@ function mineRingShim(args)
 		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
 			for row=0,num_rows-1 do
 				local dist=min_dist+row_gap*row
-				createOrbitingObject(Mine(),j,speed,x,y,dist)
+				createOrbitingObject(create_fn(),j,speed,x,y,dist)
 			end
 		end
 		angle=angle+increment
