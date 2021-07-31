@@ -8380,6 +8380,7 @@ end
 function createKentarOrbitingAsteroids()
 	local asteroid_list = {}
 	local asteroid_details = {
+		-- radius between 62557.29 69203.92
 		{438202, 106939,179},
 		{439406, 108631,244},
 		{439556, 110404,255},
@@ -8528,6 +8529,7 @@ function createKentarOrbitingAsteroids()
     	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_ergot,10000,30000)
     	table.insert(asteroid_list,static_asteroid)
     end
+	-- radius between 43759.45 and 47552.27
 	local asteroid_details = {
 		{414667, 120222,205},
 		{422222, 118889,200},
