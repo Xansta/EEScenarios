@@ -8380,6 +8380,7 @@ end
 function createKentarOrbitingAsteroids()
 	local asteroid_list = {}
 	local asteroid_details = {
+		-- radius between 62557.29 69203.92
 		{438202, 106939,179},
 		{439406, 108631,244},
 		{439556, 110404,255},
@@ -8528,6 +8529,7 @@ function createKentarOrbitingAsteroids()
     	update_system:addOrbitTargetWithInfluenceUpdate(static_asteroid,planet_rigil,orbit_distance,s_orbit,f_orbit,planet_ergot,10000,30000)
     	table.insert(asteroid_list,static_asteroid)
     end
+	-- radius between 43759.45 and 47552.27
 	local asteroid_details = {
 		{414667, 120222,205},
 		{422222, 118889,200},
@@ -30778,6 +30780,44 @@ function starryOneOff()
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy+i_2)
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
 	end)
+	addGMFunction("auto defended base", function ()
+		local create = function ()
+			return CpuShip():setTemplate("Defense platform"):setFaction("Kraylor"):orderRoaming()
+		end
+		local jammer_create = function ()
+			return WarpJammer():setRange(12000):setFaction("Kraylor")
+		end
+		mineRingShim({dist=9000, x=340000+18000,y=340000+18000,	gap=5  ,gap_size=30,segments = 3, angle = 225})
+		mineRingShim({dist=7500, x=340000+18000,y=340000+18000,	gap=140,gap_size=0,segments = 3, angle = 225+180, create_fn = jammer_create})
+		mineRingShim({dist=9000, x=340000+18000,y=340000+18000,	gap=120,gap_size=30,segments = 3, angle = 225-15, create_fn = create})
+		mineRingShim({dist=9000, x=340000,		y=340000+18000,	gap=5  ,gap_size=30,segments = 3, angle = 225+90})
+		mineRingShim({dist=7500, x=340000,		y=340000+18000,	gap=140,gap_size=0,segments = 3, angle = 225+90+180, create_fn = jammer_create})
+		mineRingShim({dist=9000, x=340000,		y=340000+18000,	gap=120,gap_size=30,segments = 3, angle = 225+90-15, create_fn = create})
+		mineRingShim({dist=9000, x=340000,		y=340000,		gap=5  ,gap_size=30,segments = 3, angle = 225+180})
+		mineRingShim({dist=7500, x=340000,		y=340000,		gap=140,gap_size=0,segments = 3, angle = 225+180+180, create_fn = jammer_create})
+		mineRingShim({dist=9000, x=340000,		y=340000,		gap=120,gap_size=30,segments = 3, angle = 225+180-15, create_fn = create})
+		mineRingShim({dist=9000, x=340000+18000,y=340000,		gap=5  ,gap_size=30,segments = 3, angle = 225+270})
+		mineRingShim({dist=7500, x=340000+18000,y=340000,		gap=140,gap_size=0,segments = 3, angle = 225+270+180, create_fn = jammer_create})
+		mineRingShim({dist=9000, x=340000+18000,y=340000,		gap=120,gap_size=30,segments = 3, angle = 225+270-15, create_fn = create})
+	end)
+	addGMFunction("mines in monocle orbit", function ()
+		-- these will be at an incorrect location for 1 update
+		-- this is wrong
+		-- but is only one off code
+		local x,y = planet_rigil:getPosition()
+
+		local m = Mine()
+		local angle = math.random()*math.pi*2
+		m:setPosition(x+math.sin(angle),y+math.cos(angle))
+		m.orbit_influencer = planet_ergot
+		update_system:addOrbitTargetWithInfluenceUpdate(m,planet_rigil,math.random(43759,47552),1.1,1.7,planet_ergot,10000,30000)
+
+		m = Mine()
+		m.orbit_influencer = planet_ergot
+		local angle = math.random()*math.pi*2
+		m:setPosition(x+math.sin(angle),y+math.cos(angle))
+		update_system:addOrbitTargetWithInfluenceUpdate(m,planet_rigil,math.random(62557,69203),0.8,1.5,planet_ergot,10000,30000)
+	end)
 	addGMFunction("Kraylor Rift Base", function () -- based on Kraylor Research Base
 		local cx=349706
 		local cy=329658
@@ -30987,6 +31027,7 @@ function mineRingShim(args)
 	half_gap_size=half_gap_size/2
 	local gap=args.gap or 3
 	local increment=(360/segments)
+	local create_fn = args.create_fn or Mine
 	if segments == 0 then
 		segments=1
 		half_gap_size=0
@@ -30995,7 +31036,7 @@ function mineRingShim(args)
 		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
 			for row=0,num_rows-1 do
 				local dist=min_dist+row_gap*row
-				createOrbitingObject(Mine(),j,speed,x,y,dist)
+				createOrbitingObject(create_fn(),j,speed,x,y,dist)
 			end
 		end
 		angle=angle+increment
