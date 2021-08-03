@@ -24591,7 +24591,7 @@ function showPodTelemetry(p)
 				pod_msg = string.format("%s\n%s can be found in sector %s",pod_msg,pod:getCallSign(),pod:getSectorName())
 			end
 		end
-		p:wrappedAddCustomMessage("Relay","Relay",pod_msg)
+		p:wrappedAddCustomMessage("Relay","pod_telemetry_msg",pod_msg)
 	else
 		p:wrappedAddCustomMessage("Relay","no_more_pods_msg","No pod telemetry located")
 	end
