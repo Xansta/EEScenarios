@@ -24,7 +24,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.20"
+	scenario_version = "3.5.21"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -24560,34 +24560,14 @@ function artifactToPod()
 				p.podButton = {}
 			end
 			p.podButton[podCallSign] = true
-			local tempButton = podCallSign
-			p:addCustomButton("Engineering",tempButton,string.format("Prepare to get %s",podCallSign),function()
+			p:wrappedAddCustomButton("Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),function()
 				for pidx=1,8 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for pb, enabled in pairs(p.podButton) do
 							if enabled and pb == podCallSign then
-								p:removeCustom(pb)
-								p:removeCustom(pb .. "plus")
-								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p:addCustomMessage("Engineering+","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p.podButton[pb] = false
-							end
-						end
-					end
-				end
-			end)
-			local tempButtonPlus = podCallSign .. "plus"
-			p:addCustomButton("Engineering+",tempButtonPlus,string.format("Prepare to get %s",podCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for pb, enabled in pairs(p.podButton) do
-							if enabled and pb == podCallSign then
-								p:removeCustom(pb)
-								p:removeCustom(pb .. "plus")
-								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p:addCustomMessage("Engineering+","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p:wrappedRemoveCustom(pb)
+								p:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
 								p.podButton[pb] = false
 							end
 						end
@@ -24598,7 +24578,6 @@ function artifactToPod()
 	end
 end
 function showPodTelemetry(p)
-	string.format("")
 	local pod_count = 0
 	for pod_name, pod in pairs(escapePodList) do
 		if pod ~= nil and pod:isValid() then
@@ -24612,23 +24591,9 @@ function showPodTelemetry(p)
 				pod_msg = string.format("%s\n%s can be found in sector %s",pod_msg,pod:getCallSign(),pod:getSectorName())
 			end
 		end
-		if p:hasPlayerAtPosition("Relay") then
-			p.pod_telemetry_msg = "pod_telemetry_msg"
-			p:addCustomMessage("Relay",p.pod_telemetry_msg,pod_msg)
-		end
-		if p:hasPlayerAtPosition("Operations") then
-			p.pod_telemetry_msg_ops = "pod_telemetry_msg_ops"
-			p:addCustomMessage("Operations",p.pod_telemetry_msg_ops,pod_msg)
-		end
+		p:wrappedAddCustomMessage("Relay","pod_telemetry_msg",pod_msg)
 	else
-		if p:hasPlayerAtPosition("Relay") then
-			p.no_more_pods_msg = "no_more_pods_msg"
-			p:addCustomMessage("Relay",p.no_more_pods_msg,"No pod telemetry located")
-		end
-		if p:hasPlayerAtPosition("Operations") then
-			p.no_more_pods_msg_ops = "no_more_pods_msg_ops"
-			p:addCustomMessage("Operations",p.no_more_pods_msg_ops,"No pod telemetry located")
-		end
+		p:wrappedAddCustomMessage("Relay","no_more_pods_msg","No pod telemetry located")
 	end
 end
 function podCreation(originx, originy, vectorx, vectory)
@@ -24647,34 +24612,14 @@ function podCreation(originx, originy, vectorx, vectory)
 				p.podButton = {}
 			end
 			p.podButton[podCallSign] = true
-			local tempButton = podCallSign
-			p:addCustomButton("Engineering",tempButton,string.format("Prepare to get %s",podCallSign),function()
+			p:wrappedAddCustomButton("Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),function()
 				for pidx=1,8 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for pb, enabled in pairs(p.podButton) do
 							if enabled and pb == podCallSign then
-								p:removeCustom(pb)
-								p:removeCustom(pb .. "plus")
-								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p:addCustomMessage("Engineering+","pbgone+",string.format("Transporters ready for pickup of %s",pb))
-								p.podButton[pb] = false
-							end
-						end
-					end
-				end
-			end)
-			local tempButtonPlus = podCallSign .. "plus"
-			p:addCustomButton("Engineering+",tempButtonPlus,string.format("Prepare to get %s",podCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for pb, enabled in pairs(p.podButton) do
-							if enabled and pb == podCallSign then
-								p:removeCustom(pb)
-								p:removeCustom(pb .. "plus")
-								p:addCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p:addCustomMessage("Engineering+","pbgone+",string.format("Transporters ready for pickup of %s",pb))
+								p:wrappedRemoveCustom(pb)
+								p:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
 								p.podButton[pb] = false
 							end
 						end
@@ -24811,32 +24756,14 @@ function marineCreation(originx, originy, vectorx, vectory, associatedObjectName
 				p.marinePointButton = {}
 			end
 			p.marinePointButton[marineCallSign] = true
-			p:addCustomButton("Engineering",marineCallSign,string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),function()
+			p:wrappedAddCustomButton("Engineering",marineCallSign,string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),function()
 				for pidx=1,8 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for mpb, enabled in pairs(p.marinePointButton) do
 							if enabled and mpb == marineCallSign then
-								p:removeCustom(mpb)
-								p:removeCustom(mpb .. "plus")
-								p:addCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
-								p:addCustomMessage("Engineering+","mpbgone+",string.format("Transporters ready for marines via %s",mpb))
-								p.marinePointButton[mpb] = false
-							end
-						end
-					end
-				end
-			end)
-			p:addCustomButton("Engineering+",marineCallSign .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for mpb, enabled in pairs(p.marinePointButton) do
-							if enabled and mpb == marineCallSign then
-								p:removeCustom(mpb)
-								p:removeCustom(mpb .. "plus")
-								p:addCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
-								p:addCustomMessage("Engineering+","mpbgone+",string.format("Transporters ready for marines via %s",mpb))
+								p:wrappedRemoveCustom(mpb)
+								p:wrappedAddCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
 								p.marinePointButton[mpb] = false
 							end
 						end
@@ -24924,12 +24851,7 @@ function marinePointPickupProcess(self,retriever)
 				end
 				if successful_action then
 					if self.action == "Drop" then
-						if retriever:hasPlayerAtPosition("Engineering") then
-							retriever:addCustomMessage("Engineering","mprcd","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
-						end
-						if retriever:hasPlayerAtPosition("Engineering+") then
-							retriever:addCustomMessage("Engineering+","mprcd_plus","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
-						end
+						retriever:wrappedAddCustomMessage("Engineering","mprcd","One of your repair crew deployed with the marine team. They will return when the marines are picked up")
 					end
 					if retriever:getEnergy() > 50 then
 						retriever:setEnergy(retriever:getEnergy() - 50)
@@ -25160,33 +25082,14 @@ function engineerCreation(originx, originy, vectorx, vectory, associatedObjectNa
 				p.engineerPointButton = {}
 			end
 			p.engineerPointButton[engineerCallSign] = true
-			local tempButton = engineerCallSign
-			p:addCustomButton("Engineering",tempButton,string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),function()
+			p:wrappedAddCustomButton("Engineering",engineerCallSign,string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),function()
 				for pidx=1,8 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for epb, enabled in pairs(p.engineerPointButton) do
 							if enabled and epb == engineerCallSign then
-								p:removeCustom(epb)
-								p:removeCustom(epb .. "plus")
-								p:addCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
-								p:addCustomMessage("Engineering+","epbgone+",string.format("Transporters ready for engineers via %s",epb))
-								p.engineerPointButton[epb] = false
-							end
-						end
-					end
-				end
-			end)
-			p:addCustomButton("Engineering+",tempButton .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for epb, enabled in pairs(p.engineerPointButton) do
-							if enabled and epb == engineerCallSign then
-								p:removeCustom(epb)
-								p:removeCustom(epb .. "plus")
-								p:addCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
-								p:addCustomMessage("Engineering+","epbgone+",string.format("Transporters ready for engineers via %s",epb))
+								p:wrappedRemoveCustom(epb)
+								p:wrappedAddCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
 								p.engineerPointButton[epb] = false
 							end
 						end
@@ -25274,12 +25177,7 @@ function engineerPointPickupProcess(self,retriever)
 				end
 				if successful_action then
 					if self.action == "Drop" then
-						if retriever:hasPlayerAtPosition("Engineering") then
-							retriever:addCustomMessage("Engineering","eprcd","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
-						end
-						if retriever:hasPlayerAtPosition("Engineering+") then
-							retriever:addCustomMessage("Engineering+","eprcd_plus","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
-						end
+						retriever:wrappedAddCustomMessage("Engineering","eprcd","One of your repair crew deployed with the engineering team. They will return when the engineers are picked up")
 					end
 					if retriever:getEnergy() > 50 then
 						retriever:setEnergy(retriever:getEnergy() - 50)
@@ -25510,33 +25408,14 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 				p.medicPointButton = {}
 			end
 			p.medicPointButton[medicCallSign] = true
-			local tempButton = medicCallSign
-			p:addCustomButton("Engineering",tempButton,string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
+			p:wrappedAddCustomButton("Engineering",medicCallSign,string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
 				for pidx=1,8 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
 						for mpb, enabled in pairs(p.medicPointButton) do
 							if enabled and mpb == medicCallSign then
-								p:removeCustom(mpb)
-								p:removeCustom(mpb .. "plus")
-								p:addCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
-								p:addCustomMessage("Engineering+","mtpbgone+",string.format("Transporters ready for medical team via %s",mpb))
-								p.medicPointButton[mpb] = false
-							end
-						end
-					end
-				end
-			end)
-			p:addCustomButton("Engineering+",tempButton .. "plus",string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for mpb, enabled in pairs(p.medicPointButton) do
-							if enabled and mpb == medicCallSign then
-								p:removeCustom(mpb)
-								p:removeCustom(mpb .. "plus")
-								p:addCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
-								p:addCustomMessage("Engineering+","mtpbgone+",string.format("Transporters ready for medical team via %s",mpb))
+								p:wrappedRemoveCustom(mpb)
+								p:wrappedAddCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
 								p.medicPointButton[mpb] = false
 							end
 						end
@@ -25624,12 +25503,7 @@ function medicPointPickupProcess(self,retriever)
 				end
 				if successful_action then
 					if self.action == "Drop" then
-						if retriever:hasPlayerAtPosition("Engineering") then
-							retriever:addCustomMessage("Engineering","mdprcd","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
-						end
-						if retriever:hasPlayerAtPosition("Engineering+") then
-							retriever:addCustomMessage("Engineering+","mdprcd_plus","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
-						end
+						retriever:wrappedAddCustomMessage("Engineering","mdprcd","One of your repair crew deployed with the medical team. They will return when the medical team is picked up")
 					end
 					if retriever:getEnergy() > 50 then
 						retriever:setEnergy(retriever:getEnergy() - 50)
@@ -30918,13 +30792,13 @@ function createInterdictor(p)
 				if p.my_interdictor.totalTime >= 300 then
 					p.timeActive = p.my_interdictor.totalTime
 					p.my_interdictor:destroy()
-					p:removeCustom("cancel_jammer"..p:getCallSign())
+					p:wrappedRemoveCustom("cancel_jammer")
 					local impulse_speed = p:getImpulseMaxSpeed()
 					impulse_speed = (impulse_speed*(4/3))
 					p:setImpulseMaxSpeed(impulse_speed)
 					newRotationMaxSpeed = (p:getRotationMaxSpeed()*(4/3))
 					P:setRotationMaxSpeed(newRotationMaxSpeed)
-					p:addCustomButton("Engineering","interdictor_recharging"..p.name,"recharging...",nil)
+					p:wrappedAddCustomButton("Engineering","interdictor_recharging","recharging...",nil)
 					interdictorRecharge(p)
 				end
 			else
@@ -30939,8 +30813,8 @@ function createInterdictor(p)
 	rotationSpeed = p:getRotationMaxSpeed()
 	rotationSpeed = rotationSpeed*(3/4)
 	p:setRotationMaxSpeed(rotationSpeed)  
-	p:removeCustom("interdictor"..p:getCallSign())
-	p:addCustomButton("Engineering","cancel_jammer"..p.name,"Cancel",function() cancelThisShipsInterdictor(p) end)
+	p:wrappedRemoveCustom("interdictor")
+	p:wrappedAddCustomButton("Engineering","cancel_jammer","Cancel",function() cancelThisShipsInterdictor(p) end)
 end
 function cancelInterdictor(p)
 	if p~=nil and p:isValid() then
@@ -30951,8 +30825,8 @@ function cancelInterdictor(p)
 			p:setImpulseMaxSpeed(impulseSpeed)
 			rotationSpeed = p:getRotationMaxSpeed()*(4/3)
 			p:setRotationMaxSpeed(rotationSpeed)
-			p:removeCustom("cancel_jammer"..p:getCallSign())
-			p:addCustomButton("Engineering","interdictor_recharging"..playerKindling.name,"recharging...",nil)
+			p:wrappedRemoveCustom("cancel_jammer")
+			p:wrappedAddCustomButton("Engineering","interdictor_recharging","recharging...",nil)
 			interdictorRecharge(p)
 		end
 	end
@@ -30966,8 +30840,8 @@ function rechargeInterdictor(p)
 			update = function (self, odj, delta)
 				p.rechargeTime = p.rechargeTime+delta 
 				if p.rechargeTime >= p.targetRechargeTime then
-					p:removeCustom("interdictor_recharging"..p:getCallSign())
-					p:addCustomButton("Engineering","interdictor"..playerKindling.name,"interdictor",function() createInterdictor(playerKindling) end)
+					p:wrappedRemoveCustom("interdictor_recharging")
+					p:wrappedAddCustomButton("Engineering","interdictor","interdictor",function() createInterdictor(playerKindling) end)
 					update_system:removeUpdateNamed(p,"interdictor recharge logic")
 				end
 			end
@@ -35862,14 +35736,7 @@ function updatePlayerDamageConsequences(p)
 			if math.random() < (fatalityChance) then
 				if p.initialCoolant == nil then
 					p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-					if p:hasPlayerAtPosition("Engineering") then
-						local repairCrewFatality = "repairCrewFatality"
-						p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-						p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-					end
+					p:wrappedAddCustomMessage("Engineering","repairCrewFatality","One of your repair crew has perished")
 				else
 					local consequence = 0
 					local upper_consequence = 2
@@ -35901,14 +35768,7 @@ function updatePlayerDamageConsequences(p)
 					consequence = math.random(1,upper_consequence)
 					if consequence == 1 then
 						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-						if p:hasPlayerAtPosition("Engineering") then
-							local repairCrewFatality = "repairCrewFatality"
-							p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-						end
-						if p:hasPlayerAtPosition("Engineering+") then
-							local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-							p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-						end
+						p:wrappedAddCustomMessage("Engineering","repairCrewFatality","One of your repair crew has perished")
 					elseif consequence == 2 then
 						local current_coolant = p:getMaxCoolant()
 						local lost_coolant = 0
@@ -35922,56 +35782,24 @@ function updatePlayerDamageConsequences(p)
 							p.reclaimable_coolant = 0
 						end
 						p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
-						if p:hasPlayerAtPosition("Engineering") then
-							local coolantLoss = "coolantLoss"
-							p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
-						end
-						if p:hasPlayerAtPosition("Engineering+") then
-							local coolantLossPlus = "coolantLossPlus"
-							p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
-						end
+						p:wrappedAddCustomMessage("Engineering","coolantLoss","Damage has caused a loss of coolant")
 					else
 						local named_consequence = consequence_list[consequence-2]
 						if named_consequence == "probe" then
 							p:setCanLaunchProbe(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
 						elseif named_consequence == "hack" then
 							p:setCanHack(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
 						elseif named_consequence == "scan" then
 							p:setCanScan(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","scan_damage_message_plus","The scanners have been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
 						elseif named_consequence == "combat_maneuver" then
 							p:setCanCombatManeuver(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus","Combat maneuver has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
 						elseif named_consequence == "self_destruct" then
 							p:setCanSelfDestruct(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
 						elseif named_consequence == "tube_time" then
 							local tube_count = p:getWeaponTubeCount()
 							local tube_index = 0
@@ -35987,12 +35815,7 @@ function updatePlayerDamageConsequences(p)
 								p:setTubeLoadTime(tube_index,p:getTubeLoadTime(tube_index) + 2)
 								tube_index = tube_index + 1
 							until(tube_index >= tube_count)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","tube_slow_down_message_plus","Tube damage has caused tube load time to increase")
-							end
+							p:wrappedAddCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
 						end
 					end	--coolant loss branch
 				end	--could lose coolant branch
