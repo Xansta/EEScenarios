@@ -35736,14 +35736,7 @@ function updatePlayerDamageConsequences(p)
 			if math.random() < (fatalityChance) then
 				if p.initialCoolant == nil then
 					p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-					if p:hasPlayerAtPosition("Engineering") then
-						local repairCrewFatality = "repairCrewFatality"
-						p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-					end
-					if p:hasPlayerAtPosition("Engineering+") then
-						local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-						p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-					end
+					p:wrappedAddCustomMessage("Engineering","repairCrewFatality","One of your repair crew has perished")
 				else
 					local consequence = 0
 					local upper_consequence = 2
@@ -35775,14 +35768,7 @@ function updatePlayerDamageConsequences(p)
 					consequence = math.random(1,upper_consequence)
 					if consequence == 1 then
 						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-						if p:hasPlayerAtPosition("Engineering") then
-							local repairCrewFatality = "repairCrewFatality"
-							p:addCustomMessage("Engineering",repairCrewFatality,"One of your repair crew has perished")
-						end
-						if p:hasPlayerAtPosition("Engineering+") then
-							local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-							p:addCustomMessage("Engineering+",repairCrewFatalityPlus,"One of your repair crew has perished")
-						end
+						p:wrappedAddCustomMessage("Engineering","repairCrewFatality","One of your repair crew has perished")
 					elseif consequence == 2 then
 						local current_coolant = p:getMaxCoolant()
 						local lost_coolant = 0
@@ -35796,56 +35782,24 @@ function updatePlayerDamageConsequences(p)
 							p.reclaimable_coolant = 0
 						end
 						p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
-						if p:hasPlayerAtPosition("Engineering") then
-							local coolantLoss = "coolantLoss"
-							p:addCustomMessage("Engineering",coolantLoss,"Damage has caused a loss of coolant")
-						end
-						if p:hasPlayerAtPosition("Engineering+") then
-							local coolantLossPlus = "coolantLossPlus"
-							p:addCustomMessage("Engineering+",coolantLossPlus,"Damage has caused a loss of coolant")
-						end
+						p:wrappedAddCustomMessage("Engineering","coolantLoss","Damage has caused a loss of coolant")
 					else
 						local named_consequence = consequence_list[consequence-2]
 						if named_consequence == "probe" then
 							p:setCanLaunchProbe(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","probe_launch_damage_message_plus","The probe launch system has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","probe_launch_damage_message","The probe launch system has been damaged")
 						elseif named_consequence == "hack" then
 							p:setCanHack(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","hack_damage_message_plus","The hacking system has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","hack_damage_message","The hacking system has been damaged")
 						elseif named_consequence == "scan" then
 							p:setCanScan(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","scan_damage_message_plus","The scanners have been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","scan_damage_message","The scanners have been damaged")
 						elseif named_consequence == "combat_maneuver" then
 							p:setCanCombatManeuver(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus","Combat maneuver has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","combat_maneuver_damage_message","Combat maneuver has been damaged")
 						elseif named_consequence == "self_destruct" then
 							p:setCanSelfDestruct(false)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
-							end
+							p:wrappedAddCustomMessage("Engineering","self_destruct_damage_message","Self destruct system has been damaged")
 						elseif named_consequence == "tube_time" then
 							local tube_count = p:getWeaponTubeCount()
 							local tube_index = 0
@@ -35861,12 +35815,7 @@ function updatePlayerDamageConsequences(p)
 								p:setTubeLoadTime(tube_index,p:getTubeLoadTime(tube_index) + 2)
 								tube_index = tube_index + 1
 							until(tube_index >= tube_count)
-							if p:hasPlayerAtPosition("Engineering") then
-								p:addCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
-							end
-							if p:hasPlayerAtPosition("Engineering+") then
-								p:addCustomMessage("Engineering+","tube_slow_down_message_plus","Tube damage has caused tube load time to increase")
-							end
+							p:wrappedAddCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
 						end
 					end	--coolant loss branch
 				end	--could lose coolant branch
