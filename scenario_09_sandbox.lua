@@ -30792,13 +30792,13 @@ function createInterdictor(p)
 				if p.my_interdictor.totalTime >= 300 then
 					p.timeActive = p.my_interdictor.totalTime
 					p.my_interdictor:destroy()
-					p:removeCustom("cancel_jammer"..p:getCallSign())
+					p:wrappedRemoveCustom("cancel_jammer")
 					local impulse_speed = p:getImpulseMaxSpeed()
 					impulse_speed = (impulse_speed*(4/3))
 					p:setImpulseMaxSpeed(impulse_speed)
 					newRotationMaxSpeed = (p:getRotationMaxSpeed()*(4/3))
 					P:setRotationMaxSpeed(newRotationMaxSpeed)
-					p:addCustomButton("Engineering","interdictor_recharging"..p.name,"recharging...",nil)
+					p:wrappedAddCustomButton("Engineering","interdictor_recharging","recharging...",nil)
 					interdictorRecharge(p)
 				end
 			else
@@ -30813,8 +30813,8 @@ function createInterdictor(p)
 	rotationSpeed = p:getRotationMaxSpeed()
 	rotationSpeed = rotationSpeed*(3/4)
 	p:setRotationMaxSpeed(rotationSpeed)  
-	p:removeCustom("interdictor"..p:getCallSign())
-	p:addCustomButton("Engineering","cancel_jammer"..p.name,"Cancel",function() cancelThisShipsInterdictor(p) end)
+	p:wrappedRemoveCustom("interdictor")
+	p:wrappedAddCustomButton("Engineering","cancel_jammer","Cancel",function() cancelThisShipsInterdictor(p) end)
 end
 function cancelInterdictor(p)
 	if p~=nil and p:isValid() then
@@ -30825,8 +30825,8 @@ function cancelInterdictor(p)
 			p:setImpulseMaxSpeed(impulseSpeed)
 			rotationSpeed = p:getRotationMaxSpeed()*(4/3)
 			p:setRotationMaxSpeed(rotationSpeed)
-			p:removeCustom("cancel_jammer"..p:getCallSign())
-			p:addCustomButton("Engineering","interdictor_recharging"..playerKindling.name,"recharging...",nil)
+			p:wrappedRemoveCustom("cancel_jammer")
+			p:wrappedAddCustomButton("Engineering","interdictor_recharging","recharging...",nil)
 			interdictorRecharge(p)
 		end
 	end
@@ -30840,8 +30840,8 @@ function rechargeInterdictor(p)
 			update = function (self, odj, delta)
 				p.rechargeTime = p.rechargeTime+delta 
 				if p.rechargeTime >= p.targetRechargeTime then
-					p:removeCustom("interdictor_recharging"..p:getCallSign())
-					p:addCustomButton("Engineering","interdictor"..playerKindling.name,"interdictor",function() createInterdictor(playerKindling) end)
+					p:wrappedRemoveCustom("interdictor_recharging")
+					p:wrappedAddCustomButton("Engineering","interdictor","interdictor",function() createInterdictor(playerKindling) end)
 					update_system:removeUpdateNamed(p,"interdictor recharge logic")
 				end
 			end
