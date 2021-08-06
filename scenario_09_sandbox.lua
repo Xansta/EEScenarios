@@ -24,7 +24,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.23"
+	scenario_version = "3.5.24"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -30975,7 +30975,7 @@ end
 -- version display the red text with a line number that init code does
 -- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
 function wrapWithErrorHandling(fun)
-	assert(type(fun)=="function" or fun==nil)
+	assert(type(fun)=="function" or fun==nil,"expected function or nil for wrapWithErrorHandling we instead got a " .. type(fun) .. " with a value of " .. tostring(fun))
 	if fun == nil then
 		return nil
 	end
