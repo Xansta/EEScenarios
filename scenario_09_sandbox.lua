@@ -12,7 +12,6 @@
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
 -- getScenarioTime should allow some small simplifcations
 -- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
--- the edit I made to use onNewPlayerShip I think will be missfiring with the setTemplate type rather than the rebuilt type fix
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
 -- try to merge in a for the rift devices at long last (getting closer with the update system but still a way off)
@@ -24,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.23"
+	scenario_version = "3.5.24"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -363,6 +362,7 @@ function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
 	update_system=updateSystem:create()
+	fleet_custom=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
@@ -1400,6 +1400,92 @@ function setConstants()
 	kentar_commerce = false
 	kentar_commerce_assets = {}
 	kentar_commerce_timer = commerce_timer_interval
+end
+
+
+-- fleetCustom is a bunch of wrappers to make fleets of
+-- player ships have the same custom buttons / info / messages
+-- we always use the wrapped.*Custom.* functions
+-- I am unaware of any reason the non wrapped functions should be used
+-- if there is a reason this should be looked at again
+fleetCustom = {}
+fleetCustom.__index = fleetCustom
+
+function fleetCustom:create()
+	local ret = {
+		-- a table with name (of the custom info) mapping to a table where
+		-- the first element is the name of the function to duplicate this call
+		-- and the rest are all of the calls in order
+		-- as normal with stuff starting with _ please dont touch outside of fleetCustom
+		_custom_info = {},
+		-- table of all players, any call in here should free lua objects for destroyed playerShips
+		_player_list = {}
+	}
+	setmetatable(ret,fleetCustom)
+	return ret
+end
+
+-- internal to fleetCustom, should be called often, but doesnt need to be each update()
+function fleetCustom:_gc()
+	removeInvalidFromEETable(self._player_list)
+end
+
+-- note there currently is no removal from fleets
+-- this wouldnt be hard to write, but I currently see no
+-- use for it
+function fleetCustom:addToFleet(player)
+	self:_gc()
+	table.insert(self._player_list,player)
+	for _,custom in pairs(self._custom_info) do
+		local set = function (fun_name,...)
+			player[fun_name](player,...)
+		end
+		set(table.unpack(custom))
+	end
+end
+
+function fleetCustom:addCustomButton(position,name,caption,callback,order)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomButton(position,name,caption,callback,order)
+	end
+	self._custom_info[name]={"wrappedAddCustomButton",position,name,caption,callback,order}
+end
+
+function fleetCustom:addCustomInfo(player,position,name,caption,order)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomInfo(position,name,caption,order)
+	end
+	self._custom_info[name]={"wrappedAddCustomInfo",position,name,caption,order}
+end
+
+-- we arent even going to try to cache messages, we have no way to tell
+-- when players have clicked on them
+-- its possible if we wrap calls round addCustomMessage we could make it work
+-- but it opens questions like "do we show this if one ship has closed and one has opened"
+-- this is a logical thing to implement if it ends up being wanted though
+function fleetCustom:addCustomMessage(position,name,caption)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomMessage(position,name,caption)
+	end
+end
+
+-- see addCustomMessage
+function fleetCustom:addCustomMessageWithCallback(position,name,caption,callback)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomMessageWithCallback(position,name,caption,callback)
+	end
+end
+
+function fleetCustom:removeCustom(name)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedRemoveCustom(name)
+	end
+	self._custom_info[name]=nil
 end
 
 updateSystem = {}
@@ -17180,14 +17266,17 @@ function playerPower()
 	return playerShipScore
 end
 function wrapAddCustomButtons(p)
-	p.wrappedAddCustomButton = function(...) customElements:addCustomButton(...) end -- count - 45
-	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end -- count 5
+	p.wrappedAddCustomButton = function(player,position,name,caption,callback) -- missing index for next EE version
+		customElements:addCustomButton(player,position,name,caption,wrapWithErrorHandling(callback))
+	end
+	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end
 	p.wrappedAddCustomMessageWithCallback = function(...) customElements:addCustomMessageWithCallback(...) end
-	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end -- count 45
-	p.wrappedRemoveCustom = function(...) customElements:removeCustom(...) end -- count 68
+	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end
+	p.wrappedRemoveCustom = function(...) customElements:removeCustom(...) end
 end
 function assignPlayerShipScore(p)
 	wrapAddCustomButtons(p)
+	fleet_custom:addToFleet(p)
 --	print("assign player ship score",p:getCallSign())
 	local spawn_x,spawn_y=p:getPosition()
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
@@ -17202,6 +17291,9 @@ function assignPlayerShipScore(p)
 	p.mining = false
 	p.max_pods = 1
 	p.pods = p.max_pods
+	updatePlayerSoftTemplate(p)
+end
+function updatePlayerSoftTemplate(p)
 	local tempTypeName = p:getTypeName()
 --	print("assign player ship score, temp type name",tempTypeName)
 	if tempTypeName ~= nil then
@@ -30975,7 +31067,7 @@ end
 -- version display the red text with a line number that init code does
 -- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
 function wrapWithErrorHandling(fun)
-	assert(type(fun)=="function" or fun==nil)
+	assert(type(fun)=="function" or fun==nil,"expected function or nil for wrapWithErrorHandling we instead got a " .. type(fun) .. " with a value of " .. tostring(fun))
 	if fun == nil then
 		return nil
 	end
@@ -31008,7 +31100,13 @@ function addGMFunction(msg, fun)
 	assert(type(fun)=="function" or fun==nil)
 	return addGMFunctionReal(msg,wrapWithErrorHandling(fun))
 end
--- we have the same issue with onGMClick, wrap that as well
+
+onNewPlayerShipReal=onNewPlayerShip
+function onNewPlayerShip(fun)
+	assert(type(fun)=="function" or fun==nil)
+	return onNewPlayerShipReal(wrapWithErrorHandling(fun))
+end
+
 onGMClickReal=onGMClick
 function onGMClick(fun)
 	assert(type(fun)=="function" or fun==nil)
@@ -35527,9 +35625,12 @@ function updateInner(delta)
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
+			-- if the template has been update pull data from the soft template
+			-- even if templates arent changed this can happen during inital creation
+			-- as setTemplate will invoke the callback with the template before being
+			-- overwritten by the soft template
 			if p.score_settings_source ~= p:getTypeName() then
-				assignPlayerShipScore(p)
---				print("assignPlayerScore or perhaps onNewPlayerShip did not get it right the first time, so it is being called again")
+				updatePlayerSoftTemplate(p)
 			end
 			local player_name = p:getCallSign()
 			if warning_station ~= nil then
