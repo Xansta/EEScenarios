@@ -1444,26 +1444,20 @@ function fleetCustom:addToFleet(player)
 	end
 end
 
--- the ... in these functions is to try to enable support for
--- both 2021623 and the yet unreleased version with an index
--- parameter, its kind of ugly, but should work as expected
--- small simplificatios may be possible in the next offical release
--- when dropping support for 2021623 (for the benefit of searching -
--- 2021623 may be known as 20210623 )
-function fleetCustom:addCustomButton(position,name,...)
+function fleetCustom:addCustomButton(position,name,caption,callback,order)
 	self:_gc()
 	for _,p in pairs(self._player_list) do
-		p:wrappedAddCustomButton(position,name,...)
+		p:wrappedAddCustomButton(position,name,caption,callback,order)
 	end
-	self._custom_info[name]={"wrappedAddCustomButton",position,name,...}
+	self._custom_info[name]={"wrappedAddCustomButton",position,name,caption,callback,order}
 end
 
-function fleetCustom:addCustomInfo(player,...)
+function fleetCustom:addCustomInfo(player,position,name,caption,order)
 	self:_gc()
 	for _,p in pairs(self._player_list) do
-		p:wrappedAddCustomInfo(position,name,...)
+		p:wrappedAddCustomInfo(position,name,caption,order)
 	end
-	self._custom_info[name]={"wrappedAddCustomInfo",position,name,...}
+	self._custom_info[name]={"wrappedAddCustomInfo",position,name,caption,order}
 end
 
 -- we arent even going to try to cache messages, we have no way to tell
@@ -1471,18 +1465,18 @@ end
 -- its possible if we wrap calls round addCustomMessage we could make it work
 -- but it opens questions like "do we show this if one ship has closed and one has opened"
 -- this is a logical thing to implement if it ends up being wanted though
-function fleetCustom:addCustomMessage(...)
+function fleetCustom:addCustomMessage(position,name,caption)
 	self:_gc()
 	for _,p in pairs(self._player_list) do
-		p:wrappedAddCustomMessage(...)
+		p:wrappedAddCustomMessage(position,name,caption)
 	end
 end
 
 -- see addCustomMessage
-function fleetCustom:addCustomMessageWithCallback(...)
+function fleetCustom:addCustomMessageWithCallback(position,name,caption,callback)
 	self:_gc()
 	for _,p in pairs(self._player_list) do
-		p:wrappedAddCustomMessageWithCallback(...)
+		p:wrappedAddCustomMessageWithCallback(position,name,caption,callback)
 	end
 end
 
