@@ -17182,11 +17182,11 @@ end
 function wrapAddCustomButtons(p)
 	p.wrappedAddCustomButton = function(player,position,name,caption,callback) -- missing index for next EE version
 		customElements:addCustomButton(player,position,name,caption,wrapWithErrorHandling(callback))
-	end -- count - 45
-	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end -- count 5
+	end
+	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end
 	p.wrappedAddCustomMessageWithCallback = function(...) customElements:addCustomMessageWithCallback(...) end
-	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end -- count 45
-	p.wrappedRemoveCustom = function(...) customElements:removeCustom(...) end -- count 68
+	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end
+	p.wrappedRemoveCustom = function(...) customElements:removeCustom(...) end
 end
 function assignPlayerShipScore(p)
 	wrapAddCustomButtons(p)
