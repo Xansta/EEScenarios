@@ -31008,7 +31008,13 @@ function addGMFunction(msg, fun)
 	assert(type(fun)=="function" or fun==nil)
 	return addGMFunctionReal(msg,wrapWithErrorHandling(fun))
 end
--- we have the same issue with onGMClick, wrap that as well
+
+onNewPlayerShipReal=onNewPlayerShip
+function onNewPlayerShip(fun)
+	assert(type(fun)=="function" or fun==nil)
+	return onNewPlayerShipReal(wrapWithErrorHandling(fun))
+end
+
 onGMClickReal=onGMClick
 function onGMClick(fun)
 	assert(type(fun)=="function" or fun==nil)
