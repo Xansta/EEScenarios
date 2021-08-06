@@ -362,6 +362,7 @@ function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
 	update_system=updateSystem:create()
+	fleet_custom=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
@@ -1399,6 +1400,98 @@ function setConstants()
 	kentar_commerce = false
 	kentar_commerce_assets = {}
 	kentar_commerce_timer = commerce_timer_interval
+end
+
+
+-- fleetCustom is a bunch of wrappers to make fleets of
+-- player ships have the same custom buttons / info / messages
+-- we always use the wrapped.*Custom.* functions
+-- I am unaware of any reason the non wrapped functions should be used
+-- if there is a reason this should be looked at again
+fleetCustom = {}
+fleetCustom.__index = fleetCustom
+
+function fleetCustom:create()
+	local ret = {
+		-- a table with name (of the custom info) mapping to a table where
+		-- the first element is the name of the function to duplicate this call
+		-- and the rest are all of the calls in order
+		-- as normal with stuff starting with _ please dont touch outside of fleetCustom
+		_custom_info = {},
+		-- table of all players, any call in here should free lua objects for destroyed playerShips
+		_player_list = {}
+	}
+	setmetatable(ret,fleetCustom)
+	return ret
+end
+
+-- internal to fleetCustom, should be called often, but doesnt need to be each update()
+function fleetCustom:_gc()
+	removeInvalidFromEETable(self._player_list)
+end
+
+-- note there currently is no removal from fleets
+-- this wouldnt be hard to write, but I currently see no
+-- use for it
+function fleetCustom:addToFleet(player)
+	self:_gc()
+	table.insert(self._player_list,player)
+	for _,custom in pairs(self._custom_info) do
+		local set = function (fun_name,...)
+			player[fun_name](player,...)
+		end
+		set(table.unpack(custom))
+	end
+end
+
+-- the ... in these functions is to try to enable support for
+-- both 2021623 and the yet unreleased version with an index
+-- parameter, its kind of ugly, but should work as expected
+-- small simplificatios may be possible in the next offical release
+-- when dropping support for 2021623 (for the benefit of searching -
+-- 2021623 may be known as 20210623 )
+function fleetCustom:addCustomButton(position,name,...)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomButton(position,name,...)
+	end
+	self._custom_info[name]={"wrappedAddCustomButton",position,name,...}
+end
+
+function fleetCustom:addCustomInfo(player,...)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomInfo(position,name,...)
+	end
+	self._custom_info[name]={"wrappedAddCustomInfo",position,name,...}
+end
+
+-- we arent even going to try to cache messages, we have no way to tell
+-- when players have clicked on them
+-- its possible if we wrap calls round addCustomMessage we could make it work
+-- but it opens questions like "do we show this if one ship has closed and one has opened"
+-- this is a logical thing to implement if it ends up being wanted though
+function fleetCustom:addCustomMessage(...)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomMessage(...)
+	end
+end
+
+-- see addCustomMessage
+function fleetCustom:addCustomMessageWithCallback(...)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedAddCustomMessageWithCallback(...)
+	end
+end
+
+function fleetCustom:removeCustom(name)
+	self:_gc()
+	for _,p in pairs(self._player_list) do
+		p:wrappedRemoveCustom(name)
+	end
+	self._custom_info[name]=nil
 end
 
 updateSystem = {}
@@ -17189,6 +17282,7 @@ function wrapAddCustomButtons(p)
 end
 function assignPlayerShipScore(p)
 	wrapAddCustomButtons(p)
+	fleet_custom:addToFleet(p)
 --	print("assign player ship score",p:getCallSign())
 	local spawn_x,spawn_y=p:getPosition()
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
