@@ -12,7 +12,6 @@
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
 -- getScenarioTime should allow some small simplifcations
 -- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
--- the edit I made to use onNewPlayerShip I think will be missfiring with the setTemplate type rather than the rebuilt type fix
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
 -- try to merge in a for the rift devices at long last (getting closer with the update system but still a way off)
@@ -17204,6 +17203,9 @@ function assignPlayerShipScore(p)
 	p.mining = false
 	p.max_pods = 1
 	p.pods = p.max_pods
+	updatePlayerSoftTemplate(p)
+end
+function updatePlayerSoftTemplate(p)
 	local tempTypeName = p:getTypeName()
 --	print("assign player ship score, temp type name",tempTypeName)
 	if tempTypeName ~= nil then
@@ -35535,9 +35537,12 @@ function updateInner(delta)
 		local p = getPlayerShip(pidx)
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
+			-- if the template has been update pull data from the soft template
+			-- even if templates arent changed this can happen during inital creation
+			-- as setTemplate will invoke the callback with the template before being
+			-- overwritten by the soft template
 			if p.score_settings_source ~= p:getTypeName() then
-				assignPlayerShipScore(p)
---				print("assignPlayerScore or perhaps onNewPlayerShip did not get it right the first time, so it is being called again")
+				updatePlayerSoftTemplate(p)
 			end
 			local player_name = p:getCallSign()
 			if warning_station ~= nil then
