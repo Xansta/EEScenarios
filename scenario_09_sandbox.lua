@@ -17180,7 +17180,9 @@ function playerPower()
 	return playerShipScore
 end
 function wrapAddCustomButtons(p)
-	p.wrappedAddCustomButton = function(...) customElements:addCustomButton(...) end -- count - 45
+	p.wrappedAddCustomButton = function(player,position,name,caption,callback) -- missing index for next EE version
+		customElements:addCustomButton(player,position,name,caption,wrapWithErrorHandling(callback))
+	end -- count - 45
 	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end -- count 5
 	p.wrappedAddCustomMessageWithCallback = function(...) customElements:addCustomMessageWithCallback(...) end
 	p.wrappedAddCustomMessage = function(...) customElements:addCustomMessage(...) end -- count 45
