@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.24"
+	scenario_version = "3.5.25"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -3964,11 +3964,11 @@ function identifyFreighter(ship)
 		ship_id = tableRemoveRandom(fuel_5)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Courier" then
-		if courier == nil then
-			courier = {}
+		if courier_names == nil then
+			courier_names = {}
 		end
-		if #courier == 0 then
-			courier = {
+		if #courier_names == 0 then
+			courier_names = {
 				{name = "Porsche",			faction = "CUF"},
 				{name = "Razorback",		faction = "Human Navy"},
 				{name = "Orlyonok",			faction = "TSN"},
@@ -3977,14 +3977,14 @@ function identifyFreighter(ship)
 				{name = "Hecate",			faction = "Independent"},
 			}
 		end
-		ship_id = tableRemoveRandom(courier)
+		ship_id = tableRemoveRandom(courier_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Work Wagon" then
-		if work_wagon == nil then
-			work_wagon = {}
+		if work_wagon_names == nil then
+			work_wagon_names = {}
 		end
-		if #work_wagon == 0 then
-			work_wagon = {
+		if #work_wagon_names == 0 then
+			work_wagon_names = {
 				{name = "Mangled Metal",	faction = "CUF"},
 				{name = "Banshee",			faction = "Human Navy"},
 				{name = "Thing",			faction = "TSN"},
@@ -3993,7 +3993,7 @@ function identifyFreighter(ship)
 				{name = "Forbid",			faction = "Independent"},
 			}
 		end
-		ship_id = tableRemoveRandom(work_wagon)
+		ship_id = tableRemoveRandom(work_wagon_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Laden Lorry" then
 		if laden_lorry == nil then
