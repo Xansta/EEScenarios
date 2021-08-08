@@ -12474,6 +12474,25 @@ function tknolgBase(x,y)
     Mine():setPosition(x + 8590,y + -3062)
     Mine():setPosition(x + 8738,y + -2610)
 end
+
+-- both these functions are ugly, the lack of a way to get
+-- EE to do this in engine is either my foolishness in being unable to figure it out
+-- or is a bug in EE
+-- openGMComms takes a player ship and force opens a gm comms window
+-- returns true if it was able to, flase if relay was already in comms with someone
+function openGMComms(player)
+	local tmp = Artifact()
+	tmp:setCallSign("auto-opened") -- callsign isnt shown to player, try to provide the gm a bit of a hint
+	local ret = tmp:openCommsTo(player)
+	if ret then
+		tmp:setCommsFunction(SwitchToGM)
+		player:commandAnswerCommHail(true)
+		player:commandSendComm(0)
+	end
+	tmp:destroy()
+	return ret
+end
+
 function SwitchToGM ()
     setCommsMessage(" ")
     addCommsReply("hail",function()
