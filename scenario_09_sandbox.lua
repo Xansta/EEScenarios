@@ -4587,6 +4587,27 @@ function customButtons()
 			coloredSubspaceRift(x,y,playerSpawnX,playerSpawnY)
 		end)
 	end)
+	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
+	-- though when I get round to one of the next improvements to gateway this may need to change anyway
+	addGMFunction("gateway rift",function () gateway_rift=coloredSubspaceRift(59893,373681) end)
+	addGMFunction("set gateway exit", function ()
+		onGMClick(function (x,y)
+			if (gateway_rift ~= nil and gateway_rift:isValid()) then
+				local update = update_system:getUpdateNamed(gateway_rift,"subspace rift")
+				if update ~= nil then
+					update.destination_x = x
+					update.destination_y = y
+				end
+			end
+		end)
+	end)
+	addGMFunction("contact gm",function ()
+		fleet_custom:addCustomButton("Relay","gm contact","calibrate",function (player)
+			if not openGMComms(player) then
+				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
+			end
+		end)
+	end)
 	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
 end
 -------------------
