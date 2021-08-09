@@ -4440,6 +4440,83 @@ function countdownTimer()
 		end)
 	end
 end
+function coloredSubspaceRift (x,y,destination_x,destination_y)
+	local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+	local all_objs = {}
+	local number_in_ring = 20
+	local clockwise_objs=createObjectCircle{number = number_in_ring}
+	local a_c = {
+	--	red						green					blue
+	--	start	min	max	time	start	min	max	time	start	min	max	time
+		{	0,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
+		{	0,	128,255,4,		0,		32,	255,4,		0,		0,	255,4	},
+		{	0,	128,255,3,		0,		64,	255,3,		0,		0,	255,3	},
+		{	0,	128,255,6,		0,		96,	255,6,		0,		0,	255,6	},
+		{	0,	96, 255,2,		0,		128,255,2,		0,		0,	255,2	},
+		{	0,	64,	255,4,		0,		128,255,4,		0,		0,	255,4	},
+		{	0,	32,	255,3,		0,		128,255,3,		0,		0,	255,3	},
+		{	0,	0,	255,6,		0,		128,255,6,		0,		32,	255,6	},
+		{	0,	0,	255,2,		0,		128,255,2,		0,		64,	255,2	},
+		{	0,	0,	255,4,		0,		128,255,4,		0,		96,	255,4	},
+		{	0,	0,	255,3,		0,		128,255,3,		0,		128,255,3	},
+		{	0,	0,	255,6,		0,		96,	255,6,		0,		128,255,6	},
+		{	0,	0,	255,2,		0,		64,	255,2,		0,		128,255,2	},
+		{	0,	0,	255,4,		0,		0,	255,4,		0,		128,255,4	},
+		{	0,	32,	255,3,		0,		0,	255,3,		0,		128,255,3	},
+		{	0,	64,	255,6,		0,		0,	255,6,		0,		128,255,6	},
+		{	0,	96,	255,2,		0,		0,	255,2,		0,		128,255,2	},
+		{	0,	128,255,4,		0,		0,	255,4,		0,		96,	255,4	},
+		{	0,	128,255,3,		0,		0,	255,3,		0,		64,	255,3	},
+		{	0,	128,255,6,		0,		0,	255,6,		0,		32,	255,6	},
+	}
+	for i=1,#clockwise_objs do
+		if a_c[i] ~= nil then
+			update_system:addArtifactCyclicalColorUpdate(clockwise_objs[i],a_c[i][1],a_c[i][2],a_c[i][3],a_c[i][4],a_c[i][5],a_c[i][6],a_c[i][7],a_c[i][8],a_c[i][9],a_c[i][10],a_c[i][11],a_c[i][12])
+		end
+	end
+--		clockwise_objs[1]:setRadarTraceColor(0,255,0)
+	for i=#clockwise_objs,1,-1 do
+		createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
+		update_system:addOwned(clockwise_objs[i],artifact)
+		table.insert(all_objs,clockwise_objs[i])
+	end
+	local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+	for i=#counterclockwise_objs,1,-1 do
+		createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
+		update_system:addOwned(counterclockwise_objs[i],artifact)
+		table.insert(all_objs,counterclockwise_objs[i])
+	end
+	local update_data = {
+		all_objs = all_objs,
+		current_radius = 0,
+		max_radius = 3000,
+		max_time = 120,
+		destination_x = destination_x or 0,
+		destination_y = destination_y or 0,
+		update = function (self, obj, delta)
+			self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+			for i=#all_objs,1,-1 do
+				update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+			end
+			local x,y=obj:getPosition()
+			local objs = getObjectsInRadius(x,y,self.current_radius)
+			for i=#objs,1,-1 do
+				if objs[i].typeName=="PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+					objs[i]:setPosition(self.destination_x,self.destination_y)
+				end
+			end
+		end,
+		edit = {
+			{name = "max_time", fixedAdjAmount=1},
+			{name = "destination_x", fixedAdjAmount=20000},
+			{name = "destination_y", fixedAdjAmount=20000}
+		}
+	}
+	update_system:addUpdate(artifact,"subspace rift",update_data)
+	return artifact
+end
 --------------
 --	Custom  --
 --------------
@@ -4505,82 +4582,11 @@ function customButtons()
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
-	addGMFunction("Colored Subspace Rift",function () onGMClick(function (x,y)
-		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
-		local all_objs = {}
-		local number_in_ring = 20
-		local clockwise_objs=createObjectCircle{number = number_in_ring}
-		local a_c = {
-		--	red						green					blue
-		--	start	min	max	time	start	min	max	time	start	min	max	time
-			{	0,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
-			{	0,	128,255,4,		0,		32,	255,4,		0,		0,	255,4	},
-			{	0,	128,255,3,		0,		64,	255,3,		0,		0,	255,3	},
-			{	0,	128,255,6,		0,		96,	255,6,		0,		0,	255,6	},
-			{	0,	96, 255,2,		0,		128,255,2,		0,		0,	255,2	},
-			{	0,	64,	255,4,		0,		128,255,4,		0,		0,	255,4	},
-			{	0,	32,	255,3,		0,		128,255,3,		0,		0,	255,3	},
-			{	0,	0,	255,6,		0,		128,255,6,		0,		32,	255,6	},
-			{	0,	0,	255,2,		0,		128,255,2,		0,		64,	255,2	},
-			{	0,	0,	255,4,		0,		128,255,4,		0,		96,	255,4	},
-			{	0,	0,	255,3,		0,		128,255,3,		0,		128,255,3	},
-			{	0,	0,	255,6,		0,		96,	255,6,		0,		128,255,6	},
-			{	0,	0,	255,2,		0,		64,	255,2,		0,		128,255,2	},
-			{	0,	0,	255,4,		0,		0,	255,4,		0,		128,255,4	},
-			{	0,	32,	255,3,		0,		0,	255,3,		0,		128,255,3	},
-			{	0,	64,	255,6,		0,		0,	255,6,		0,		128,255,6	},
-			{	0,	96,	255,2,		0,		0,	255,2,		0,		128,255,2	},
-			{	0,	128,255,4,		0,		0,	255,4,		0,		96,	255,4	},
-			{	0,	128,255,3,		0,		0,	255,3,		0,		64,	255,3	},
-			{	0,	128,255,6,		0,		0,	255,6,		0,		32,	255,6	},
-		}
-		for i=1,#clockwise_objs do
-			if a_c[i] ~= nil then
-				update_system:addArtifactCyclicalColorUpdate(clockwise_objs[i],a_c[i][1],a_c[i][2],a_c[i][3],a_c[i][4],a_c[i][5],a_c[i][6],a_c[i][7],a_c[i][8],a_c[i][9],a_c[i][10],a_c[i][11],a_c[i][12])
-			end
-		end
---		clockwise_objs[1]:setRadarTraceColor(0,255,0)
-		for i=#clockwise_objs,1,-1 do
-			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
-			update_system:addOwned(clockwise_objs[i],artifact)
-			table.insert(all_objs,clockwise_objs[i])
-		end
-		local counterclockwise_objs=createObjectCircle{number = number_in_ring}
-		for i=#counterclockwise_objs,1,-1 do
-			createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
-			update_system:addOwned(counterclockwise_objs[i],artifact)
-			table.insert(all_objs,counterclockwise_objs[i])
-		end
-		local update_data = {
-			all_objs = all_objs,
-			current_radius = 0,
-			max_radius = 3000,
-			max_time = 120,
-			destination_x = playerSpawnX,
-			destination_y = playerSpawnY,		
-			update = function (self, obj, delta)
-				self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
-				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
-				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
-				for i=#all_objs,1,-1 do
-					update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
-				end
-				local x,y=obj:getPosition()
-				local objs = getObjectsInRadius(x,y,self.current_radius)
-				for i=#objs,1,-1 do
-					if objs[i].typeName=="PlayerSpaceship" or objs[i].typeName == "CpuShip" then
-						objs[i]:setPosition(self.destination_x,self.destination_y)
-					end
-				end
-			end,
-			edit = {
-				{name = "max_time", fixedAdjAmount=1},
-				{name = "destination_x", fixedAdjAmount=20000},
-				{name = "destination_y", fixedAdjAmount=20000}
-			}
-		}
-		update_system:addUpdate(artifact,"subspace rift",update_data)
-	end)end)
+	addGMFunction("Colored Subspace Rift",function ()
+		onGMClick(function (x,y)
+			coloredSubspaceRift(x,y,playerSpawnX,playerSpawnY)
+		end)
+	end)
 	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
 end
 -------------------
