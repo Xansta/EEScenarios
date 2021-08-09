@@ -1426,7 +1426,7 @@ function fleetCustom:create()
 end
 
 -- internal to fleetCustom, should be called often, but doesnt need to be each update()
-function fleetCustom:_gc()
+function fleetCustom:_garbage_collection()
 	removeInvalidFromEETable(self._player_list)
 end
 
@@ -1434,7 +1434,7 @@ end
 -- this wouldnt be hard to write, but I currently see no
 -- use for it
 function fleetCustom:addToFleet(player)
-	self:_gc()
+	self:_garbage_collection()
 	table.insert(self._player_list,player)
 	for _,custom in pairs(self._custom_info) do
 		local set = function (fun_name,...)
@@ -1445,15 +1445,16 @@ function fleetCustom:addToFleet(player)
 end
 
 function fleetCustom:addCustomButton(position,name,caption,callback,order)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
+
 		p:wrappedAddCustomButton(position,name,caption,callback,order)
 	end
 	self._custom_info[name]={"wrappedAddCustomButton",position,name,caption,callback,order}
 end
 
 function fleetCustom:addCustomInfo(player,position,name,caption,order)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomInfo(position,name,caption,order)
 	end
@@ -1466,7 +1467,7 @@ end
 -- but it opens questions like "do we show this if one ship has closed and one has opened"
 -- this is a logical thing to implement if it ends up being wanted though
 function fleetCustom:addCustomMessage(position,name,caption)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomMessage(position,name,caption)
 	end
@@ -1474,14 +1475,14 @@ end
 
 -- see addCustomMessage
 function fleetCustom:addCustomMessageWithCallback(position,name,caption,callback)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomMessageWithCallback(position,name,caption,callback)
 	end
 end
 
 function fleetCustom:removeCustom(name)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedRemoveCustom(name)
 	end
