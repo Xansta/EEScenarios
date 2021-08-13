@@ -1437,20 +1437,33 @@ function fleetCustom:addToFleet(player)
 	self:_garbage_collection()
 	table.insert(self._player_list,player)
 	for _,custom in pairs(self._custom_info) do
-		local set = function (fun_name,...)
-			player[fun_name](player,...)
+		if custom[1] == "addCustomButton" then
+			local _,position,name,caption,callback_inner,order = table.unpack(custom)
+			local callback = function ()
+				callback_inner(player)
+			end
+			player:wrappedAddCustomButton(position,name,caption,callback,order)
+		else
+			local set = function (fun_name,...)
+				player[fun_name](player,...)
+			end
+			set(table.unpack(custom))
 		end
-		set(table.unpack(custom))
 	end
 end
 
-function fleetCustom:addCustomButton(position,name,caption,callback,order)
+-- note the first argument in the callback becomes the player ship
+-- this makes this incompatable with the base game
+-- it really shouldnt for any real world code though
+function fleetCustom:addCustomButton(position,name,caption,callback_inner,order)
 	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
-
+		local callback = function ()
+			callback_inner(p)
+		end
 		p:wrappedAddCustomButton(position,name,caption,callback,order)
 	end
-	self._custom_info[name]={"wrappedAddCustomButton",position,name,caption,callback,order}
+	self._custom_info[name]={"addCustomButton",position,name,caption,callback_inner,order}
 end
 
 function fleetCustom:addCustomInfo(player,position,name,caption,order)
