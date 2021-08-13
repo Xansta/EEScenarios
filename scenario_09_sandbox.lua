@@ -1426,7 +1426,7 @@ function fleetCustom:create()
 end
 
 -- internal to fleetCustom, should be called often, but doesnt need to be each update()
-function fleetCustom:_gc()
+function fleetCustom:_garbage_collection()
 	removeInvalidFromEETable(self._player_list)
 end
 
@@ -1434,26 +1434,40 @@ end
 -- this wouldnt be hard to write, but I currently see no
 -- use for it
 function fleetCustom:addToFleet(player)
-	self:_gc()
+	self:_garbage_collection()
 	table.insert(self._player_list,player)
 	for _,custom in pairs(self._custom_info) do
-		local set = function (fun_name,...)
-			player[fun_name](player,...)
+		if custom[1] == "addCustomButton" then
+			local _,position,name,caption,callback_inner,order = table.unpack(custom)
+			local callback = function ()
+				callback_inner(player)
+			end
+			player:wrappedAddCustomButton(position,name,caption,callback,order)
+		else
+			local set = function (fun_name,...)
+				player[fun_name](player,...)
+			end
+			set(table.unpack(custom))
 		end
-		set(table.unpack(custom))
 	end
 end
 
-function fleetCustom:addCustomButton(position,name,caption,callback,order)
-	self:_gc()
+-- note the first argument in the callback becomes the player ship
+-- this makes this incompatable with the base game
+-- it really shouldnt for any real world code though
+function fleetCustom:addCustomButton(position,name,caption,callback_inner,order)
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
+		local callback = function ()
+			callback_inner(p)
+		end
 		p:wrappedAddCustomButton(position,name,caption,callback,order)
 	end
-	self._custom_info[name]={"wrappedAddCustomButton",position,name,caption,callback,order}
+	self._custom_info[name]={"addCustomButton",position,name,caption,callback_inner,order}
 end
 
 function fleetCustom:addCustomInfo(player,position,name,caption,order)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomInfo(position,name,caption,order)
 	end
@@ -1466,7 +1480,7 @@ end
 -- but it opens questions like "do we show this if one ship has closed and one has opened"
 -- this is a logical thing to implement if it ends up being wanted though
 function fleetCustom:addCustomMessage(position,name,caption)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomMessage(position,name,caption)
 	end
@@ -1474,14 +1488,14 @@ end
 
 -- see addCustomMessage
 function fleetCustom:addCustomMessageWithCallback(position,name,caption,callback)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomMessageWithCallback(position,name,caption,callback)
 	end
 end
 
 function fleetCustom:removeCustom(name)
-	self:_gc()
+	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedRemoveCustom(name)
 	end
@@ -4440,6 +4454,83 @@ function countdownTimer()
 		end)
 	end
 end
+function coloredSubspaceRift (x,y,destination_x,destination_y)
+	local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+	local all_objs = {}
+	local number_in_ring = 20
+	local clockwise_objs=createObjectCircle{number = number_in_ring}
+	local a_c = {
+	--	red						green					blue
+	--	start	min	max	time	start	min	max	time	start	min	max	time
+		{	0,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
+		{	0,	128,255,4,		0,		32,	255,4,		0,		0,	255,4	},
+		{	0,	128,255,3,		0,		64,	255,3,		0,		0,	255,3	},
+		{	0,	128,255,6,		0,		96,	255,6,		0,		0,	255,6	},
+		{	0,	96, 255,2,		0,		128,255,2,		0,		0,	255,2	},
+		{	0,	64,	255,4,		0,		128,255,4,		0,		0,	255,4	},
+		{	0,	32,	255,3,		0,		128,255,3,		0,		0,	255,3	},
+		{	0,	0,	255,6,		0,		128,255,6,		0,		32,	255,6	},
+		{	0,	0,	255,2,		0,		128,255,2,		0,		64,	255,2	},
+		{	0,	0,	255,4,		0,		128,255,4,		0,		96,	255,4	},
+		{	0,	0,	255,3,		0,		128,255,3,		0,		128,255,3	},
+		{	0,	0,	255,6,		0,		96,	255,6,		0,		128,255,6	},
+		{	0,	0,	255,2,		0,		64,	255,2,		0,		128,255,2	},
+		{	0,	0,	255,4,		0,		0,	255,4,		0,		128,255,4	},
+		{	0,	32,	255,3,		0,		0,	255,3,		0,		128,255,3	},
+		{	0,	64,	255,6,		0,		0,	255,6,		0,		128,255,6	},
+		{	0,	96,	255,2,		0,		0,	255,2,		0,		128,255,2	},
+		{	0,	128,255,4,		0,		0,	255,4,		0,		96,	255,4	},
+		{	0,	128,255,3,		0,		0,	255,3,		0,		64,	255,3	},
+		{	0,	128,255,6,		0,		0,	255,6,		0,		32,	255,6	},
+	}
+	for i=1,#clockwise_objs do
+		if a_c[i] ~= nil then
+			update_system:addArtifactCyclicalColorUpdate(clockwise_objs[i],a_c[i][1],a_c[i][2],a_c[i][3],a_c[i][4],a_c[i][5],a_c[i][6],a_c[i][7],a_c[i][8],a_c[i][9],a_c[i][10],a_c[i][11],a_c[i][12])
+		end
+	end
+--		clockwise_objs[1]:setRadarTraceColor(0,255,0)
+	for i=#clockwise_objs,1,-1 do
+		createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
+		update_system:addOwned(clockwise_objs[i],artifact)
+		table.insert(all_objs,clockwise_objs[i])
+	end
+	local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+	for i=#counterclockwise_objs,1,-1 do
+		createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
+		update_system:addOwned(counterclockwise_objs[i],artifact)
+		table.insert(all_objs,counterclockwise_objs[i])
+	end
+	local update_data = {
+		all_objs = all_objs,
+		current_radius = 0,
+		max_radius = 3000,
+		max_time = 120,
+		destination_x = destination_x or 0,
+		destination_y = destination_y or 0,
+		update = function (self, obj, delta)
+			self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+			for i=#all_objs,1,-1 do
+				update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+			end
+			local x,y=obj:getPosition()
+			local objs = getObjectsInRadius(x,y,self.current_radius)
+			for i=#objs,1,-1 do
+				if objs[i].typeName=="PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+					objs[i]:setPosition(self.destination_x,self.destination_y)
+				end
+			end
+		end,
+		edit = {
+			{name = "max_time", fixedAdjAmount=1},
+			{name = "destination_x", fixedAdjAmount=20000},
+			{name = "destination_y", fixedAdjAmount=20000}
+		}
+	}
+	update_system:addUpdate(artifact,"subspace rift",update_data)
+	return artifact
+end
 --------------
 --	Custom  --
 --------------
@@ -4505,82 +4596,62 @@ function customButtons()
 		}
 		update_system:addUpdate(artifact,"subspace rift",update_data)
 	end)end)
-	addGMFunction("Colored Subspace Rift",function () onGMClick(function (x,y)
-		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
-		local all_objs = {}
-		local number_in_ring = 20
-		local clockwise_objs=createObjectCircle{number = number_in_ring}
-		local a_c = {
-		--	red						green					blue
-		--	start	min	max	time	start	min	max	time	start	min	max	time
-			{	0,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
-			{	0,	128,255,4,		0,		32,	255,4,		0,		0,	255,4	},
-			{	0,	128,255,3,		0,		64,	255,3,		0,		0,	255,3	},
-			{	0,	128,255,6,		0,		96,	255,6,		0,		0,	255,6	},
-			{	0,	96, 255,2,		0,		128,255,2,		0,		0,	255,2	},
-			{	0,	64,	255,4,		0,		128,255,4,		0,		0,	255,4	},
-			{	0,	32,	255,3,		0,		128,255,3,		0,		0,	255,3	},
-			{	0,	0,	255,6,		0,		128,255,6,		0,		32,	255,6	},
-			{	0,	0,	255,2,		0,		128,255,2,		0,		64,	255,2	},
-			{	0,	0,	255,4,		0,		128,255,4,		0,		96,	255,4	},
-			{	0,	0,	255,3,		0,		128,255,3,		0,		128,255,3	},
-			{	0,	0,	255,6,		0,		96,	255,6,		0,		128,255,6	},
-			{	0,	0,	255,2,		0,		64,	255,2,		0,		128,255,2	},
-			{	0,	0,	255,4,		0,		0,	255,4,		0,		128,255,4	},
-			{	0,	32,	255,3,		0,		0,	255,3,		0,		128,255,3	},
-			{	0,	64,	255,6,		0,		0,	255,6,		0,		128,255,6	},
-			{	0,	96,	255,2,		0,		0,	255,2,		0,		128,255,2	},
-			{	0,	128,255,4,		0,		0,	255,4,		0,		96,	255,4	},
-			{	0,	128,255,3,		0,		0,	255,3,		0,		64,	255,3	},
-			{	0,	128,255,6,		0,		0,	255,6,		0,		32,	255,6	},
-		}
-		for i=1,#clockwise_objs do
-			if a_c[i] ~= nil then
-				update_system:addArtifactCyclicalColorUpdate(clockwise_objs[i],a_c[i][1],a_c[i][2],a_c[i][3],a_c[i][4],a_c[i][5],a_c[i][6],a_c[i][7],a_c[i][8],a_c[i][9],a_c[i][10],a_c[i][11],a_c[i][12])
+	addGMFunction("Colored Subspace Rift",function ()
+		onGMClick(function (x,y)
+			coloredSubspaceRift(x,y,playerSpawnX,playerSpawnY)
+		end)
+	end)
+	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
+	-- though when I get round to one of the next improvements to gateway this may need to change anyway
+	addGMFunction("gateway rift",function () gateway_rift=coloredSubspaceRift(59893,373681) end)
+	addGMFunction("set gateway exit", function ()
+		onGMClick(function (x,y)
+			if (gateway_rift ~= nil and gateway_rift:isValid()) then
+				local update = update_system:getUpdateNamed(gateway_rift,"subspace rift")
+				if update ~= nil then
+					update.destination_x = x
+					update.destination_y = y
+				end
 			end
-		end
---		clockwise_objs[1]:setRadarTraceColor(0,255,0)
-		for i=#clockwise_objs,1,-1 do
-			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
-			update_system:addOwned(clockwise_objs[i],artifact)
-			table.insert(all_objs,clockwise_objs[i])
-		end
-		local counterclockwise_objs=createObjectCircle{number = number_in_ring}
-		for i=#counterclockwise_objs,1,-1 do
-			createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
-			update_system:addOwned(counterclockwise_objs[i],artifact)
-			table.insert(all_objs,counterclockwise_objs[i])
-		end
-		local update_data = {
-			all_objs = all_objs,
-			current_radius = 0,
-			max_radius = 3000,
-			max_time = 120,
-			destination_x = playerSpawnX,
-			destination_y = playerSpawnY,		
-			update = function (self, obj, delta)
-				self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
-				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
-				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
-				for i=#all_objs,1,-1 do
-					update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
-				end
-				local x,y=obj:getPosition()
-				local objs = getObjectsInRadius(x,y,self.current_radius)
-				for i=#objs,1,-1 do
-					if objs[i].typeName=="PlayerSpaceship" or objs[i].typeName == "CpuShip" then
-						objs[i]:setPosition(self.destination_x,self.destination_y)
-					end
-				end
-			end,
-			edit = {
-				{name = "max_time", fixedAdjAmount=1},
-				{name = "destination_x", fixedAdjAmount=20000},
-				{name = "destination_y", fixedAdjAmount=20000}
-			}
-		}
-		update_system:addUpdate(artifact,"subspace rift",update_data)
-	end)end)
+		end)
+	end)
+	addGMFunction("contact gm",function ()
+		fleet_custom:addCustomButton("Relay","gm contact","calibrate",function (player)
+			if not openGMComms(player) then
+				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
+			end
+		end)
+	end)
+	addGMFunction("pending gateway defences",function ()
+		-- note one of the command bases probably wants to be changed to a science station (no name yet)
+		-- other one to a shipyard?
+		-- mines also kind of want tweaking for them (the rows of 8ish mines) - they arent symmetrical
+		local gateway_x = 59893
+		local gateway_y = 373681
+		local dist = 15000
+		-- note distances could use a little tweaking (talking 100s of units)
+		-- likewise callsigns could use some work to make some matching names
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((50  )/360)*math.pi*2)*dist, gateway_y - math.cos(((50  )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((70  )/360)*math.pi*2)*dist, gateway_y - math.cos(((70  )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((170 )/360)*math.pi*2)*dist, gateway_y - math.cos(((170 )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((190 )/360)*math.pi*2)*dist, gateway_y - math.cos(((190 )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((290 )/360)*math.pi*2)*dist, gateway_y - math.cos(((290 )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((310 )/360)*math.pi*2)*dist, gateway_y - math.cos(((310 )/360)*math.pi*2)*dist)
+		dist = 18000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((25  )/360)*math.pi*2)*dist, gateway_y - math.cos(((25  )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((95  )/360)*math.pi*2)*dist, gateway_y - math.cos(((95  )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((145 )/360)*math.pi*2)*dist, gateway_y - math.cos(((145 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((215 )/360)*math.pi*2)*dist, gateway_y - math.cos(((215 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((265 )/360)*math.pi*2)*dist, gateway_y - math.cos(((265 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((335 )/360)*math.pi*2)*dist, gateway_y - math.cos(((335 )/360)*math.pi*2)*dist)
+		dist = 23000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((15  )/360)*math.pi*2)*dist, gateway_y - math.cos(((15  )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((135 )/360)*math.pi*2)*dist, gateway_y - math.cos(((135 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((225 )/360)*math.pi*2)*dist, gateway_y - math.cos(((225 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((255 )/360)*math.pi*2)*dist, gateway_y - math.cos(((255 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((345 )/360)*math.pi*2)*dist, gateway_y - math.cos(((345 )/360)*math.pi*2)*dist)
+	end)
 	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
 end
 -------------------
@@ -7936,6 +8007,184 @@ function createKentarStations()
     SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RN1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_inner, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_inner):setCommsFunction(SwitchToGM)
     SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GN1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_inner, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_inner):setCommsFunction(SwitchToGM)
     SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BN1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_inner, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_inner):setCommsFunction(SwitchToGM)
+
+	-- creating this was more manual than I would like
+	-- if it needs to be regnerated create (via gmClickMineCircle)
+	-- 6 mine rings, all radius 15, +-20 degrees from (0,120,240)
+	-- 16000 units from gateway central
+	-- I also disabled randomness in start angle (set to 0)
+	Mine():setPosition(54138, 368593)
+	Mine():setPosition(52687, 366663)
+	Mine():setPosition(53374, 367657)
+	Mine():setPosition(52609, 371241)
+	Mine():setPosition(44289, 371912)
+	Mine():setPosition(58935, 345094)
+	Mine():setPosition(59740, 344621)
+	Mine():setPosition(60851, 345094)
+	Mine():setPosition(56844, 346301)
+	Mine():setPosition(55879, 347027)
+	Mine():setPosition(57865, 345656)
+	Mine():setPosition(65648, 368593)
+	Mine():setPosition(66412, 367657)
+	Mine():setPosition(67099, 366663)
+	Mine():setPosition(68220, 364525)
+	Mine():setPosition(68649, 363396)
+	Mine():setPosition(69372, 359853)
+	Mine():setPosition(67703, 365617)
+	Mine():setPosition(51416, 371047)
+	Mine():setPosition(68985, 362236)
+	Mine():setPosition(69226, 361052)
+	Mine():setPosition(50212, 370950)
+	Mine():setPosition(68649, 353896)
+	Mine():setPosition(68985, 355056)
+	Mine():setPosition(69421, 358646)
+	Mine():setPosition(68220, 352766)
+	Mine():setPosition(67099, 350629)
+	Mine():setPosition(67703, 351675)
+	Mine():setPosition(69226, 356240)
+	Mine():setPosition(69372, 357439)
+	Mine():setPosition(50560, 361052)
+	Mine():setPosition(50414, 359853)
+	Mine():setPosition(50801, 362236)
+	Mine():setPosition(50365, 358646)
+	Mine():setPosition(51137, 363396)
+	Mine():setPosition(50414, 357439)
+	Mine():setPosition(63907, 347027)
+	Mine():setPosition(64812, 347828)
+	Mine():setPosition(65648, 348699)
+	Mine():setPosition(66412, 349635)
+	Mine():setPosition(62942, 346301)
+	Mine():setPosition(61921, 345656)
+	Mine():setPosition(51566, 364525)
+	Mine():setPosition(52083, 365617)
+	Mine():setPosition(50560, 356240)
+	Mine():setPosition(50801, 355056)
+	Mine():setPosition(51137, 353896)
+	Mine():setPosition(51566, 352766)
+	Mine():setPosition(52083, 351675)
+	Mine():setPosition(52687, 350629)
+	Mine():setPosition(53374, 349635)
+	Mine():setPosition(54974, 347828)
+	Mine():setPosition(54138, 348699)
+	Mine():setPosition(85178, 385938)
+	Mine():setPosition(85129, 384731)
+	Mine():setPosition(84742, 382348)
+	Mine():setPosition(84983, 383532)
+	Mine():setPosition(85129, 387145)
+	Mine():setPosition(84983, 388344)
+	Mine():setPosition(84171, 388804)
+	Mine():setPosition(76254, 391447)
+	Mine():setPosition(75046, 391447)
+	Mine():setPosition(77458, 391350)
+	Mine():setPosition(79823, 390867)
+	Mine():setPosition(78650, 391156)
+	Mine():setPosition(82080, 390011)
+	Mine():setPosition(80969, 390485)
+	Mine():setPosition(83150, 389450)
+	Mine():setPosition(43178, 372386)
+	Mine():setPosition(36327, 378967)
+	Mine():setPosition(36931, 377921)
+	Mine():setPosition(35809, 380058)
+	Mine():setPosition(35380, 381188)
+	Mine():setPosition(40122, 374319)
+	Mine():setPosition(39218, 375120)
+	Mine():setPosition(37617, 376927)
+	Mine():setPosition(38381, 375991)
+	Mine():setPosition(71477, 390867)
+	Mine():setPosition(73842, 391350)
+	Mine():setPosition(72650, 391156)
+	Mine():setPosition(70331, 390485)
+	Mine():setPosition(69220, 390011)
+	Mine():setPosition(68150, 389450)
+	Mine():setPosition(67129, 388804)
+	Mine():setPosition(66163, 388078)
+	Mine():setPosition(65259, 387277)
+	Mine():setPosition(48309, 390867)
+	Mine():setPosition(47136, 391156)
+	Mine():setPosition(49455, 390485)
+	Mine():setPosition(50566, 390011)
+	Mine():setPosition(37706, 390011)
+	Mine():setPosition(39963, 390867)
+	Mine():setPosition(38817, 390485)
+	Mine():setPosition(45944, 391350)
+	Mine():setPosition(44740, 391447)
+	Mine():setPosition(55364, 386406)
+	Mine():setPosition(53623, 388078)
+	Mine():setPosition(56128, 385470)
+	Mine():setPosition(54527, 387277)
+	Mine():setPosition(52657, 388804)
+	Mine():setPosition(51636, 389450)
+	Mine():setPosition(43532, 391447)
+	Mine():setPosition(42328, 391350)
+	Mine():setPosition(41136, 391156)
+	Mine():setPosition(34649, 388078)
+	Mine():setPosition(35615, 388804)
+	Mine():setPosition(36636, 389450)
+	Mine():setPosition(34657, 387145)
+	Mine():setPosition(34608, 385938)
+	Mine():setPosition(34657, 384731)
+	Mine():setPosition(34803, 383532)
+	Mine():setPosition(35044, 382348)
+	Mine():setPosition(41087, 373593)
+	Mine():setPosition(42108, 372947)
+	Mine():setPosition(45435, 371530)
+	Mine():setPosition(46608, 371241)
+	Mine():setPosition(47800, 371047)
+	Mine():setPosition(49004, 370950)
+	Mine():setPosition(57936, 382339)
+	Mine():setPosition(56814, 384476)
+	Mine():setPosition(57418, 383430)
+	Mine():setPosition(58364, 381209)
+	Mine():setPosition(62972, 384476)
+	Mine():setPosition(62368, 383430)
+	Mine():setPosition(73178, 371241)
+	Mine():setPosition(74351, 371530)
+	Mine():setPosition(75497, 371912)
+	Mine():setPosition(76608, 372386)
+	Mine():setPosition(77678, 372947)
+	Mine():setPosition(78699, 373593)
+	Mine():setPosition(79664, 374319)
+	Mine():setPosition(80568, 375120)
+	Mine():setPosition(81405, 375991)
+	Mine():setPosition(82169, 376927)
+	Mine():setPosition(82855, 377921)
+	Mine():setPosition(83459, 378967)
+	Mine():setPosition(83977, 380058)
+	Mine():setPosition(84406, 381188)
+	Mine():setPosition(63658, 385470)
+	Mine():setPosition(64422, 386406)
+	Mine():setPosition(61850, 382339)
+	Mine():setPosition(61422, 381209)
+	Mine():setPosition(69574, 370950)
+	Mine():setPosition(68370, 371047)
+	Mine():setPosition(67177, 371241)
+	Mine():setPosition(70782, 370950)
+	Mine():setPosition(71986, 371047)
+
+	-- these where mines with a radius of 5u from the stations
+	Mine():setPosition(72964, 363459)
+	Mine():setPosition(73930, 364258)
+	Mine():setPosition(75128, 368924)
+	Mine():setPosition(74667, 365272)
+	Mine():setPosition(75128, 366438)
+	Mine():setPosition(75285, 367681)
+	Mine():setPosition(71830, 362926)
+	Mine():setPosition(45456, 364742)
+	Mine():setPosition(44852, 365840)
+	Mine():setPosition(44852, 369522)
+	Mine():setPosition(44540, 367054)
+	Mine():setPosition(44540, 368308)
+	Mine():setPosition(48564, 362770)
+	Mine():setPosition(47372, 363157)
+	Mine():setPosition(46314, 363828)
+	Mine():setPosition(62572, 389903)
+	Mine():setPosition(63538, 389104)
+	Mine():setPosition(55848, 388620)
+	Mine():setPosition(56706, 389534)
+	Mine():setPosition(57764, 390205)
+	Mine():setPosition(58956, 390592)
+	Mine():setPosition(60207, 390671)
+	Mine():setPosition(61438, 390436)
 
 	-- the color far stations
 	SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM)
@@ -12474,6 +12723,25 @@ function tknolgBase(x,y)
     Mine():setPosition(x + 8590,y + -3062)
     Mine():setPosition(x + 8738,y + -2610)
 end
+
+-- both these functions are ugly, the lack of a way to get
+-- EE to do this in engine is either my foolishness in being unable to figure it out
+-- or is a bug in EE
+-- openGMComms takes a player ship and force opens a gm comms window
+-- returns true if it was able to, flase if relay was already in comms with someone
+function openGMComms(player)
+	local tmp = Artifact()
+	tmp:setCallSign("auto-opened") -- callsign isnt shown to player, try to provide the gm a bit of a hint
+	local ret = tmp:openCommsTo(player)
+	if ret then
+		tmp:setCommsFunction(SwitchToGM)
+		player:commandAnswerCommHail(true)
+		player:commandSendComm(0)
+	end
+	tmp:destroy()
+	return ret
+end
+
 function SwitchToGM ()
     setCommsMessage(" ")
     addCommsReply("hail",function()
