@@ -4622,6 +4622,36 @@ function customButtons()
 			end
 		end)
 	end)
+	addGMFunction("pending gateway defences",function ()
+		-- note one of the command bases probably wants to be changed to a science station (no name yet)
+		-- other one to a shipyard?
+		-- mines also kind of want tweaking for them (the rows of 8ish mines) - they arent symmetrical
+		local gateway_x = 59893
+		local gateway_y = 373681
+		local dist = 15000
+		-- note distances could use a little tweaking (talking 100s of units)
+		-- likewise callsigns could use some work to make some matching names
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((50  )/360)*math.pi*2)*dist, gateway_y - math.cos(((50  )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((70  )/360)*math.pi*2)*dist, gateway_y - math.cos(((70  )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((170 )/360)*math.pi*2)*dist, gateway_y - math.cos(((170 )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((190 )/360)*math.pi*2)*dist, gateway_y - math.cos(((190 )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((290 )/360)*math.pi*2)*dist, gateway_y - math.cos(((290 )/360)*math.pi*2)*dist)
+		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((310 )/360)*math.pi*2)*dist, gateway_y - math.cos(((310 )/360)*math.pi*2)*dist)
+		dist = 18000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((25  )/360)*math.pi*2)*dist, gateway_y - math.cos(((25  )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((95  )/360)*math.pi*2)*dist, gateway_y - math.cos(((95  )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((145 )/360)*math.pi*2)*dist, gateway_y - math.cos(((145 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((215 )/360)*math.pi*2)*dist, gateway_y - math.cos(((215 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((265 )/360)*math.pi*2)*dist, gateway_y - math.cos(((265 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((335 )/360)*math.pi*2)*dist, gateway_y - math.cos(((335 )/360)*math.pi*2)*dist)
+		dist = 23000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((15  )/360)*math.pi*2)*dist, gateway_y - math.cos(((15  )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((135 )/360)*math.pi*2)*dist, gateway_y - math.cos(((135 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((225 )/360)*math.pi*2)*dist, gateway_y - math.cos(((225 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((255 )/360)*math.pi*2)*dist, gateway_y - math.cos(((255 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((345 )/360)*math.pi*2)*dist, gateway_y - math.cos(((345 )/360)*math.pi*2)*dist)
+	end)
 	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
 end
 -------------------
