@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.25"
+	scenario_version = "3.5.26"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -804,7 +804,7 @@ function setConstants()
 		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0	},
 		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0	},
 		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0	},
-		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5	},
+		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5	},
 		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0	},
 		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0	},
 		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0	},
@@ -893,11 +893,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Pinwheel")
-	makePlayerShipActive("Arwine")
 	makePlayerShipActive("Crux")
 	makePlayerShipActive("George")
-	makePlayerShipActive("Tango")
-	makePlayerShipActive("Knuckle Drag")
+	makePlayerShipActive("Barracuda")
+	makePlayerShipActive("Manxman")
+	makePlayerShipActive("Florentine")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -14598,8 +14598,8 @@ function createPlayerShipBarracuda()
 	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
 	playerBarracuda:setTypeName("Redhook")
 	playerBarracuda:setRepairCrewCount(4)						--more repair crew (vs 2)
-	playerBarracuda.max_jump_range = 25000						--shorter than typical (vs 50)
-	playerBarracuda.min_jump_range = 2000						--shorter than typical (vs 5)
+	playerBarracuda.max_jump_range = 30000						--shorter than typical (vs 50)
+	playerBarracuda.min_jump_range = 3000						--shorter than typical (vs 5)
 	playerBarracuda:setJumpDriveRange(playerBarracuda.min_jump_range,playerBarracuda.max_jump_range)
 	playerBarracuda:setJumpDriveCharge(playerBarracuda.max_jump_range)
 	playerBarracuda:setSystemPowerFactor("jumpdrive",4)			--more efficient (vs 5)
@@ -15854,12 +15854,12 @@ end
 function createPlayerShipManxman()
 	playerManxman = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Manxman")
 	playerManxman:setTypeName("Nusret")
-	playerManxman.max_jump_range = 25000					--shorter than typical (vs 50)
-	playerManxman.min_jump_range = 2500						--shorter than typical (vs 5)
+	playerManxman.max_jump_range = 30000					--shorter than typical (vs 50)
+	playerManxman.min_jump_range = 3000						--shorter than typical (vs 5)
 	playerManxman:setJumpDriveRange(playerManxman.min_jump_range,playerManxman.max_jump_range)
 	playerManxman:setJumpDriveCharge(playerManxman.max_jump_range)
-	playerManxman:setWeaponTubeDirection(0,-60)			--front left facing (vs back)
-	playerManxman:setWeaponTubeDirection(1, 60)			--front right facing (vs back)
+	playerManxman:setWeaponTubeDirection(0,-30)			--front left facing (vs back)
+	playerManxman:setWeaponTubeDirection(1, 30)			--front right facing (vs back)
 	playerManxman:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
 	playerManxman:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
 	playerManxman:setWeaponStorageMax("Homing",8)		--more homing (vs 0)
