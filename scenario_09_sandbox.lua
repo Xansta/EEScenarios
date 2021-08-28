@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.1"
+	scenario_version = "4.0.2"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -12528,7 +12528,7 @@ function createTereshStations()
         			circuit =	{quantity = math.random(4,12),	cost = math.random(62,98)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
-        general_information = "We monitor and predict weather patters in the Ursid atmosphere. We also provide communication services for Ursid and nearby stations",
+        general_information = "We monitor and predict weather patterns in the Ursid atmosphere. We also provide communication services for Ursid and nearby stations",
     	history = "The station name honors the 19th century Australian natural history illustrators, Helena and Harriet Scott",
 	}
 	if random(1,100) <= 14 then stationHelena:setRestocksScanProbes(false) end
