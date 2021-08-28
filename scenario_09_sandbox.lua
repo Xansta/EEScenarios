@@ -1,7 +1,7 @@
 -- Name: Sandbox
 -- Description: GM controlled missions
---- Regions defined: Icarus, Kentar, Astron, Lafrina
---- Version 3
+--- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh
+--- Version 4
 -- Type: GM Controlled missions
 
 --Ideas
@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "3.5.26"
+	scenario_version = "4.0.1"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -8207,12 +8207,26 @@ function createKentarStations()
 	local outer_defence_dist = orbit_far + 2000
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
 	dp:setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((0  )/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
-	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
-	dpg1zone:setColor(0,128,0):setLabel("DPG1")
---	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
---	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
-	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+--	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
+--	dpg1zone:setColor(0,128,0):setLabel("DPG1")
+	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
+	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
 	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPB1"):setScanState("fullscan")
+
+--	New Defense Platform Construction
+	local agdp1Zone = squareZone(67916, 359186, "AGDP1 W8")
+	agdp1Zone:setColor(0,128,0):setLabel("AGDP1")
+--	CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP1"):setPosition(67916, 359186):orderRoaming()
+	local agdp2Zone = squareZone(71306, 364394, "AGDP2 X8")
+	agdp2Zone:setColor(0,128,0):setLabel("AGDP2")
+--	CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(71306, 364394):orderRoaming()
+	local agdp3Zone = squareZone(73795, 368586, "AGDP3 X8")
+	agdp3Zone:setColor(0,128,0):setLabel("AGDP3")
+--	CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP3"):setPosition(73795, 368586):orderRoaming()
+	local agdp4Zone = squareZone(76407, 373693, "AGDP4 X8")
+	agdp4Zone:setColor(0,128,0):setLabel("AGDP4")
+--	CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP4"):setPosition(76407, 373693):orderRoaming()
 
 	local orbit_time = 15
 	local red_artifact = Artifact()
@@ -12196,7 +12210,7 @@ function createTereshPlanets()
 	local ursid_x, ursid_y = vectorFromAngle(random(0,360),distance(arcturus_x, arcturus_y, 830087, 118147))
 	planet_ursid = Planet():setPosition(arcturus_x + ursid_x, arcturus_y + ursid_y):setPlanetRadius(3800):setDistanceFromMovementPlane(-1900):setPlanetCloudTexture("planets/clouds-3.png")
 	planet_ursid:setPlanetSurfaceTexture("planets/planet-5.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.1,0.2,0.3)
-	planet_ursid:setCallSign("Ursid"):setOrbit(planet_arcturus_star,35)
+	planet_ursid:setCallSign("Ursid"):setOrbit(planet_arcturus_star,3500)
 	table.insert(planet_list,planet_ursid)
 	return planet_list
 end
@@ -12361,13 +12375,13 @@ function createTereshNebulae()
     table.insert(nebula_list,Nebula():setPosition(809029, 48509))
     table.insert(nebula_list,Nebula():setPosition(815000, 55705))
     --	East
-	Nebula():setPosition(887177, 116787)
-    Nebula():setPosition(894738, 122648)
-    Nebula():setPosition(884719, 126617)
-    Nebula():setPosition(852583, 146655)
-    Nebula():setPosition(824228, 139472)
-    Nebula():setPosition(871108, 136258)
-    Nebula():setPosition(845400, 140984)
+	table.insert(nebula_list,Nebula():setPosition(887177, 116787))
+    table.insert(nebula_list,Nebula():setPosition(894738, 122648))
+    table.insert(nebula_list,Nebula():setPosition(884719, 126617))
+    table.insert(nebula_list,Nebula():setPosition(852583, 146655))
+    table.insert(nebula_list,Nebula():setPosition(824228, 139472))
+    table.insert(nebula_list,Nebula():setPosition(871108, 136258))
+    table.insert(nebula_list,Nebula():setPosition(845400, 140984))
     return nebula_list
 end
 function createTereshStations()
@@ -12400,7 +12414,8 @@ function createTereshStations()
         self_destruct_repair =	random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
-        goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        goods = {	dilithium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			filament =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
         general_information = "We research the interactions between nebulae and black holes. We mine the asteroids to help support the research.",
@@ -12425,14 +12440,15 @@ function createTereshStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),	Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100) <= 80,	Mine = true,			Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        probe_launch_repair =	random(1,100) < 63,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         hack_repair =			true,
         scan_repair =			true,
-        tube_slow_down_repair = random(1,100)<30,
+        probe_launch_repair =	random(1,100) <= 63,
+        self_destruct_repair =	random(1,100) <= 34,
+        tube_slow_down_repair = random(1,100) <= 41,
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
-        goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        goods = {	cobalt = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
         general_information = "We mine asteroids for minerals",
@@ -12474,7 +12490,7 @@ function createTereshStations()
         sensor_boost = {value = 5000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
-        goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        goods = {	tritanium = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
         general_information = "We monitor the geology and magnetic fields of Ursid. We also coordinate travel to and from the surface of Ursid",
@@ -12508,7 +12524,8 @@ function createTereshStations()
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
-        goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        goods = {	nickel = 		{quantity = math.random(5,9),	cost = math.random(50,80)},
+        			circuit =	{quantity = math.random(4,12),	cost = math.random(62,98)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
         general_information = "We monitor and predict weather patters in the Ursid atmosphere. We also provide communication services for Ursid and nearby stations",
@@ -12542,7 +12559,7 @@ function createTereshStations()
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
-        goods = {	gold = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        goods = {	platinum = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
         general_information = "We watch for approaching enemies and mine the nearby asteroids and nebulae",
@@ -33602,7 +33619,7 @@ function handleDockedState()
 		end)
 	end
 	if jump_corridor then
-		if comms_target == stationIcarus or comms_target == stationKentar or comms_target == stationAstron or comms_target == stationLafrina then
+		if comms_target == stationIcarus or comms_target == stationKentar or comms_target == stationAstron or comms_target == stationLafrina or comms_target == stationTeresh then
 			local all_docked = true
 			for pidx=1,8 do
 				local p = getPlayerShip(pidx)
@@ -33710,6 +33727,38 @@ function handleDockedState()
 						universe:removeRegion(universe.available_regions[1])
 						setCommsMessage("Transferred to Lafrina")
 					end)
+					addCommsReply("Take jump corridor to Teresh",function()
+						local region = universe.available_regions[6]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						universe:removeRegion(universe.available_regions[1])
+						setCommsMessage("Transferred to Teresh")
+					end)
 				elseif comms_target == stationKentar then
 					addCommsReply("Take jump corridor to Icarus", function()
 						playerSpawnX = 0
@@ -33806,6 +33855,38 @@ function handleDockedState()
 						removeKentarColor()
 						setCommsMessage("Transferred to Lafrina")
 					end)
+					addCommsReply("Take jump corridor to Teresh",function()
+						local region = universe.available_regions[6]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						removeKentarColor()
+						setCommsMessage("Transferred to Teresh")
+					end)
 				elseif comms_target == stationAstron then
 					addCommsReply("Take jump corridor to Icarus", function()
 						playerSpawnX = 0
@@ -33901,6 +33982,38 @@ function handleDockedState()
 						universe:removeRegion(universe.available_regions[4])
 						setCommsMessage("Transferred to Lafrina")
 					end)
+					addCommsReply("Take jump corridor to Teresh",function()
+						local region = universe.available_regions[6]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						universe:removeRegion(universe.available_regions[4])
+						setCommsMessage("Transferred to Teresh")
+					end)
 				elseif comms_target == stationLafrina then
 					addCommsReply("Take jump corridor to Icarus", function()
 						playerSpawnX = 0
@@ -33994,6 +34107,165 @@ function handleDockedState()
 							universe:spawnRegion(region)
 						end
 						removeLafrinaColor()
+						setCommsMessage("Transferred to Astron")
+					end)
+					addCommsReply("Take jump corridor to Teresh",function()
+						local region = universe.available_regions[6]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						removeLafrinaColor()
+						setCommsMessage("Transferred to Teresh")
+					end)
+				elseif comms_target == stationTeresh then
+					addCommsReply("Take jump corridor to Icarus", function()
+						playerSpawnX = 0
+						playerSpawnY = 0
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = "Icarus (F5)"
+						if not icarus_color then
+							createIcarusColor()
+						end
+						removeTereshColor()
+						setCommsMessage("Transferred to Icarus")
+					end)				
+					addCommsReply("Take jump corridor to Kentar",function()
+						playerSpawnX = 250000
+						playerSpawnY = 250000
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = "Kentar (R17)"
+						if not kentar_color then
+							createKentarColor()
+						end
+						removeTereshColor()
+						setCommsMessage("Transferred to Kentar")
+					end)
+					addCommsReply("Take jump corridor to Lafrina",function()
+						local region = universe.available_regions[5]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						removeTereshColor()
+						setCommsMessage("Transferred to Lafrina")
+					end)					
+					addCommsReply("Take jump corridor to Astron",function()
+						local region = universe.available_regions[4]
+						playerSpawnX = region.spawn_x
+						playerSpawnY = region.spawn_y
+						for pidx=1,8 do
+							local p = getPlayerShip(pidx)
+							if p ~= nil and p:isValid() then
+								p:commandUndock()
+								p:setPosition(playerSpawnX,playerSpawnY)
+							end
+						end
+						local jt = comms_target:getObjectsInRange(5000)
+						jump_train = {}
+						if #jt > 0 then
+							for index, ship in ipairs(jt) do
+								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+									ship.move_test_count = 0
+									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+									table.insert(jump_train,ship)
+								end
+							end
+						end
+						startRegion = region.name
+						if not universe:hasRegionSpawned(region) then
+							universe:spawnRegion(region)
+						end
+						removeTereshColor()
 						setCommsMessage("Transferred to Astron")
 					end)
 				end
