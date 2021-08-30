@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.2"
+	scenario_version = "4.0.3"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -894,7 +894,7 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Crux")
-	makePlayerShipActive("George")
+	makePlayerShipActive("Sting")
 	makePlayerShipActive("Barracuda")
 	makePlayerShipActive("Manxman")
 	makePlayerShipActive("Florentine")
@@ -12394,7 +12394,11 @@ function createTereshStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
+	
 	--	Bastion
+	local bastionZone = squareZone(891524, 130398, "Bastion 2 L49")
+	bastionZone:setColor(0,128,0):setLabel("Bastion")
+	--[[
 	stationBastion = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Bastion"):setPosition(891524, 130398):setDescription("Research and Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBastion:setShortRangeRadarRange(15000)
     stationBastion.comms_data = {
@@ -12432,6 +12436,7 @@ function createTereshStations()
 	if random(1,100) <= 12 then stationBastion:setSharesEnergyWithDocked(false) end
 	station_names[stationBastion:getCallSign()] = {stationBastion:getSectorName(), stationBastion}
 	table.insert(stations,stationBastion)
+	--]]
 	--	Dristan
     stationDristan = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Dristan"):setPosition(723186, 65027):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationDristan.comms_data = {
