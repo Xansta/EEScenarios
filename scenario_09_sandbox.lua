@@ -358,6 +358,71 @@ function addPlayerShip(name,typeName,func,ftl)
 	assert(type(ftl)=="string")
 	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
 end
+-- there are probably a few extra round trips than needed for the web tool
+-- end could be made implict when all of the segments have been uploaded
+-- currently it relies on the web tool to call it at the right time
+-- start could also be merged with the first segment
+-- this may improve the web tools responsiveness
+-- there are other places to optimise first though
+function webUploadStart(parts)
+	local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
+	getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = parts, parts = {}}
+	getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
+	return slot_id
+end
+function webUploadSegment(slot,part,str)
+	assert(type(slot)=="number")
+	assert(type(part)=="number")
+	assert(type(str)=="string")
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] == nil)
+	getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] = str
+end
+function webUploadEndAndRun(slot)
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
+	local end_str = ""
+	for i = 1, getScriptStorage()._cuf_gm.uploads.slots[slot].total_parts do
+		assert(type(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i])=="string")
+		end_str = end_str .. getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i]
+	end
+	getScriptStorage()._cuf_gm.uploads.slots[slot].str = end_str
+	getScriptStorage()._cuf_gm.uploads.slots[slot].parts = nil
+	local fn, err = load(end_str)
+	if fn then
+		return fn()
+	else
+		print(err)
+		error(err)
+	end
+end
+function setupWebGMTool()
+	-- currently (2021/09/02) getScriptStorage() bleeds through
+	-- scenario restarts, this is a problem, I am also willfully
+	-- ignoring this problem at the moment, as at some point the engine should be fixed
+	-- so this doesnt happen, be aware that to properly test somethings
+	-- you may need to close and reopen empty epsilon and that
+	-- a script restart may not be enough
+	getScriptStorage()._cuf_gm = {
+		-- _ENV is kind of alarming to export, but it allows some very powerful web tools
+		_ENV = _ENV,
+		-- used for uploading data larger than EE's maximum post size
+		-- each upload slot has the number of segements expected for that upload and the current slot id
+		-- while not well tested it should allow multiple web tools to work at once without jumbling each others uploads
+		-- better tested is that all the segements can be uploaded at once saving round trip times
+		-- there are currently some issues with round trips due to bugs in EE regarding escape charaters
+		uploads = {
+			slots = {},
+			slot_id = 0,
+		},
+		-- all the functions exported to the web tool
+		functions = {
+			-- an array of elements with a fn and args element
+		},
+		webUploadStart = webUploadStart,
+		webUploadEndAndRun = webUploadEndAndRun,
+		webUploadSegment = webUploadSegment
+	}
+end
 function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
@@ -551,7 +616,7 @@ function setConstants()
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = stockTemplate},
 		["Loki"] =				{strength = 260,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = loki},
 	}
-	getScriptStorage()._gm_cuf_env=_ENV;
+	setupWebGMTool()
 	fleet_group = {
 		["adder"] = "Adders",
 		["Adders"] = "adder",
