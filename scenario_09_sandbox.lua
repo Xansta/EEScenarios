@@ -4696,22 +4696,18 @@ function customButtons()
 		local dist = 15000
 		-- note distances could use a little tweaking (talking 100s of units)
 		-- likewise callsigns could use some work to make some matching names
-		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((50  )/360)*math.pi*2)*dist, gateway_y - math.cos(((50  )/360)*math.pi*2)*dist)
-		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((70  )/360)*math.pi*2)*dist, gateway_y - math.cos(((70  )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((170 )/360)*math.pi*2)*dist, gateway_y - math.cos(((170 )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((190 )/360)*math.pi*2)*dist, gateway_y - math.cos(((190 )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((290 )/360)*math.pi*2)*dist, gateway_y - math.cos(((290 )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((310 )/360)*math.pi*2)*dist, gateway_y - math.cos(((310 )/360)*math.pi*2)*dist)
-		dist = 18000
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((25  )/360)*math.pi*2)*dist, gateway_y - math.cos(((25  )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((95  )/360)*math.pi*2)*dist, gateway_y - math.cos(((95  )/360)*math.pi*2)*dist)
+		dist = 19000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((145 )/360)*math.pi*2)*dist, gateway_y - math.cos(((145 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((215 )/360)*math.pi*2)*dist, gateway_y - math.cos(((215 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((265 )/360)*math.pi*2)*dist, gateway_y - math.cos(((265 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((335 )/360)*math.pi*2)*dist, gateway_y - math.cos(((335 )/360)*math.pi*2)*dist)
 		dist = 23000
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((15  )/360)*math.pi*2)*dist, gateway_y - math.cos(((15  )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((135 )/360)*math.pi*2)*dist, gateway_y - math.cos(((135 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((225 )/360)*math.pi*2)*dist, gateway_y - math.cos(((225 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((255 )/360)*math.pi*2)*dist, gateway_y - math.cos(((255 )/360)*math.pi*2)*dist)
@@ -8286,18 +8282,27 @@ function createKentarStations()
 	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPB1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
 
---	local agdp1Zone = squareZone(67916, 359186, "AGDP1 W8")
+	-- the calculation of these is kind of a pain, but if nothing else its good for documentation for why things are placed for later
+	local x = gateway_x + math.sin(((25  )/360)*math.pi*2)*19000
+	local y =gateway_y - math.cos(((25  )/360)*math.pi*2)*19000
+--	local agst1Zone = squareZone(x, y, "AGST1 W8")
+--	agst1Zone:setColor(0,128,0):setLabel("AGST1")
+	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST1"):setPosition(x, y):orderRoaming())
+	local x = gateway_x + math.sin(((50  )/360)*math.pi*2)*15000
+	local y = gateway_y - math.cos(((50  )/360)*math.pi*2)*15000
+--	local agdp1Zone = squareZone(x, y, "AGDP1 X8")
 --	agdp1Zone:setColor(0,128,0):setLabel("AGDP1")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP1"):setPosition(67916, 359186):orderRoaming())
---	local agdp2Zone = squareZone(71306, 364394, "AGDP2 X8")
+	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP1"):setPosition(x,y):orderRoaming())
+	local x = gateway_x + math.sin(((70  )/360)*math.pi*2)*15000
+	local y = gateway_y - math.cos(((70  )/360)*math.pi*2)*15000
+--	local agdp2Zone = squareZone(x, y, "AGDP2 X8")
 --	agdp2Zone:setColor(0,128,0):setLabel("AGDP2")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(71306, 364394):orderRoaming())
---	local agdp3Zone = squareZone(73795, 368586, "AGDP3 X8")
---	agdp3Zone:setColor(0,128,0):setLabel("AGDP3")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP3"):setPosition(73795, 368586):orderRoaming())
---	local agdp4Zone = squareZone(76407, 373693, "AGDP4 X8")
---	agdp4Zone:setColor(0,128,0):setLabel("AGDP4")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP4"):setPosition(76407, 373693):orderRoaming())
+	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(x, y):orderRoaming())
+	local x = gateway_x + math.sin(((95  )/360)*math.pi*2)*19000
+	local y =gateway_y - math.cos(((95  )/360)*math.pi*2)*19000
+--	local agst2Zone = squareZone(x, y, "AGST2 X8")
+--	agst2Zone:setColor(0,128,0):setLabel("AGST2")
+	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST2"):setPosition(x, y):orderRoaming())
 
 	local orbit_time = 15
 	local red_artifact = Artifact()
