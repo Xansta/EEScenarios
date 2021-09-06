@@ -1594,7 +1594,9 @@ function updateSystem:update(delta)
 		if self._update_objects[index]:isValid() then
 			local obj=self._update_objects[index]
 			for index = #obj.update_list,1,-1 do
-				obj.update_list[index]:update(obj,delta)
+				if obj:isValid() then -- one of the updates can call obj:destroy()
+					obj.update_list[index]:update(obj,delta)
+				end
 			end
 		else
 			table.remove(self._update_objects,index)
