@@ -392,7 +392,7 @@ function webUploadEndAndRun(slot)
 		return fn()
 	else
 		print(err)
-		error(err)
+		return {error = err}
 	end
 end
 function setupWebGMTool()
