@@ -370,24 +370,26 @@ function webUploadStart(parts)
 	getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
 	return slot_id
 end
-function webUploadSegment(slot,part,str)
+function webUploadSegment(slot,part,upload_part)
 	assert(type(slot)=="number")
 	assert(type(part)=="number")
-	assert(type(str)=="string")
+	assert(type(upload_part)=="string")
 	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
 	assert(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] == nil)
-	getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] = str
+	getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] = upload_part
 end
-function webUploadEndAndRun(slot)
+-- this probably wants splitting into multiple parts
+-- but its currently used as one command
+-- pay very careful attention to what happens with multiple web tools if edited
+function webUploadEndAndRunAndFree(slot)
 	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
-	local end_str = ""
+	local function_str = ""
 	for i = 1, getScriptStorage()._cuf_gm.uploads.slots[slot].total_parts do
 		assert(type(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i])=="string")
-		end_str = end_str .. getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i]
+		function_str = function_str .. getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i]
 	end
-	getScriptStorage()._cuf_gm.uploads.slots[slot].str = end_str
-	getScriptStorage()._cuf_gm.uploads.slots[slot].parts = nil
-	local fn, err = load(end_str)
+	local fn, err = load(function_str)
+	getScriptStorage()._cuf_gm.uploads.slots[slot] = nil
 	if fn then
 		return fn()
 	else
@@ -417,9 +419,11 @@ function setupWebGMTool()
 		-- all the functions exported to the web tool
 		functions = {
 			-- an array of elements with a fn and args element
+			-- needs better documentation when add_function is moved here from the web tool
+			-- currently somewhat in flux
 		},
 		webUploadStart = webUploadStart,
-		webUploadEndAndRun = webUploadEndAndRun,
+		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
 		webUploadSegment = webUploadSegment
 	}
 end
