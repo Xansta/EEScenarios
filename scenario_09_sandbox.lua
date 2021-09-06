@@ -1816,10 +1816,12 @@ function updateSystem:addSlowAndAccurateElliptical(obj, cx, cy, orbit_duration, 
 	end
 	update_system:addUpdateFixedPositions(obj,orbit_duration,completion_points)
 end
+-- linear makes the object ignore the pull of wormholes and blackholes
+-- every use case seems to be a linear to / from 2 locations
+-- as such it probably wants to become addLinearTo
 -- I am less than sure this is the best setup
 -- should it take an angle?
 -- should dx and dy not be scaled by speed
--- should it be addLinearTo?
 -- all very good questions, also questions I dont have time to deal with right now
 -- so future code readers, feel free to come up with better answers and swtich over to them
 function updateSystem:addLinear(obj, dx, dy, speed)
@@ -1828,13 +1830,17 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 	assert(type(dx)=="number")
 	assert(type(dy)=="number")
 	assert(type(speed)=="number")
+	local x,y = obj:getPosition()
 	local update_data = {
 		speed = speed,
 		dx = dx,
 		dy = dy,
+		x = x, -- todo document overwritting of wormholes etc
+		y = y,
 		update = function (self, obj, delta)
-			local x,y=obj:getPosition()
-			obj:setPosition(x+self.dx*self.speed*delta,y+self.dy*self.speed*delta)
+			self.x=self.x+self.dx*self.speed*delta
+			self.y=self.y+self.dy*self.speed*delta
+			obj:setPosition(self.x,self.y)
 		end
 	}
 	self:addUpdate(obj,"linear to",update_data)
