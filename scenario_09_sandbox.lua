@@ -358,6 +358,75 @@ function addPlayerShip(name,typeName,func,ftl)
 	assert(type(ftl)=="string")
 	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
 end
+-- there are probably a few extra round trips than needed for the web tool
+-- end could be made implict when all of the segments have been uploaded
+-- currently it relies on the web tool to call it at the right time
+-- start could also be merged with the first segment
+-- this may improve the web tools responsiveness
+-- there are other places to optimise first though
+function webUploadStart(parts)
+	local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
+	getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = parts, parts = {}}
+	getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
+	return slot_id
+end
+function webUploadSegment(slot,part,upload_part)
+	assert(type(slot)=="number")
+	assert(type(part)=="number")
+	assert(type(upload_part)=="string")
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] == nil)
+	getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] = upload_part
+end
+-- this probably wants splitting into multiple parts
+-- but its currently used as one command
+-- pay very careful attention to what happens with multiple web tools if edited
+function webUploadEndAndRunAndFree(slot)
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
+	local function_str = ""
+	for i = 1, getScriptStorage()._cuf_gm.uploads.slots[slot].total_parts do
+		assert(type(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i])=="string")
+		function_str = function_str .. getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i]
+	end
+	local fn, err = load(function_str)
+	getScriptStorage()._cuf_gm.uploads.slots[slot] = nil
+	if fn then
+		return fn()
+	else
+		print(err)
+		return {error = err}
+	end
+end
+function setupWebGMTool()
+	-- currently (2021/09/02) getScriptStorage() bleeds through
+	-- scenario restarts, this is a problem, I am also willfully
+	-- ignoring this problem at the moment, as at some point the engine should be fixed
+	-- so this doesnt happen, be aware that to properly test somethings
+	-- you may need to close and reopen empty epsilon and that
+	-- a script restart may not be enough
+	getScriptStorage()._cuf_gm = {
+		-- _ENV is kind of alarming to export, but it allows some very powerful web tools
+		_ENV = _ENV,
+		-- used for uploading data larger than EE's maximum post size
+		-- each upload slot has the number of segements expected for that upload and the current slot id
+		-- while not well tested it should allow multiple web tools to work at once without jumbling each others uploads
+		-- better tested is that all the segements can be uploaded at once saving round trip times
+		-- there are currently some issues with round trips due to bugs in EE regarding escape charaters
+		uploads = {
+			slots = {},
+			slot_id = 0,
+		},
+		-- all the functions exported to the web tool
+		functions = {
+			-- an array of elements with a fn and args element
+			-- needs better documentation when add_function is moved here from the web tool
+			-- currently somewhat in flux
+		},
+		webUploadStart = webUploadStart,
+		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
+		webUploadSegment = webUploadSegment
+	}
+end
 function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
@@ -551,7 +620,7 @@ function setConstants()
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = stockTemplate},
 		["Loki"] =				{strength = 260,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = loki},
 	}
-	getScriptStorage()._gm_cuf_env=_ENV;
+	setupWebGMTool()
 	fleet_group = {
 		["adder"] = "Adders",
 		["Adders"] = "adder",
@@ -893,11 +962,7 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Pinwheel")
-	makePlayerShipActive("Crux")
-	makePlayerShipActive("Sting")
-	makePlayerShipActive("Barracuda")
 	makePlayerShipActive("Manxman")
-	makePlayerShipActive("Florentine")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1529,7 +1594,9 @@ function updateSystem:update(delta)
 		if self._update_objects[index]:isValid() then
 			local obj=self._update_objects[index]
 			for index = #obj.update_list,1,-1 do
-				obj.update_list[index]:update(obj,delta)
+				if obj:isValid() then -- one of the updates can call obj:destroy()
+					obj.update_list[index]:update(obj,delta)
+				end
 			end
 		else
 			table.remove(self._update_objects,index)
@@ -1751,10 +1818,12 @@ function updateSystem:addSlowAndAccurateElliptical(obj, cx, cy, orbit_duration, 
 	end
 	update_system:addUpdateFixedPositions(obj,orbit_duration,completion_points)
 end
+-- linear makes the object ignore the pull of wormholes and blackholes
+-- every use case seems to be a linear to / from 2 locations
+-- as such it probably wants to become addLinearTo
 -- I am less than sure this is the best setup
 -- should it take an angle?
 -- should dx and dy not be scaled by speed
--- should it be addLinearTo?
 -- all very good questions, also questions I dont have time to deal with right now
 -- so future code readers, feel free to come up with better answers and swtich over to them
 function updateSystem:addLinear(obj, dx, dy, speed)
@@ -1763,13 +1832,17 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 	assert(type(dx)=="number")
 	assert(type(dy)=="number")
 	assert(type(speed)=="number")
+	local x,y = obj:getPosition()
 	local update_data = {
 		speed = speed,
 		dx = dx,
 		dy = dy,
+		x = x, -- todo document overwritting of wormholes etc
+		y = y,
 		update = function (self, obj, delta)
-			local x,y=obj:getPosition()
-			obj:setPosition(x+self.dx*self.speed*delta,y+self.dy*self.speed*delta)
+			self.x=self.x+self.dx*self.speed*delta
+			self.y=self.y+self.dy*self.speed*delta
+			obj:setPosition(self.x,self.y)
 		end
 	}
 	self:addUpdate(obj,"linear to",update_data)
@@ -4631,22 +4704,18 @@ function customButtons()
 		local dist = 15000
 		-- note distances could use a little tweaking (talking 100s of units)
 		-- likewise callsigns could use some work to make some matching names
-		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((50  )/360)*math.pi*2)*dist, gateway_y - math.cos(((50  )/360)*math.pi*2)*dist)
-		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((70  )/360)*math.pi*2)*dist, gateway_y - math.cos(((70  )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((170 )/360)*math.pi*2)*dist, gateway_y - math.cos(((170 )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((190 )/360)*math.pi*2)*dist, gateway_y - math.cos(((190 )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((290 )/360)*math.pi*2)*dist, gateway_y - math.cos(((290 )/360)*math.pi*2)*dist)
 		CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((310 )/360)*math.pi*2)*dist, gateway_y - math.cos(((310 )/360)*math.pi*2)*dist)
-		dist = 18000
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((25  )/360)*math.pi*2)*dist, gateway_y - math.cos(((25  )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((95  )/360)*math.pi*2)*dist, gateway_y - math.cos(((95  )/360)*math.pi*2)*dist)
+		dist = 19000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((145 )/360)*math.pi*2)*dist, gateway_y - math.cos(((145 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((215 )/360)*math.pi*2)*dist, gateway_y - math.cos(((215 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((265 )/360)*math.pi*2)*dist, gateway_y - math.cos(((265 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((335 )/360)*math.pi*2)*dist, gateway_y - math.cos(((335 )/360)*math.pi*2)*dist)
 		dist = 23000
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((15  )/360)*math.pi*2)*dist, gateway_y - math.cos(((15  )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((135 )/360)*math.pi*2)*dist, gateway_y - math.cos(((135 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((225 )/360)*math.pi*2)*dist, gateway_y - math.cos(((225 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((255 )/360)*math.pi*2)*dist, gateway_y - math.cos(((255 )/360)*math.pi*2)*dist)
@@ -8221,18 +8290,27 @@ function createKentarStations()
 	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPB1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
 
---	local agdp1Zone = squareZone(67916, 359186, "AGDP1 W8")
+	-- the calculation of these is kind of a pain, but if nothing else its good for documentation for why things are placed for later
+	local x = gateway_x + math.sin(((25  )/360)*math.pi*2)*19000
+	local y =gateway_y - math.cos(((25  )/360)*math.pi*2)*19000
+--	local agst1Zone = squareZone(x, y, "AGST1 W8")
+--	agst1Zone:setColor(0,128,0):setLabel("AGST1")
+	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST1"):setPosition(x, y):orderRoaming())
+	local x = gateway_x + math.sin(((50  )/360)*math.pi*2)*15000
+	local y = gateway_y - math.cos(((50  )/360)*math.pi*2)*15000
+--	local agdp1Zone = squareZone(x, y, "AGDP1 X8")
 --	agdp1Zone:setColor(0,128,0):setLabel("AGDP1")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP1"):setPosition(67916, 359186):orderRoaming())
---	local agdp2Zone = squareZone(71306, 364394, "AGDP2 X8")
+	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP1"):setPosition(x,y):orderRoaming())
+	local x = gateway_x + math.sin(((70  )/360)*math.pi*2)*15000
+	local y = gateway_y - math.cos(((70  )/360)*math.pi*2)*15000
+--	local agdp2Zone = squareZone(x, y, "AGDP2 X8")
 --	agdp2Zone:setColor(0,128,0):setLabel("AGDP2")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(71306, 364394):orderRoaming())
---	local agdp3Zone = squareZone(73795, 368586, "AGDP3 X8")
---	agdp3Zone:setColor(0,128,0):setLabel("AGDP3")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP3"):setPosition(73795, 368586):orderRoaming())
---	local agdp4Zone = squareZone(76407, 373693, "AGDP4 X8")
---	agdp4Zone:setColor(0,128,0):setLabel("AGDP4")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP4"):setPosition(76407, 373693):orderRoaming())
+	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(x, y):orderRoaming())
+	local x = gateway_x + math.sin(((95  )/360)*math.pi*2)*19000
+	local y =gateway_y - math.cos(((95  )/360)*math.pi*2)*19000
+--	local agst2Zone = squareZone(x, y, "AGST2 X8")
+--	agst2Zone:setColor(0,128,0):setLabel("AGST2")
+	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST2"):setPosition(x, y):orderRoaming())
 
 	local orbit_time = 15
 	local red_artifact = Artifact()
