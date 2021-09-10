@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.4"
+	scenario_version = "4.0.5"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -961,6 +961,10 @@ function setConstants()
 	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,"W")
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
+	makePlayerShipActive("Quill")
+	makePlayerShipActive("Raptor")
+	makePlayerShipActive("Quicksilver")
+	makePlayerShipActive("Gabble")
 	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Manxman")
 	active_player_ship = true
