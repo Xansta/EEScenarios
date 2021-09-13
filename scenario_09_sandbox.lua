@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.5"
+	scenario_version = "4.0.6"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -962,11 +962,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Quill")
-	makePlayerShipActive("Raptor")
 	makePlayerShipActive("Quicksilver")
-	makePlayerShipActive("Gabble")
 	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Manxman")
+	makePlayerShipActive("Thunderbird")
+	makePlayerShipActive("Hearken")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1021,15 +1021,26 @@ function setConstants()
 	--1 Nuke
 	--2 Mines
 	--1 EMP
-	supplyEnergy = 500
-	supplyHoming = 4
-	supplyNuke = 1
-	supplyMine = 2
-	supplyEMP = 1
-	supplyHVLI = 0
-	supplyRepairCrew = 0
-	supplyCoolant = 0
-	supplyProbes = 0
+	supply_energy_range_min = 500
+	supply_energy_range_max = 500
+	supply_homing_range_min = 4
+	supply_homing_range_max = 4
+	supply_nuke_range_min = 1
+	supply_nuke_range_max = 1
+	supply_mine_range_min = 2
+	supply_mine_range_max = 2
+	supply_emp_range_min = 1
+	supply_emp_range_max = 1
+	supply_hvli_range_min = 0
+	supply_hvli_range_max = 0
+	supply_repair_crew_range_min = 0
+	supply_repair_crew_range_max = 0
+	supply_coolant_range_min = 0
+	supply_coolant_range_max = 0
+	supply_probes_range_min = 0
+	supply_probes_range_max = 0
+	supply_armor_range_min = 0
+	supply_armor_range_max = 0
 	shipTemplateDistance = {	["MT52 Hornet"] =					100,
 								["MU52 Hornet"] =					100,
 								["Adder MK5"] =						100,
@@ -26164,7 +26175,6 @@ function setCustomSupply()
 	--2 Mines
 	--1 EMP
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-From Supply",dropPoint)
 	if supply_drop_info == nil then
 		supply_drop_info = "Label"	--default upon Sandbox launch
@@ -26185,27 +26195,28 @@ function setCustomSupply()
 		setCustomSupply()
 	end)
 	local missile_label = ""
-	if supplyNuke > 0 then
-		missile_label = string.format("%sN%i",missile_label,supplyNuke)
+	if supply_nuke_range_max > 0 then
+		missile_label = string.format("%sN%i",missile_label,supply_nuke_range_max)
 	end
-	if supplyEMP > 0 then
-		missile_label = string.format("%sE%i",missile_label,supplyEMP)
+	if supply_emp_range_max > 0 then
+		missile_label = string.format("%sE%i",missile_label,supply_emp_range_max)
 	end
-	if supplyMine > 0 then
-		missile_label = string.format("%sM%i",missile_label,supplyMine)
+	if supply_mine_range_max > 0 then
+		missile_label = string.format("%sM%i",missile_label,supply_mine_range_max)
 	end
-	if supplyHoming > 0 then
-		missile_label = string.format("%sH%i",missile_label,supplyHoming)
+	if supply_homing_range_max > 0 then
+		missile_label = string.format("%sH%i",missile_label,supply_homing_range_max)
 	end
-	if supplyHVLI > 0 then
-		missile_label = string.format("%sL%i",missile_label,supplyHVLI)
+	if supply_hvli_range_max > 0 then
+		missile_label = string.format("%sL%i",missile_label,supply_hvli_range_max)
 	end
 	missile_label = string.format("+Missiles %s",missile_label)
 	addGMFunction(missile_label,setCustomMissiles)
-	addGMFunction(string.format("+Energy %i",supplyEnergy),setSupplyEnergy)
-	addGMFunction(string.format("+Repair Crew %i",supplyRepairCrew),setSupplyRepairCrew)
-	addGMFunction(string.format("+Coolant %i",supplyCoolant),setSupplyCoolant)
-	addGMFunction(string.format("+Probes %i",supplyProbes),setSupplyProbes)
+	addGMFunction(string.format("+Energy %i-%i",supply_energy_range_min,supply_energy_range_max),setSupplyEnergy)
+	addGMFunction(string.format("+Repair Crew %i-%i",supply_repair_crew_range_min,supply_repair_crew_range_max),setSupplyRepairCrew)
+	addGMFunction(string.format("+Coolant %i-%i",supply_coolant_range_min,supply_coolant_range_max),setSupplyCoolant)
+	addGMFunction(string.format("+Probes %i-%i",supply_probes_range_min,supply_probes_range_max),setSupplyProbes)
+	addGMFunction(string.format("+Armor %i-%i",supply_armor_range_min,supply_armor_range_max),setSupplyArmor)
 	if drop_point_location == "Associated" then
 		drop_point_location = "At Click"
 	end
@@ -26255,11 +26266,11 @@ function setCustomMissiles()
 	addGMFunction("-Main From Missiles",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-Supply",setCustomSupply)
-	addGMFunction(string.format("+Nuke %i",supplyNuke),setSupplyNuke)
-	addGMFunction(string.format("+EMP %i",supplyEMP),setSupplyEMP)
-	addGMFunction(string.format("+Mine %i",supplyMine),setSupplyMine)
-	addGMFunction(string.format("+Homing %i",supplyHoming),setSupplyHoming)
-	addGMFunction(string.format("+HVLI %i",supplyHVLI),setSupplyHVLI)
+	addGMFunction(string.format("+Nuke %i-%i",supply_nuke_range_min,supply_nuke_range_max),setSupplyNuke)
+	addGMFunction(string.format("+EMP %i-%i",supply_emp_range_min,supply_emp_range_max),setSupplyEMP)
+	addGMFunction(string.format("+Mine %i-%i",supply_mine_range_min,supply_mine_range_max),setSupplyMine)
+	addGMFunction(string.format("+Homing %i-%i",supply_homing_range_min,supply_homing_range_max),setSupplyHoming)
+	addGMFunction(string.format("+HVLI %i-%i",supply_hvli_range_min,supply_hvli_range_max),setSupplyHVLI)
 end
 -------------------------------------------------------------------------------------
 --	Artifacts > Drop Point > Custom Supply Point > At Click (drop point location)  --
@@ -26306,21 +26317,41 @@ function setSupplyEnergy()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-From Energy",setCustomSupply)
-	if supplyEnergy > 0 then
-		local GMSubtract100Energy = string.format("%i-100=%i",supplyEnergy,supplyEnergy - 100)
-		addGMFunction(GMSubtract100Energy,subtract100Energy)
+	if supply_energy_range_min > 0 then
+		addGMFunction(string.format("Min %i-100=%i",supply_energy_range_min,supply_energy_range_min - 100),subtract100EnergyMin)
 	end
-	if supplyEnergy < 1000 then
-		local GMAdd100Energy = string.format("%i+100=%i",supplyEnergy,supplyEnergy + 100)
-		addGMFunction(GMAdd100Energy,add100Energy)
+	if supply_energy_range_min < 1000 then
+		addGMFunction(string.format("Min %i+100=%i",supply_energy_range_min,supply_energy_range_min + 100),add100EnergyMin)
+	end
+	if supply_energy_range_max > 0 then
+		addGMFunction(string.format("Max %i-100=%i",supply_energy_range_max,supply_energy_range_max - 100),subtract100EnergyMax)
+	end
+	if supply_energy_range_max < 1000 then
+		addGMFunction(string.format("Max %i+100=%i",supply_energy_range_max,supply_energy_range_max + 100),add100EnergyMax)
 	end
 end
-function subtract100Energy()
-	supplyEnergy = supplyEnergy - 100
+function subtract100EnergyMax()
+	if supply_energy_range_min == supply_energy_range_max then
+		addGMMessage(string.format("Maximum of %i cannot go below minimum of %i",supply_energy_range_max,supply_energy_range_max))
+	else
+		supply_energy_range_max = supply_energy_range_max - 100
+	end
 	setSupplyEnergy()
 end
-function add100Energy()
-	supplyEnergy = supplyEnergy + 100
+function subtract100EnergyMin()
+	supply_energy_range_min = supply_energy_range_min - 100
+	setSupplyEnergy()
+end
+function add100EnergyMax()
+	supply_energy_range_max = supply_energy_range_max + 100
+	setSupplyEnergy()
+end
+function add100EnergyMin()
+	if supply_energy_range_min == supply_energy_range_max then
+		addGMMessage(string.format("Minimum of %i cannot exceed maximum of %i",supply_energy_range_max,supply_energy_range_max))
+	else
+		supply_energy_range_min = supply_energy_range_min + 100
+	end
 	setSupplyEnergy()
 end
 -----------------------------------------------------------
@@ -26339,21 +26370,41 @@ function setSupplyNuke()
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-Custom Supply",setCustomSupply)
 	addGMFunction("-From Nuke",setCustomMissiles)
-	if supplyNuke > 0 then
-		local GMSubtractANuke = string.format("%i-1=%i",supplyNuke,supplyNuke - 1)
-		addGMFunction(GMSubtractANuke,subtractANuke)
+	if supply_nuke_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_nuke_range_min,supply_nuke_range_min - 1),subtractANukeMin)
 	end
-	if supplyNuke < 20 then
-		local GMAddANuke = string.format("%i+1=%i",supplyNuke,supplyNuke + 1)
-		addGMFunction(GMAddANuke,addANuke)
+	if supply_nuke_range_min < 20 then
+		addGMFunction(string.format("Min %i+1=%i",supply_nuke_range_min,supply_nuke_range_min + 1),addANukeMin)
+	end
+	if supply_nuke_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_nuke_range_max,supply_nuke_range_max - 1),subtractANukeMax)
+	end
+	if supply_nuke_range_max < 20 then
+		addGMFunction(string.format("Max %i+1=%i",supply_nuke_range_max,supply_nuke_range_max + 1),addANukeMax)
 	end
 end
-function subtractANuke()
-	supplyNuke = supplyNuke - 1
+function subtractANukeMin()
+	supply_nuke_range_min = supply_nuke_range_min - 1
 	setSupplyNuke()
 end
-function addANuke()
-	supplyNuke = supplyNuke + 1
+function addANukeMin()
+	if supply_nuke_range_min == supply_nuke_range_max then
+		addGMMessage(string.format("Minimum nuke range %i cannot exceed maximum nuke range %i",supply_nuke_range_max,supply_nuke_range_max))
+	else
+		supply_nuke_range_min = supply_nuke_range_min + 1
+	end
+	setSupplyNuke()
+end
+function subtractANukeMax()
+	if supply_nuke_range_max == supply_nuke_range_min then
+		addGMMessage(string.format("Maximum nuke range %i cannot go below minimum nuke range %i",supply_nuke_range_max,supply_nuke_range_max))
+	else
+		supply_nuke_range_max = supply_nuke_range_max - 1
+	end
+	setSupplyNuke()
+end
+function addANukeMax()
+	supply_nuke_range_max = supply_nuke_range_max + 1
 	setSupplyNuke()
 end
 ----------------------------------------------------------
@@ -26372,21 +26423,41 @@ function setSupplyEMP()
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-Custom Supply",setCustomSupply)
 	addGMFunction("-From EMP",setCustomMissiles)
-	if supplyEMP > 0 then
-		local GMSubtractAnEMP = string.format("%i-1=%i",supplyEMP,supplyEMP - 1)
-		addGMFunction(GMSubtractAnEMP,subtractAnEMP)
+	if supply_emp_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_emp_range_min,supply_emp_range_min - 1),subtractAnEMPMin)
 	end
-	if supplyEMP < 20 then
-		local GMAddAnEMP = string.format("%i+1=%i",supplyEMP,supplyEMP + 1)
-		addGMFunction(GMAddAnEMP,addAnEMP)
+	if supply_emp_range_min < 20 then
+		addGMFunction(string.format("Min %i+1=%i",supply_emp_range_min,supply_emp_range_min + 1),addAnEMPMin)
+	end
+	if supply_emp_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_emp_range_max,supply_emp_range_max - 1),subtractAnEMPMax)
+	end
+	if supply_emp_range_max < 20 then
+		addGMFunction(string.format("Max %i+1=%i",supply_emp_range_max,supply_emp_range_max + 1),addAnEMPMax)
 	end
 end
-function subtractAnEMP()
-	supplyEMP = supplyEMP - 1
+function subtractAnEMPMin()
+	supply_emp_range_min = supply_emp_range_min - 1
 	setSupplyEMP()
 end
-function addAnEMP()
-	supplyEMP = supplyEMP + 1
+function addAnEMPMin()
+	if supply_emp_range_min == supply_emp_range_max then
+		addGMMessage(string.format("Minimum EMP range of %i cannot exceed maximum EMP range %i",supply_emp_range_min,supply_emp_range_min))
+	else
+		supply_emp_range_min = supply_emp_range_min + 1
+	end
+	setSupplyEMP()
+end
+function subtractAnEMPMax()
+	if supply_emp_range_min == supply_emp_range_max then
+		addGMMessage(string.format("Maximum EMP range of %i cannot go below minimum EMP range of %i",supply_emp_range_min,supply_emp_range_min))
+	else
+		supply_emp_range_max = supply_emp_range_max - 1
+	end
+	setSupplyEMP()
+end
+function addAnEMPMax()
+	supply_emp_range_max = supply_emp_range_max + 1
 	setSupplyEMP()
 end
 -----------------------------------------------------------
@@ -26405,21 +26476,41 @@ function setSupplyMine()
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-Custom Supply",setCustomSupply)
 	addGMFunction("-From Mine",setCustomMissiles)
-	if supplyMine > 0 then
-		local GMSubtractAMine = string.format("%i-1=%i",supplyMine,supplyMine - 1)
-		addGMFunction(GMSubtractAMine,subtractAMine)
+	if supply_mine_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_mine_range_min,supply_mine_range_min - 1),subtractAMineMin)
 	end
-	if supplyMine < 20 then
-		local GMAddAMine = string.format("%i+1=%i",supplyMine,supplyMine + 1)
-		addGMFunction(GMAddAMine,addAMine)
+	if supply_mine_range_min < 20 then
+		addGMFunction(string.format("Min %i+1=%i",supply_mine_range_min,supply_mine_range_min + 1),addAMineMin)
+	end
+	if supply_mine_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_mine_range_max,supply_mine_range_max - 1),subtractAMineMax)
+	end
+	if supply_mine_range_max < 20 then
+		addGMFunction(string.format("Max %i+1=%i",supply_mine_range_max,supply_mine_range_max + 1),addAMineMax)
 	end
 end
-function subtractAMine()
-	supplyMine = supplyMine - 1
+function subtractAMineMin()
+	supply_mine_range_min = supply_mine_range_min - 1
 	setSupplyMine()
 end
-function addAMine()
-	supplyMine = supplyMine + 1
+function addAMineMin()
+	if supply_mine_range_min == supply_mine_range_max then
+		addGMMessage(string.format("Minimum mine range of %i cannot exceed maximum mine range of %i",supply_mine_range_max,supply_mine_range_max))
+	else
+		supply_mine_range_min = supply_mine_range_min + 1
+	end
+	setSupplyMine()
+end
+function subtractAMineMax()
+	if supply_mine_range_min == supply_mine_range_max then
+		addGMMessage(string.format("Maximum mine range of %i cannot go below minimum mine range of %i",supply_mine_range_max,supply_mine_range_max))
+	else
+		supply_mine_range_max = supply_mine_range_max - 1
+	end
+	setSupplyMine()
+end
+function addAMineMax()
+	supply_mine_range_max = supply_mine_range_max + 1
 	setSupplyMine()
 end
 -------------------------------------------------------------
@@ -26438,21 +26529,41 @@ function setSupplyHoming()
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-Custom Supply",setCustomSupply)
 	addGMFunction("-From Homing",setCustomMissiles)
-	if supplyHoming > 0 then
-		local GMSubtractAHoming = string.format("%i-1=%i",supplyHoming,supplyHoming - 1)
-		addGMFunction(GMSubtractAHoming,subtractAHoming)
+	if supply_homing_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_homing_range_min,supply_homing_range_min - 1),subtractAHomingMin)
 	end
-	if supplyHoming < 20 then
-		local GMAddAHoming = string.format("%i+1=%i",supplyHoming,supplyHoming + 1)
-		addGMFunction(GMAddAHoming,addAHoming)
+	if supply_homing_range_min < 20 then
+		addGMFunction(string.format("Min %i+1=%i",supply_homing_range_min,supply_homing_range_min + 1),addAHomingMin)
+	end
+	if supply_homing_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_homing_range_max,supply_homing_range_max - 1),subtractAHomingMax)
+	end
+	if supply_homing_range_max < 20 then
+		addGMFunction(string.format("Max %i+1=%i",supply_homing_range_max,supply_homing_range_max + 1),addAHomingMax)
 	end
 end
-function subtractAHoming()
-	supplyHoming = supplyHoming - 1
+function subtractAHomingMin()
+	supply_homing_range_min = supply_homing_range_min - 1
 	setSupplyHoming()
 end
-function addAHoming()
-	supplyHoming = supplyHoming + 1
+function addAHomingMin()
+	if supply_homing_range_min == supply_homing_range_max then
+		addGMMessage(string.format("Minimum homing range of %i cannot exceed maximum homing range of %i",supply_homing_range_min,supply_homing_range_min))
+	else
+		supply_homing_range_min = supply_homing_range_min + 1
+	end
+	setSupplyHoming()
+end
+function subtractAHomingMax()
+	if supply_homing_range_min == supply_homing_range_max then
+		addGMMessage(string.format("Maximum homing range of %i cannot go below minimum homing range of %i",supply_homing_range_min,supply_homing_range_min))
+	else
+		supply_homing_range_max = supply_homing_range_max - 1
+	end
+	setSupplyHoming()
+end
+function addAHomingMax()
+	supply_homing_range_max = supply_homing_range_max + 1
 	setSupplyHoming()
 end
 -----------------------------------------------------------
@@ -26470,21 +26581,41 @@ function setSupplyHVLI()
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-Custom Supply",setCustomSupply)
 	addGMFunction("-From HVLI",setCustomMissiles)
-	if supplyHVLI > 0 then
-		local GMSubtractAnHVLI = string.format("%i-1=%i",supplyHVLI,supplyHVLI - 1)
-		addGMFunction(GMSubtractAnHVLI,subtractAnHVLI)
+	if supply_hvli_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_hvli_range_min,supply_hvli_range_min - 1),subtractAnHVLIMin)
 	end
-	if supplyHVLI < 20 then
-		local GMAddAnHVLI = string.format("%i+1=%i",supplyHVLI,supplyHVLI + 1)
-		addGMFunction(GMAddAnHVLI,addAnHVLI)
+	if supply_hvli_range_min < 20 then
+		addGMFunction(string.format("Min %i+1=%i",supply_hvli_range_min,supply_hvli_range_min + 1),addAnHVLIMin)
+	end
+	if supply_hvli_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_hvli_range_max,supply_hvli_range_max - 1),subtractAnHVLIMax)
+	end
+	if supply_hvli_range_max < 20 then
+		addGMFunction(string.format("Max %i+1=%i",supply_hvli_range_max,supply_hvli_range_max + 1),addAnHVLIMax)
 	end
 end
-function subtractAnHVLI()
-	supplyHVLI = supplyHVLI - 1
+function subtractAnHVLIMin()
+	supply_hvli_range_min = supply_hvli_range_min - 1
 	setSupplyHVLI()
 end
-function addAnHVLI()
-	supplyHVLI = supplyHVLI + 1
+function addAnHVLIMin()
+	if supply_hvli_range_min == supply_hvli_range_max then
+		addGMMessage(string.format("Minimum HVLI range of %i cannot exceed maximum HVLI range of %i",supply_hvli_range_min,supply_hvli_range_min))
+	else
+		supply_hvli_range_min = supply_hvli_range_min + 1
+	end
+	setSupplyHVLI()
+end
+function subtractAnHVLIMax()
+	if supply_hvli_range_min == supply_hvli_range_max then
+		addGMMessage(string.format("Maximum HVLI range of %i cannot go below minimum HVLI range of %i",supply_hvli_range_min,supply_hvli_range_min))
+	else
+		supply_hvli_range_max = supply_hvli_range_max - 1
+	end
+	setSupplyHVLI()
+end
+function addAnHVLIMax()
+	supply_hvli_range_max = supply_hvli_range_max + 1
 	setSupplyHVLI()
 end
 ------------------------------------------------------------------
@@ -26500,21 +26631,41 @@ function setSupplyRepairCrew()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-From Repair Crew",setCustomSupply)
-	if supplyRepairCrew > 0 then
-		local GMSubtractARepairCrew = string.format("%i-1=%i",supplyRepairCrew,supplyRepairCrew - 1)
-		addGMFunction(GMSubtractARepairCrew,subtractARepairCrew)
+	if supply_repair_crew_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_repair_crew_range_min,supply_repair_crew_range_min - 1),subtractARepairCrewMin)
 	end
-	if supplyRepairCrew < 3 then
-		local GMAddARepairCrew = string.format("%i+1=%i",supplyRepairCrew,supplyRepairCrew + 1)
-		addGMFunction(GMAddARepairCrew,addARepairCrew)
+	if supply_repair_crew_range_min < 3 then
+		addGMFunction(string.format("Min %i+1=%i",supply_repair_crew_range_min,supply_repair_crew_range_min + 1),addARepairCrewMin)
+	end
+	if supply_repair_crew_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_repair_crew_range_max,supply_repair_crew_range_max - 1),subtractARepairCrewMax)
+	end
+	if supply_repair_crew_range_max < 3 then
+		addGMFunction(string.format("Max %i+1=%i",supply_repair_crew_range_max,supply_repair_crew_range_max + 1),addARepairCrewMax)
 	end
 end
 function subtractARepairCrew()
-	supplyRepairCrew = supplyRepairCrew - 1
+	supply_repair_crew_range_min = supply_repair_crew_range_min - 1
 	setSupplyRepairCrew()
 end
-function addARepairCrew()
-	supplyRepairCrew = supplyRepairCrew + 1
+function addARepairCrewMin()
+	if supply_repair_crew_range_min == supply_repair_crew_range_max then
+		addGMMessage(string.format("Minimum repair crew range of %i cannot exceed maximum repair crew range of %i",supply_repair_crew_range_min,supply_repair_crew_range_min))
+	else
+		supply_repair_crew_range_min = supply_repair_crew_range_min + 1
+	end
+	setSupplyRepairCrew()
+end
+function subtractARepairCrewMax()
+	if supply_repair_crew_range_min == supply_repair_crew_range_max then
+		addGMMessage(string.format("Maximum repair crew range of %i cannot go below minimum repair crew range of %i",supply_repair_crew_range_min,supply_repair_crew_range_min))
+	else
+		supply_repair_crew_range_max = supply_repair_crew_range_max - 1
+	end
+	setSupplyRepairCrew()
+end
+function addARepairCrewMax()
+	supply_repair_crew_range_max = supply_repair_crew_range_max + 1
 	setSupplyRepairCrew()
 end
 --------------------------------------------------------------
@@ -26530,21 +26681,41 @@ function setSupplyCoolant()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-From Coolant",setCustomSupply)
-	if supplyCoolant > 0 then
-		local GMSubtractCoolant = string.format("%i-1=%i",supplyCoolant,supplyCoolant - 1)
-		addGMFunction(GMSubtractCoolant,subtractCoolant)
+	if supply_coolant_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_coolant_range_min,supply_coolant_range_min - 1),subtractCoolantMin)
 	end
-	if supplyCoolant < 5 then
-		local GMAddCoolant = string.format("%i+1=%i",supplyCoolant,supplyCoolant + 1)
-		addGMFunction(GMAddCoolant,addCoolant)
+	if supply_coolant_range_min < 5 then
+		addGMFunction(string.format("Min %i+1=%i",supply_coolant_range_min,supply_coolant_range_min + 1),addCoolantMin)
+	end
+	if supply_coolant_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_coolant_range_max,supply_coolant_range_max - 1),subtractCoolantMax)
+	end
+	if supply_coolant_range_max < 5 then
+		addGMFunction(string.format("Max %i+1=%i",supply_coolant_range_max,supply_coolant_range_max + 1),addCoolantMax)
 	end
 end
-function subtractCoolant()
-	supplyCoolant = supplyCoolant - 1
+function subtractCoolantMin()
+	supply_coolant_range_min = supply_coolant_range_min - 1
 	setSupplyCoolant()
 end
-function addCoolant()
-	supplyCoolant = supplyCoolant + 1
+function addCoolantMin()
+	if supply_coolant_range_min == supply_coolant_range_max then
+		addGMMessage(string.format("Minimum coolant range of %i cannot exceed maximum coolant range of %i",supply_coolant_range_min,supply_coolant_range_min))
+	else
+		supply_coolant_range_min = supply_coolant_range_min + 1
+	end
+	setSupplyCoolant()
+end
+function subtractCoolantMax()
+	if supply_coolant_range_min == supply_coolant_range_max then
+		addGMMessage(string.format("Maximum coolant range of %i cannot go below minimum coolant range of %i",supply_coolant_range_min,supply_coolant_range_min))
+	else
+		supply_coolant_range_max = supply_coolant_range_max + 1
+	end
+	setSupplyCoolant()
+end
+function addCoolantMax()
+	supply_coolant_range_max = supply_coolant_range_max + 1
 	setSupplyCoolant()
 end
 function setSupplyProbes()
@@ -26552,16 +26723,74 @@ function setSupplyProbes()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-From Probes",setCustomSupply)
-	if supplyProbes > 0 then
-		addGMFunction(string.format("%i-1=%i probes",supplyProbes,supplyProbes - 1), function()
-			supplyProbes = supplyProbes - 1
+	if supply_probes_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_probes_range_min,supply_probes_range_min - 1), function()
+			supply_probes_range_min = supply_probes_range_min - 1
 			setSupplyProbes()
 		end)
 	end
-	if supplyProbes < 50 then
-		addGMFunction(string.format("%i+1=%i probes",supplyProbes,supplyProbes + 1), function()
-			supplyProbes = supplyProbes + 1
+	if supply_probes_range_min < 50 then
+		addGMFunction(string.format("Min %i+1=%i",supply_probes_range_min,supply_probes_range_min + 1), function()
+			if supply_probes_range_min == supply_probes_range_max then
+				addGMMessage(string.format("Minimum probes range of %i cannot exceed maximum probe range of %i",supply_probes_range_min,supply_probes_range_min))
+			else
+				supply_probes_range_min = supply_probes_range_min + 1
+			end
 			setSupplyProbes()
+		end)
+	end
+	if supply_probes_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_probes_range_max,supply_probes_range_max - 1), function()
+			if supply_probes_range_min == supply_probes_range_max then
+				addGMMessage(string.format("Maximum probes range of %i cannot go below minimum probe range of %i",supply_probes_range_min,supply_probes_range_min))
+			else
+				supply_probes_range_max = supply_probes_range_max - 1
+			end
+			setSupplyProbes()
+		end)
+	end
+	if supply_probes_range_max < 50 then
+		addGMFunction(string.format("Max %i+1=%i",supply_probes_range_max,supply_probes_range_max + 1), function()
+			supply_probes_range_max = supply_probes_range_max + 1
+			setSupplyProbes()
+		end)
+	end
+end
+function setSupplyArmor()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Drop Point",dropPoint)
+	addGMFunction("-From Armor",setCustomSupply)
+	if supply_armor_range_min > 0 then
+		addGMFunction(string.format("Min %i-1=%i",supply_armor_range_min,supply_armor_range_min - 1), function()
+			supply_armor_range_min = supply_armor_range_min - 1
+			setSupplyArmor()
+		end)
+	end
+	if supply_armor_range_min < 50 then
+		addGMFunction(string.format("Min %i+1=%i",supply_armor_range_min,supply_armor_range_min + 1), function()
+			if supply_armor_range_min == supply_armor_range_max then
+				addGMMessage(string.format("Minimum armor range of %i cannot exceed the maximum armor range of %i",supply_armor_range_min,supply_armor_range_min))
+			else
+				supply_armor_range_min = supply_armor_range_min + 1
+			end
+			setSupplyArmor()
+		end)
+	end
+	if supply_armor_range_max > 0 then
+		addGMFunction(string.format("Max %i-1=%i",supply_armor_range_max,supply_armor_range_max - 1), function()
+			if supply_armor_range_min == supply_armor_range_max then
+				addGMMessage(string.format("Maximum armor range of %i cannot go below the minimum armor range of %i",supply_armor_range_min,supply_armor_range_min))
+			else
+				supply_armor_range_max = supply_armor_range_max - 1
+			end
+			setSupplyArmor()
+		end)
+	end
+	if supply_armor_range_max < 50 then
+		addGMFunction(string.format("Max %i+1=%i",supply_armor_range_max,supply_armor_range_max + 1), function()
+			supply_armor_range_max = supply_armor_range_max + 1
+			setSupplyArmor()
 		end)
 	end
 end
@@ -26610,20 +26839,33 @@ function createSupplyAway()
 	supplyCreation(nearx, neary, sox, soy)
 end
 function supplyCreation(originx, originy, vectorx, vectory)
+	local supplyEnergy = math.random(supply_energy_range_min,supply_energy_range_max)
+	local supplyNuke = math.random(supply_nuke_range_min,supply_nuke_range_max)
+	local supplyEMP = math.random(supply_emp_range_min,supply_emp_range_max)
+	local supplyMine = math.random(supply_mine_range_min,supply_mine_range_max)
+	local supplyHoming = math.random(supply_homing_range_min,supply_homing_range_max)
+	local supplyHVLI = math.random(supply_hvli_range_min,supply_hvli_range_max)
 	local customSupplyDrop = SupplyDrop():setEnergy(supplyEnergy):setFaction("Human Navy"):setPosition(originx+vectorx,originy+vectory)
 	customSupplyDrop:setWeaponStorage("Nuke",supplyNuke)
 	customSupplyDrop:setWeaponStorage("EMP",supplyEMP)
 	customSupplyDrop:setWeaponStorage("Homing",supplyHoming)
 	customSupplyDrop:setWeaponStorage("Mine",supplyMine)
 	customSupplyDrop:setWeaponStorage("HVLI",supplyHVLI)
+	local supplyRepairCrew = math.random(supply_repair_crew_range_min,supply_repair_crew_range_max)
 	if supplyRepairCrew > 0 then
 		customSupplyDrop.repairCrew = supplyRepairCrew
 	end
+	local supplyCoolant = math.random(supply_coolant_range_min,supply_coolant_range_max)
 	if supplyCoolant > 0 then
 		customSupplyDrop.coolant = supplyCoolant
 	end
+	local supplyProbes = math.random(supply_probes_range_min,supply_probes_range_max)
 	if supplyProbes > 0 then
 		customSupplyDrop.probes = supplyProbes
+	end
+	local supplyArmor = math.random(supply_armor_range_min,supply_armor_range_max)
+	if supplyArmor > 0 then
+		customSupplyDrop.armor = supplyArmor
 	end
 	local supplyLabel = ""
 	local wordy_label = ""
@@ -26663,6 +26905,10 @@ function supplyCreation(originx, originy, vectorx, vectory)
 		supplyLabel = supplyLabel .. string.format("P%i ",supplyProbes)
 		wordy_label = wordy_label .. string.format("Probes:%i ",supplyProbes)
 	end
+	if supplyArmor > 0 then
+		supplyLabel = supplyLabel .. string.format("A%i ",supplyArmor)
+		wordy_label = wordy_label .. string.format("Armor:%i ",supplyArmor)
+	end
 	if supply_drop_info == "Label" then
 		customSupplyDrop:setCallSign(supplyLabel)
 	elseif supply_drop_info == "Scan" then
@@ -26684,6 +26930,9 @@ function supplyPickupProcess(self, player)
 	end
 	if self.probes ~= nil then
 		player:setScanProbeCount(math.min(player:getScanProbeCount() + self.probes,player:getMaxScanProbeCount()))
+	end
+	if self.armor ~= nil then
+		player:setHull(player:getHull() + self.armor)
 	end
 end
 ----------------------------------------
@@ -28711,9 +28960,9 @@ function stationOperations()
 		else
 			local button_label = "Probes"
 			if first_object:getRestocksScanProbes() then
-				button_label = string.format("%s On",button_label)
+				button_label = string.format("%s On->Off",button_label)
 			else
-				button_label = string.format("%s Off",button_label)
+				button_label = string.format("%s Off->On",button_label)
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28735,9 +28984,9 @@ function stationOperations()
 				end
 			end)
 			if first_object:getRepairDocked() then
-				button_label = "Repair On"
+				button_label = "Repair On->Off"
 			else
-				button_label = "Repair Off"
+				button_label = "Repair Off->On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28759,9 +29008,9 @@ function stationOperations()
 				end
 			end)
 			if first_object:getSharesEnergyWithDocked() then
-				button_label = "Energy On"
+				button_label = "Energy On-Off"
 			else
-				button_label = "Energy Off"
+				button_label = "Energy Off-On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28783,9 +29032,9 @@ function stationOperations()
 				end
 			end)
 			if first_object.comms_data.probe_launch_repair then
-				button_label = "Fix Probes On"
+				button_label = "Fix Probes On->Off"
 			else
-				button_label = "Fix Probes Off"
+				button_label = "Fix Probes Off->On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28807,9 +29056,9 @@ function stationOperations()
 				end
 			end)
 			if first_object.comms_data.hack_repair then
-				button_label = "Fix Hack On"
+				button_label = "Fix Hack On->Off"
 			else
-				button_label = "Fix Hack Off"
+				button_label = "Fix Hack Off->On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28831,9 +29080,9 @@ function stationOperations()
 				end
 			end)
 			if first_object.comms_data.scan_repair then
-				button_label = "Fix Scan On"
+				button_label = "Fix Scan On->Off"
 			else
-				button_label = "Fix Scan Off"
+				button_label = "Fix Scan Off->On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28855,9 +29104,9 @@ function stationOperations()
 				end
 			end)
 			if first_object.comms_data.combat_maneuver_repair then
-				button_label = "Fix C.Maneuver On"
+				button_label = "Fix C.Maneuver On->Off"
 			else
-				button_label = "Fix C.Maneuver Off"
+				button_label = "Fix C.Maneuver Off->On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28879,9 +29128,9 @@ function stationOperations()
 				end
 			end)
 			if first_object.comms_data.self_destruct_repair then
-				button_label = "Fix Destruct On"
+				button_label = "Fix Destruct On->Off"
 			else
-				button_label = "Fix Destruct Off"
+				button_label = "Fix Destruct Off->On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
@@ -28903,9 +29152,9 @@ function stationOperations()
 				end
 			end)
 			if first_object.comms_data.tube_slow_down_repair then
-				button_label = "Fix Slow Tube On"
+				button_label = "Fix Slow Tube On->Off"
 			else
-				button_label = "Fix Slow Tube Off"
+				button_label = "Fix Slow Tube Off->On"
 			end
 			addGMFunction(button_label,function()
 				local objectList = getGMSelection()
