@@ -26644,7 +26644,7 @@ function setSupplyRepairCrew()
 		addGMFunction(string.format("Max %i+1=%i",supply_repair_crew_range_max,supply_repair_crew_range_max + 1),addARepairCrewMax)
 	end
 end
-function subtractARepairCrew()
+function subtractARepairCrewMin()
 	supply_repair_crew_range_min = supply_repair_crew_range_min - 1
 	setSupplyRepairCrew()
 end
@@ -26710,7 +26710,7 @@ function subtractCoolantMax()
 	if supply_coolant_range_min == supply_coolant_range_max then
 		addGMMessage(string.format("Maximum coolant range of %i cannot go below minimum coolant range of %i",supply_coolant_range_min,supply_coolant_range_min))
 	else
-		supply_coolant_range_max = supply_coolant_range_max + 1
+		supply_coolant_range_max = supply_coolant_range_max - 1
 	end
 	setSupplyCoolant()
 end
@@ -31721,6 +31721,8 @@ function wrapWithErrorHandling(fun)
 				end
 				addGMMessage("script error - \n"..error)
 			end
+		else
+			return error
 		end
 	end
 end
