@@ -26919,7 +26919,6 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	customSupplyDrop:onPickUp(supplyPickupProcess)
 end
 function supplyPickupProcess(self, player)
-	string.format("")	--necessary to have global reference for Serious Proton engine
 	if self.repairCrew ~= nil then
 		player:setRepairCrewCount(player:getRepairCrewCount() + self.repairCrew)
 	end
@@ -26930,7 +26929,7 @@ function supplyPickupProcess(self, player)
 		player:setScanProbeCount(math.min(player:getScanProbeCount() + self.probes,player:getMaxScanProbeCount()))
 	end
 	if self.armor ~= nil then
-		player:setHull(player:getHull() + self.armor)
+		player:setHull(math.min(player:getHull() + self.armor,player:getHullMax()))
 	end
 end
 ----------------------------------------
