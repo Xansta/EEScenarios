@@ -964,8 +964,6 @@ function setConstants()
 	makePlayerShipActive("Quill")
 	makePlayerShipActive("Quicksilver")
 	makePlayerShipActive("Pinwheel")
-	makePlayerShipActive("Manxman")
-	makePlayerShipActive("Thunderbird")
 	makePlayerShipActive("Hearken")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
