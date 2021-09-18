@@ -431,7 +431,7 @@ function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
 	update_system=updateSystem:create()
-	fleet_custom=fleetCustom:create()
+	playerFleet=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
@@ -4702,7 +4702,7 @@ function customButtons()
 		end)
 	end)
 	addGMFunction("contact gm",function ()
-		fleet_custom:addCustomButton("Relay","gm contact","calibrate",function (player)
+		playerFleet:addCustomButton("Relay","gm contact","calibrate",function (player)
 			if not openGMComms(player) then
 				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
 			end
@@ -17675,7 +17675,7 @@ function wrapAddCustomButtons(p)
 end
 function assignPlayerShipScore(p)
 	wrapAddCustomButtons(p)
-	fleet_custom:addToFleet(p)
+	playerFleet:addToFleet(p)
 --	print("assign player ship score",p:getCallSign())
 	local spawn_x,spawn_y=p:getPosition()
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
