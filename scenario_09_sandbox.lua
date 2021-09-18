@@ -30795,6 +30795,10 @@ function GMTimerPurpose()
 		end)
 	end
 end
+
+function setTimerPurpose(purpose)
+	timer_purpose = purpose
+end
 -------------------------------------
 --	Countdown Timer > Add Seconds  --
 -------------------------------------
