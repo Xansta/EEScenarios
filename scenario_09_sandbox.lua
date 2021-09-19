@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.6"
+	scenario_version = "4.0.7"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -431,7 +431,7 @@ function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
 	update_system=updateSystem:create()
-	fleet_custom=fleetCustom:create()
+	playerFleet=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
@@ -964,8 +964,6 @@ function setConstants()
 	makePlayerShipActive("Quill")
 	makePlayerShipActive("Quicksilver")
 	makePlayerShipActive("Pinwheel")
-	makePlayerShipActive("Manxman")
-	makePlayerShipActive("Thunderbird")
 	makePlayerShipActive("Hearken")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -4704,7 +4702,7 @@ function customButtons()
 		end)
 	end)
 	addGMFunction("contact gm",function ()
-		fleet_custom:addCustomButton("Relay","gm contact","calibrate",function (player)
+		playerFleet:addCustomButton("Relay","gm contact","calibrate",function (player)
 			if not openGMComms(player) then
 				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
 			end
@@ -17677,7 +17675,7 @@ function wrapAddCustomButtons(p)
 end
 function assignPlayerShipScore(p)
 	wrapAddCustomButtons(p)
-	fleet_custom:addToFleet(p)
+	playerFleet:addToFleet(p)
 --	print("assign player ship score",p:getCallSign())
 	local spawn_x,spawn_y=p:getPosition()
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
@@ -26644,7 +26642,7 @@ function setSupplyRepairCrew()
 		addGMFunction(string.format("Max %i+1=%i",supply_repair_crew_range_max,supply_repair_crew_range_max + 1),addARepairCrewMax)
 	end
 end
-function subtractARepairCrew()
+function subtractARepairCrewMin()
 	supply_repair_crew_range_min = supply_repair_crew_range_min - 1
 	setSupplyRepairCrew()
 end
@@ -26710,7 +26708,7 @@ function subtractCoolantMax()
 	if supply_coolant_range_min == supply_coolant_range_max then
 		addGMMessage(string.format("Maximum coolant range of %i cannot go below minimum coolant range of %i",supply_coolant_range_min,supply_coolant_range_min))
 	else
-		supply_coolant_range_max = supply_coolant_range_max + 1
+		supply_coolant_range_max = supply_coolant_range_max - 1
 	end
 	setSupplyCoolant()
 end
@@ -26921,7 +26919,6 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	customSupplyDrop:onPickUp(supplyPickupProcess)
 end
 function supplyPickupProcess(self, player)
-	string.format("")	--necessary to have global reference for Serious Proton engine
 	if self.repairCrew ~= nil then
 		player:setRepairCrewCount(player:getRepairCrewCount() + self.repairCrew)
 	end
@@ -26932,7 +26929,7 @@ function supplyPickupProcess(self, player)
 		player:setScanProbeCount(math.min(player:getScanProbeCount() + self.probes,player:getMaxScanProbeCount()))
 	end
 	if self.armor ~= nil then
-		player:setHull(player:getHull() + self.armor)
+		player:setHull(math.min(player:getHull() + self.armor,player:getHullMax()))
 	end
 end
 ----------------------------------------
@@ -30798,6 +30795,10 @@ function GMTimerPurpose()
 		end)
 	end
 end
+
+function setTimerPurpose(purpose)
+	timer_purpose = purpose
+end
 -------------------------------------
 --	Countdown Timer > Add Seconds  --
 -------------------------------------
@@ -31721,6 +31722,8 @@ function wrapWithErrorHandling(fun)
 				end
 				addGMMessage("script error - \n"..error)
 			end
+		else
+			return error
 		end
 	end
 end
