@@ -23,7 +23,7 @@ require("science_database.lua")
 require("utils_customElements.lua")
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.7"
+	scenario_version = "4.0.8"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -965,6 +965,8 @@ function setConstants()
 	makePlayerShipActive("Quicksilver")
 	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Hearken")
+	makePlayerShipActive("Hrothgar")
+	makePlayerShipActive("Slingshot")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -3238,7 +3240,7 @@ function orderFleet()
 				ship.fleet = string.char(friendly_defensive_fleet_val)
 				ship_names = ship_names .. ship:getCallSign() .. " "
 			end
-			addGMMessage(string.format("Fleet %s created with these ships:\n   %s\nDon't forget to add sandbox comms:\n   Select ship(s), Tweak Terrain > Sandbox Comms",string.char(friendly_defensive_fleet_val),ship_names))
+			addGMMessage(string.format("Squadron %s created with these ships:\n   %s\nDon't forget to add sandbox comms:\n   Select ship(s), Tweak Terrain > Sandbox Comms",string.char(friendly_defensive_fleet_val),ship_names))
 			friendly_defensive_fleet_val = friendly_defensive_fleet_val + 1
 			--no boundary check for more than 26 fleets		
 		else
@@ -15644,6 +15646,22 @@ function createPlayerShipHearken()
 	playerHearken:setWeaponStorage("EMP", 4)					
 	playerHearken:setWeaponStorageMax("Nuke",0)				--fewer Nukes (vs 6)
 	playerHearken:setWeaponStorage("Nuke", 0)				
+	playerHearken:setSystemCoolantRate("reactor",		1.15)	--less (vs 1.2)
+	playerHearken:setSystemCoolantRate("jumpdrive",		1.3)	--more (vs 1.2)
+	playerHearken:setSystemCoolantRate("beamweapons",	0.95)	--less (vs 1.2)
+	playerHearken:setSystemCoolantRate("maneuver",		1.2)	--same (vs 1.2)
+	playerHearken:setSystemCoolantRate("impulse",		1.2)	--same (vs 1.2)
+	playerHearken:setSystemCoolantRate("frontshield",	1.2)	--same (vs 1.2)
+	playerHearken:setSystemCoolantRate("rearshield",	1.05)	--less (vs 1.2)
+	playerHearken:setSystemCoolantRate("missilesystem",	1.05)	--less (vs 1.2)
+	playerHearken:setSystemPowerRate("reactor",			0.375)	--more (vs 0.30)
+	playerHearken:setSystemPowerRate("beamweapons",		0.275)	--less (vs 0.30)
+	playerHearken:setSystemPowerRate("jumpdrive",		0.35)	--more (vs 0.30)
+	playerHearken:setSystemPowerRate("maneuver",		0.3)	--same (vs 0.30)
+	playerHearken:setSystemPowerRate("impulse",			0.4)	--more (vs 0.30)
+	playerHearken:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
+	playerHearken:setSystemPowerRate("rearshield",		0.225)	--less (vs 0.30)	
+	playerHearken:setSystemPowerRate("missilesystem",	0.225)	--less (vs 0.30)	
 	playerHearken:onTakingDamage(playerShipDamage)
 	playerHearken:addReputationPoints(50)
 	return playerHearken
@@ -15676,6 +15694,22 @@ function createPlayerShipHrothgar()
 	playerNusret:setWeaponStorage("Homing", 8)				
 	playerNusret:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
 	playerNusret:setWeaponStorage("Mine", 8)				
+	playerNusret:setSystemCoolantRate("reactor",		1.25)	--more (vs 1.2)
+	playerNusret:setSystemCoolantRate("jumpdrive",		1.15)	--less (vs 1.2)
+	playerNusret:setSystemCoolantRate("beamweapons",	1.25)	--more (vs 1.2)
+	playerNusret:setSystemCoolantRate("maneuver",		1.2)	--same (vs 1.2)
+	playerNusret:setSystemCoolantRate("impulse",		0.9)	--less (vs 1.2)
+	playerNusret:setSystemCoolantRate("frontshield",	0.95)	--less (vs 1.2)
+	playerNusret:setSystemCoolantRate("rearshield",		0.95)	--less (vs 1.2)
+	playerNusret:setSystemCoolantRate("missilesystem",	1.2)	--same (vs 1.2)
+	playerNusret:setSystemPowerRate("reactor",			0.4)	--more (vs 0.30)
+	playerNusret:setSystemPowerRate("beamweapons",		0.35)	--more (vs 0.30)
+	playerNusret:setSystemPowerRate("jumpdrive",		0.35)	--more (vs 0.30)
+	playerNusret:setSystemPowerRate("maneuver",			0.325)	--more (vs 0.30)
+	playerNusret:setSystemPowerRate("impulse",			0.275)	--less (vs 0.30)
+	playerNusret:setSystemPowerRate("frontshield",		0.3)	--same (vs 0.30)
+	playerNusret:setSystemPowerRate("rearshield",		0.3)	--same (vs 0.30)	
+	playerNusret:setSystemPowerRate("missilesystem",	0.375)	--more (vs 0.30)	
 	playerNusret:onTakingDamage(playerShipDamage)
 	playerNusret:addReputationPoints(50)
 	return playerNusret
@@ -16212,6 +16246,22 @@ function createPlayerShipQuick()
 	playerQuick:setWeaponStorage("Nuke", 2)				
 	playerQuick:setWeaponStorageMax("EMP",3)	--more EMPs (vs 0)
 	playerQuick:setWeaponStorage("EMP", 3)				
+	playerQuick:setSystemCoolantRate("reactor",			1.25)	--more (vs 1.2)
+	playerQuick:setSystemCoolantRate("warp",			1.3)	--more (vs 1.2)
+	playerQuick:setSystemCoolantRate("beamweapons",		1.15)	--less (vs 1.2)
+	playerQuick:setSystemCoolantRate("maneuver",		1.25)	--more (vs 1.2)
+	playerQuick:setSystemCoolantRate("impulse",			1.05)	--less (vs 1.2)
+	playerQuick:setSystemCoolantRate("frontshield",		1.2)	--same (vs 1.2)
+	playerQuick:setSystemCoolantRate("rearshield",		1.05)	--less (vs 1.2)
+	playerQuick:setSystemCoolantRate("missilesystem",	1.2)	--same (vs 1.2)
+	playerQuick:setSystemPowerRate("reactor",			0.4)	--more (vs 0.30)
+	playerQuick:setSystemPowerRate("beamweapons",		0.375)	--more (vs 0.30)
+	playerQuick:setSystemPowerRate("warp",				0.35)	--more (vs 0.30)
+	playerQuick:setSystemPowerRate("maneuver",			0.35)	--more (vs 0.30)
+	playerQuick:setSystemPowerRate("impulse",			0.225)	--less (vs 0.30)
+	playerQuick:setSystemPowerRate("frontshield",		0.3)	--same (vs 0.30)
+	playerQuick:setSystemPowerRate("rearshield",		0.275)	--less (vs 0.30)	
+	playerQuick:setSystemPowerRate("missilesystem",		0.35)	--more (vs 0.30)	
 	playerQuick:onTakingDamage(playerShipDamage)
 	playerQuick:addReputationPoints(50)
 	return playerQuick
@@ -16531,6 +16581,22 @@ function createPlayerShipSlingshot()
 	playerWrocket:weaponTubeDisallowMissle(4,"Mine")
 	playerWrocket:setWeaponStorageMax("EMP",8)			--more (vs 0)
 	playerWrocket:setWeaponStorage("EMP", 8)
+	playerWrocket:setSystemCoolantRate("reactor",		1.25)	--more (vs 1.2)
+	playerWrocket:setSystemCoolantRate("jumpdrive",		1.3)	--more (vs 1.2)
+	playerWrocket:setSystemCoolantRate("beamweapons",	0.95)	--less (vs 1.2)
+	playerWrocket:setSystemCoolantRate("maneuver",		1.2)	--same (vs 1.2)
+	playerWrocket:setSystemCoolantRate("impulse",		1.2)	--same (vs 1.2)
+	playerWrocket:setSystemCoolantRate("frontshield",	1.2)	--same (vs 1.2)
+	playerWrocket:setSystemCoolantRate("rearshield",	1.05)	--less (vs 1.2)
+	playerWrocket:setSystemCoolantRate("missilesystem",	1.05)	--less (vs 1.2)
+	playerWrocket:setSystemPowerRate("reactor",			0.4)	--more (vs 0.30)
+	playerWrocket:setSystemPowerRate("beamweapons",		0.25)	--less (vs 0.30)
+	playerWrocket:setSystemPowerRate("jumpdrive",		0.325)	--more (vs 0.30)
+	playerWrocket:setSystemPowerRate("maneuver",		0.275)	--less (vs 0.30)
+	playerWrocket:setSystemPowerRate("impulse",			0.375)	--more (vs 0.30)
+	playerWrocket:setSystemPowerRate("frontshield",		0.325)	--more (vs 0.30)
+	playerWrocket:setSystemPowerRate("rearshield",		0.2)	--less (vs 0.30)	
+	playerWrocket:setSystemPowerRate("missilesystem",	0.2)	--less (vs 0.30)	
 	playerWrocket:onTakingDamage(playerShipDamage)
 	playerWrocket:addReputationPoints(50)
 	return playerWrocket
@@ -32099,11 +32165,10 @@ function friendlyComms(comms_data)
 		end
 	end
 	if comms_target.fleet ~= nil then
-		--not used since there are not friendly fleets (yet)
-		addCommsReply(string.format("Direct %s",comms_target.fleet), function()
-			setCommsMessage(string.format("What command should be given to %s?",comms_target.fleet))
+		addCommsReply(string.format("Direct Squadron %s",comms_target.fleet), function()
+			setCommsMessage(string.format("What command should be given to Squadron %s?",comms_target.fleet))
 			addCommsReply("Report hull and shield status", function()
-				msg = "Fleet status:"
+				msg = string.format("Squadron %s status:",comms_target.fleet)
 				for _, fleetShip in ipairs(friendlyDefensiveFleetList[comms_target.fleet]) do
 					if fleetShip ~= nil and fleetShip:isValid() then
 						msg = msg .. "\n  " .. fleetShip:getCallSign() .. ":"
@@ -32127,7 +32192,7 @@ function friendlyComms(comms_data)
 				addCommsReply("Back", commsShip)
 			end)
 			addCommsReply("Report missile status", function()
-				msg = "Fleet missile status:"
+				msg = string.format("Squadron %s missile status:",comms_target.fleet)
 				for _, fleetShip in ipairs(friendlyDefensiveFleetList[comms_target.fleet]) do
 					if fleetShip ~= nil and fleetShip:isValid() then
 						msg = msg .. "\n  " .. fleetShip:getCallSign() .. ":"
@@ -32152,7 +32217,7 @@ function friendlyComms(comms_data)
 						fleetShip:orderDefendTarget(comms_source)
 					end
 				end
-				setCommsMessage(string.format("%s heading toward you to assist",comms_target.fleet))
+				setCommsMessage(string.format("Squadron %s heading toward you to assist",comms_target.fleet))
 				addCommsReply("Back", commsShip)
 			end)
 			addCommsReply("Defend a waypoint", function()
@@ -32168,7 +32233,7 @@ function friendlyComms(comms_data)
 									fleetShip:orderDefendLocation(comms_source:getWaypoint(n))
 								end
 							end
-							setCommsMessage("We are heading to assist at WP" .. n ..".");
+							setCommsMessage(string.format("Squadron %s is heading to assist at waypoint %i",comms_target.fleet,n))
 							addCommsReply("Back", commsShip)
 						end)
 					end
@@ -32180,7 +32245,7 @@ function friendlyComms(comms_data)
 						fleetShip:orderRoaming()
 					end
 				end
-				setCommsMessage(string.format("%s is on an offensive rampage",comms_target.fleet))
+				setCommsMessage(string.format("Squadron %s is on an offensive rampage",comms_target.fleet))
 				addCommsReply("Back", commsShip)
 			end)
 		end)
