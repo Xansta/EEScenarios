@@ -21,7 +21,7 @@ require("utils.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.1.3"
+	scenario_version = "5.1.4"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -728,6 +728,8 @@ function setConstants()
 		{func=wreckModSpinSpeed,		desc="Primary ship system component",	scan_desc="Maneuvering thrusters"},					--29 timed
 		{func=wreckModBatteryMax,		desc="Primary ship system component",	scan_desc="Main power battery"},					--30 timed
 		{func=wreckCargo,				desc="Cargo",							scan_desc="Cargo"},									--31
+		{func=wreckModCoolantPump,		desc="Primary ship system component",	scan_desc="Coolant pump component"},				--32
+--		{func=wreckModPowerRegulator,	desc="Primary ship system component",	scan_desc="Power Regulator component"},				--33
 	}
 end
 function setGossipSnippets()
@@ -2430,6 +2432,80 @@ function wmBatteryButton(p,console)
 		end
 	end
 end
+function resetCoolantPumpButtons(p)
+	local system_types = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+	for _, system in ipairs(system_types) do
+		if p.coolant_pump_fix_buttons[system] ~= nil then
+			p:removeCustom(p.coolant_pump_fix_buttons[system])
+		end
+		if p.coolant_pump_fix_buttons_plus[system] ~= nil then
+			p:removeCustom(p.coolant_pump_fix_buttons_plus[system])
+		end
+		if p.normal_coolant_rate[system] < p:getSystemCoolantRate(system) then
+			if p:hasPlayerAtPosition("Engineering") then
+				p.coolant_pump_fix_buttons[system] = string.format("coolant_pump_fix_buttons%s",system)
+				p:addCustomButton("Engineering",p.coolant_pump_fix_buttons[system],string.format("%s C. Pump",system),function()
+					string.format("")	--global context for serious proton
+					if p.coolant_pump_part_count > 0 then
+						p:setSystemCoolantRate(system,p.normal_coolant_rate[system])
+						p.coolant_pump_part_count = p.coolant_pump_part_count - 1
+						p.coolant_pump_fixed_message = "coolant_pump_fixed_message"
+						p:addCustomMessage("Engineering",p.coolant_pump_fixed_message,string.format("The %s coolant pump has been repaired",system))
+					end
+					resetCoolantPumpButtons(p)
+				end)
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				p.coolant_pump_fix_buttons_plus[system] = string.format("coolant_pump_fix_buttons_plus%s",system)
+				p:addCustomButton("Engineering+",p.coolant_pump_fix_buttons_plus[system],string.format("%s C. Pump",system),function()
+					string.format("")	--global context for serious proton
+					if p.coolant_pump_part_count > 0 then
+						p:setSystemCoolantRate(system,p.normal_coolant_rate[system])
+						p.coolant_pump_part_count = p.coolant_pump_part_count - 1
+						p.coolant_pump_fixed_message_plus = "coolant_pump_fixed_message_plus"
+						p:addCustomMessage("Engineering+",p.coolant_pump_fixed_message_plus,string.format("The %s coolant pump has been repaired",system))
+					end
+					resetCoolantPumpButtons(p)
+				end)
+			end
+		end
+	end
+end
+function wmCoolantPump(p,console,system)
+	if console == "Engineering" then
+		if p:hasPlayerAtPosition("Engineering") then
+			if p.coolant_pump_fix_buttons[system] == nil then
+				p.coolant_pump_fix_buttons[system] = string.format("coolant_pump_fix_buttons%s",system)
+				p:addCustomButton("Engineering",p.coolant_pump_fix_buttons[system],string.format("%s C. Pump",system),function()
+					string.format("")	--global context for serious proton
+					if p.coolant_pump_part_count > 0 then
+						p:setSystemCoolantRate(system,p.normal_coolant_rate[system])
+						p.coolant_pump_part_count = p.coolant_pump_part_count - 1
+						p.coolant_pump_fixed_message = "coolant_pump_fixed_message"
+						p:addCustomMessage("Engineering",p.coolant_pump_fixed_message,string.format("The %s coolant pump has been repaired",system))
+					end
+					resetCoolantPumpButtons(p)
+				end)
+			end
+		end
+	elseif console == "Engineering+" then
+		if p:hasPlayerAtPosition("Engineering+") then
+			if p.coolant_pump_fix_buttons_plus[system] == nil then
+				p.coolant_pump_fix_buttons_plus[system] = string.format("coolant_pump_fix_buttons_plus%s",system)
+				p:addCustomButton("Engineering+",p.coolant_pump_fix_buttons_plus[system],string.format("%s C. Pump",system),function()
+					string.format("")	--global context for serious proton
+					if p.coolant_pump_part_count > 0 then
+						p:setSystemCoolantRate(system,p.normal_coolant_rate[system])
+						p.coolant_pump_part_count = p.coolant_pump_part_count - 1
+						p.coolant_pump_fixed_message_plus = "coolant_pump_fixed_message_plus"
+						p:addCustomMessage("Engineering+",p.coolant_pump_fixed_message_plus,string.format("The %s coolant pump has been repaired",system))
+					end
+					resetCoolantPumpButtons(p)
+				end)
+			end
+		end
+	end
+end
 function wreckModCombatBoost(x,y)
 	local full_desc = wreck_mod_type[19].scan_desc
 	local wma = Artifact():setPosition(x,y):setDescriptions(wreck_mod_type[19].desc,full_desc)
@@ -3310,6 +3386,55 @@ function wreckCargo(x,y)
 			if p:hasPlayerAtPosition("Operations") then
 				p.cargo_sabotage_ops = "cargo_sabotage_ops"
 				p:addCustomMessage("Operations",p.cargo_sabotage_ops,"Booby trapped cargo container. Fortunately automated safety protocols transported the cargo container off the ship before too much damage was taken")
+			end
+		end
+	end)
+	return wma
+end
+function wreckModCoolantPump(x,y)
+	local full_desc = wreck_mod_type[32].scan_desc
+	local wma = Artifact():setPosition(x,y):setDescriptions(wreck_mod_type[32].desc,full_desc)
+	wreckModCommonArtifact(wma)
+	wma:onPickup(function(self,p)
+		string.format("")	--global context for serious proton
+		local scan_bonus = 0
+		if self:isScannedByFaction(p:getFaction()) then
+			scan_bonus = difficulty * 5
+		end
+		if random(1,100) < base_wreck_mod_positive - (difficulty * wreck_mod_interval) + scan_bonus then
+			if p.coolant_pump_part_count == nil then
+				p.coolant_pump_part_count = 0
+			end
+			p.coolant_pump_part_count = p.coolant_pump_part_count + 1
+			if p:hasPlayerAtPosition("Engineering") then
+				p.artifact_provided_coolant_pump_parts_message = "artifact_provided_coolant_pump_parts_message"
+				p:addCustomMessage("Engineering",p.artifact_provided_coolant_pump_parts_message,string.format("The %s retrieved provided spare coolant pump parts that may be used to repair a damaged coolant pump",full_desc))
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				p.artifact_provided_coolant_pump_parts_message_plus = "artifact_provided_coolant_pump_parts_message_plus"
+				p:addCustomMessage("Engineering+",p.artifact_provided_coolant_pump_parts_message_plus,string.format("The %s retrieved provided spare coolant pump parts that may be used to repair a damaged coolant pump",full_desc))
+			end
+			local system_types = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+			if p.coolant_pump_fix_buttons == nil then
+				p.coolant_pump_fix_buttons = {}
+			end
+			if p.coolant_pump_fix_buttons_plus == nil then
+				p.coolant_pump_fix_buttons_plus = {}
+			end
+			for _, system in ipairs(system_types) do
+				if p.normal_coolant_rate[system] < p:getSystemCoolantRate(system) then
+					wmCoolantPump(p,"Engineering",system)
+					wmCoolantPump(p,"Engineering+",system)
+				end
+			end
+		else
+			if p:hasPlayerAtPosition("Engineering") then
+				p.artifact_incompatible_message = "artifact_incompatible_message"
+				p:addCustomMessage("Engineering",p.artifact_incompatible_message,string.format("The %s retrieved contains no compatible or salvageable parts for your coolant pump system",full_desc))
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				p.artifact_incompatible_message_plus = "artifact_incompatible_message_plus"
+				p:addCustomMessage("Engineering+",p.artifact_incompatible_message_plus,string.format("The %s retrieved contains no compatible or salvageable parts for your coolant pump system",full_desc))
 			end
 		end
 	end)
@@ -8202,17 +8327,14 @@ function placeStation(x,y,name,faction,size)
 		faction_matters = 20
 	end
 	station.comms_data.system_repair = {}
---	local check_out = station_size
+	station.comms_data.coolant_pump_repair = {}
 	for _, system in ipairs(system_list) do
 		local chance = 60 + size_matters
 		local eval = random(1,100)
 		station.comms_data.system_repair[system] = eval <= chance
---		check_out = string.format("%s %s:%.1f/%i",check_out,system,eval,chance)
+		eval = random(1,100)
+		station.comms_data.coolant_pump_repair[system] = eval <= chance
 	end
---	print(station:getCallSign(),check_out)
---	for name, val in pairs(station.comms_data.system_repair) do
---		print(name, val)
---	end
 	station.comms_data.probe_launch_repair =	random(1,100) <= (20 + size_matters + faction_matters)
 	station.comms_data.scan_repair =			random(1,100) <= (30 + size_matters + faction_matters)
 	station.comms_data.hack_repair =			random(1,100) <= (10 + size_matters + faction_matters)
@@ -10036,6 +10158,18 @@ function handleDockedState()
 				line_item_count = line_item_count + 1
 			end
 		end
+		service_status = string.format("%s\nMay repair the coolant pump on the following primary systems:",service_status)
+		line_item_count = 0
+		for _, system in ipairs(system_list) do
+			if comms_target.comms_data.coolant_pump_repair[system] then
+				if line_item_count == 0 or line_item_count >= 3 then
+					service_status = service_status .. "\n    "
+					line_item_count = 0
+				end
+				service_status = service_status .. system .. "  "
+				line_item_count = line_item_count + 1
+			end
+		end
 		service_status = string.format("%s\nMay repair the following secondary systems:",service_status)
 		line_item_count = 0	
 		if comms_target.comms_data.probe_launch_repair then
@@ -10117,7 +10251,9 @@ function handleDockedState()
 	end
 	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
 	for _, system in ipairs(system_list) do
-		if not offer_repair and comms_source:getSystemHealthMax(system) < 1 and comms_target.comms_data.system_repair[system] then
+		if not offer_repair 
+			and	((comms_source:getSystemHealthMax(system) < 1 and comms_target.comms_data.system_repair[system])
+			or	(comms_source:getSystemCoolantRate(system) < comms_source.normal_coolant_rate[system] and comms_target.comms_data.coolant_pump_repair[system])) then
 			offer_repair = true
 			break
 		end
@@ -10125,6 +10261,7 @@ function handleDockedState()
 	if offer_repair then
 		addCommsReply("Repair ship system",function()
 			setCommsMessage(string.format("What system would you like repaired?\n\nReputation: %i",math.floor(comms_source:getReputationPoints())))
+			local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
 			for _, system in ipairs(system_list) do
 				if comms_target.comms_data.system_repair[system] then
 					if comms_source:getSystemHealthMax(system) < 1 then
@@ -10133,6 +10270,19 @@ function handleDockedState()
 								comms_source:setSystemHealthMax(system,1)
 								comms_source:setSystemHealth(system,1)
 								setCommsMessage(string.format("%s has been repaired",system))
+							else
+								setCommsMessage("Insufficient reputation")
+							end
+							addCommsReply("Back", commsStation)
+						end)
+					end
+				end
+				if comms_target.comms_data.coolant_pump_repair[system] then
+					if comms_source:getSystemCoolantRate(system) < comms_source.normal_coolant_rate then
+						addCommsReply(string.format("Repair %s coolant pump (5 Rep)",system),function()
+							if comms_source:takeReputationPoints(5) then
+								comms_source:setSystemCoolantRate(system,comms_source.normal_coolant_rate[system])
+								setCommsMessage(string.format("%s coolant pump has been repaired",system))
 							else
 								setCommsMessage("Insufficient reputation")
 							end
@@ -11333,11 +11483,8 @@ function handleUndockedState()
 			end
 			service_status = string.format("%s\nMay repair the following primary systems:",service_status)		
 			local line_item_count = 0
---			local check_out = "undocked report " .. comms_target:getCallSign()
 			for _, system in ipairs(system_list) do
---				local can_help = "N"
 				if comms_target.comms_data.system_repair[system] then
---					can_help = "Yes"
 					if line_item_count == 0 or line_item_count >= 3 then
 						service_status = service_status .. "\n    "
 						line_item_count = 0
@@ -11345,9 +11492,19 @@ function handleUndockedState()
 					service_status = service_status .. system .. "  "
 					line_item_count = line_item_count + 1
 				end
---				check_out = string.format("%s %s:%s",check_out,system,can_help)
 			end
---			print(check_out)
+			service_status = string.format("%s\nMay repair the cooling pump for the following primary systems:",service_status)
+			line_item_count = 0
+			for _, system in ipairs(system_list) do
+				if comms_target.comms_data.coolant_pump_repair[system] then
+					if line_item_count == 0 or line_item_count >= 3 then
+						service_status = service_status .. "\n    "
+						line_item_count = 0
+					end
+					service_status = service_status .. system .. "  "
+					line_item_count = line_item_count + 1
+				end
+			end
 			service_status = string.format("%s\nMay repair the following secondary systems:",service_status)
 			line_item_count = 0	
 			if comms_target.comms_data.probe_launch_repair then
@@ -13645,6 +13802,13 @@ function setPlayer(pobj)
 				pobj.healthyJump = 1.0
 				pobj.prevJump = 1.0
 			end
+			local system_types = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+			pobj.normal_coolant_rate = {}
+			pobj.normal_power_rate = {}
+			for _, system in ipairs(system_types) do
+				pobj.normal_coolant_rate[system] = pobj:getSystemCoolantRate(system)
+				pobj.normal_power_rate[system] = pobj:getSystemPowerRate(system)
+			end
 		end
 		if pobj:hasJumpDrive() then
 			if pobj.max_jump_range == nil then
@@ -14034,6 +14198,10 @@ function crewFate(p, fatalityChance)
 				upper_consequence = upper_consequence + 1
 				table.insert(consequence_list,"self_destruct")
 			end
+			if p:getSystemCoolantRate("reactor") >= p.normal_coolant_rate["reactor"] then
+				upper_consequence = upper_consequence + 1
+				table.insert(consequence_list,"reactor_coolant_pump")
+			end
 			consequence = math.random(1,upper_consequence)
 			if consequence == 1 then
 				p:setRepairCrewCount(p:getRepairCrewCount() - 1)
@@ -14107,6 +14275,15 @@ function crewFate(p, fatalityChance)
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","self_destruct_damage_message_plus","Self destruct system has been damaged")
+					end
+				elseif named_consequence == "reactor_coolant_pump" then
+					p:setSystemCoolantRate("reactor",p:getSystemCoolantRate("reactor")/2)
+					resetCoolantPumpButtons(p)
+					if p:hasPlayerAtPosition("Engineering") then
+						p:addCustomMessage("Engineering","reactor_coolant_pump_damage_message","Reactor coolant pump has been damaged")
+					end
+					if p:hasPlayerAtPosition("Engineering+") then
+						p:addCustomMessage("Engineering+","reactor_coolant_pump_damage_message_plus","Reactor coolant pump has been damaged")
 					end
 				end
 			end	--coolant loss branch
@@ -14202,7 +14379,7 @@ end
 function coolantNebulae(delta, p)
 	local inside_gain_coolant_nebula = false
 	for i=1,#coolant_nebula do
-		if distance_diagnostic then print("distance_diagnostic 12",p,coolant_nebula[i]) end
+--		if distance_diagnostic then print("distance_diagnostic 12",p,coolant_nebula[i]) end
 		if distance(p,coolant_nebula[i]) < 5000 then
 			if coolant_nebula[i].lose then
 				p:setMaxCoolant(p:getMaxCoolant()*coolant_loss)
@@ -14971,35 +15148,37 @@ function phobosR2(enemyFaction)
 	local phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
 	if phobos_r2_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Phobos R2")
-		phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			phobos_r2_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube",
-			{
-				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
-			},
-			nil,
-			"AtlasHeavyFighterYellow"
-		)
-		--[[
-		phobos_r2_db:setLongDescription("The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube")
-		phobos_r2_db:setKeyValue("Class","Frigate")
-		phobos_r2_db:setKeyValue("Sub-class","Cruiser")
-		phobos_r2_db:setKeyValue("Size","80")
-		phobos_r2_db:setKeyValue("Shield","50/40")
-		phobos_r2_db:setKeyValue("Hull","70")
-		phobos_r2_db:setKeyValue("Move speed","3.3 U/min")
-		phobos_r2_db:setKeyValue("Turn speed","15.0 deg/sec")
-		phobos_r2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
-		phobos_r2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
-		phobos_r2_db:setKeyValue("Tube 0","60 sec")
-		phobos_r2_db:setKeyValue("Storage Homing","6")
-		phobos_r2_db:setKeyValue("Storage HVLI","20")
-		phobos_r2_db:setImage("radar_cruiser.png")
-		--]]
+		if frigate_db ~= nil then	--added to address translation problem
+			frigate_db:addEntry("Phobos R2")
+			phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				phobos_r2_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube",
+				{
+					{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
+				},
+				nil,
+				"AtlasHeavyFighterYellow"
+			)
+			--[[
+			phobos_r2_db:setLongDescription("The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube")
+			phobos_r2_db:setKeyValue("Class","Frigate")
+			phobos_r2_db:setKeyValue("Sub-class","Cruiser")
+			phobos_r2_db:setKeyValue("Size","80")
+			phobos_r2_db:setKeyValue("Shield","50/40")
+			phobos_r2_db:setKeyValue("Hull","70")
+			phobos_r2_db:setKeyValue("Move speed","3.3 U/min")
+			phobos_r2_db:setKeyValue("Turn speed","15.0 deg/sec")
+			phobos_r2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
+			phobos_r2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
+			phobos_r2_db:setKeyValue("Tube 0","60 sec")
+			phobos_r2_db:setKeyValue("Storage Homing","6")
+			phobos_r2_db:setKeyValue("Storage HVLI","20")
+			phobos_r2_db:setImage("radar_cruiser.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15018,29 +15197,31 @@ function hornetMV52(enemyFaction)
 	local hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
 	if hornet_mv52_db == nil then
 		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("MV52 Hornet")
-		hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
-			hornet_mv52_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52",
-			nil,
-			nil,
-			"WespeScoutYellow"
-		)
-		--[[
-		hornet_mv52_db:setLongDescription("The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52")
-		hornet_mv52_db:setKeyValue("Class","Starfighter")
-		hornet_mv52_db:setKeyValue("Sub-class","Interceptor")
-		hornet_mv52_db:setKeyValue("Size","30")
-		hornet_mv52_db:setKeyValue("Shield","20")
-		hornet_mv52_db:setKeyValue("Hull","30")
-		hornet_mv52_db:setKeyValue("Move speed","7.8 U/min")
-		hornet_mv52_db:setKeyValue("Turn speed","31.0 deg/sec")
-		hornet_mv52_db:setKeyValue("Beam weapon 0:30","3.0 Dmg / 4.0 sec")
-		hornet_mv52_db:setImage("radar_fighter.png")
-		--]]
+		if starfighter_db ~= nil then	--added to address translation problem
+			starfighter_db:addEntry("MV52 Hornet")
+			hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+				hornet_mv52_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52",
+				nil,
+				nil,
+				"WespeScoutYellow"
+			)
+			--[[
+			hornet_mv52_db:setLongDescription("The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52")
+			hornet_mv52_db:setKeyValue("Class","Starfighter")
+			hornet_mv52_db:setKeyValue("Sub-class","Interceptor")
+			hornet_mv52_db:setKeyValue("Size","30")
+			hornet_mv52_db:setKeyValue("Shield","20")
+			hornet_mv52_db:setKeyValue("Hull","30")
+			hornet_mv52_db:setKeyValue("Move speed","7.8 U/min")
+			hornet_mv52_db:setKeyValue("Turn speed","31.0 deg/sec")
+			hornet_mv52_db:setKeyValue("Beam weapon 0:30","3.0 Dmg / 4.0 sec")
+			hornet_mv52_db:setImage("radar_fighter.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15053,28 +15234,30 @@ function k2fighter(enemyFaction)
 	local k2_fighter_db = queryScienceDatabase("Ships","No Class","K2 Fighter")
 	if k2_fighter_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("K2 Fighter")
-		k2_fighter_db = queryScienceDatabase("Ships","No Class","K2 Fighter")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
-			k2_fighter_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.",
-			nil,
-			nil,		--jump range
-			"sci_fi_alien_ship_1"
-		)
-		--[[
-		k2_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.")
-		k2_fighter_db:setKeyValue("Class","No Class")
-		k2_fighter_db:setKeyValue("Sub-class","No Sub-Class")
-		k2_fighter_db:setKeyValue("Size","180")
-		k2_fighter_db:setKeyValue("Hull","65")
-		k2_fighter_db:setKeyValue("Move speed","8.4 U/min")
-		k2_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
-		k2_fighter_db:setKeyValue("Beam weapon 0:60","6.0 Dmg / 2.5 sec")
-		k2_fighter_db:setImage("radar_ktlitan_fighter.png")
-		--]]
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("K2 Fighter")
+			k2_fighter_db = queryScienceDatabase("Ships","No Class","K2 Fighter")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
+				k2_fighter_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.",
+				nil,
+				nil,		--jump range
+				"sci_fi_alien_ship_1"
+			)
+			--[[
+			k2_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker.")
+			k2_fighter_db:setKeyValue("Class","No Class")
+			k2_fighter_db:setKeyValue("Sub-class","No Sub-Class")
+			k2_fighter_db:setKeyValue("Size","180")
+			k2_fighter_db:setKeyValue("Hull","65")
+			k2_fighter_db:setKeyValue("Move speed","8.4 U/min")
+			k2_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
+			k2_fighter_db:setKeyValue("Beam weapon 0:60","6.0 Dmg / 2.5 sec")
+			k2_fighter_db:setImage("radar_ktlitan_fighter.png")
+			--]]
+		end
 	end
 	return ship
 end	
@@ -15087,28 +15270,30 @@ function k3fighter(enemyFaction)
 	local k3_fighter_db = queryScienceDatabase("Ships","No Class","K3 Fighter")
 	if k3_fighter_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("K3 Fighter")
-		k3_fighter_db = queryScienceDatabase("Ships","No Class","K3 Fighter")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
-			k3_fighter_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that are stronger and that cycle faster, but the hull is weaker.",
-			nil,
-			nil,		--jump range
-			"sci_fi_alien_ship_1"
-		)
-		--[[
-		k3_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is weaker.")
-		k3_fighter_db:setKeyValue("Class","No Class")
-		k3_fighter_db:setKeyValue("Sub-class","No Sub-Class")
-		k3_fighter_db:setKeyValue("Size","180")
-		k3_fighter_db:setKeyValue("Hull","60")
-		k3_fighter_db:setKeyValue("Move speed","8.4 U/min")
-		k3_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
-		k3_fighter_db:setKeyValue("Beam weapon 0:60","9.0 Dmg / 2.5 sec")
-		k3_fighter_db:setImage("radar_ktlitan_fighter.png")
-		--]]
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("K3 Fighter")
+			k3_fighter_db = queryScienceDatabase("Ships","No Class","K3 Fighter")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
+				k3_fighter_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that are stronger and that cycle faster, but the hull is weaker.",
+				nil,
+				nil,		--jump range
+				"sci_fi_alien_ship_1"
+			)
+			--[[
+			k3_fighter_db:setLongDescription("Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is weaker.")
+			k3_fighter_db:setKeyValue("Class","No Class")
+			k3_fighter_db:setKeyValue("Sub-class","No Sub-Class")
+			k3_fighter_db:setKeyValue("Size","180")
+			k3_fighter_db:setKeyValue("Hull","60")
+			k3_fighter_db:setKeyValue("Move speed","8.4 U/min")
+			k3_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
+			k3_fighter_db:setKeyValue("Beam weapon 0:60","9.0 Dmg / 2.5 sec")
+			k3_fighter_db:setImage("radar_ktlitan_fighter.png")
+			--]]
+		end
 	end
 	return ship
 end	
@@ -15127,34 +15312,36 @@ function waddle5(enemyFaction)
 	local waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
 	if waddle_5_db == nil then
 		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Waddle 5")
-		waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			waddle_5_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AdlerLongRangeScoutYellow"
-		)
-		--[[
-		waddle_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5")
-		waddle_5_db:setKeyValue("Class","Starfighter")
-		waddle_5_db:setKeyValue("Sub-class","Gunship")
-		waddle_5_db:setKeyValue("Size","80")
-		waddle_5_db:setKeyValue("Shield","30")
-		waddle_5_db:setKeyValue("Hull","50")
-		waddle_5_db:setKeyValue("Move speed","4.8 U/min")
-		waddle_5_db:setKeyValue("Turn speed","28.0 deg/sec")
-		waddle_5_db:setKeyValue("Warp Speed","60.0 U/min")
-		waddle_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
-		waddle_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
-		waddle_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		waddle_5_db:setImage("radar_fighter.png")
-		--]]
+		if starfighter_db ~= nil then	--added to address translation problem
+			starfighter_db:addEntry("Waddle 5")
+			waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+				waddle_5_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5",
+				{
+					{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+				},
+				nil,		--jump range
+				"AdlerLongRangeScoutYellow"
+			)
+			--[[
+			waddle_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5")
+			waddle_5_db:setKeyValue("Class","Starfighter")
+			waddle_5_db:setKeyValue("Sub-class","Gunship")
+			waddle_5_db:setKeyValue("Size","80")
+			waddle_5_db:setKeyValue("Shield","30")
+			waddle_5_db:setKeyValue("Hull","50")
+			waddle_5_db:setKeyValue("Move speed","4.8 U/min")
+			waddle_5_db:setKeyValue("Turn speed","28.0 deg/sec")
+			waddle_5_db:setKeyValue("Warp Speed","60.0 U/min")
+			waddle_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
+			waddle_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+			waddle_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+			waddle_5_db:setImage("radar_fighter.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15174,34 +15361,36 @@ function jade5(enemyFaction)
 	local jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
 	if jade_5_db == nil then
 		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Jade 5")
-		jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			jade_5_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			"5 - 35 U",		--jump range
-			"AdlerLongRangeScoutYellow"
-		)
-		--[[
-		jade_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5")
-		jade_5_db:setKeyValue("Class","Starfighter")
-		jade_5_db:setKeyValue("Sub-class","Gunship")
-		jade_5_db:setKeyValue("Size","80")
-		jade_5_db:setKeyValue("Shield","30")
-		jade_5_db:setKeyValue("Hull","50")
-		jade_5_db:setKeyValue("Move speed","4.8 U/min")
-		jade_5_db:setKeyValue("Turn speed","28.0 deg/sec")
-		jade_5_db:setKeyValue("Jump Range","5 - 35 U")
-		jade_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
-		jade_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
-		jade_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		jade_5_db:setImage("radar_fighter.png")
-		--]]
+		if starfighter_db ~= nil then	--added to address translation problem
+			starfighter_db:addEntry("Jade 5")
+			jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+				jade_5_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5",
+				{
+					{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+				},
+				"5 - 35 U",		--jump range
+				"AdlerLongRangeScoutYellow"
+			)
+			--[[
+			jade_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5")
+			jade_5_db:setKeyValue("Class","Starfighter")
+			jade_5_db:setKeyValue("Sub-class","Gunship")
+			jade_5_db:setKeyValue("Size","80")
+			jade_5_db:setKeyValue("Shield","30")
+			jade_5_db:setKeyValue("Hull","50")
+			jade_5_db:setKeyValue("Move speed","4.8 U/min")
+			jade_5_db:setKeyValue("Turn speed","28.0 deg/sec")
+			jade_5_db:setKeyValue("Jump Range","5 - 35 U")
+			jade_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
+			jade_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+			jade_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+			jade_5_db:setImage("radar_fighter.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15216,28 +15405,30 @@ function droneLite(enemyFaction)
 	local drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
 	if drone_lite_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Lite Drone")
-		drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
-			drone_lite_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed",
-			nil,
-			nil,
-			"sci_fi_alien_ship_4"
-		)
-		--[[
-		drone_lite_db:setLongDescription("The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed")
-		drone_lite_db:setKeyValue("Class","No Class")
-		drone_lite_db:setKeyValue("Sub-class","No Sub-Class")
-		drone_lite_db:setKeyValue("Size","150")
-		drone_lite_db:setKeyValue("Hull","20")
-		drone_lite_db:setKeyValue("Move speed","7.8 U/min")
-		drone_lite_db:setKeyValue("Turn speed","20 deg/sec")
-		drone_lite_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-		drone_lite_db:setImage("radar_ktlitan_drone.png")
-		--]]
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("Lite Drone")
+			drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+				drone_lite_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed",
+				nil,
+				nil,
+				"sci_fi_alien_ship_4"
+			)
+			--[[
+			drone_lite_db:setLongDescription("The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed")
+			drone_lite_db:setKeyValue("Class","No Class")
+			drone_lite_db:setKeyValue("Sub-class","No Sub-Class")
+			drone_lite_db:setKeyValue("Size","150")
+			drone_lite_db:setKeyValue("Hull","20")
+			drone_lite_db:setKeyValue("Move speed","7.8 U/min")
+			drone_lite_db:setKeyValue("Turn speed","20 deg/sec")
+			drone_lite_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
+			drone_lite_db:setImage("radar_ktlitan_drone.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15251,28 +15442,30 @@ function droneHeavy(enemyFaction)
 	local drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
 	if drone_heavy_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Heavy Drone")
-		drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
-			drone_heavy_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower",
-			nil,
-			nil,
-			"sci_fi_alien_ship_4"
-		)
-		--[[
-		drone_heavy_db:setLongDescription("The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower")
-		drone_heavy_db:setKeyValue("Class","No Class")
-		drone_heavy_db:setKeyValue("Sub-class","No Sub-Class")
-		drone_heavy_db:setKeyValue("Size","150")
-		drone_heavy_db:setKeyValue("Hull","40")
-		drone_heavy_db:setKeyValue("Move speed","6.6 U/min")
-		drone_heavy_db:setKeyValue("Turn speed","10 deg/sec")
-		drone_heavy_db:setKeyValue("Beam weapon 0:40","8.0 Dmg / 4.0 sec")
-		drone_heavy_db:setImage("radar_ktlitan_drone.png")
-		--]]
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("Heavy Drone")
+			drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+				drone_heavy_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower",
+				nil,
+				nil,
+				"sci_fi_alien_ship_4"
+			)
+			--[[
+			drone_heavy_db:setLongDescription("The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower")
+			drone_heavy_db:setKeyValue("Class","No Class")
+			drone_heavy_db:setKeyValue("Sub-class","No Sub-Class")
+			drone_heavy_db:setKeyValue("Size","150")
+			drone_heavy_db:setKeyValue("Hull","40")
+			drone_heavy_db:setKeyValue("Move speed","6.6 U/min")
+			drone_heavy_db:setKeyValue("Turn speed","10 deg/sec")
+			drone_heavy_db:setKeyValue("Beam weapon 0:40","8.0 Dmg / 4.0 sec")
+			drone_heavy_db:setImage("radar_ktlitan_drone.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15292,29 +15485,31 @@ function droneJacket(enemyFaction)
 	local drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
 	if drone_jacket_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Jacket Drone")
-		drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
-			drone_jacket_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield",
-			nil,
-			nil,
-			"sci_fi_alien_ship_4"
-		)
-		--[[
-		drone_jacket_db:setLongDescription("The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield")
-		drone_jacket_db:setKeyValue("Class","No Class")
-		drone_jacket_db:setKeyValue("Sub-class","No Sub-Class")
-		drone_jacket_db:setKeyValue("Size","150")
-		drone_jacket_db:setKeyValue("Shield","20")
-		drone_jacket_db:setKeyValue("Hull","40")
-		drone_jacket_db:setKeyValue("Move speed","6.6 U/min")
-		drone_jacket_db:setKeyValue("Turn speed","10 deg/sec")
-		drone_jacket_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-		drone_jacket_db:setImage("radar_ktlitan_drone.png")
-		--]]
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("Jacket Drone")
+			drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+				drone_jacket_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield",
+				nil,
+				nil,
+				"sci_fi_alien_ship_4"
+			)
+			--[[
+			drone_jacket_db:setLongDescription("The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield")
+			drone_jacket_db:setKeyValue("Class","No Class")
+			drone_jacket_db:setKeyValue("Sub-class","No Sub-Class")
+			drone_jacket_db:setKeyValue("Size","150")
+			drone_jacket_db:setKeyValue("Shield","20")
+			drone_jacket_db:setKeyValue("Hull","40")
+			drone_jacket_db:setKeyValue("Move speed","6.6 U/min")
+			drone_jacket_db:setKeyValue("Turn speed","10 deg/sec")
+			drone_jacket_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
+			drone_jacket_db:setImage("radar_ktlitan_drone.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15333,38 +15528,40 @@ function wzLindworm(enemyFaction)
 	local wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
 	if wz_lindworm_db == nil then
 		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("WZ-Lindworm")
-		wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","WX-Lindworm"),	--base ship database entry
-			wz_lindworm_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil,
-			"LindwurmFighterYellow"
-		)
-		--[[
-		wz_lindworm_db:setLongDescription("The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.")
-		wz_lindworm_db:setKeyValue("Class","Starfighter")
-		wz_lindworm_db:setKeyValue("Sub-class","Bomber")
-		wz_lindworm_db:setKeyValue("Size","30")
-		wz_lindworm_db:setKeyValue("Shield","20")
-		wz_lindworm_db:setKeyValue("Hull","45")
-		wz_lindworm_db:setKeyValue("Move speed","3.0 U/min")
-		wz_lindworm_db:setKeyValue("Turn speed","12 deg/sec")
-		wz_lindworm_db:setKeyValue("Small tube 0","15 sec")
-		wz_lindworm_db:setKeyValue("Small tube 1","15 sec")
-		wz_lindworm_db:setKeyValue("Small tube -1","15 sec")
-		wz_lindworm_db:setKeyValue("Storage Homing","4")
-		wz_lindworm_db:setKeyValue("Storage Nuke","2")
-		wz_lindworm_db:setKeyValue("Storage HVLI","12")
-		wz_lindworm_db:setImage("radar_fighter.png")
-		--]]
+		if starfighter_db ~= nil then	--added to address translation problem
+			starfighter_db:addEntry("WZ-Lindworm")
+			wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Starfighter","WX-Lindworm"),	--base ship database entry
+				wz_lindworm_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.",
+				{
+					{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
+				},
+				nil,
+				"LindwurmFighterYellow"
+			)
+			--[[
+			wz_lindworm_db:setLongDescription("The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.")
+			wz_lindworm_db:setKeyValue("Class","Starfighter")
+			wz_lindworm_db:setKeyValue("Sub-class","Bomber")
+			wz_lindworm_db:setKeyValue("Size","30")
+			wz_lindworm_db:setKeyValue("Shield","20")
+			wz_lindworm_db:setKeyValue("Hull","45")
+			wz_lindworm_db:setKeyValue("Move speed","3.0 U/min")
+			wz_lindworm_db:setKeyValue("Turn speed","12 deg/sec")
+			wz_lindworm_db:setKeyValue("Small tube 0","15 sec")
+			wz_lindworm_db:setKeyValue("Small tube 1","15 sec")
+			wz_lindworm_db:setKeyValue("Small tube -1","15 sec")
+			wz_lindworm_db:setKeyValue("Storage Homing","4")
+			wz_lindworm_db:setKeyValue("Storage Nuke","2")
+			wz_lindworm_db:setKeyValue("Storage HVLI","12")
+			wz_lindworm_db:setImage("radar_fighter.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15397,52 +15594,54 @@ function tempest(enemyFaction)
 	local tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
 	if tempest_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Tempest")
-		tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Piranha F12"),	--base ship database entry
-			tempest_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!",
-			{
-				{key = "Large tube -88", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -89", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Large tube -90", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Large tube 88", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 89", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Large tube 90", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -91", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Tube -92", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
-			},
-			nil,
-			"HeavyCorvetteRed"
-		)
-		--[[
-		tempest_db:setLongDescription("Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!")
-		tempest_db:setKeyValue("Class","Frigate")
-		tempest_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
-		tempest_db:setKeyValue("Size","80")
-		tempest_db:setKeyValue("Shield","30/30")
-		tempest_db:setKeyValue("Hull","70")
-		tempest_db:setKeyValue("Move speed","2.4 U/min")
-		tempest_db:setKeyValue("Turn speed","6.0 deg/sec")
-		tempest_db:setKeyValue("Large Tube -88","15 sec")
-		tempest_db:setKeyValue("Tube -89","15 sec")
-		tempest_db:setKeyValue("Large Tube -90","15 sec")
-		tempest_db:setKeyValue("Large Tube 88","15 sec")
-		tempest_db:setKeyValue("Tube 89","15 sec")
-		tempest_db:setKeyValue("Large Tube 90","15 sec")
-		tempest_db:setKeyValue("Tube -91","15 sec")
-		tempest_db:setKeyValue("Tube -92","15 sec")
-		tempest_db:setKeyValue("Tube 91","15 sec")
-		tempest_db:setKeyValue("Tube 92","15 sec")
-		tempest_db:setKeyValue("Storage Homing","16")
-		tempest_db:setKeyValue("Storage Nuke","8")
-		tempest_db:setKeyValue("Storage HVLI","34")
-		tempest_db:setImage("radar_piranha.png")
-		--]]
+		if frigate_db ~= nil then	--added to address translation problem
+			frigate_db:addEntry("Tempest")
+			tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Frigate","Piranha F12"),	--base ship database entry
+				tempest_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!",
+				{
+					{key = "Large tube -88", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = "Tube -89", value = "15 sec"},		--torpedo tube direction and load speed
+					{key = "Large tube -90", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = "Large tube 88", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = "Tube 89", value = "15 sec"},		--torpedo tube direction and load speed
+					{key = "Large tube 90", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = "Tube -91", value = "15 sec"},		--torpedo tube direction and load speed
+					{key = "Tube -92", value = "15 sec"},		--torpedo tube direction and load speed
+					{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
+					{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
+				},
+				nil,
+				"HeavyCorvetteRed"
+			)
+			--[[
+			tempest_db:setLongDescription("Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!")
+			tempest_db:setKeyValue("Class","Frigate")
+			tempest_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+			tempest_db:setKeyValue("Size","80")
+			tempest_db:setKeyValue("Shield","30/30")
+			tempest_db:setKeyValue("Hull","70")
+			tempest_db:setKeyValue("Move speed","2.4 U/min")
+			tempest_db:setKeyValue("Turn speed","6.0 deg/sec")
+			tempest_db:setKeyValue("Large Tube -88","15 sec")
+			tempest_db:setKeyValue("Tube -89","15 sec")
+			tempest_db:setKeyValue("Large Tube -90","15 sec")
+			tempest_db:setKeyValue("Large Tube 88","15 sec")
+			tempest_db:setKeyValue("Tube 89","15 sec")
+			tempest_db:setKeyValue("Large Tube 90","15 sec")
+			tempest_db:setKeyValue("Tube -91","15 sec")
+			tempest_db:setKeyValue("Tube -92","15 sec")
+			tempest_db:setKeyValue("Tube 91","15 sec")
+			tempest_db:setKeyValue("Tube 92","15 sec")
+			tempest_db:setKeyValue("Storage Homing","16")
+			tempest_db:setKeyValue("Storage Nuke","8")
+			tempest_db:setKeyValue("Storage HVLI","34")
+			tempest_db:setImage("radar_piranha.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15481,39 +15680,41 @@ function enforcer(enemyFaction)
 	local enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
 	if enforcer_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Enforcer")
-		enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
-			enforcer_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams.",
-			{
-				{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
-			},
-			nil,
-			"battleship_destroyer_3_upgraded"
-		)
-		--[[
-		enforcer_db:setLongDescription("The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and stengthened front beams.")
-		enforcer_db:setKeyValue("Class","Frigate")
-		enforcer_db:setKeyValue("Sub-class","High Punch")
-		enforcer_db:setKeyValue("Size","200")
-		enforcer_db:setKeyValue("Shield","200/100/100")
-		enforcer_db:setKeyValue("Hull","100")
-		enforcer_db:setKeyValue("Move speed","6.0 U/min")
-		enforcer_db:setKeyValue("Turn speed","20.0 deg/sec")
-		enforcer_db:setKeyValue("Warp Speed","36.0 U/min")
-		enforcer_db:setKeyValue("Beam weapon -15:30","10.0 Dmg / 6.0 sec")
-		enforcer_db:setKeyValue("Beam weapon 15:30","10.0 Dmg / 6.0 sec")
-		enforcer_db:setKeyValue("Large Tube 0","20 sec")
-		enforcer_db:setKeyValue("Tube -30","20 sec")
-		enforcer_db:setKeyValue("Tube 30","20 sec")
-		enforcer_db:setKeyValue("Storage Homing","18")
-		--]]
-		enforcer_db:setImage("radar_ktlitan_destroyer.png")		--override default radar image
+		if frigate_db ~= nil then	--added to address translation problem
+			frigate_db:addEntry("Enforcer")
+			enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+				enforcer_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams.",
+				{
+					{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
+					{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
+				},
+				nil,
+				"battleship_destroyer_3_upgraded"
+			)
+			--[[
+			enforcer_db:setLongDescription("The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and stengthened front beams.")
+			enforcer_db:setKeyValue("Class","Frigate")
+			enforcer_db:setKeyValue("Sub-class","High Punch")
+			enforcer_db:setKeyValue("Size","200")
+			enforcer_db:setKeyValue("Shield","200/100/100")
+			enforcer_db:setKeyValue("Hull","100")
+			enforcer_db:setKeyValue("Move speed","6.0 U/min")
+			enforcer_db:setKeyValue("Turn speed","20.0 deg/sec")
+			enforcer_db:setKeyValue("Warp Speed","36.0 U/min")
+			enforcer_db:setKeyValue("Beam weapon -15:30","10.0 Dmg / 6.0 sec")
+			enforcer_db:setKeyValue("Beam weapon 15:30","10.0 Dmg / 6.0 sec")
+			enforcer_db:setKeyValue("Large Tube 0","20 sec")
+			enforcer_db:setKeyValue("Tube -30","20 sec")
+			enforcer_db:setKeyValue("Tube 30","20 sec")
+			enforcer_db:setKeyValue("Storage Homing","18")
+			--]]
+			enforcer_db:setImage("radar_ktlitan_destroyer.png")		--override default radar image
+		end
 	end
 	return ship		
 end
@@ -15562,49 +15763,51 @@ function predator(enemyFaction)
 	local predator_db = queryScienceDatabase("Ships","Frigate","Predator")
 	if predator_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Predator")
-		predator_db = queryScienceDatabase("Ships","Frigate","Predator")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Piranha F8"),	--base ship database entry
-			predator_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.",
-			{
-				{key = "Large tube -60", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -90", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Large tube 60", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 90", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -120", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 120", value = "12 sec"},		--torpedo tube direction and load speed
-			},
-			"5 - 35 U",		--jump range
-			"HeavyCorvetteRed"
-		)
-		--[[
-		predator_db:setLongDescription("The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.")
-		predator_db:setKeyValue("Class","Frigate")
-		predator_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
-		predator_db:setKeyValue("Size","80")
-		predator_db:setKeyValue("Shield","100/100")
-		predator_db:setKeyValue("Hull","80")
-		predator_db:setKeyValue("Move speed","3.9 U/min")
-		predator_db:setKeyValue("Turn speed","15.0 deg/sec")
-		predator_db:setKeyValue("Jump Range","5 - 35 U")
-		predator_db:setKeyValue("Beam weapon 0:90","4.0 Dmg / 6.0 sec")
-		predator_db:setKeyValue("Beam weapon 180:90","4.0 Dmg / 6.0 sec")
-		predator_db:setKeyValue("Large Tube -60","12 sec")
-		predator_db:setKeyValue("Tube -90","12 sec")
-		predator_db:setKeyValue("Large Tube -90","12 sec")
-		predator_db:setKeyValue("Large Tube 60","12 sec")
-		predator_db:setKeyValue("Tube 90","12 sec")
-		predator_db:setKeyValue("Large Tube 90","12 sec")
-		predator_db:setKeyValue("Tube -120","12 sec")
-		predator_db:setKeyValue("Tube 120","12 sec")
-		predator_db:setKeyValue("Storage Homing","32")
-		--]]
-		predator_db:setImage("radar_missile_cruiser.png")		--override default radar image
+		if frigate_db ~= nil then	--added to address translation problem
+			frigate_db:addEntry("Predator")
+			predator_db = queryScienceDatabase("Ships","Frigate","Predator")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Frigate","Piranha F8"),	--base ship database entry
+				predator_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.",
+				{
+					{key = "Large tube -60", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Tube -90", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Large tube 60", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Tube 90", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Tube -120", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = "Tube 120", value = "12 sec"},		--torpedo tube direction and load speed
+				},
+				"5 - 35 U",		--jump range
+				"HeavyCorvetteRed"
+			)
+			--[[
+			predator_db:setLongDescription("The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot.")
+			predator_db:setKeyValue("Class","Frigate")
+			predator_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+			predator_db:setKeyValue("Size","80")
+			predator_db:setKeyValue("Shield","100/100")
+			predator_db:setKeyValue("Hull","80")
+			predator_db:setKeyValue("Move speed","3.9 U/min")
+			predator_db:setKeyValue("Turn speed","15.0 deg/sec")
+			predator_db:setKeyValue("Jump Range","5 - 35 U")
+			predator_db:setKeyValue("Beam weapon 0:90","4.0 Dmg / 6.0 sec")
+			predator_db:setKeyValue("Beam weapon 180:90","4.0 Dmg / 6.0 sec")
+			predator_db:setKeyValue("Large Tube -60","12 sec")
+			predator_db:setKeyValue("Tube -90","12 sec")
+			predator_db:setKeyValue("Large Tube -90","12 sec")
+			predator_db:setKeyValue("Large Tube 60","12 sec")
+			predator_db:setKeyValue("Tube 90","12 sec")
+			predator_db:setKeyValue("Large Tube 90","12 sec")
+			predator_db:setKeyValue("Tube -120","12 sec")
+			predator_db:setKeyValue("Tube 120","12 sec")
+			predator_db:setKeyValue("Storage Homing","32")
+			--]]
+			predator_db:setImage("radar_missile_cruiser.png")		--override default radar image
+		end
 	end
 	return ship		
 end
@@ -15629,44 +15832,46 @@ function atlantisY42(enemyFaction)
 	local atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
 	if atlantis_y42_db == nil then
 		local corvette_db = queryScienceDatabase("Ships","Corvette")
-		corvette_db:addEntry("Atlantis Y42")
-		atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
-			atlantis_y42_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock",
-			{
-				{key = "Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = " Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
-			},
-			"5 - 50 U",		--jump range
-			"battleship_destroyer_1_upgraded"
-		)
-		--[[
-		atlantis_y42_db:setLongDescription("The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock")
-		atlantis_y42_db:setKeyValue("Class","Corvette")
-		atlantis_y42_db:setKeyValue("Sub-class","Destroyer")
-		atlantis_y42_db:setKeyValue("Size","200")
-		atlantis_y42_db:setKeyValue("Shield","300/200/300/200")
-		atlantis_y42_db:setKeyValue("Hull","100")
-		atlantis_y42_db:setKeyValue("Move speed","3.9 U/min")
-		atlantis_y42_db:setKeyValue("Turn speed","15.0 deg/sec")
-		atlantis_y42_db:setKeyValue("Jump Range","5 - 50 U")
-		atlantis_y42_db:setKeyValue("Beam weapon -20:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Beam weapon 20:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Beam weapon 190:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Beam weapon 170:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Tube -90","10 sec")
-		atlantis_y42_db:setKeyValue(" Tube -90","10 sec")
-		atlantis_y42_db:setKeyValue("Tube 90","10 sec")
-		atlantis_y42_db:setKeyValue(" Tube 90","10 sec")
-		atlantis_y42_db:setKeyValue("Storage Homing","4")
-		atlantis_y42_db:setKeyValue("Storage HVLI","20")
-		atlantis_y42_db:setImage("radar_dread.png")
-		--]]
+		if corvette_db ~= nil then	--added to address translation problem
+			corvette_db:addEntry("Atlantis Y42")
+			atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
+				atlantis_y42_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock",
+				{
+					{key = "Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
+					{key = " Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
+					{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+					{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+				},
+				"5 - 50 U",		--jump range
+				"battleship_destroyer_1_upgraded"
+			)
+			--[[
+			atlantis_y42_db:setLongDescription("The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock")
+			atlantis_y42_db:setKeyValue("Class","Corvette")
+			atlantis_y42_db:setKeyValue("Sub-class","Destroyer")
+			atlantis_y42_db:setKeyValue("Size","200")
+			atlantis_y42_db:setKeyValue("Shield","300/200/300/200")
+			atlantis_y42_db:setKeyValue("Hull","100")
+			atlantis_y42_db:setKeyValue("Move speed","3.9 U/min")
+			atlantis_y42_db:setKeyValue("Turn speed","15.0 deg/sec")
+			atlantis_y42_db:setKeyValue("Jump Range","5 - 50 U")
+			atlantis_y42_db:setKeyValue("Beam weapon -20:100","8.0 Dmg / 6.0 sec")
+			atlantis_y42_db:setKeyValue("Beam weapon 20:100","8.0 Dmg / 6.0 sec")
+			atlantis_y42_db:setKeyValue("Beam weapon 190:100","8.0 Dmg / 6.0 sec")
+			atlantis_y42_db:setKeyValue("Beam weapon 170:100","8.0 Dmg / 6.0 sec")
+			atlantis_y42_db:setKeyValue("Tube -90","10 sec")
+			atlantis_y42_db:setKeyValue(" Tube -90","10 sec")
+			atlantis_y42_db:setKeyValue("Tube 90","10 sec")
+			atlantis_y42_db:setKeyValue(" Tube 90","10 sec")
+			atlantis_y42_db:setKeyValue("Storage Homing","4")
+			atlantis_y42_db:setKeyValue("Storage HVLI","20")
+			atlantis_y42_db:setImage("radar_dread.png")
+			--]]
+		end
 	end
 	return ship		
 end
@@ -15692,42 +15897,44 @@ function starhammerV(enemyFaction)
 	local starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
 	if starhammer_v_db == nil then
 		local corvette_db = queryScienceDatabase("Ships","Corvette")
-		corvette_db:addEntry("Starhammer V")
-		starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
-			starhammer_v_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.",
-			{
-				{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-			},
-			"5 - 50 U",		--jump range
-			"battleship_destroyer_4_upgraded"
-		)
-		--[[
-		starhammer_v_db:setLongDescription("The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.")
-		starhammer_v_db:setKeyValue("Class","Corvette")
-		starhammer_v_db:setKeyValue("Sub-class","Destroyer")
-		starhammer_v_db:setKeyValue("Size","200")
-		starhammer_v_db:setKeyValue("Shield","450/350/250/250/350")
-		starhammer_v_db:setKeyValue("Hull","200")
-		starhammer_v_db:setKeyValue("Move speed","3.9 U/min")
-		starhammer_v_db:setKeyValue("Turn speed","15.0 deg/sec")
-		starhammer_v_db:setKeyValue("Jump Range","5 - 50 U")
-		starhammer_v_db:setKeyValue("Beam weapon -10:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon 10:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon -20:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon 20:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon 180:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Tube 0","10 sec")
-		starhammer_v_db:setKeyValue(" Tube 0","10 sec")
-		starhammer_v_db:setKeyValue("Storage Homing","16")
-		starhammer_v_db:setKeyValue("Storage EMP","2")
-		starhammer_v_db:setKeyValue("Storage HVLI","36")
-		starhammer_v_db:setImage("radar_dread.png")
-		--]]
+		if corvette_db ~= nil then	--added to address translation problem
+			corvette_db:addEntry("Starhammer V")
+			starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
+				starhammer_v_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.",
+				{
+					{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+					{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+				},
+				"5 - 50 U",		--jump range
+				"battleship_destroyer_4_upgraded"
+			)
+			--[[
+			starhammer_v_db:setLongDescription("The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.")
+			starhammer_v_db:setKeyValue("Class","Corvette")
+			starhammer_v_db:setKeyValue("Sub-class","Destroyer")
+			starhammer_v_db:setKeyValue("Size","200")
+			starhammer_v_db:setKeyValue("Shield","450/350/250/250/350")
+			starhammer_v_db:setKeyValue("Hull","200")
+			starhammer_v_db:setKeyValue("Move speed","3.9 U/min")
+			starhammer_v_db:setKeyValue("Turn speed","15.0 deg/sec")
+			starhammer_v_db:setKeyValue("Jump Range","5 - 50 U")
+			starhammer_v_db:setKeyValue("Beam weapon -10:60","11.0 Dmg / 8.0 sec")
+			starhammer_v_db:setKeyValue("Beam weapon 10:60","11.0 Dmg / 8.0 sec")
+			starhammer_v_db:setKeyValue("Beam weapon -20:60","11.0 Dmg / 8.0 sec")
+			starhammer_v_db:setKeyValue("Beam weapon 20:60","11.0 Dmg / 8.0 sec")
+			starhammer_v_db:setKeyValue("Beam weapon 180:60","11.0 Dmg / 8.0 sec")
+			starhammer_v_db:setKeyValue("Tube 0","10 sec")
+			starhammer_v_db:setKeyValue(" Tube 0","10 sec")
+			starhammer_v_db:setKeyValue("Storage Homing","16")
+			starhammer_v_db:setKeyValue("Storage EMP","2")
+			starhammer_v_db:setKeyValue("Storage HVLI","36")
+			starhammer_v_db:setImage("radar_dread.png")
+			--]]
+		end
 	end
 	return ship		
 end
@@ -15761,42 +15968,44 @@ function tyr(enemyFaction)
 	ship:setBeamWeapon(11,	90,	  120,	2500,		6,		 8)
 	local tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
 	if tyr_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Dreadnought")
-		corvette_db:addEntry("Tyr")
-		tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
-			tyr_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could",
-			nil,
-			"5 - 50 U",		--jump range
-			"Ender Battlecruiser"
-		)
-		--[[
-		tyr_db:setLongDescription("The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could")
-		tyr_db:setKeyValue("Class","Dreadnought")
-		tyr_db:setKeyValue("Sub-class","Assault")
-		tyr_db:setKeyValue("Size","200")
-		tyr_db:setKeyValue("Shield","400/300/300/400/300/300")
-		tyr_db:setKeyValue("Hull","100")
-		tyr_db:setKeyValue("Move speed","3.0 U/min")
-		tyr_db:setKeyValue("Turn speed","10.0 deg/sec")
-		tyr_db:setKeyValue("Jump Range","5 - 50 U")
-		tyr_db:setKeyValue("Beam weapon -60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("Beam weapon -120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("Beam weapon 60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon -60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon -120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon 60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon -60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon -120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon 60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setImage("radar_battleship.png")
-		--]]
+		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
+		if dreadnought_db ~= nil then	--added to address translation problem
+			dreadnought_db:addEntry("Tyr")
+			tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
+				tyr_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could",
+				nil,
+				"5 - 50 U",		--jump range
+				"Ender Battlecruiser"
+			)
+			--[[
+			tyr_db:setLongDescription("The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could")
+			tyr_db:setKeyValue("Class","Dreadnought")
+			tyr_db:setKeyValue("Sub-class","Assault")
+			tyr_db:setKeyValue("Size","200")
+			tyr_db:setKeyValue("Shield","400/300/300/400/300/300")
+			tyr_db:setKeyValue("Hull","100")
+			tyr_db:setKeyValue("Move speed","3.0 U/min")
+			tyr_db:setKeyValue("Turn speed","10.0 deg/sec")
+			tyr_db:setKeyValue("Jump Range","5 - 50 U")
+			tyr_db:setKeyValue("Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue("Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue("Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue("Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue(" Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue(" Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue(" Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue(" Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue("  Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue("  Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue("  Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setKeyValue("  Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+			tyr_db:setImage("radar_battleship.png")
+			--]]
+		end
 	end
 	return ship
 end
@@ -15812,17 +16021,19 @@ function gnat(enemyFaction)
 	local gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
 	if gnat_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Gnat")
-		gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Gnat"),	--base ship database entry
-			gnat_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
-			nil,
-			nil,		--jump range
-			"sci_fi_alien_ship_4"
-		)
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("Gnat")
+			gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","Gnat"),	--base ship database entry
+				gnat_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
+				nil,
+				nil,		--jump range
+				"sci_fi_alien_ship_4"
+			)
+		end
 	end
 	return ship
 end
@@ -15846,17 +16057,19 @@ function cucaracha(enemyFaction)
 	local cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
 	if cucaracha_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Cucaracha")
-		cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Cucaracha"),	--base ship database entry
-			cucaracha_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
-			nil,
-			nil,		--jump range
-			"space_tug"
-		)
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("Cucaracha")
+			cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","Cucaracha"),	--base ship database entry
+				cucaracha_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
+				nil,
+				nil,		--jump range
+				"space_tug"
+			)
+		end
 	end
 	return ship
 end
@@ -15879,20 +16092,22 @@ function starhammerIII(enemyFaction)
 	local starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
 	if starhammer_iii_db == nil then
 		local corvette_db = queryScienceDatabase("Ships","Corvette")
-		corvette_db:addEntry("Starhammer III")
-		starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Corvette","Starhammer III"),	--base ship database entry
-			starhammer_iii_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire",
-			{
-				{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
-			},
-			"5 - 50 U",		--jump range
-			"battleship_destroyer_4_upgraded"
-		)
+		if corvette_db ~= nil then	--added to address translation problem
+			corvette_db:addEntry("Starhammer III")
+			starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Corvette","Starhammer III"),	--base ship database entry
+				starhammer_iii_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire",
+				{
+					{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+					{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
+				},
+				"5 - 50 U",		--jump range
+				"battleship_destroyer_4_upgraded"
+			)
+		end
 	end
 	return ship
 end
@@ -15919,21 +16134,23 @@ function k2breaker(enemyFaction)
 	local k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
 	if k2_breaker_db == nil then
 		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("K2 Breaker")
-		k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","K2 Breaker"),	--base ship database entry
-			k2_breaker_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships",
-			{
-				{key = "Large tube 0", value = "13 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
-			},
-			nil,
-			"sci_fi_alien_ship_2"
-		)
+		if no_class_db ~= nil then	--added to address translation problem
+			no_class_db:addEntry("K2 Breaker")
+			k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","No Class","K2 Breaker"),	--base ship database entry
+				k2_breaker_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships",
+				{
+					{key = "Large tube 0", value = "13 sec"},	--torpedo tube direction and load speed
+					{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
+					{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
+				},
+				nil,
+				"sci_fi_alien_ship_2"
+			)
+		end
 	end
 	return ship
 end
@@ -15968,26 +16185,28 @@ function hurricane(enemyFaction)
 	local hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
 	if hurricane_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Hurricane")
-		hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Hurricane"),	--base ship database entry
-			hurricane_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot",
-			{
-				{key = "Large tube 0", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 0", value = "12 sec"},			--torpedo tube direction and load speed
-				{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube -15", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube 15", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
-			},
-			"5 - 40 U",		--jump range
-			"HeavyCorvetteRed"
-		)
+		if frigate_db ~= nil then	--added to address translation problem
+			frigate_db:addEntry("Hurricane")
+			hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+			addShipToDatabase(
+				queryScienceDatabase("Ships","Frigate","Hurricane"),	--base ship database entry
+				hurricane_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				"The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot",
+				{
+					{key = "Large tube 0", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Tube 0", value = "12 sec"},			--torpedo tube direction and load speed
+					{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Small tube -15", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Small tube 15", value = "12 sec"},	--torpedo tube direction and load speed
+					{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
+				},
+				"5 - 40 U",		--jump range
+				"HeavyCorvetteRed"
+			)
+		end
 	end
 	return ship
 end
@@ -16784,7 +17003,7 @@ function enemyDefenseCheck(delta)
 		if p ~= nil and p:isValid() then
 			for _, enemyStation in ipairs(kraylorStationList) do
 				if enemyStation ~= nil and enemyStation:isValid() and not enemyStation.defenseDeployed then
-					if distance_diagnostic then print("distance_diagnostic 14",p,enemyStation) end
+--					if distance_diagnostic then print("distance_diagnostic 14",p,enemyStation) end
 					local distToEnemyStation = distance(p,enemyStation)
 					if distToEnemyStation < enemyStation.defenseTriggerDistance then
 						if enemyStation.defenseType == "fighterFleet" then
@@ -18307,7 +18526,7 @@ function enemyVesselDestroyed(self, instigator)
 			if random(1,100) > 25 then
 				local excluded_mod = false
 				local wmt = wreck_mod_type_index_list[math.random(1,#wreck_mod_type_index_list)]
---				local wmt = 31	--for testing
+--				local wmt = 32	--for testing
 				local wma = wreck_mod_type[wmt].func(self_x, self_y)
 				wma.debris_end_x = self_x + debris_x
 				wma.debris_end_y = self_y + debris_y
@@ -18584,7 +18803,7 @@ function endStatistics()
 		if endStatDiagnostic then print("executed detalied stats function") end
 	end
 end
-function update(delta)
+function updateInner(delta)
 	if delta == 0 then
 		--game paused
 		--set up players with name, goods, cargo space, reputation and either a warp drive or a jump drive if applicable
@@ -19208,7 +19427,6 @@ function update(delta)
 	end
 	if updateDiagnostic then print("end of update loop") end	
 end
---[[
 function update(delta)
     local status,error=pcall(updateInner,delta)
     if not status then
@@ -19222,4 +19440,3 @@ function update(delta)
 		end
     end
 end
---]]
