@@ -570,6 +570,7 @@ function convertWebCallTableToFunction(args,caller_provides)
 		local arg_num = 1
 		for _,arg in ipairs(requested_function.args) do
 			local arg_name = arg[1]
+			local arg_default = arg[3]
 			local in_caller_provides = nil
 			for arg_num,suppressed in ipairs(caller_provides) do
 				if suppressed == arg_name then
@@ -583,7 +584,7 @@ function convertWebCallTableToFunction(args,caller_provides)
 			elseif args[arg_name] then
 				value = args[arg_name]
 			else
-				value = arg.default
+				value = arg_default
 				assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
 			end
 			callee_args[arg_num] = webConvertArgument(value,arg)
