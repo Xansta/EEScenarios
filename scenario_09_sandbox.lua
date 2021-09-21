@@ -4747,11 +4747,15 @@ function countdownTimer()
 		end)
 	else
 		addGMFunction("Start Timer", function()
-			timer_started = true
+			startTimer()
 			countdownTimer()
 		end)
 	end
 end
+function startTimer()
+	timer_started = true
+end
+describeFunction("startTimer","starts the gm configured timer")
 function coloredSubspaceRift (x,y,destination_x,destination_y)
 	local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
 	local all_objs = {}
