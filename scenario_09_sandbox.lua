@@ -27123,70 +27123,77 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	local supplyMine = math.random(supply_mine_range_min,supply_mine_range_max)
 	local supplyHoming = math.random(supply_homing_range_min,supply_homing_range_max)
 	local supplyHVLI = math.random(supply_hvli_range_min,supply_hvli_range_max)
-	local customSupplyDrop = SupplyDrop():setEnergy(supplyEnergy):setFaction("Human Navy"):setPosition(originx+vectorx,originy+vectory)
-	customSupplyDrop:setWeaponStorage("Nuke",supplyNuke)
-	customSupplyDrop:setWeaponStorage("EMP",supplyEMP)
-	customSupplyDrop:setWeaponStorage("Homing",supplyHoming)
-	customSupplyDrop:setWeaponStorage("Mine",supplyMine)
-	customSupplyDrop:setWeaponStorage("HVLI",supplyHVLI)
 	local supplyRepairCrew = math.random(supply_repair_crew_range_min,supply_repair_crew_range_max)
-	if supplyRepairCrew > 0 then
-		customSupplyDrop.repairCrew = supplyRepairCrew
-	end
 	local supplyCoolant = math.random(supply_coolant_range_min,supply_coolant_range_max)
-	if supplyCoolant > 0 then
-		customSupplyDrop.coolant = supplyCoolant
-	end
 	local supplyProbes = math.random(supply_probes_range_min,supply_probes_range_max)
-	if supplyProbes > 0 then
-		customSupplyDrop.probes = supplyProbes
-	end
 	local supplyArmor = math.random(supply_armor_range_min,supply_armor_range_max)
-	if supplyArmor > 0 then
-		customSupplyDrop.armor = supplyArmor
+	createSupplyDrop({x = originx+vectorx, y = originy+vectory},supplyEnergy,supplyHoming,supplyNuke,supplyMine,supplyEMP,supplyHVLI,supplyRepairCrew,supplyCoolant,supplyProbes,supplyArmor)
+end
+function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,coolant,probes,armour)
+	print(location.x,location.y,energy,homing,nuke,mine,emp,hvli,repairCrew,coolant,probes,armour)
+	local customSupplyDrop = SupplyDrop():setEnergy(energy):setFaction("Human Navy"):setPosition(location.x,location.y)
+	customSupplyDrop:setWeaponStorage("Nuke",nuke)
+	customSupplyDrop:setWeaponStorage("EMP",emp)
+	customSupplyDrop:setWeaponStorage("Homing",homing)
+	customSupplyDrop:setWeaponStorage("Mine",mine)
+	customSupplyDrop:setWeaponStorage("HVLI",hvli)
+	if repairCrew > 0 then
+		customSupplyDrop.repairCrew = repairCrew
+	end
+	if coolant > 0 then
+		customSupplyDrop.coolant = coolant
+	end
+	if probes > 0 then
+		customSupplyDrop.probes = probes
+	end
+	if armour > 0 then
+		customSupplyDrop.armor = armour
 	end
 	local supplyLabel = ""
 	local wordy_label = ""
-	if supplyEnergy > 0 then
-		supplyLabel = supplyLabel .. string.format("B%i ",supplyEnergy)
-		wordy_label = wordy_label .. string.format("Battery Power:%i ",supplyEnergy)
+	if energy > 0 then
+		supplyLabel = supplyLabel .. string.format("B%i ",energy)
+		wordy_label = wordy_label .. string.format("Battery Power:%i ",energy)
 	end
-	if supplyNuke > 0 then
-		supplyLabel = supplyLabel .. string.format("N%i ",supplyNuke)
-		wordy_label = wordy_label .. string.format("Nukes:%i ",supplyNuke)
+	if nuke > 0 then
+		supplyLabel = supplyLabel .. string.format("N%i ",nuke)
+		wordy_label = wordy_label .. string.format("Nukes:%i ",nuke)
 	end
-	if supplyEMP > 0 then
-		supplyLabel = supplyLabel .. string.format("E%i ",supplyEMP)
-		wordy_label = wordy_label .. string.format("EMPs:%i ",supplyEMP)
+	if emp > 0 then
+		supplyLabel = supplyLabel .. string.format("E%i ",emp)
+		wordy_label = wordy_label .. string.format("EMPs:%i ",emp)
 	end
-	if supplyMine > 0 then
-		supplyLabel = supplyLabel .. string.format("M%i ",supplyMine)
-		wordy_label = wordy_label .. string.format("Mines:%i ",supplyMine)
+	if mine > 0 then
+		supplyLabel = supplyLabel .. string.format("M%i ",mine)
+		wordy_label = wordy_label .. string.format("Mines:%i ",mine)
 	end
-	if supplyHoming > 0 then
-		supplyLabel = supplyLabel .. string.format("H%i ",supplyHoming)
-		wordy_label = wordy_label .. string.format("Homing Missiles:%i ",supplyHoming)
+	if homing > 0 then
+		supplyLabel = supplyLabel .. string.format("H%i ",homing)
+		wordy_label = wordy_label .. string.format("Homing Missiles:%i ",homing)
 	end
-	if supplyHVLI > 0 then
-		supplyLabel = supplyLabel .. string.format("L%i ",supplyHVLI)
-		wordy_label = wordy_label .. string.format("High Velocity Lead Impactors:%i ",supplyHVLI)
+	if hvli > 0 then
+		supplyLabel = supplyLabel .. string.format("L%i ",hvli)
+		wordy_label = wordy_label .. string.format("High Velocity Lead Impactors:%i ",hvli)
 	end
-	if supplyRepairCrew > 0 then
-		supplyLabel = supplyLabel .. string.format("R%i ",supplyRepairCrew)
-		wordy_label = wordy_label .. string.format("Robotic Repair Crew:%i ",supplyRepairCrew)
+	if repairCrew > 0 then
+		supplyLabel = supplyLabel .. string.format("R%i ",repairCrew)
+		wordy_label = wordy_label .. string.format("Robotic Repair Crew:%i ",repairCrew)
 	end
-	if supplyCoolant > 0 then
-		supplyLabel = supplyLabel .. string.format("C%i ",supplyCoolant)
-		wordy_label = wordy_label .. string.format("Coolant:%i ",supplyCoolant)
+	if coolant > 0 then
+		supplyLabel = supplyLabel .. string.format("C%i ",coolant)
+		wordy_label = wordy_label .. string.format("Coolant:%i ",coolant)
 	end
-	if supplyProbes > 0 then
-		supplyLabel = supplyLabel .. string.format("P%i ",supplyProbes)
-		wordy_label = wordy_label .. string.format("Probes:%i ",supplyProbes)
+	if probes > 0 then
+		supplyLabel = supplyLabel .. string.format("P%i ",probes)
+		wordy_label = wordy_label .. string.format("Probes:%i ",probes)
 	end
-	if supplyArmor > 0 then
-		supplyLabel = supplyLabel .. string.format("A%i ",supplyArmor)
-		wordy_label = wordy_label .. string.format("Armor:%i ",supplyArmor)
+	if armour > 0 then
+		supplyLabel = supplyLabel .. string.format("A%i ",armour)
+		wordy_label = wordy_label .. string.format("Armor:%i ",armour)
 	end
+	-- this really wants to be a function argument, but that will want enum support for the web interface ideally
+	-- aka this is on the list but cant be done right now
+	print(supplyLabel,wordy_label)
 	if supply_drop_info == "Label" then
 		customSupplyDrop:setCallSign(supplyLabel)
 	elseif supply_drop_info == "Scan" then
@@ -27198,6 +27205,21 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	end
 	customSupplyDrop:onPickUp(supplyPickupProcess)
 end
+describeFunction("createSupplyDrop",
+	"create a custom supply drop at a location",
+	{	{"location","position"},
+		{"energy","number", {call = "irandom", min = 0, max = 500}, min = 0},
+		{"homing","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"nuke","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"mine","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"emp","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"hvli","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"repairCrew","number", {call = "irandom", min = 0, max = 1}, min = 0},
+		{"coolant","number", {call = "irandom", min = 0, max = 2}, min = 0},
+		{"probes","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"armour","number", {call = "irandom", min = 0, max = 30}, min = 0},
+	})
+
 function supplyPickupProcess(self, player)
 	if self.repairCrew ~= nil then
 		player:setRepairCrewCount(player:getRepairCrewCount() + self.repairCrew)
