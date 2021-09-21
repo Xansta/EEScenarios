@@ -10,7 +10,6 @@
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
--- getScenarioTime should allow some small simplifcations
 -- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
@@ -442,7 +441,6 @@ function setConstants()
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	initialSandboxDatabaseUpdate()
-	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
 	prefix_length = 0
