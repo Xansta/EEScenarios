@@ -404,7 +404,13 @@ function isValidVariableDescriptionType(type_str)
 		return false
 	end
 end
-
+function isWebTableFunction(tbl)
+	if type(tbl)=="table" and tbl.call ~= nil and type(tbl.call) == "string" then
+		return true
+	else
+		return false
+	end
+end
 function checkVariableDescriptions(args_table)
 	for arg_num,arg_description in pairs(args_table) do
 		local arg_name = arg_description[1]
@@ -420,9 +426,9 @@ function checkVariableDescriptions(args_table)
 		local arg_default = arg_description[3]
 		if arg_default ~= nil then
 			-- this is to check the default argument if present is of the correct type
-			-- sadly it is much harder to check functions as they wont run in the order expected
+			-- sadly it is much harder to check functions as they will be checked as defined
 			-- as such we will just assume they are OK for now
-			if arg_type ~= "function" then
+			if not isWebTableFunction(arg_default) then
 				webConvertArgument(arg_default,arg_description)
 			end
 		end
@@ -491,10 +497,7 @@ end
 -- only copes with converting functions from the web calling table format
 function webConvertScalar(value, argSettings)
 	local convert_to = argSettings[2]
-	local is_web_function = false
-	if type(value) == "table" and type(value.call) == "string" then
-		is_web_function = true
-	end
+	local is_web_function = isWebTableFunction(value)
 	if is_web_function and convert_to ~= "function" then
 		value = indirectCall(value)
 	end
@@ -545,8 +548,7 @@ end
 function convertWebCallTableToFunction(args,caller_provides)
 	local caller_provides = caller_provides or {}
 	assert(type(caller_provides)=="table")
-	assert(type(args)=="table")
-	assert(type(args.call)=="string")
+	assert(isWebTableFunction(args))
 	local requested_function = getScriptStorage()._cuf_gm.functions[args.call]
 	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
 	assert(type(requested_function.fn) == "function")
