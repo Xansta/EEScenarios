@@ -31072,6 +31072,11 @@ end
 function setTimerPurpose(purpose)
 	timer_purpose = purpose
 end
+describeFunction("setTimerPurpose",
+	"change the purpose of the current timer",
+	{
+		{"Purpose", "string"},
+	})
 -------------------------------------
 --	Countdown Timer > Add Seconds  --
 -------------------------------------
