@@ -20,6 +20,12 @@
 require("utils.lua")
 require("science_database.lua")
 require("utils_customElements.lua")
+-- currently (2021/09/23) getScriptStorage() bleeds through
+-- scenario restarts, when this is fixed / changed this line can be removed
+-- important note - this ***has*** to run before init() is called or you
+-- will get odd web tool errors
+getScriptStorage()._cuf_gm = nil
+
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
 	scenario_version = "4.0.8"
@@ -452,6 +458,11 @@ end
 -- the name is better as describeAndExportFunctionForWeb, but there are going to be an absurd number
 -- of these so brevity is important, I have no objection if a find and replace is desired
 --
+-- all of the describeFunction calls in the sandbox are run before init()
+-- this allows describeFunction to be next to the function definition
+-- note the web tool may call describeFunction after init has been called
+-- as such dont assume in init is called that the exported functions will never change
+--
 -- description format is
 -- 1) name of the function as a string (the function call itself is pulled out of the global table)
 --                         as such anonymous functions are presently not supported
@@ -479,6 +490,9 @@ end
 -- npc_ship_template - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
 -- function - the caller recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates} renaming the caller_provides list is possible with a table called _caller_provides_rename - look at webConvertScalar for details
 function describeFunction(name,function_description,args_table)
+	if getScriptStorage()._cuf_gm == nil then
+		setupWebGMTool()
+	end
 	assert(type(name)=="string")
 	assert(type(function_description) == "table" or type(function_description) == "string" or function_description == nil)
 	if type(function_description) ~= "table" then
@@ -629,8 +643,6 @@ function setupWebGMTool()
 		indirectCall = indirectCall
 	}
 end
--- we need to call this outside of the init functions as otherwise describeFunction wont work after functions themselves
-setupWebGMTool()
 
 -- stock EE / lua functions
 describeFunction("irandom",nil,
