@@ -10,7 +10,6 @@
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
--- getScenarioTime should allow some small simplifcations
 -- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- consider making a printable stack block for a ship to aid the "what is this ship" question (probably via lua making an SVG?)
@@ -21,6 +20,12 @@
 require("utils.lua")
 require("science_database.lua")
 require("utils_customElements.lua")
+-- currently (2021/09/23) getScriptStorage() bleeds through
+-- scenario restarts, when this is fixed / changed this line can be removed
+-- important note - this ***has*** to run before init() is called or you
+-- will get odd web tool errors
+getScriptStorage()._cuf_gm = nil
+
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
 	scenario_version = "4.0.8"
@@ -397,6 +402,218 @@ function webUploadEndAndRunAndFree(slot)
 		return {error = err}
 	end
 end
+function isValidVariableDescriptionType(type_str)
+	assert(type(type_str) == "string")
+	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" then
+		return true
+	else
+		return false
+	end
+end
+function isWebTableFunction(tbl)
+	if type(tbl)=="table" and tbl.call ~= nil and type(tbl.call) == "string" then
+		return true
+	else
+		return false
+	end
+end
+function checkVariableDescriptions(args_table)
+	for _,arg_description in ipairs(args_table) do
+		local arg_name = arg_description[1]
+		assert(type(arg_name)=="string")
+		-- _this is the name for the table describing the current function, we cant also have an argument of _this
+		assert(arg_name ~= "_this")
+		-- call as an argument name would cause an alarming degree of chaos
+		assert(arg_name ~= "call")
+
+		local arg_type = arg_description[2]
+		assert(isValidVariableDescriptionType(arg_type))
+
+		local arg_default = arg_description[3]
+		if arg_default ~= nil then
+			-- this is to check the default argument if present is of the correct type
+			-- sadly it is much harder to check functions as they will be checked as defined
+			-- as such we will just assume they are OK for now
+			if not isWebTableFunction(arg_default) then
+				webConvertArgument(arg_default,arg_description)
+			end
+		end
+		for arg_name,arg_value in pairs(arg_description) do
+			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
+			elseif arg_name == 4 then
+				assert(arg_value == "array")
+			elseif arg_name == "min" then
+				assert(arg_type == "number")
+			elseif arg_name == "max" then
+				assert(arg_type == "number")
+			elseif arg_name == "caller_provides" then
+				assert(arg_type == "function")
+			else
+				assert(false,"arg_description has a key that describeFunction doesnt about")
+			end
+		end
+	end
+end
+
+-- the name is better as describeAndExportFunctionForWeb, but there are going to be an absurd number
+-- of these so brevity is important, I have no objection if a find and replace is desired
+--
+-- all of the describeFunction calls in the sandbox are run before init()
+-- this allows describeFunction to be next to the function definition
+-- note the web tool may call describeFunction after init has been called
+-- as such dont assume in init is called that the exported functions will never change
+--
+-- description format is
+-- 1) name of the function as a string (the function call itself is pulled out of the global table)
+--                         as such anonymous functions are presently not supported
+-- 2) function description, which is a table or a string or nil
+--              if it is a string then it is assumed as being function_description[1]
+-- 2.1) function_description[1] is a description used for the web tool
+-- 2.2) function_description[2+] is a list of tags to be used for sorting on the web UI
+-- 3) args_table a table of tables is an optional table describing each argument given to the function
+-- 3.0) each inner table is defined as follows
+-- 3.1) [1] name of the argument
+-- 3.2) [2] type of the argument - see below for types
+-- 3.3) [3] the default value for the argument, note this is not checked for type/value and is current web tool only
+-- 3.4) [4] may be the string "array" in which case this is a table from [1] to #table, this is badly tested, but required for the web tool, if this is going to be used elsewhere better testing is needed
+-- 3.4) the remainder of the table is optional tags based on type
+-- for numbers -
+-- min - minimum value expected
+-- max - maximum value expected
+-- for function
+-- caller_provides - the values this function provides for the function call (this will stop them being shown on the web tool)
+--
+-- types
+-- string - a lua string - example = "the answer"
+-- number - a lua number - example = 42
+-- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
+-- npc_ship_template - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
+-- function - the caller recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates} renaming the caller_provides list is possible with a table called _caller_provides_rename - look at webConvertScalar for details
+function describeFunction(name,function_description,args_table)
+	if getScriptStorage()._cuf_gm == nil then
+		setupWebGMTool()
+	end
+	assert(type(name)=="string")
+	assert(type(function_description) == "table" or type(function_description) == "string" or function_description == nil)
+	if type(function_description) ~= "table" then
+		function_description = {function_description}
+	end
+	assert(type(args_table)=="table" or args_table == nil)
+	args_table = args_table or {}
+	local fn = _ENV[name]
+	assert(type(fn)=="function",name)
+	checkVariableDescriptions(args_table)
+	args_table._this = function_description
+	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
+end
+
+-- convert a single value from a web call
+-- only copes with converting functions from the web calling table format
+function webConvertScalar(value, argSettings)
+	local convert_to = argSettings[2]
+	local is_web_function = isWebTableFunction(value)
+	if is_web_function and convert_to ~= "function" then
+		value = indirectCall(value)
+	end
+	if convert_to == "function" then
+		local caller_provides = {}
+		if argSettings.caller_provides then
+			for _,var in pairs(argSettings.caller_provides) do
+				if value._caller_provides_rename ~= nil then
+					if value._caller_provides_rename[var] ~= nil then
+						var = value._caller_provides_rename[var]
+					end
+				end
+				table.insert(caller_provides,var)
+			end
+		end
+		value = convertWebCallTableToFunction(value,caller_provides)
+		assert(type(value) == "function")
+	elseif convert_to == "string" then
+		assert(type(value) == "string")
+	elseif convert_to == "number" then
+		-- it is worth considering if min / max should be checked here or not
+		assert(type(value) == "number")
+	elseif convert_to == "position" then
+		assert(type(value) == "table")
+		assert(type(value.x) == "number")
+		assert(type(value.y) == "number")
+	elseif convert_to == "npc_ship_template" then
+		-- checking this is a valid template name would be nice
+		assert(type(value) == "string")
+	else
+		assert(false,"unknown type " .. "\"" .. convert_to .. "\"")
+	end
+	return value
+end
+
+function webConvertArgument(value, argSettings)
+	local is_array = (argSettings[4] == "array")
+	if is_array then
+		for idx,scalar in ipairs(value) do
+			value[idx] = webConvertScalar(scalar, argSettings)
+		end
+	else
+		value = webConvertScalar(value, argSettings)
+	end
+	return value
+end
+
+function convertWebCallTableToFunction(args,caller_provides)
+	local caller_provides = caller_provides or {}
+	assert(type(caller_provides)=="table")
+	assert(isWebTableFunction(args))
+	local requested_function = getScriptStorage()._cuf_gm.functions[args.call]
+	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
+	assert(type(requested_function.fn) == "function")
+	assert(type(requested_function.args) == "table")
+	local do_we_need_to_wrap = false
+	for arg_num,arg in ipairs(requested_function.args) do
+		if arg[1] ~= caller_provides[arg_num] then
+			do_we_need_to_wrap = true
+		end
+		if arg[2] == "function" then
+			do_we_need_to_wrap = true
+		end
+	end
+	if not do_we_need_to_wrap then
+		return requested_function.fn
+	end
+	return function (...)
+		local callee_args = {}
+		local arg_num = 1
+		for _,arg in ipairs(requested_function.args) do
+			local arg_name = arg[1]
+			local arg_default = arg[3]
+			local in_caller_provides = nil
+			for arg_num,suppressed in ipairs(caller_provides) do
+				if suppressed == arg_name then
+					in_caller_provides = arg_num
+				end
+			end
+			local value
+			if in_caller_provides then
+				assert(select("#",...)<= in_caller_provides)
+				value = select(in_caller_provides,...)
+			elseif args[arg_name] then
+				value = args[arg_name]
+			else
+				value = arg_default
+				assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
+			end
+			callee_args[arg_num] = webConvertArgument(value,arg)
+			arg_num = arg_num +1
+		end
+		-- reminder it is possible for entires in requested_function can be nil
+		return requested_function.fn(table.unpack(callee_args,1,#requested_function.args))
+	end
+end
+
+-- this is the entry point for the web gm tool
+function indirectCall(args)
+	return callWithErrorHandling(convertWebCallTableToFunction(args))
+end
+
 function setupWebGMTool()
 	-- currently (2021/09/02) getScriptStorage() bleeds through
 	-- scenario restarts, this is a problem, I am also willfully
@@ -418,15 +635,22 @@ function setupWebGMTool()
 		},
 		-- all the functions exported to the web tool
 		functions = {
-			-- an array of elements with a fn and args element
-			-- needs better documentation when add_function is moved here from the web tool
-			-- currently somewhat in flux
+			-- see describeFunction for details
 		},
 		webUploadStart = webUploadStart,
 		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
-		webUploadSegment = webUploadSegment
+		webUploadSegment = webUploadSegment,
+		indirectCall = indirectCall
 	}
 end
+
+-- stock EE / lua functions
+describeFunction("irandom",nil,
+	{
+		{"min","number"},
+		{"max","number"}
+	})
+
 function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
@@ -442,7 +666,6 @@ function setConstants()
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	initialSandboxDatabaseUpdate()
-	scenarioTime = 0
 	playerSpawnX = 0
 	playerSpawnY = 0
 	prefix_length = 0
@@ -620,7 +843,6 @@ function setConstants()
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = stockTemplate},
 		["Loki"] =				{strength = 260,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = loki},
 	}
-	setupWebGMTool()
 	fleet_group = {
 		["adder"] = "Adders",
 		["Adders"] = "adder",
@@ -4537,11 +4759,15 @@ function countdownTimer()
 		end)
 	else
 		addGMFunction("Start Timer", function()
-			timer_started = true
+			startTimer()
 			countdownTimer()
 		end)
 	end
 end
+function startTimer()
+	timer_started = true
+end
+describeFunction("startTimer","starts the gm configured timer")
 function coloredSubspaceRift (x,y,destination_x,destination_y)
 	local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
 	local all_objs = {}
@@ -26909,70 +27135,77 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	local supplyMine = math.random(supply_mine_range_min,supply_mine_range_max)
 	local supplyHoming = math.random(supply_homing_range_min,supply_homing_range_max)
 	local supplyHVLI = math.random(supply_hvli_range_min,supply_hvli_range_max)
-	local customSupplyDrop = SupplyDrop():setEnergy(supplyEnergy):setFaction("Human Navy"):setPosition(originx+vectorx,originy+vectory)
-	customSupplyDrop:setWeaponStorage("Nuke",supplyNuke)
-	customSupplyDrop:setWeaponStorage("EMP",supplyEMP)
-	customSupplyDrop:setWeaponStorage("Homing",supplyHoming)
-	customSupplyDrop:setWeaponStorage("Mine",supplyMine)
-	customSupplyDrop:setWeaponStorage("HVLI",supplyHVLI)
 	local supplyRepairCrew = math.random(supply_repair_crew_range_min,supply_repair_crew_range_max)
-	if supplyRepairCrew > 0 then
-		customSupplyDrop.repairCrew = supplyRepairCrew
-	end
 	local supplyCoolant = math.random(supply_coolant_range_min,supply_coolant_range_max)
-	if supplyCoolant > 0 then
-		customSupplyDrop.coolant = supplyCoolant
-	end
 	local supplyProbes = math.random(supply_probes_range_min,supply_probes_range_max)
-	if supplyProbes > 0 then
-		customSupplyDrop.probes = supplyProbes
-	end
 	local supplyArmor = math.random(supply_armor_range_min,supply_armor_range_max)
-	if supplyArmor > 0 then
-		customSupplyDrop.armor = supplyArmor
+	createSupplyDrop({x = originx+vectorx, y = originy+vectory},supplyEnergy,supplyHoming,supplyNuke,supplyMine,supplyEMP,supplyHVLI,supplyRepairCrew,supplyCoolant,supplyProbes,supplyArmor)
+end
+function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,coolant,probes,armour)
+	print(location.x,location.y,energy,homing,nuke,mine,emp,hvli,repairCrew,coolant,probes,armour)
+	local customSupplyDrop = SupplyDrop():setEnergy(energy):setFaction("Human Navy"):setPosition(location.x,location.y)
+	customSupplyDrop:setWeaponStorage("Nuke",nuke)
+	customSupplyDrop:setWeaponStorage("EMP",emp)
+	customSupplyDrop:setWeaponStorage("Homing",homing)
+	customSupplyDrop:setWeaponStorage("Mine",mine)
+	customSupplyDrop:setWeaponStorage("HVLI",hvli)
+	if repairCrew > 0 then
+		customSupplyDrop.repairCrew = repairCrew
+	end
+	if coolant > 0 then
+		customSupplyDrop.coolant = coolant
+	end
+	if probes > 0 then
+		customSupplyDrop.probes = probes
+	end
+	if armour > 0 then
+		customSupplyDrop.armor = armour
 	end
 	local supplyLabel = ""
 	local wordy_label = ""
-	if supplyEnergy > 0 then
-		supplyLabel = supplyLabel .. string.format("B%i ",supplyEnergy)
-		wordy_label = wordy_label .. string.format("Battery Power:%i ",supplyEnergy)
+	if energy > 0 then
+		supplyLabel = supplyLabel .. string.format("B%i ",energy)
+		wordy_label = wordy_label .. string.format("Battery Power:%i ",energy)
 	end
-	if supplyNuke > 0 then
-		supplyLabel = supplyLabel .. string.format("N%i ",supplyNuke)
-		wordy_label = wordy_label .. string.format("Nukes:%i ",supplyNuke)
+	if nuke > 0 then
+		supplyLabel = supplyLabel .. string.format("N%i ",nuke)
+		wordy_label = wordy_label .. string.format("Nukes:%i ",nuke)
 	end
-	if supplyEMP > 0 then
-		supplyLabel = supplyLabel .. string.format("E%i ",supplyEMP)
-		wordy_label = wordy_label .. string.format("EMPs:%i ",supplyEMP)
+	if emp > 0 then
+		supplyLabel = supplyLabel .. string.format("E%i ",emp)
+		wordy_label = wordy_label .. string.format("EMPs:%i ",emp)
 	end
-	if supplyMine > 0 then
-		supplyLabel = supplyLabel .. string.format("M%i ",supplyMine)
-		wordy_label = wordy_label .. string.format("Mines:%i ",supplyMine)
+	if mine > 0 then
+		supplyLabel = supplyLabel .. string.format("M%i ",mine)
+		wordy_label = wordy_label .. string.format("Mines:%i ",mine)
 	end
-	if supplyHoming > 0 then
-		supplyLabel = supplyLabel .. string.format("H%i ",supplyHoming)
-		wordy_label = wordy_label .. string.format("Homing Missiles:%i ",supplyHoming)
+	if homing > 0 then
+		supplyLabel = supplyLabel .. string.format("H%i ",homing)
+		wordy_label = wordy_label .. string.format("Homing Missiles:%i ",homing)
 	end
-	if supplyHVLI > 0 then
-		supplyLabel = supplyLabel .. string.format("L%i ",supplyHVLI)
-		wordy_label = wordy_label .. string.format("High Velocity Lead Impactors:%i ",supplyHVLI)
+	if hvli > 0 then
+		supplyLabel = supplyLabel .. string.format("L%i ",hvli)
+		wordy_label = wordy_label .. string.format("High Velocity Lead Impactors:%i ",hvli)
 	end
-	if supplyRepairCrew > 0 then
-		supplyLabel = supplyLabel .. string.format("R%i ",supplyRepairCrew)
-		wordy_label = wordy_label .. string.format("Robotic Repair Crew:%i ",supplyRepairCrew)
+	if repairCrew > 0 then
+		supplyLabel = supplyLabel .. string.format("R%i ",repairCrew)
+		wordy_label = wordy_label .. string.format("Robotic Repair Crew:%i ",repairCrew)
 	end
-	if supplyCoolant > 0 then
-		supplyLabel = supplyLabel .. string.format("C%i ",supplyCoolant)
-		wordy_label = wordy_label .. string.format("Coolant:%i ",supplyCoolant)
+	if coolant > 0 then
+		supplyLabel = supplyLabel .. string.format("C%i ",coolant)
+		wordy_label = wordy_label .. string.format("Coolant:%i ",coolant)
 	end
-	if supplyProbes > 0 then
-		supplyLabel = supplyLabel .. string.format("P%i ",supplyProbes)
-		wordy_label = wordy_label .. string.format("Probes:%i ",supplyProbes)
+	if probes > 0 then
+		supplyLabel = supplyLabel .. string.format("P%i ",probes)
+		wordy_label = wordy_label .. string.format("Probes:%i ",probes)
 	end
-	if supplyArmor > 0 then
-		supplyLabel = supplyLabel .. string.format("A%i ",supplyArmor)
-		wordy_label = wordy_label .. string.format("Armor:%i ",supplyArmor)
+	if armour > 0 then
+		supplyLabel = supplyLabel .. string.format("A%i ",armour)
+		wordy_label = wordy_label .. string.format("Armor:%i ",armour)
 	end
+	-- this really wants to be a function argument, but that will want enum support for the web interface ideally
+	-- aka this is on the list but cant be done right now
+	print(supplyLabel,wordy_label)
 	if supply_drop_info == "Label" then
 		customSupplyDrop:setCallSign(supplyLabel)
 	elseif supply_drop_info == "Scan" then
@@ -26984,6 +27217,21 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	end
 	customSupplyDrop:onPickUp(supplyPickupProcess)
 end
+describeFunction("createSupplyDrop",
+	"create a custom supply drop at a location",
+	{	{"location","position"},
+		{"energy","number", {call = "irandom", min = 0, max = 500}, min = 0},
+		{"homing","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"nuke","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"mine","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"emp","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"hvli","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"repairCrew","number", {call = "irandom", min = 0, max = 1}, min = 0},
+		{"coolant","number", {call = "irandom", min = 0, max = 2}, min = 0},
+		{"probes","number", {call = "irandom", min = 0, max = 5}, min = 0},
+		{"armour","number", {call = "irandom", min = 0, max = 30}, min = 0},
+	})
+
 function supplyPickupProcess(self, player)
 	if self.repairCrew ~= nil then
 		player:setRepairCrewCount(player:getRepairCrewCount() + self.repairCrew)
@@ -30865,6 +31113,11 @@ end
 function setTimerPurpose(purpose)
 	timer_purpose = purpose
 end
+describeFunction("setTimerPurpose",
+	"change the purpose of the current timer",
+	{
+		{"Purpose", "string"},
+	})
 -------------------------------------
 --	Countdown Timer > Add Seconds  --
 -------------------------------------
