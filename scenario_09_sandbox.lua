@@ -412,7 +412,7 @@ function isWebTableFunction(tbl)
 	end
 end
 function checkVariableDescriptions(args_table)
-	for arg_num,arg_description in pairs(args_table) do
+	for _,arg_description in ipairs(args_table) do
 		local arg_name = arg_description[1]
 		assert(type(arg_name)=="string")
 		-- _this is the name for the table describing the current function, we cant also have an argument of _this
