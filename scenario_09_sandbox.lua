@@ -440,7 +440,7 @@ function checkVariableDescriptions(args_table)
 				assert(arg_type == "number")
 			elseif arg_name == "max" then
 				assert(arg_type == "number")
-			elseif arg_name == "caller_provides" ~= nil then
+			elseif arg_name == "caller_provides" then
 				assert(arg_type == "function")
 			else
 				assert(false,"arg_description has a key that describeFunction doesnt about")
