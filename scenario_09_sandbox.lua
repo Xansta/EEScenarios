@@ -28,7 +28,7 @@ getScriptStorage()._cuf_gm = nil
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.8"
+	scenario_version = "4.0.9"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -493,7 +493,7 @@ function describeFunction(name,function_description,args_table)
 	if getScriptStorage()._cuf_gm == nil then
 		setupWebGMTool()
 	end
-	assert(type(name)=="string")
+	assert(type(name) == "string")
 	assert(type(function_description) == "table" or type(function_description) == "string" or function_description == nil)
 	if type(function_description) ~= "table" then
 		function_description = {function_description}
@@ -1183,8 +1183,8 @@ function setConstants()
 	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,"W")
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
+	makePlayerShipActive("Vision")
 	makePlayerShipActive("Quill")
-	makePlayerShipActive("Quicksilver")
 	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Hearken")
 	makePlayerShipActive("Hrothgar")
@@ -6299,24 +6299,24 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
---			dp6Zone:setColor(0,128,0)
---		elseif i == 4 then
---			dp4Zone = squareZone(icx+dpx,icy+dpy,"dp4")
---			dp4Zone:setColor(0,128,0)
+		if i == 6 then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
+			dp6Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 5 then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
+			dp5Zone:setColor(0,128,0):setLabel("6")
 --		elseif i == 2 then
 --			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
 --			dp2Zone:setColor(0,128,0)
 --		elseif i == 1 then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
 --			dp1Zone:setColor(0,128,0)
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -6706,8 +6706,9 @@ function createIcarusStations()
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Macassa
-	--local macassaZone = squareZone(16335, -18034, "Macassa 9 E5")
-	--macassaZone:setColor(0,128,0)
+	local macassaZone = squareZone(16335, -18034, "Macassa 10 E5")
+	macassaZone:setColor(0,128,0):setLabel("10")
+	--[[
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 9"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMacassa:setShortRangeRadarRange(8000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -6739,6 +6740,7 @@ function createIcarusStations()
 	if random(1,100) <= 9  then stationMacassa:setSharesEnergyWithDocked(false) end
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
+	--]]
 	--Maximilian
 	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
 	--maximilianZone:setColor(51,153,255)
