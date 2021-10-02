@@ -511,7 +511,7 @@ function webConvertScalar(value, argSettings)
 	local convert_to = argSettings[2]
 	local is_web_function = isWebTableFunction(value)
 	if is_web_function and convert_to ~= "function" then
-		value = indirectCall(value)
+		value = convertWebCallTableToFunction(value)
 	end
 	if convert_to == "function" then
 		local caller_provides = {}
@@ -617,9 +617,32 @@ function convertWebCallTableToFunction(args,caller_provides)
 	end
 end
 
--- this is the entry point for the web gm tool
-function indirectCall(args)
-	return callWithErrorHandling(convertWebCallTableToFunction(args))
+-- this is the main entry point for the web gm tool
+-- get all serverMessages and call a function
+-- we need to do both as one call due to synchronization issues
+-- the web tool needs to know which serverMessages are from before
+-- the function call and which are after.
+-- As an example consider wanting infomation on if clicks are before
+-- or after the onGMClick function has been changed
+-- currently serverMessages created during the function call and
+-- before are merged, this is presently fine but may not be in future.
+function webCall(clientID,args)
+	if getScriptStorage()._cuf_gm.serverMessages == nil or getScriptStorage()._cuf_gm.serverMessages[clientID] == nil then
+		return {serverMessages = {msg = "invalid clientID"}}
+	end
+	local ret = {}
+	if args ~= nil then
+		getScriptStorage()._cuf_gm.currentWebID = clientID
+		ret.ret = callWithErrorHandling(convertWebCallTableToFunction(args))
+	end
+	ret.serverMessages = getScriptStorage()._cuf_gm.serverMessages[clientID]
+	getScriptStorage()._cuf_gm.serverMessages[clientID] = {}
+	return ret
+end
+
+function addWebMessageForClient(clientID,msg)
+	assert(type(getScriptStorage()._cuf_gm.serverMessages[clientID]) == "table")
+	table.insert(getScriptStorage()._cuf_gm.serverMessages[clientID],msg)
 end
 
 function setupWebGMTool()
@@ -641,6 +664,14 @@ function setupWebGMTool()
 			slots = {},
 			slot_id = 0,
 		},
+		-- we dont start at 0 as that makes it easy for clashes web clients that have
+		-- been running since the last sandbox restart
+		-- in an ideal world we would synchronise with web clients between runs
+		-- but that is somewhere between hard and impossible
+		-- if you see a real world clash and have to debug it you have my sympathies
+		-- and a suggestion that you go and gamble at borlan as you have spent your bad luck for the day
+		webID = irandom(0,1000000),
+		serverMessages = {},
 		-- all the functions exported to the web tool
 		functions = {
 			-- see describeFunction for details
@@ -648,7 +679,7 @@ function setupWebGMTool()
 		webUploadStart = webUploadStart,
 		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
 		webUploadSegment = webUploadSegment,
-		indirectCall = indirectCall
+		webCall = webCall
 	}
 end
 
