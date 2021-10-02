@@ -419,28 +419,26 @@ function isWebTableFunction(tbl)
 end
 function checkVariableDescriptions(args_table)
 	for _,arg_description in ipairs(args_table) do
-		local arg_name = arg_description[1]
-		assert(type(arg_name)=="string")
-		-- _this is the name for the table describing the current function, we cant also have an argument of _this
-		assert(arg_name ~= "_this")
-		-- call as an argument name would cause an alarming degree of chaos
-		assert(arg_name ~= "call")
-
 		local arg_type = arg_description[2]
-		assert(isValidVariableDescriptionType(arg_type))
-
-		local arg_default = arg_description[3]
-		if arg_default ~= nil then
-			-- this is to check the default argument if present is of the correct type
-			-- sadly it is much harder to check functions as they will be checked as defined
-			-- as such we will just assume they are OK for now
-			if not isWebTableFunction(arg_default) then
-				webConvertArgument(arg_default,arg_description)
-			end
-		end
 		for arg_name,arg_value in pairs(arg_description) do
-			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
-			elseif arg_name == 4 then
+			if arg_name == 1 then -- name
+				assert(type(arg_value)=="string")
+				-- _this is the name for the table describing the current function, we cant also have an argument of _this
+				assert(arg_value ~= "_this")
+				-- call as an argument name would cause an alarming degree of chaos
+				assert(arg_value ~= "call")
+			elseif arg_name == 2 then -- type
+				assert(isValidVariableDescriptionType(arg_value))
+			elseif arg_name == 3 then -- default
+				if arg_value ~= nil then
+					-- this is to check the default argument if present is of the correct type
+					-- sadly it is much harder to check functions as they will be checked as defined
+					-- as such we will just assume they are OK for now
+					if not isWebTableFunction(arg_value) then
+						webConvertArgument(arg_value,arg_description)
+					end
+				end
+			elseif arg_name == 4 then -- optional array
 				assert(arg_value == "array")
 			elseif arg_name == "min" then
 				assert(arg_type == "number")
