@@ -24270,13 +24270,13 @@ function detachAnythingFromNPS()
 	addGMFunction("-Main from detach",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
 	local object_list = getGMSelection()
-	if #object_list < 1 or #object_list > 1 then
+	if #object_list < 1 then
 		addGMFunction("+Select object",detachAnythingFromNPS)
 		return
 	end
-	local current_selected_object = object_list[1]
-	local current_selected_object_type = current_selected_object.typeName
-	update_system:removeUpdateNamed(current_selected_object,"attached")
+	for _,current_selected_object in ipairs(object_list) do
+		update_system:removeUpdateNamed(current_selected_object,"attached")
+	end
 end
 ---------------------------
 --	Order Ship > Attach  --
@@ -24291,7 +24291,7 @@ function attachAnythingToNPS()
 	addGMFunction("-Main from attach",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
 	local object_list = getGMSelection()
-	if #object_list < 1 or #object_list > 1 then
+	if #object_list < 1 then
 		addGMFunction("+Select object",attachAnythingToNPS)
 		return
 	end
@@ -24302,8 +24302,7 @@ function attachAnythingToNPS()
 	cpu_ship_list = {}
 	for i=1,#nearby_objects do
 		local temp_object = nearby_objects[i]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" and temp_object ~= current_selected_object then
+		if temp_object.typeName == "CpuShip" and (not isInGMSelection(temp_object)) then
 			local ship_distance = distance(temp_object,current_selected_object)
 			table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
 		end
@@ -24314,26 +24313,35 @@ function attachAnythingToNPS()
 		end)
 		if #cpu_ship_list >= 1 then
 			addGMFunction(string.format("Attach to %s",cpu_ship_list[1].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
+				end
 			end)
 		end
 		if #cpu_ship_list >= 2 then
 			addGMFunction(string.format("Attach to %s",cpu_ship_list[2].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
+				end
 			end)
 		end
 		if #cpu_ship_list >= 3 then
 			addGMFunction(string.format("Attach to %s",cpu_ship_list[3].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+				end
 			end)
 		end
 	else
@@ -32289,6 +32297,14 @@ end
 -- common utils --
 ------------------
 
+function isInGMSelection(obj)
+	for _,current in ipairs(getGMSelection()) do
+		if current == obj then
+			return true
+		end
+	end
+	return false
+end
 -- itterate through a table destroying all elements
 -- returns an empty table to try to be similar with removeInvalidFromEETable
 function destroyEEtable(tbl)
