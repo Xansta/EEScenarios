@@ -28,7 +28,7 @@ getScriptStorage()._cuf_gm = nil
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.9"
+	scenario_version = "4.0.10"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
