@@ -404,7 +404,7 @@ function webUploadEndAndRunAndFree(slot)
 end
 function isValidVariableDescriptionType(type_str)
 	assert(type(type_str) == "string")
-	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" then
+	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" or type_str == "meta" then
 		return true
 	else
 		return false
@@ -539,6 +539,8 @@ function webConvertScalar(value, argSettings)
 	elseif convert_to == "npc_ship_template" then
 		-- checking this is a valid template name would be nice
 		assert(type(value) == "string")
+	elseif convert_to == "meta" then
+		return value
 	else
 		assert(false,"unknown type " .. "\"" .. convert_to .. "\"")
 	end
@@ -582,6 +584,7 @@ function convertWebCallTableToFunction(args,caller_provides)
 		local arg_num = 1
 		for _,arg in ipairs(requested_function.args) do
 			local arg_name = arg[1]
+			local arg_type = arg[2]
 			local arg_default = arg[3]
 			local in_caller_provides = nil
 			for arg_num,suppressed in ipairs(caller_provides) do
@@ -597,6 +600,13 @@ function convertWebCallTableToFunction(args,caller_provides)
 				value = args[arg_name]
 			else
 				value = arg_default
+				if arg_type == "meta" then
+					if arg_name == "_clientID" then
+						value = getScriptStorage()._cuf_gm.currentWebID
+					else
+						assert(false)
+					end
+				end
 				assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
 			end
 			callee_args[arg_num] = webConvertArgument(value,arg)
