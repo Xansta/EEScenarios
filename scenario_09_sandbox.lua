@@ -1225,9 +1225,7 @@ function setConstants()
 	makePlayerShipActive("Vision")
 	makePlayerShipActive("Quill")
 	makePlayerShipActive("Pinwheel")
-	makePlayerShipActive("Hearken")
 	makePlayerShipActive("Hrothgar")
-	makePlayerShipActive("Slingshot")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -6949,9 +6947,9 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
-	--local pistilZone = squareZone(24834, 20416, "Pistil 6 G6")
-	--pistilZone:setColor(0,128,0)
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 6"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local pistilZone = squareZone(24834, 20416, "Pistil 7 G6")
+	pistilZone:setColor(0,128,0)
+    --[[stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 6"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -6992,6 +6990,7 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
+	]]--
 	--Relay-13
 	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
 	--relay13Zone:setColor(0,255,0)
