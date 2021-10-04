@@ -640,9 +640,204 @@ function webCall(clientID,args)
 	return ret
 end
 
+-- this is fairly expensive in CPU terms
+-- at the time of testing on my desktop it is about 80ms of CPU time
+-- given the expected amount of times running this is probably acceptable
+-- this could be cached in 2 places to remove this if it becomes an issue
+-- the web tool could store inside of webStorage and only request on the
+-- event of a version missmatch for EE or sandbox
+-- caching is possible within the sandbox, but I have not tested if the
+-- expensive part is walking over the fairly large amount of data to be copied
+-- in which case it wont help
+function newWebClient()
+	getScriptStorage()._cuf_gm.webID = getScriptStorage()._cuf_gm.webID + 1
+	local webID = getScriptStorage()._cuf_gm.webID
+	getScriptStorage()._cuf_gm.serverMessages[webID] = {}
+	return {
+		id = webID,
+		cpushipSoftTemplates = getCpushipSoftTemplates(),
+		modelData = getModelData(),
+		extraTemplateData = getExtraTemplateData(),
+		functionDescriptions = getWebFunctionDescriptions()
+	}
+end
+
 function addWebMessageForClient(clientID,msg)
 	assert(type(getScriptStorage()._cuf_gm.serverMessages[clientID]) == "table")
 	table.insert(getScriptStorage()._cuf_gm.serverMessages[clientID],msg)
+end
+
+function getCpushipSoftTemplates()
+	local softTemplates = {}
+	for ship_template_name,template in pairs(ship_template) do
+		local this_ship = {}
+		-- shallow copy, this should be moved to a library
+		for key,value in pairs(template) do
+			this_ship[key] = value
+		end
+
+		this_ship.name = ship_template_name
+		-- the gm button name != the typeName (sometimes)
+		-- we need to have both later in the web tool so we
+		-- to create a real ship to find the type name
+		local ship = this_ship.create("Human Navy",this_ship.name)
+		this_ship["type_name"] = ship:getTypeName()
+		ship:destroy()
+		this_ship.create = nil -- remove functions from the table
+		table.insert(softTemplates,this_ship)
+	end
+	return softTemplates
+end
+
+-- the original use for this is beam positions
+-- this should probably be available inside of lua without doing this
+-- if beam position is exported consider reviewing if this is still needed
+-- this may be expensive in CPU terms - see newWebClient
+function getModelData()
+	local models = {}
+	local ModelDataOrig = ModelData
+
+	_G.ModelData = function ()
+		local data = {
+			BeamPosition = {}
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			setMesh = function (self,mesh)
+				data.Mesh=mesh
+				return self
+			end,
+			setTexture = function (self,texture)
+				data.Texture=texture
+				return self
+			end,
+			setSpecular = function (self,specular)
+				data.Specular=specular
+				return self
+			end,
+			setIllumination = function (self,illumination)
+				data.Illumination = illumination
+				return self
+			end,
+			setRenderOffset = function (self,x,y,z)
+				data.RenderOffset = {x=x,y=y,z=z}
+				return self
+			end,
+			setScale = function (self,scale)
+				data.Scale = scale
+				return self
+			end,
+			setRadius = function (self,radius)
+				data.Radius = radius
+				return self
+			end,
+			setCollisionBox = function (self,x,y)
+				data.CollisionBox = {x=x, y=y, z=z}
+				return self
+			end,
+			addBeamPosition = function (self,x,y,z)
+				if data.BeamPosition == nil then
+					data.BeamPosition = {}
+				end
+				table.insert(data.BeamPosition,{x=x, y=y, z=z})
+				return self
+			end,
+			addEngineEmitter = function (self,x,y,z)
+				if data.EngineEmitter == nil then
+					data.EngineEmitter = {}
+				end
+				table.insert(data.EngineEmitter,{x=x, y=y, z=z})
+				return self
+			end,
+			addTubePosition = function (self,x,y,z)
+				if data.TubePosition == nil then
+					data.TubePosition = {}
+				end
+				table.insert(data.TubePosition,{x=x, y=y, z=z})
+				return self
+			end
+		}
+		table.insert(models,data)
+		return ret
+	end
+	require("model_data.lua")
+
+	_G.ModelData = ModelDataOrig
+	return models
+end
+
+-- this was originally written to help the web tool
+-- it only exports the members without getters
+-- with some EE engine fixes it may be possible to remove
+-- this may be expensive in CPU terms - see newWebClient
+function getExtraTemplateData()
+	local templates = {}
+	local ShipTemplateOrig = ShipTemplate
+	_G.ShipTemplate = function ()
+		local data = {
+			Type = "ship"
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			-- we need to look up the model to find the beam origin points
+			setModel = function (self,model)
+				data.Model = model
+				return self
+			end,
+			 -- SpaceShip::getRadarTrace() currently doesn't exist
+			setRadarTrace = function (self,radarTrace)
+				data.RadarTrace = radarTrace
+				return self
+			end,
+			-- the template files chain templates together, we need to mimic this or have odd errors
+			copy = function (self,name)
+				return ShipTemplate()
+					:setModel(data.Model)
+					:setName(name)
+					:setRadarTrace(data.RadarTrace)
+					:setType(data.Type)
+			end,
+			-- we need to be able to figure out if we are looking at a CpuShip, PlayerSpaceship or SpaceStation
+			-- this may? not be needed if the other functions where exported
+			setType = function (self, type)
+				data.Type = type
+				return self
+			end,
+		}
+		-- any unknown entries will just return a function returning self
+		-- this makes us mostly not care if new things are exported from EE
+		setmetatable(ret,{__index =
+			function ()
+				return function (self)
+					return self
+				end
+			end})
+		table.insert(templates,data)
+		return ret
+	end
+	require("shipTemplates.lua")
+
+	_G.ShipTemplate = ShipTemplateOrig
+	return templates
+end
+
+function getWebFunctionDescriptions()
+	local ret = {}
+	-- strip out the function itself
+	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
+		local copy = {}
+		for key,value in pairs(fn.args) do
+			copy[key] = value
+		end
+		ret[name] = copy
+	end
+	return ret
 end
 
 function setupWebGMTool()
@@ -679,7 +874,8 @@ function setupWebGMTool()
 		webUploadStart = webUploadStart,
 		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
 		webUploadSegment = webUploadSegment,
-		webCall = webCall
+		webCall = webCall,
+		newWebClient = newWebClient
 	}
 end
 
