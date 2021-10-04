@@ -879,6 +879,21 @@ function setupWebGMTool()
 	}
 end
 
+function addGMClickedMessage(_clientID,location)
+	addWebMessageForClient(_clientID,{msg = "gmClicked", x = location.x, y = location.y})
+end
+describeFunction("addGMClickedMessage",nil,{
+	{"_clientID","meta"},
+	{"location", "position"}})
+
+function gm_click_wrapper(onclick)
+	onGMClick(function (x,y)
+		onclick({x = x, y = y})
+	end)
+end
+describeFunction("gm_click_wrapper",nil,
+	{{"onclick", "function", {call = "null_function"},caller_provides = {"location"}}})
+
 -- stock EE / lua functions
 describeFunction("irandom",nil,
 	{
