@@ -28,7 +28,7 @@ getScriptStorage()._cuf_gm = nil
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.9"
+	scenario_version = "4.0.10"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -404,7 +404,7 @@ function webUploadEndAndRunAndFree(slot)
 end
 function isValidVariableDescriptionType(type_str)
 	assert(type(type_str) == "string")
-	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" then
+	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" or type_str == "meta" then
 		return true
 	else
 		return false
@@ -419,28 +419,26 @@ function isWebTableFunction(tbl)
 end
 function checkVariableDescriptions(args_table)
 	for _,arg_description in ipairs(args_table) do
-		local arg_name = arg_description[1]
-		assert(type(arg_name)=="string")
-		-- _this is the name for the table describing the current function, we cant also have an argument of _this
-		assert(arg_name ~= "_this")
-		-- call as an argument name would cause an alarming degree of chaos
-		assert(arg_name ~= "call")
-
 		local arg_type = arg_description[2]
-		assert(isValidVariableDescriptionType(arg_type))
-
-		local arg_default = arg_description[3]
-		if arg_default ~= nil then
-			-- this is to check the default argument if present is of the correct type
-			-- sadly it is much harder to check functions as they will be checked as defined
-			-- as such we will just assume they are OK for now
-			if not isWebTableFunction(arg_default) then
-				webConvertArgument(arg_default,arg_description)
-			end
-		end
 		for arg_name,arg_value in pairs(arg_description) do
-			if arg_name == 1 or arg_name == 2 or arg_name == 3 then
-			elseif arg_name == 4 then
+			if arg_name == 1 then -- name
+				assert(type(arg_value)=="string")
+				-- _this is the name for the table describing the current function, we cant also have an argument of _this
+				assert(arg_value ~= "_this")
+				-- call as an argument name would cause an alarming degree of chaos
+				assert(arg_value ~= "call")
+			elseif arg_name == 2 then -- type
+				assert(isValidVariableDescriptionType(arg_value))
+			elseif arg_name == 3 then -- default
+				if arg_value ~= nil then
+					-- this is to check the default argument if present is of the correct type
+					-- sadly it is much harder to check functions as they will be checked as defined
+					-- as such we will just assume they are OK for now
+					if not isWebTableFunction(arg_value) then
+						webConvertArgument(arg_value,arg_description)
+					end
+				end
+			elseif arg_name == 4 then -- optional array
 				assert(arg_value == "array")
 			elseif arg_name == "min" then
 				assert(arg_type == "number")
@@ -513,7 +511,7 @@ function webConvertScalar(value, argSettings)
 	local convert_to = argSettings[2]
 	local is_web_function = isWebTableFunction(value)
 	if is_web_function and convert_to ~= "function" then
-		value = indirectCall(value)
+		value = convertWebCallTableToFunction(value)
 	end
 	if convert_to == "function" then
 		local caller_provides = {}
@@ -541,6 +539,8 @@ function webConvertScalar(value, argSettings)
 	elseif convert_to == "npc_ship_template" then
 		-- checking this is a valid template name would be nice
 		assert(type(value) == "string")
+	elseif convert_to == "meta" then
+		return value
 	else
 		assert(false,"unknown type " .. "\"" .. convert_to .. "\"")
 	end
@@ -584,6 +584,7 @@ function convertWebCallTableToFunction(args,caller_provides)
 		local arg_num = 1
 		for _,arg in ipairs(requested_function.args) do
 			local arg_name = arg[1]
+			local arg_type = arg[2]
 			local arg_default = arg[3]
 			local in_caller_provides = nil
 			for arg_num,suppressed in ipairs(caller_provides) do
@@ -599,6 +600,13 @@ function convertWebCallTableToFunction(args,caller_provides)
 				value = args[arg_name]
 			else
 				value = arg_default
+				if arg_type == "meta" then
+					if arg_name == "_clientID" then
+						value = getScriptStorage()._cuf_gm.currentWebID
+					else
+						assert(false)
+					end
+				end
 				assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
 			end
 			callee_args[arg_num] = webConvertArgument(value,arg)
@@ -609,9 +617,227 @@ function convertWebCallTableToFunction(args,caller_provides)
 	end
 end
 
--- this is the entry point for the web gm tool
-function indirectCall(args)
-	return callWithErrorHandling(convertWebCallTableToFunction(args))
+-- this is the main entry point for the web gm tool
+-- get all serverMessages and call a function
+-- we need to do both as one call due to synchronization issues
+-- the web tool needs to know which serverMessages are from before
+-- the function call and which are after.
+-- As an example consider wanting infomation on if clicks are before
+-- or after the onGMClick function has been changed
+-- currently serverMessages created during the function call and
+-- before are merged, this is presently fine but may not be in future.
+function webCall(clientID,args)
+	if getScriptStorage()._cuf_gm.serverMessages == nil or getScriptStorage()._cuf_gm.serverMessages[clientID] == nil then
+		return {serverMessages = {msg = "invalid clientID"}}
+	end
+	local ret = {}
+	if args ~= nil then
+		getScriptStorage()._cuf_gm.currentWebID = clientID
+		ret.ret = callWithErrorHandling(convertWebCallTableToFunction(args))
+	end
+	ret.serverMessages = getScriptStorage()._cuf_gm.serverMessages[clientID]
+	getScriptStorage()._cuf_gm.serverMessages[clientID] = {}
+	return ret
+end
+
+-- this is fairly expensive in CPU terms
+-- at the time of testing on my desktop it is about 80ms of CPU time
+-- given the expected amount of times running this is probably acceptable
+-- this could be cached in 2 places to remove this if it becomes an issue
+-- the web tool could store inside of webStorage and only request on the
+-- event of a version missmatch for EE or sandbox
+-- caching is possible within the sandbox, but I have not tested if the
+-- expensive part is walking over the fairly large amount of data to be copied
+-- in which case it wont help
+function newWebClient()
+	getScriptStorage()._cuf_gm.webID = getScriptStorage()._cuf_gm.webID + 1
+	local webID = getScriptStorage()._cuf_gm.webID
+	getScriptStorage()._cuf_gm.serverMessages[webID] = {}
+	return {
+		id = webID,
+		cpushipSoftTemplates = getCpushipSoftTemplates(),
+		modelData = getModelData(),
+		extraTemplateData = getExtraTemplateData(),
+		functionDescriptions = getWebFunctionDescriptions()
+	}
+end
+
+function addWebMessageForClient(clientID,msg)
+	assert(type(getScriptStorage()._cuf_gm.serverMessages[clientID]) == "table")
+	table.insert(getScriptStorage()._cuf_gm.serverMessages[clientID],msg)
+end
+
+function getCpushipSoftTemplates()
+	local softTemplates = {}
+	for ship_template_name,template in pairs(ship_template) do
+		local this_ship = {}
+		-- shallow copy, this should be moved to a library
+		for key,value in pairs(template) do
+			this_ship[key] = value
+		end
+
+		this_ship.name = ship_template_name
+		-- the gm button name != the typeName (sometimes)
+		-- we need to have both later in the web tool so we
+		-- to create a real ship to find the type name
+		local ship = this_ship.create("Human Navy",this_ship.name)
+		this_ship["type_name"] = ship:getTypeName()
+		ship:destroy()
+		this_ship.create = nil -- remove functions from the table
+		table.insert(softTemplates,this_ship)
+	end
+	return softTemplates
+end
+
+-- the original use for this is beam positions
+-- this should probably be available inside of lua without doing this
+-- if beam position is exported consider reviewing if this is still needed
+-- this may be expensive in CPU terms - see newWebClient
+function getModelData()
+	local models = {}
+	local ModelDataOrig = ModelData
+
+	_G.ModelData = function ()
+		local data = {
+			BeamPosition = {}
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			setMesh = function (self,mesh)
+				data.Mesh=mesh
+				return self
+			end,
+			setTexture = function (self,texture)
+				data.Texture=texture
+				return self
+			end,
+			setSpecular = function (self,specular)
+				data.Specular=specular
+				return self
+			end,
+			setIllumination = function (self,illumination)
+				data.Illumination = illumination
+				return self
+			end,
+			setRenderOffset = function (self,x,y,z)
+				data.RenderOffset = {x=x,y=y,z=z}
+				return self
+			end,
+			setScale = function (self,scale)
+				data.Scale = scale
+				return self
+			end,
+			setRadius = function (self,radius)
+				data.Radius = radius
+				return self
+			end,
+			setCollisionBox = function (self,x,y)
+				data.CollisionBox = {x=x, y=y, z=z}
+				return self
+			end,
+			addBeamPosition = function (self,x,y,z)
+				if data.BeamPosition == nil then
+					data.BeamPosition = {}
+				end
+				table.insert(data.BeamPosition,{x=x, y=y, z=z})
+				return self
+			end,
+			addEngineEmitter = function (self,x,y,z)
+				if data.EngineEmitter == nil then
+					data.EngineEmitter = {}
+				end
+				table.insert(data.EngineEmitter,{x=x, y=y, z=z})
+				return self
+			end,
+			addTubePosition = function (self,x,y,z)
+				if data.TubePosition == nil then
+					data.TubePosition = {}
+				end
+				table.insert(data.TubePosition,{x=x, y=y, z=z})
+				return self
+			end
+		}
+		table.insert(models,data)
+		return ret
+	end
+	require("model_data.lua")
+
+	_G.ModelData = ModelDataOrig
+	return models
+end
+
+-- this was originally written to help the web tool
+-- it only exports the members without getters
+-- with some EE engine fixes it may be possible to remove
+-- this may be expensive in CPU terms - see newWebClient
+function getExtraTemplateData()
+	local templates = {}
+	local ShipTemplateOrig = ShipTemplate
+	_G.ShipTemplate = function ()
+		local data = {
+			Type = "ship"
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			-- we need to look up the model to find the beam origin points
+			setModel = function (self,model)
+				data.Model = model
+				return self
+			end,
+			 -- SpaceShip::getRadarTrace() currently doesn't exist
+			setRadarTrace = function (self,radarTrace)
+				data.RadarTrace = radarTrace
+				return self
+			end,
+			-- the template files chain templates together, we need to mimic this or have odd errors
+			copy = function (self,name)
+				return ShipTemplate()
+					:setModel(data.Model)
+					:setName(name)
+					:setRadarTrace(data.RadarTrace)
+					:setType(data.Type)
+			end,
+			-- we need to be able to figure out if we are looking at a CpuShip, PlayerSpaceship or SpaceStation
+			-- this may? not be needed if the other functions where exported
+			setType = function (self, type)
+				data.Type = type
+				return self
+			end,
+		}
+		-- any unknown entries will just return a function returning self
+		-- this makes us mostly not care if new things are exported from EE
+		setmetatable(ret,{__index =
+			function ()
+				return function (self)
+					return self
+				end
+			end})
+		table.insert(templates,data)
+		return ret
+	end
+	require("shipTemplates.lua")
+
+	_G.ShipTemplate = ShipTemplateOrig
+	return templates
+end
+
+function getWebFunctionDescriptions()
+	local ret = {}
+	-- strip out the function itself
+	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
+		local copy = {}
+		for key,value in pairs(fn.args) do
+			copy[key] = value
+		end
+		ret[name] = copy
+	end
+	return ret
 end
 
 function setupWebGMTool()
@@ -633,6 +859,14 @@ function setupWebGMTool()
 			slots = {},
 			slot_id = 0,
 		},
+		-- we dont start at 0 as that makes it easy for clashes web clients that have
+		-- been running since the last sandbox restart
+		-- in an ideal world we would synchronise with web clients between runs
+		-- but that is somewhere between hard and impossible
+		-- if you see a real world clash and have to debug it you have my sympathies
+		-- and a suggestion that you go and gamble at borlan as you have spent your bad luck for the day
+		webID = irandom(0,1000000),
+		serverMessages = {},
 		-- all the functions exported to the web tool
 		functions = {
 			-- see describeFunction for details
@@ -640,9 +874,25 @@ function setupWebGMTool()
 		webUploadStart = webUploadStart,
 		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
 		webUploadSegment = webUploadSegment,
-		indirectCall = indirectCall
+		webCall = webCall,
+		newWebClient = newWebClient
 	}
 end
+
+function addGMClickedMessage(_clientID,location)
+	addWebMessageForClient(_clientID,{msg = "gmClicked", x = location.x, y = location.y})
+end
+describeFunction("addGMClickedMessage",nil,{
+	{"_clientID","meta"},
+	{"location", "position"}})
+
+function gm_click_wrapper(onclick)
+	onGMClick(function (x,y)
+		onclick({x = x, y = y})
+	end)
+end
+describeFunction("gm_click_wrapper",nil,
+	{{"onclick", "function", {call = "null_function"},caller_provides = {"location"}}})
 
 -- stock EE / lua functions
 describeFunction("irandom",nil,
@@ -1186,9 +1436,7 @@ function setConstants()
 	makePlayerShipActive("Vision")
 	makePlayerShipActive("Quill")
 	makePlayerShipActive("Pinwheel")
-	makePlayerShipActive("Hearken")
 	makePlayerShipActive("Hrothgar")
-	makePlayerShipActive("Slingshot")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -6910,9 +7158,9 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
-	--local pistilZone = squareZone(24834, 20416, "Pistil 6 G6")
-	--pistilZone:setColor(0,128,0)
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 6"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local pistilZone = squareZone(24834, 20416, "Pistil 7 G6")
+	pistilZone:setColor(0,128,0)
+    --[[stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 6"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -6953,6 +7201,7 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
+	]]--
 	--Relay-13
 	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
 	--relay13Zone:setColor(0,255,0)
@@ -24270,13 +24519,13 @@ function detachAnythingFromNPS()
 	addGMFunction("-Main from detach",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
 	local object_list = getGMSelection()
-	if #object_list < 1 or #object_list > 1 then
+	if #object_list < 1 then
 		addGMFunction("+Select object",detachAnythingFromNPS)
 		return
 	end
-	local current_selected_object = object_list[1]
-	local current_selected_object_type = current_selected_object.typeName
-	update_system:removeUpdateNamed(current_selected_object,"attached")
+	for _,current_selected_object in ipairs(object_list) do
+		update_system:removeUpdateNamed(current_selected_object,"attached")
+	end
 end
 ---------------------------
 --	Order Ship > Attach  --
@@ -24291,7 +24540,7 @@ function attachAnythingToNPS()
 	addGMFunction("-Main from attach",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
 	local object_list = getGMSelection()
-	if #object_list < 1 or #object_list > 1 then
+	if #object_list < 1 then
 		addGMFunction("+Select object",attachAnythingToNPS)
 		return
 	end
@@ -24302,8 +24551,7 @@ function attachAnythingToNPS()
 	cpu_ship_list = {}
 	for i=1,#nearby_objects do
 		local temp_object = nearby_objects[i]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" and temp_object ~= current_selected_object then
+		if temp_object.typeName == "CpuShip" and (not isInGMSelection(temp_object)) then
 			local ship_distance = distance(temp_object,current_selected_object)
 			table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
 		end
@@ -24314,26 +24562,35 @@ function attachAnythingToNPS()
 		end)
 		if #cpu_ship_list >= 1 then
 			addGMFunction(string.format("Attach to %s",cpu_ship_list[1].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[1].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[1].ship,relative_attach_x,relative_attach_y)
+				end
 			end)
 		end
 		if #cpu_ship_list >= 2 then
 			addGMFunction(string.format("Attach to %s",cpu_ship_list[2].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[2].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[2].ship,relative_attach_x,relative_attach_y)
+				end
 			end)
 		end
 		if #cpu_ship_list >= 3 then
 			addGMFunction(string.format("Attach to %s",cpu_ship_list[3].ship:getCallSign()), function()
-				local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
-				local relative_attach_x = pod_x - attach_target_x
-				local relative_attach_y = pod_y - attach_target_y
-				update_system:addAttachedUpdate(current_selected_object,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+				end
 			end)
 		end
 	else
@@ -32289,6 +32546,14 @@ end
 -- common utils --
 ------------------
 
+function isInGMSelection(obj)
+	for _,current in ipairs(getGMSelection()) do
+		if current == obj then
+			return true
+		end
+	end
+	return false
+end
 -- itterate through a table destroying all elements
 -- returns an empty table to try to be similar with removeInvalidFromEETable
 function destroyEEtable(tbl)
