@@ -28,7 +28,7 @@ getScriptStorage()._cuf_gm = nil
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.10"
+	scenario_version = "4.0.11"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -42,865 +42,6 @@ function init()
 	runAllTests()
 --	testObject = Artifact():setPosition(100,100):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorArrayMKI"):setDescriptions("sensor","good sensor")
 end
-function createSkeletonUniverse()
---Human navy stations that may always be reached by long range communication
---Fixed stellar features (black holes, worm holes, nebulae)
-	local icx = 11756
-	local icy = 1254
-	local nukeAvail = true
-	local empAvail = true
-	local mineAvail = true
-	local homeAvail = true
-	local hvliAvail = true
-	local tradeFood = true
-	local tradeMedicine = true
-	local tradeLuxury = true
-	CubicMineUpdateObject = CubicMineObject
-	CubicMineObject:addToUpdate()
-	skeleton_stations = {}
-	station_names = {}
-	--Icarus
-	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
-    stationIcarus:setShortRangeRadarRange(20000)
-    stationIcarus.comms_data = {
-    	friendlyness = 75,
-        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
-        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
-        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{
-        	supplydrop = math.random(90,110), 
-        	reinforcements = math.random(140,160),
-   			hornetreinforcements =	math.random(75,125),
-			phobosreinforcements =	math.random(175,225),
-			shield_overcharge = math.random(1,5)*5,
-        },
-        jump_overcharge =		true,
-        shield_overcharge =		true,
-        probe_launch_repair =	true,
-        hack_repair =			true,
-        scan_repair =			true,
-        combat_maneuver_repair=	true,
-        self_destruct_repair =	true,
-        tube_slow_down_repair =	true,
-        sensor_boost = {value = 10000, cost = 0},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	food = 		{quantity = 10,		cost = 1},
-        			medicine =	{quantity = 10,		cost = 5}	},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "Shipyard for human navy ships. Regional headquarters. Development site for the Atlantis model ship",
-    	history = "As humans ran up against more and more unfriendly races, this station became the nexus for research and development of new space ship building technologies. After a few experimental accidents involving militarily driven scientists and fabrication specialists, the station was renamed from Research-37 to Icarus referencing the mythical figure that flew too close to the sun",
-    	idle_defense_fleet = {
-			DF1 = "MT52 Hornet",
-			DF2 = "MU52 Hornet",
-			DF3 = "MT52 Hornet",
-			DF4 = "MU52 Hornet",
-			DF5 = "Phobos T3",
-			DF6 = "Adder MK5",
-			DF7 = "Adder MK5",
-			DF8 = "Adder MK5",
-    	},
-	}
-	station_names[stationIcarus:getCallSign()] = {stationIcarus:getSectorName(), stationIcarus}
-	stationIcarus.skeleton_station = true
-	table.insert(skeleton_stations,stationIcarus)
-	--Kentar
-	kentar_x = 246000
-	kentar_y = 247000
-	--local kentarZone = squareZone(kentar_x,kentar_y, "Kentar 2")
-	--kentarZone:setColor(0,128,0)
-	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(kentar_x,kentar_y):setCallSign("Kentar 2"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
-    stationKentar:setShortRangeRadarRange(25000)
-    stationKentar.comms_data = {
-    	friendlyness = 68,
-        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
-        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
-        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{
-        	supplydrop = math.random(90,110), 
-        	reinforcements = math.random(140,160),
-			shield_overcharge = math.random(1,5)*5,
-        },
-        jump_overcharge =		true,
-        shield_overcharge =		true,
-        probe_launch_repair =	true,
-        hack_repair =			true,
-        scan_repair =			true,
-        combat_maneuver_repair=	true,
-        self_destruct_repair =	true,
-        tube_slow_down_repair =	true,
-        sensor_boost = {value = 10000, cost = 0},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	food = 		{quantity = 10,		cost = 1},
-        			medicine =	{quantity = 10,		cost = 5},
-        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "Regional headquarters. Jumping off point for actions against Kraylor activity",
-    	history = "This used to be a scientific observation and research station. As the Kraylors have grown more agressive, it's been built up and serves as a strategic cornerstone for actions against the Kraylors. The name Kentar derives from Kentauros or Centaurus, after the nearby star's prominent position in the constellation Centaurus",
-    	idle_defense_fleet = {
-			DF1 = "MT52 Hornet",
-			DF2 = "MU52 Hornet",
-			DF3 = "MT52 Hornet",
-			DF4 = "MU52 Hornet",
-			DF5 = "Phobos T3",
-			DF6 = "Adder MK5",
-			DF7 = "Adder MK5",
-			DF8 = "Adder MK5",
-    	},
-	}
-	table.insert(skeleton_stations,stationKentar)
-	stationKentar.skeleton_station = true
-	station_names[stationKentar:getCallSign()] = {stationKentar:getSectorName(), stationKentar}
-	createFleurNebula()
-	BlackHole():setPosition(-12443,-23245)
-    BlackHole():setPosition(87747, -3384)
-    BlackHole():setPosition(80429, -10486)
-    BlackHole():setPosition(75695, 2427)
-    wormholeIcarus = WormHole():setPosition(-46716, 17958):setTargetPosition(19080, -19780)
-    wormholeIcarus.exit = "default"
-    wormholeIcarus.default_exit_point_x = 19080
-    wormholeIcarus.default_exit_point_y = -19780
-    wormholeIcarus.kentar_exit_point_x = 251000
-    wormholeIcarus.kentar_exit_point_y = 250000
-    wormhole_cindy = WormHole():setPosition(150513, -44624)
-    wormhole_exuari_pirate = WormHole():setPosition(216461,-376269)
-    local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
-    local wc_exit_x, wc_exit_y = vectorFromAngle(random(0,360),random(2000,2500))
-    wormhole_cindy:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
-    local wc_x, wc_y = wormhole_cindy:getPosition()
-    local wep_exit_x, wep_exit_y = vectorFromAngle(random(0,300),random(2000,2500))
-    wormhole_exuari_pirate:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
-    wormhole_cindy:onTeleportation(function(self, teleportee)
-		local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
-		local wc_exit_x, wc_exit_y = vectorFromAngle(random(0,360),random(2000,2500))
-		if self ~= nil then
-		    self:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
-		end
-		if teleportee ~= nil then
-		    if teleportee.typeName == "PlayerSpaceship" then
-		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
-			end
-		end
-    end)
-    wormhole_exuari_pirate:onTeleportation(function(self, teleportee)
-		local wc_x, wc_y = wormhole_cindy:getPosition()
-		local wep_exit_x, wep_exit_y = vectorFromAngle(random(0,300),random(2000,2500))
-		if self ~= nil then
-			self:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
-		end
-		if teleportee ~= nil then
-		    if teleportee.typeName == "PlayerSpaceship" then
-		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
-			end
-		end
-    end)
-    --Astron
-    astron_x = 462523
-    astron_y = 317769
---	local astronZone = squareZone(astron_x,astron_y, "Astron Mark 2")
---	astronZone:setColor(0,128,0)
-    stationAstron = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(astron_x, astron_y):setCallSign("Astron"):setDescription("Military Observation Post"):setCommsScript(""):setCommsFunction(commsStation)
-    stationAstron:setShortRangeRadarRange(4500)
-    stationAstron.comms_data = {
-    	friendlyness = 68,
-        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
-        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
-        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{
-        	supplydrop = math.random(100,140), 
-        	reinforcements = math.random(140,180),
-			shield_overcharge = math.random(1,5)*5,
-        },
-        jump_overcharge =		true,
-        shield_overcharge =		true,
-        probe_launch_repair =	true,
-        hack_repair =			true,
-        scan_repair =			true,
-        combat_maneuver_repair=	true,
-        self_destruct_repair =	true,
-        tube_slow_down_repair =	true,
---		sensor_boost = {value = 5000, cost = 0},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	food = 		{quantity = 10,		cost = 1},
-        			medicine =	{quantity = 10,		cost = 5},
-        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "Military observation post established to observe any hostile Ghost activity",
-    	history = "Civilian scientists and military personnel share observation facilities on this station. The scientists are interested in the nebulae, the military, the Ghosts. Other civilian personnel are evaluating the mining possibilities of the asteroids. The station is named after the astrophysical observatory that circled Earth in the mid 1980's",
-    	idle_defense_fleet = {
-			DF1 = "MT52 Hornet",
-			DF2 = "MU52 Hornet",
-			DF3 = "MT52 Hornet",
-			DF4 = "MU52 Hornet",
-    	},
-	}
-	table.insert(skeleton_stations,stationAstron)
-	stationAstron.skeleton_station = true
-	station_names[stationAstron:getCallSign()] = {stationAstron:getSectorName(), stationAstron}
-	--Lafrina
-	lafrina_x = -250369
-	lafrina_y = 293390
-	stationLafrina = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(lafrina_x,lafrina_y):setCallSign("Lafrina"):setDescription("Black hole observation and research"):setCommsScript(""):setCommsFunction(commsStation)
-    stationLafrina:setShortRangeRadarRange(14500)
-    stationLafrina.comms_data = {
-    	friendlyness = 86,
-        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
-        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = math.random(13,20),	EMP = 9 },
-        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{
-        	supplydrop = math.random(90,110), 
-        	reinforcements = math.random(140,160),
-			shield_overcharge = math.random(1,5)*5,
-        },
-        jump_overcharge =		true,
-        shield_overcharge =		true,
-        probe_launch_repair =	true,
-        hack_repair =			true,
-        scan_repair =			true,
-        combat_maneuver_repair=	true,
-        self_destruct_repair =	true,
-        tube_slow_down_repair =	true,
-        sensor_boost = {value = 5000, cost = 0},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	food = 		{quantity = 10,		cost = 1},
-        			medicine =	{quantity = 10,		cost = 5},
-        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "Black hole research conducted in conjunction with Arlenian scientists",
-    	history = "The Arlenians built this station to observe the black hole. When Arlenian government funding started running short, they entered into a mutual research sharing agreement with the Human Navy and turned over primary administration of the station to the Human Navy. The CUF has taken over that protection and support contract to facilitate the scientific research and to have a convenient contact point for Arlenain/Human correspondence",
-    	idle_defense_fleet = {
-			DF1 = "MT52 Hornet",
-			DF2 = "MU52 Hornet",
-			DF3 = "MT52 Hornet",
-			DF4 = "MU52 Hornet",
-			DF5 = "Phobos T3",
-			DF6 = "Adder MK5",
-			DF7 = "Adder MK5",
-			DF8 = "Adder MK5",
-    	},
-	}
-	table.insert(skeleton_stations,stationLafrina)
-	stationLafrina.skeleton_station = true
-	station_names[stationLafrina:getCallSign()] = {stationLafrina:getSectorName(), stationLafrina}
-	--Teresh
-	teresh_x = 791712
-	teresh_y = 110775
-    stationTeresh = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCallSign("Teresh"):setPosition(791712, 110775):setCommsScript(""):setDescription("Regional CUF HQ"):setCommsFunction(commsStation)
-	stationTeresh:setShortRangeRadarRange(25000)
-    stationTeresh.comms_data = {
-    	friendlyness = 75,
-        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
-        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 12,					EMP = math.random(9,11) },
-        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{
-        	supplydrop = math.random(90,110), 
-        	reinforcements = math.random(140,160),
-   			hornetreinforcements =	math.random(75,125),
-			phobosreinforcements =	math.random(175,225),
-			shield_overcharge = math.random(1,5)*5,
-        },
-        jump_overcharge =		true,
-        shield_overcharge =		true,
-        probe_launch_repair =	true,
-        hack_repair =			true,
-        scan_repair =			true,
-        combat_maneuver_repair=	true,
-        self_destruct_repair =	true,
-        tube_slow_down_repair =	true,
-        sensor_boost = {value = 10000, cost = 0},
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	food = 		{quantity = 10,		cost = 1},
-        			medicine =	{quantity = 10,		cost = 5}	},
-        trade = {	food = false, medicine = false, luxury = false },
-        public_relations = true,
-        general_information = "Regional headquarters. Commercial and educational hub.",
-    	history = "Teresh is a diminuative for Valentina Tereshkova, the first female astronaut in space in the late 20th century. Several station founders were historical enthusiasts and chose the name. The university also takes the name Teresh",
-    	idle_defense_fleet = {
-			DF1 = "MT52 Hornet",
-			DF2 = "MU52 Hornet",
-			DF3 = "MT52 Hornet",
-			DF4 = "MU52 Hornet",
-			DF5 = "Phobos T3",
-			DF6 = "Adder MK8",
-			DF7 = "Adder MK8",
-			DF8 = "Elara P2",
-    	},
-	}
-	station_names[stationTeresh:getCallSign()] = {stationTeresh:getSectorName(), stationTeresh}
-	stationTeresh.skeleton_station = true
-	table.insert(skeleton_stations,stationTeresh)
-end
-function createFleurNebula()
-    Nebula():setPosition(22028, 25793):setCallSign("Fleur")
-    Nebula():setPosition(13381, 37572)
-    Nebula():setPosition(20835, 35783)
-    Nebula():setPosition(15319, 24601)
-    Nebula():setPosition(16363, 30415)
-    Nebula():setPosition(22923, 17295)
-    Nebula():setPosition(27843, 19680)
-    Nebula():setPosition(31123, 16997)
-    --Borlan area nebula
-    Nebula():setPosition(88464, 45469)
-    Nebula():setPosition(77847, 35928)
-    Nebula():setPosition(79353, 42959)
-    Nebula():setPosition(75264, 47622)
-    Nebula():setPosition(86671, 36861)
-    Nebula():setPosition(96857, 44322)
-end
-function addPlayerShip(name,typeName,func,ftl)
-	assert(type(name)=="string")
-	assert(type(typeName)=="string")
-	assert(type(playerShipStats[typeName])=="table")
-	assert(type(func)=="function")
-	assert(type(ftl)=="string")
-	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
-end
--- there are probably a few extra round trips than needed for the web tool
--- end could be made implict when all of the segments have been uploaded
--- currently it relies on the web tool to call it at the right time
--- start could also be merged with the first segment
--- this may improve the web tools responsiveness
--- there are other places to optimise first though
-function webUploadStart(parts)
-	local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
-	getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = parts, parts = {}}
-	getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
-	return slot_id
-end
-function webUploadSegment(slot,part,upload_part)
-	assert(type(slot)=="number")
-	assert(type(part)=="number")
-	assert(type(upload_part)=="string")
-	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
-	assert(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] == nil)
-	getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] = upload_part
-end
--- this probably wants splitting into multiple parts
--- but its currently used as one command
--- pay very careful attention to what happens with multiple web tools if edited
-function webUploadEndAndRunAndFree(slot)
-	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
-	local function_str = ""
-	for i = 1, getScriptStorage()._cuf_gm.uploads.slots[slot].total_parts do
-		assert(type(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i])=="string")
-		function_str = function_str .. getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i]
-	end
-	local fn, err = load(function_str)
-	getScriptStorage()._cuf_gm.uploads.slots[slot] = nil
-	if fn then
-		return fn()
-	else
-		print(err)
-		return {error = err}
-	end
-end
-function isValidVariableDescriptionType(type_str)
-	assert(type(type_str) == "string")
-	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" or type_str == "meta" then
-		return true
-	else
-		return false
-	end
-end
-function isWebTableFunction(tbl)
-	if type(tbl)=="table" and tbl.call ~= nil and type(tbl.call) == "string" then
-		return true
-	else
-		return false
-	end
-end
-function checkVariableDescriptions(args_table)
-	for _,arg_description in ipairs(args_table) do
-		local arg_type = arg_description[2]
-		for arg_name,arg_value in pairs(arg_description) do
-			if arg_name == 1 then -- name
-				assert(type(arg_value)=="string")
-				-- _this is the name for the table describing the current function, we cant also have an argument of _this
-				assert(arg_value ~= "_this")
-				-- call as an argument name would cause an alarming degree of chaos
-				assert(arg_value ~= "call")
-			elseif arg_name == 2 then -- type
-				assert(isValidVariableDescriptionType(arg_value))
-			elseif arg_name == 3 then -- default
-				if arg_value ~= nil then
-					-- this is to check the default argument if present is of the correct type
-					-- sadly it is much harder to check functions as they will be checked as defined
-					-- as such we will just assume they are OK for now
-					if not isWebTableFunction(arg_value) then
-						webConvertArgument(arg_value,arg_description)
-					end
-				end
-			elseif arg_name == 4 then -- optional array
-				assert(arg_value == "array")
-			elseif arg_name == "min" then
-				assert(arg_type == "number")
-			elseif arg_name == "max" then
-				assert(arg_type == "number")
-			elseif arg_name == "caller_provides" then
-				assert(arg_type == "function")
-			else
-				assert(false,"arg_description has a key that describeFunction doesnt about")
-			end
-		end
-	end
-end
-
--- the name is better as describeAndExportFunctionForWeb, but there are going to be an absurd number
--- of these so brevity is important, I have no objection if a find and replace is desired
---
--- all of the describeFunction calls in the sandbox are run before init()
--- this allows describeFunction to be next to the function definition
--- note the web tool may call describeFunction after init has been called
--- as such dont assume in init is called that the exported functions will never change
---
--- description format is
--- 1) name of the function as a string (the function call itself is pulled out of the global table)
---                         as such anonymous functions are presently not supported
--- 2) function description, which is a table or a string or nil
---              if it is a string then it is assumed as being function_description[1]
--- 2.1) function_description[1] is a description used for the web tool
--- 2.2) function_description[2+] is a list of tags to be used for sorting on the web UI
--- 3) args_table a table of tables is an optional table describing each argument given to the function
--- 3.0) each inner table is defined as follows
--- 3.1) [1] name of the argument
--- 3.2) [2] type of the argument - see below for types
--- 3.3) [3] the default value for the argument, note this is not checked for type/value and is current web tool only
--- 3.4) [4] may be the string "array" in which case this is a table from [1] to #table, this is badly tested, but required for the web tool, if this is going to be used elsewhere better testing is needed
--- 3.4) the remainder of the table is optional tags based on type
--- for numbers -
--- min - minimum value expected
--- max - maximum value expected
--- for function
--- caller_provides - the values this function provides for the function call (this will stop them being shown on the web tool)
---
--- types
--- string - a lua string - example = "the answer"
--- number - a lua number - example = 42
--- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
--- npc_ship_template - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
--- function - the caller recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates} renaming the caller_provides list is possible with a table called _caller_provides_rename - look at webConvertScalar for details
-function describeFunction(name,function_description,args_table)
-	if getScriptStorage()._cuf_gm == nil then
-		setupWebGMTool()
-	end
-	assert(type(name) == "string")
-	assert(type(function_description) == "table" or type(function_description) == "string" or function_description == nil)
-	if type(function_description) ~= "table" then
-		function_description = {function_description}
-	end
-	assert(type(args_table)=="table" or args_table == nil)
-	args_table = args_table or {}
-	local fn = _ENV[name]
-	assert(type(fn)=="function",name)
-	checkVariableDescriptions(args_table)
-	args_table._this = function_description
-	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
-end
-
--- convert a single value from a web call
--- only copes with converting functions from the web calling table format
-function webConvertScalar(value, argSettings)
-	local convert_to = argSettings[2]
-	local is_web_function = isWebTableFunction(value)
-	if is_web_function and convert_to ~= "function" then
-		value = convertWebCallTableToFunction(value)
-	end
-	if convert_to == "function" then
-		local caller_provides = {}
-		if argSettings.caller_provides then
-			for _,var in pairs(argSettings.caller_provides) do
-				if value._caller_provides_rename ~= nil then
-					if value._caller_provides_rename[var] ~= nil then
-						var = value._caller_provides_rename[var]
-					end
-				end
-				table.insert(caller_provides,var)
-			end
-		end
-		value = convertWebCallTableToFunction(value,caller_provides)
-		assert(type(value) == "function")
-	elseif convert_to == "string" then
-		assert(type(value) == "string")
-	elseif convert_to == "number" then
-		-- it is worth considering if min / max should be checked here or not
-		assert(type(value) == "number")
-	elseif convert_to == "position" then
-		assert(type(value) == "table")
-		assert(type(value.x) == "number")
-		assert(type(value.y) == "number")
-	elseif convert_to == "npc_ship_template" then
-		-- checking this is a valid template name would be nice
-		assert(type(value) == "string")
-	elseif convert_to == "meta" then
-		return value
-	else
-		assert(false,"unknown type " .. "\"" .. convert_to .. "\"")
-	end
-	return value
-end
-
-function webConvertArgument(value, argSettings)
-	local is_array = (argSettings[4] == "array")
-	if is_array then
-		for idx,scalar in ipairs(value) do
-			value[idx] = webConvertScalar(scalar, argSettings)
-		end
-	else
-		value = webConvertScalar(value, argSettings)
-	end
-	return value
-end
-
-function convertWebCallTableToFunction(args,caller_provides)
-	local caller_provides = caller_provides or {}
-	assert(type(caller_provides)=="table")
-	assert(isWebTableFunction(args))
-	local requested_function = getScriptStorage()._cuf_gm.functions[args.call]
-	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
-	assert(type(requested_function.fn) == "function")
-	assert(type(requested_function.args) == "table")
-	local do_we_need_to_wrap = false
-	for arg_num,arg in ipairs(requested_function.args) do
-		if arg[1] ~= caller_provides[arg_num] then
-			do_we_need_to_wrap = true
-		end
-		if arg[2] == "function" then
-			do_we_need_to_wrap = true
-		end
-	end
-	if not do_we_need_to_wrap then
-		return requested_function.fn
-	end
-	return function (...)
-		local callee_args = {}
-		local arg_num = 1
-		for _,arg in ipairs(requested_function.args) do
-			local arg_name = arg[1]
-			local arg_type = arg[2]
-			local arg_default = arg[3]
-			local in_caller_provides = nil
-			for arg_num,suppressed in ipairs(caller_provides) do
-				if suppressed == arg_name then
-					in_caller_provides = arg_num
-				end
-			end
-			local value
-			if in_caller_provides then
-				assert(select("#",...)<= in_caller_provides)
-				value = select(in_caller_provides,...)
-			elseif args[arg_name] then
-				value = args[arg_name]
-			else
-				value = arg_default
-				if arg_type == "meta" then
-					if arg_name == "_clientID" then
-						value = getScriptStorage()._cuf_gm.currentWebID
-					else
-						assert(false)
-					end
-				end
-				assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
-			end
-			callee_args[arg_num] = webConvertArgument(value,arg)
-			arg_num = arg_num +1
-		end
-		-- reminder it is possible for entires in requested_function can be nil
-		return requested_function.fn(table.unpack(callee_args,1,#requested_function.args))
-	end
-end
-
--- this is the main entry point for the web gm tool
--- get all serverMessages and call a function
--- we need to do both as one call due to synchronization issues
--- the web tool needs to know which serverMessages are from before
--- the function call and which are after.
--- As an example consider wanting infomation on if clicks are before
--- or after the onGMClick function has been changed
--- currently serverMessages created during the function call and
--- before are merged, this is presently fine but may not be in future.
-function webCall(clientID,args)
-	if getScriptStorage()._cuf_gm.serverMessages == nil or getScriptStorage()._cuf_gm.serverMessages[clientID] == nil then
-		return {serverMessages = {msg = "invalid clientID"}}
-	end
-	local ret = {}
-	if args ~= nil then
-		getScriptStorage()._cuf_gm.currentWebID = clientID
-		ret.ret = callWithErrorHandling(convertWebCallTableToFunction(args))
-	end
-	ret.serverMessages = getScriptStorage()._cuf_gm.serverMessages[clientID]
-	getScriptStorage()._cuf_gm.serverMessages[clientID] = {}
-	return ret
-end
-
--- this is fairly expensive in CPU terms
--- at the time of testing on my desktop it is about 80ms of CPU time
--- given the expected amount of times running this is probably acceptable
--- this could be cached in 2 places to remove this if it becomes an issue
--- the web tool could store inside of webStorage and only request on the
--- event of a version missmatch for EE or sandbox
--- caching is possible within the sandbox, but I have not tested if the
--- expensive part is walking over the fairly large amount of data to be copied
--- in which case it wont help
-function newWebClient()
-	getScriptStorage()._cuf_gm.webID = getScriptStorage()._cuf_gm.webID + 1
-	local webID = getScriptStorage()._cuf_gm.webID
-	getScriptStorage()._cuf_gm.serverMessages[webID] = {}
-	return {
-		id = webID,
-		cpushipSoftTemplates = getCpushipSoftTemplates(),
-		modelData = getModelData(),
-		extraTemplateData = getExtraTemplateData(),
-		functionDescriptions = getWebFunctionDescriptions()
-	}
-end
-
-function addWebMessageForClient(clientID,msg)
-	assert(type(getScriptStorage()._cuf_gm.serverMessages[clientID]) == "table")
-	table.insert(getScriptStorage()._cuf_gm.serverMessages[clientID],msg)
-end
-
-function getCpushipSoftTemplates()
-	local softTemplates = {}
-	for ship_template_name,template in pairs(ship_template) do
-		local this_ship = {}
-		-- shallow copy, this should be moved to a library
-		for key,value in pairs(template) do
-			this_ship[key] = value
-		end
-
-		this_ship.name = ship_template_name
-		-- the gm button name != the typeName (sometimes)
-		-- we need to have both later in the web tool so we
-		-- to create a real ship to find the type name
-		local ship = this_ship.create("Human Navy",this_ship.name)
-		this_ship["type_name"] = ship:getTypeName()
-		ship:destroy()
-		this_ship.create = nil -- remove functions from the table
-		table.insert(softTemplates,this_ship)
-	end
-	return softTemplates
-end
-
--- the original use for this is beam positions
--- this should probably be available inside of lua without doing this
--- if beam position is exported consider reviewing if this is still needed
--- this may be expensive in CPU terms - see newWebClient
-function getModelData()
-	local models = {}
-	local ModelDataOrig = ModelData
-
-	_G.ModelData = function ()
-		local data = {
-			BeamPosition = {}
-		}
-		local ret = {
-			setName = function (self,name)
-				data.Name=name
-				return self
-			end,
-			setMesh = function (self,mesh)
-				data.Mesh=mesh
-				return self
-			end,
-			setTexture = function (self,texture)
-				data.Texture=texture
-				return self
-			end,
-			setSpecular = function (self,specular)
-				data.Specular=specular
-				return self
-			end,
-			setIllumination = function (self,illumination)
-				data.Illumination = illumination
-				return self
-			end,
-			setRenderOffset = function (self,x,y,z)
-				data.RenderOffset = {x=x,y=y,z=z}
-				return self
-			end,
-			setScale = function (self,scale)
-				data.Scale = scale
-				return self
-			end,
-			setRadius = function (self,radius)
-				data.Radius = radius
-				return self
-			end,
-			setCollisionBox = function (self,x,y)
-				data.CollisionBox = {x=x, y=y, z=z}
-				return self
-			end,
-			addBeamPosition = function (self,x,y,z)
-				if data.BeamPosition == nil then
-					data.BeamPosition = {}
-				end
-				table.insert(data.BeamPosition,{x=x, y=y, z=z})
-				return self
-			end,
-			addEngineEmitter = function (self,x,y,z)
-				if data.EngineEmitter == nil then
-					data.EngineEmitter = {}
-				end
-				table.insert(data.EngineEmitter,{x=x, y=y, z=z})
-				return self
-			end,
-			addTubePosition = function (self,x,y,z)
-				if data.TubePosition == nil then
-					data.TubePosition = {}
-				end
-				table.insert(data.TubePosition,{x=x, y=y, z=z})
-				return self
-			end
-		}
-		table.insert(models,data)
-		return ret
-	end
-	require("model_data.lua")
-
-	_G.ModelData = ModelDataOrig
-	return models
-end
-
--- this was originally written to help the web tool
--- it only exports the members without getters
--- with some EE engine fixes it may be possible to remove
--- this may be expensive in CPU terms - see newWebClient
-function getExtraTemplateData()
-	local templates = {}
-	local ShipTemplateOrig = ShipTemplate
-	_G.ShipTemplate = function ()
-		local data = {
-			Type = "ship"
-		}
-		local ret = {
-			setName = function (self,name)
-				data.Name=name
-				return self
-			end,
-			-- we need to look up the model to find the beam origin points
-			setModel = function (self,model)
-				data.Model = model
-				return self
-			end,
-			 -- SpaceShip::getRadarTrace() currently doesn't exist
-			setRadarTrace = function (self,radarTrace)
-				data.RadarTrace = radarTrace
-				return self
-			end,
-			-- the template files chain templates together, we need to mimic this or have odd errors
-			copy = function (self,name)
-				return ShipTemplate()
-					:setModel(data.Model)
-					:setName(name)
-					:setRadarTrace(data.RadarTrace)
-					:setType(data.Type)
-			end,
-			-- we need to be able to figure out if we are looking at a CpuShip, PlayerSpaceship or SpaceStation
-			-- this may? not be needed if the other functions where exported
-			setType = function (self, type)
-				data.Type = type
-				return self
-			end,
-		}
-		-- any unknown entries will just return a function returning self
-		-- this makes us mostly not care if new things are exported from EE
-		setmetatable(ret,{__index =
-			function ()
-				return function (self)
-					return self
-				end
-			end})
-		table.insert(templates,data)
-		return ret
-	end
-	require("shipTemplates.lua")
-
-	_G.ShipTemplate = ShipTemplateOrig
-	return templates
-end
-
-function getWebFunctionDescriptions()
-	local ret = {}
-	-- strip out the function itself
-	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
-		local copy = {}
-		for key,value in pairs(fn.args) do
-			copy[key] = value
-		end
-		ret[name] = copy
-	end
-	return ret
-end
-
-function setupWebGMTool()
-	-- currently (2021/09/02) getScriptStorage() bleeds through
-	-- scenario restarts, this is a problem, I am also willfully
-	-- ignoring this problem at the moment, as at some point the engine should be fixed
-	-- so this doesnt happen, be aware that to properly test somethings
-	-- you may need to close and reopen empty epsilon and that
-	-- a script restart may not be enough
-	getScriptStorage()._cuf_gm = {
-		-- _ENV is kind of alarming to export, but it allows some very powerful web tools
-		_ENV = _ENV,
-		-- used for uploading data larger than EE's maximum post size
-		-- each upload slot has the number of segements expected for that upload and the current slot id
-		-- while not well tested it should allow multiple web tools to work at once without jumbling each others uploads
-		-- better tested is that all the segements can be uploaded at once saving round trip times
-		-- there are currently some issues with round trips due to bugs in EE regarding escape charaters
-		uploads = {
-			slots = {},
-			slot_id = 0,
-		},
-		-- we dont start at 0 as that makes it easy for clashes web clients that have
-		-- been running since the last sandbox restart
-		-- in an ideal world we would synchronise with web clients between runs
-		-- but that is somewhere between hard and impossible
-		-- if you see a real world clash and have to debug it you have my sympathies
-		-- and a suggestion that you go and gamble at borlan as you have spent your bad luck for the day
-		webID = irandom(0,1000000),
-		serverMessages = {},
-		-- all the functions exported to the web tool
-		functions = {
-			-- see describeFunction for details
-		},
-		webUploadStart = webUploadStart,
-		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
-		webUploadSegment = webUploadSegment,
-		webCall = webCall,
-		newWebClient = newWebClient
-	}
-end
-
-function addGMClickedMessage(_clientID,location)
-	addWebMessageForClient(_clientID,{msg = "gmClicked", x = location.x, y = location.y})
-end
-describeFunction("addGMClickedMessage",nil,{
-	{"_clientID","meta"},
-	{"location", "position"}})
-
-function gm_click_wrapper(onclick)
-	onGMClick(function (x,y)
-		onclick({x = x, y = y})
-	end)
-end
-describeFunction("gm_click_wrapper",nil,
-	{{"onclick", "function", {call = "null_function"},caller_provides = {"location"}}})
-
--- stock EE / lua functions
-describeFunction("irandom",nil,
-	{
-		{"min","number"},
-		{"max","number"}
-	})
-
 function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
@@ -1280,6 +421,57 @@ function setConstants()
 	-- rough hexagonal deployment
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
+
+	fly_formation = {
+		["V"] =		{
+						{angle = 60	, dist = 1},
+						{angle = 300, dist = 1},
+					},
+		["Vac"] =	{
+						{angle = 30	, dist = 1},
+						{angle = 330, dist = 1},
+					},
+		["V4"] =	{
+						{angle = 60	, dist = 1},
+						{angle = 300, dist = 1},
+						{angle = 60	, dist = 2},
+						{angle = 300, dist = 2},
+					},
+		["Vac4"] =	{
+						{angle = 30	, dist = 1},
+						{angle = 330, dist = 1},
+						{angle = 30	, dist = 2},
+						{angle = 330, dist = 2},
+					},
+		["A"] =		{
+						{angle = 120, dist = 1},
+						{angle = 240, dist = 1},
+					},
+		["Aac"] =	{
+						{angle = 150, dist = 1},
+						{angle = 210, dist = 1},
+					},
+		["A4"] =	{
+						{angle = 120, dist = 1},
+						{angle = 240, dist = 1},
+						{angle = 120, dist = 2},
+						{angle = 240, dist = 2},
+					},
+		["Aac4"] =	{
+						{angle = 150, dist = 1},
+						{angle = 210, dist = 1},
+						{angle = 150, dist = 2},
+						{angle = 210, dist = 2},
+					},
+		["/"] =		{
+						{angle = 60	, dist = 1},
+						{angle = 240, dist = 1},
+					},
+		["-"] =		{
+						{angle = 90	, dist = 1},
+						{angle = 270, dist = 1},
+					},
+	}
 
 	fleet_exclusions = {
 		["Nuke"]	= {letter = "N", exclude = false},
@@ -1951,7 +1143,852 @@ function setConstants()
 	kentar_commerce_assets = {}
 	kentar_commerce_timer = commerce_timer_interval
 end
+function createSkeletonUniverse()
+--Human navy stations that may always be reached by long range communication
+--Fixed stellar features (black holes, worm holes, nebulae)
+	local icx = 11756
+	local icy = 1254
+	local nukeAvail = true
+	local empAvail = true
+	local mineAvail = true
+	local homeAvail = true
+	local hvliAvail = true
+	local tradeFood = true
+	local tradeMedicine = true
+	local tradeLuxury = true
+	CubicMineUpdateObject = CubicMineObject
+	CubicMineObject:addToUpdate()
+	skeleton_stations = {}
+	station_names = {}
+	--Icarus
+	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+    stationIcarus:setShortRangeRadarRange(20000)
+    stationIcarus.comms_data = {
+    	friendlyness = 75,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
+        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornetreinforcements =	math.random(75,125),
+			phobosreinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Shipyard for human navy ships. Regional headquarters. Development site for the Atlantis model ship",
+    	history = "As humans ran up against more and more unfriendly races, this station became the nexus for research and development of new space ship building technologies. After a few experimental accidents involving militarily driven scientists and fabrication specialists, the station was renamed from Research-37 to Icarus referencing the mythical figure that flew too close to the sun",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Adder MK5",
+			DF7 = "Adder MK5",
+			DF8 = "Adder MK5",
+    	},
+	}
+	station_names[stationIcarus:getCallSign()] = {stationIcarus:getSectorName(), stationIcarus}
+	stationIcarus.skeleton_station = true
+	table.insert(skeleton_stations,stationIcarus)
+	--Kentar
+	kentar_x = 246000
+	kentar_y = 247000
+	--local kentarZone = squareZone(kentar_x,kentar_y, "Kentar 2")
+	--kentarZone:setColor(0,128,0)
+	stationKentar = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(kentar_x,kentar_y):setCallSign("Kentar 2"):setDescription("Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+    stationKentar:setShortRangeRadarRange(25000)
+    stationKentar.comms_data = {
+    	friendlyness = 68,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
+        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5},
+        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Regional headquarters. Jumping off point for actions against Kraylor activity",
+    	history = "This used to be a scientific observation and research station. As the Kraylors have grown more agressive, it's been built up and serves as a strategic cornerstone for actions against the Kraylors. The name Kentar derives from Kentauros or Centaurus, after the nearby star's prominent position in the constellation Centaurus",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Adder MK5",
+			DF7 = "Adder MK5",
+			DF8 = "Adder MK5",
+    	},
+	}
+	table.insert(skeleton_stations,stationKentar)
+	stationKentar.skeleton_station = true
+	station_names[stationKentar:getCallSign()] = {stationKentar:getSectorName(), stationKentar}
+	createFleurNebula()
+	BlackHole():setPosition(-12443,-23245)
+    BlackHole():setPosition(87747, -3384)
+    BlackHole():setPosition(80429, -10486)
+    BlackHole():setPosition(75695, 2427)
+    wormholeIcarus = WormHole():setPosition(-46716, 17958):setTargetPosition(19080, -19780)
+    wormholeIcarus.exit = "default"
+    wormholeIcarus.default_exit_point_x = 19080
+    wormholeIcarus.default_exit_point_y = -19780
+    wormholeIcarus.kentar_exit_point_x = 251000
+    wormholeIcarus.kentar_exit_point_y = 250000
+    wormhole_cindy = WormHole():setPosition(150513, -44624)
+    wormhole_exuari_pirate = WormHole():setPosition(216461,-376269)
+    local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
+    local wc_exit_x, wc_exit_y = vectorFromAngle(random(0,360),random(2000,2500))
+    wormhole_cindy:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
+    local wc_x, wc_y = wormhole_cindy:getPosition()
+    local wep_exit_x, wep_exit_y = vectorFromAngle(random(0,300),random(2000,2500))
+    wormhole_exuari_pirate:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
+    wormhole_cindy:onTeleportation(function(self, teleportee)
+		local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
+		local wc_exit_x, wc_exit_y = vectorFromAngle(random(0,360),random(2000,2500))
+		if self ~= nil then
+		    self:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
+		end
+		if teleportee ~= nil then
+		    if teleportee.typeName == "PlayerSpaceship" then
+		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+			end
+		end
+    end)
+    wormhole_exuari_pirate:onTeleportation(function(self, teleportee)
+		local wc_x, wc_y = wormhole_cindy:getPosition()
+		local wep_exit_x, wep_exit_y = vectorFromAngle(random(0,300),random(2000,2500))
+		if self ~= nil then
+			self:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
+		end
+		if teleportee ~= nil then
+		    if teleportee.typeName == "PlayerSpaceship" then
+		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
+			end
+		end
+    end)
+    --Astron
+    astron_x = 462523
+    astron_y = 317769
+--	local astronZone = squareZone(astron_x,astron_y, "Astron Mark 2")
+--	astronZone:setColor(0,128,0)
+    stationAstron = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(astron_x, astron_y):setCallSign("Astron"):setDescription("Military Observation Post"):setCommsScript(""):setCommsFunction(commsStation)
+    stationAstron:setShortRangeRadarRange(4500)
+    stationAstron.comms_data = {
+    	friendlyness = 68,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
+        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{
+        	supplydrop = math.random(100,140), 
+        	reinforcements = math.random(140,180),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+--		sensor_boost = {value = 5000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5},
+        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Military observation post established to observe any hostile Ghost activity",
+    	history = "Civilian scientists and military personnel share observation facilities on this station. The scientists are interested in the nebulae, the military, the Ghosts. Other civilian personnel are evaluating the mining possibilities of the asteroids. The station is named after the astrophysical observatory that circled Earth in the mid 1980's",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+    	},
+	}
+	table.insert(skeleton_stations,stationAstron)
+	stationAstron.skeleton_station = true
+	station_names[stationAstron:getCallSign()] = {stationAstron:getSectorName(), stationAstron}
+	--Lafrina
+	lafrina_x = -250369
+	lafrina_y = 293390
+	stationLafrina = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(lafrina_x,lafrina_y):setCallSign("Lafrina"):setDescription("Black hole observation and research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationLafrina:setShortRangeRadarRange(14500)
+    stationLafrina.comms_data = {
+    	friendlyness = 86,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = math.random(13,20),	EMP = 9 },
+        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 5000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5},
+        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Black hole research conducted in conjunction with Arlenian scientists",
+    	history = "The Arlenians built this station to observe the black hole. When Arlenian government funding started running short, they entered into a mutual research sharing agreement with the Human Navy and turned over primary administration of the station to the Human Navy. The CUF has taken over that protection and support contract to facilitate the scientific research and to have a convenient contact point for Arlenain/Human correspondence",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Adder MK5",
+			DF7 = "Adder MK5",
+			DF8 = "Adder MK5",
+    	},
+	}
+	table.insert(skeleton_stations,stationLafrina)
+	stationLafrina.skeleton_station = true
+	station_names[stationLafrina:getCallSign()] = {stationLafrina:getSectorName(), stationLafrina}
+	--Teresh
+	teresh_x = 791712
+	teresh_y = 110775
+    stationTeresh = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCallSign("Teresh"):setPosition(791712, 110775):setCommsScript(""):setDescription("Regional CUF HQ"):setCommsFunction(commsStation)
+	stationTeresh:setShortRangeRadarRange(25000)
+    stationTeresh.comms_data = {
+    	friendlyness = 75,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 12,					EMP = math.random(9,11) },
+        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornetreinforcements =	math.random(75,125),
+			phobosreinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Regional headquarters. Commercial and educational hub.",
+    	history = "Teresh is a diminuative for Valentina Tereshkova, the first female astronaut in space in the late 20th century. Several station founders were historical enthusiasts and chose the name. The university also takes the name Teresh",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Adder MK8",
+			DF7 = "Adder MK8",
+			DF8 = "Elara P2",
+    	},
+	}
+	station_names[stationTeresh:getCallSign()] = {stationTeresh:getSectorName(), stationTeresh}
+	stationTeresh.skeleton_station = true
+	table.insert(skeleton_stations,stationTeresh)
+end
+function createFleurNebula()
+    Nebula():setPosition(22028, 25793):setCallSign("Fleur")
+    Nebula():setPosition(13381, 37572)
+    Nebula():setPosition(20835, 35783)
+    Nebula():setPosition(15319, 24601)
+    Nebula():setPosition(16363, 30415)
+    Nebula():setPosition(22923, 17295)
+    Nebula():setPosition(27843, 19680)
+    Nebula():setPosition(31123, 16997)
+    --Borlan area nebula
+    Nebula():setPosition(88464, 45469)
+    Nebula():setPosition(77847, 35928)
+    Nebula():setPosition(79353, 42959)
+    Nebula():setPosition(75264, 47622)
+    Nebula():setPosition(86671, 36861)
+    Nebula():setPosition(96857, 44322)
+end
+function addPlayerShip(name,typeName,func,ftl)
+	assert(type(name)=="string")
+	assert(type(typeName)=="string")
+	assert(type(playerShipStats[typeName])=="table")
+	assert(type(func)=="function")
+	assert(type(ftl)=="string")
+	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
+end
+-------------------------------------
+--	Web GM tool related functions  --
+-------------------------------------
+function webUploadStart(parts)
+-- there are probably a few extra round trips than needed for the web tool
+-- end could be made implict when all of the segments have been uploaded
+-- currently it relies on the web tool to call it at the right time
+-- start could also be merged with the first segment
+-- this may improve the web tools responsiveness
+-- there are other places to optimise first though
+	local slot_id = getScriptStorage()._cuf_gm.uploads.slot_id
+	getScriptStorage()._cuf_gm.uploads.slots[slot_id] = {total_parts = parts, parts = {}}
+	getScriptStorage()._cuf_gm.uploads.slot_id = slot_id + 1
+	return slot_id
+end
+function webUploadSegment(slot,part,upload_part)
+	assert(type(slot)=="number")
+	assert(type(part)=="number")
+	assert(type(upload_part)=="string")
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] == nil)
+	getScriptStorage()._cuf_gm.uploads.slots[slot].parts[part] = upload_part
+end
+function webUploadEndAndRunAndFree(slot)
+-- this probably wants splitting into multiple parts
+-- but its currently used as one command
+-- pay very careful attention to what happens with multiple web tools if edited
+	assert(getScriptStorage()._cuf_gm.uploads.slots[slot] ~= nil)
+	local func_str = ""
+	for i = 1, getScriptStorage()._cuf_gm.uploads.slots[slot].total_parts do
+		assert(type(getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i])=="string")
+		func_str = func_str .. getScriptStorage()._cuf_gm.uploads.slots[slot].parts[i]
+	end
+	local fn, err = load(func_str)
+	getScriptStorage()._cuf_gm.uploads.slots[slot] = nil
+	if fn then
+		return fn()
+	else
+		print(err)
+		return {error = err}
+	end
+end
+function isValidVariableDescriptionType(type_str)
+	assert(type(type_str) == "string")
+	if type_str == "string" or type_str == "number" or type_str == "position" or type_str == "npc_ship_template" or type_str == "function" or type_str == "meta" then
+		return true
+	else
+		return false
+	end
+end
+function isWebTableFunction(tbl)
+	if type(tbl)=="table" and tbl.call ~= nil and type(tbl.call) == "string" then
+		return true
+	else
+		return false
+	end
+end
+function checkVariableDescriptions(args_table)
+	for _,arg_description in ipairs(args_table) do
+		local arg_type = arg_description[2]
+		for arg_name,arg_value in pairs(arg_description) do
+			if arg_name == 1 then -- name
+				assert(type(arg_value)=="string")
+				-- _this is the name for the table describing the current function, we cant also have an argument of _this
+				assert(arg_value ~= "_this")
+				-- call as an argument name would cause an alarming degree of chaos
+				assert(arg_value ~= "call")
+			elseif arg_name == 2 then -- type
+				assert(isValidVariableDescriptionType(arg_value))
+			elseif arg_name == 3 then -- default
+				if arg_value ~= nil then
+					-- this is to check the default argument if present is of the correct type
+					-- sadly it is much harder to check functions as they will be checked as defined
+					-- as such we will just assume they are OK for now
+					if not isWebTableFunction(arg_value) then
+						webConvertArgument(arg_value,arg_description)
+					end
+				end
+			elseif arg_name == 4 then -- optional array
+				assert(arg_value == "array")
+			elseif arg_name == "min" then
+				assert(arg_type == "number")
+			elseif arg_name == "max" then
+				assert(arg_type == "number")
+			elseif arg_name == "caller_provides" then
+				assert(arg_type == "function")
+			else
+				assert(false,"arg_description has a key that describeFunction doesnt about")
+			end
+		end
+	end
+end
+function describeFunction(name,func_description,args_table)
+-- the name is better as describeAndExportFunctionForWeb, but there are going to be an absurd number
+-- of these so brevity is important, I have no objection if a find and replace is desired
+--
+-- all of the describeFunction calls in the sandbox are run before init()
+-- this allows describeFunction to be next to the function definition
+-- note the web tool may call describeFunction after init has been called
+-- as such dont assume in init is called that the exported functions will never change
+--
+-- description format is
+-- 1) name of the function as a string (the function call itself is pulled out of the global table)
+--                         as such anonymous functions are presently not supported
+-- 2) function description, which is a table or a string or nil
+--              if it is a string then it is assumed as being func_description[1]
+-- 2.1) func_description[1] is a description used for the web tool
+-- 2.2) func_description[2+] is a list of tags to be used for sorting on the web UI
+-- 3) args_table a table of tables is an optional table describing each argument given to the function
+-- 3.0) each inner table is defined as follows
+-- 3.1) [1] name of the argument
+-- 3.2) [2] type of the argument - see below for types
+-- 3.3) [3] the default value for the argument, note this is not checked for type/value and is current web tool only
+-- 3.4) [4] may be the string "array" in which case this is a table from [1] to #table, this is badly tested, but required for the web tool, if this is going to be used elsewhere better testing is needed
+-- 3.4) the remainder of the table is optional tags based on type
+-- for numbers -
+-- min - minimum value expected
+-- max - maximum value expected
+-- for function
+-- caller_provides - the values this function provides for the function call (this will stop them being shown on the web tool)
+--
+-- types
+-- string - a lua string - example = "the answer"
+-- number - a lua number - example = 42
+-- position - a table of 2 numbers - {x,y} - example = {x = 6, y = 9}
+-- npc_ship_template - the template name for a npc ship, this can be set to valid softtemplates or stock templates - example "Adder MK4"
+-- function - the caller recives a function to be called, the caller provides a table which will be converted by convertWebCallTableToFunction - example = {call = getCpushipSoftTemplates} renaming the caller_provides list is possible with a table called _caller_provides_rename - look at webConvertScalar for details
+	local script_storage = getScriptStorage()
+	if script_storage._cuf_gm == nil then
+		setupWebGMTool()
+	end
+	assert(type(name) == "string")
+	assert(type(func_description) == "table" or type(func_description) == "string" or func_description == nil)
+	if type(func_description) ~= "table" then
+		func_description = {func_description}
+	end
+	assert(type(args_table)=="table" or args_table == nil)
+	args_table = args_table or {}
+	local fn = _ENV[name]
+	assert(type(fn)=="function",name)
+	checkVariableDescriptions(args_table)
+	args_table._this = func_description
+	getScriptStorage()._cuf_gm.functions[name] = {fn = fn, args = args_table}
+end
+function webConvertScalar(value, argSettings)
+-- convert a single value from a web call
+-- only copes with converting functions from the web calling table format
+	local convert_to = argSettings[2]
+	local is_web_function = isWebTableFunction(value)
+	if is_web_function and convert_to ~= "function" then
+		value = convertWebCallTableToFunction(value)
+	end
+	if convert_to == "function" then
+		local caller_provides = {}
+		if argSettings.caller_provides then
+			for _,var in pairs(argSettings.caller_provides) do
+				if value._caller_provides_rename ~= nil then
+					if value._caller_provides_rename[var] ~= nil then
+						var = value._caller_provides_rename[var]
+					end
+				end
+				table.insert(caller_provides,var)
+			end
+		end
+		value = convertWebCallTableToFunction(value,caller_provides)
+		assert(type(value) == "function")
+	elseif convert_to == "string" then
+		assert(type(value) == "string")
+	elseif convert_to == "number" then
+		-- it is worth considering if min / max should be checked here or not
+		assert(type(value) == "number")
+	elseif convert_to == "position" then
+		assert(type(value) == "table")
+		assert(type(value.x) == "number")
+		assert(type(value.y) == "number")
+	elseif convert_to == "npc_ship_template" then
+		-- checking this is a valid template name would be nice
+		assert(type(value) == "string")
+	elseif convert_to == "meta" then
+		return value
+	else
+		assert(false,"unknown type " .. "\"" .. convert_to .. "\"")
+	end
+	return value
+end
+function webConvertArgument(value, argSettings)
+	local is_array = (argSettings[4] == "array")
+	if is_array then
+		for idx,scalar in ipairs(value) do
+			value[idx] = webConvertScalar(scalar, argSettings)
+		end
+	else
+		value = webConvertScalar(value, argSettings)
+	end
+	return value
+end
+function convertWebCallTableToFunction(args,caller_provides)
+	local caller_provides = caller_provides or {}
+	assert(type(caller_provides)=="table")
+	assert(isWebTableFunction(args))
+	local requested_function = getScriptStorage()._cuf_gm.functions[args.call]
+	assert(requested_function ~= nil, "attempted to call an undefined function " .. args.call)
+	assert(type(requested_function.fn) == "function")
+	assert(type(requested_function.args) == "table")
+	local need_to_wrap = false
+	for arg_num,arg in ipairs(requested_function.args) do
+		if arg[1] ~= caller_provides[arg_num] then
+			need_to_wrap = true
+		end
+		if arg[2] == "function" then
+			need_to_wrap = true
+		end
+	end
+	if not need_to_wrap then
+		return requested_function.fn
+	end
+	return function (...)
+		local callee_args = {}
+		local arg_num = 1
+		for _,arg in ipairs(requested_function.args) do
+			local arg_name = arg[1]
+			local arg_type = arg[2]
+			local arg_default = arg[3]
+			local in_caller_provides = nil
+			for arg_num,suppressed in ipairs(caller_provides) do
+				if suppressed == arg_name then
+					in_caller_provides = arg_num
+				end
+			end
+			local value
+			if in_caller_provides then
+				assert(select("#",...)<= in_caller_provides)
+				value = select(in_caller_provides,...)
+			elseif args[arg_name] then
+				value = args[arg_name]
+			else
+				value = arg_default
+				if arg_type == "meta" then
+					if arg_name == "_clientID" then
+						value = getScriptStorage()._cuf_gm.currentWebID
+					else
+						assert(false)
+					end
+				end
+				assert(value ~= nil,"argument not in list " .. arg_name .. " for function " .. args.call .. " (and there is no default)")
+			end
+			callee_args[arg_num] = webConvertArgument(value,arg)
+			arg_num = arg_num +1
+		end
+		-- reminder it is possible for entires in requested_function can be nil
+		return requested_function.fn(table.unpack(callee_args,1,#requested_function.args))
+	end
+end
+function webCall(clientID,args)
+-- this is the main entry point for the web gm tool
+-- get all serverMessages and call a function
+-- we need to do both as one call due to synchronization issues
+-- the web tool needs to know which serverMessages are from before
+-- the function call and which are after.
+-- As an example consider wanting infomation on if clicks are before
+-- or after the onGMClick function has been changed
+-- currently serverMessages created during the function call and
+-- before are merged, this is presently fine but may not be in future.
+	if getScriptStorage()._cuf_gm.serverMessages == nil or getScriptStorage()._cuf_gm.serverMessages[clientID] == nil then
+		return {serverMessages = {msg = "invalid clientID"}}
+	end
+	local ret = {}
+	if args ~= nil then
+		getScriptStorage()._cuf_gm.currentWebID = clientID
+		ret.ret = callWithErrorHandling(convertWebCallTableToFunction(args))
+	end
+	ret.serverMessages = getScriptStorage()._cuf_gm.serverMessages[clientID]
+	getScriptStorage()._cuf_gm.serverMessages[clientID] = {}
+	return ret
+end
+function newWebClient()
+-- this is fairly expensive in CPU terms
+-- at the time of testing on my desktop it is about 80ms of CPU time
+-- given the expected amount of times running this is probably acceptable
+-- this could be cached in 2 places to remove this if it becomes an issue
+-- the web tool could store inside of webStorage and only request on the
+-- event of a version missmatch for EE or sandbox
+-- caching is possible within the sandbox, but I have not tested if the
+-- expensive part is walking over the fairly large amount of data to be copied
+-- in which case it wont help
+	getScriptStorage()._cuf_gm.webID = getScriptStorage()._cuf_gm.webID + 1
+	local webID = getScriptStorage()._cuf_gm.webID
+	getScriptStorage()._cuf_gm.serverMessages[webID] = {}
+	return {
+		id = webID,
+		cpushipSoftTemplates = getCpushipSoftTemplates(),
+		modelData = getModelData(),
+		extraTemplateData = getExtraTemplateData(),
+		functionDescriptions = getWebFunctionDescriptions()
+	}
+end
+function addWebMessageForClient(clientID,msg)
+	assert(type(getScriptStorage()._cuf_gm.serverMessages[clientID]) == "table")
+	table.insert(getScriptStorage()._cuf_gm.serverMessages[clientID],msg)
+end
+function getCpushipSoftTemplates()
+	local softTemplates = {}
+	for ship_template_name,template in pairs(ship_template) do
+		local this_ship = {}
+		-- shallow copy, this should be moved to a library
+		for key,value in pairs(template) do
+			this_ship[key] = value
+		end
 
+		this_ship.name = ship_template_name
+		-- the gm button name != the typeName (sometimes)
+		-- we need to have both later in the web tool so we
+		-- to create a real ship to find the type name
+		local ship = this_ship.create("Human Navy",this_ship.name)
+		this_ship["type_name"] = ship:getTypeName()
+		ship:destroy()
+		this_ship.create = nil -- remove functions from the table
+		table.insert(softTemplates,this_ship)
+	end
+	return softTemplates
+end
+function getModelData()
+-- the original use for this is beam positions
+-- this should probably be available inside of lua without doing this
+-- if beam position is exported consider reviewing if this is still needed
+-- this may be expensive in CPU terms - see newWebClient
+	local models = {}
+	local ModelDataOrig = ModelData
+
+	_G.ModelData = function ()
+		local data = {
+			BeamPosition = {}
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			setMesh = function (self,mesh)
+				data.Mesh=mesh
+				return self
+			end,
+			setTexture = function (self,texture)
+				data.Texture=texture
+				return self
+			end,
+			setSpecular = function (self,specular)
+				data.Specular=specular
+				return self
+			end,
+			setIllumination = function (self,illumination)
+				data.Illumination = illumination
+				return self
+			end,
+			setRenderOffset = function (self,x,y,z)
+				data.RenderOffset = {x=x,y=y,z=z}
+				return self
+			end,
+			setScale = function (self,scale)
+				data.Scale = scale
+				return self
+			end,
+			setRadius = function (self,radius)
+				data.Radius = radius
+				return self
+			end,
+			setCollisionBox = function (self,x,y)
+				data.CollisionBox = {x=x, y=y, z=z}
+				return self
+			end,
+			addBeamPosition = function (self,x,y,z)
+				if data.BeamPosition == nil then
+					data.BeamPosition = {}
+				end
+				table.insert(data.BeamPosition,{x=x, y=y, z=z})
+				return self
+			end,
+			addEngineEmitter = function (self,x,y,z)
+				if data.EngineEmitter == nil then
+					data.EngineEmitter = {}
+				end
+				table.insert(data.EngineEmitter,{x=x, y=y, z=z})
+				return self
+			end,
+			addTubePosition = function (self,x,y,z)
+				if data.TubePosition == nil then
+					data.TubePosition = {}
+				end
+				table.insert(data.TubePosition,{x=x, y=y, z=z})
+				return self
+			end
+		}
+		table.insert(models,data)
+		return ret
+	end
+	require("model_data.lua")
+
+	_G.ModelData = ModelDataOrig
+	return models
+end
+function getExtraTemplateData()
+-- this was originally written to help the web tool
+-- it only exports the members without getters
+-- with some EE engine fixes it may be possible to remove
+-- this may be expensive in CPU terms - see newWebClient
+	local templates = {}
+	local ShipTemplateOrig = ShipTemplate
+	_G.ShipTemplate = function ()
+		local data = {
+			Type = "ship"
+		}
+		local ret = {
+			setName = function (self,name)
+				data.Name=name
+				return self
+			end,
+			-- we need to look up the model to find the beam origin points
+			setModel = function (self,model)
+				data.Model = model
+				return self
+			end,
+			 -- SpaceShip::getRadarTrace() currently doesn't exist
+			setRadarTrace = function (self,radarTrace)
+				data.RadarTrace = radarTrace
+				return self
+			end,
+			-- the template files chain templates together, we need to mimic this or have odd errors
+			copy = function (self,name)
+				return ShipTemplate()
+					:setModel(data.Model)
+					:setName(name)
+					:setRadarTrace(data.RadarTrace)
+					:setType(data.Type)
+			end,
+			-- we need to be able to figure out if we are looking at a CpuShip, PlayerSpaceship or SpaceStation
+			-- this may? not be needed if the other functions where exported
+			setType = function (self, type)
+				data.Type = type
+				return self
+			end,
+		}
+		-- any unknown entries will just return a function returning self
+		-- this makes us mostly not care if new things are exported from EE
+		setmetatable(ret,{__index =
+			function ()
+				return function (self)
+					return self
+				end
+			end})
+		table.insert(templates,data)
+		return ret
+	end
+	require("shipTemplates.lua")
+
+	_G.ShipTemplate = ShipTemplateOrig
+	return templates
+end
+function getWebFunctionDescriptions()
+	local ret = {}
+	-- strip out the function itself
+	for name,fn in pairs(getScriptStorage()._cuf_gm.functions) do
+		local copy = {}
+		for key,value in pairs(fn.args) do
+			copy[key] = value
+		end
+		ret[name] = copy
+	end
+	return ret
+end
+function setupWebGMTool()
+	-- currently (2021/09/02) getScriptStorage() bleeds through
+	-- scenario restarts, this is a problem, I am also willfully
+	-- ignoring this problem at the moment, as at some point the engine should be fixed
+	-- so this doesnt happen, be aware that to properly test somethings
+	-- you may need to close and reopen empty epsilon and that
+	-- a script restart may not be enough
+	getScriptStorage()._cuf_gm = {
+		-- _ENV is kind of alarming to export, but it allows some very powerful web tools
+		_ENV = _ENV,
+		-- used for uploading data larger than EE's maximum post size
+		-- each upload slot has the number of segements expected for that upload and the current slot id
+		-- while not well tested it should allow multiple web tools to work at once without jumbling each others uploads
+		-- better tested is that all the segements can be uploaded at once saving round trip times
+		-- there are currently some issues with round trips due to bugs in EE regarding escape charaters
+		uploads = {
+			slots = {},
+			slot_id = 0,
+		},
+		-- we dont start at 0 as that makes it easy for clashes web clients that have
+		-- been running since the last sandbox restart
+		-- in an ideal world we would synchronise with web clients between runs
+		-- but that is somewhere between hard and impossible
+		-- if you see a real world clash and have to debug it you have my sympathies
+		-- and a suggestion that you go and gamble at borlan as you have spent your bad luck for the day
+		webID = irandom(0,1000000),
+		serverMessages = {},
+		-- all the functions exported to the web tool
+		functions = {
+			-- see describeFunction for details
+		},
+		webUploadStart = webUploadStart,
+		webUploadEndAndRunAndFree = webUploadEndAndRunAndFree,
+		webUploadSegment = webUploadSegment,
+		webCall = webCall,
+		newWebClient = newWebClient
+	}
+end
+function addGMClickedMessage(_clientID,location)
+	addWebMessageForClient(_clientID,{msg = "gmClicked", x = location.x, y = location.y})
+end
+describeFunction("addGMClickedMessage",nil,{
+	{"_clientID","meta"},
+	{"location", "position"}})
+function gm_click_wrapper(onclick)
+	onGMClick(function (x,y)
+		onclick({x = x, y = y})
+	end)
+end
+describeFunction("gm_click_wrapper",nil,
+	{{"onclick", "function", {call = "null_function"},caller_provides = {"location"}}})
+
+-- stock EE / lua functions
+describeFunction("irandom",nil,
+	{	{"min","number"},
+		{"max","number"}	})
 
 -- fleetCustom is a bunch of wrappers to make fleets of
 -- player ships have the same custom buttons / info / messages
@@ -1960,7 +1997,6 @@ end
 -- if there is a reason this should be looked at again
 fleetCustom = {}
 fleetCustom.__index = fleetCustom
-
 function fleetCustom:create()
 	local ret = {
 		-- a table with name (of the custom info) mapping to a table where
@@ -1974,16 +2010,14 @@ function fleetCustom:create()
 	setmetatable(ret,fleetCustom)
 	return ret
 end
-
--- internal to fleetCustom, should be called often, but doesnt need to be each update()
 function fleetCustom:_garbage_collection()
+-- internal to fleetCustom, should be called often, but doesnt need to be each update()
 	removeInvalidFromEETable(self._player_list)
 end
-
+function fleetCustom:addToFleet(player)
 -- note there currently is no removal from fleets
 -- this wouldnt be hard to write, but I currently see no
 -- use for it
-function fleetCustom:addToFleet(player)
 	self:_garbage_collection()
 	table.insert(self._player_list,player)
 	for _,custom in pairs(self._custom_info) do
@@ -2001,11 +2035,10 @@ function fleetCustom:addToFleet(player)
 		end
 	end
 end
-
+function fleetCustom:addCustomButton(position,name,caption,callback_inner,order)
 -- note the first argument in the callback becomes the player ship
 -- this makes this incompatable with the base game
 -- it really shouldnt for any real world code though
-function fleetCustom:addCustomButton(position,name,caption,callback_inner,order)
 	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		local callback = function ()
@@ -2015,7 +2048,6 @@ function fleetCustom:addCustomButton(position,name,caption,callback_inner,order)
 	end
 	self._custom_info[name]={"addCustomButton",position,name,caption,callback_inner,order}
 end
-
 function fleetCustom:addCustomInfo(player,position,name,caption,order)
 	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
@@ -2023,27 +2055,24 @@ function fleetCustom:addCustomInfo(player,position,name,caption,order)
 	end
 	self._custom_info[name]={"wrappedAddCustomInfo",position,name,caption,order}
 end
-
+function fleetCustom:addCustomMessage(position,name,caption)
 -- we arent even going to try to cache messages, we have no way to tell
 -- when players have clicked on them
 -- its possible if we wrap calls round addCustomMessage we could make it work
 -- but it opens questions like "do we show this if one ship has closed and one has opened"
 -- this is a logical thing to implement if it ends up being wanted though
-function fleetCustom:addCustomMessage(position,name,caption)
 	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomMessage(position,name,caption)
 	end
 end
-
--- see addCustomMessage
 function fleetCustom:addCustomMessageWithCallback(position,name,caption,callback)
+-- see addCustomMessage
 	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		p:wrappedAddCustomMessageWithCallback(position,name,caption,callback)
 	end
 end
-
 function fleetCustom:removeCustom(name)
 	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
@@ -2054,7 +2083,6 @@ end
 
 updateSystem = {}
 updateSystem.__index = updateSystem
-
 function updateSystem:create()
 	local update_sys = {}
 	setmetatable(update_sys,updateSystem)
@@ -2066,12 +2094,11 @@ function updateSystem:create()
 	update_sys._update_objects={}
 	return update_sys
 end
-
+function updateSystem:update(delta)
 -- update should be called each time the main update is called
 -- it will run all updates on all objects
 -- it will also handle the case that objects are deleted
 -- TODO it should have a way to say "remove this update", but currently doesn't
-function updateSystem:update(delta)
 	assert(type(self)=="table")
 	assert(type(delta)=="number")
 	-- we iterate through the _update_objects in reverse order so removed entries don't result in skipped updates
@@ -2088,15 +2115,15 @@ function updateSystem:update(delta)
 		end
 	end
 end
+function updateSystem:_clear_update_list()
 -- mostly to assist in testing
 -- while it could easily be done inline it hopefully will make it easier to change data structures if needed
-function updateSystem:_clear_update_list()
 	assert(type(self)=="table")
 	self._update_objects = {}
 end
+function updateSystem:_addToUpdateList(obj)
 -- treat _addToUpdateList as private to updateSystem
 -- this adds a object to the update list, while ensuring it isn't duplicated
-function updateSystem:_addToUpdateList(obj)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	for index = 0,#self._update_objects do
@@ -2145,13 +2172,13 @@ function updateSystem:getUpdateNamed(obj,name)
 	end
 	return nil
 end
+function updateSystem:addUpdate(obj,update_name,update_data)
 -- there is only one update function of each update_name
 -- update_data is a table with at a minimum a function called update which takes 3 arguments
 -- argument 1 - self (the table)
 -- argument 2 - delta - delta (as passed from the main update function)
 -- argument 3 - obj - the object being updated
 -- it is expected that data needed needed for the update function will be stored in the obj or the update_data table
-function updateSystem:addUpdate(obj,update_name,update_data)
 	assert(type(obj)=="table")
 	assert(type(update_name)=="string")
 	assert(type(update_data)=="table")
@@ -2219,11 +2246,11 @@ function updateSystem:getUpdateNamesOnObject(obj)
 	end
 	return ret
 end
+function updateSystem:addUpdateFixedPositions(obj, again_time, points)
 -- move an object along a list of points, cycling every again_time 
 -- Note: my text editor tries to pair repeat_time with other bits of code, so I changed it to again_time
 -- due to the copy made of points it is kind of memory hungry
 -- caution should be used if you are creating a lot of these objects
-function updateSystem:addUpdateFixedPositions(obj, again_time, points)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(again_time)=="number")
@@ -2303,6 +2330,7 @@ function updateSystem:addSlowAndAccurateElliptical(obj, cx, cy, orbit_duration, 
 	end
 	update_system:addUpdateFixedPositions(obj,orbit_duration,completion_points)
 end
+function updateSystem:addLinear(obj, dx, dy, speed)
 -- linear makes the object ignore the pull of wormholes and blackholes
 -- every use case seems to be a linear to / from 2 locations
 -- as such it probably wants to become addLinearTo
@@ -2311,7 +2339,6 @@ end
 -- should dx and dy not be scaled by speed
 -- all very good questions, also questions I dont have time to deal with right now
 -- so future code readers, feel free to come up with better answers and swtich over to them
-function updateSystem:addLinear(obj, dx, dy, speed)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(dx)=="number")
@@ -2332,8 +2359,8 @@ function updateSystem:addLinear(obj, dx, dy, speed)
 	}
 	self:addUpdate(obj,"linear to",update_data)
 end
--- when the owner is destroyed the owned objects is also destroyed
 function updateSystem:addOwned(owned, owner)
+-- when the owner is destroyed the owned objects is also destroyed
 	assert(type(self)=="table")
 	assert(type(owned)=="table")
 	assert(type(owner)=="table")
@@ -2349,8 +2376,8 @@ function updateSystem:addOwned(owned, owner)
 	}
 	self:addUpdate(owned,"owned",update_data)
 end
- -- addShieldDecayCurve and addEnergyDecayCurve are mostly the same, they probably should be merged in some way
 function updateSystem:addEnergyDecayCurve(obj, total_time, curve_x, curve_y)
+ -- addShieldDecayCurve and addEnergyDecayCurve are mostly the same, they probably should be merged in some way
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(total_time)=="number")
@@ -2494,10 +2521,10 @@ function updateSystem:_addGenericOverclock(obj, overboosted_time, boost_time, ov
 	add_extra_update_data(self,obj,update_data)
 	self:addUpdate(obj,overclock_name,update_data)
 end
+function updateSystem:addBeamBoostOverclock(obj, overboosted_time, boost_time, max_range_boosted, max_cycle_boosted)
 -- note calling this on a object that already has a boost enabled will probably not work as expected
 -- as it will pull the beam range/cycle time off of the boosted values rather than the default
 -- this should be fixed at some time
-function updateSystem:addBeamBoostOverclock(obj, overboosted_time, boost_time, max_range_boosted, max_cycle_boosted)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(overboosted_time)=="number")
@@ -2569,8 +2596,8 @@ function updateSystem:addEngineBoostUpdate(obj, overboosted_time, boost_time, ma
 		end
 	)
 end
--- this is horrifically specialized and I don't think there is any way around that
 function updateSystem:addOverclockableTractor(obj, spawnFunc)
+-- this is horrifically specialized and I don't think there is any way around that
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(spawnFunc)=="function")
@@ -2887,6 +2914,34 @@ function updateSystem:addChasingUpdate(obj, target, speed, callback_on_contact)
 	}
 	self:addUpdate(obj,"chasing",update_data)
 end
+function updateSystem:addFormationLeaderCommandUpdate(obj, distance)
+	assert(type(obj)=="table")			--generally another reference to self
+	assert(type(distance)=="number")	--how far away to allow enemies
+	local update_data = {
+		name = "formation leader command",
+		distance = distance,
+		edit = {
+			{name = "distance", fixedAdjAmount = 1000}
+		},
+		update = function (self, obj, delta)
+			assert(type(self)=="table")
+			assert(type(obj)=="table")
+			assert(type(delta)=="number")
+			if obj:areEnemiesInRange(self.distance) then
+				if self.formation_ships ~= nil then
+					for _, ship in ipairs(self.formation_ships) do
+						if ship ~= nil and ship:isValid() then
+							ship:orderDefendTarget(self)
+						end
+					end
+					self.formation_ships = nil
+				end
+				update_system:removeUpdateNamed(obj,"formation leader command")
+			end
+		end
+	}
+	self:addUpdate(obj,"formation leader command",update_data)
+end
 function updateSystem:addOrbitTargetUpdate(obj, orbit_target, distance, orbit_time, initial_angle)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")			--generally another reference to self that is orbiting
@@ -3012,11 +3067,11 @@ function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_c
 	}
 	self:addUpdate(obj,"patrol",update_data)
 end
+function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_time, random_jitter)
 -- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 -- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 -- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
 -- consider moving to the scheduler code that hemmond made
-function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_time, random_jitter)
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(callback)=="function")
@@ -3167,6 +3222,7 @@ function updateSystem:_test()
 	self:_clear_update_list()
 	assert(#self._update_objects==0)
 end
+
 function universe()
 	return {
 		-- each region has at least 1 function
@@ -3768,6 +3824,7 @@ end
 -- +DETACH					F	detachAnythingFromNPS
 -- +PATROL					F	setPatrolPoints
 -- +AI						D	setShipAI
+-- +FORMATION				F	setFormation
 -- DOCKED?					F	inline
 function orderShip()
 	clearGMFunctions()
@@ -3813,6 +3870,7 @@ function orderShip()
 		end
 	end
 	addGMFunction(button_label,setShipAI)
+	addGMFunction("+Formation",setFormation)
 	addGMFunction("Docked?",function()
 		local object_list = getGMSelection()
 		if #object_list == 1 then
@@ -24507,6 +24565,176 @@ function setShipAI()
 		orderShip()
 	end)
 end
+function setFormation()
+	clearGMFunctions()
+	addGMFunction("-Main from Formation",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	local formation_ship_selected = false
+	local select_label = "+Select Ship"
+	if formation_ship ~= nil and formation_ship:isValid() then
+		formation_ship_selected = true
+	end
+	if formation_ship_selected then
+		select_label = string.format("+Change from %s",formation_ship:getCallSign())
+	end
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local temp_object = object_list[1]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" then
+			if formation_ship_selected then
+				if formation_ship ~= temp_object then
+					select_label = string.format("+Chg %s to %s",formation_ship:getCallSign(),temp_object:getCallSign())
+				end
+			else
+				select_label = string.format("+Select %s",temp_object:getCallSign())
+			end
+		end
+	end
+	addGMFunction(select_label,changeFormationShip)
+	local button_label = "Set Formation Target"
+	if formation_ship_selected and formation_target_angle ~= nil then
+		local tva = VisualAsteroid():setPosition(formation_target_x,formation_target_y)
+		local sector_name = tva:getSectorName()
+		tva:destroy()
+		button_label = string.format("Form. Target %s,%i",sector_name,math.floor(formation_target_angle))
+	end
+	if gm_click_mode == "set formation target" then
+		button_label = string.format(">%s<",button_label)
+	end
+	addGMFunction(button_label,setFormationTarget)
+	button_label = "+Shape"
+	if formation_shape ~= nil then
+		button_label = string.format("%s %s",button_label,formation_shape)
+	end
+	addGMFunction(button_label,setFormationShape)
+	button_label = "+Spacing"
+	if formation_spacing ~= nil then
+		button_label = string.format("%s %.1f",button_label,formation_spacing/1000)
+	end
+	addGMFunction(button_label,setFormationSpacing)
+	button_label = "+Trigger"
+	if formation_trigger ~= nil then
+		button_label = string.format("%s %s",button_label,formation_trigger)
+	end
+	addGMFunction(button_label,setFormationTrigger)
+	if formation_spacing ~= nil and formation_shape ~= nil and formation_ship_selected and formation_target_angle ~= nil and formation_trigger ~= nil then
+		if formation_ship.formation_ships == nil then
+			addGMFunction("Create Formation",function()
+				local leader_x, leader_y = formation_ship:getPosition()
+				local fleet_prefix = generateCallSignPrefix()
+				formation_ship.formation_ships = {}
+				for _, form in ipairs(fly_formation[formation_shape]) do
+					local template = formation_ship:getTypeName()
+					local ship = ship_template[template].create(formation_ship:getFaction(),template)
+					local form_x, form_y = vectorFromAngleNorth(formation_target_angle + form.angle, form.dist * formation_spacing)
+					local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * formation_spacing)
+					ship:setPosition(leader_x + form_x, leader_y + form_y):setHeading(formation_target_angle):orderFlyFormation(formation_ship,form_prime_x,form_prime_y)
+					ship:setCallSign(generateCallSign(fleet_prefix))
+					if ship:hasWarpDrive() then
+						ship:setWarpSpeed(ship:getWarpSpeed()*1.1)
+					end
+					ship:setAcceleration(ship:getAcceleration()*1.1)
+					ship:setImpulseMaxSpeed(ship:getImpulseMaxSpeed()*1.1)
+					table.insert(formation_ship.formation_ships,ship)
+				end
+				formation_ship:orderFlyTowards(formation_target_x,formation_target_y)
+				update_system:addFormationLeaderCommandUpdate(formation_ship,formation_trigger)
+			end)
+		else
+			addGMFunction("Remove Formation",function()
+				for _, ship in ipairs(formation_ship.formation_ships) do
+					if ship ~= nil and ship:isValid() then
+						ship:destroy()
+					end
+				end
+				formation_ship.formation_ships = nil
+			end)
+		end
+	end
+end
+function setFormationTrigger()
+	clearGMFunctions()
+	for i=1000,8000,1000 do
+		local button_label = string.format("Trigger %i",i/1000)
+		if formation_trigger == i then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_trigger = i
+			setFormation()
+		end)
+	end
+end
+function setFormationSpacing()
+	clearGMFunctions()
+	for i=500,1200,100 do
+		local button_label = string.format("Spacing: %.1f",i/1000)
+		if formation_spacing == i then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_spacing = i
+			setFormation()
+		end)
+	end
+end
+function setFormationShape()
+	clearGMFunctions()
+	for form, slots in pairs(fly_formation) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setFormation()
+		end)
+	end
+end
+function changeFormationShip()
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local temp_object = object_list[1]
+		local temp_type = temp_object.typeName
+		if temp_type == "CpuShip" then
+			formation_ship = temp_object
+		else
+			addGMMessage("Select CPU ship. No action taken")
+		end
+	else
+		addGMMessage("Select one CPU ship. No action taken")
+	end
+	setFormation()
+end
+function setFormationTarget()
+	if gm_click_mode == "set formation target" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "set formation target"
+		onGMClick(gmClickSetFormationTarget)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   set formation target\nGM click mode.",prev_mode))
+		end
+	end
+	setFormation()
+end
+function gmClickSetFormationTarget(x,y)
+	if formation_ship ~= nil and formation_ship:isValid() then
+		local fs_x, fs_y = formation_ship:getPosition()
+		formation_target_x = x
+		formation_target_y = y
+		formation_target_angle = angleFromVectorNorth(x,y,fs_x,fs_y)
+		formation_ship:setHeading(formation_target_angle)
+	else
+		addGMMessage("The formation lead ship is not valid. No action taken. GM click mode reset.")
+	end
+	gm_click_mode = nil
+	onGMClick(nil)
+	setFormation()
+end
 ---------------------------
 --	Order Ship > Detach  --
 ---------------------------
@@ -24520,7 +24748,7 @@ function detachAnythingFromNPS()
 	addGMFunction("-Order Ship",orderShip)
 	local object_list = getGMSelection()
 	if #object_list < 1 then
-		addGMFunction("+Select object",detachAnythingFromNPS)
+		addGMFunction("+Select object(s)",detachAnythingFromNPS)
 		return
 	end
 	for _,current_selected_object in ipairs(object_list) do
@@ -24541,7 +24769,7 @@ function attachAnythingToNPS()
 	addGMFunction("-Order Ship",orderShip)
 	local object_list = getGMSelection()
 	if #object_list < 1 then
-		addGMFunction("+Select object",attachAnythingToNPS)
+		addGMFunction("+Select object(s)",attachAnythingToNPS)
 		return
 	end
 	local current_selected_object = object_list[1]
