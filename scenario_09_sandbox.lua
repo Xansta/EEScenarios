@@ -28,7 +28,7 @@ getScriptStorage()._cuf_gm = nil
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.11"
+	scenario_version = "4.0.12"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -205,6 +205,7 @@ function setConstants()
 		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Munemi"] =			{strength = 32,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = munemi},
 		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG3},
+		["Maniapak"] =			{strength = 34,	adder = true,	missiler = false,	beamer = false,	frigate = false, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 580,	create = maniapak},
 		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG4},
 		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = cucaracha},
 		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG5},
@@ -424,52 +425,156 @@ function setConstants()
 
 	fly_formation = {
 		["V"] =		{
-						{angle = 60	, dist = 1},
-						{angle = 300, dist = 1},
+						{angle = 60	, dist = 1	},
+						{angle = 300, dist = 1	},
 					},
 		["Vac"] =	{
-						{angle = 30	, dist = 1},
-						{angle = 330, dist = 1},
+						{angle = 30	, dist = 1	},
+						{angle = 330, dist = 1	},
 					},
 		["V4"] =	{
-						{angle = 60	, dist = 1},
-						{angle = 300, dist = 1},
-						{angle = 60	, dist = 2},
-						{angle = 300, dist = 2},
+						{angle = 60	, dist = 1	},
+						{angle = 300, dist = 1	},
+						{angle = 60	, dist = 2	},
+						{angle = 300, dist = 2	},
 					},
 		["Vac4"] =	{
-						{angle = 30	, dist = 1},
-						{angle = 330, dist = 1},
-						{angle = 30	, dist = 2},
-						{angle = 330, dist = 2},
+						{angle = 30	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 30	, dist = 2	},
+						{angle = 330, dist = 2	},
 					},
 		["A"] =		{
-						{angle = 120, dist = 1},
-						{angle = 240, dist = 1},
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
 					},
 		["Aac"] =	{
-						{angle = 150, dist = 1},
-						{angle = 210, dist = 1},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
 					},
 		["A4"] =	{
-						{angle = 120, dist = 1},
-						{angle = 240, dist = 1},
-						{angle = 120, dist = 2},
-						{angle = 240, dist = 2},
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
+						{angle = 120, dist = 2	},
+						{angle = 240, dist = 2	},
 					},
 		["Aac4"] =	{
-						{angle = 150, dist = 1},
-						{angle = 210, dist = 1},
-						{angle = 150, dist = 2},
-						{angle = 210, dist = 2},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 150, dist = 2	},
+						{angle = 210, dist = 2	},
 					},
 		["/"] =		{
-						{angle = 60	, dist = 1},
-						{angle = 240, dist = 1},
+						{angle = 60	, dist = 1	},
+						{angle = 240, dist = 1	},
 					},
 		["-"] =		{
-						{angle = 90	, dist = 1},
-						{angle = 270, dist = 1},
+						{angle = 90	, dist = 1	},
+						{angle = 270, dist = 1	},
+					},
+		["\\"] =	{
+						{angle = 300, dist = 1	},
+						{angle = 120, dist = 1	},
+					},
+		["|"] =		{
+						{angle = 0	, dist = 1	},
+						{angle = 180, dist = 1	},
+					},
+		["/ac"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 210, dist = 1	},
+					},
+		["\\ac"] =	{
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+					},
+		["M"] =		{
+						{angle = 60	, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 300, dist = 1	},
+						{angle = 270, dist = 1	},
+					},
+		["Mac"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 270, dist = 1	},
+					},
+		["M6"] =	{
+						{angle = 60	, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 300, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 120, dist = 1.3},
+						{angle = 240, dist = 1.3},
+					},
+		["Mac6"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 125, dist = 1.7},
+						{angle = 235, dist = 1.7},
+					},
+		["W"] =		{
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 270, dist = 1	},
+					},
+		["Wac"] =	{
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 270, dist = 1	},
+					},
+		["W6"] =	{
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 60	, dist = 1.3},
+						{angle = 300, dist = 1.3},
+					},
+		["Wac6"] =	{
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 55	, dist = 1.7},
+						{angle = 295, dist = 1.7},
+					},
+		["X"] =		{
+						{angle = 60	, dist = 1	},
+						{angle = 300, dist = 1	},
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
+					},
+		["Xac"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+					},
+		["X8"] =	{
+						{angle = 60	, dist = 1	},
+						{angle = 300, dist = 1	},
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
+						{angle = 60	, dist = 2	},
+						{angle = 300, dist = 2	},
+						{angle = 120, dist = 2	},
+						{angle = 240, dist = 2	},
+					},
+		["Xac8"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 30	, dist = 2	},
+						{angle = 330, dist = 2	},
+						{angle = 150, dist = 2	},
+						{angle = 210, dist = 2	},
 					},
 	}
 
@@ -629,6 +734,8 @@ function setConstants()
 	makePlayerShipActive("Quill")
 	makePlayerShipActive("Pinwheel")
 	makePlayerShipActive("Hrothgar")
+	makePlayerShipActive("Argonaut")
+	makePlayerShipActive("Darkstar")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -827,6 +934,7 @@ function setConstants()
 								["Dagger"] =						100,
 								["Flash"] =							100,
 								["Munemi"] =						100,
+								["Maniapak"] =						100,
 								["Ranger"] =						100,
 								["Buster"] =						100,
 								["Blade"] =							300,
@@ -13487,7 +13595,7 @@ function spawnPlayerShip()
 --	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("Ship Button Info",function()
-		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump\n   W = Warp\n   B = Both\n   N = Neither\n and a number for the long range scan range")
+		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump   W = Warp   B = Both   N = Neither\n and a number for the long range scan range.\n\nSwitch between active player ships and scrapped player ships by using the buttons labeled --Active Ships-- and --Scrapped Ships--")
 	end)
 	
 	local sorted = {}
@@ -22361,6 +22469,79 @@ function munemi(enemyFaction)
 	end
 	return ship		
 end
+function maniapak(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	if ship_template["Maniapak"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Maniapak"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Maniapak")
+	ship:setRadarTrace("radar_exuari_fighter.png")			--different radar trace
+	ship:setWarpDrive(true)
+	ship:setWarpSpeed(650)
+	ship:setImpulseMaxSpeed(70)					--slower impulse (vs 80)
+	ship:setWeaponTubeCount(9)					--more (vs 1)
+	ship:setWeaponTubeDirection(0,  0)				
+	ship:setWeaponTubeDirection(1,-10)				
+	ship:setWeaponTubeDirection(2, 10)				
+	ship:setWeaponTubeDirection(3,  0)				
+	ship:setWeaponTubeDirection(4,-12)				
+	ship:setWeaponTubeDirection(5, 12)				
+	ship:setWeaponTubeDirection(6,  0)				
+	ship:setWeaponTubeDirection(7,-15)				
+	ship:setWeaponTubeDirection(8, 15)				
+	ship:setTubeSize(0,"small")
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(6,"large")
+	ship:setTubeSize(7,"large")
+	ship:setTubeSize(8,"large")
+	ship:setTubeLoadTime(0,15)
+	ship:setTubeLoadTime(1,16)
+	ship:setTubeLoadTime(2,17)
+	ship:setTubeLoadTime(3,18)
+	ship:setTubeLoadTime(4,19)
+	ship:setTubeLoadTime(5,20)
+	ship:setTubeLoadTime(6,21)
+	ship:setTubeLoadTime(7,22)
+	ship:setTubeLoadTime(8,23)
+	ship:setWeaponStorageMax("Homing", 27)		--more (vs 0)
+	ship:setWeaponStorage("Homing",    27)
+	ship:setWeaponStorageMax("EMP",    18)		--more (vs 0)
+	ship:setWeaponStorage("EMP",       18)
+	ship:setWeaponStorageMax("Nuke",   27)		--more (vs 0)
+	ship:setWeaponStorage("Nuke",      27)
+	ship:setWeaponStorageMax("HVLI",   36)		--more (vs 4)
+	ship:setWeaponStorage("HVLI",      36)
+	local maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
+	if maniapak_db == nil then
+		local fighter_db = queryScienceDatabase("Ships","Starfighter")
+		fighter_db:addEntry("Maniapak")
+		maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			maniapak_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Maniapak is an extreme modification of an Adder MK5 and a Blade. A maniacal designer was tasked with packing as many missiles as possible in this tiny starfighter frame. This record has yet to be beaten. Unfortunately, this ship is often a danger to friends as well as foes.",
+			{
+				{key = "Small Tube 0", value = "15 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube -10", value = "16 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube 10", value = "17 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 0", value = "18 Sec"},
+				{key = "Tube -12", value = "19 sec"},
+				{key = "Tube 12", value = "20 sec"},
+				{key = "Large Tube 0", value = "21 sec"},
+				{key = "Large Tube -15", value = "22 sec"},
+				{key = "Large Tube 15", value = "23 sec"},
+				{key = "Missile Storage", value = "H:27 E:18 N:27 L:36"},
+			},
+			nil,
+			"AdlerLongRangeScoutYellow"
+		)
+		maniapak_db:setImage("radar_exuari_fighter.png")		--override default radar image
+	end
+	return ship		
+end
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
 	modified_db:setImage(base_db:getImage())
@@ -24613,12 +24794,14 @@ function setFormation()
 		button_label = string.format("%s %.1f",button_label,formation_spacing/1000)
 	end
 	addGMFunction(button_label,setFormationSpacing)
+	--[[
 	button_label = "+Trigger"
 	if formation_trigger ~= nil then
-		button_label = string.format("%s %s",button_label,formation_trigger)
+		button_label = string.format("%s %s",button_label,formation_trigger/1000)
 	end
 	addGMFunction(button_label,setFormationTrigger)
-	if formation_spacing ~= nil and formation_shape ~= nil and formation_ship_selected and formation_target_angle ~= nil and formation_trigger ~= nil then
+	--]]
+	if formation_spacing ~= nil and formation_shape ~= nil and formation_ship_selected and formation_target_angle ~= nil then
 		if formation_ship.formation_ships == nil then
 			addGMFunction("Create Formation",function()
 				local leader_x, leader_y = formation_ship:getPosition()
@@ -24639,7 +24822,8 @@ function setFormation()
 					table.insert(formation_ship.formation_ships,ship)
 				end
 				formation_ship:orderFlyTowards(formation_target_x,formation_target_y)
-				update_system:addFormationLeaderCommandUpdate(formation_ship,formation_trigger)
+				--update_system:addFormationLeaderCommandUpdate(formation_ship,formation_trigger)
+				setFormation()
 			end)
 		else
 			addGMFunction("Remove Formation",function()
@@ -24649,6 +24833,7 @@ function setFormation()
 					end
 				end
 				formation_ship.formation_ships = nil
+				setFormation()
 			end)
 		end
 	end
@@ -24681,7 +24866,99 @@ function setFormationSpacing()
 end
 function setFormationShape()
 	clearGMFunctions()
+	addGMFunction("+V",setFormationCategoryV)
+	addGMFunction("+A",setFormationCategoryA)
+	addGMFunction("+Line",setFormationCategoryLine)
+	addGMFunction("+M",setFormationCategoryM)
+	addGMFunction("+W",setFormationCategoryW)
+	addGMFunction("+X",setFormationCategoryX)
+	--[[
 	for form, slots in pairs(fly_formation) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setFormation()
+		end)
+	end
+	--]]
+end
+function setFormationCategoryX()
+	clearGMFunctions()
+	local form_list = {"X","X8","Xac","Xac8"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setFormation()
+		end)
+	end
+end
+function setFormationCategoryW()
+	clearGMFunctions()
+	local form_list = {"W","W6","Wac","Wac6"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setFormation()
+		end)
+	end
+end
+function setFormationCategoryM()
+	clearGMFunctions()
+	local form_list = {"M","M6","Mac","Mac6"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setFormation()
+		end)
+	end
+end
+function setFormationCategoryLine()
+	clearGMFunctions()
+	local form_list = {"/","/ac","-","\\","\\ac","|"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setFormation()
+		end)
+	end
+end
+function setFormationCategoryA()
+	clearGMFunctions()
+	local form_list = {"A","A4","Aac","Aac4"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setFormation()
+		end)
+	end
+end
+function setFormationCategoryV()
+	clearGMFunctions()
+	local form_list = {"V","V4","Vac","Vac4"}
+	for _, form in ipairs(form_list) do
 		local button_label = form
 		if form == formation_shape then
 			button_label = button_label .. "*"
