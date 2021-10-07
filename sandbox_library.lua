@@ -2,7 +2,6 @@
 -- it is intended to be able to be included in an empty script and function correctly
 -- this is probably not yet the case especially with the update system 
 
-
 --------------------
 -- error handling --
 --------------------
@@ -129,7 +128,6 @@ function math._CosineInterpolateTableInner(tbl,elmt,t)
 		return tbl[elmt].y
 	end
 	local t_scaled=(t-tbl[elmt].x)*(1/x_delta)
---	print(math.CosineInterpolate(tbl[elmt].y,tbl[elmt+1].y,t_scaled))
 	return math.CosineInterpolate(tbl[elmt].y,tbl[elmt+1].y,t_scaled)
 end
 function math.CosineInterpolateTable(tbl,t)
@@ -882,9 +880,9 @@ function fleetCustom:addToFleet(player)
 	end
 end
 function fleetCustom:addCustomButton(position,name,caption,callback_inner,order)
--- note the first argument in the callback becomes the player ship
--- this makes this incompatable with the base game
--- it really shouldnt for any real world code though
+	-- note the first argument in the callback becomes the player ship
+	-- this makes this incompatable with the base game
+	-- it really shouldnt for any real world code though
 	self:_garbage_collection()
 	for _,p in pairs(self._player_list) do
 		local callback = function ()
@@ -1446,7 +1444,7 @@ function updateSystem:addEngineBoostUpdate(obj, overboosted_time, boost_time, ma
 	)
 end
 function updateSystem:addOverclockableTractor(obj, spawnFunc)
--- this is horrifically specialized and I don't think there is any way around that
+	-- this is horrifically specialized and I don't think there is any way around that
 	assert(type(self)=="table")
 	assert(type(obj)=="table")
 	assert(type(spawnFunc)=="function")
