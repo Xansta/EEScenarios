@@ -29,7 +29,6 @@ function init()
 	updateDiagnostic = false
 	healthDiagnostic = false
 	change_enemy_order_diagnostic = true
-	popupGMDebug = "once"
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
@@ -3326,7 +3325,6 @@ end
 --------------
 -- Button Text			   FD*	Related Function(s)
 -- -MAIN FROM END			F	initialGMFunctions
--- +DEBUG					F	debugButtons
 -- +SNIPPET					F	snippetButtons
 -- +ONE-OFFS				F	oneOffs
 -- +SCIENCE DB				F	scienceDatabase
@@ -3340,6 +3338,9 @@ function customButtons()
 	addGMFunction("+Debug",debugButtons)
 	addGMFunction("+Snippet",snippetButtons)
 	addGMFunction("+One-Offs",oneOffs)
+	addGMFunction("Object Counts",function()
+		addGMMessage(getNumberOfObjectsString())
+	end)
 	addGMFunction("4k mine ring",singleObjectFunction(function (obj)
 		local x,y = obj:getPosition()
 			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
@@ -29987,33 +29988,6 @@ end
 --	********************************************  --
 --	**										  **  --
 --	*										   *  --
-----------------------
---  Custom > Debug  --
-----------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM END		F	initialGMFunctions
--- -CUSTOM				F	customButtons
--- OBJECT COUNTS		F	inline
--- ALWAYS POPUP DEBUG	F	inline
--- ONCE POPUP DEBUG		F	inline
--- NEVER POPUP DEBUG	F	inline
-function debugButtons()
-	clearGMFunctions()
-	addGMFunction("-Main From Debug",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction("Object Counts",function()
-		addGMMessage(getNumberOfObjectsString())
-	end)
-	addGMFunction("always popup debug",function()
-		popupGMDebug = "always"
-	end)
-	addGMFunction("once popup debug",function()
-		popupGMDebug = "once"
-	end)
-	addGMFunction("never popup debug",function()
-		popupGMDebug = "never"
-	end)
-end
 -------------------------
 --	Custom > Snippets  --
 -------------------------

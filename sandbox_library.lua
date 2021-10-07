@@ -8,11 +8,6 @@
 --------------------
 -- in several places it would be nice to get more errors reported
 -- this is to assist with that
--- the popupGMDebug may want to go in the next version of EE
--- currently popups are stored between script reloads
--- which means without that if there is an error in update
--- you can end with hundreds of popups which need to be closed
--- for the next sim
 -- returns a function which wraps the fun function in error handling logic
 -- the error handling logic for the sandbox is a popup and printing to the console
 -- this is useful for callbacks and gm buttons (as both of those don't in the current
@@ -28,12 +23,7 @@ function wrapWithErrorHandling(fun)
 		if not status then
 			print("script error : - ")
 			print(error)
-			if popupGMDebug == "once" or popupGMDebug == "always" then
-				if popupGMDebug == "once" then
-					popupGMDebug = "never"
-				end
-				addGMMessage("script error - \n"..error)
-			end
+			addGMMessage("script error - \n"..error)
 		else
 			return error
 		end
