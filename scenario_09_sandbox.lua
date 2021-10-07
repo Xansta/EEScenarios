@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.12"
+	scenario_version = "4.0.13"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -466,6 +466,12 @@ function setConstants()
 						{angle = 90	, dist = 1	},
 						{angle = 270, dist = 1	},
 					},
+		["-4"] =		{
+						{angle = 90	, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 90	, dist = 2	},
+						{angle = 270, dist = 2	},
+					},
 		["\\"] =	{
 						{angle = 300, dist = 1	},
 						{angle = 120, dist = 1	},
@@ -473,6 +479,12 @@ function setConstants()
 		["|"] =		{
 						{angle = 0	, dist = 1	},
 						{angle = 180, dist = 1	},
+					},
+		["|4"] =	{
+						{angle = 0	, dist = 1	},
+						{angle = 180, dist = 1	},
+						{angle = 0	, dist = 2	},
+						{angle = 180, dist = 2	},
 					},
 		["/ac"] =	{
 						{angle = 30	, dist = 1	},
@@ -3446,6 +3458,7 @@ function customButtons()
 	addGMFunction("+Debug",debugButtons)
 	addGMFunction("+Snippet",snippetButtons)
 	addGMFunction("+One-Offs",oneOffs)
+	addGMFunction("+Gateway/Rifts",gatewayRifts)
 	addGMFunction("Object Counts",function()
 		addGMMessage(getNumberOfObjectsString())
 	end)
@@ -3453,6 +3466,21 @@ function customButtons()
 		local x,y = obj:getPosition()
 			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
 		end))	-- this probably wants to be done properly with a nice fancy UI but today is not the day
+	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
+	-- though when I get round to one of the next improvements to gateway this may need to change anyway
+	addGMFunction("contact gm",function ()
+		playerFleet:addCustomButton("Relay","gm contact","calibrate",function (player)
+			if not openGMComms(player) then
+				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
+			end
+		end)
+	end)
+	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
+end
+function gatewayRifts()
+	clearGMFunctions()
+	addGMFunction("-Main From Gateway/Rifts",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
 	addGMFunction("subspace rift",function () onGMClick(function (x,y)
 		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
 		local all_objs = {}
@@ -3500,8 +3528,6 @@ function customButtons()
 			coloredSubspaceRift(x,y,playerSpawnX,playerSpawnY)
 		end)
 	end)
-	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
-	-- though when I get round to one of the next improvements to gateway this may need to change anyway
 	addGMFunction("gateway rift",function () gateway_rift=coloredSubspaceRift(59893,373681) end)
 	addGMFunction("set gateway exit", function ()
 		onGMClick(function (x,y)
@@ -3511,13 +3537,6 @@ function customButtons()
 					update.destination_x = x
 					update.destination_y = y
 				end
-			end
-		end)
-	end)
-	addGMFunction("contact gm",function ()
-		playerFleet:addCustomButton("Relay","gm contact","calibrate",function (player)
-			if not openGMComms(player) then
-				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
 			end
 		end)
 	end)
@@ -3547,7 +3566,6 @@ function customButtons()
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((255 )/360)*math.pi*2)*dist, gateway_y - math.cos(((255 )/360)*math.pi*2)*dist)
 		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((345 )/360)*math.pi*2)*dist, gateway_y - math.cos(((345 )/360)*math.pi*2)*dist)
 	end)
-	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
 end
 -------------------
 --	End Session  --
@@ -20641,8 +20659,6 @@ function maniapak(enemyFaction)
 	ship:onTakingDamage(npcShipDamage)
 	ship:setTypeName("Maniapak")
 	ship:setRadarTrace("radar_exuari_fighter.png")			--different radar trace
-	ship:setWarpDrive(true)
-	ship:setWarpSpeed(650)
 	ship:setImpulseMaxSpeed(70)					--slower impulse (vs 80)
 	ship:setWeaponTubeCount(9)					--more (vs 1)
 	ship:setWeaponTubeDirection(0,  0)				
@@ -23093,7 +23109,7 @@ function setFormationCategoryM()
 end
 function setFormationCategoryLine()
 	clearGMFunctions()
-	local form_list = {"/","/ac","-","\\","\\ac","|"}
+	local form_list = {"/","/ac","-","-4","\\","\\ac","|","|4"}
 	for _, form in ipairs(form_list) do
 		local button_label = form
 		if form == formation_shape then
@@ -30582,6 +30598,7 @@ function starryOneOff()
 	addGMFunction("-Custom",customButtons)
 	addGMFunction("-One-Offs",oneOffs)
 	addGMFunction("+Christmas",starryChristmas)
+	addGMFunction("+Kraylor",starryKraylor)
 	addGMFunction("wj around rigil",function ()
 		local x,y=planet_rigil:getPosition()
 		local jammers=createObjectCircle{x=x,y=y,callback=WarpJammer,number=40}
@@ -30600,12 +30617,37 @@ function starryOneOff()
 			update_system:addNameCycleUpdate(Artifact():setPosition(x,y), 10,tbl,random(1,40))
 		end) 
 	end)
+	addGMFunction("mines in monocle orbit", function ()
+		-- these will be at an incorrect location for 1 update
+		-- this is wrong
+		-- but is only one off code
+		local x,y = planet_rigil:getPosition()
+
+		local m = Mine()
+		local angle = math.random()*math.pi*2
+		m:setPosition(x+math.sin(angle),y+math.cos(angle))
+		m.orbit_influencer = planet_ergot
+		update_system:addOrbitTargetWithInfluenceUpdate(m,planet_rigil,math.random(43759,47552),1.1,1.7,planet_ergot,10000,30000)
+
+		m = Mine()
+		m.orbit_influencer = planet_ergot
+		local angle = math.random()*math.pi*2
+		m:setPosition(x+math.sin(angle),y+math.cos(angle))
+		update_system:addOrbitTargetWithInfluenceUpdate(m,planet_rigil,math.random(62557,69203),0.8,1.5,planet_ergot,10000,30000)
+	end)
+end
+function starryKraylor()
+	clearGMFunctions()
+	addGMFunction("-Main From Kraylor",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-One-Offs",oneOffs)
+	addGMFunction("-Starry 1-offs",starryOneOff)
 	-- spawn the research base used on 2020-06-06
 	-- the location is fixed, the design is fixed
 	-- with both of those being fixed it is hard to make it generic
 	-- and we aren't (probably) going back there making it not applicable for the sandbox
 	-- but the code is something that could be edited into generic code for circular base designs in time
-	addGMFunction("Kraylor Research Base", function ()
+	addGMFunction("O6 Research Base", function ()
 		local cx=27200
 		local cy=227000
 		local inner_ring_speed=90
@@ -30635,14 +30677,11 @@ function starryOneOff()
 		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 35"):setPosition(cx+0,cy+6000)
 		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Research 27"):setPosition(cx+0,cy-6000)
 		Artifact():setPosition(cx+0,cy+0):setDescription("Contains long range jumpNav calculation"):setCallSign("computer core")
-	end)
-	-- continuation of the above, whatever happens to base should happen to this
-	-- debatably they should be merged into one function as they are both for reference
-	addGMFunction("Jammer Ring",function ()
-		local cx=27200
-		local cy=227000
-		local i_1=21500
-		local i_2=math.sqrt(2)*i_1/2
+		--Jammer ring
+		cx=27200
+		cy=227000
+		i_1=21500
+		i_2=math.sqrt(2)*i_1/2
 		WarpJammer():setFaction("Kraylor"):setPosition(cx+i_1,cy+0)
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_1,cy+0)
 		WarpJammer():setFaction("Kraylor"):setPosition(cx+0,cy+i_1)
@@ -30652,7 +30691,7 @@ function starryOneOff()
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy+i_2)
 		WarpJammer():setFaction("Kraylor"):setPosition(cx-i_2,cy-i_2)
 	end)
-	addGMFunction("auto defended base", function ()
+	addGMFunction("W22 Auto dfnd base", function ()
 		local create = function ()
 			return CpuShip():setTemplate("Defense platform"):setFaction("Kraylor"):orderRoaming()
 		end
@@ -30672,25 +30711,7 @@ function starryOneOff()
 		mineRingShim({dist=7500, x=340000+18000,y=340000,		gap=140,gap_size=0,segments = 3, angle = 225+270+180, create_fn = jammer_create})
 		mineRingShim({dist=9000, x=340000+18000,y=340000,		gap=120,gap_size=30,segments = 3, angle = 225+270-15, create_fn = create})
 	end)
-	addGMFunction("mines in monocle orbit", function ()
-		-- these will be at an incorrect location for 1 update
-		-- this is wrong
-		-- but is only one off code
-		local x,y = planet_rigil:getPosition()
-
-		local m = Mine()
-		local angle = math.random()*math.pi*2
-		m:setPosition(x+math.sin(angle),y+math.cos(angle))
-		m.orbit_influencer = planet_ergot
-		update_system:addOrbitTargetWithInfluenceUpdate(m,planet_rigil,math.random(43759,47552),1.1,1.7,planet_ergot,10000,30000)
-
-		m = Mine()
-		m.orbit_influencer = planet_ergot
-		local angle = math.random()*math.pi*2
-		m:setPosition(x+math.sin(angle),y+math.cos(angle))
-		update_system:addOrbitTargetWithInfluenceUpdate(m,planet_rigil,math.random(62557,69203),0.8,1.5,planet_ergot,10000,30000)
-	end)
-	addGMFunction("Kraylor Rift Base", function () -- based on Kraylor Research Base
+	addGMFunction("V22 Rift Base", function () -- based on Kraylor Research Base
 		local cx=349706
 		local cy=329658
 		local inner_ring_speed=180
@@ -30714,6 +30735,85 @@ function starryOneOff()
 		leech("Kraylor"):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
 		leech("Kraylor"):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
 		Artifact():setPosition(cx+0,cy+0):setCallSign("Rift Scanner")
+	end)
+	addGMFunction("O3 Hide@Speculator", function()	--used 2Oct2021
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("shipyard bravo"):setPosition(-25508, 184521)
+		SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("shipyard alpha"):setPosition(-35896, 175024)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("M32"):setPosition(-28586, 185436):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("J48"):setPosition(-28066, 180568):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("L29"):setPosition(-33059, 181013):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("D47"):setPosition(-30778, 177069):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("R11"):setPosition(-29516, 173726):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("V13"):setPosition(-25294, 176917):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("Y45"):setPosition(-33690, 174285):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("E43"):setPosition(-36658, 171830):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("I41"):setPosition(-39259, 170071):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("O39"):setPosition(-41732, 168185):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("P7"):setPosition(-34918, 166438):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("T27"):setPosition(-37381, 177319):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("F19"):setPosition(-14388, 186893):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("U16"):setPosition(-20520, 180435):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("X49"):setPosition(-23175, 184836):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("C17"):setPosition(-17605, 183526):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("K23"):setPosition(-15695, 194607):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("H33"):setPosition(-24415, 190386):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("A21"):setPosition(-12077, 191441):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("Z25"):setPosition(-42633, 172494):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("N8"):setPosition(-33109, 169680):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("W4"):setPosition(-38487, 164629):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("G3"):setPosition(-43035, 164177):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+		Nebula():setPosition(-34229, 168987)
+		Nebula():setPosition(-42619, 175251)
+		Nebula():setPosition(-11007, 193196)
+		Nebula():setPosition(-27465, 187930)
+		Nebula():setPosition(-20250, 192584)
+		Nebula():setPosition(-36619, 178776)
+		Nebula():setPosition(-32723, 183662)
+		Nebula():setPosition(-31624, 174746)
+		Nebula():setPosition(-25043, 180093)
+		Nebula():setPosition(-20381, 182835)
+		Nebula():setPosition(-15993, 186400)
+		Nebula():setPosition(-49868, 169178)
+		Nebula():setPosition(-45550, 166209)
+		Nebula():setPosition(-40153, 166929)
+		Asteroid():setPosition(-20345, 193487):setSize(118)
+		Asteroid():setPosition(-16733, 187725):setSize(113)
+		Asteroid():setPosition(-28907, 187563):setSize(126)
+		Asteroid():setPosition(-25336, 192189):setSize(113)
+		Asteroid():setPosition(-15718, 183139):setSize(125)
+		Asteroid():setPosition(-27121, 173563):setSize(123)
+		Asteroid():setPosition(-12147, 194745):setSize(125)
+		Asteroid():setPosition(-10159, 191215):setSize(122)
+		Asteroid():setPosition(-23388, 176160):setSize(123)
+		Asteroid():setPosition(-19411, 179609):setSize(130)
+		Asteroid():setPosition(-1791, 191266):setSize(111)
+		Asteroid():setPosition(-6496, 189218):setSize(122)
+		Asteroid():setPosition(-8455, 196125):setSize(129)
+		Asteroid():setPosition(-12269, 187684):setSize(125)
+		Asteroid():setPosition(-24362, 186061):setSize(117)
+		Asteroid():setPosition(-23753, 179650):setSize(128)
+		Asteroid():setPosition(-32681, 167679):setSize(125)
+		Asteroid():setPosition(-35765, 164676):setSize(124)
+		Asteroid():setPosition(-38565, 167395):setSize(113)
+		Asteroid():setPosition(-26918, 176484):setSize(112)
+		Asteroid():setPosition(-30124, 174415):setSize(117)
+		Asteroid():setPosition(-31098, 171615):setSize(126)
+		Asteroid():setPosition(-30814, 179203):setSize(117)
+		Asteroid():setPosition(-34547, 183221):setSize(112)
+		Asteroid():setPosition(-37428, 182774):setSize(124)
+		Asteroid():setPosition(-36455, 170276):setSize(121)
+		Asteroid():setPosition(-36942, 174212):setSize(115)
+		Asteroid():setPosition(-33086, 176160):setSize(129)
+		Asteroid():setPosition(-45057, 162322):setSize(112)
+		Asteroid():setPosition(-45139, 156885):setSize(118)
+		Asteroid():setPosition(-39985, 164676):setSize(117)
+		Asteroid():setPosition(-41365, 178797):setSize(130)
+		Asteroid():setPosition(-42907, 176444):setSize(117)
+		Asteroid():setPosition(-43840, 171980):setSize(124)
+		Asteroid():setPosition(-43718, 161105):setSize(115)
+		Asteroid():setPosition(-43759, 158751):setSize(115)
+		Asteroid():setPosition(-47086, 168856):setSize(115)
+		Asteroid():setPosition(-47249, 165366):setSize(123)
 	end)
 end
 ----------------------------------------------
