@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.13"
+	scenario_version = "4.0.14"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -1571,11 +1571,11 @@ function createFleurNebula()
     Nebula():setPosition(96857, 44322)
 end
 function addPlayerShip(name,typeName,func,ftl)
-	assert(type(name)=="string")
-	assert(type(typeName)=="string")
-	assert(type(playerShipStats[typeName])=="table")
-	assert(type(func)=="function")
-	assert(type(ftl)=="string")
+	assert(type(name)=="string",string.format("function addPlayerShip expected a string for the first argument, 'name,' but got a %s instead",type(name)))
+	assert(type(typeName)=="string",string.format("function addPlayerShip expected a string for the second argument, 'typeName,' but got a %s instead",type(typeName)))
+	assert(type(playerShipStats[typeName])=="table",string.format("function addPlayerShip used %s as a lookup value in playerShipStats and expected to get a table but did not",typeName))
+	assert(type(func)=="function",string.format("function addPlayerShip expected a function for the third argument, 'func,' but got a %s instead",type(func)))
+	assert(type(ftl)=="string",string.format("function addPlayerShip expected a string for the fourth argument, 'ftl,' but got a %s instead",type(ftl)))
 	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
 end
 
@@ -3766,8 +3766,8 @@ function carolStage12()
 		setTypeName("crescendo")
 end
 function carolSpawnSingle(stage,faction)
-	assert(type(stage)=="number")
-	assert(stage > 0 and stage <= 12)
+	assert(type(stage)=="number",string.format("function carolSpawnSingle expected a number for the first argument, 'stage,' but got a %s instead",type(stage)))
+	assert(stage > 0 and stage <= 12,string.format("the first argument of carolSpawnSingle, 'stage,' must be between 1 and 12 inclusive. %s is invalid",stage))
 	local spawnFun={
 		carolStage1,	
 		carolStage2,
@@ -10839,6 +10839,7 @@ function createLafrinaStations()
         hack_repair =			true,
         scan_repair =			random(1,100) < 83,
         tube_slow_down_repair = random(1,100)<30,
+        fast_probes = {name = "Screamer", cost = math.random(8,15), quantity = math.random(1,5), speed = 4000},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	sensor = 		{quantity = math.random(5,9),	cost = math.random(50,80)},
