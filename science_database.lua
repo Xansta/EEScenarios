@@ -1,4 +1,21 @@
 function initialSandboxDatabaseUpdate()
+------------------------------------
+--	Turbo Torpedo database entry  --
+------------------------------------
+	local weapon_db = queryScienceDatabase("Weapons")
+	if weapon_db ~= nil then
+		local turbo_db = queryScienceDatabase("Weapons","Turbo Torpedos")
+		if turbo_db == nil then
+			weapon_db:addEntry("Turbo Torpedos")
+			turbo_db = queryScienceDatabase("Weapons","Turbo Torpedos")
+			if turbo_db ~= nil then
+				turbo_db:setLongDescription("A limited number of CUF ships come equipped with turbo torpedo capability. When enabled, the next launched torpedo flies much faster than normal. Unfortunately, the guidance software on the torpedo and in the weapons targeting computer does not fully account for the reduced maneuverability of the torpedo in tubo mode. Hence, a straighter aimed trajectory is recommended when using the turbo torpedo capability. However, the enemy ship will find it harder to dodge a turbo torpedo when properly aimed. The turbo torpedo capability takes between 55 and 90 seconds to recharge between uses. The turbo capability is currently limited to EMP, Nuke or Homing missile types and may be restricted further depending on the individual ship installation.\n\nKnown ship types with Turbo Torpedo capability:\nMantis, Focus, Fresnel")
+			end
+		end
+	end
+------------------------------------------------------
+--	Stock probe and special probe database entries  --
+------------------------------------------------------
 	local probe_db = queryScienceDatabase("Scan Probes")
 	if probe_db == nil then
 		probe_db = ScienceDatabase():setName("Scan Probes")
@@ -540,6 +557,7 @@ function initialSandboxDatabaseUpdate()
 	fresnel_db:setKeyValue("Tube 120","10 sec / Homing (turbo)")
 	fresnel_db:setKeyValue("Tube 240","10 sec / Homing (turbo)")
 	fresnel_db:setKeyValue("Storage Homing","4")
+	fresnel_db:setKeyValue("Turbo Torpedo","Homing / Cyc:55")
 	fresnel_db:setImage("radar_ktlitan_fighter.png")
 	fresnel_db:setModelDataName("small_fighter_1")
 --	Gadfly
@@ -1270,6 +1288,7 @@ function initialSandboxDatabaseUpdate()
 	amalgam_db:setKeyValue("Tube 180","16 sec / Mine")
 	amalgam_db:setKeyValue(" Tube 180","16 sec / Mine")
 	amalgam_db:setKeyValue("Storage Missiles","H:16 M:10")
+	amalgam_db:setKeyValue("Turbo Torpedo","Homing / Cyc:55")
 	amalgam_db:setImage("radar_dread.png")
 	amalgam_db:setModelDataName("battleship_destroyer_1_upgraded")
 --	Atlantis II
@@ -1473,6 +1492,7 @@ function initialSandboxDatabaseUpdate()
 	destroyer_4_db:setKeyValue("Storage Mine",4)
 	destroyer_4_db:setKeyValue("Storage EMP",3)
 	destroyer_4_db:setKeyValue("Storage HVLI",6)
+	destroyer_4_db:setKeyValue("Turbo Torpedo","Homing / Cyc:55")
 	destroyer_4_db:setImage("radar_cruiser.png")
 	destroyer_4_db:setModelDataName("battleship_destroyer_5_upgraded")
 --	Focus
@@ -1501,6 +1521,7 @@ function initialSandboxDatabaseUpdate()
 	focus_db:setKeyValue("Storage Mine",6)
 	focus_db:setKeyValue("Storage EMP",2)
 	focus_db:setKeyValue("Storage HVLI",24)
+	focus_db:setKeyValue("Turbo Torpedo","Homing,Nuke / Cyc:90")
 	focus_db:setImage("radar_laser.png")
 	focus_db:setModelDataName("LaserCorvetteRed")
 --	Fray
@@ -1604,6 +1625,7 @@ function initialSandboxDatabaseUpdate()
 	mantis_db:setKeyValue("Tube 90","8 sec Homing / Nuke / EMP")
 	mantis_db:setKeyValue("Tube 180","8 sec / Mine")
 	mantis_db:setKeyValue("Storage Missiles","H:8 M:3 N:3 E:6 L:12")
+	mantis_db:setKeyValue("Turbo Torpedo","EMP / Cyc:60")
 	mantis_db:setImage("radar_missile_cruiser.png")
 	mantis_db:setModelDataName("space_cruiser_4")
 --	Maverick XP

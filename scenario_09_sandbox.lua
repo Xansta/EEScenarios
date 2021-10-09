@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.14"
+	scenario_version = "4.0.15"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -620,7 +620,7 @@ function setConstants()
 		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5	},
 		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0	},
 		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0	},
-		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0	},
+		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0	},
 		["Eldridge"]			= { strength = 20,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3	},
 		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0	},
 		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0	},
@@ -31057,6 +31057,7 @@ function friendlyComms(comms_data)
 	local gm_name = gm_ship_names[math.random(1,#gm_ship_names)]
 	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
 		commsSwitchToGM()
+		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on friendly %s ship %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 		addCommsReply("Back", commsShip)
 	end)
 	if comms_target.commerce_target == nil then
@@ -31506,6 +31507,7 @@ function neutralComms(comms_data)
 		local gm_name = gm_ship_names[math.random(1,#gm_ship_names)]
 		addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
 			commsSwitchToGM()
+			addGMMessage(string.format("Player ship %s in %s initiating contact to GM on neutral %s ship %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 			addCommsReply("Back", commsShip)
 		end)
 		addCommsReply("Do you have cargo you might sell?", function()
@@ -32056,6 +32058,7 @@ function handleDockedState()
 	local gm_name = gm_names[math.random(1,#gm_names)]
 	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
 		commsSwitchToGM()
+		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on %s station %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 		addCommsReply("Back", commsStation)
 	end)
 	local missilePresence = 0
@@ -33907,6 +33910,7 @@ function handleUndockedState()
 	local gm_name = gm_names[math.random(1,#gm_names)]
 	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
 		commsSwitchToGM()
+		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on %s station %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 		addCommsReply("Back", commsStation)
 	end)
 	if isAllowedTo(ctd.services.preorder) then
