@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.15"
+	scenario_version = "4.0.16"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -738,7 +738,7 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Vision")
 	makePlayerShipActive("Quill")
-	makePlayerShipActive("Pinwheel")
+	makePlayerShipActive("Flipper")
 	makePlayerShipActive("Hrothgar")
 	makePlayerShipActive("Argonaut")
 	makePlayerShipActive("Darkstar")
@@ -4895,24 +4895,24 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
-			dp6Zone:setColor(0,128,0):setLabel("5")
-		elseif i == 5 then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
-			dp5Zone:setColor(0,128,0):setLabel("6")
+--		if i == 6 then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
+--			dp6Zone:setColor(0,128,0):setLabel("5")
+--		elseif i == 5 then
+--			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
+--			dp5Zone:setColor(0,128,0):setLabel("6")
 --		elseif i == 2 then
 --			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
 --			dp2Zone:setColor(0,128,0)
 --		elseif i == 1 then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
 --			dp1Zone:setColor(0,128,0)
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -5302,10 +5302,9 @@ function createIcarusStations()
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Macassa
-	local macassaZone = squareZone(16335, -18034, "Macassa 10 E5")
-	macassaZone:setColor(0,128,0):setLabel("10")
-	--[[
-    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 9"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+--	local macassaZone = squareZone(16335, -18034, "Macassa 10 E5")
+--	macassaZone:setColor(0,128,0):setLabel("10")
+    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 10"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMacassa:setShortRangeRadarRange(8000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5336,7 +5335,6 @@ function createIcarusStations()
 	if random(1,100) <= 9  then stationMacassa:setSharesEnergyWithDocked(false) end
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
-	--]]
 	--Maximilian
 	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
 	--maximilianZone:setColor(51,153,255)
@@ -5506,9 +5504,9 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
-	local pistilZone = squareZone(24834, 20416, "Pistil 7 G6")
-	pistilZone:setColor(0,128,0)
-    --[[stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 6"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+--	local pistilZone = squareZone(24834, 20416, "Pistil 7 G6")
+--	pistilZone:setColor(0,128,0)
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 7"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -5549,7 +5547,6 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
-	]]--
 	--Relay-13
 	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
 	--relay13Zone:setColor(0,255,0)
