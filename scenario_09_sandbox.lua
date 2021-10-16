@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.17"
+	scenario_version = "4.0.18"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -10606,6 +10606,7 @@ function lafrinaSector()
 	lafrina_planets = createLafrinaPlanets()
 	lafrina_asteroids = createLafrinaAsteroids()
 	lafrina_stations = createLafrinaStations()
+	lafrina_nebulae = createLafrinaNebulae()
 	regionStations = lafrina_stations
 	if stationLafrina ~= nil then
 		table.insert(regionStations,stationLafrina)
@@ -10909,6 +10910,17 @@ function createLafrinaPlanets()
 	table.insert(planet_list,lafrina_black_hole)
 	return planet_list
 end
+function createLafrinaNebulae()
+	local nebula_list = {}
+	table.insert(nebula_list,Nebula():setPosition(-352332, 382697))
+	table.insert(nebula_list,Nebula():setPosition(-369940, 329138))
+	table.insert(nebula_list,Nebula():setPosition(-332523, 255219))
+	table.insert(nebula_list,Nebula():setPosition(-325369, 259438))
+	table.insert(nebula_list,Nebula():setPosition(-337292, 261089))
+	table.insert(nebula_list,Nebula():setPosition(-425150, 272094))
+	table.insert(nebula_list,Nebula():setPosition(-433221, 267875))
+	return nebula_list
+end
 function createLafrinaAsteroids()
 	local asteroid_list = {}
 	local asteroid_data = {
@@ -11116,6 +11128,13 @@ function removeLafrinaColor()
 		end
 	end
 	lafrina_planets = nil
+	
+	if lafrina_nebulae ~= nil then
+		for _, ln in pairs(lafrina_nebulae) do
+			ln:destroy()
+		end
+	end
+	lafrina_nebulae = nil
 	
 	if lafrina_asteroids ~= nil then
 		for _, la in pairs(lafrina_asteroids) do
