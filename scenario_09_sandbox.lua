@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.16"
+	scenario_version = "4.0.17"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -2265,6 +2265,38 @@ function fiddleWithArtifacts()
 			addGMFunction("+Set Model",setArtifactModel)
 			addGMFunction("+Set Spin",setArtifactSpin)
 			addGMFunction("+Set Signature",setArtifactSignature)
+			addGMFunction("Make retrievable",function()
+				local object_list = getGMSelection()
+				if object_list == nil or #object_list ~= 1 then
+					addGMMessage("No artifact selected. no action taken")
+					fiddleWithArtifacts()
+					return
+				else
+					if object_list[1].typeName ~= "Artifact" then
+						addGMMessage("No artifact selected. no action taken")
+						fiddleWithArtifacts()
+						return
+					end
+				end
+				object_list[1]:allowPickup(true)
+				addGMMessage("The selected artifact has been made retrievable")
+			end)
+			addGMFunction("Make unretrievable",function()
+				local object_list = getGMSelection()
+				if object_list == nil or #object_list ~= 1 then
+					addGMMessage("No artifact selected. no action taken")
+					fiddleWithArtifacts()
+					return
+				else
+					if object_list[1].typeName ~= "Artifact" then
+						addGMMessage("No artifact selected. no action taken")
+						fiddleWithArtifacts()
+						return
+					end
+				end
+				object_list[1]:allowPickup(false)
+				addGMMessage("The selected artifact has been made unretrievable")
+			end)
 			addGMFunction("Explode Sel Artifact",explodeSelectedArtifact)
 		end
 	end
@@ -10817,7 +10849,7 @@ function createLafrinaStations()
 	table.insert(stations,stationRivelle)
 	--Vilairre
     stationVilairre = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Vilairre"):setDescription("Communications and administration"):setCommsScript(""):setCommsFunction(commsStation)
-	update_system:addOrbitTargetUpdate(stationVilairre,planet_wilaux,4500,23*2*math.pi,0)
+	update_system:addOrbitTargetUpdate(stationVilairre,planet_wilaux,6000,23*2*math.pi,0)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -10871,7 +10903,7 @@ function createLafrinaPlanets()
 	local wilaux_x, wilaux_y = vectorFromAngle(wilaux_primus_angle,wilaux_primus_distance)
 	planet_wilaux = Planet():setPosition(balinor_x+wilaux_x,balinor_y+wilaux_y):setPlanetRadius(4100):setDistanceFromMovementPlane(-2000)
 	planet_wilaux:setPlanetSurfaceTexture("planets/planet-1.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.1,0.2,0.3)
-	planet_wilaux:setCallSign("Wilaux"):setOrbit(planet_balinor,2000)
+	planet_wilaux:setCallSign("Wilaux"):setOrbit(planet_balinor,2500)
 	table.insert(planet_list,planet_wilaux)
     local lafrina_black_hole = BlackHole():setPosition(-262247, 289530)
 	table.insert(planet_list,lafrina_black_hole)
@@ -22873,6 +22905,7 @@ end
 -- EVASION				D	inline
 function setShipAI()
 	local object_list = getGMSelection()
+	--[[
 	if #object_list ~= 1 then
 		addGMMessage("You need to select a CPU ship. No action taken.")
 		return
@@ -22886,41 +22919,172 @@ function setShipAI()
 	else
 		return
 	end
+	--]]
+	if #object_list < 1 then
+		addGMMessage("You need to select a CPU ship. No action taken.")
+		return
+	end
+	local cpu_ship_count = 0
+	for _, ship in ipairs(object_list) do
+		if ship.typeName == "CpuShip" then
+			cpu_ship_count = cpu_ship_count + 1
+		end
+	end
+	if cpu_ship_count == 0 then
+		addGMMessage("You can only set AI on CPU ships. You need to select a CPU ship. No action taken.")
+		return
+	end
 	clearGMFunctions()
 	local button_label = "default"
-	if obj.AI == "default" then
-		button_label = button_label .. "*"
+	if #object_list == 1 then
+		if object_list[1] ~= nil and object_list[1]:isValid() then
+			if object_list[1].typeName == "CpuShip" then
+				if object_list[1].AI == "default" then
+					button_label = button_label .. "*"
+				end
+			end
+		end
 	end
+--	if obj.AI == "default" then
+--		button_label = button_label .. "*"
+--	end
 	addGMFunction(button_label,function()
-		obj:setAI("default")
-		obj.AI = "default"
+		local object_list = getGMSelection()
+		local ai_list = {}
+		for _, ship in ipairs(object_list) do
+			if ship ~= nil and ship:isValid() then
+				if ship.typeName == "CpuShip" then
+					ship:setAI("default")
+					ship.AI = "default"
+					table.insert(ai_list,ship)
+				end
+			end
+		end
+		if #ai_list > 0 then
+			local msg = "The following ships had their AI set to default:\n     "
+			for _, ship in ipairs(ai_list) do
+				msg = msg .. ship:getCallSign() .. " "
+			end
+			addGMMessage(msg)
+		else
+			addGMMessage("No CPU ships in selection. No action taken")
+		end
+		--obj:setAI("default")
+		--obj.AI = "default"
 		orderShip()
 	end)
 	button_label = "fighter"
-	if obj.AI == "fighter" then
-		button_label = button_label .. "*"
+	if #object_list == 1 then
+		if object_list[1] ~= nil and object_list[1]:isValid() then
+			if object_list[1].typeName == "CpuShip" then
+				if object_list[1].AI == "fighter" then
+					button_label = button_label .. "*"
+				end
+			end
+		end
 	end
+--	if obj.AI == "fighter" then
+--		button_label = button_label .. "*"
+--	end
 	addGMFunction(button_label,function()
-		obj:setAI("fighter")
-		obj.AI = "fighter"
+		local object_list = getGMSelection()
+		local ai_list = {}
+		for _, ship in ipairs(object_list) do
+			if ship ~= nil and ship:isValid() then
+				if ship.typeName == "CpuShip" then
+					ship:setAI("fighter")
+					ship.AI = "fighter"
+					table.insert(ai_list,ship)
+				end
+			end
+		end
+		if #ai_list > 0 then
+			local msg = "The following ships had their AI set to fighter:\n     "
+			for _, ship in ipairs(ai_list) do
+				msg = msg .. ship:getCallSign() .. " "
+			end
+			addGMMessage(msg)
+		else
+			addGMMessage("No CPU ships in selection. No action taken")
+		end
+		--obj:setAI("fighter")
+		--obj.AI = "fighter"
 		orderShip()
 	end)
 	button_label = "missilevolley"
-	if obj.AI == "missilevolley" then
-		button_label = button_label .. "*"
+	if #object_list == 1 then
+		if object_list[1] ~= nil and object_list[1]:isValid() then
+			if object_list[1].typeName == "CpuShip" then
+				if object_list[1].AI == "missilevolley" then
+					button_label = button_label .. "*"
+				end
+			end
+		end
 	end
+--	if obj.AI == "missilevolley" then
+--		button_label = button_label .. "*"
+--	end
 	addGMFunction(button_label,function()
-		obj:setAI("missilevolley")
-		obj.AI = "missilevolley"
+		local object_list = getGMSelection()
+		local ai_list = {}
+		for _, ship in ipairs(object_list) do
+			if ship ~= nil and ship:isValid() then
+				if ship.typeName == "CpuShip" then
+					ship:setAI("missilevolley")
+					ship.AI = "missilevolley"
+					table.insert(ai_list,ship)
+				end
+			end
+		end
+		if #ai_list > 0 then
+			local msg = "The following ships had their AI set to missilevolley:\n     "
+			for _, ship in ipairs(ai_list) do
+				msg = msg .. ship:getCallSign() .. " "
+			end
+			addGMMessage(msg)
+		else
+			addGMMessage("No CPU ships in selection. No action taken")
+		end
+		--obj:setAI("missilevolley")
+		--obj.AI = "missilevolley"
 		orderShip()
 	end)
 	button_label = "evasion"
-	if obj.AI == "evasion" then
-		button_label = button_label .. "*"
+	if #object_list == 1 then
+		if object_list[1] ~= nil and object_list[1]:isValid() then
+			if object_list[1].typeName == "CpuShip" then
+				if object_list[1].AI == "evasion" then
+					button_label = button_label .. "*"
+				end
+			end
+		end
 	end
+--	if obj.AI == "evasion" then
+--		button_label = button_label .. "*"
+--	end
 	addGMFunction(button_label,function()
-		obj:setAI("evasion")
-		obj.AI = "evasion"
+		local object_list = getGMSelection()
+		local ai_list = {}
+		for _, ship in ipairs(object_list) do
+			if ship ~= nil and ship:isValid() then
+				if ship.typeName == "CpuShip" then
+					ship:setAI("evasion")
+					ship.AI = "evasion"
+					table.insert(ai_list,ship)
+				end
+			end
+		end
+		if #ai_list > 0 then
+			local msg = "The following ships had their AI set to evasion:\n     "
+			for _, ship in ipairs(ai_list) do
+				msg = msg .. ship:getCallSign() .. " "
+			end
+			addGMMessage(msg)
+		else
+			addGMMessage("No CPU ships in selection. No action taken")
+		end
+		--obj:setAI("evasion")
+		--obj.AI = "evasion"
 		orderShip()
 	end)
 end
