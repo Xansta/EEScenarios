@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.18"
+	scenario_version = "4.0.19"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -34,7 +34,6 @@ function init()
 	initialGMFunctions()
 	createSkeletonUniverse()
 	runAllTests()
---	testObject = Artifact():setPosition(100,100):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorArrayMKI"):setDescriptions("sensor","good sensor")
 end
 function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
@@ -77,7 +76,7 @@ function setConstants()
 	fleet_list = {}
 	existing_fleet_order = "Roaming"
 	enemy_reverts = {}
-	revert_timer_interval = 7
+	revert_timer_interval = 15
 	revert_timer = revert_timer_interval
 	plotRevert = revertWait
 	tractor_sound = "sfx/emp_explosion.wav"
@@ -736,8 +735,8 @@ function setConstants()
 	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,"W")
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Vision")
-	makePlayerShipActive("Quill")
+	makePlayerShipActive("Thelonius")
+	makePlayerShipActive("Stick")
 	makePlayerShipActive("Flipper")
 	makePlayerShipActive("Hrothgar")
 	makePlayerShipActive("Argonaut")
@@ -2108,7 +2107,7 @@ end
 -- Button Text			   DF*	Related Function(s)
 -- -MAIN FROM ORDER SHIP	F	initialGMFunctions
 -- +WARP/JUMP JAMMER		F	warpJumpJammer
--- FIX SHIELD FREQ			F	inline
+-- +ATTACH/DETACH			F	attachDetach
 -- +ATTACH TO SHIP			F	attachAnythingToNPS
 -- +DETACH					F	detachAnythingFromNPS
 -- +PATROL					F	setPatrolPoints
@@ -2145,8 +2144,7 @@ function orderShip()
 		addGMMessage(string.format("shields of %s change to frequency %s (%s)",tempObject:getCallSign(),tempObject.damage_instigator:getBeamFrequency(),tempObject.damage_instigator:getBeamFrequency()*20+400))
 	end)
 	--]]
-	addGMFunction("+Attach To Ship",attachAnythingToNPS)
-	addGMFunction("+Detach",detachAnythingFromNPS)
+	addGMFunction("+Attach/Detach",attachDetach)
 	addGMFunction("+Patrol",setPatrolPoints)	--currently broken
 	local button_label = "+AI"
 	local object_list = getGMSelection()
@@ -2160,6 +2158,7 @@ function orderShip()
 	end
 	addGMFunction(button_label,setShipAI)
 	addGMFunction("+Formation",setFormation)
+	addGMFunction("+Revert",revertShip)
 	addGMFunction("Docked?",function()
 		local object_list = getGMSelection()
 		if #object_list == 1 then
@@ -2202,6 +2201,155 @@ function orderShip()
 		end
 		if ships_only then
 			addGMFunction(button_label,toggleShipSensorJammer)
+		end
+	end
+end
+function revertShip()
+	clearGMFunctions()
+	addGMFunction("-Main from revert ship",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	addGMFunction("List of Reverts",function()
+		if enemy_reverts == nil then
+			addGMMessage("No revert list")
+		else
+			if #enemy_reverts < 1 then
+				addGMMessage("Empty revert list")
+			else
+				local msg = "The following ships have been convinced by a player Relay officer to do something other than their original orders:"
+				msg = string.format("Next revert check in %.1f seconds. Revert interval: %i\n%s",revert_timer,revert_timer_interval,msg)
+				for revert_index, ship in ipairs(enemy_reverts) do
+					msg = string.format("%s\n    %s in %s (index %i)",msg,ship:getCallSign(),ship:getSectorName(),revert_index)
+					if ship.original_order ~= nil then
+						msg = string.format("%s original order:%s",msg,ship.original_order)
+					end
+					if ship.original_faction ~= nil then
+						msg = string.format("%s original faction:%s",msg,ship.original_faction)
+					end
+					if ship.original_target ~= nil and ship.original_target:isValid() then
+						msg = string.format("%s\n        original target:%s",msg,ship.original_target:getCallSign())
+					end
+					if ship.original_target_x ~= nil then
+						msg = string.format("%s\n        original target coordinates:%.1f,%.1f",msg,ship.original_target_x,original_target_y)
+					end
+				end
+				addGMMessage(msg)
+			end
+		end
+		revertShip()
+	end)
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMFunction("+Select Ship",revertShip)
+	else
+		if object_list[1].typeName ~= "CpuShip" then
+			addGMFunction("+Select Ship",revertShip)
+		else
+			addGMFunction(string.format("Revert %s",object_list[1]:getCallSign()),function()
+				if object_list[1] ~= nil and object_list[1]:isValid() then
+					local revert_ship = nil
+					local revert_ship_index = nil
+					for revert_index, ship in ipairs(enemy_reverts) do
+						if ship == object_list[1] then
+							revert_ship = ship
+							revert_ship_index = revert_index
+							break
+						end
+					end
+					if revert_ship ~= nil then
+						msg = string.format("Ship %s has been reverted (index %i)",revert_ship:getCallSign(),revert_ship_index)
+						local oo = revert_ship.original_order
+						local otx = revert_ship.original_target_x
+						local oty = revert_ship.original_target_y
+						local ot = revert_ship.original_target
+						if oo ~= nil then
+							if oo == "Attack" then
+								if ot ~= nil and ot:isValid() then
+									revert_ship:orderAttack(ot)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Dock" then
+								if ot ~= nil and ot:isValid() then
+									revert_ship:orderDock(ot)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Defend Target" then
+								if ot ~= nil and ot:isValid() then
+									revert_ship:orderDefendTarget(ot)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Fly towards" then
+								if otx ~= nil and oty ~= nil then
+									revert_ship:orderFlyTowards(otx,oty)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Defend Location" then
+								if otx ~= nil and oty ~= nil then
+									revert_ship:orderDefendLocation(otx,oty)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Fly towards (ignore all)" then
+								if otx ~= nil and oty ~= nil then
+									revert_ship:orderFlyTowardsBlind(otx,oty)
+								else
+									revert_ship:orderRoaming()
+								end
+							else
+								revert_ship:orderRoaming()
+							end
+						else
+							revert_ship:orderRoaming()
+						end
+						--print("reverting ship:",enemy:getCallSign(),"original faction:",enemy.original_faction)
+						if revert_ship.original_faction ~= nil then
+							revert_ship:setFaction(revert_ship.original_faction)
+						end
+						if revert_ship.original_order ~= nil then
+							msg = string.format("%s\nOriginal order:%s",msg,revert_ship.original_order)
+						else
+							msg = string.format("%s\nOriginal order: nil",msg)
+						end
+						if revert_ship.original_faction ~= nil then
+							msg = string.format("%s\nOriginal faction:%s",msg,revert_ship.original_faction)
+						else
+							msg = string.format("%s\nOriginal faction: nil",msg)
+						end
+						if revert_ship.original_target ~= nil then
+							if revert_ship.original_target:isValid() then
+								msg = string.format("%s\nOriginal target:%s",msg,revert_ship.original_target:getCallSign())
+							else
+								msg = string.format("%s\nOriginal target: has become invalid")
+							end
+						else
+							msg = string.format("%s\nOriginal target: nil",msg)
+						end
+						if revert_ship.original_target_x ~= nil then
+							msg = string.format("%s\nOriginal target coordinates:%.1f,%.1f",msg,revert_ship.original_target_x,revert_ship.original_target_y)
+						else
+							msg = string.format("%s\nOriginal target coordinates: nil",msg)
+						end
+						addGMMessage(msg)
+						revert_ship.original_order = nil
+						revert_ship.original_target_x = nil
+						revert_ship.original_target_y = nil
+						revert_ship.original_target = nil
+						revert_ship.original_faction = nil
+						revert_ship.taunt_may_expire = false
+						revert_ship.amenability_may_expire = false
+						enemy_reverts[revert_ship_index] = enemy_reverts[#enemy_reverts]
+						enemy_reverts[#enemy_reverts] = nil
+					else
+						addGMMessage("Selected ship not in revert list")
+					end
+				else
+					addGMMessage("Selected ship is invalid")
+				end
+				revertShip()
+			end)
 		end
 	end
 end
@@ -4942,7 +5090,7 @@ function createIcarusColor()
 --		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
-			dp:setLongRangeRadarRange(20000)
+			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
 --		end
 		for j=1,5 do
@@ -6842,7 +6990,7 @@ function createKentarColor()
 --			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
 --			kentar_zone:setColor(0,128,0)
 --		else
-			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming()
+			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
 --		end
@@ -7147,15 +7295,15 @@ function createKentarStations()
 
 	-- outer defence platforms
 	local outer_defence_dist = orbit_far + 2000
-	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
 	dp:setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((0  )/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
 --	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
 --	dpg1zone:setColor(0,128,0):setLabel("DPG1")
-	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
 	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
-	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy")
+	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
 	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPB1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
 
@@ -7169,12 +7317,12 @@ function createKentarStations()
 	local y = gateway_y - math.cos(((50  )/360)*math.pi*2)*15000
 --	local agdp1Zone = squareZone(x, y, "AGDP1 X8")
 --	agdp1Zone:setColor(0,128,0):setLabel("AGDP1")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP1"):setPosition(x,y):orderRoaming())
+	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP1"):setPosition(x,y):orderRoaming():setCommsScript(""):setCommsFunction(commsStation))
 	local x = gateway_x + math.sin(((70  )/360)*math.pi*2)*15000
 	local y = gateway_y - math.cos(((70  )/360)*math.pi*2)*15000
 --	local agdp2Zone = squareZone(x, y, "AGDP2 X8")
 --	agdp2Zone:setColor(0,128,0):setLabel("AGDP2")
-	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(x, y):orderRoaming())
+	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(x, y):orderRoaming():setCommsScript(""):setCommsFunction(commsStation))
 	local x = gateway_x + math.sin(((95  )/360)*math.pi*2)*19000
 	local y =gateway_y - math.cos(((95  )/360)*math.pi*2)*19000
 --	local agst2Zone = squareZone(x, y, "AGST2 X8")
@@ -10713,6 +10861,9 @@ function createLafrinaStations()
 	station_names[stationIlorea:getCallSign()] = {stationIlorea:getSectorName(), stationIlorea}
 	table.insert(stations,stationIlorea)
 	--Lurive
+	local luriveZone = squareZone(-294864, 225704, "Lurive Q90")
+	luriveZone:setColor(51,153,255):setLabel("LV")
+	--[[
 	stationLurive = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Lurive"):setPosition(-294864, 225704):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -10754,6 +10905,7 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationLurive:setSharesEnergyWithDocked(false) end
 	station_names[stationLurive:getCallSign()] = {stationLurive:getSectorName(), stationLurive}
 	table.insert(stations,stationLurive)
+	--]]
 	--Marielle
 	stationMarielle = SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("Marielle"):setPosition(-436074, 287708):setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -11173,7 +11325,7 @@ function tereshSector()
 --			dp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
 --			dp5Zone:setColor(0,128,0)
 --		else		
-			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming()
+			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
@@ -11618,12 +11770,12 @@ function placeTknolgBase()
 end
 function tknolgBase(x,y)
     stationTknolg = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Bio Adaptive Dev Lab"):setPosition(x + 19,y + -4):setCommsFunction(SwitchToGM)
-    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD6"):setPosition(x + 2593,y + 550):orderRoaming():setCommsFunction(SwitchToGM)
-    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD4"):setPosition(x + -7645,y + 4904):orderRoaming():setCommsFunction(SwitchToGM)
-    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD1"):setPosition(x + -4889,y + -7667):orderRoaming():setCommsFunction(SwitchToGM)
-    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD3"):setPosition(x + 4927,y + 7659):orderRoaming():setCommsFunction(SwitchToGM)
-    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD5"):setPosition(x + -3185,y + -490):orderRoaming():setCommsFunction(SwitchToGM)
-    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD2"):setPosition(x + 7682,y + -4912):orderRoaming():setCommsFunction(SwitchToGM)
+    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD6"):setPosition(x + 2593,y + 550):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
+    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD4"):setPosition(x + -7645,y + 4904):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
+    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD1"):setPosition(x + -4889,y + -7667):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
+    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD3"):setPosition(x + 4927,y + 7659):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
+    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD5"):setPosition(x + -3185,y + -490):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
+    CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("AD2"):setPosition(x + 7682,y + -4912):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
     WarpJammer():setFaction("Kraylor"):setPosition(x + -1643,y + 8143)
     WarpJammer():setFaction("Kraylor"):setPosition(x + -7179,y + 4590)
     WarpJammer():setFaction("Kraylor"):setPosition(x + 1558,y + -8072)
@@ -18673,7 +18825,7 @@ function addEnhancementDatabaseEntry()
 	enhancement_db:setLongDescription("Ship enhancements give the ship benefits during combat over and above those things possible with typical assistance from Engineering")
 end
 function stockTemplate(enemyFaction,template)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template[template].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template[template].short_range_radar)
 	end
@@ -18684,7 +18836,7 @@ end
 --	Additional enemy ships with some modifications from the original template parameters  --
 --------------------------------------------------------------------------------------------
 function phobosR2(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Phobos R2"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Phobos R2"].short_range_radar)
 	end
@@ -18730,7 +18882,7 @@ function phobosR2(enemyFaction)
 	return ship
 end
 function hornetMV52(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["MV52 Hornet"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["MV52 Hornet"].short_range_radar)
 	end
@@ -18770,7 +18922,7 @@ function hornetMV52(enemyFaction)
 	return ship
 end
 function fiendG3(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Fiend G3"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Fiend G3"].short_range_radar)
 	end
@@ -18814,7 +18966,7 @@ function fiendG3(enemyFaction)
 	return ship
 end
 function fiendG4(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Gunship"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Fiend G4"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Fiend G4"].short_range_radar)
 	end
@@ -18858,7 +19010,7 @@ function fiendG4(enemyFaction)
 	return ship
 end
 function fiendG5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Fiend G5"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Fiend G5"].short_range_radar)
 	end
@@ -18904,7 +19056,7 @@ function fiendG5(enemyFaction)
 	return ship
 end
 function fiendG6(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Fiend G6"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Fiend G6"].short_range_radar)
 	end
@@ -18950,7 +19102,7 @@ function fiendG6(enemyFaction)
 	return ship
 end
 function k2fighter(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["K2 Fighter"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["K2 Fighter"].short_range_radar)
 	end
@@ -18987,7 +19139,7 @@ function k2fighter(enemyFaction)
 	return ship
 end	
 function k3fighter(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["K3 Fighter"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["K3 Fighter"].short_range_radar)
 	end
@@ -19024,7 +19176,7 @@ function k3fighter(enemyFaction)
 	return ship
 end	
 function stalkerQ5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Stalker Q5"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Stalker Q5"].short_range_radar)
 	end
@@ -19067,7 +19219,7 @@ function stalkerQ5(enemyFaction)
 	return ship
 end
 function stalkerR5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Stalker R5"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Stalker R5"].short_range_radar)
 	end
@@ -19110,7 +19262,7 @@ function stalkerR5(enemyFaction)
 	return ship
 end
 function waddle5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Waddle 5"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Waddle 5"].short_range_radar)
 	end
@@ -19154,7 +19306,7 @@ function waddle5(enemyFaction)
 	return ship
 end
 function jade5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Jade 5"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Jade 5"].short_range_radar)
 	end
@@ -19199,7 +19351,7 @@ function jade5(enemyFaction)
 	return ship
 end
 function droneLite(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Lite Drone"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Lite Drone"].short_range_radar)
 	end
@@ -19238,7 +19390,7 @@ function droneLite(enemyFaction)
 	return ship
 end
 function droneHeavy(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Heavy Drone"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Heavy Drone"].short_range_radar)
 	end
@@ -19276,7 +19428,7 @@ function droneHeavy(enemyFaction)
 	return ship
 end
 function droneJacket(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Jacket Drone"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Jacket Drone"].short_range_radar)
 	end
@@ -19316,7 +19468,7 @@ function droneJacket(enemyFaction)
 	return ship
 end
 function elaraP2(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Elara P2"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Elara P2"].short_range_radar)
 	end
@@ -19365,7 +19517,7 @@ function elaraP2(enemyFaction)
 	return ship
 end
 function wzLindworm(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["WZ-Lindworm"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["WZ-Lindworm"].short_range_radar)
 	end
@@ -19419,7 +19571,7 @@ function wzLindworm(enemyFaction)
 	return ship
 end
 function tempest(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Tempest"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Tempest"].short_range_radar)
 	end
@@ -19495,7 +19647,7 @@ function tempest(enemyFaction)
 	return ship
 end
 function enforcer(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Enforcer"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Enforcer"].short_range_radar)
 	end
@@ -19564,7 +19716,7 @@ function enforcer(enemyFaction)
 	return ship		
 end
 function predator(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Predator"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Predator"].short_range_radar)
 	end
@@ -19653,7 +19805,7 @@ function predator(enemyFaction)
 	return ship		
 end
 function atlantisY42(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Atlantis Y42"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Atlantis Y42"].short_range_radar)
 	end
@@ -19713,7 +19865,7 @@ function atlantisY42(enemyFaction)
 	return ship		
 end
 function starhammerV(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Starhammer V"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Starhammer V"].short_range_radar)
 	end
@@ -19772,7 +19924,7 @@ function starhammerV(enemyFaction)
 	return ship		
 end
 function tyr(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Tyr"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Tyr"].short_range_radar)
 	end
@@ -19839,7 +19991,7 @@ function tyr(enemyFaction)
 	return ship
 end
 function gnat(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Gnat"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Gnat"].short_range_radar)
 	end
@@ -19868,7 +20020,7 @@ function gnat(enemyFaction)
 	return ship
 end
 function cucaracha(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Cucaracha"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Cucaracha"].short_range_radar)
 	end
@@ -19900,7 +20052,7 @@ function cucaracha(enemyFaction)
 	return ship
 end
 function starhammerIII(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Starhammer III"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Starhammer III"].short_range_radar)
 	end
@@ -19934,7 +20086,7 @@ function starhammerIII(enemyFaction)
 	return ship
 end
 function k2breaker(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["K2 Breaker"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["K2 Breaker"].short_range_radar)
 	end
@@ -19973,7 +20125,7 @@ function k2breaker(enemyFaction)
 	return ship
 end
 function hurricane(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Hurricane"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Hurricane"].short_range_radar)
 	end
@@ -20025,7 +20177,7 @@ function hurricane(enemyFaction)
 	return ship
 end
 function phobosT4(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Phobos T4"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Phobos T4"].short_range_radar)
 	end
@@ -20058,7 +20210,7 @@ function phobosT4(enemyFaction)
 	return ship
 end
 function whirlwind(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Whirlwind"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Whirlwind"].short_range_radar)
 	end
@@ -20106,7 +20258,7 @@ function whirlwind(enemyFaction)
 	return ship
 end
 function farco3(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Farco 3"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Farco 3"].short_range_radar)
 	end
@@ -20138,7 +20290,7 @@ function farco3(enemyFaction)
 	return ship
 end
 function farco5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Farco 5"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Farco 5"].short_range_radar)
 	end
@@ -20169,7 +20321,7 @@ function farco5(enemyFaction)
 	return ship
 end
 function farco8(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Farco 8"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Farco 8"].short_range_radar)
 	end
@@ -20203,7 +20355,7 @@ function farco8(enemyFaction)
 	return ship
 end
 function farco11(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Farco 11"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Farco 11"].short_range_radar)
 	end
@@ -20237,7 +20389,7 @@ function farco11(enemyFaction)
 	return ship
 end
 function farco13(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Farco 13"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Farco 13"].short_range_radar)
 	end
@@ -20277,7 +20429,7 @@ function farco13(enemyFaction)
 	return ship
 end
 function hornetMT55(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["MT55 Hornet"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["MT55 Hornet"].short_range_radar)
 	end
@@ -20304,7 +20456,7 @@ function hornetMT55(enemyFaction)
 	return ship
 end
 function hornetMU55(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MU52 Hornet"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MU52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["MU55 Hornet"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["MU55 Hornet"].short_range_radar)
 	end
@@ -20338,7 +20490,7 @@ function hornetMU55(enemyFaction)
 	return ship
 end
 function piranhaF10(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12.M"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12.M"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Piranha F10"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Piranha F10"].short_range_radar)
 	end
@@ -20388,7 +20540,7 @@ function piranhaF10(enemyFaction)
 	return ship
 end
 function predatorV2(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Predator V2"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Predator V2"].short_range_radar)
 	end
@@ -20465,7 +20617,7 @@ function predatorV2(enemyFaction)
 	return ship		
 end
 function enforcerV2(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Enforcer V2"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Enforcer V2"].short_range_radar)
 	end
@@ -20517,7 +20669,7 @@ function enforcerV2(enemyFaction)
 	return ship		
 end
 function gulper(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Gulper"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Gulper"].short_range_radar)
 	end
@@ -20575,7 +20727,7 @@ function gulper(enemyFaction)
 	return ship		
 end
 function diva(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Diva"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Diva"].short_range_radar)
 	end
@@ -20606,7 +20758,7 @@ function diva(enemyFaction)
 	return ship		
 end
 function loki(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Odin"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Odin"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Loki"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Loki"].short_range_radar)
 	end
@@ -20663,7 +20815,7 @@ function loki(enemyFaction)
 	return ship		
 end
 function munemi(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Flash"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Flash"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Munemi"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Munemi"].short_range_radar)
 	end
@@ -20701,7 +20853,7 @@ function munemi(enemyFaction)
 	return ship		
 end
 function maniapak(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Maniapak"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Maniapak"].short_range_radar)
 	end
@@ -20844,7 +20996,7 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 end
 --not included in random fleet spawn lists
 function auxiliaryCruiser(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Transport3x3"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Transport3x3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Transport"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Transport"].short_range_radar)
 	end
@@ -20863,7 +21015,7 @@ function auxiliaryCruiser(enemyFaction)
 	return ship
 end
 function leech(enemyFaction)
-	local ship = CpuShip():setTemplate("Defense platform"):setFaction(enemyFaction):orderRoaming()
+	local ship = CpuShip():setTemplate("Defense platform"):setFaction(enemyFaction):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	if ship_template["Leech Sat"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Leech Sat"].short_range_radar)
 	end
@@ -20882,7 +21034,7 @@ function leech(enemyFaction)
 	return ship
 end
 function overclocker(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Equipment Freighter 1"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Equipment Freighter 1"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	ship:setTypeName("overclocker")
 	ship:setShieldsMax(150,150,150)
 	ship:setShields(150,150,150) -- high shields, slightly unusual number of arcs (3)
@@ -20942,7 +21094,7 @@ function orbiterOverclocker(enemyFaction)
 	return ship
 end
 function orbiter(enemyFaction)
-	local ship  = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming()
+	local ship  = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	ship:setDescription("A large number of tractor beams are detected aboard")
 	ship:setShieldsMax(50,50)
 	ship:setShields(50,50)
@@ -20965,7 +21117,7 @@ end
 function missilePod(enemyFaction)
 	-- common shared between all the missile pods
 	-- the AI behaves more sensibly with order stand ground in testing
-	local ship=CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderStandGround():setTypeName("Missile Pod")
+	local ship=CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderStandGround():setTypeName("Missile Pod"):setCommsScript(""):setCommsFunction(commsStation)
 	ship:setScanState("simplescan")
 	ship:onTakingDamage(npcShipDamage)
 	-- no beams for missile platforms
@@ -21435,7 +21587,7 @@ function missilePodS4(enemyFaction)
 end
 --ships that serve as stations
 function commandBase(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Jump Carrier"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Jump Carrier"):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 	if ship_template["Command Base"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Command Base"].short_range_radar)
 	end
@@ -21531,7 +21683,7 @@ function commandBase(enemyFaction)
 	return ship	
 end
 function militaryOutpost(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 	if ship_template["Military Outpost"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Military Outpost"].short_range_radar)
 	end
@@ -21626,7 +21778,7 @@ function militaryOutpost(enemyFaction)
 	return ship	
 end
 function sniperTower(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderRoaming()
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 	if ship_template["Sniper Tower"].short_range_radar ~= nil then
 		ship:setShortRangeRadarRange(ship_template["Sniper Tower"].short_range_radar)
 	end
@@ -23373,9 +23525,20 @@ function gmClickSetFormationTarget(x,y)
 	onGMClick(nil)
 	setFormation()
 end
----------------------------
---	Order Ship > Detach  --
----------------------------
+----------------------------------
+--	Order Ship > Attach/Detach  --
+----------------------------------
+-- Button Text		   FD*	Related Function(s)
+function attachDetach()
+	clearGMFunctions()
+	addGMFunction("-Main from Attach/Detach",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip())
+	addGMFunction("+Attach To Ship",attachAnythingToNPS)
+	addGMFunction("+Detach",detachAnythingFromNPS)
+end
+-------------------------------------------
+--	Order Ship > Attach/Detach > Detach  --
+-------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM DETACH	F	initialGMFunctions
 -- -ORDER SHIP			F	orderShip
@@ -23384,6 +23547,7 @@ function detachAnythingFromNPS()
 	clearGMFunctions()
 	addGMFunction("-Main from detach",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
+	addGMFunction("-Attach/Detach",attachDetach)
 	local object_list = getGMSelection()
 	if #object_list < 1 then
 		addGMFunction("+Select object(s)",detachAnythingFromNPS)
@@ -23393,9 +23557,9 @@ function detachAnythingFromNPS()
 		update_system:removeUpdateNamed(current_selected_object,"attached")
 	end
 end
----------------------------
---	Order Ship > Attach  --
----------------------------
+-------------------------------------------
+--	Order Ship > Attach/Detach > Attach  --
+-------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM ATTACH	F	initialGMFunctions
 -- -ORDER SHIP			F	orderShip
@@ -23405,6 +23569,7 @@ function attachAnythingToNPS()
 	clearGMFunctions()
 	addGMFunction("-Main from attach",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
+	addGMFunction("-Attach/Detach",attachDetach)
 	local object_list = getGMSelection()
 	if #object_list < 1 then
 		addGMFunction("+Select object(s)",attachAnythingToNPS)
@@ -28829,7 +28994,7 @@ function stationDefensiveInnerRing()
 		local fleet = {}
 		for i=1,inner_defense_platform_count do
 			local ax, ay = vectorFromAngle(angle,platform_distance)
-			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming()
+			local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):setPosition(fsx+ax,fsy+ay):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			if inner_defense_platform_orbit ~= "No" then
 				update_system:addOrbitUpdate(dp,fsx,fsy,platform_distance,orbit_increment[inner_defense_platform_orbit],angle)
 			end
@@ -28899,7 +29064,7 @@ function stationDefensiveOuterRing()
 				local increment = 360/outer_defense_platform_count
 				local fleet = {}
 				for i=1,outer_defense_platform_count do
-					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):orderRoaming()
+					local dp = CpuShip():setTemplate("Defense platform"):setFaction(faction):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 					createOrbitingObject(dp,angle,orbit_increment[outer_defense_platform_orbit], fsx, fsy, platform_distance)
 					angle = (angle + increment) % 360
 					table.insert(fleet,dp)
@@ -30874,7 +31039,7 @@ function starryKraylor()
 	end)
 	addGMFunction("W22 Auto dfnd base", function ()
 		local create = function ()
-			return CpuShip():setTemplate("Defense platform"):setFaction("Kraylor"):orderRoaming()
+			return CpuShip():setTemplate("Defense platform"):setFaction("Kraylor"):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 		end
 		local jammer_create = function ()
 			return WarpJammer():setRange(12000):setFaction("Kraylor")
@@ -31542,62 +31707,240 @@ function enemyComms(comms_data)
 	local faction = comms_target:getFaction()
 	local tauntable = false
 	local amenable = false
-	if comms_data.friendlyness >= 33 then	--final: 33
-		--taunt logic
+	local taunt_chat = 33	--be friendlier (higher) than this value to accept taunt messages
+	local taunt_chat_by_faction = {
+		["Kraylor"] =	30,
+		["Arlenians"] =	15,
+		["Exuari"] =	22,
+		["Ghosts"] =	41,
+		["Ktlitans"] =	52,
+		["TSN"] =		9,
+		["USN"] =		10,
+		["CUF"] =		11,
+		["Human Navy"] =12,
+		["Independent"]=18,
+	}
+	if taunt_chat_by_faction[faction] ~= nil then
+		taunt_chat = taunt_chat_by_faction[faction]
+	end
+--	taunt_chat = 0		--test - always allow
+	if comms_data.friendlyness >= taunt_chat then
+		tauntable = true
+	end
+	local enemy_health = getEnemyHealth(comms_target)
+	if change_enemy_order_diagnostic then print(string.format("   enemy health:    %.2f",enemy_health)) end
+	if change_enemy_order_diagnostic then print(string.format("   friendliness:    %.1f",comms_data.friendlyness)) end
+	local amenable_chat = 66	--be friendlier (higher) than this value to accept change action messages
+	local amenable_chat_by_faction = {
+		["Kraylor"] =	60,
+		["Arlenians"] =	45,
+		["Exuari"] =	52,
+		["Ghosts"] =	71,
+		["Ktlitans"] =	82,
+		["TSN"] =		29,
+		["USN"] =		25,
+		["CUF"] =		21,
+		["Human Navy"] =23,
+		["Independent"]=32,
+	}
+	if amenable_chat_by_faction[faction] ~= nil then
+		amenable_chat = amenable_chat_by_faction[faction]
+	end
+--	amenable_chat = 0	--test - always allow
+	if comms_data.friendlyness >= amenable_chat or enemy_health < .5 then	--final: 66, .5
+		amenable = true
+	end
+	if change_enemy_order_diagnostic then print("tauntable:",tauntable,"amenable:",amenable) end
+	if tauntable or amenable then
+		setCommsMessage(string.format("--Tenacious Translator 2--\n\nHow much reputation do you want to spend to help influence the individual operating the communications system on %s?\nAvailable reputation: %i",comms_target:getCallSign(),math.floor(comms_source:getReputationPoints())))
+		local rep_choices = {0,5,10,20,40}
+		for _, rep in ipairs(rep_choices) do
+			addCommsReply(string.format("%i Reputation",rep),function()
+				string.format("")
+				influenceEnemy(tauntable,amenable,enemy_health,rep)
+			end)
+		end
+		return true
+	else
+		return false
+	end
+end
+function influenceEnemy(tauntable,amenable,enemy_health,rep)
+	comms_data.friendlyness = comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
+	local faction = comms_target:getFaction()
+	local hail_message = "Mind your own business."
+	local hail_message_by_faction = {
+		["Kraylor"] =	{
+							"Ktzzzsss.\nYou will DIEEee weaklingsss!",
+							"Talking to prey can sometimes be interesting."
+						},
+		["Arlenians"] =	{
+							"We wish you no harm, but will harm you if we must.\nEnd of transmission.",
+						},
+		["Exuari"] =	{
+							"Stay out of our way, or your death will amuse us extremely!",
+							"Listen, the fresh meat wants to talk to us.",
+							"Why are you trying to talk to us? You're just supposed to die. Fine. I'll listen to your last words.",
+						},
+		["Ghosts"] =	{
+							"One zero one.\nNo binary communication detected.\nSwitching to universal speech.\nGenerating appropriate response for target from human language archives.\n:Do not cross us:\nCommunication halted.",
+						},
+		["Ktlitans"] =	{
+							"The hive suffers no threats. Opposition to any of us is opposition to us all.\nStand down or prepare to donate your corpses toward our nutrition.",
+						},
+		["TSN"] =		{
+							"State your business",
+						},
+		["USN"] =		{
+							"What do you want? (not that we care)",
+						},
+		["CUF"] =		{
+							"Don't waste our time",
+							"Do I have to talk to such losers?\n*sigh*\nOk, start talking.",
+						},
+		["Human Navy"] ={
+							"Mind your own business!",
+						},
+		["Independent"]={
+							"Make it quick.",
+						},
+	}
+	if hail_message_by_faction[faction] ~= nil then
+		hail_message = hail_message_by_faction[faction][math.random(1,#hail_message_by_faction[faction])]
+	end
+	setCommsMessage(hail_message)
+	local rep_effect = 1
+	local rep_effect_by_faction = {
+		["Kraylor"] =	1	,
+		["Arlenians"] =	2	,
+		["Exuari"] =	.5	,
+		["Ghosts"] =	1.2	,
+		["Ktlitans"] =	.8	,
+		["TSN"] =		.6	,
+		["USN"] =		.5	,
+		["CUF"] =		.7	,
+		["Human Navy"] =.9	,
+		["Independent"]=1	,
+	}
+	if rep_effect_by_faction[faction] ~= nil then
+		rep_effect = rep_effect_by_faction[faction]
+	end
+	local dist_effect = 1
+	local dist_effect_by_faction = {
+		["Kraylor"] =	1	,
+		["Arlenians"] =	.4	,
+		["Exuari"] =	1.5	,
+		["Ghosts"] =	.3	,
+		["Ktlitans"] =	1.2	,
+		["TSN"] =		1.1	,
+		["USN"] =		1.4	,
+		["CUF"] =		.9	,
+		["Human Navy"] =1.1	,
+		["Independent"]=1	,
+	}
+	if dist_effect_by_faction[faction] ~= nil then
+		dist_effect = dist_effect_by_faction[faction]
+	end
+	local comms_dist = distance(comms_source,comms_target)
+	if comms_dist < 20000 then
+		comms_dist = 0
+	else
+		comms_dist = math.min(100,(comms_dist-20000)/1000)
+	end
+	local target_lock = 10
+	local target_lock_by_faction = {
+		["Kraylor"] =	10	,
+		["Arlenians"] =	20	,
+		["Exuari"] =	8	,
+		["Ghosts"] =	15	,
+		["Ktlitans"] =	12	,
+		["TSN"] =		10	,
+		["USN"] =		9	,
+		["CUF"] =		11	,
+		["Human Navy"] =5	,
+		["Independent"]=10	,
+	}
+	if target_lock_by_faction[faction] ~= nil then
+		target_lock = target_lock_by_faction[faction]
+	end
+	if tauntable then
 		local taunt_option = "We will see to your destruction!"
 		local taunt_success_reply = "Your bloodline will end here!"
 		local taunt_failed_reply = "Your feeble threats are meaningless."
-		local taunt_threshold = 30	--base chance of being taunted
-		if faction == "Kraylor" then
-			taunt_threshold = 35
-			setCommsMessage("Ktzzzsss.\nYou will DIEEee weaklingsss!");
-			local kraylorTauntChoice = math.random(1,3)
-			if kraylorTauntChoice == 1 then
-				taunt_option = "We will destroy you"
-				taunt_success_reply = "We think not. It is you who will experience destruction!"
-			elseif kraylorTauntChoice == 2 then
-				taunt_option = "You have no honor"
-				taunt_success_reply = "Your insult has brought our wrath upon you. Prepare to die."
-				taunt_failed_reply = "Your comments about honor have no meaning to us"
-			else
-				taunt_option = "We pity your pathetic race"
-				taunt_success_reply = "Pathetic? You will regret your disparagement!"
-				taunt_failed_reply = "We don't care what you think of us"
-			end
-		elseif faction == "Arlenians" then
-			taunt_threshold = 25
-			setCommsMessage("We wish you no harm, but will harm you if we must.\nEnd of transmission.");
-		elseif faction == "Exuari" then
-			taunt_threshold = 40
-			setCommsMessage("Stay out of our way, or your death will amuse us extremely!");
-		elseif faction == "Ghosts" then
-			taunt_threshold = 20
-			setCommsMessage("One zero one.\nNo binary communication detected.\nSwitching to universal speech.\nGenerating appropriate response for target from human language archives.\n:Do not cross us:\nCommunication halted.");
-			taunt_option = "EXECUTE: SELFDESTRUCT"
-			taunt_success_reply = "Rogue command received. Targeting source."
-			taunt_failed_reply = "External command ignored."
-		elseif faction == "Ktlitans" then
-			setCommsMessage("The hive suffers no threats. Opposition to any of us is opposition to us all.\nStand down or prepare to donate your corpses toward our nutrition.");
-			taunt_option = "<Transmit 'The Itsy-Bitsy Spider' on all wavelengths>"
-			taunt_success_reply = "We do not need permission to pluck apart such an insignificant threat."
-			taunt_failed_reply = "The hive has greater priorities than exterminating pests."
-		elseif faction == "TSN" then
-			taunt_threshold = 15
-			setCommsMessage("State your business")
-		elseif faction == "USN" then
-			taunt_threshold = 15
-			setCommsMessage("What do you want? (not that we care)")
-		elseif faction == "CUF" then
-			taunt_threshold = 15
-			setCommsMessage("Don't waste our time")
-		else
-			setCommsMessage("Mind your own business!");
+		local taunt_option_by_faction = {
+			["Kraylor"] =	{
+								{option = "We will destroy you", success = "We think not. It is you who will experience destruction!", fail = "Your feeble threats are meaningless."},
+								{option = "You have no honor", success = "Your insult has brought our wrath upon you. Prepare to die.", fail = "Your comments about honor have no meaning to us."},
+								{option = "We pity your pathetic race", success = "Pathetic? You will regret your disparagement!", fail = "We don't care what you think of us"},
+							},
+			["Arlenians"] =	{
+								{option = "Your days are numbered", success = "We shall shorten your days", fail = "We can count better than you, obviously"},
+							},
+			["Exuari"] =	{
+								{option = "We will rid the universe of your parasitical existence", success = "You will find new meaning for parasite as we leave your corpses for carrion consumers", fail = "You're welcome to try and fail."},
+							},
+			["Ghosts"] =	{
+								{option = "EXECUTE: SELFDESTRUCT", success = "Rogue command received. Targeting source.", fail = "External command ignored."},
+							},
+			["Ktlitans"] =	{
+								{option = "<Transmit 'The Itsy-Bitsy Spider' on all wavelengths>", success = "We do not need permission to pluck apart such an insignificant threat.", fail = "The hive has greater priorities than exterminating pests."},
+							},
+			["TSN"] =		{
+								{option = "Your mother was a hamster and your father smelled of elderberries", success = "You'll regret saying those things about my parents.", fail = "You must be kin to Sir Robin."},
+							},
+			["USN"] =		{
+								{option = "You couldn't shoot your way out of a paper bag", success = "We'll just see about that.", fail = "We don't have time for the yammerings of idiots"},
+							},
+			["CUF"] =		{
+								{option = "We will see to your destruction!", success = "Your bloodline will end here!", fail = "Your feeble threats are meaningless."},
+							},
+			["Human Navy"] ={
+								{option = "We will see to your destruction!", success = "Your bloodline will end here!", fail = "Your feeble threats are meaningless."},
+							},
+			["Independent"]={
+								{option = "We will see to your destruction!", success = "Your bloodline will end here!", fail = "Your feeble threats are meaningless."},
+							},
+		}
+		if taunt_option_by_faction[faction] ~= nil then
+			local option_index = math.random(1,#taunt_option_by_faction[faction])
+			if taunt_diagnostic then print("taunt option by faction index:",option_index) end
+			taunt_option = taunt_option_by_faction[faction][option_index].option
+			taunt_success_reply = taunt_option_by_faction[faction][option_index].success
+			taunt_failed_reply = taunt_option_by_faction[faction][option_index].fail
 		end
-		comms_data.friendlyness = comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
 		addCommsReply(taunt_option, function()
-			if random(0, 100) <= taunt_threshold then	--final: 30
+			if not comms_source:takeReputationPoints(rep) then
+				rep = 0
+			end
+			--taunt logic
+			local taunt_susceptibility = 30	--chance of a successful taunt
+			local taunt_susceptibility_by_faction = {
+				["Kraylor"] =	35,
+				["Arlenians"] =	25,
+				["Exuari"] =	40,
+				["Ghosts"] =	20,
+				["Ktlitans"] =	30,
+				["TSN"] =		15,
+				["USN"] =		15,
+				["CUF"] =		15,
+				["Human Navy"] =15,
+			}
+			if taunt_susceptibility_by_faction[faction] ~= nil then
+				taunt_susceptibility = taunt_susceptibility_by_faction[faction]
+			end
+			local taunt_roll = random(0,100)
+			if comms_target ~= comms_source:getTarget() then
+				target_lock = 0
+			end
+--			taunt_roll = 0	--test - always succeed
+			local calc_chance = math.max(0,taunt_susceptibility + (rep * rep_effect) - (comms_dist * dist_effect) + target_lock)
+			if change_enemy_order_diagnostic then
+				print(string.format("Taunt:%.1f + Rep:%.1f - Dist:%.1f + Lock:%i = %.1f",taunt_susceptibility,rep * rep_effect,comms_dist * dist_effect,target_lock,calc_chance))
+				print("Roll:",amenable_roll)
+			end
+			if taunt_roll <= calc_chance then
 				local current_order = comms_target:getOrder()
-				print("order: " .. current_order)
+				if taunt_diagnostic then print("Current order before taunt change: " .. current_order) end
 				--Possible order strings returned:
 				--Roaming
 				--Fly towards
@@ -31610,17 +31953,14 @@ function enemyComms(comms_data)
 				--Fly towards (ignore all)
 				--Dock
 				if comms_target.original_order == nil then
-					comms_target.original_faction = faction
 					comms_target.original_order = current_order
 					if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
 						comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
-						--print(string.format("Target_x: %f, Target_y: %f",comms_target.original_target_x,comms_target.original_target_y))
+						if taunt_diagnostic then print(string.format("Target coordinates of order before taunt:%.1f,%.1f",comms_target.original_target_x,comms_target.original_target_y)) end
 					end
 					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
 						local original_target = comms_target:getOrderTarget()
-						--print("target:")
-						--print(original_target)
-						--print(original_target:getCallSign())
+						if taunt_diagnostic then print("Target of orders before taunt:",original_target,original_target:getCallSign()) end
 						comms_target.original_target = original_target
 					end
 					comms_target.taunt_may_expire = true	--change to conditional in future refactoring
@@ -31632,51 +31972,232 @@ function enemyComms(comms_data)
 				setCommsMessage(taunt_failed_reply);
 			end
 		end)
-		tauntable = true
 	end
-	local enemy_health = getEnemyHealth(comms_target)
-	if change_enemy_order_diagnostic then print(string.format("   enemy health:    %.2f",enemy_health)) end
-	if change_enemy_order_diagnostic then print(string.format("   friendliness:    %.1f",comms_data.friendlyness)) end
-	if comms_data.friendlyness >= 66 or enemy_health < .5 then	--final: 66, .5
+	if amenable then
 		--amenable logic
 		local amenable_chance = comms_data.friendlyness/3 + (1 - enemy_health)*30
 		if change_enemy_order_diagnostic then print(string.format("   amenability:     %.1f",amenable_chance)) end
-		addCommsReply("Stop your actions",function()
-			local amenable_roll = random(0,100)
-			if change_enemy_order_diagnostic then print(string.format("   amenable roll:   %.1f",amenable_roll)) end
-			if amenable_roll < amenable_chance then
+		local amenable_roll = random(0,100)
+--		amenable_roll = 0	--test - always succeed
+		addCommsReply("Stop your aggression!", function()
+			if not comms_source:takeReputationPoints(rep) then
+				rep = 0
+			end
+			--idle
+			string.format("")	--global context for serious proton
+			local idle_susceptibility = 10
+			local idle_susceptibility_by_faction = {
+				["Kraylor"] =	6,
+				["Arlenians"] =	7,
+				["Exuari"] =	8,
+				["Ghosts"] =	12,
+				["Ktlitans"] =	21,
+				["TSN"] =		5,
+				["USN"] =		4,
+				["CUF"] =		9,
+				["Human Navy"] =8,
+			}
+			if idle_susceptibility_by_faction[faction] ~= nil then
+				idle_susceptibility = idle_susceptibility_by_faction[faction]
+			end
+			if comms_target ~= comms_source:getTarget() then
+				target_lock = 0
+			end
+			local calc_chance = math.max(0,amenable_chance + idle_susceptibility + (rep * rep_effect) - (comms_dist * dist_effect) + target_lock)
+			if change_enemy_order_diagnostic then
+				print(string.format("Base:%.1f + Idle:%.1f + Rep:%.1f - Dist:%.1f + Lock:%i = %.1f",amenable_chance,idle_susceptibility,rep * rep_effect,comms_dist * dist_effect,target_lock,calc_chance))
+				print("Roll:",amenable_roll)
+			end
+			if amenable_roll < calc_chance then
 				local current_order = comms_target:getOrder()
 				if comms_target.original_order == nil then
 					comms_target.original_order = current_order
-					comms_target.original_faction = faction
 					if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
 						comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
-						--print(string.format("Target_x: %f, Target_y: %f",comms_target.original_target_x,comms_target.original_target_y))
 					end
 					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
 						local original_target = comms_target:getOrderTarget()
-						--print("target:")
-						--print(original_target)
-						--print(original_target:getCallSign())
 						comms_target.original_target = original_target
 					end
 					table.insert(enemy_reverts,comms_target)
 				end
 				comms_target.amenability_may_expire = true
 				comms_target:orderIdle()
-				comms_target:setFaction("Independent")
-				setCommsMessage("Just this once, we'll take your advice")
+				setCommsMessage("We have halted our aggression")
 			else
-				setCommsMessage("No")
+				setCommsMessage("We see no reason to stop")
 			end
 		end)
-		comms_data.friendlyness = comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
-		amenable = true
-	end
-	if tauntable or amenable then
-		return true
-	else
-		return false
+		addCommsReply("We propose a cease fire agreement.",function()
+			if not comms_source:takeReputationPoints(rep) then
+				rep = 0
+			end
+			--independent
+			string.format("")	--global context for serious proton
+			local cease_fire_susceptibility = 10
+			local cease_fire_susceptibility_by_faction = {
+				["Kraylor"] =	25,
+				["Arlenians"] =	13,
+				["Exuari"] =	45,
+				["Ghosts"] =	32,
+				["Ktlitans"] =	22,
+				["TSN"] =		12,
+				["USN"] =		32,
+				["CUF"] =		26,
+				["Human Navy"] =15,
+			}
+			if cease_fire_susceptibility_by_faction[faction] ~= nil then
+				cease_fire_susceptibility = cease_fire_susceptibility_by_faction[faction]
+			end
+			if comms_target ~= comms_source:getTarget() then
+				target_lock = 0
+			end
+			local calc_chance = math.max(0,amenable_chance + cease_fire_susceptibility + (rep * rep_effect) - (comms_dist * dist_effect) + target_lock)
+			if change_enemy_order_diagnostic then
+				print(string.format("Base:%.1f + Cease Fire:%.1f + Rep:%.1f - Dist:%.1f + Lock:%i = %.1f",amenable_chance,cease_fire_susceptibility,rep * rep_effect,comms_dist * dist_effect,target_lock,calc_chance))
+				print("Roll:",amenable_roll)
+			end
+			if amenable_roll < calc_chance then
+				local current_order = comms_target:getOrder()
+				if comms_target.original_order == nil then
+					comms_target.original_order = current_order
+					comms_target.original_faction = faction
+					if change_enemy_order_diagnostic then print("faction as stored when going independent:",comms_target.original_faction) end
+					if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
+						comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
+					end
+					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
+						local original_target = comms_target:getOrderTarget()
+						comms_target.original_target = original_target
+					end
+					table.insert(enemy_reverts,comms_target)
+				end
+				comms_target.amenability_may_expire = true
+				comms_target:setFaction("Independent")
+				setCommsMessage("We agree to your cease fire terms")
+			else
+				setCommsMessage("We like shooting our weapons")
+			end
+		end)
+		addCommsReply("I strongly suggest you retreat immediately.",function()
+			if not comms_source:takeReputationPoints(rep) then
+				rep = 0
+			end
+			--fly blind
+			string.format("")	--global context for serious proton
+			local fly_blind_susceptibility = 10
+			local fly_blind_susceptibility_by_faction = {
+				["Kraylor"] =	10,
+				["Arlenians"] =	15,
+				["Exuari"] =	12,
+				["Ghosts"] =	6,
+				["Ktlitans"] =	2,
+				["TSN"] =		3,
+				["USN"] =		4,
+				["CUF"] =		5,
+				["Human Navy"] =8,
+			}
+			if fly_blind_susceptibility_by_faction[faction] ~= nil then
+				fly_blind_susceptibility = fly_blind_susceptibility_by_faction[faction]
+			end
+			if comms_target ~= comms_source:getTarget() then
+				target_lock = 0
+			end
+			local calc_chance = math.max(0,amenable_chance + fly_blind_susceptibility + (rep * rep_effect) - (comms_dist * dist_effect) + target_lock)
+			if change_enemy_order_diagnostic then
+				print(string.format("Base:%.1f + Fly Blind:%.1f + Rep:%.1f - Dist:%.1f + Lock:%i = %.1f",amenable_chance,fly_blind_susceptibility,rep * rep_effect,comms_dist * dist_effect,target_lock,calc_chance))
+				print("Roll:",amenable_roll)
+			end
+			if amenable_roll < calc_chance then
+				local current_order = comms_target:getOrder()
+				if comms_target.original_order == nil then
+					comms_target.original_order = current_order
+					if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
+						comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
+					end
+					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
+						local original_target = comms_target:getOrderTarget()
+						comms_target.original_target = original_target
+					end
+					table.insert(enemy_reverts,comms_target)
+				end
+				comms_target.amenability_may_expire = true
+				local new_heading = (comms_target:getHeading() + 180) % 360
+				local ct_x, ct_y = comms_target:getPosition()
+				local retreat_distance = 15000
+				local safe_spot = true
+				local new_x = nil
+				local new_y = nil
+				repeat
+					safe_spot = true
+					new_x, new_y = vectorFromAngleNorth(new_heading,retreat_distance)
+					new_x = new_x + ct_x
+					new_y = new_y + ct_y
+					local obj_list = getObjectsInRadius(new_x, new_y, 8000)
+					for _, obj in ipairs(obj_list) do
+						if obj.typeName == "BlackHole" or obj.typeName == "WormHole" then
+							safe_spot = false
+						end
+					end
+					retreat_distance = retreat_distance + 1000
+				until(safe_spot)
+				comms_target:orderFlyTowardsBlind(new_x, new_y)
+				setCommsMessage("We'll retreat for now")
+			else
+				setCommsMessage("Retreat is not an option")
+			end
+		end)
+		addCommsReply("Join us in our worthy cause.",function()
+			if not comms_source:takeReputationPoints(rep) then
+				rep = 0
+			end
+			--defect
+			string.format("")	--global context for serious proton
+			local defect_susceptibility = 10
+			local defect_susceptibility_by_faction = {
+				["Kraylor"] =	7,
+				["Arlenians"] =	12,
+				["Exuari"] =	8,
+				["Ghosts"] =	4,
+				["Ktlitans"] =	1,
+				["TSN"] =		2,
+				["USN"] =		3,
+				["CUF"] =		2,
+				["Human Navy"] =3,
+			}
+			if defect_susceptibility_by_faction[faction] ~= nil then
+				defect_susceptibility = defect_susceptibility_by_faction[faction]
+			end
+			if comms_target ~= comms_source:getTarget() then
+				target_lock = 0
+			end
+			local calc_chance = math.max(0,amenable_chance + defect_susceptibility + (rep * rep_effect) - (comms_dist * dist_effect) - target_lock)
+			if change_enemy_order_diagnostic then
+				print(string.format("Base:%.1f + Defect:%.1f + Rep:%.1f - Dist:%.1f - Lock:%i = %.1f",amenable_chance,defect_susceptibility,rep * rep_effect,comms_dist * dist_effect,target_lock,calc_chance))
+				print("Roll:",amenable_roll)
+			end
+			if amenable_roll < calc_chance then
+				local current_order = comms_target:getOrder()
+				if comms_target.original_order == nil then
+					comms_target.original_order = current_order
+					if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
+						comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
+					end
+					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
+						local original_target = comms_target:getOrderTarget()
+						comms_target.original_target = original_target
+					end
+					table.insert(enemy_reverts,comms_target)
+				end
+				comms_target.amenability_may_expire = true
+				comms_target.original_faction = faction
+				if change_enemy_order_diagnostic then print("faction as stored when defecting:",comms_target.original_faction) end
+				comms_target:setFaction(comms_source:getFaction())
+				setCommsMessage("Friends! Let us go forth together!")
+			else
+				setCommsMessage("That's ludicrous")
+			end
+		end)
 	end
 end
 function neutralComms(comms_data)
@@ -32009,54 +32530,48 @@ function revertWait(delta)
 end
 function revertCheck(delta)
 	if enemy_reverts ~= nil then
-		for _, enemy in ipairs(enemy_reverts) do
+		local taunt_expiration_chance_by_faction = {
+			["Kraylor"] =	4.5	,
+			["Arlenians"] =	7	,
+			["Exuari"] =	2.5	,
+			["Ghosts"] =	8.5	,
+			["Ktlitans"] =	5.5	,
+			["TSN"] =		3	,
+			["USN"] =		3.5	,
+			["CUF"] =		4	,
+			["Human Navy"]=	6	,
+			["Independent"]=10	,
+		}
+		local amenable_expiration_chance_by_faction = {
+			["Kraylor"] =	2.5	,
+			["Arlenians"] =	3.25,
+			["Exuari"] =	6.6	,
+			["Ghosts"] =	3.2	,
+			["Ktlitans"] =	4.8	,
+			["TSN"] =		3.5	,
+			["USN"] =		2.8	,
+			["CUF"] =		3	,
+			["Human Navy"]=	4	,
+			["Independent"]=9	,
+		}
+		for revert_index, enemy in ipairs(enemy_reverts) do
 			if enemy ~= nil and enemy:isValid() then
 				local expiration_chance = 0
 				local enemy_faction = enemy:getFaction()
+				if enemy.original_faction ~= nil then
+					enemy_faction = enemy.original_faction
+				end
 				if enemy.taunt_may_expire then
-					if enemy_faction == "Kraylor" then
-						expiration_chance = 4.5
-					elseif enemy_faction == "Arlenians" then
-						expiration_chance = 7
-					elseif enemy_faction == "Exuari" then
-						expiration_chance = 2.5
-					elseif enemy_faction == "Ghosts" then
-						expiration_chance = 8.5
-					elseif enemy_faction == "Ktlitans" then
-						expiration_chance = 5.5
-					elseif enemy_faction == "TSN" then
-						expiration_chance = 3
-					elseif enemy_faction == "USN" then
-						expiration_chance = 3.5
-					elseif enemy_faction == "CUF" then
-						expiration_chance = 4
-					else
-						expiration_chance = 6
+					if taunt_expiration_chance_by_faction[enemy_faction] ~= nil then
+						expiration_chance = taunt_expiration_chance_by_faction[enemy_faction]
 					end
 				elseif enemy.amenability_may_expire then
-					local enemy_health = getEnemyHealth(enemy)
-					if enemy_faction == "Kraylor" then
-						expiration_chance = 2.5
-					elseif enemy_faction == "Arlenians" then
-						expiration_chance = 3.25
-					elseif enemy_faction == "Exuari" then
-						expiration_chance = 6.6
-					elseif enemy_faction == "Ghosts" then
-						expiration_chance = 3.2
-					elseif enemy_faction == "Ktlitans" then
-						expiration_chance = 4.8
-					elseif enemy_faction == "TSN" then
-						expiration_chance = 3.5
-					elseif enemy_faction == "USN" then
-						expiration_chance = 2.8
-					elseif enemy_faction == "CUF" then
-						expiration_chance = 3
-					else
-						expiration_chance = 4
+					if amenable_expiration_chance_by_faction[enemy_faction] ~= nil then
+						expiration_chance = amenable_expiration_chance_by_faction[enemy_faction]
 					end
-					expiration_chance = expiration_chance + enemy_health*5
 				end
 				local expiration_roll = random(1,100)
+				if change_enemy_order_diagnostic then print("Revert index:",revert_index,"Ship:",enemy:getCallSign(),"chance:",expiration_chance,"roll:",expiration_roll) end
 				if expiration_roll < expiration_chance then
 					local oo = enemy.original_order
 					local otx = enemy.original_target_x
@@ -32105,12 +32620,25 @@ function revertCheck(delta)
 					else
 						enemy:orderRoaming()
 					end
+					if change_enemy_order_diagnostic then print("reverting ship:",enemy:getCallSign(),"original faction:",enemy.original_faction) end
 					if enemy.original_faction ~= nil then
 						enemy:setFaction(enemy.original_faction)
 					end
+					enemy.original_order = nil
+					enemy.original_target_x = nil
+					enemy.original_target_y = nil
+					enemy.original_target = nil
+					enemy.original_faction = nil
 					enemy.taunt_may_expire = false
 					enemy.amenability_may_expire = false
+					enemy_reverts[revert_index] = enemy_reverts[#enemy_reverts]
+					enemy_reverts[#enemy_reverts] = nil
+					break
 				end
+			else
+				enemy_reverts[revert_index] = enemy_reverts[#enemy_reverts]
+				enemy_reverts[#enemy_reverts] = nil
+				break
 			end
 		end
 	end
@@ -34466,9 +34994,9 @@ function handleUndockedState()
 					end)
 				end
 				if stationVilairre ~= nil and stationVilairre:isValid() then
-					addCommsReply(string.format("Vilairre currently in %s",stationVilairre:getSectorName()),function()
+					addCommsReply(string.format("Vilairre currently in %s",stationVilairre:getSectorName()), function()
 						setCommsMessage(string.format("Vilairre is currently located in %s. It is a small station that handles communicatino and administration for area operations. It orbits the planet named Wilaux.\n\nWould you like a waypoint set on Vilairre?",stationVilairre:getSectorName()))
-						addCommsReply("Yes",function()
+						addCommsReply("Yes", function()
 							local sx, sy = stationVilairre:getPosition()
 							comms_source:commandAddWaypoint(sx, sy)
 							setCommsMessage(string.format("Waypoint %i set on station Vilairre. Since Vilairre orbits Wilaux, this waypoint will become rapidly outdated",comms_source:getWaypointCount()))
@@ -34477,6 +35005,62 @@ function handleUndockedState()
 						addCommsReply("Back", commsStation)
 					end)
 				end
+			end)
+		end
+		if comms_target.skeleton_station then
+			addCommsReply("Influence Enemies", function()
+				setCommsMessage("--Tenacious Translator 2--     Introductory Training Module\n\nCUF upgraded their ships' communications systems offering relay officers greater flexibility and opportunity when communicating with enemy ships. Features include updated protocols for common enemies (fewer reasons to ignore you), seamless language translation including idioms and integrated reputation usage.")
+				addCommsReply("Why do I sometimes get 'No Reply' from enemy ships?", function()
+					setCommsMessage("No Reply is when the ship being contacted does not engage their communications system. There's not much Tenacious Translator 2 can do if the ship chooses not to respond. However, the enemy protocol upgrades reduce the chance of this happening.")
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("Can I try muliple times?", function()
+					setCommsMessage("Yes, but each time you try, it irritates the enemy vessel and eventually they simply won't respond. There's not a hard and fast rule about how many times you can try.")
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("The first option looks insulting", function()
+					setCommsMessage("Yes, the first option listed is designed to anger the enemy into attacking you instead of doing whatever it is they are currently doing. Generally, this option has the greatest chance of succeeding. It has obvious consequences if successful, though.")
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("What do the other options mean?", function()
+					setCommsMessage("The options after the first option allow the Relay officer to attempt to influence the enemy to take different actions. Different factions have different susceptibilities to the options presented.")
+					addCommsReply("Stop aggression", function()
+						setCommsMessage("Successfully persuading an enemy with this option results in the enemy stopping their firing and any tactical maneuvering. You'll see this option labeled with this prompt:\nStop your aggression!")
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Cease Fire", function()
+						setCommsMessage("If the enemy agrees, its IFF will switch over to Independent preventing mutual weapons targeting by the enemy and you. This option uses the following prompt:\nWe propose a cease fire agreement")
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Retreat", function()
+						setCommsMessage("Should you convince the enemy ship with this option, they'll leave the area without attacking. This option is labeled:\nI strongly suggest you retreat immediately.")
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Defect", function()
+						setCommsMessage("Use this option if you want to convince the enemy ship to defect from their faction to your faction. It's labeled:\nJoin us in our worthy cause.")
+						addCommsReply("Back", commsStation)
+					end)
+				end)
+				addCommsReply("Does negotiating actually work?",function()
+					setCommsMessage("The testing team for Tenacious Translator 2 proved its effectiveness and success through numerous trials. However, there were observed cases where the enemy ships reverted back to their original orders, so users are cautioned to maintain vigilance. Trials also revealed that things like distance, invested reputation, enemy ship damage and target lock may also influence the enemy ship's decision.")
+					addCommsReply("How does distance influence the enemy ship?",function()
+						setCommsMessage("If you're within 20 units of the enemy ship, it should not matter, but beyond that, the further away you are, the less impact you have on the enemy.")
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("What's this about reputation?",function()
+						setCommsMessage("Through subtle use of tone, word choice and subliminal messaging, Tenacious Translator 2 can positively influence the enemy decision when you exert your reputation through the software. When you initiate contact, you may choose to inject your reputation into your communication. If you don't wish to spend your reputation, choose 0. The effectiveness of reputation on the negotiation varies from faction to faction.")
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("What about ship damage?",function()
+						setCommsMessage("When the enemy ship is damaged, the stress of the situation often makes them more receptive to the Relay officer's persuasion. The Tenacious Translator 2 test team particularly enjoyed field testing this aspect.")
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Can target lock really influence the enemy ship?",function()
+						setCommsMessage("It generally has a positive influence. The only exception is when using the defect option (surprise, surprise).")
+						addCommsReply("Back", commsStation)
+					end)
+					addCommsReply("Back", commsStation)
+				end)
 			end)
 		end
 	end)
