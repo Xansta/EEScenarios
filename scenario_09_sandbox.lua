@@ -10759,6 +10759,7 @@ function lafrinaSector()
 	if stationLafrina ~= nil then
 		table.insert(regionStations,stationLafrina)
 	end
+	return {destroy=removeLafrinaColor}
 end
 function createLafrinaStations()
 	local stations = {}
@@ -11337,6 +11338,7 @@ function tereshSector()
 		end
 		start_angle = start_angle + 72
 	end
+	return {destroy=removeTereshColor}
 end
 function createTereshPlanets()
 	local planet_list = {}

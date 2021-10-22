@@ -2090,7 +2090,10 @@ function universe()
 			if region.name ~= "Icarus (F5)" then
 				addGMMessage(region.name .. " created")
 			end
-			table.insert(self.active_regions,{name=region.name,region=region.spawn()})
+			local spawned_region = region.spawn()
+			assert(spawned_region.destroy,"region doesnt have a destroy function")
+			assert(type(spawned_region.destroy)=="function")
+			table.insert(self.active_regions,{name=region.name,region=spawned_region})
 		end,
 		-- has the following region been spawned already
 		-- expected use is like the spawnRegion above
