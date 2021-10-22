@@ -30498,11 +30498,11 @@ function changeTimerSpeed()
 		button_label = string.format("%s %.3f",button_label,timer_scale)
 	end
 	addGMFunction(button_label,function()
-		timer_scale = timer_scale + .05
+		setTimerScale(timer_scale + .05)
 		changeTimerSpeed()
 	end)
 	addGMFunction("Normalize",function()
-		timer_scale = 1
+		setTimerScale(1)
 		changeTimerSpeed()
 	end)
 	button_label = "Slow down"
@@ -30510,10 +30510,18 @@ function changeTimerSpeed()
 		button_label = string.format("%s %.3f",button_label,timer_scale)
 	end
 	addGMFunction(button_label,function()
-		timer_scale = timer_scale - .05
+		setTimerScale(timer_scale - .05)
 		changeTimerSpeed()
 	end)
 end
+function setTimerScale(scale)
+	timer_scale = scale
+end
+describeFunction("setTimerScale",
+	"change the scale current timer",
+	{
+		{"scale", "number",1},
+	})
 --	*											   *  --
 --	**											  **  --
 --	************************************************  --
