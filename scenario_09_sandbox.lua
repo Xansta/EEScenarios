@@ -23,7 +23,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.19"
+	scenario_version = "4.0.20"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -1134,7 +1134,8 @@ function setConstants()
 	timer_start_length = 5
 	timer_started = false
 	timer_purpose = "Timer"
-	timer_fudge = 0
+	timer_scale = 1
+	timer_type = "time"
 	coolant_amount = 1
 	jammer_range = 10000
 	automated_station_danger_warning = true
@@ -3508,6 +3509,7 @@ function countdownTimer()
 	addGMFunction(timer_display,GMTimerDisplay)
 	addGMFunction(string.format("+Length: %i",timer_start_length),GMTimerLength)
 	addGMFunction(string.format("+Purpose: %s",timer_purpose),GMTimerPurpose)
+	addGMFunction(string.format("+Type: %s",timer_type),GMTimerType)
 	if timer_started then
 		addGMFunction("+Add Seconds",addSecondsToTimer)
 		addGMFunction("+Delete Seconds",deleteSecondsFromTimer)
@@ -3521,10 +3523,10 @@ function countdownTimer()
 			else
 				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
 			end
-			if timer_fudge > 0 then
-				timer_status = string.format("%s\n(slowed: %.3f)",timer_status,timer_fudge)
-			elseif timer_fudge < 0 then
-				timer_status = string.format("%s\n(sped up: %.3f)",timer_status,-timer_fudge)
+			if timer_scale > 1 then
+				timer_status = string.format("%s\n(sped up: %.3f)",timer_status,timer_scale)
+			elseif timer_scale < 1 then
+				timer_status = string.format("%s\n(slowed: %.3f)",timer_status,timer_scale)
 			end
 			addGMMessage(timer_status)
 		end)
@@ -10759,6 +10761,7 @@ function lafrinaSector()
 	if stationLafrina ~= nil then
 		table.insert(regionStations,stationLafrina)
 	end
+	return {destroy=removeLafrinaColor}
 end
 function createLafrinaStations()
 	local stations = {}
@@ -11337,6 +11340,7 @@ function tereshSector()
 		end
 		start_angle = start_angle + 72
 	end
+	return {destroy=removeTereshColor}
 end
 function createTereshPlanets()
 	local planet_list = {}
@@ -30400,6 +30404,27 @@ function GMTimerPurpose()
 	end
 end
 
+function GMTimerType()
+	clearGMFunctions()
+	addGMFunction("-From Type",countdownTimer)
+	local label = "time"
+	if timer_type == "time" then
+		label = "time*"
+	end
+	addGMFunction(label, function()
+		timer_type = "time"
+		GMTimerType()
+	end)
+	label = "Percent"
+	if timer_type == "Percent" then
+		label = "Percent*"
+	end
+	addGMFunction(label, function()
+		timer_type = "Percent"
+		GMTimerType()
+	end)
+end
+
 function setTimerPurpose(purpose)
 	timer_purpose = purpose
 end
@@ -30491,27 +30516,35 @@ function changeTimerSpeed()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-From Change Speed",countdownTimer)
-	local button_label = "Slow Down"
-	if timer_fudge > 0 then
-		button_label = string.format("%s %.3f",button_label,timer_fudge)
+	local button_label = "Sped up"
+	if timer_scale > 1 then
+		button_label = string.format("%s %.3f",button_label,timer_scale)
 	end
 	addGMFunction(button_label,function()
-		timer_fudge = timer_fudge + .005
+		setTimerScale(timer_scale + .05)
 		changeTimerSpeed()
 	end)
 	addGMFunction("Normalize",function()
-		timer_fudge = 0
+		setTimerScale(1)
 		changeTimerSpeed()
 	end)
-	button_label = "Spped Up"
-	if timer_fudge < 0 then
-		button_label = string.format("%s %.3f",button_label,-timer_fudge)
+	button_label = "Slow down"
+	if timer_scale < 1 then
+		button_label = string.format("%s %.3f",button_label,timer_scale)
 	end
 	addGMFunction(button_label,function()
-		timer_fudge = timer_fudge - .005
+		setTimerScale(timer_scale - .05)
 		changeTimerSpeed()
 	end)
 end
+function setTimerScale(scale)
+	timer_scale = scale
+end
+describeFunction("setTimerScale",
+	"change the scale current timer",
+	{
+		{"scale", "number",1},
+	})
 --	*											   *  --
 --	**											  **  --
 --	************************************************  --
@@ -36155,7 +36188,7 @@ function updateInner(delta)
 		if timer_value == nil then
 			timer_value = delta + timer_start_length*60
 		end
-		timer_value = timer_value - delta + timer_fudge
+		timer_value = timer_value - (delta * timer_scale)
 	end
 	healthCheckTimer = healthCheckTimer - delta
 	local warning_message = nil
@@ -36951,12 +36984,16 @@ function updatePlayerTimerWidgets(p)
 			end	--end of timer value less than -1 checks
 		else	--time has not yet expired
 			local timer_status = timer_purpose
-			local timer_minutes = math.floor(timer_value / 60)
-			local timer_seconds = math.floor(timer_value % 60)
-			if timer_minutes <= 0 then
-				timer_status = string.format("%s %i",timer_status,timer_seconds)
+			if timer_type == "time" then
+				local timer_minutes = math.floor(timer_value / 60)
+				local timer_seconds = math.floor(timer_value % 60)
+				if timer_minutes <= 0 then
+					timer_status = string.format("%s %i",timer_status,timer_seconds)
+				else
+					timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
+				end
 			else
-				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
+				timer_status = string.format("%s %.0f%%",timer_status,(timer_value*100)/(timer_start_length*60))
 			end
 			if timer_display_helm then
 				p:wrappedAddCustomInfo("Helms","timer",timer_status)
