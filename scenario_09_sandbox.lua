@@ -1135,6 +1135,7 @@ function setConstants()
 	timer_started = false
 	timer_purpose = "Timer"
 	timer_scale = 1
+	timer_type = "time"
 	coolant_amount = 1
 	jammer_range = 10000
 	automated_station_danger_warning = true
@@ -3508,6 +3509,7 @@ function countdownTimer()
 	addGMFunction(timer_display,GMTimerDisplay)
 	addGMFunction(string.format("+Length: %i",timer_start_length),GMTimerLength)
 	addGMFunction(string.format("+Purpose: %s",timer_purpose),GMTimerPurpose)
+	addGMFunction(string.format("+Type: %s",timer_type),GMTimerType)
 	if timer_started then
 		addGMFunction("+Add Seconds",addSecondsToTimer)
 		addGMFunction("+Delete Seconds",deleteSecondsFromTimer)
@@ -30402,6 +30404,27 @@ function GMTimerPurpose()
 	end
 end
 
+function GMTimerType()
+	clearGMFunctions()
+	addGMFunction("-From Type",countdownTimer)
+	local label = "time"
+	if timer_type == "time" then
+		label = "time*"
+	end
+	addGMFunction(label, function()
+		timer_type = "time"
+		GMTimerType()
+	end)
+	label = "Percent"
+	if timer_type == "Percent" then
+		label = "Percent*"
+	end
+	addGMFunction(label, function()
+		timer_type = "Percent"
+		GMTimerType()
+	end)
+end
+
 function setTimerPurpose(purpose)
 	timer_purpose = purpose
 end
@@ -36961,12 +36984,16 @@ function updatePlayerTimerWidgets(p)
 			end	--end of timer value less than -1 checks
 		else	--time has not yet expired
 			local timer_status = timer_purpose
-			local timer_minutes = math.floor(timer_value / 60)
-			local timer_seconds = math.floor(timer_value % 60)
-			if timer_minutes <= 0 then
-				timer_status = string.format("%s %i",timer_status,timer_seconds)
+			if timer_type == "time" then
+				local timer_minutes = math.floor(timer_value / 60)
+				local timer_seconds = math.floor(timer_value % 60)
+				if timer_minutes <= 0 then
+					timer_status = string.format("%s %i",timer_status,timer_seconds)
+				else
+					timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
+				end
 			else
-				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
+				timer_status = string.format("%s %.0f%%",timer_status,(timer_value*100)/(timer_start_length*60))
 			end
 			if timer_display_helm then
 				p:wrappedAddCustomInfo("Helms","timer",timer_status)
