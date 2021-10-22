@@ -3524,7 +3524,7 @@ function countdownTimer()
 			if timer_scale > 1 then
 				timer_status = string.format("%s\n(sped up: %.3f)",timer_status,timer_scale)
 			elseif timer_scale < 1 then
-				timer_status = string.format("%s\n(slowed: %.3f)",timer_status,-timer_scale)
+				timer_status = string.format("%s\n(slowed: %.3f)",timer_status,timer_scale)
 			end
 			addGMMessage(timer_status)
 		end)
