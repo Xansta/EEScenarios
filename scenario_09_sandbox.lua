@@ -6,6 +6,7 @@
 
 --Ideas
 --	sensor buoy drop
+--	automated proximity scanners
 
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
@@ -23,7 +24,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.20"
+	scenario_version = "4.0.21"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -738,9 +739,9 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Thelonius")
 	makePlayerShipActive("Stick")
-	makePlayerShipActive("Flipper")
+	makePlayerShipActive("Rocinante")
 	makePlayerShipActive("Hrothgar")
-	makePlayerShipActive("Argonaut")
+	makePlayerShipActive("Yorik")
 	makePlayerShipActive("Ink")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -11325,15 +11326,21 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
---		if i == 5 then
---			dp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
---			dp5Zone:setColor(0,128,0)
---		else		
+		if i == 1 then
+			tdp1Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp1")
+			tdp1Zone:setColor(0,128,0)
+		elseif i == 2 then
+			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
+			tdp2Zone:setColor(0,128,0)
+		elseif i == 3 then
+			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
+			tdp3Zone:setColor(0,128,0)
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(start_angle+17+j*6,8000)
 			local dm = Mine():setPosition(t_x+dpx,t_y+dpy)
@@ -11538,10 +11545,9 @@ function createTereshStations()
 	local tradeLuxury = true
 	
 	--	Bastion
-	local bastionZone = squareZone(891524, 130398, "Bastion 2 L49")
-	bastionZone:setColor(0,128,0):setLabel("Bastion")
-	--[[
-	stationBastion = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Bastion"):setPosition(891524, 130398):setDescription("Research and Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	--local bastionZone = squareZone(891524, 130398, "Bastion 2 L49")
+	--bastionZone:setColor(0,128,0):setLabel("Bastion")
+	stationBastion = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Bastion 2"):setPosition(891524, 130398):setDescription("Research and Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBastion:setShortRangeRadarRange(15000)
     stationBastion.comms_data = {
     	friendlyness = 64,
@@ -11578,7 +11584,6 @@ function createTereshStations()
 	if random(1,100) <= 12 then stationBastion:setSharesEnergyWithDocked(false) end
 	station_names[stationBastion:getCallSign()] = {stationBastion:getSectorName(), stationBastion}
 	table.insert(stations,stationBastion)
-	--]]
 	--	Dristan
     stationDristan = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Dristan"):setPosition(723186, 65027):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationDristan.comms_data = {
