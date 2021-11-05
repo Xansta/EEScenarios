@@ -24,7 +24,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.22"
+	scenario_version = "4.0.23"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -10750,7 +10750,18 @@ function ghostNebulaSector()
 	--station_names[stationBrillo:getCallSign()] = {stationBrillo:getSectorName(), stationBrillo}
 	--table.insert(stations,stationBrillo)
 	table.insert(wip.all_objects,stationBrillo)
+	astron_color = true
+	astron_terrain = wip.all_objects
 	return wip
+end
+function removeAstronColor()
+	for _, obj in ipairs(astron_terrain) do
+		if obj:isValid() then
+			obj:destroy()
+		end
+	end
+	astron_terrain = nil
+	astron_color = false
 end
 --	Lafrina area stations, asteroids, planets, etc.
 function lafrinaSector()
@@ -34246,6 +34257,80 @@ function handleDockedState()
 		end)
 	end
 	if jump_corridor then
+		local jump_corridor_list = {
+			["Icarus"] = 	{station = stationIcarus,		region = "Icarus (F5)",							spawn_x = 0,										spawn_y = 0,										has_spawned = icarus_color,												spawn_terrain =	createIcarusColor,										despawn_terrain = removeIcarusColor										},
+			["Kentar"] = 	{station = stationKentar,		region = "Kentar (R17)",						spawn_x = 250000,									spawn_y = 250000,									has_spawned = kentar_color,												spawn_terrain = createKentarColor,										despawn_terrain = removeKentarColor										},
+--			["Astron"] = 	{station = stationAstron,		region = universe.available_regions[4].name,	spawn_x = universe.available_regions[4].spawn_x,	spawn_y = universe.available_regions[4].spawn_y,	has_spawned = universe:hasRegionSpawned(universe.available_regions[4]),	spawn_terrain = universe:spawnRegion(universe.available_regions[4]),	despawn_terrain = universe:removeRegion(universe.available_regions[4])	},
+--			["Lafrina"] =	{station = stationLafrina,		region = universe.available_regions[5].name,	spawn_x = universe.available_regions[5].spawn_x,	spawn_y = universe.available_regions[5].spawn_y,	has_spawned = universe:hasRegionSpawned(universe.available_regions[5]),	spawn_terrain = universe:spawnRegion(universe.available_regions[5]),	despawn_terrain = universe:removeRegion(universe.available_regions[5])	},
+--			["Teresh"] =	{station = stationTeresh,		region = universe.available_regions[6].name,	spawn_x = universe.available_regions[6].spawn_x,	spawn_y = universe.available_regions[6].spawn_y,	has_spawned = universe:hasRegionSpawned(universe.available_regions[6]),	spawn_terrain = universe:spawnRegion(universe.available_regions[6]),	despawn_terrain = universe:removeRegion(universe.available_regions[6])	},
+			["Astron"] = 	{station = stationAstron,		region = "Astron (U33)",						spawn_x = 460500,									spawn_y = 320500,									has_spawned = astron_color,												spawn_terrain = ghostNebulaSector,										despawn_terrain = removeAstronColor										},
+			["Lafrina"] =	{station = stationLafrina,		region = "Lafrina (T93)",						spawn_x = -237666,									spawn_y = 296975,									has_spawned = universe:hasRegionSpawned(universe.available_regions[5]),	spawn_terrain = lafrinaSector,											despawn_terrain = removeLafrinaColor									},
+			["Teresh"] =	{station = stationTeresh,		region = "Teresh (K44)",						spawn_x = 800001,									spawn_y = 120001,									has_spawned = teresh_color,												spawn_terrain = tereshSector,											despawn_terrain = removeTereshColor										},
+		}
+		local skeleton_docked = false
+		for name, jc_item in pairs(jump_corridor_list) do
+			if comms_target == jc_item.station then
+				skeleton_docked = true
+				break
+			end
+		end
+		if skeleton_docked then
+			local all_docked = true
+			for pidx=1,8 do
+				local p = getPlayerShip(pidx)
+				if p ~= nil and p:isValid() then
+					if not p:isDocked(comms_target) then
+						all_docked = false
+						break
+					end
+				end
+			end
+			if all_docked then
+				origin_jc_item = nil
+				for name, jc_item in pairs(jump_corridor_list) do
+					if string.find(name,comms_target:getCallSign()) then
+						origin_jc_item = jc_item
+						break
+					end
+				end
+				for name, jc_item in pairs(jump_corridor_list) do
+					if comms_target ~= jc_item.station then
+						addCommsReply(string.format("Take jump corridor to %s",jc_item.station:getCallSign()),function()
+							playerSpawnX = jc_item.spawn_x
+							playerSpawnY = jc_item.spawn_y
+							for pidx=1,8 do
+								local p = getPlayerShip(pidx)
+								if p ~= nil and p:isValid() then
+									p:commandUndock()
+									p:setPosition(playerSpawnX,playerSpawnY)
+									p:commandImpulse(0)
+								end
+							end
+							local jt = comms_target:getObjectsInRange(5000)
+							jump_train = {}
+							if #jt > 0 then
+								for index, ship in ipairs(jt) do
+									if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+										ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
+										ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
+										ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
+										ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
+										table.insert(jump_train,ship)
+									end
+								end
+							end
+							startRegion = jc_item.region
+							if not jc_item.has_spawned then
+								jc_item.spawn_terrain()
+							end
+							origin_jc_item.despawn_terrain()
+							setCommsMessage(string.format("Transferred to %s",jc_item.station:getCallSign()))
+						end)
+					end
+				end
+			end
+		end
+		--[[
 		if comms_target == stationIcarus or comms_target == stationKentar or comms_target == stationAstron or comms_target == stationLafrina or comms_target == stationTeresh then
 			local all_docked = true
 			for pidx=1,8 do
@@ -34898,6 +34983,7 @@ function handleDockedState()
 				end
 			end
 		end
+		--]]
 	end
 end	--end of handleDockedState function
 function isAllowedTo(state)
