@@ -6,7 +6,6 @@
 
 --Ideas
 --	sensor buoy drop
---	automated proximity scanners
 
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
@@ -1300,6 +1299,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1348,6 +1348,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1440,6 +1441,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
 --		sensor_boost = {value = 5000, cost = 0},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1483,6 +1485,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 5000, cost = 0},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1532,6 +1535,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -5241,6 +5245,7 @@ function createIcarusStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 10},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(39,55), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -5292,6 +5297,7 @@ function createIcarusStations()
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         remote_warp_jammer = {name = "Mire", cost = math.random(9,20), quantity = math.random(1,5), speed = 2000, warp_jam_range = 15000},
         sensor_boost = {value = 10000, cost = 5},
+        sensor_boost_probes = {name = "Scope", cost = math.random(59,75), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -5419,6 +5425,7 @@ function createIcarusStations()
         scan_repair =			true,
         tube_slow_down_repair =	true,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(39,50), quantity = math.random(1,3)},
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5622,6 +5629,7 @@ function createIcarusStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(39,55), quantity = math.random(1,3)},
         remote_warp_jammer = {name = "Mire", cost = math.random(9,20), quantity = math.random(1,5), speed = 2000, warp_jam_range = 15000},
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -5985,6 +5993,7 @@ function createIcarusStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 5000, cost = 5},
+        sensor_boost_probes = {name = "Scope", cost = math.random(57,75), quantity = math.random(1,3)},
         remote_warp_jammer = {name = "Swamp", cost = math.random(9,20), quantity = math.random(1,5), speed = 1500, warp_jam_range = 20000},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -7374,6 +7383,7 @@ function createKentarStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 10},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(18,35), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	sensor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
@@ -7463,6 +7473,7 @@ function createKentarStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         tube_slow_down_repair = random(1,100)<30,
+        sensor_boost_probes = {name = "Scope", cost = math.random(57,72), quantity = math.random(1,3)},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = 	{quantity = math.random(5,10),	cost = math.random(20,30)},
@@ -7700,6 +7711,7 @@ function createKentarStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(38,54), quantity = math.random(1,3)},
         remote_warp_jammer = {name = "Snag", cost = math.random(9,20), quantity = math.random(1,5), speed = 2500, warp_jam_range = 10000},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -10948,6 +10960,7 @@ function createLafrinaStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<70,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(37,52), quantity = math.random(1,3)},
         remote_warp_jammer = {name = "Snag", cost = math.random(9,20), quantity = math.random(1,5), speed = 2500, warp_jam_range = 10000},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
@@ -11337,21 +11350,21 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
-		if i == 1 then
-			tdp1Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp1")
-			tdp1Zone:setColor(0,128,0)
-		elseif i == 2 then
-			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
-			tdp2Zone:setColor(0,128,0)
-		elseif i == 3 then
-			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
-			tdp3Zone:setColor(0,128,0)
-		else		
+--		if i == 1 then
+--			tdp1Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp1")
+--			tdp1Zone:setColor(0,128,0)
+--		elseif i == 2 then
+--			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
+--			tdp2Zone:setColor(0,128,0)
+--		elseif i == 3 then
+--			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
+--			tdp3Zone:setColor(0,128,0)
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(start_angle+17+j*6,8000)
 			local dm = Mine():setPosition(t_x+dpx,t_y+dpy)
@@ -11568,6 +11581,7 @@ function createTereshStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	random(1,100) < 63,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(16,41), quantity = math.random(1,3)},
         hack_repair =			random(1,100)<30,
         scan_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<30,
@@ -11684,6 +11698,7 @@ function createTereshStations()
         combat_maneuver_repair=	true,
         tube_slow_down_repair =	true,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
+        sensor_boost_probes = {name = "Scope", cost = math.random(56,82), quantity = math.random(1,3)},
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
