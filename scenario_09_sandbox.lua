@@ -23,11 +23,12 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.23"
+	scenario_version = "4.0.25"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
 	healthDiagnostic = false
+	specialty_probe_diagnostic = false
 	change_enemy_order_diagnostic = true
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
@@ -774,6 +775,7 @@ function setConstants()
 	healthCheckTimer = healthCheckTimerInterval
 	rendezvousPoints = {}
 	escapePodList = {}
+	boost_probe_list = {}
 	sensor_jammer_list = {}
 	sensor_jammer_range = 60000
 	sensor_jammer_impact = 60000
@@ -1299,7 +1301,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1348,7 +1350,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1441,7 +1443,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
 --		sensor_boost = {value = 5000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1485,7 +1487,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 5000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1535,7 +1537,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -5245,7 +5247,7 @@ function createIcarusStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 10},
-        sensor_boost_probes = {name = "Binoc", cost = math.random(39,55), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(39,55), quantity = math.random(1,3), speed = 1000, boost = 20, range = 40},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	platinum = 	{quantity = math.random(4,8),	cost = math.random(50,80)},
@@ -5297,7 +5299,7 @@ function createIcarusStations()
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         remote_warp_jammer = {name = "Mire", cost = math.random(9,20), quantity = math.random(1,5), speed = 2000, warp_jam_range = 15000},
         sensor_boost = {value = 10000, cost = 5},
-        sensor_boost_probes = {name = "Scope", cost = math.random(59,75), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Scope", cost = math.random(59,75), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -5425,7 +5427,7 @@ function createIcarusStations()
         scan_repair =			true,
         tube_slow_down_repair =	true,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
-        sensor_boost_probes = {name = "Binoc", cost = math.random(39,50), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(39,50), quantity = math.random(1,3), speed = 1000, boost = 20, range = 40},
         sensor_boost = {value = 10000, cost = 10},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -5629,7 +5631,7 @@ function createIcarusStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
-        sensor_boost_probes = {name = "Binoc", cost = math.random(39,55), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(39,55), quantity = math.random(1,3), speed = 1000, boost = 20, range = 40},
         remote_warp_jammer = {name = "Mire", cost = math.random(9,20), quantity = math.random(1,5), speed = 2000, warp_jam_range = 15000},
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -5993,7 +5995,7 @@ function createIcarusStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 5000, cost = 5},
-        sensor_boost_probes = {name = "Scope", cost = math.random(57,75), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Scope", cost = math.random(57,75), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
         remote_warp_jammer = {name = "Swamp", cost = math.random(9,20), quantity = math.random(1,5), speed = 1500, warp_jam_range = 20000},
         reputation_cost_multipliers = {friend = 2.0, neutral = 4.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -7383,7 +7385,7 @@ function createKentarStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 10000, cost = 10},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(18,35), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(18,35), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	sensor = 	{quantity = math.random(2,5),	cost = math.random(40,70)},
@@ -7473,7 +7475,7 @@ function createKentarStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         tube_slow_down_repair = random(1,100)<30,
-        sensor_boost_probes = {name = "Scope", cost = math.random(57,72), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Scope", cost = math.random(57,72), quantity = math.random(1,3), speed = 1000, boost = 20, range = 40},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	dilithium = 	{quantity = math.random(5,10),	cost = math.random(20,30)},
@@ -7711,7 +7713,7 @@ function createKentarStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
-        sensor_boost_probes = {name = "Binoc", cost = math.random(38,54), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(38,54), quantity = math.random(1,3), speed = 1000, boost = 20, range = 40},
         remote_warp_jammer = {name = "Snag", cost = math.random(9,20), quantity = math.random(1,5), speed = 2500, warp_jam_range = 10000},
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -10960,7 +10962,7 @@ function createLafrinaStations()
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<70,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
-        sensor_boost_probes = {name = "Binoc", cost = math.random(37,52), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Binoc", cost = math.random(37,52), quantity = math.random(1,3), speed = 1000, boost = 20, range = 40},
         remote_warp_jammer = {name = "Snag", cost = math.random(9,20), quantity = math.random(1,5), speed = 2500, warp_jam_range = 10000},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
@@ -11581,7 +11583,7 @@ function createTereshStations()
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
         probe_launch_repair =	random(1,100) < 63,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(16,41), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Spectacle", cost = math.random(16,41), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         hack_repair =			random(1,100)<30,
         scan_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<30,
@@ -11698,7 +11700,7 @@ function createTereshStations()
         combat_maneuver_repair=	true,
         tube_slow_down_repair =	true,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
-        sensor_boost_probes = {name = "Scope", cost = math.random(56,82), quantity = math.random(1,3)},
+        sensor_boost_probes = {name = "Scope", cost = math.random(56,82), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
@@ -27914,6 +27916,7 @@ function stationManipulation()
 	addGMFunction("+Station Defense",stationDefense)
 	addGMFunction("+Station Report",stationReport)
 	addGMFunction("+Station Goods",stationGoods)
+	addGMFunction("+Station Probes",stationProbes)
 end
 function stationReport()
 	clearGMFunctions()
@@ -27991,6 +27994,236 @@ function stationReport()
 		end
 	else
 		addGMMessage("No region stations. No Action taken. Set player start point to get region stations")
+	end
+end
+function stationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("+Faster Probes",fastStationProbes)
+	addGMFunction("+Warp Jammer Probes",warpJammerStationProbes)
+	addGMFunction("+Sensor Boost Probes",sensorBoostStationProbes)
+end
+function sensorBoostStationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("-Probes",stationProbes)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",sensorBoostStationProbes)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",sensorBoostStationProbes)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",sensorBoostStationProbes)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),sensorBoostStationProbes)
+			local sensor_boost_probe_types = {
+				["Spectacle"] = 0,
+				["Binoc"] = 0,
+				["Scope"] = 0,
+			}
+			local qty = 0
+			local name = ""
+			if selected_station.comms_data ~= nil and selected_station.comms_data.sensor_boost_probes ~= nil then
+				if selected_station.comms_data.sensor_boost_probes.quantity ~= nil then
+					qty = selected_station.comms_data.sensor_boost_probes.quantity
+				end
+				if selected_station.comms_data.sensor_boost_probes.name ~= nil then
+					name = selected_station.comms_data.sensor_boost_probes.name
+				end
+				sensor_boost_probe_types[name] = qty
+			end
+			for probe_name, quantity in pairs(sensor_boost_probe_types) do
+				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
+					local speed_list = {
+						["Spectacle"] = 1000,
+						["Binoc"] = 1000,
+						["Scope"] = 1000,
+					}
+					local sensor_range_list = {
+						["Spectacle"] = 30,
+						["Binoc"] = 40,
+						["Scope"] = 50,
+					}
+					local sensor_boost_list = {
+						["Spectacle"] = 10,
+						["Binoc"] = 20,
+						["Scope"] = 30,
+					}
+					local sensor_cost_list = {
+						["Spectacle"] = math.random(16,38),
+						["Binoc"] = math.random(39,55),
+						["Scope"] = math.random(57,78),
+					}
+					if selected_station.comms_data ~= nil and selected_station.comms_data.sensor_boost_probes ~= nil and selected_station.comms_data.sensor_boost_probes.name == probe_name then
+						selected_station.comms_data.sensor_boost_probes.quantity = selected_station.comms_data.sensor_boost_probes.quantity + 1
+					else
+						selected_station.comms_data.sensor_boost_probes = {name = probe_name, cost = sensor_cost_list[probe_name], quantity = 1, speed = speed_list[probe_name], range = sensor_range_list[probe_name], boost = sensor_boost_list[probe_name]}
+					end
+					sensorBoostStationProbes()
+				end)
+				if quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
+						selected_station.comms_data.sensor_boost_probes.quantity = selected_station.comms_data.sensor_boost_probes.quantity - 1
+						sensorBoostStationProbes()
+					end)
+				end
+			end
+		end
+	end
+end
+function warpJammerStationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("-Probes",stationProbes)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",warpJammerStationProbes)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",warpJammerStationProbes)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",warpJammerStationProbes)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),warpJammerStationProbes)
+			local warp_jammer_probe_types = {
+				["Mire"] = 0,
+				["Snag"] = 0,
+				["Swamp"] = 0,
+			}
+			local qty = 0
+			local name = ""
+			if selected_station.comms_data ~= nil and selected_station.comms_data.remote_warp_jammer ~= nil then
+				if selected_station.comms_data.remote_warp_jammer.quantity ~= nil then
+					qty = selected_station.comms_data.remote_warp_jammer.quantity
+				end
+				if selected_station.comms_data.remote_warp_jammer.name ~= nil then
+					name = selected_station.comms_data.remote_warp_jammer.name
+				end
+				warp_jammer_probe_types[name] = qty
+			end
+			for probe_name, quantity in pairs(warp_jammer_probe_types) do
+				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
+					local speed_list = {
+						["Mire"] = 2000,
+						["Snag"] = 2500,
+						["Swamp"] = 1500,
+					}
+					local warp_jam_range_list = {
+						["Mire"] = 15000,
+						["Snag"] = 10000,
+						["Swamp"] = 20000,
+					}
+					if selected_station.comms_data ~= nil and selected_station.comms_data.remote_warp_jammer ~= nil and selected_station.comms_data.remote_warp_jammer.name == probe_name then
+						selected_station.comms_data.remote_warp_jammer.quantity = selected_station.comms_data.remote_warp_jammer.quantity + 1
+					else
+						selected_station.comms_data.remote_warp_jammer = {name = probe_name, cost = math.random(9,20), quantity = 1, speed = speed_list[probe_name], warp_jam_range = warp_jam_range_list[probe_name]}
+					end
+					warpJammerStationProbes()
+				end)
+				if quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
+						selected_station.comms_data.remote_warp_jammer.quantity = selected_station.comms_data.remote_warp_jammer.quantity - 1
+						warpJammerStationProbes()
+					end)
+				end
+			end
+		end
+	end
+end
+function fastStationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("-Probes",stationProbes)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",fastStationProbes)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",fastStationProbes)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",fastStationProbes)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),fastStationProbes)
+			local fast_probe_types = {
+				["Mark 3"] = 0,
+				["Gogo"] = 0,
+				["Screamer"] = 0,
+			}
+			local qty = 0
+			local name = ""
+			if selected_station.comms_data ~= nil and selected_station.comms_data.fast_probes ~= nil then
+				if selected_station.comms_data.fast_probes.quantity ~= nil then
+					qty = selected_station.comms_data.fast_probes.quantity
+				end
+				if selected_station.comms_data.fast_probes.name ~= nil then
+					name = selected_station.comms_data.fast_probes.name
+				end
+				fast_probe_types[name] = qty
+			end
+			for probe_name, quantity in pairs(fast_probe_types) do
+				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
+					local speed_list = {
+						["Mark 3"] = 2000,
+						["Gogo"] = 3000,
+						["Screamer"] = 4000,
+					}
+					if selected_station.comms_data ~= nil and selected_station.comms_data.fast_probes ~= nil and selected_station.comms_data.fast_probes.name == probe_name then
+						selected_station.comms_data.fast_probes.quantity = selected_station.comms_data.fast_probes.quantity + 1
+					else
+						selected_station.comms_data.fast_probes = {name = probe_name, cost = math.random(3,8), quantity = 1, speed = speed_list[probe_name]}
+					end
+					fastStationProbes()
+				end)
+				if quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
+						selected_station.comms_data.fast_probes.quantity = selected_station.comms_data.fast_probes.quantity - 1
+						fastStationProbes()
+					end)
+				end
+			end
+		end
 	end
 end
 function stationGoods()
@@ -33899,30 +34132,45 @@ function handleDockedState()
 			end
 		end
 	end
-	if comms_target.comms_data.fast_probes ~= nil or comms_target.comms_data.remote_warp_jammer ~= nil then
-		if (comms_target.comms_data.fast_probes ~= nil and comms_target.comms_data.fast_probes.quantity > 0) or (comms_target.comms_data.remote_warp_jammer ~= nil and comms_target.comms_data.remote_warp_jammer.quantity > 0) then
+--	sensor_boost_probes = {name = "Scope", cost = math.random(56,82), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
+	if comms_target.comms_data.fast_probes ~= nil or comms_target.comms_data.remote_warp_jammer ~= nil or comms_target.comms_data.sensor_boost_probes ~= nil then
+		if (comms_target.comms_data.fast_probes ~= nil and comms_target.comms_data.fast_probes.quantity > 0) or 
+		   (comms_target.comms_data.remote_warp_jammer ~= nil and comms_target.comms_data.remote_warp_jammer.quantity > 0) or
+		   (comms_target.comms_data.sensor_boost_probes ~= nil and comms_target.comms_data.sensor_boost_probes.quantity > 0) then
 			addCommsReply("Get specialty probes",function()
-				local quantity_message = "We've got"
+				local quantity_message = "We've got the following specialty probes available:"
 				if comms_target.comms_data.fast_probes ~= nil and comms_target.comms_data.fast_probes.quantity > 0 then
-					quantity_message = string.format("%s %i batches of %s type probes left",quantity_message,comms_target.comms_data.fast_probes.quantity,comms_target.comms_data.fast_probes.name)
-					if comms_target.comms_data.remote_warp_jammer ~= nil and comms_target.comms_data.remote_warp_jammer.quantity > 0 then
-						quantity_message = string.format("%s and %i remote warp jammer kits of type %s left.",quantity_message,comms_target.comms_data.remote_warp_jammer.quantity,comms_target.comms_data.remote_warp_jammer.name)
+					if comms_target.comms_data.fast_probes.quantity > 1 then
+						quantity_message = string.format("%s\n   * %i batches of %s type probes",quantity_message,comms_target.comms_data.fast_probes.quantity,comms_target.comms_data.fast_probes.name)
 					else
-						quantity_message = quantity_message .. "."
+						quantity_message = string.format("%s\n   * 1 batch of %s type probes",quantity_message,comms_target.comms_data.fast_probes.name)
 					end
-				else
-					quantity_message = string.format("%s %i remote warp jammer kits of type %s left.",quantity_message,comms_target.comms_data.remote_warp_jammer.quantity,comms_target.comms_data.remote_warp_jammer.name)
+				end
+				if comms_target.comms_data.remote_warp_jammer ~= nil and comms_target.comms_data.remote_warp_jammer.quantity > 0 then
+					if comms_target.comms_data.remote_warp_jammer.quantity > 1 then
+						quantity_message = string.format("%s\n   * %i remote warp jammer kits of type %s",quantity_message,comms_target.comms_data.remote_warp_jammer.quantity,comms_target.comms_data.remote_warp_jammer.name)
+					else
+						quantity_message = string.format("%s\n   * 1 remote warp jammer kit of type %s",quantity_message,comms_target.comms_data.remote_warp_jammer.name)
+					end
+				end
+				if comms_target.comms_data.sensor_boost_probes ~= nil and comms_target.comms_data.sensor_boost_probes.quantity > 0 then
+					if comms_target.comms_data.sensor_boost_probes.quantity > 1 then
+						quantity_message = string.format("%s\n   * %i sensor boost probes of type %s",quantity_message,comms_target.comms_data.sensor_boost_probes.quantity,comms_target.comms_data.sensor_boost_probes.name) 
+					else
+						quantity_message = string.format("%s\n   * 1 sensor boost probe of type %s",quantity_message,comms_target.comms_data.sensor_boost_probes.name)
+					end
 				end
 				setCommsMessage(quantity_message)
 				addCommsReply("What exactly are specialty probes?",function()
 					local kit_description = "Specialty probes are kits that you use in conjunction with your normal probes."
 					if comms_target.comms_data.fast_probes ~= nil and comms_target.comms_data.fast_probes.quantity > 0 then
 						kit_description = string.format("%s The %s kits come in batches of 5. You attach a kit to one of the probes you launch. The probe then travels at %.1f units per minute to reach its destination. Normal probes travel at 60 units per minute.",kit_description,comms_target.comms_data.fast_probes.name,comms_target.comms_data.fast_probes.speed*60/1000)
-						if comms_target.comms_data.remote_warp_jammer ~= nil and comms_target.comms_data.remote_warp_jammer.quantity > 0 then
-							kit_description = string.format("%s The %s kits are purchased singly. When attached, the probe travels at %.1f units per minute to reach its destination. Once the probe arrives, it drops a warp jammer with a jamming radius of %i units.",kit_description,comms_target.comms_data.remote_warp_jammer.name,comms_target.comms_data.remote_warp_jammer.speed*60/1000,math.floor(comms_target.comms_data.remote_warp_jammer.warp_jam_range/1000))
-						end
-					else
-						kit_description = string.format("%s You attach the %s type kit to one of the probes you launch. The probe then travels at %.1f units per minute to reach its destination. Normal probes travel at 60 units per minute. Once the probe arrives, it drops a warp jammer with a jamming radius of %i units.",kit_description,comms_target.comms_data.remote_warp_jammer.name,comms_target.comms_data.remote_warp_jammer.speed*60/1000,math.floor(comms_target.comms_data.remote_warp_jammer.warp_jam_range/1000))
+					end
+					if comms_target.comms_data.remote_warp_jammer ~= nil and comms_target.comms_data.remote_warp_jammer.quantity > 0 then
+						kit_description = string.format("%s The %s kits are purchased singly. When attached, the probe travels at %.1f units per minute to reach its destination. Once the probe arrives, it drops a warp jammer with a jamming radius of %i units.",kit_description,comms_target.comms_data.remote_warp_jammer.name,comms_target.comms_data.remote_warp_jammer.speed*60/1000,math.floor(comms_target.comms_data.remote_warp_jammer.warp_jam_range/1000))
+					end
+					if comms_target.comms_data.sensor_boost_probes ~= nil and comms_target.comms_data.sensor_boost_probes.quantity > 0 then
+						kit_description = string.format("%s The %s kits are purchased individually. When attached, the probe enhances sensors by %i units if within %i units. The sensor boost gradually decreases until there is no boost at %i units distance from the probe.",kit_description,comms_target.comms_data.sensor_boost_probes.name,comms_target.comms_data.sensor_boost_probes.boost,comms_target.comms_data.sensor_boost_probes.range/2,comms_target.comms_data.sensor_boost_probes.range)
 					end
 					kit_description = string.format("%s You don't actually get additional probes, rather, you enhance the probes you already have.",kit_description)
 					setCommsMessage(kit_description)
@@ -33937,10 +34185,10 @@ function handleDockedState()
 									comms_source.probe_type_list = {}
 									table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
 								end
-								print("Initial player probe type list table:")
-								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
-									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
-								end
+--								print("Initial player probe type list table:")
+--								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+--									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
+--								end
 								local matching_index = 0
 								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
 									if probe_type_item.name == comms_target.comms_data.fast_probes.name then
@@ -33953,11 +34201,10 @@ function handleDockedState()
 								else
 									table.insert(comms_source.probe_type_list,{name = comms_target.comms_data.fast_probes.name, count = 5, speed = comms_target.comms_data.fast_probes.speed})
 								end
-								print("After update player probe type list table:")
-								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
-									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
-								end
-								comms_target.comms_data.fast_probes.quantity = comms_target.comms_data.fast_probes.quantity - 1
+--								print("After update player probe type list table:")
+--								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+--									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
+--								end
 								setCommsMessage(string.format("5 %s type probes have been added",comms_target.comms_data.fast_probes.name))
 								comms_source.probe_type = "standard"
 								if comms_source:hasPlayerAtPosition("Relay") then
@@ -33992,10 +34239,10 @@ function handleDockedState()
 									comms_source.probe_type_list = {}
 									table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
 								end
-								print("Initial player probe type list table:")
-								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
-									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
-								end
+--								print("Initial player probe type list table:")
+--								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+--									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
+--								end
 								local matching_index = 0
 								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
 									if probe_type_item.name == comms_target.comms_data.remote_warp_jammer.name then
@@ -34008,12 +34255,57 @@ function handleDockedState()
 								else
 									table.insert(comms_source.probe_type_list,{name = comms_target.comms_data.remote_warp_jammer.name, count = 1, speed = comms_target.comms_data.remote_warp_jammer.speed, warp_jam_range = comms_target.comms_data.remote_warp_jammer.warp_jam_range})
 								end
-								print("After update player probe type list table:")
-								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
-									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
-								end
-								comms_target.comms_data.remote_warp_jammer.quantity = comms_target.comms_data.remote_warp_jammer.quantity - 1
+--								print("After update player probe type list table:")
+--								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+--									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
+--								end
 								setCommsMessage(string.format("A %s type probe has been added",comms_target.comms_data.remote_warp_jammer.name))
+								comms_source.probe_type = "standard"
+								if comms_source:hasPlayerAtPosition("Relay") then
+									comms_source.probe_type_button = "probe_type_button"
+									comms_source:addCustomButton("Relay",comms_source.probe_type_button,"Probes: standard",function()
+										string.format("")
+										cycleProbeType(comms_source)
+									end)
+								end
+								if comms_source:hasPlayerAtPosition("Operations") then
+									comms_source.probe_type_button_ops = "probe_type_button_ops"
+									comms_source:addCustomButton("Operations",comms_source.probe_type_button_ops,"Probes: standard",function()
+										string.format("")
+										cycleProbeType(comms_source)
+									end)
+								end
+							else
+								setCommsMessage("Insufficient reputation")
+							end
+						else
+							setCommsMessage("We ran out of those")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+				if comms_target.comms_data.sensor_boost_probes ~= nil and comms_target.comms_data.sensor_boost_probes.quantity > 0 then
+					addCommsReply(string.format("Purchase %s type probe for %i reputation",comms_target.comms_data.sensor_boost_probes.name,comms_target.comms_data.sensor_boost_probes.cost), function()
+						if comms_target.comms_data.sensor_boost_probes.quantity > 0 then
+							if comms_source:takeReputationPoints(comms_target.comms_data.sensor_boost_probes.cost) then
+								comms_target.comms_data.sensor_boost_probes.quantity = comms_target.comms_data.sensor_boost_probes.quantity - 1
+								if comms_source.probe_type_list == nil then
+									comms_source.probe_type_list = {}
+									table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
+								end
+								local matching_index = 0
+								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+									if probe_type_item.name == comms_target.comms_data.sensor_boost_probes.name then
+										matching_index = probe_type_index
+										break
+									end
+								end
+								if matching_index > 0 then
+									comms_source.probe_type_list[matching_index].count = comms_source.probe_type_list[matching_index].count + 1
+								else
+									table.insert(comms_source.probe_type_list,{name = comms_target.comms_data.sensor_boost_probes.name, count = 1, speed = comms_target.comms_data.sensor_boost_probes.speed, boost = comms_target.comms_data.sensor_boost_probes.boost, range = comms_target.comms_data.sensor_boost_probes.range})
+								end
+								setCommsMessage(string.format("A %s type probe has been added",comms_target.comms_data.sensor_boost_probes.name))
 								comms_source.probe_type = "standard"
 								if comms_source:hasPlayerAtPosition("Relay") then
 									comms_source.probe_type_button = "probe_type_button"
@@ -37652,6 +37944,7 @@ function updatePlayerLongRangeSensors(p)
 	end
 	local impact_range = math.max(base_range*sensor_impact,p:getShortRangeRadarRange())
 	local sensor_jammer_impact = 0
+	local accumulated_jammer_impact = 0
 	for jammer_name, sensor_jammer in pairs(sensor_jammer_list) do
 		if sensor_jammer ~= nil and sensor_jammer:isValid() then
 			local jammer_distance = distance(p,sensor_jammer)
@@ -37662,11 +37955,55 @@ function updatePlayerLongRangeSensors(p)
 					sensor_jammer_impact = math.max(sensor_jammer_impact,impact_range*sensor_jammer.jam_impact/100000*(1-(jammer_distance/sensor_jammer.jam_range)))
 				end
 			end
+			accumulated_jammer_impact = accumulated_jammer_impact + sensor_jammer_impact
 		else
 			sensor_jammer_list[jammer_name] = nil
 		end
 	end
-	impact_range = math.max(p:getShortRangeRadarRange(),impact_range - sensor_jammer_impact)
+	impact_range = math.max(p:getShortRangeRadarRange(),impact_range - accumulated_jammer_impact)
+	local probe_scan_boost_impact = 0
+	local accumulated_scan_boost_impact = 0
+	for boost_probe_index, boost_probe in ipairs(boost_probe_list) do
+		if boost_probe ~= nil and boost_probe:isValid() then
+			if specialty_probe_diagnostic then
+				print("Processing specialty probe in list, index:",boost_probe_index,"player:",p:getCallSign())
+			end
+			local boost_probe_distance = distance(boost_probe,p)
+			if boost_probe_distance < boost_probe.range*1000 then
+				if boost_probe_distance < boost_probe.range*1000/2 then
+					probe_scan_boost_impact = boost_probe.boost*1000
+				else
+					local best_boost = boost_probe.boost*1000
+					local adjusted_range = boost_probe.range*1000
+					local half_adjusted_range = adjusted_range/2
+					local raw_scan_gradient = boost_probe_distance/half_adjusted_range
+					local scan_gradient = 2 - raw_scan_gradient
+					probe_scan_boost_impact = best_boost * scan_gradient
+					if specialty_probe_diagnostic then
+						print("boost:",boost_probe.boost,"distance:",boost_probe_distance,"range:",boost_probe.range)
+						print("best boost:",best_boost,"adjusted range:",adjusted_range,"half adjusted range:",half_adjusted_range,"raw scan gradient:",raw_scan_gradient,"scan gradient:",scan_gradient)
+					end
+				end
+				if specialty_probe_diagnostic then
+					print("In range. Range:",boost_probe.range*1000,"distance:",boost_probe_distance,"impact:",probe_scan_boost_impact)
+				end
+			end
+			accumulated_scan_boost_impact = accumulated_scan_boost_impact + probe_scan_boost_impact
+		else
+			boost_probe_list[boost_probe_index] = boost_probe_list[#boost_probe_list]
+			boost_probe_list[#boost_probe_list] = nil
+			if specialty_probe_diagnostic then
+				print("Specialty probe deleted from list. Index:",boost_probe_index)
+			end
+			break
+		end
+	end
+	impact_range = math.max(p:getShortRangeRadarRange(),impact_range + accumulated_scan_boost_impact)
+	if specialty_probe_diagnostic then
+		if accumulated_scan_boost_impact > 0 then
+			print("Accumulated boost range impact:",accumulated_scan_boost_impact,"impact to apply to sensors:",impact_range)
+		end
+	end
 	p:setLongRangeRadarRange(impact_range)
 end
 function updatePlayerTractor(p,player_velocity,nearby_objects)
@@ -38312,6 +38649,14 @@ function updatePlayerSpecialtyProbes(p)
 								if p.probe_type_list[matching_index].warp_jam_range ~= nil then
 									obj.warp_jam_range = p.probe_type_list[matching_index].warp_jam_range
 									obj:onArrival(probeWarpJammer)
+								end
+								if p.probe_type_list[matching_index].boost ~= nil then
+									obj.boost = p.probe_type_list[matching_index].boost
+									obj.range = p.probe_type_list[matching_index].range
+									if specialty_probe_diagnostic then
+										print("Found a boost probe for player",p:getCallSign(),"-",p.probe_type_list[matching_index].name,obj.boost,obj.range)
+									end
+									table.insert(boost_probe_list,obj)
 								end
 								cycleProbeType(p,p.probe_type_list[matching_index].name)
 							end
