@@ -2,10 +2,8 @@
 -- Description: GM controlled missions
 --- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh
 --- Version 4
+--- Get latest version from https://github.com/Xansta/EEScenarios
 -- Type: GM Controlled missions
-
---Ideas
---	sensor buoy drop
 
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
@@ -17,13 +15,13 @@
 -- eris at long last
 
 require("utils.lua")
-require("science_database.lua")
+require("sandbox_science_database.lua")
 require("utils_customElements.lua")
 require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.25"
+	scenario_version = "4.0.26"
 	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -740,7 +738,7 @@ function setConstants()
 	makePlayerShipActive("Thelonius")
 	makePlayerShipActive("Stick")
 	makePlayerShipActive("Rocinante")
-	makePlayerShipActive("Hrothgar")
+	makePlayerShipActive("Flaire")
 	makePlayerShipActive("Yorik")
 	makePlayerShipActive("Ink")
 	active_player_ship = true
