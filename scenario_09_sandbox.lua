@@ -3,6 +3,10 @@
 --- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh
 --- Version 4
 --- Get latest version from https://github.com/Xansta/EEScenarios
+---   You will need these files placed in your scripts folder: 
+---      scenario_09_sandbox.lua, sandbox_library.lua, sandbox_science_database.lua
+--- USN Discord: https://discord.gg/PntGG3a 
+--- The sandbox is used on the USN Discord every Saturday 1600 UTC
 -- Type: GM Controlled missions
 
 -- Starry's todo list
@@ -21,8 +25,9 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.26"
-	print(string.format("     -----     Scenario: Sandbox     -----     Version %s     -----",scenario_version))
+	scenario_version = "4.0.27"
+	ee_version = "2021.06.23"
+	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
 	healthDiagnostic = false
@@ -12208,6 +12213,7 @@ function playerConsoleMessage()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
 	addGMFunction("-Player Message",playerMessage)
+	changeMessageObjectCaller = playerConsoleMessage
 	if message_object == nil then
 		addGMFunction("+Select Msg Obj",changeMessageObject)
 	else
@@ -12226,14 +12232,14 @@ function changeMessageObject()
 		if #object_list == 1 then
 			message_object = object_list[1]
 			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nplace message in unscanned description field",message_object:getSectorName()))
-			playerConsoleMessage()
+			changeMessageObjectCaller()
 		else
 			addGMMessage("Select only one object to use to pass messages via its description field. No action taken")
-			playerConsoleMessage()
+			changeMessageObjectCaller()
 		end
 	else
 		addGMMessage("Select an object to use to pass messages via its description field. No action taken")
-		playerConsoleMessage()
+		changeMessageObjectCaller()
 	end 
 end
 -----------------------------------------------------------------------
@@ -12264,6 +12270,7 @@ function playerShipLogMessage()
 	else
 		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageSource)
 	end
+	changeMessageObjectCaller = playerShipLogMessage
 	if message_object == nil then
 		addGMFunction("+Select Msg Obj",changeMessageObject)
 	else
@@ -12351,6 +12358,7 @@ function playerHailMessage()
 	else
 		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageObjectSource)
 	end
+	changeMessageObjectCaller = playerHailMessage
 	if message_object == nil then
 		addGMFunction("+Select Msg Obj",changeMessageObject)
 	else
@@ -17501,7 +17509,11 @@ function setFleetSpawnLocation()
 	clearGMFunctions()
 	addGMFunction("-Main from Flt Loctn",initialGMFunctions)
 	addGMFunction("-Fleet or Ship",spawnGMShips)
-	addGMFunction("-Fleet Spawn",returnFromFleetSpawnLocation)
+	local return_label = "-Fleet Spawn"
+	if returnFromFleetSpawnLocation == spawnGMShip then
+		return_label = "-Ship Spawn"
+	end
+	addGMFunction(return_label,returnFromFleetSpawnLocation)
 	local button_label = "At Selection"
 	if fleetSpawnLocation == "At Selection" then
 		button_label = "At Selection*"
@@ -23615,7 +23627,7 @@ end
 function attachDetach()
 	clearGMFunctions()
 	addGMFunction("-Main from Attach/Detach",initialGMFunctions)
-	addGMFunction("-Order Ship",orderShip())
+	addGMFunction("-Order Ship",orderShip)
 	addGMFunction("+Attach To Ship",attachAnythingToNPS)
 	addGMFunction("+Detach",detachAnythingFromNPS)
 end
@@ -24378,6 +24390,13 @@ function podAssociatedTo()
 	elseif tempType == "WormHole" then
 		addGMFunction("Near radius but outside",nearButOutside)
 		addGMFunction("Edge but inside",edgeButInside)
+	elseif tempType == "Asteroid" then
+	    local asteroid_size = tempObject:getSize()
+	    if asteroid_size == nil then
+	    	asteroid_size = podDistance
+	    end
+	    local sox, soy = vectorFromAngle(random(0,360),asteroid_size + random(40,80))
+	    podCreation(aox, aoy, sox, soy)
 	else
 		local sox, soy = vectorFromAngle(random(0,360),podDistance)
 		podCreation(aox, aoy, sox, soy)
@@ -24750,6 +24769,7 @@ function artifactToPod()
 	local pod=objectList[1]
 	if pod.typeName ~= "Artifact" then
 		addGMMessage("must select an artifact to convert. No action taken")
+		return
 	end
 	local podCallSign = pod:getCallSign()
 	pod:onPickUp(podPickupProcess)
@@ -25840,7 +25860,7 @@ function setCustomSupply()
 	clearGMFunctions()
 	addGMFunction("-From Supply",dropPoint)
 	if supply_drop_info == nil then
-		supply_drop_info = "Label"	--default upon Sandbox launch
+		supply_drop_info = "Scan"	--default upon Sandbox launch
 	end
 	addGMFunction(string.format("Info: %s",supply_drop_info),function()
 		local supply_info_explained = "Stock: No information about supply drop (just like stock EE)\nLabel: Supply drop call sign has supply drop info\nScan: Scan reveals supply drop info in description"
@@ -30826,7 +30846,7 @@ function changeTimerSpeed()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-From Change Speed",countdownTimer)
-	local button_label = "Sped up"
+	local button_label = "Speed up"
 	if timer_scale > 1 then
 		button_label = string.format("%s %.3f",button_label,timer_scale)
 	end
