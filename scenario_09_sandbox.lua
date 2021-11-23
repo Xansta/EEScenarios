@@ -25,7 +25,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.27"
+	scenario_version = "4.0.28"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -742,9 +742,9 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Thelonius")
 	makePlayerShipActive("Stick")
-	makePlayerShipActive("Rocinante")
-	makePlayerShipActive("Flaire")
-	makePlayerShipActive("Yorik")
+	makePlayerShipActive("Hummer")
+	makePlayerShipActive("Mixer")
+	makePlayerShipActive("Wesson")
 	makePlayerShipActive("Ink")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -1262,6 +1262,9 @@ function setConstants()
 	kentar_commerce = false
 	kentar_commerce_assets = {}
 	kentar_commerce_timer = commerce_timer_interval
+	lafrina_commerce = false
+	lafrina_commerce_assets = {}
+	lafrina_commerce_timer = commerce_timer_interval
 end
 function createSkeletonUniverse()
 --Human navy stations that may always be reached by long range communication
@@ -2647,6 +2650,74 @@ function freighterCommerce()
 		end
 		addGMFunction(button_label,kentarFreighterCommerce)
 	end
+	if lafrina_color then
+		button_label = "Lafrina"
+		if lafrina_commerce then
+			button_label = button_label .. " On"
+		else
+			button_label = button_label .. " Off"
+		end
+		addGMFunction(button_label,lafrinaFreighterCommerce)
+	end
+end
+function lafrinaFreighterCommerce()
+	if lafrina_commerce then
+		removeLafrinaCommerce()
+	else
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship)
+		if ship:isEnemy(stationMarielle) then
+			ship:setFaction("Arlenians")
+		end
+		regionCommerceDestination(ship,stationLafrina)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		table.insert(lafrina_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship)
+		if ship:isEnemy(stationMarielle) then
+			ship:setFaction("Arlenians")
+		end
+		regionCommerceDestination(ship,stationLafrina)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		table.insert(lafrina_commerce_assets,ship)
+		local escort_ship = nil
+		local escort_count = 0
+		local escort_type = {
+			{chance = 36, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 23, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(lafrina_commerce_assets,escort_ship)
+			end
+		end
+		lafrina_commerce = true
+	end
+	freighterCommerce()
 end
 function kentarFreighterCommerce()
 	if kentar_commerce then
@@ -2658,7 +2729,10 @@ function kentarFreighterCommerce()
 		regionCommerceDestination(ship,stationKentar)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(kentar_commerce_assets,ship)
 		--Work Wagon
@@ -2667,7 +2741,10 @@ function kentarFreighterCommerce()
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(kentar_commerce_assets,ship)
 		local escort_ship = nil
@@ -2677,14 +2754,15 @@ function kentarFreighterCommerce()
 			{chance = 28, type = "MU52 Hornet"},
 			{chance = 23, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(kentar_commerce_assets,escort_ship)
@@ -2697,7 +2775,10 @@ function kentarFreighterCommerce()
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
@@ -2706,14 +2787,15 @@ function kentarFreighterCommerce()
 			{chance = 38, type = "MU52 Hornet"},
 			{chance = 21, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(kentar_commerce_assets,escort_ship)
@@ -2725,7 +2807,10 @@ function kentarFreighterCommerce()
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
@@ -2734,14 +2819,15 @@ function kentarFreighterCommerce()
 			{chance = 28, type = "MU52 Hornet"},
 			{chance = 16, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(kentar_commerce_assets,escort_ship)
@@ -2754,7 +2840,10 @@ function kentarFreighterCommerce()
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
@@ -2763,13 +2852,14 @@ function kentarFreighterCommerce()
 			{chance = 28, type = "MU52 Hornet"},
 			{chance = 16, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(kentar_commerce_assets,escort_ship)
@@ -2790,7 +2880,10 @@ function icarusFreighterCommerce()
 		regionCommerceDestination(ship,stationIcarus)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(icarus_commerce_assets,ship)
 		--Courier
@@ -2804,7 +2897,10 @@ function icarusFreighterCommerce()
 		regionCommerceDestination(ship,stationIcarus)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(icarus_commerce_assets,ship)
 		--Work Wagon
@@ -2817,7 +2913,10 @@ function icarusFreighterCommerce()
 		regionCommerceDestination(ship,stationIcarus)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(icarus_commerce_assets,ship)
 		local escort_ship = nil
@@ -2827,14 +2926,15 @@ function icarusFreighterCommerce()
 			{chance = 28, type = "MU52 Hornet"},
 			{chance = 23, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(icarus_commerce_assets,escort_ship)
@@ -2846,7 +2946,10 @@ function icarusFreighterCommerce()
 		regionCommerceDestination(ship,stationIcarus)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		table.insert(icarus_commerce_assets,ship)
 		escort_count = 0
@@ -2855,14 +2958,15 @@ function icarusFreighterCommerce()
 			{chance = 55, type = "MU52 Hornet"},
 			{chance = 34, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(icarus_commerce_assets,escort_ship)
@@ -2871,6 +2975,13 @@ function icarusFreighterCommerce()
 		icarus_commerce = true
 	end
 	freighterCommerce()
+end
+function removeLafrinaCommerce()
+	for index, ship in ipairs(lafrina_commerce_assets) do
+		ship:destroy()
+	end
+	lafrina_commerce_assets = {}
+	lafrina_commerce = false
 end
 function removeKentarCommerce()
 	for index, ship in ipairs(kentar_commerce_assets) do
@@ -2903,7 +3014,10 @@ function skeletalFreighterCommerce()
 		skeletalDestination(ship)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
@@ -2914,14 +3028,15 @@ function skeletalFreighterCommerce()
 			{chance = 38, type = "MU52 Hornet"},
 			{chance = 21, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(skeletal_commerce_assets,escort_ship)
@@ -2935,7 +3050,10 @@ function skeletalFreighterCommerce()
 		skeletalDestination(ship)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
@@ -2945,14 +3063,15 @@ function skeletalFreighterCommerce()
 			{chance = 28, type = "MU52 Hornet"},
 			{chance = 16, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(skeletal_commerce_assets,escort_ship)
@@ -2964,7 +3083,10 @@ function skeletalFreighterCommerce()
 		skeletalDestination(ship)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
-		ship:setPosition((origin_x + destination_x) / 2, (origin_y + destination_y) / 2)
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
 		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
@@ -2974,14 +3096,15 @@ function skeletalFreighterCommerce()
 			{chance = 21, type = "MU52 Hornet"},
 			{chance = 12, type = "Fighter"},
 		}
-		for i=1,3 do
+		for i=1,#escort_type do
 			if random(1,100) < escort_type[i].chance then
 				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
 				escort_ship:setJumpDrive(true)
 				escort_ship:setFaction(ship:getFaction())
 				escort_count = escort_count + 1
 				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				escort_ship:setPosition((origin_x + destination_x) / 2 + 500, (origin_y + destination_y) / 2 + 500)
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
 				escort_ship:orderDefendTarget(ship)
 				escort_ship.commerce_escort = true
 				table.insert(skeletal_commerce_assets,escort_ship)
@@ -3019,7 +3142,7 @@ function identifyFreighter(ship)
 				{name = "Moya Munge",		faction = "CUF"},
 				{name = "Green Gwaihir",	faction = "Human Navy"},
 				{name = "Metropol",			faction = "TSN"},
-				{name = "Gillig",			faction = "Independent"},
+				{name = "Gillig",			faction = "Arlenians"},
 				{name = "Grech",			faction = "USN"},
 				{name = "Kamaz",			faction = "Independent"},
 			}
@@ -3037,7 +3160,7 @@ function identifyFreighter(ship)
 				{name = "Parry",			faction = "TSN"},
 				{name = "Stahl",			faction = "Independent"},
 				{name = "Crane",			faction = "USN"},
-				{name = "Moran",			faction = "Independent"},
+				{name = "Moran",			faction = "Arlenians"},
 			}
 		end
 		ship_id = tableRemoveRandom(skeletal_service_jonque)
@@ -3051,7 +3174,7 @@ function identifyFreighter(ship)
 				{name = "Heil",				faction = "CUF"},
 				{name = "Transwest",		faction = "Human Navy"},
 				{name = "Qiufan",			faction = "TSN"},
-				{name = "Garwood",			faction = "Independent"},
+				{name = "Garwood",			faction = "Arlenians"},
 				{name = "Hino",				faction = "USN"},
 				{name = "Gareth",			faction = "Independent"},
 			}
@@ -3069,7 +3192,7 @@ function identifyFreighter(ship)
 				{name = "Enron",			faction = "TSN"},
 				{name = "WeiChai",			faction = "Independent"},
 				{name = "Bosch",			faction = "USN"},
-				{name = "Nikola",			faction = "Independent"},
+				{name = "Nikola",			faction = "Arlenians"},
 			}
 		end
 		ship_id = tableRemoveRandom(fuel_5)
@@ -3083,7 +3206,7 @@ function identifyFreighter(ship)
 				{name = "Porsche",			faction = "CUF"},
 				{name = "Razorback",		faction = "Human Navy"},
 				{name = "Orlyonok",			faction = "TSN"},
-				{name = "Benatar",			faction = "Independent"},
+				{name = "Benatar",			faction = "Arlenians"},
 				{name = "Jellyfish",		faction = "USN"},
 				{name = "Hecate",			faction = "Independent"},
 			}
@@ -3099,7 +3222,7 @@ function identifyFreighter(ship)
 				{name = "Mangled Metal",	faction = "CUF"},
 				{name = "Banshee",			faction = "Human Navy"},
 				{name = "Thing",			faction = "TSN"},
-				{name = "Torque",			faction = "Independent"},
+				{name = "Torque",			faction = "Arlenians"},
 				{name = "Hulk",				faction = "USN"},
 				{name = "Forbid",			faction = "Independent"},
 			}
@@ -3112,10 +3235,10 @@ function identifyFreighter(ship)
 		end
 		if #laden_lorry == 0 then
 			laden_lorry = {
-				{name = "Lowboy",			faction = "CUF"},
+				{name = "Lowboy",			faction = "Arlenians"},
 				{name = "Luton",			faction = "Human Navy"},
 				{name = "Reefer",			faction = "TSN"},
-				{name = "Convoy",			faction = "Independent"},
+				{name = "Convoy",			faction = "CUF"},
 				{name = "Hulk",				faction = "USN"},
 				{name = "Atlas",			faction = "Independent"},
 			}
@@ -3126,24 +3249,51 @@ function identifyFreighter(ship)
 end
 function skeletalDestination(ship)
 	local station_pool = {}
-	for index, station in ipairs(skeleton_stations) do
-		if station ~= nil and station:isValid() then
-			if ship.commerce_target ~= nil then
-				if station ~= ship.commerce_target then
-					table.insert(station_pool,station)
+	if #skeleton_stations > 0 then
+		for index, station in ipairs(skeleton_stations) do
+			if station ~= nil and station:isValid() then
+				if station:isFriendly(ship) and not station:isEnemy(ship) then
+					if ship.commerce_target ~= nil then
+						if station ~= ship.commerce_target then
+							table.insert(station_pool,station)
+						end
+					elseif ship.commerce_origin ~= nil then
+						if station ~= ship.commerce_origin then
+							table.insert(station_pool,station)
+						end
+					else
+						table.insert(station_pool,station)
+					end
+				else
+					print("station",station:getCallSign(),station:getFaction(),"is an enemy to",ship:getCallSign(),ship:getFaction())
 				end
-			elseif ship.commerce_origin ~= nil then
-				if station ~= ship.commerce_origin then
-					table.insert(station_pool,station)
-				end
-			else
-				table.insert(station_pool,station)
 			end
 		end
+	else
+		print("skeletal stations is empty")
 	end
 	ship.commerce_target = tableRemoveRandom(station_pool)
+	if ship.commerce_target == nil then
+		print("got nothing from station pool, assigning Icarus")
+		ship.commerce_target = stationIcarus
+	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableRemoveRandom(station_pool)
+		if ship.commerce_origin == nil then
+			print("ship commerce origin is nil")
+			if #station_pool > 0 then
+				for index, station in ipairs(station_pool) do
+					print("index:",index,"station:",station:getCallSign())
+				end
+			else
+				print("station pool is empty")
+			end
+		else
+			print("ship commerce origin:",ship.commerce_origin:getCallSign())
+		end
+		if ship.commerce_origin == nil then
+			ship.commerce_origin = stationIcarus
+		end
 	end
 end
 function regionCommerceDestination(ship,region_station)
@@ -3182,34 +3332,59 @@ function regionCommerceDestination(ship,region_station)
 			primary_station = stationAstron
 		end
 	end
-	for index, station in ipairs(region_stations) do
-		if station ~= nil and station:isValid() then
-			if ship.commerce_target ~= nil then
-				if station ~= ship.commerce_target then
-					if station ~= stationKeyhole23 then
-						table.insert(station_pool,station)
+	if #region_stations > 0 then
+		for index, station in ipairs(region_stations) do
+			if station ~= nil and station:isValid() then
+				if station:isFriendly(ship) and not station:isEnemy(ship) then
+					if ship.commerce_target ~= nil then
+						if station ~= ship.commerce_target then
+							if station ~= stationKeyhole23 then
+								table.insert(station_pool,station)
+							end
+						end
+					elseif ship.commerce_origin ~= nil then
+						if station ~= ship.commerce_origin then
+							if station ~= stationKeyhole23 then
+								table.insert(station_pool,station)
+							end
+						end
+					else
+						if station ~= stationKeyhole23 then
+							table.insert(station_pool,station)
+						end
 					end
-				end
-			elseif ship.commerce_origin ~= nil then
-				if station ~= ship.commerce_origin then
-					if station ~= stationKeyhole23 then
-						table.insert(station_pool,station)
-					end
-				end
-			else
-				if station ~= stationKeyhole23 then
-					table.insert(station_pool,station)
 				end
 			end
 		end
+	else
+		print("regional stations is empty")
 	end
 	if primary_station ~= nil then
 		table.insert(station_pool,primary_station)
 	end
 --	print("station pool count:",#station_pool)
 	ship.commerce_target = tableRemoveRandom(station_pool)
+	if ship.commerce_target == nil then
+		print("got nothing from station pool, assigning primary station:",primary_station:getCallSign())
+		ship.commerce_target = primary_station
+	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableRemoveRandom(station_pool)
+		if ship.commerce_origin == nil then
+			print("ship commerce origin is nil")
+			if #station_pool > 0 then
+				for index, station in ipairs(station_pool) do
+					print("index:",index,"station:",station:getCallSign())
+				end
+			else
+				print("station pool is empty")
+			end
+		else
+			print("ship commerce origin:",ship.commerce_origin:getCallSign())
+		end
+		if ship.commerce_origin == nil then
+			ship.commerce_origin = stationIcarus
+		end
 	end
 end
 function addFreighters()
@@ -10803,7 +10978,41 @@ function createLafrinaStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
+	--Bond
+    stationBond = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Bond"):setPosition(-271961, 284971):setDescription("Observation and Research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationBond.comms_data = {
+    	friendlyness = 78,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = false,			HVLI = random(1,100)<30,Mine = true,			Nuke = random(1,100)<30,	EMP = random(1,100)<30	},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 63,
+        hack_repair =			true,
+        scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	circuit = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        trade = {	food = random(1,100)<30, medicine = random(1,100)<30, luxury = random(1,100)<30 },
+        public_relations = true,
+        general_information = "We research the nearby black hole in conjunction with Lafrina",
+    	history = "Lafrina requested research assistance. TSN had the available reseources and set up another base to help",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	stationBond:setRestocksScanProbes(random(1,100)<70)
+	stationBond:setRepairDocked(random(1,100)<70)
+	stationBond:setSharesEnergyWithDocked(random(1,100)<70)
+	station_names[stationBond:getCallSign()] = {stationBond:getSectorName(), stationBond}
+	table.insert(stations,stationBond)
 	--Borie
+	local BorieZone = squareZone(-326622, 278067, "Borie S88")
+	BorieZone:setColor(51,153,255):setLabel("Br")
+	--[[
 	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -10844,6 +11053,7 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationBorie:setSharesEnergyWithDocked(false) end
 	station_names[stationBorie:getCallSign()] = {stationBorie:getSectorName(), stationBorie}
 	table.insert(stations,stationBorie)
+	--]]
 	--Ilorea	
 	stationIlorea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Ilorea"):setPosition(-381821, 316064):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -10894,10 +11104,9 @@ function createLafrinaStations()
 	station_names[stationIlorea:getCallSign()] = {stationIlorea:getSectorName(), stationIlorea}
 	table.insert(stations,stationIlorea)
 	--Lurive
-	local luriveZone = squareZone(-294864, 225704, "Lurive Q90")
-	luriveZone:setColor(51,153,255):setLabel("LV")
-	--[[
-	stationLurive = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Lurive"):setPosition(-294864, 225704):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
+	--local luriveZone = squareZone(-294864, 225704, "Lurive Q90")
+	--luriveZone:setColor(51,153,255):setLabel("LV")
+	stationLurive = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Lurive 2"):setPosition(-294864, 225704):setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -10938,7 +11147,6 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationLurive:setSharesEnergyWithDocked(false) end
 	station_names[stationLurive:getCallSign()] = {stationLurive:getSectorName(), stationLurive}
 	table.insert(stations,stationLurive)
-	--]]
 	--Marielle
 	stationMarielle = SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("Marielle"):setPosition(-436074, 287708):setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -10994,6 +11202,9 @@ function createLafrinaStations()
 	station_names[stationMarielle:getCallSign()] = {stationMarielle:getSectorName(), stationMarielle}
 	table.insert(stations,stationMarielle)
 	--Rivelle
+	local rivelleZone = squareZone(-359704, 375988, "Rivelle X87")
+	rivelleZone:setColor(51,153,255):setLabel("R")
+	--[[
     stationRivelle = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Rivelle"):setPosition(-359704, 375988):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -11034,6 +11245,7 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationRivelle:setSharesEnergyWithDocked(false) end
 	station_names[stationRivelle:getCallSign()] = {stationRivelle:getSectorName(), stationRivelle}
 	table.insert(stations,stationRivelle)
+	--]]
 	--Vilairre
     stationVilairre = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Vilairre"):setDescription("Communications and administration"):setCommsScript(""):setCommsFunction(commsStation)
 	update_system:addOrbitTargetUpdate(stationVilairre,planet_wilaux,6000,23*2*math.pi,0)
@@ -14821,6 +15033,7 @@ function createPlayerShipHummer()
 	playerHummer:setTubeLoadTime(3,15)
 	playerHummer:setTubeLoadTime(4,15)
 	playerHummer:setTubeLoadTime(5,25)
+	playerHummer:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
 	playerHummer:onTakingDamage(playerShipDamage)
 	playerHummer:addReputationPoints(50)
 	return playerHummer
@@ -14867,6 +15080,7 @@ function createPlayerShipInk()
 	playerInk:setWeaponStorage("Nuke", 4)				
 	playerInk:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
 	playerInk.normal_long_range_radar = 25000
+	playerInk:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
 	playerInk:onTakingDamage(playerShipDamage)
 	playerInk:addReputationPoints(50)
 	return playerInk
@@ -15128,6 +15342,7 @@ function createPlayerShipMixer()
 	playerAmalgam:setWeaponStorage("EMP", 0)				
 	playerAmalgam:setWeaponStorageMax("HVLI", 0)		--less (vs 20)
 	playerAmalgam:setWeaponStorage("HVLI", 0)
+	playerAmalgam:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
 	playerAmalgam:onTakingDamage(playerShipDamage)
 	playerAmalgam:addReputationPoints(50)
 	return playerAmalgam
@@ -15586,6 +15801,15 @@ function createPlayerShipRocinante()
 	playerWindmill:setWeaponStorage("EMP", 2)
 	playerWindmill:setWeaponStorageMax("HVLI", 8)			--more (vs 5)
 	playerWindmill:setWeaponStorage("HVLI", 8)
+	playerWindmill:setSystemHeatRate("reactor",		0.5)	--more (vs.05) Lingling
+	playerWindmill:setSystemHeatRate("frontshield",	0.25)	--more (vs.05) Lingling
+	playerWindmill:setSystemCoolantRate("reactor",		3)	--more (vs 1.2) Arlenian pumps
+	playerWindmill:setSystemCoolantRate("beamweapons",	3)	--more (vs 1.2) Arlenian pumps
+	playerWindmill:setSystemCoolantRate("missilesystem",3)	--more (vs 1.2) Arlenian pumps
+	playerWindmill:setSystemCoolantRate("maneuver",		3)	--more (vs 1.2) Arlenian pumps
+	playerWindmill:setSystemCoolantRate("impulse",		3)	--more (vs 1.2) Arlenian pumps
+	playerWindmill:setSystemCoolantRate("rearshield",	3)	--more (vs 1.2) Arlenian pumps
+	playerWindmill:setSystemCoolantRate("frontshield",	3)	--more (vs 1.2) Arlenian pumps
 	playerWindmill:onTakingDamage(playerShipDamage)
 	playerWindmill:addReputationPoints(50)
 	return playerWindmill
@@ -15867,6 +16091,7 @@ function createPlayerShipStick()
 	playerStick:setSystemPowerRate("impulse",			0.325)	--more (vs 0.30)
 	playerStick:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
 	playerStick:setSystemPowerRate("rearshield",		0.35)	--more (vs 0.30)
+	playerStick:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
 	playerStick:onTakingDamage(playerShipDamage)
 	playerStick:addReputationPoints(50)
 	return playerStick
@@ -16033,7 +16258,14 @@ function createPlayerShipThelonius()
 	playerThelonius:setWeaponStorageMax("Mine",0)			--fewer (vs 6)
 	playerThelonius:setWeaponStorage("Mine", 0)				
 	playerThelonius:setWeaponStorageMax("HVLI",10)			--fewer (vs 24)
-	playerThelonius:setWeaponStorage("HVLI", 10)				
+	playerThelonius:setWeaponStorage("HVLI", 10)		
+	playerThelonius:setSystemHeatRate("reactor",		.8)	--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("beamweapons",	.8)	--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("missilesystem",	.5)	--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("impulse",		.5)	--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("warp",			.5)	--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("frontshield",	.5)	--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("rearshield",		.25)--more (vs .05) Lingling	
 	playerThelonius:onTakingDamage(playerShipDamage)
 	playerThelonius:addReputationPoints(50)
 	return playerThelonius
@@ -16188,6 +16420,7 @@ function createPlayerShipWesson()
 	playerChavez:setTubeLoadTime(1,15)	
 	playerChavez:setTubeLoadTime(2,15)
 	playerChavez:setTubeLoadTime(3,20)
+	playerChavez:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
 	playerChavez:onTakingDamage(playerShipDamage)
 	playerChavez:addReputationPoints(50)
 	return playerChavez
@@ -37376,6 +37609,13 @@ function updateInner(delta)
 		if kentar_commerce_timer < 0 then
 			updateCommerce(kentar_commerce_assets,stationKentar)
 			kentar_commerce_timer = commerce_timer_interval
+		end
+	end
+	if lafrina_commerce then
+		lafrina_commerce_timer = lafrina_commerce_timer - delta
+		if lafrina_commerce_timer < 0 then
+			updateCommerce(lafrina_commerce_assets,stationLafrina)
+			lafrina_commerce_timer = commerce_timer_interval
 		end
 	end
 	if updateDiagnostic then print("update: end of update function") end
