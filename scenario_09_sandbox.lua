@@ -25,7 +25,7 @@ require("sandbox_library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.28"
+	scenario_version = "4.0.29"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -72,6 +72,7 @@ function setConstants()
 	fleetSpawnRelativeDirection = "Random Direction"
 	fleetSpawnAwayDirection = "90"
 	fleetSpawnAwayDistance = 60
+	fleet_spawn_type = "relative"
 	createDirection = 90
 	createDistance = 30
 	fleetAmbushDistance = 5
@@ -229,6 +230,7 @@ function setConstants()
 		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2480,	create = stockTemplate},
 		["Fortress"] =			{strength = 130,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2380,	create = stockTemplate},
 		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 90,	hop_range = 2480,	create = tyr},
+		["Prador"] =			{strength = 160,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 0,	hop_range = 2480,	create = prador},
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = stockTemplate},
 		["Loki"] =				{strength = 260,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = loki},
 	}
@@ -586,7 +588,29 @@ function setConstants()
 						{angle = 210, dist = 2	},
 					},
 	}
-
+	prebuilt_leaders = {
+		["Cucaracha"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
+		["Dreadnought"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["MT52 Hornet"] = {"MU52 Hornet","Ktlitan Scout"},
+		["Nirvana R3"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Nirvana R5"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Nirvana R5A"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Blockade Runner"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Enforcer V2"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Sentinel"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+	}
+	prebuilt_leader = "Nirvana R5"	--default
+	prebuilt_followers = {
+		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
+		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A", "MT52 Hornet"},
+		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
+		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
+		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
+		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
+		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A", "MT52 Hornet"},
+		["Cucaracha"] =			{"Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
+	}
+	prebuilt_follower = "MT52 Hornet"	--default
 	fleet_exclusions = {
 		["Nuke"]	= {letter = "N", exclude = false},
 		["Warp"]	= {letter = "W", exclude = false},
@@ -845,6 +869,7 @@ function setConstants()
 								["Flavia"] =						200,
 								["Flavia Falcon"] =					200,
 								["Tug"] =							200,
+								["Cucaracha"] =						200,
 								["Fighter"] =						100,
 								["Karnack"] =						200,
 								["Cruiser"] =						200,
@@ -985,6 +1010,7 @@ function setConstants()
 								["Diva"] =							350,
 								["Loki"] =							1500,
 								["Tyr"] =							2000,
+								["Prador"] =						2000,
 								["Gnat"] =							300,
 								["Jump Carrier"] =					800		}
 	unscannedClues = {	["Energy Signature"] = "Energy signature",
@@ -17032,19 +17058,27 @@ function spawnGMFleet()
 	addGMFunction("-Main From Flt Spwn",initialGMFunctions)
 	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction(string.format("+%s",fleetSpawnFaction),setGMFleetFaction)
-	if fleetStrengthFixed then
-		addGMFunction("+Set Relative Strength",setGMFleetStrength)
-		addGMFunction(string.format("+Strength %i*",fleetStrengthFixedValue),setFixedFleetStrength)
-	else
+	if fleet_spawn_type == "relative" then
 		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
-		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
+		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. "*player strength: " .. calcStr
 		if fleetStrengthByPlayerStrength == .25 then
 			GMSetGMFleetStrength = "1/4 Player Strength: " .. calcStr
 		elseif fleetStrengthByPlayerStrength == .5 then
 			GMSetGMFleetStrength = "1/2 Player Strength: " .. calcStr
 		end
-		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setGMFleetStrength)
-		addGMFunction("+Set Fixed Strength",setFixedFleetStrength)
+		addGMFunction("+" .. GMSetGMFleetStrength,setGMFleetStrength)
+	elseif fleet_spawn_type == "fixed" then
+		addGMFunction(string.format("+Fixed Strength %i",fleetStrengthFixedValue),setFixedFleetStrength)
+	elseif fleet_spawn_type == "prebuilt" then
+		--calculate fleet strength
+		local button_label = "+Prebuilt"
+		if formation_shape ~= nil then
+			local leader_strength = ship_template[prebuilt_leader].strength
+			local follower_strength = ship_tempalte[prebuilt_follower].strength
+			local prebuilt_strength = leader_strength + (follower_strength * #fly_formation[formation_shape])
+			button_label = string.format("%s %i",prebuilt_strength)
+		end
+		addGMFunction(button_label,setPrebuiltFleet)
 	end
 	local exclusion_string = ""
 	for name, details in pairs(fleet_exclusions) do
@@ -17285,66 +17319,71 @@ function setGMFleetStrength()
 	addGMFunction("-Main from Rel Str",initialGMFunctions)
 	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("Switch to Fixed Strength",function()
+		fleet_spawn_type = "fixed"
+		fleetStrengthFixed = true
+		spawnGMFleet()
+	end)
+	addGMFunction("Switch to Prebuilt",function()
+		fleet_spawn_type = "prebuilt"
+		fleetStrengthFixed = false
+		spawnGMFleet()
+	end)
 	setFleetStrength(setGMFleetStrength)
 end
 function setFleetStrength(caller)
-	local GMSetFleetStrengthByPlayerStrengthQuarter = "1/4"
-	if fleetStrengthByPlayerStrength == .25 then
-		GMSetFleetStrengthByPlayerStrengthQuarter = "1/4*"
+	local relative_strength_list = {
+		{"1/4", .25},
+		{"1/2", .5},
+		{"1", 1},
+		{"2", 2},
+		{"3", 3},
+		{"4", 4},
+		{"5", 5},
+		{"6", 6},
+		{"7", 7},
+		{"8", 8},
+	}
+	local matching_index = 0
+	for index, item in ipairs(relative_strength_list) do
+		if item[2] == fleetStrengthByPlayerStrength then
+			matching_index = index
+		end
 	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrengthQuarter,function()
-		fleetStrengthByPlayerStrength = .25
-		caller()
-	end)
-	local GMSetFleetStrengthByPlayerStrengthHalf = "1/2"
-	if fleetStrengthByPlayerStrength == .5 then
-		GMSetFleetStrengthByPlayerStrengthHalf = "1/2*"
+	if matching_index == 1 then
+		for i=1,3 do
+			local button_label = relative_strength_list[i][1]
+			if i == matching_index then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				fleetStrengthByPlayerStrength = relative_strength_list[i][2]
+				caller()
+			end)
+		end
+	elseif matching_index == #relative_strength_list then
+		for i=#relative_strength_list-2,#relative_strength_list do
+			local button_label = relative_strength_list[i][1]
+			if i == matching_index then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				fleetStrengthByPlayerStrength = relative_strength_list[i][2]
+				caller()
+			end)
+		end
+	else
+		for i=matching_index-1,matching_index+1 do
+			local button_label = relative_strength_list[i][1]
+			if i == matching_index then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				fleetStrengthByPlayerStrength = relative_strength_list[i][2]
+				caller()
+			end)
+		end
 	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrengthHalf,function()
-		fleetStrengthByPlayerStrength = .5
-		caller()
-	end)
-	local GMSetFleetStrengthByPlayerStrength1 = "1"
-	if fleetStrengthByPlayerStrength == 1 then
-		GMSetFleetStrengthByPlayerStrength1 = "1*"
-	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrength1,function()
-		fleetStrengthByPlayerStrength = 1
-		caller()
-	end)
-	local GMSetFleetStrengthByPlayerStrength2 = "2"
-	if fleetStrengthByPlayerStrength == 2 then
-		GMSetFleetStrengthByPlayerStrength2 = "2*"
-	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrength2,function()
-		fleetStrengthByPlayerStrength = 2
-		caller()
-	end)
-	local GMSetFleetStrengthByPlayerStrength3 = "3"
-	if fleetStrengthByPlayerStrength == 3 then
-		GMSetFleetStrengthByPlayerStrength3 = "3*"
-	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrength3,function()
-		fleetStrengthByPlayerStrength = 3
-		caller()
-	end)
-	local GMSetFleetStrengthByPlayerStrength5 = "5"
-	if fleetStrengthByPlayerStrength == 5 then
-		GMSetFleetStrengthByPlayerStrength5 = "5*"
-	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrength5,function()
-		fleetStrengthByPlayerStrength = 5
-		caller()
-	end)
-	local GMSetFleetStrengthByPlayerStrength8 = "8"
-	if fleetStrengthByPlayerStrength == 8 then
-		GMSetFleetStrengthByPlayerStrength8 = "8*"
-	end
-	addGMFunction(GMSetFleetStrengthByPlayerStrength8,function()
-		fleetStrengthByPlayerStrength = 8
-		caller()
-	end)
-	fleetStrengthFixed = false
 end
 --------------------------------------------------------
 --	Spawn Ship(s) > Spawn Fleet > Set Fixed Strength  --
@@ -17361,6 +17400,16 @@ function setFixedFleetStrength()
 	addGMFunction("-Fleet or Ship",spawnGMShips)
 	addGMFunction("-Fleet Spawn",spawnGMFleet)
 	addGMFunction("-Fixed Strength " .. fleetStrengthFixedValue,spawnGMFleet)
+	addGMFunction("Switch to Relative",function()
+		fleet_spawn_type = "relative"
+		fleetStrengthFixed = false
+		spawnGMFleet()
+	end)
+	addGMFunction("Switch to Prebuilt",function()
+		fleet_spawn_type = "prebuilt"
+		fleetStrengthFixed = false
+		spawnGMFleet()
+	end)
 	fixFleetStrength(setFixedFleetStrength)
 end
 function fixFleetStrength(caller)
@@ -17376,8 +17425,349 @@ function fixFleetStrength(caller)
 			caller()
 		end)
 	end	
-	fleetStrengthFixed = true
 end
+function setPrebuiltFleet()
+	clearGMFunctions()
+	addGMFunction("-Main from Prebuilt",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("Switch to Fixed Strength",function()
+		fleet_spawn_type = "fixed"
+		fleetStrengthFixed = true
+		spawnGMFleet()
+	end)
+	addGMFunction("Switch to Relative",function()
+		fleet_spawn_type = "relative"
+		fleetStrengthFixed = false
+		spawnGMFleet()
+	end)
+	button_label = "+Shape"
+	if formation_shape ~= nil then
+		local leader_strength = ship_template[prebuilt_leader].strength
+		local follower_strength = ship_template[prebuilt_follower].strength
+		local prebuilt_strength = leader_strength + (follower_strength * #fly_formation[formation_shape])	
+		button_label = string.format("%s %s %s",button_label,formation_shape,prebuilt_strength)
+	end
+	addGMFunction(button_label,setPrebuiltFormationShape)
+	addGMFunction("+Composition",setPrebuiltComposition)
+	if shipTemplateDistance[prebuilt_leader] == nil then
+		print("You need an entry in shipTemplateDistance for leader template:",prebuilt_leader)
+	end
+	if shipTemplateDistance[prebuilt_follower] == nil then
+		print("You need an entry in shipTemplateDistance for follower template:",prebuilt_follower)
+	end
+	local minimum_spacing = shipTemplateDistance[prebuilt_leader] + shipTemplateDistance[prebuilt_follower] + 300 
+	if formation_spacing == nil or formation_spacing < minimum_spacing then
+		formation_spacing = minimum_spacing
+	end
+	addGMFunction(string.format("+Spacing %.1f",formation_spacing/1000),setPrebuiltFormationSpacing)
+	if formation_shape ~= nil then
+		if gm_click_mode == "set prebuilt target" then
+			addGMFunction(">Set Fleet Target<",setPrebuiltFleetTarget)
+		else
+			local button_label = "Spawn Fleet"
+			if gm_click_mode == "spawn prebuilt fleet" then
+				button_label = string.format(">%s<",button_label)
+			end
+			addGMFunction(button_label,spawnPrebuiltFleet)
+		end
+	end
+end
+function gmClicksetPrebuiltFleetTarget(x,y)
+	local leader_ship = ship_template[prebuilt_leader].create(fleetSpawnFaction,prebuilt_leader)
+	local fleet_prefix = generateCallSignPrefix()
+	leader_ship:setPosition(prebuilt_fleet_x,prebuilt_fleet_y)
+	local prebuilt_angle = angleFromVectorNorth(x,y,prebuilt_fleet_x,prebuilt_fleet_y)
+	leader_ship:setHeading(prebuilt_angle)
+	leader_ship.formation_ships = {}
+	for _, form in ipairs(fly_formation[formation_shape]) do
+		local ship = ship_template[prebuilt_follower].create(fleetSpawnFaction,prebuilt_follower)
+		local form_x, form_y = vectorFromAngleNorth(prebuilt_angle + form.angle, form.dist * formation_spacing)
+		local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * formation_spacing)
+		ship:setPosition(prebuilt_fleet_x + form_x, prebuilt_fleet_y + form_y):setHeading(prebuilt_angle):orderFlyFormation(leader_ship,form_prime_x,form_prime_y)
+		ship:setCallSign(generateCallSign(fleet_prefix))
+		table.insert(leader_ship.formation_ships,ship)
+	end
+	leader_ship:orderFlyTowards(x,y)
+	gm_click_mode = nil
+	onGMClick(nil)
+	setPrebuiltFleet()
+end
+function spawnPrebuiltFleet()
+	if gm_click_mode == "spawn prebuilt fleet" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "spawn prebuilt fleet"
+		onGMClick(gmClickSpawnPrebuiltFleet)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   spawn prebuilt fleet\nGM click mode.",prev_mode))
+		end
+	end
+	setPrebuiltFleet()
+end
+function gmClickSpawnPrebuiltFleet(x,y)
+	prebuilt_fleet_x = x
+	prebuilt_fleet_y = y
+	gm_click_mode = "set prebuilt target"
+	onGMClick(gmClicksetPrebuiltFleetTarget)
+	setPrebuiltFleet()
+end
+function setPrebuiltFleetTarget()
+	if gm_click_mode == "set prebuilt target" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "set prebuilt target"
+		onGMClick(gmClicksetPrebuiltFleetTarget)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   set prebuilt target\nGM click mode.",prev_mode))
+		end
+	end
+	setPrebuiltFleet()
+end
+function setPrebuiltFormationSpacing()
+	clearGMFunctions()
+	addGMFunction("-Main from Spacing",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("-Prebuilt",setPrebuiltFleet)
+	local minimum_spacing = shipTemplateDistance[prebuilt_leader] + shipTemplateDistance[prebuilt_follower] + 300 
+	local maximum_spacing = 3000
+	if formation_spacing == minimum_spacing then
+		for i=minimum_spacing,minimum_spacing+400,100 do
+			local button_label = string.format("Spacing %.1f",i/1000)
+			if i == formation_spacing then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				formation_spacing = i
+				setPrebuiltFormationSpacing()
+			end)
+		end
+	elseif formation_spacing == minimum_spacing + 100 then
+		for i=minimum_spacing+100,minimum_spacing+500,100 do
+			local button_label = string.format("Spacing %.1f",i/1000)
+			if i == formation_spacing then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				formation_spacing = i
+				setPrebuiltFormationSpacing()
+			end)
+		end
+	elseif formation_spacing == maximum_spacing then
+		for i=maximum_spacing-400,maximum_spacing,100 do
+			local button_label = string.format("Spacing %.1f",i/1000)
+			if i == formation_spacing then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				formation_spacing = i
+				setPrebuiltFormationSpacing()
+			end)
+		end
+	elseif formation_spacing == maximum_spacing - 100 then
+		for i=maximum_spacing-500,maximum_spacing-100,100 do
+			local button_label = string.format("Spacing %.1f",i/1000)
+			if i == formation_spacing then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				formation_spacing = i
+				setPrebuiltFormationSpacing()
+			end)
+		end
+	else
+		for i=formation_spacing-200,formation_spacing+200,100 do
+			local button_label = string.format("Spacing %.1f",i/1000)
+			if i == formation_spacing then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				formation_spacing = i
+				setPrebuiltFormationSpacing()
+			end)
+		end
+	end
+end
+function setPrebuiltComposition()
+	clearGMFunctions()
+	addGMFunction("-Main from Composition",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("-Prebuilt",setPrebuiltFleet)
+	addGMFunction(string.format("+Lead:%s",prebuilt_leader),setPrebuiltLeader)
+	addGMFunction(string.format("+Follow:%s",prebuilt_follower),setPrebuiltFollower)
+end
+function setPrebuiltFollower()
+	clearGMFunctions()
+	addGMFunction("-Main from Follow",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("-Prebuilt",setPrebuiltFleet)
+	--sort
+	for follower, leader_list in pairs(prebuilt_followers) do
+		local follower_suffix = ""
+		if follower == prebuilt_follower then
+			follower_suffix = "*"
+		end
+		local leader_suffix = ""
+		for _, leader in ipairs(leader_list) do
+			if leader == prebuilt_leader then
+				leader_suffix = "*"
+				break
+			end
+		end
+		addGMFunction(string.format("%s%s%s",follower,leader_suffix,follower_suffix),function()
+			prebuilt_follower = follower
+			local leader_list = prebuilt_followers[prebuilt_follower]
+			local leader_in_list = false
+			for _, leader in ipairs(leader_list) do
+				if leader == prebuilt_leader then
+					leader_in_list = true
+					break
+				end
+			end
+			if not leader_in_list then
+				prebuilt_leader = leader_list[1]
+			end
+			setPrebuiltComposition()
+		end)
+	end
+end
+function setPrebuiltLeader()
+	clearGMFunctions()
+	addGMFunction("-Main from Lead",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("-Prebuilt",setPrebuiltFleet)
+	--sort
+	for leader, follower_list in pairs(prebuilt_leaders) do
+		local leader_suffix = ""
+		if leader == prebuilt_leader then
+			leader_suffix = "*"
+		end
+		local follower_suffix = ""
+		for _, follower in ipairs(follower_list) do
+			if follower == prebuilt_follower then
+				follower_suffix = "*"
+				break
+			end
+		end
+		addGMFunction(string.format("%s%s%s",leader,leader_suffix,follower_suffix),function()
+			prebuilt_leader = leader
+			local follower_list = prebuilt_leaders[prebuilt_leader]
+			local follower_in_list = false
+			for _, follower in ipairs(follower_list) do
+				if follower == prebuilt_follower then
+					follower_in_list = true
+					break
+				end
+			end
+			if not follower_in_list then
+				prebuilt_follower = follower_list[1]
+			end
+			setPrebuiltComposition()
+		end)
+	end
+end
+function setPrebuiltFormationShape()
+	clearGMFunctions()
+	addGMFunction("+V",setPrebuiltFormationCategoryV)
+	addGMFunction("+A",setPrebuiltFormationCategoryA)
+	addGMFunction("+Line",setPrebuiltFormationCategoryLine)
+	addGMFunction("+M",setPrebuiltFormationCategoryM)
+	addGMFunction("+W",setPrebuiltFormationCategoryW)
+	addGMFunction("+X",setPrebuiltFormationCategoryX)
+end
+function setPrebuiltFormationCategoryX()
+	clearGMFunctions()
+	local form_list = {"X","X8","Xac","Xac8"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
+end
+function setPrebuiltFormationCategoryW()
+	clearGMFunctions()
+	local form_list = {"W","W6","Wac","Wac6"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
+end
+function setPrebuiltFormationCategoryM()
+	clearGMFunctions()
+	local form_list = {"M","M6","Mac","Mac6"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
+end
+function setPrebuiltFormationCategoryLine()
+	clearGMFunctions()
+	local form_list = {"/","/ac","-","-4","\\","\\ac","|","|4"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
+end
+function setPrebuiltFormationCategoryA()
+	clearGMFunctions()
+	local form_list = {"A","A4","Aac","Aac4"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
+end
+function setPrebuiltFormationCategoryV()
+	clearGMFunctions()
+	local form_list = {"V","V4","Vac","Vac4"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
+end
+
 --------------------------------------------
 --	Spawn Ship(s) > Spawn Fleet > Random  --
 --------------------------------------------
@@ -21251,6 +21641,47 @@ function maniapak(enemyFaction)
 	end
 	return ship		
 end
+function prador(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Prador"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Prador"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Prador")
+	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	60,	  -15,	2500,		6,		 8)	--stronger beams, broader coverage
+	ship:setBeamWeapon(1,	60,	  -45,	2500,		6,		 8)
+	ship:setBeamWeapon(2,	60,	   15,	2500,		6,		 8)
+	ship:setBeamWeapon(3,	60,	   45,	2500,		6,		 8)
+	ship:setBeamWeapon(4,	60,	  -75,	2500,		6,		 8)
+	ship:setBeamWeapon(5,	60,	 -105,	2500,		6,		 8)
+	ship:setBeamWeapon(6,	60,	   75,	2500,		6,		 8)
+	ship:setBeamWeapon(7,	60,	  105,	2500,		6,		 8)
+	ship:setBeamWeapon(8,	60,	 -135,	2500,		6,		 8)
+	ship:setBeamWeapon(9,	60,	 -165,	2500,		6,		 8)
+	ship:setBeamWeapon(10,	60,	  135,	2500,		6,		 8)
+	ship:setBeamWeapon(11,	60,	  165,	2500,		6,		 8)
+	local prador_db = queryScienceDatabase("Ships","Dreadnought","Prador")
+	if prador_db == nil then
+		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
+		dreadnought_db:addEntry("Prador")
+		prador_db = queryScienceDatabase("Ships","Dreadnought","Prador")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
+			prador_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Prador improves on the Battlestation model by increasing the impulse speed, strengthening the hull and realigning the beam weapons",
+			nil,
+			"5 - 50 U",		--jump range
+			"Ender Battlecruiser"
+		)
+	end
+	return ship
+end
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
 	modified_db:setImage(base_db:getImage())
@@ -23635,13 +24066,6 @@ function setFormation()
 		button_label = string.format("%s %.1f",button_label,formation_spacing/1000)
 	end
 	addGMFunction(button_label,setFormationSpacing)
-	--[[
-	button_label = "+Trigger"
-	if formation_trigger ~= nil then
-		button_label = string.format("%s %s",button_label,formation_trigger/1000)
-	end
-	addGMFunction(button_label,setFormationTrigger)
-	--]]
 	if formation_spacing ~= nil and formation_shape ~= nil and formation_ship_selected and formation_target_angle ~= nil then
 		if formation_ship.formation_ships == nil then
 			addGMFunction("Create Formation",function()
@@ -23694,6 +24118,9 @@ function setFormationTrigger()
 end
 function setFormationSpacing()
 	clearGMFunctions()
+	if formation_spacing > 1200 then
+		formation_spacing = 1200
+	end
 	for i=500,1200,100 do
 		local button_label = string.format("Spacing: %.1f",i/1000)
 		if formation_spacing == i then
