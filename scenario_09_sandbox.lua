@@ -2,11 +2,11 @@
 -- Description: GM controlled missions
 --- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh
 --- Version 4
---- Get latest version from https://github.com/Xansta/EEScenarios
----   You will need these files placed in your scripts folder: 
----      scenario_09_sandbox.lua, sandbox_library.lua, sandbox_science_database.lua
+--- Latest version: https://github.com/Xansta/EEScenarios
+--- Wiki: https://github.com/Xansta/EEScenarios/wiki/Sandbox
 --- USN Discord: https://discord.gg/PntGG3a 
---- The sandbox is used on the USN Discord every Saturday 1600 UTC
+--- USN uses this sandbox Saturdays at 1600 UTC. 
+--- Newcomers are welcome to join us. Please post feedback about the sandbox on the EEScenarios github repository.
 -- Type: GM Controlled missions
 
 -- Starry's todo list
@@ -111,7 +111,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.30"
+	scenario_version = "4.0.31"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -17160,7 +17160,7 @@ function spawnGMFleet()
 		local button_label = "+Prebuilt"
 		if formation_shape ~= nil then
 			local leader_strength = ship_template[prebuilt_leader].strength
-			local follower_strength = ship_tempalte[prebuilt_follower].strength
+			local follower_strength = ship_template[prebuilt_follower].strength
 			local prebuilt_strength = leader_strength + (follower_strength * #fly_formation[formation_shape])
 			button_label = string.format("%s %i",prebuilt_strength)
 		end
