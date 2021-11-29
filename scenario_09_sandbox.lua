@@ -111,7 +111,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.31"
+	scenario_version = "4.0.32"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -31462,7 +31462,6 @@ function GMTimerPurpose()
 			"Departure"			,
 			"Destruction"		,
 			"Discovery"			,
-			"Decompression"		
 		}
 	end
 	local button_label = nil
@@ -31478,6 +31477,30 @@ function GMTimerPurpose()
 			GMTimerPurpose()
 		end)
 	end
+	button_label = "Use Selected Obj Desc"
+	if object_description_timer_text ~= nil then
+		button_label = string.format("USOD: %s",object_description_timer_text)
+		if timer_purpose == object_description_timer_text then
+			button_label = string.format("%s*",button_label)
+		end
+	end
+	addGMFunction(button_label, function()
+		local obj_list = getGMSelection()
+		if #obj_list ~= 1 then
+			addGMMessage("Select one object. No action taken. You should already have the unscanned description field of the object you select contain the desired timer label text")
+		else
+			local desc = obj_list[1]:getDescription("notscanned")
+			if desc ~= nil and desc ~= "" then
+				object_description_timer_text = desc
+			else
+				addGMMessage("Select one object. No action taken. You should already have the unscanned description field of the object you select contain the desired timer label text")
+			end
+		end
+		if object_description_timer_text ~= nil then
+			timer_purpose = object_description_timer_text
+		end
+		GMTimerPurpose()
+	end)
 end
 
 function GMTimerType()
