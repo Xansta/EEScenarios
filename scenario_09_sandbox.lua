@@ -111,7 +111,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.32"
+	scenario_version = "4.0.33"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1377,6 +1377,11 @@ function setConstants()
 	lafrina_commerce = false
 	lafrina_commerce_assets = {}
 	lafrina_commerce_timer = commerce_timer_interval
+	explosion_type = "Normal"
+	explosion_damage = 50
+	explosion_size = 50
+	explosion_range = 1000
+	explosion_damage_degredation = "Linear"
 end
 function createSkeletonUniverse()
 --Human navy stations that may always be reached by long range communication
@@ -2732,6 +2737,234 @@ function tweakTerrain()
 	end
 	addGMFunction("+Probes",tweakProbes)
 	addGMFunction("+Commerce",freighterCommerce)
+	addGMFunction("+Explosion",setExplosion)
+end
+function setExplosion()
+	clearGMFunctions()
+	addGMFunction("-Main from Explosion",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("+Max Damage",setExplosionDamage)
+	addGMFunction("+Effect Size",setExplosionSize)
+	addGMFunction("+Range",setExplosionRange)
+	addGMFunction(string.format("Type: %s",explosion_type),function()
+		if explosion_type == "Normal" then
+			explosion_type = "Electric"
+		else
+			explosion_type = "Normal"
+		end
+		setExplosion()
+	end)
+	addGMFunction("Explode Object",function()
+		local object_list = getGMSelection()
+		if #object_list ~= 1 then
+			addGMMessage("Select one object. No action taken")
+		else
+			local exp_x, exp_y = object_list[1]:getPosition()
+			object_list[1]:destroy()
+			if explosion_type == "Electric" then
+				ElectricExplosionEffect():setPosition(exp_x, exp_y):setSize(explosion_size):setOnRadar(true)				
+			else
+				ExplosionEffect():setPosition(exp_x, exp_y):setSize(explosion_size):setOnRadar(true)
+			end
+			if explosion_damage > 0 then
+				local damage_list = getObjectsInRadius(exp_x, exp_y, explosion_range)
+				if #damage_list > 0 then
+					for i=1,#damage_list do
+						local dist = distance(damage_list[i], exp_x, exp_y)
+						local applied_damage = explosion_damage
+						if explosion_damage_degredation == "Linear" then
+							applied_damage = (1 - (dist/explosion_range)) * explosion_damage
+						end
+						if explosion_type == "Electric" then
+							damage_list[i]:takeDamage(applied_damage, "emp", exp_x, exp_y)
+						else
+							damage_list[i]:takeDamage(applied_damage, "energy", exp_x, exp_y)
+						end
+					end
+				end
+			end
+		end
+		setExplosion()
+	end)
+	if gm_click_mode == "place explosion" then
+		addGMFunction(">Place Explosion<",placeExplosion)
+	else
+		addGMFunction("Place Explosion",placeExplosion)
+	end
+end
+function placeExplosion()
+	if gm_click_mode == "place explosion" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "place explosion"
+		onGMClick(gmClickPlaceExplosion)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   place explosion\nGM click mode.",prev_mode))
+		end
+	end
+	setExplosion()
+end
+function gmClickPlaceExplosion(x,y)
+	if explosion_type == "Electric" then
+		ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
+	else
+		ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
+	end
+	if explosion_damage > 0 then
+		local damage_list = getObjectsInRadius(x, y, explosion_range)
+		if #damage_list > 0 then
+			for i=1,#damage_list do
+				local dist = distance(damage_list[i], x, y)
+				local applied_damage = explosion_damage
+				if explosion_damage_degredation == "Linear" then
+					applied_damage = (1 - (dist/explosion_range)) * explosion_damage
+				end
+				if explosion_type == "Electric" then
+					damage_list[i]:takeDamage(applied_damage, "emp", x, y)
+				else
+					damage_list[i]:takeDamage(applied_damage, "energy", x, y)
+				end
+			end
+		end
+	end
+end
+function setExplosionRange()
+	clearGMFunctions()
+	addGMFunction("-Main from Range",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	local min_explosion_range = 250
+	local max_explosion_range = 5000
+	local button_label = ""
+	if explosion_range == min_explosion_range or explosion_range == min_explosion_range + 250 then
+		for i=min_explosion_range,1250,250 do
+			button_label = string.format("Range: %i",i)
+			if i == explosion_range then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_range = i
+				setExplosionRange()
+			end)
+		end
+	elseif explosion_range == max_explosion_range or explosion_range == max_explosion_range - 250 then
+		for i=max_explosion_range - 1000,max_explosion_range,250 do
+			button_label = string.format("Range: %i",i)
+			if i == explosion_range then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_range = i
+				setExplosionRange()
+			end)
+		end
+	else
+		for i=explosion_range - 500,explosion_range + 500,250 do
+			button_label = string.format("Range: %i",i)
+			if i == explosion_range then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_range = i
+				setExplosionRange()
+			end)
+		end
+	end
+end
+function setExplosionSize()
+	clearGMFunctions()
+	addGMFunction("-Main from Size",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	local min_explosion_size = 10
+	local max_explosion_size = 500
+	local button_label = ""
+	if explosion_size == min_explosion_size or explosion_size == min_explosion_size + 10 then
+		for i=min_explosion_size,50,10 do
+			button_label = string.format("Size: %i",i)
+			if i == explosion_size then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_size = i
+				setExplosionSize()
+			end)
+		end
+	elseif explosion_size == max_explosion_size or explosion_size == max_explosion_size - 10 then
+		for i=max_explosion_size - 40,max_explosion_size,10 do
+			button_label = string.format("Size: %i",i)
+			if i == explosion_size then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_size = i
+				setExplosionSize()
+			end)
+		end
+	else
+		for i=explosion_size - 20,explosion_size + 20,10 do
+			button_label = string.format("Size: %i",i)
+			if i == explosion_size then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_size = i
+				setExplosionSize()
+			end)
+		end
+	end
+end
+function setExplosionDamage()
+	clearGMFunctions()
+	addGMFunction("-Main from Damage",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	local min_explosion_damage = 0
+	local max_explosion_damage = 500
+	local button_label = ""
+	addGMFunction(string.format("Degredation: %s",explosion_damage_degredation),function()
+		if explosion_damage_degredation == "None" then
+			explosion_damage_degredation = "Linear"
+		else
+			explosion_damage_degredation = "None"
+		end
+	end)
+	if explosion_damage == min_explosion_damage or explosion_damage == min_explosion_damage + 10 then
+		for i=min_explosion_damage,40,10 do
+			button_label = string.format("Damage: %i",i)
+			if i == explosion_damage then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_damage = i
+				setExplosionDamage()
+			end)
+		end
+	elseif explosion_damage == max_explosion_damage or explosion_damage == max_explosion_damage - 10 then
+		for i=max_explosion_damage - 40,max_explosion_damage,10 do
+			button_label = string.format("Damage: %i",i)
+			if i == explosion_damage then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_damage = i
+				setExplosionDamage()
+			end)
+		end
+	else
+		for i=explosion_damage - 20,explosion_damage + 20,10 do
+			button_label = string.format("Damage: %i",i)
+			if i == explosion_damage then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_damage = i
+				setExplosionDamage()
+			end)
+		end
+	end
 end
 function freighterCommerce()
 	clearGMFunctions()
@@ -5375,24 +5608,18 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
---			dp6Zone:setColor(0,128,0):setLabel("5")
---		elseif i == 5 then
---			dp5Zone = squareZone(icx+dpx,icy+dpy,"dp5")
---			dp5Zone:setColor(0,128,0):setLabel("6")
---		elseif i == 2 then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
---			dp2Zone:setColor(0,128,0)
---		elseif i == 1 then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
---			dp1Zone:setColor(0,128,0)
---		else		
+		if i == 2 then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
+		elseif i == 3 then
+			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
+			dp3Zone:setColor(0,128,0):setLabel("3")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -15145,7 +15372,7 @@ function createPlayerShipHummer()
 	playerHummer:setTubeLoadTime(3,15)
 	playerHummer:setTubeLoadTime(4,15)
 	playerHummer:setTubeLoadTime(5,25)
-	playerHummer:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
+--	playerHummer:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
 	playerHummer:onTakingDamage(playerShipDamage)
 	playerHummer:addReputationPoints(50)
 	return playerHummer
@@ -15192,7 +15419,7 @@ function createPlayerShipInk()
 	playerInk:setWeaponStorage("Nuke", 4)				
 	playerInk:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
 	playerInk.normal_long_range_radar = 25000
-	playerInk:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
+--	playerInk:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
 	playerInk:onTakingDamage(playerShipDamage)
 	playerInk:addReputationPoints(50)
 	return playerInk
@@ -15454,7 +15681,7 @@ function createPlayerShipMixer()
 	playerAmalgam:setWeaponStorage("EMP", 0)				
 	playerAmalgam:setWeaponStorageMax("HVLI", 0)		--less (vs 20)
 	playerAmalgam:setWeaponStorage("HVLI", 0)
-	playerAmalgam:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
+--	playerAmalgam:setSystemHeatRate("reactor",		.5)	--more (vs .05) Lingling	
 	playerAmalgam:onTakingDamage(playerShipDamage)
 	playerAmalgam:addReputationPoints(50)
 	return playerAmalgam
@@ -15913,8 +16140,8 @@ function createPlayerShipRocinante()
 	playerWindmill:setWeaponStorage("EMP", 2)
 	playerWindmill:setWeaponStorageMax("HVLI", 8)			--more (vs 5)
 	playerWindmill:setWeaponStorage("HVLI", 8)
-	playerWindmill:setSystemHeatRate("reactor",		0.5)	--more (vs.05) Lingling
-	playerWindmill:setSystemHeatRate("frontshield",	0.25)	--more (vs.05) Lingling
+--	playerWindmill:setSystemHeatRate("reactor",		0.5)	--more (vs.05) Lingling
+--	playerWindmill:setSystemHeatRate("frontshield",	0.25)	--more (vs.05) Lingling
 	playerWindmill:setSystemCoolantRate("reactor",		3)	--more (vs 1.2) Arlenian pumps
 	playerWindmill:setSystemCoolantRate("beamweapons",	3)	--more (vs 1.2) Arlenian pumps
 	playerWindmill:setSystemCoolantRate("missilesystem",3)	--more (vs 1.2) Arlenian pumps
@@ -16203,7 +16430,7 @@ function createPlayerShipStick()
 	playerStick:setSystemPowerRate("impulse",			0.325)	--more (vs 0.30)
 	playerStick:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
 	playerStick:setSystemPowerRate("rearshield",		0.35)	--more (vs 0.30)
-	playerStick:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
+--	playerStick:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
 	playerStick:onTakingDamage(playerShipDamage)
 	playerStick:addReputationPoints(50)
 	return playerStick
@@ -16371,13 +16598,13 @@ function createPlayerShipThelonius()
 	playerThelonius:setWeaponStorage("Mine", 0)				
 	playerThelonius:setWeaponStorageMax("HVLI",10)			--fewer (vs 24)
 	playerThelonius:setWeaponStorage("HVLI", 10)		
-	playerThelonius:setSystemHeatRate("reactor",		.8)	--more (vs .05) Lingling	
-	playerThelonius:setSystemHeatRate("beamweapons",	.8)	--more (vs .05) Lingling	
-	playerThelonius:setSystemHeatRate("missilesystem",	.5)	--more (vs .05) Lingling	
-	playerThelonius:setSystemHeatRate("impulse",		.5)	--more (vs .05) Lingling	
-	playerThelonius:setSystemHeatRate("warp",			.5)	--more (vs .05) Lingling	
-	playerThelonius:setSystemHeatRate("frontshield",	.5)	--more (vs .05) Lingling	
-	playerThelonius:setSystemHeatRate("rearshield",		.25)--more (vs .05) Lingling	
+--	playerThelonius:setSystemHeatRate("reactor",		.8)	--more (vs .05) Lingling	
+--	playerThelonius:setSystemHeatRate("beamweapons",	.8)	--more (vs .05) Lingling	
+--	playerThelonius:setSystemHeatRate("missilesystem",	.5)	--more (vs .05) Lingling	
+--	playerThelonius:setSystemHeatRate("impulse",		.5)	--more (vs .05) Lingling	
+--	playerThelonius:setSystemHeatRate("warp",			.5)	--more (vs .05) Lingling	
+--	playerThelonius:setSystemHeatRate("frontshield",	.5)	--more (vs .05) Lingling	
+--	playerThelonius:setSystemHeatRate("rearshield",		.25)--more (vs .05) Lingling	
 	playerThelonius:onTakingDamage(playerShipDamage)
 	playerThelonius:addReputationPoints(50)
 	return playerThelonius
@@ -16532,7 +16759,7 @@ function createPlayerShipWesson()
 	playerChavez:setTubeLoadTime(1,15)	
 	playerChavez:setTubeLoadTime(2,15)
 	playerChavez:setTubeLoadTime(3,20)
-	playerChavez:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
+--	playerChavez:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
 	playerChavez:onTakingDamage(playerShipDamage)
 	playerChavez:addReputationPoints(50)
 	return playerChavez
@@ -36555,14 +36782,47 @@ function handleUndockedState()
 				ctd.goodsKnowledge = {}
 				local knowledgeCount = 0
 				local knowledgeMax = 10
+				local knowledge_stations = {}
 				for i=1,#regionStations do
-					local station = regionStations[i]
-					if station ~= nil and station:isValid() then
+					table.insert(knowledge_stations,regionStations[i])
+				end
+				for i=1,#knowledge_stations do
+					station = tableRemoveRandom(knowledge_stations)
+					print("random station:",station,station:getCallSign())
+					if station ~= nil and station:isValid() and station ~= comms_target then
 						local brainCheckChance = 60
 						if distance(comms_target,station) > 75000 then
 							brainCheckChance = 20
 						end
-						for good, goodData in pairs(ctd.goods) do
+						if station.comms_data ~= nil and station.comms_data.goods ~= nil then
+							for good, goodData in pairs(station.comms_data.goods) do
+								if random(1,100) <= brainCheckChance then
+									local stationCallSign = station:getCallSign()
+									local stationSector = station:getSectorName()
+									ctd.goodsKnowledge[good] =	{	station = stationCallSign,
+																	sector = stationSector,
+																	cost = goodData["cost"] }
+									knowledgeCount = knowledgeCount + 1
+									if knowledgeCount >= knowledgeMax then
+										break
+									end
+								end
+							end
+						end
+					end
+					if knowledgeCount >= knowledgeMax then
+						break
+					end
+				end
+				--[[
+				for i=1,#regionStations do
+					local station = regionStations[i]
+					if station ~= nil and station:isValid() and station ~= comms_target then
+						local brainCheckChance = 60
+						if distance(comms_target,station) > 75000 then
+							brainCheckChance = 20
+						end
+						for good, goodData in pairs(station.comms_data.goods) do
 							if random(1,100) <= brainCheckChance then
 								local stationCallSign = station:getCallSign()
 								local stationSector = station:getSectorName()
@@ -36580,6 +36840,7 @@ function handleUndockedState()
 						break
 					end
 				end
+				--]]
 			end
 			local goodsKnowledgeCount = 0
 			for good, goodKnowledge in pairs(ctd.goodsKnowledge) do
