@@ -8,6 +8,7 @@
 --- USN uses this sandbox Saturdays at 1600 UTC. 
 --- Newcomers are welcome to join us. Please post feedback about the sandbox on the EEScenarios github repository.
 -- Type: GM Controlled missions
+-- Author: Xansta and Starry
 
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
@@ -111,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.33"
+	scenario_version = "4.0.34"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -12345,6 +12346,81 @@ function removeTereshColor()
 	end
 	teresh_stations = nil
 end
+--	Central
+function newSys()
+    Planet():setPosition(1058938, 260657):setPlanetRadius(5000)
+    Planet():setPosition(992967, 259826):setPlanetRadius(5000)
+    Planet():setPosition(956076, 260158):setPlanetRadius(5000)
+    Asteroid():setPosition(1028067, 262368):setSize(165)
+    Asteroid():setPosition(1024901, 257911):setSize(52)
+    Asteroid():setPosition(1021865, 257846):setSize(194)
+    Asteroid():setPosition(1018570, 256813):setSize(36)
+    Asteroid():setPosition(1027421, 260301):setSize(55)
+    Asteroid():setPosition(1022382, 263467):setSize(53)
+    Asteroid():setPosition(1023028, 267343):setSize(488)
+    Asteroid():setPosition(1013532, 263660):setSize(236)
+    Asteroid():setPosition(1023868, 261981):setSize(63)
+    Asteroid():setPosition(1024966, 265728):setSize(351)
+    Asteroid():setPosition(1024126, 269797):setSize(44)
+    Asteroid():setPosition(1021671, 270250):setSize(31)
+    Asteroid():setPosition(1021607, 260430):setSize(258)
+    Asteroid():setPosition(1016438, 260430):setSize(246)
+    Asteroid():setPosition(1013144, 261335):setSize(210)
+    Asteroid():setPosition(1019346, 262950):setSize(451)
+    Asteroid():setPosition(1014824, 258105):setSize(392)
+    Asteroid():setPosition(1016116, 262368):setSize(329)
+    Asteroid():setPosition(1027227, 266309):setSize(122)
+    Asteroid():setPosition(1024320, 260172):setSize(129)
+    Asteroid():setPosition(1026064, 268053):setSize(127)
+    Asteroid():setPosition(1021542, 265663):setSize(116)
+    Asteroid():setPosition(1018829, 265921):setSize(125)
+    Asteroid():setPosition(1016762, 264694):setSize(125)
+    Asteroid():setPosition(1015792, 255068):setSize(117)
+    Asteroid():setPosition(1019798, 267666):setSize(127)
+    Asteroid():setPosition(1026064, 263014):setSize(120)
+    Asteroid():setPosition(976478, 265984):setSize(117)
+    Asteroid():setPosition(979125, 264661):setSize(110)
+    Asteroid():setPosition(972697, 251996):setSize(128)
+    Asteroid():setPosition(992735, 289425):setSize(120)
+    Asteroid():setPosition(990089, 296041):setSize(125)
+    Asteroid():setPosition(982338, 270143):setSize(116)
+    Asteroid():setPosition(979503, 268631):setSize(114)
+    Asteroid():setPosition(995760, 300200):setSize(126)
+    Asteroid():setPosition(996516, 292260):setSize(118)
+    Asteroid():setPosition(979503, 273168):setSize(128)
+    Asteroid():setPosition(984229, 283187):setSize(124)
+    Asteroid():setPosition(977045, 273735):setSize(116)
+    Asteroid():setPosition(976478, 270521):setSize(117)
+    Asteroid():setPosition(984229, 234037):setSize(122)
+    Asteroid():setPosition(975155, 242733):setSize(124)
+    Asteroid():setPosition(983094, 236873):setSize(111)
+    Asteroid():setPosition(981015, 235739):setSize(114)
+    Asteroid():setPosition(979503, 242544):setSize(129)
+    Asteroid():setPosition(977612, 250673):setSize(129)
+    Asteroid():setPosition(974588, 250105):setSize(113)
+    Asteroid():setPosition(986497, 289236):setSize(122)
+    Asteroid():setPosition(989144, 289425):setSize(124)
+    Asteroid():setPosition(983283, 230824):setSize(127)
+    Asteroid():setPosition(978746, 233281):setSize(125)
+    Asteroid():setPosition(980637, 230068):setSize(125)
+    Asteroid():setPosition(1010883, 256877):setSize(64)
+    Asteroid():setPosition(1009526, 258880):setSize(111)
+    Asteroid():setPosition(1012110, 258686):setSize(23)
+    Asteroid():setPosition(1010302, 260883):setSize(118)
+    Asteroid():setPosition(1016503, 259074):setSize(126)
+    Asteroid():setPosition(1019152, 259268):setSize(124)
+    Asteroid():setPosition(1026258, 256942):setSize(128)
+    Asteroid():setPosition(1013919, 255844):setSize(120)
+    Asteroid():setPosition(1021477, 255779):setSize(115)
+    SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("DS4374"):setPosition(1026873, 250662)
+    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4417"):setPosition(976289, 247837)
+    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4418"):setPosition(982338, 233848)
+    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4416"):setPosition(992735, 294340)
+    SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("DS4373"):setPosition(1013452, 269943)
+    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4415"):setPosition(977990, 275247)
+    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4414"):setPosition(981204, 262204)
+end
+
 
 function placeTknolgBase()
 	if gm_click_mode == "tknolg base" then
@@ -19654,12 +19730,12 @@ end
 
 function playerShipDamage(self,instigator)
 	string.format("")
-	if self:getShieldCount() > 0 then
-		if self:getShieldsActive() then
-			if instigator ~= nil then
-				if instigator.shield_drain_beam_factor ~= nil then
-					local bi = 0
-					local beam_damage = 0
+	if instigator ~= nil then
+		local bi = 0	--beam index
+		local beam_damage = 0
+		if instigator.shield_drain_beam_factor ~= nil then
+			if self:getShieldCount() > 0 then
+				if self:getShieldsActive() then
 					repeat
 						beam_damage = beam_damage + instigator:getBeamWeaponDamage(bi)
 						bi = bi + 1
@@ -19670,7 +19746,26 @@ function playerShipDamage(self,instigator)
 					else
 						self:setShields(math.max(self:getShieldLevel(0) - beam_damage,0))
 					end
+					local tempate = self:getTypeName()
+					local slf_x, slf_y = self:getPosition()
+					ElectricExplosionEffect():setSize(shipTemplateDistance[template]):setOnRadar(true):setPosition(slf_x, slf_y)
 				end
+			end
+		end
+		if instigator.skip_beam_factor ~= nil then
+			bi = 0
+			beam_damage = 0
+			local beam_range = 0
+			repeat
+				beam_damage = beam_damage + instigator:getBeamWeaponDamage(bi)
+				beam_range = beam_range + instigator:getBeamWeaponRange(bi)
+				bi = bi + 1
+			until(instigator:getBeamWeaponRange(bi) < 1)
+			beam_damage = beam_damage / bi * instigator.skip_beam_factor / 2	--average multiplied by factor
+			beam_range = beam_range / bi 
+			local dist = distance(self,instigator)
+			if dist < beam_range then
+				self:setHull(math.max(self:getHull() - beam_damage,0))
 			end
 		end
 	end
@@ -19783,6 +19878,13 @@ function addEnhancementToScienceDatabase(enhancement_type)
 			shield_drain_beam_db = queryScienceDatabase("Ships","Enhancements","Shield Drain Beam")
 			shield_drain_beam_db:setLongDescription("If a ship is equipped with Shield Drain Beam capability, their beam weapons have been enhanced to particularly negatively impact the target's shields. The damage is applied to all shield arcs and reduces the shield charge. The degree of impact depends on the shield drain factor. In addition to the normal beam damage, the draining damage is the normal beam damage multiplied by the factor applied to all shield arcs.")
 		end
+	elseif enhancement_type == "Skip Beam" then
+		local skip_beam_db = queryScienceDatabase("Ships","Enhancements","Skip Beam")
+		if skip_beam_db == nil then
+			enhancement_db:addEntry("Skip Beam")
+			skip_beam_db = queryScienceDatabase("Ships","Enhancements","Skip Beam")
+			skip_beam_db:setLongDescription("If a ship is equipped with a Skip Beam, it can directly damage the target ship hull regardless of the state of the shields. The beam is enhanced with intertwined jump characteristics allowing it to bypass the shields. The damage applied to the hull equates to the normal damage multiplied by the skip beam factor divided by two.")
+		end
 	elseif enhancement_type == "Shield Frequency Adjuster" then
 		local shield_frequency_adjuster_db = queryScienceDatabase("Ships","Enhancements","Shield Frequency Adjuster")
 		if shield_frequency_adjuster_db == nil then
@@ -19816,6 +19918,13 @@ function setShipEnhancement(ship)
 				ship.shield_drain_beam_factor = beam_factors[math.random(1,#beam_factors)]
 				table.insert(enhancements,string.format("Shield Drain Beam. Factor:%i",ship.shield_drain_beam_factor))
 				addEnhancementToScienceDatabase("Shield Drain Beam")
+			end
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			if ship:getBeamWeaponRange(0) > 1 then
+				ship.skip_beam_factor = math.random(1,5)
+				table.insert(enhancements,string.format("Skip Beam. Factor:%i",ship.skip_beam_factor))
+				addEnhancementToScienceDatabase("Skip Beam")
 			end
 		end
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
@@ -23632,6 +23741,11 @@ function setSpecialsOnNPS()
 			button_label = string.format("%s* %i",button_label,special_ship.shield_drain_beam_factor)
 		end
 		addGMFunction(button_label,setShieldDrainBeamFactor)
+		button_label = "+Skip Beam"
+		if special_ship.skip_beam_factor ~= nil then
+			button_label = string.format("%s* %i",button_label,special_ship.skip_beam_factor)
+		end
+		addGMFunction(button_label,setSkipBeamFactor)
 		button_label = "Shield Freq Adjust"
 		if special_ship.adjust_shield_frequency_automatically ~= nil and special_ship.adjust_shield_frequency_automatically then
 			button_label = string.format("%s*",button_label)
@@ -23775,6 +23889,38 @@ function setShieldDrainBeamFactor()
 				setSpecialDescription(special_ship)
 				addEnhancementToScienceDatabase("Shield Drain Beam")
 				setShieldDrainBeamFactor()
+			end)
+		end
+	else
+		addGMMessage("Must select CPU ship. No action taken")
+		setSpecialsOnNPS()
+	end
+end
+function setSkipBeamFactor()
+	if special_ship ~= nil then
+		clearGMFunctions()
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
+		local button_label = "No Skip Beam"
+		if special_ship.skip_beam_factor == nil then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			string.format("")
+			special_ship.skip_beam_factor = nil
+			setSpecialDescription(special_ship)
+			setSkipBeamFactor()
+		end)
+		for i=1,5 do
+			button_label = string.format("Skip Beam Factor:%i",i)
+			if special_ship.skip_beam_factor ~= nil and special_ship.skip_beam_factor == i then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				string.format("")
+				special_ship.skip_beam_factor = i
+				setSpecialDescription(special_ship)
+				addEnhancementToScienceDatabase("Skip Beam")
+				setSkipBeamFactor()
 			end)
 		end
 	else
@@ -24002,6 +24148,13 @@ function setSpecialDescription(ship)
 	local special_description = ""
 	if ship.shield_drain_beam_factor ~= nil then
 		special_description = string.format("Factor %i shield draining beams.",ship.shield_drain_beam_factor)
+	end
+	if ship.skip_beam_factor ~= nil then
+		if special_description == "" then
+			special_description = string.format("Factor %i skip beam.",ship.skip_beam_factor)
+		else
+			special_description = string.format("%s Factor %i skip beam.",special_description,ship.skip_beam_factor)
+		end
 	end
 	if ship.adjust_shield_frequency_automatically ~= nil and ship.adjust_shield_frequency_automatically then
 		if special_description == "" then
@@ -36814,33 +36967,6 @@ function handleUndockedState()
 						break
 					end
 				end
-				--[[
-				for i=1,#regionStations do
-					local station = regionStations[i]
-					if station ~= nil and station:isValid() and station ~= comms_target then
-						local brainCheckChance = 60
-						if distance(comms_target,station) > 75000 then
-							brainCheckChance = 20
-						end
-						for good, goodData in pairs(station.comms_data.goods) do
-							if random(1,100) <= brainCheckChance then
-								local stationCallSign = station:getCallSign()
-								local stationSector = station:getSectorName()
-								ctd.goodsKnowledge[good] =	{	station = stationCallSign,
-																sector = stationSector,
-																cost = goodData["cost"] }
-								knowledgeCount = knowledgeCount + 1
-								if knowledgeCount >= knowledgeMax then
-									break
-								end
-							end
-						end
-					end
-					if knowledgeCount >= knowledgeMax then
-						break
-					end
-				end
-				--]]
 			end
 			local goodsKnowledgeCount = 0
 			for good, goodKnowledge in pairs(ctd.goodsKnowledge) do
