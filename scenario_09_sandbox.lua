@@ -112,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.35"
+	scenario_version = "4.0.36"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1383,6 +1383,7 @@ function setConstants()
 	explosion_size = 1000
 	explosion_range = 1000
 	explosion_damage_degredation = "Linear"
+	linked_beam = false
 end
 function createSkeletonUniverse()
 --Human navy stations that may always be reached by long range communication
@@ -2755,6 +2756,13 @@ function setExplosion()
 		end
 		setExplosion()
 	end)
+	local button_label = "+Linked Beam"
+	if linked_beam then
+		button_label = string.format("%s: Yes",button_label)
+	else
+		button_label = string.format("%s: No",button_label)
+	end
+	addGMFunction(button_label,linkBeam)
 	addGMFunction("Explode Object",function()
 		local object_list = getGMSelection()
 		if #object_list ~= 1 then
@@ -2793,6 +2801,51 @@ function setExplosion()
 		addGMFunction("Place Explosion",placeExplosion)
 	end
 end
+function linkBeam()
+	clearGMFunctions()
+	addGMFunction("-Main from Link Beam",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	if beam_link_object ~= nil and beam_link_object:isValid() then
+		if linked_beam then
+			addGMFunction("Unlink Beam",function()
+				linked_beam = false
+				beam_link_object = nil
+				setExplosion()
+			end)
+			addGMFunction(string.format("+Chg: ",beam_link_object_name),function()
+				local object_list = getGMSelection()
+				if #object_list ~= 1 then
+					addGMMessage("Select one object. No action taken")
+				else
+					if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
+						beam_link_object_name = object_list[1]:getCallSign()
+					else
+						beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+					end
+					beam_link_object = object_list[1]
+				end
+				linkBeam()
+			end)
+		end
+	else
+		addGMFunction("Link Beam", function()
+			local object_list = getGMSelection()
+			if #object_list ~= 1 then
+				addGMMessage("Select one object. No action taken")
+			else
+				if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
+					beam_link_object_name = object_list[1]:getCallSign()
+				else
+					beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+				end
+				beam_link_object = object_list[1]
+				linked_beam = true
+			end
+			linkBeam()
+		end)
+	end
+end
 function placeExplosion()
 	if gm_click_mode == "place explosion" then
 		gm_click_mode = nil
@@ -2808,11 +2861,30 @@ function placeExplosion()
 	setExplosion()
 end
 function gmClickPlaceExplosion(x,y)
-	if explosion_type == "Electric" then
-		ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
+	if linked_beam then
+		if beam_link_object ~= nil and beam_link_object:isValid() then
+			local temp_target = VisualAsteroid():setSize(1):setPosition(x,y)
+			BeamEffect():setSource(beam_link_object,0,0,0):setTarget(temp_target,0,0)
+			temp_target:destroy()
+			if explosion_type == "Electric" then
+				ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
+			else
+				ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
+			end
+			applyExplosionDamage(x,y)
+		else
+			addGMMessage("Linked beam source no longer valid. No action taken")
+		end
 	else
-		ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
+		if explosion_type == "Electric" then
+			ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
+		else
+			ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
+		end
+		applyExplosionDamage(x,y)
 	end
+end
+function applyExplosionDamage(x,y)
 	if explosion_damage > 0 then
 		local damage_list = getObjectsInRadius(x, y, explosion_range)
 		if #damage_list > 0 then
