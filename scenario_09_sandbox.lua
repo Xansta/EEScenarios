@@ -112,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.34"
+	scenario_version = "4.0.35"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1380,7 +1380,7 @@ function setConstants()
 	lafrina_commerce_timer = commerce_timer_interval
 	explosion_type = "Normal"
 	explosion_damage = 50
-	explosion_size = 50
+	explosion_size = 1000
 	explosion_range = 1000
 	explosion_damage_degredation = "Linear"
 end
@@ -2879,11 +2879,11 @@ function setExplosionSize()
 	addGMFunction("-Main from Size",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("-Explosion",setExplosion)
-	local min_explosion_size = 10
-	local max_explosion_size = 500
+	local min_explosion_size = 250
+	local max_explosion_size = 5000
 	local button_label = ""
-	if explosion_size == min_explosion_size or explosion_size == min_explosion_size + 10 then
-		for i=min_explosion_size,50,10 do
+	if explosion_size == min_explosion_size or explosion_size == min_explosion_size + 250 then
+		for i=min_explosion_size,1250,250 do
 			button_label = string.format("Size: %i",i)
 			if i == explosion_size then
 				button_label = button_label .. "*"
@@ -2893,8 +2893,8 @@ function setExplosionSize()
 				setExplosionSize()
 			end)
 		end
-	elseif explosion_size == max_explosion_size or explosion_size == max_explosion_size - 10 then
-		for i=max_explosion_size - 40,max_explosion_size,10 do
+	elseif explosion_size == max_explosion_size or explosion_size == max_explosion_size - 250 then
+		for i=max_explosion_size - 1000,max_explosion_size,250 do
 			button_label = string.format("Size: %i",i)
 			if i == explosion_size then
 				button_label = button_label .. "*"
@@ -2905,7 +2905,7 @@ function setExplosionSize()
 			end)
 		end
 	else
-		for i=explosion_size - 20,explosion_size + 20,10 do
+		for i=explosion_size - 500,explosion_size + 500,250 do
 			button_label = string.format("Size: %i",i)
 			if i == explosion_size then
 				button_label = button_label .. "*"
@@ -2925,12 +2925,13 @@ function setExplosionDamage()
 	local min_explosion_damage = 0
 	local max_explosion_damage = 500
 	local button_label = ""
-	addGMFunction(string.format("Degredation: %s",explosion_damage_degredation),function()
+	addGMFunction(string.format("Degradation: %s",explosion_damage_degredation),function()
 		if explosion_damage_degredation == "None" then
 			explosion_damage_degredation = "Linear"
 		else
 			explosion_damage_degredation = "None"
 		end
+		setExplosionDamage()
 	end)
 	if explosion_damage == min_explosion_damage or explosion_damage == min_explosion_damage + 10 then
 		for i=min_explosion_damage,40,10 do
@@ -17465,7 +17466,7 @@ function spawnGMFleet()
 			local leader_strength = ship_template[prebuilt_leader].strength
 			local follower_strength = ship_template[prebuilt_follower].strength
 			local prebuilt_strength = leader_strength + (follower_strength * #fly_formation[formation_shape])
-			button_label = string.format("%s %i",prebuilt_strength)
+			button_label = string.format("%s %i",button_label,prebuilt_strength)
 		end
 		addGMFunction(button_label,setPrebuiltFleet)
 	end
@@ -30342,19 +30343,26 @@ function stationDefensiveFleet()
 			stationDefensiveFleet()
 		end
 	end)
-	if fleetStrengthFixed then
-		addGMFunction("+Set Relative Strength",setDefensiveFleetStrength)
-		addGMFunction(string.format("+Strength %i*",fleetStrengthFixedValue),setDefensiveFleetFixedStrength)
-	else
+	if fleet_spawn_type == "relative" then
 		local calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
-		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. " player strength: " .. calcStr
+		local GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. "*player strength: " .. calcStr
 		if fleetStrengthByPlayerStrength == .25 then
 			GMSetGMFleetStrength = "1/4 Player Strength: " .. calcStr
 		elseif fleetStrengthByPlayerStrength == .5 then
 			GMSetGMFleetStrength = "1/2 Player Strength: " .. calcStr
 		end
-		addGMFunction("+" .. GMSetGMFleetStrength .. "*",setDefensiveFleetStrength)
-		addGMFunction("+Set Fixed Strength",setDefensiveFleetFixedStrength)
+		addGMFunction("+" .. GMSetGMFleetStrength,setDefensiveFleetStrength)
+	elseif fleet_spawn_type == "fixed" then
+		addGMFunction(string.format("+Fixed Strength %i",fleetStrengthFixedValue),setDefensiveFleetFixedStrength)
+	elseif fleet_spawn_type == "prebuilt" then
+		calcStr = math.floor(playerPower()*fleetStrengthByPlayerStrength)
+		GMSetGMFleetStrength = fleetStrengthByPlayerStrength .. "*player strength: " .. calcStr
+		if fleetStrengthByPlayerStrength == .25 then
+			GMSetGMFleetStrength = "1/4 Player Strength: " .. calcStr
+		elseif fleetStrengthByPlayerStrength == .5 then
+			GMSetGMFleetStrength = "1/2 Player Strength: " .. calcStr
+		end
+		addGMFunction("+" .. GMSetGMFleetStrength,setDefensiveFleetStrength)
 	end
 	local exclusion_string = ""
 	for name, details in pairs(fleet_exclusions) do
@@ -30406,6 +30414,7 @@ function spawnDefensiveFleet()
 	for i=1,#fleet do
 		local ship = fleet[i]
 		ship:orderDefendTarget(station)
+		ship:setFaction(station:getFaction())
 		if station_defensive_fleet_speed_average then
 			ship:setImpulseMaxSpeed(average_speed)
 		end
@@ -30578,6 +30587,11 @@ function setDefensiveFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Rel Str",initialGMFunctions)
 	addGMFunction("-Station Def Flt",stationDefensiveFleet)
+	addGMFunction("Switch to Fixed Strength",function()
+		fleet_spawn_type = "fixed"
+		fleetStrengthFixed = true
+		stationDefensiveFleet()
+	end)
 	setFleetStrength(setDefensiveFleetStrength)
 end
 -------------------------------------------------------------------------------------------------
@@ -30594,6 +30608,11 @@ function setDefensiveFleetFixedStrength()
 	addGMFunction("-Main from Fix Str",initialGMFunctions)
 	addGMFunction("-Station Def Flt",stationDefensiveFleet)
 	addGMFunction("-Fixed Strength " .. fleetStrengthFixedValue,stationDefensiveFleet)
+	addGMFunction("Switch to Relative",function()
+		fleet_spawn_type = "relative"
+		fleetStrengthFixed = false
+		stationDefensiveFleet()
+	end)
 	fixFleetStrength(setDefensiveFleetFixedStrength)
 end
 --------------------------------------------------------------------------------------------
