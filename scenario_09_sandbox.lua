@@ -854,7 +854,7 @@ function setConstants()
 	makePlayerShipActive("Thelonius")
 	makePlayerShipActive("Stick")
 	makePlayerShipActive("Hummer")
-	makePlayerShipActive("Mixer")
+	makePlayerShipActive("Splinter")
 	makePlayerShipActive("Wesson")
 	makePlayerShipActive("Ink")
 	active_player_ship = true
@@ -5682,18 +5682,18 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
-		elseif i == 3 then
-			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
-			dp3Zone:setColor(0,128,0):setLabel("3")
-		else		
+--		if i == 2 then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
+--		elseif i == 3 then
+--			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
+--			dp3Zone:setColor(0,128,0):setLabel("3")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -6159,9 +6159,10 @@ function createIcarusStations()
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
 	--Mermaid
-	--local mermaidZone = squareZone(28889, -4417, "Mermaid 6 E6")
-	--mermaidZone:setColor(51,153,255)
-    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 6"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+	local mermaidZone = squareZone(28889, -4417, "Mermaid 7 E6")
+	mermaidZone:setColor(51,153,255):setLabel("7")
+	--[[
+    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 7"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -6199,6 +6200,7 @@ function createIcarusStations()
 	if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
+	--]]
 	--Mos Espa
 	--local mosEspaZone = squareZone(113941, -85822, "Mos Espa A10")
 	--mosEspaZone:setColor(51,153,255)
@@ -16723,6 +16725,8 @@ function createPlayerShipThelonius()
 	playerThelonius = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Thelonius")
 	playerThelonius:setTypeName("Crab")
 	playerThelonius:setWarpSpeed(450)						--slower (vs 750)
+	playerThelonius:setShieldsMax(300,300)					--stronger (vs 160,160) Lingling effect
+	playerThelonius:setShields(300,300)
 --                 				 	Arc, Dir,  Range, CycleTime, Damage
 	playerThelonius:setBeamWeapon(0, 10, 165,	1000, 		6.0, 	6.0)	--turreted, stronger (vs fixed, 5 Dmg)
 	playerThelonius:setBeamWeapon(1, 10, 195,	1000, 		6.0,	6.0)	--rear facing
@@ -16752,8 +16756,8 @@ function createPlayerShipThelonius()
 --	playerThelonius:setSystemHeatRate("missilesystem",	.5)	--more (vs .05) Lingling	
 --	playerThelonius:setSystemHeatRate("impulse",		.5)	--more (vs .05) Lingling	
 --	playerThelonius:setSystemHeatRate("warp",			.5)	--more (vs .05) Lingling	
---	playerThelonius:setSystemHeatRate("frontshield",	.5)	--more (vs .05) Lingling	
---	playerThelonius:setSystemHeatRate("rearshield",		.25)--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("frontshield",	1)	--more (vs .05) Lingling	
+	playerThelonius:setSystemHeatRate("rearshield",		1)	--more (vs .05) Lingling	
 	playerThelonius:onTakingDamage(playerShipDamage)
 	playerThelonius:addReputationPoints(50)
 	return playerThelonius
