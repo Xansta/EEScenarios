@@ -85,6 +85,14 @@ function getFilenameCompatible(new_filename)
 end
 
 function initialSandboxDatabaseUpdate()
+	local equipment_db = queryScienceDatabase("Equipment")
+	if equipment_db == nil then
+		 equipment_db = ScienceDatabase():setName("Equipment")
+		 equipment_db:setLongDescription("The shipyards sometimes install additional equipment on ships. The shipyards may leave equipment installed when converting or salvaging ships. Either way, you may find atypical equipment on your ship. Try to contain your alarm or surprise.")
+		 equipment_db:addEntry("Mining")
+		 local mining_db = queryScienceDatabase("Equipment","Mining")
+		 mining_db:setLongDescription("Mining equipment allows the ship to extract minerals from nearby asteroids. The helm officer, science officer and the weapons officer work together to conduct this operation. The science officer needs to target the asteroid first. This button may appear under the scanning widget on the science console. The asteroid needs to be closer than one unit to the ship. The ship must be traveling at less than half a unit per minute. Targeting an asteroid will automatically conduct a basic scan of the selected. If more than one asteroid is in range to be mined, science can select a different target with the 'Other mining target' button. Once an asteroid has been targeted, science locks the mining beam onto the asteroid. Weapons can then trigger the mining beam to start mining. It takes a few seconds to get the minerals which are placed in the cargo hold. The mining function will not be enabled if the ship is out of range, moving too fast or there is insufficient cargo space for any mined minerals.")
+	end
 ------------------------------------
 --	Turbo Torpedo database entry  --
 ------------------------------------
