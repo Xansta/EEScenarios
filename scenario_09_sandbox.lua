@@ -112,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.0.36"
+	scenario_version = "4.2.1"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -17213,6 +17213,7 @@ function gmClickZoneRectangle(x,y)
 		rectangle_zone_char_val = 65
 	end
 	zone.name = string.format("Rect %s",string.char(rectangle_zone_char_val))
+	zone:setLabel(string.format("R%s",string.char(rectangle_zone_char_val)))
 	rectangle_zone_char_val = rectangle_zone_char_val + 1
 	zone.sector_name = zone:getSectorName()
 	if zone_list == nil then
@@ -17303,6 +17304,7 @@ function gmClickZonePolygon(x,y)
 			polygon_zone_char_val = 65
 		end
 		zone.name = string.format("Poly %s %i",string.char(polygon_zone_char_val),zone_point_count)
+		zone:setLabel(string.format("%s%i",string.char(polygon_zone_char_val),zone_point_count))
 		polygon_zone_char_val = polygon_zone_char_val + 1
 		local mid_x = 0
 		for i=1,#zone_polygon_point_list_x do
