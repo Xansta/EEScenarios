@@ -112,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.2.1"
+	scenario_version = "4.2.2"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -139,6 +139,7 @@ function setConstants()
 	universe:addAvailableRegion("Astron (U33)",function() return ghostNebulaSector() end, 460500, 320500) -- there was an alternate spawn location of 545336,292452, inital spawn location seems to not work eh I will look at it later - starry
 	universe:addAvailableRegion("Lafrina (T93)",lafrinaSector,-237666,296975)
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
+	universe:addAvailableRegion("Bask",baskSector,1027800,251000)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	initialSandboxDatabaseUpdate()
 	playerSpawnX = 0
@@ -1639,7 +1640,7 @@ function createSkeletonUniverse()
 	--Teresh
 	teresh_x = 791712
 	teresh_y = 110775
-    stationTeresh = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCallSign("Teresh"):setPosition(791712, 110775):setCommsScript(""):setDescription("Regional CUF HQ"):setCommsFunction(commsStation)
+    stationTeresh = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCallSign("Teresh"):setPosition(teresh_x, teresh_y):setCommsScript(""):setDescription("Regional CUF HQ"):setCommsFunction(commsStation)
 	stationTeresh:setShortRangeRadarRange(25000)
     stationTeresh.comms_data = {
     	friendlyness = 75,
@@ -1678,6 +1679,54 @@ function createSkeletonUniverse()
 			DF4 = "MU52 Hornet",
 			DF5 = "Phobos T3",
 			DF6 = "Adder MK8",
+			DF7 = "Adder MK8",
+			DF8 = "Elara P2",
+    	},
+	}
+	station_names[stationTeresh:getCallSign()] = {stationTeresh:getSectorName(), stationTeresh}
+	stationTeresh.skeleton_station = true
+	table.insert(skeleton_stations,stationTeresh)
+	--Bask
+	bask_x = 1026873
+	bask_y = 250662
+	stationBask = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Bask"):setPosition(bask_x, bask_y):setCommsScript(""):setDescription("Magnasol Research and Regional Diplomatic Coordination"):setCommsFunction(commsStation)
+	stationBask:setShortRangeRadarRange(23000)
+    stationBask.comms_data = {
+    	friendlyness = 57,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 12,					EMP = math.random(9,11) },
+        weapon_available = 	{Homing = true,		HVLI = true,			Mine = true,			Nuke = true,				EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornetreinforcements =	math.random(75,125),
+			phobosreinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Research center for Magnasol. Diplomatic coordination for the various ambassadors to factions in the region.",
+    	history = "The researchers of Magnasol initially established the base. They were so enthusiastic about getting a chance to study the high energy output of Magnasol that they named the station as if they were basking in the sunlight.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Cucaracha",
 			DF7 = "Adder MK8",
 			DF8 = "Elara P2",
     	},
@@ -2247,6 +2296,7 @@ end
 -- +PATROL					F	setPatrolPoints
 -- +AI						D	setShipAI
 -- +FORMATION				F	setFormation
+-- +REVERT					F	revertShip
 -- DOCKED?					F	inline
 function orderShip()
 	clearGMFunctions()
@@ -2338,155 +2388,7 @@ function orderShip()
 		end
 	end
 end
-function revertShip()
-	clearGMFunctions()
-	addGMFunction("-Main from revert ship",initialGMFunctions)
-	addGMFunction("-Order Ship",orderShip)
-	addGMFunction("List of Reverts",function()
-		if enemy_reverts == nil then
-			addGMMessage("No revert list")
-		else
-			if #enemy_reverts < 1 then
-				addGMMessage("Empty revert list")
-			else
-				local msg = "The following ships have been convinced by a player Relay officer to do something other than their original orders:"
-				msg = string.format("Next revert check in %.1f seconds. Revert interval: %i\n%s",revert_timer,revert_timer_interval,msg)
-				for revert_index, ship in ipairs(enemy_reverts) do
-					msg = string.format("%s\n    %s in %s (index %i)",msg,ship:getCallSign(),ship:getSectorName(),revert_index)
-					if ship.original_order ~= nil then
-						msg = string.format("%s original order:%s",msg,ship.original_order)
-					end
-					if ship.original_faction ~= nil then
-						msg = string.format("%s original faction:%s",msg,ship.original_faction)
-					end
-					if ship.original_target ~= nil and ship.original_target:isValid() then
-						msg = string.format("%s\n        original target:%s",msg,ship.original_target:getCallSign())
-					end
-					if ship.original_target_x ~= nil then
-						msg = string.format("%s\n        original target coordinates:%.1f,%.1f",msg,ship.original_target_x,original_target_y)
-					end
-				end
-				addGMMessage(msg)
-			end
-		end
-		revertShip()
-	end)
-	local object_list = getGMSelection()
-	if #object_list ~= 1 then
-		addGMFunction("+Select Ship",revertShip)
-	else
-		if object_list[1].typeName ~= "CpuShip" then
-			addGMFunction("+Select Ship",revertShip)
-		else
-			addGMFunction(string.format("Revert %s",object_list[1]:getCallSign()),function()
-				if object_list[1] ~= nil and object_list[1]:isValid() then
-					local revert_ship = nil
-					local revert_ship_index = nil
-					for revert_index, ship in ipairs(enemy_reverts) do
-						if ship == object_list[1] then
-							revert_ship = ship
-							revert_ship_index = revert_index
-							break
-						end
-					end
-					if revert_ship ~= nil then
-						msg = string.format("Ship %s has been reverted (index %i)",revert_ship:getCallSign(),revert_ship_index)
-						local oo = revert_ship.original_order
-						local otx = revert_ship.original_target_x
-						local oty = revert_ship.original_target_y
-						local ot = revert_ship.original_target
-						if oo ~= nil then
-							if oo == "Attack" then
-								if ot ~= nil and ot:isValid() then
-									revert_ship:orderAttack(ot)
-								else
-									revert_ship:orderRoaming()
-								end
-							elseif oo == "Dock" then
-								if ot ~= nil and ot:isValid() then
-									revert_ship:orderDock(ot)
-								else
-									revert_ship:orderRoaming()
-								end
-							elseif oo == "Defend Target" then
-								if ot ~= nil and ot:isValid() then
-									revert_ship:orderDefendTarget(ot)
-								else
-									revert_ship:orderRoaming()
-								end
-							elseif oo == "Fly towards" then
-								if otx ~= nil and oty ~= nil then
-									revert_ship:orderFlyTowards(otx,oty)
-								else
-									revert_ship:orderRoaming()
-								end
-							elseif oo == "Defend Location" then
-								if otx ~= nil and oty ~= nil then
-									revert_ship:orderDefendLocation(otx,oty)
-								else
-									revert_ship:orderRoaming()
-								end
-							elseif oo == "Fly towards (ignore all)" then
-								if otx ~= nil and oty ~= nil then
-									revert_ship:orderFlyTowardsBlind(otx,oty)
-								else
-									revert_ship:orderRoaming()
-								end
-							else
-								revert_ship:orderRoaming()
-							end
-						else
-							revert_ship:orderRoaming()
-						end
-						--print("reverting ship:",enemy:getCallSign(),"original faction:",enemy.original_faction)
-						if revert_ship.original_faction ~= nil then
-							revert_ship:setFaction(revert_ship.original_faction)
-						end
-						if revert_ship.original_order ~= nil then
-							msg = string.format("%s\nOriginal order:%s",msg,revert_ship.original_order)
-						else
-							msg = string.format("%s\nOriginal order: nil",msg)
-						end
-						if revert_ship.original_faction ~= nil then
-							msg = string.format("%s\nOriginal faction:%s",msg,revert_ship.original_faction)
-						else
-							msg = string.format("%s\nOriginal faction: nil",msg)
-						end
-						if revert_ship.original_target ~= nil then
-							if revert_ship.original_target:isValid() then
-								msg = string.format("%s\nOriginal target:%s",msg,revert_ship.original_target:getCallSign())
-							else
-								msg = string.format("%s\nOriginal target: has become invalid")
-							end
-						else
-							msg = string.format("%s\nOriginal target: nil",msg)
-						end
-						if revert_ship.original_target_x ~= nil then
-							msg = string.format("%s\nOriginal target coordinates:%.1f,%.1f",msg,revert_ship.original_target_x,revert_ship.original_target_y)
-						else
-							msg = string.format("%s\nOriginal target coordinates: nil",msg)
-						end
-						addGMMessage(msg)
-						revert_ship.original_order = nil
-						revert_ship.original_target_x = nil
-						revert_ship.original_target_y = nil
-						revert_ship.original_target = nil
-						revert_ship.original_faction = nil
-						revert_ship.taunt_may_expire = false
-						revert_ship.amenability_may_expire = false
-						enemy_reverts[revert_ship_index] = enemy_reverts[#enemy_reverts]
-						enemy_reverts[#enemy_reverts] = nil
-					else
-						addGMMessage("Selected ship not in revert list")
-					end
-				else
-					addGMMessage("Selected ship is invalid")
-				end
-				revertShip()
-			end)
-		end
-	end
-end
+
 function toggleShipSensorJammer()
 	local object_list = getGMSelection()
 	if #object_list > 0 then
@@ -11393,6 +11295,37 @@ function createLafrinaStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
+	--Advance
+	stationAdvance = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Advance"):setPosition(-414326, 292291):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationAdvance.comms_data = {
+    	friendlyness = 78,
+        weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(4,6),Nuke = math.random(12,20),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,				HVLI = false,			Mine = random(1,100)<30,Nuke = random(1,100)<30,	EMP = random(1,100)<73	},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	true,
+        hack_repair =			random(1,100) < 63,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = true,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	nanites = 	{quantity = math.random(5,9),	cost = math.random(50,80)}, },
+        trade = {	food = random(1,100)<30, medicine = random(1,100)<30, luxury = random(1,100)<30 },
+        public_relations = true,
+        general_information = "We mine the nearby asteroids and maintain good relations with Marielle",
+    	history = "The survey on these asteroids show them as prime resource candidates, so when relations improved with the Arlenians during our assistance with pushing out Kraylor incursions, we took the Arlenian offer to establish a base here.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	stationAdvance:setRestocksScanProbes(random(1,100)<85)
+	stationAdvance:setRepairDocked(random(1,100)<47)
+	stationAdvance:setSharesEnergyWithDocked(true)
+	station_names[stationAdvance:getCallSign()] = {stationAdvance:getSectorName(), stationAdvance}
+	table.insert(stations,stationAdvance)
 	--Bond
     stationBond = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Bond"):setPosition(-271961, 284971):setDescription("Observation and Research"):setCommsScript(""):setCommsFunction(commsStation)
     stationBond.comms_data = {
@@ -11425,10 +11358,9 @@ function createLafrinaStations()
 	station_names[stationBond:getCallSign()] = {stationBond:getSectorName(), stationBond}
 	table.insert(stations,stationBond)
 	--Borie
-	local BorieZone = squareZone(-326622, 278067, "Borie S88")
-	BorieZone:setColor(51,153,255):setLabel("Br")
-	--[[
-	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
+	--local BorieZone = squareZone(-326622, 278067, "Borie S88")
+	--BorieZone:setColor(51,153,255):setLabel("Br")
+	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Del Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -11468,7 +11400,6 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationBorie:setSharesEnergyWithDocked(false) end
 	station_names[stationBorie:getCallSign()] = {stationBorie:getSectorName(), stationBorie}
 	table.insert(stations,stationBorie)
-	--]]
 	--Ilorea	
 	stationIlorea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Ilorea"):setPosition(-381821, 316064):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -11617,10 +11548,9 @@ function createLafrinaStations()
 	station_names[stationMarielle:getCallSign()] = {stationMarielle:getSectorName(), stationMarielle}
 	table.insert(stations,stationMarielle)
 	--Rivelle
-	local rivelleZone = squareZone(-359704, 375988, "Rivelle X87")
-	rivelleZone:setColor(51,153,255):setLabel("R")
-	--[[
-    stationRivelle = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Rivelle"):setPosition(-359704, 375988):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	--local rivelleZone = squareZone(-359704, 375988, "Del Rivelle X87")	--Del is Arlenian for two
+	--rivelleZone:setColor(51,153,255):setLabel("R")
+    stationRivelle = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Del Rivelle"):setPosition(-359704, 375988):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -11660,7 +11590,6 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationRivelle:setSharesEnergyWithDocked(false) end
 	station_names[stationRivelle:getCallSign()] = {stationRivelle:getSectorName(), stationRivelle}
 	table.insert(stations,stationRivelle)
-	--]]
 	--Vilairre
     stationVilairre = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Vilairre"):setDescription("Communications and administration"):setCommsScript(""):setCommsFunction(commsStation)
 	update_system:addOrbitTargetUpdate(stationVilairre,planet_wilaux,6000,23*2*math.pi,0)
@@ -12421,81 +12350,226 @@ function removeTereshColor()
 	end
 	teresh_stations = nil
 end
---	Central
-function newSys()
-    Planet():setPosition(1058938, 260657):setPlanetRadius(5000)
-    Planet():setPosition(992967, 259826):setPlanetRadius(5000)
-    Planet():setPosition(956076, 260158):setPlanetRadius(5000)
-    Asteroid():setPosition(1028067, 262368):setSize(165)
-    Asteroid():setPosition(1024901, 257911):setSize(52)
-    Asteroid():setPosition(1021865, 257846):setSize(194)
-    Asteroid():setPosition(1018570, 256813):setSize(36)
-    Asteroid():setPosition(1027421, 260301):setSize(55)
-    Asteroid():setPosition(1022382, 263467):setSize(53)
-    Asteroid():setPosition(1023028, 267343):setSize(488)
-    Asteroid():setPosition(1013532, 263660):setSize(236)
-    Asteroid():setPosition(1023868, 261981):setSize(63)
-    Asteroid():setPosition(1024966, 265728):setSize(351)
-    Asteroid():setPosition(1024126, 269797):setSize(44)
-    Asteroid():setPosition(1021671, 270250):setSize(31)
-    Asteroid():setPosition(1021607, 260430):setSize(258)
-    Asteroid():setPosition(1016438, 260430):setSize(246)
-    Asteroid():setPosition(1013144, 261335):setSize(210)
-    Asteroid():setPosition(1019346, 262950):setSize(451)
-    Asteroid():setPosition(1014824, 258105):setSize(392)
-    Asteroid():setPosition(1016116, 262368):setSize(329)
-    Asteroid():setPosition(1027227, 266309):setSize(122)
-    Asteroid():setPosition(1024320, 260172):setSize(129)
-    Asteroid():setPosition(1026064, 268053):setSize(127)
-    Asteroid():setPosition(1021542, 265663):setSize(116)
-    Asteroid():setPosition(1018829, 265921):setSize(125)
-    Asteroid():setPosition(1016762, 264694):setSize(125)
-    Asteroid():setPosition(1015792, 255068):setSize(117)
-    Asteroid():setPosition(1019798, 267666):setSize(127)
-    Asteroid():setPosition(1026064, 263014):setSize(120)
-    Asteroid():setPosition(976478, 265984):setSize(117)
-    Asteroid():setPosition(979125, 264661):setSize(110)
-    Asteroid():setPosition(972697, 251996):setSize(128)
-    Asteroid():setPosition(992735, 289425):setSize(120)
-    Asteroid():setPosition(990089, 296041):setSize(125)
-    Asteroid():setPosition(982338, 270143):setSize(116)
-    Asteroid():setPosition(979503, 268631):setSize(114)
-    Asteroid():setPosition(995760, 300200):setSize(126)
-    Asteroid():setPosition(996516, 292260):setSize(118)
-    Asteroid():setPosition(979503, 273168):setSize(128)
-    Asteroid():setPosition(984229, 283187):setSize(124)
-    Asteroid():setPosition(977045, 273735):setSize(116)
-    Asteroid():setPosition(976478, 270521):setSize(117)
-    Asteroid():setPosition(984229, 234037):setSize(122)
-    Asteroid():setPosition(975155, 242733):setSize(124)
-    Asteroid():setPosition(983094, 236873):setSize(111)
-    Asteroid():setPosition(981015, 235739):setSize(114)
-    Asteroid():setPosition(979503, 242544):setSize(129)
-    Asteroid():setPosition(977612, 250673):setSize(129)
-    Asteroid():setPosition(974588, 250105):setSize(113)
-    Asteroid():setPosition(986497, 289236):setSize(122)
-    Asteroid():setPosition(989144, 289425):setSize(124)
-    Asteroid():setPosition(983283, 230824):setSize(127)
-    Asteroid():setPosition(978746, 233281):setSize(125)
-    Asteroid():setPosition(980637, 230068):setSize(125)
-    Asteroid():setPosition(1010883, 256877):setSize(64)
-    Asteroid():setPosition(1009526, 258880):setSize(111)
-    Asteroid():setPosition(1012110, 258686):setSize(23)
-    Asteroid():setPosition(1010302, 260883):setSize(118)
-    Asteroid():setPosition(1016503, 259074):setSize(126)
-    Asteroid():setPosition(1019152, 259268):setSize(124)
-    Asteroid():setPosition(1026258, 256942):setSize(128)
-    Asteroid():setPosition(1013919, 255844):setSize(120)
-    Asteroid():setPosition(1021477, 255779):setSize(115)
-    SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("DS4374"):setPosition(1026873, 250662)
-    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4417"):setPosition(976289, 247837)
-    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4418"):setPosition(982338, 233848)
-    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4416"):setPosition(992735, 294340)
-    SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("DS4373"):setPosition(1013452, 269943)
-    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4415"):setPosition(977990, 275247)
-    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4414"):setPosition(981204, 262204)
+--	Magnasol/Bask
+function createBaskPlanets()
+	local planet_list = {}
+	local magnasol_x = 1058938
+	local magnasol_y = 260657
+	planet_magnasol_star = Planet():setPosition(magnasol_x, magnasol_y):setPlanetRadius(2700):setDistanceFromMovementPlane(-1200):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(.6,.6,1):setCallSign("Magnasol")
+	table.insert(planet_list,planet_magnasol_star)
+	local colburn_angle = random(0,360)
+	colburn_radius = 1600
+	local colburn_x, colburn_y = vectorFromAngle(colburn_angle,distance(magnasol_x, magnasol_y, 992967, 259826))
+	planet_colburn = Planet():setPosition(magnasol_x + colburn_x, magnasol_y + colburn_y):setPlanetRadius(colburn_radius):setDistanceFromMovementPlane(-800):setPlanetCloudTexture("planets/clouds-3.png")
+	planet_colburn:setPlanetSurfaceTexture("planets/planet-5.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.3,0.1,0.1)
+	planet_colburn:setCallSign("Colburn"):setOrbit(planet_magnasol_star,500)
+	table.insert(planet_list,planet_colburn)
+	local argyle_x, argyle_y = vectorFromAngle((colburn_angle + random(120,240)) % 360,distance(magnasol_x, magnasol_y, 956076, 260158))
+	planet_argyle = Planet():setPosition(magnasol_x + argyle_x, magnasol_y + argyle_y):setPlanetRadius(3200):setDistanceFromMovementPlane(-1000):setPlanetCloudTexture("planets/clouds-2.png")
+	planet_argyle:setPlanetSurfaceTexture("planets/planet-4.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.6,0.3,0.1)
+	planet_argyle:setCallSign("Argyle"):setOrbit(planet_magnasol_star,500)
+	table.insert(planet_list,planet_argyle)
+	local morningstar_x, morningstar_y = vectorFromAngle(random(0,360),3500)
+	morningstar_radius = 900
+	planet_morningstar_moon = Planet():setPosition(magnasol_x + colburn_x + morningstar_x, magnasol_y + colburn_y + morningstar_y):setPlanetRadius(morningstar_radius):setDistanceFromMovementPlane(-700)
+	planet_morningstar_moon:setPlanetSurfaceTexture("planets/moon-3.png")
+	planet_morningstar_moon:setCallSign("Morningstar"):setOrbit(planet_colburn,20)
+	table.insert(planet_list,planet_morningstar_moon)
 end
+function createBaskAsteroids()
+	local asteroid_list = {}
+	table.insert(asteroid_list,Asteroid():setPosition(1028067, 262368):setSize(165))
+	table.insert(asteroid_list,Asteroid():setPosition(1024901, 257911):setSize(52))
+	table.insert(asteroid_list,Asteroid():setPosition(1021865, 257846):setSize(194))
+	table.insert(asteroid_list,Asteroid():setPosition(1018570, 256813):setSize(36))
+	table.insert(asteroid_list,Asteroid():setPosition(1027421, 260301):setSize(55))
+	table.insert(asteroid_list,Asteroid():setPosition(1022382, 263467):setSize(53))
+	table.insert(asteroid_list,Asteroid():setPosition(1023028, 267343):setSize(488))
+	table.insert(asteroid_list,Asteroid():setPosition(1013532, 263660):setSize(236))
+	table.insert(asteroid_list,Asteroid():setPosition(1023868, 261981):setSize(63))
+	table.insert(asteroid_list,Asteroid():setPosition(1024966, 265728):setSize(351))
+	table.insert(asteroid_list,Asteroid():setPosition(1024126, 269797):setSize(44))
+	table.insert(asteroid_list,Asteroid():setPosition(1021671, 270250):setSize(31))
+	table.insert(asteroid_list,Asteroid():setPosition(1021607, 260430):setSize(258))
+	table.insert(asteroid_list,Asteroid():setPosition(1016438, 260430):setSize(246))
+	table.insert(asteroid_list,Asteroid():setPosition(1013144, 261335):setSize(210))
+	table.insert(asteroid_list,Asteroid():setPosition(1019346, 262950):setSize(451))
+	table.insert(asteroid_list,Asteroid():setPosition(1014824, 258105):setSize(392))
+	table.insert(asteroid_list,Asteroid():setPosition(1016116, 262368):setSize(329))
+	table.insert(asteroid_list,Asteroid():setPosition(1027227, 266309):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(1024320, 260172):setSize(129))
+	table.insert(asteroid_list,Asteroid():setPosition(1026064, 268053):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(1021542, 265663):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(1018829, 265921):setSize(125))
+	table.insert(asteroid_list,Asteroid():setPosition(1016762, 264694):setSize(125))
+	table.insert(asteroid_list,Asteroid():setPosition(1015792, 255068):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(1019798, 267666):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(1026064, 263014):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(976478, 265984):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(979125, 264661):setSize(110))
+	table.insert(asteroid_list,Asteroid():setPosition(972697, 251996):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(991864, 290964):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(990089, 296041):setSize(125))
+	table.insert(asteroid_list,Asteroid():setPosition(982338, 270143):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(979503, 268631):setSize(114))
+	table.insert(asteroid_list,Asteroid():setPosition(995760, 300200):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(990225, 292735):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(979503, 273168):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(984229, 283187):setSize(124))
+	table.insert(asteroid_list,Asteroid():setPosition(977045, 273735):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(976478, 270521):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(984229, 234037):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(975155, 242733):setSize(124))
+	table.insert(asteroid_list,Asteroid():setPosition(983094, 236873):setSize(111))
+	table.insert(asteroid_list,Asteroid():setPosition(981015, 235739):setSize(114))
+	table.insert(asteroid_list,Asteroid():setPosition(979503, 242544):setSize(129))
+	table.insert(asteroid_list,Asteroid():setPosition(977612, 250673):setSize(129))
+	table.insert(asteroid_list,Asteroid():setPosition(974588, 250105):setSize(113))
+	table.insert(asteroid_list,Asteroid():setPosition(986497, 289236):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(989144, 289425):setSize(124))
+	table.insert(asteroid_list,Asteroid():setPosition(983283, 230824):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(978746, 233281):setSize(125))
+	table.insert(asteroid_list,Asteroid():setPosition(980637, 230068):setSize(125))
+	table.insert(asteroid_list,Asteroid():setPosition(1010883, 256877):setSize(64))
+	table.insert(asteroid_list,Asteroid():setPosition(1009526, 258880):setSize(111))
+	table.insert(asteroid_list,Asteroid():setPosition(1012110, 258686):setSize(23))
+	table.insert(asteroid_list,Asteroid():setPosition(1010302, 260883):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(1016503, 259074):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(1019152, 259268):setSize(124))
+	table.insert(asteroid_list,Asteroid():setPosition(1026258, 256942):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(1013919, 255844):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(1021477, 255779):setSize(115))
+	--	near Kraylor
+	table.insert(asteroid_list,Asteroid():setPosition(1090905, 233504):setSize(18))
+	table.insert(asteroid_list,Asteroid():setPosition(1091472, 228589):setSize(221))
+	table.insert(asteroid_list,Asteroid():setPosition(1094686, 228778):setSize(326))
+	table.insert(asteroid_list,Asteroid():setPosition(1073702, 225943):setSize(177))
+	table.insert(asteroid_list,Asteroid():setPosition(1070678, 221973):setSize(220))
+	table.insert(asteroid_list,Asteroid():setPosition(1084478, 231803):setSize(478))
+	table.insert(asteroid_list,Asteroid():setPosition(1077105, 229157):setSize(526))
+	table.insert(asteroid_list,Asteroid():setPosition(1079563, 227455):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(1081453, 224053):setSize(179))
+	table.insert(asteroid_list,Asteroid():setPosition(1076916, 225376):setSize(214))
+	table.insert(asteroid_list,Asteroid():setPosition(1087124, 229724):setSize(387))
+	table.insert(asteroid_list,Asteroid():setPosition(1085612, 225565):setSize(260))
+	--	near Arlenian
+	table.insert(asteroid_list,Asteroid():setPosition(1056068, 295793):setSize(432))
+	table.insert(asteroid_list,Asteroid():setPosition(1056635, 288988):setSize(157))
+	table.insert(asteroid_list,Asteroid():setPosition(1057392, 291823):setSize(56))
+	table.insert(asteroid_list,Asteroid():setPosition(1051910, 292768):setSize(316))
+	table.insert(asteroid_list,Asteroid():setPosition(1052132, 289686):setSize(238))
+	--	near Arlenians
+	table.insert(asteroid_list,Asteroid():setPosition(1082508, 287871):setSize(343))
+	table.insert(asteroid_list,Asteroid():setPosition(1083208, 283520):setSize(81))
+	table.insert(asteroid_list,Asteroid():setPosition(1085448, 290375):setSize(193))
+	table.insert(asteroid_list,Asteroid():setPosition(1088436, 285577):setSize(124))
+	--	near Ghosts
+	table.insert(asteroid_list,Asteroid():setPosition(1075228, 292131):setSize(220))
+	table.insert(asteroid_list,Asteroid():setPosition(1078576, 290022):setSize(85))
+	table.insert(asteroid_list,Asteroid():setPosition(1071383, 289030):setSize(446))
+	table.insert(asteroid_list,Asteroid():setPosition(1068654, 292875):setSize(29))
+	table.insert(asteroid_list,Asteroid():setPosition(1069274, 291014):setSize(121))
+	--	near Ghosts
+	table.insert(asteroid_list,Asteroid():setPosition(1034017, 296202):setSize(113))
+	table.insert(asteroid_list,Asteroid():setPosition(1039614, 295623):setSize(68))
+	table.insert(asteroid_list,Asteroid():setPosition(1033535, 304598):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(1035754, 298422):setSize(194))
+	table.insert(asteroid_list,Asteroid():setPosition(1031315, 298325):setSize(335))
+	table.insert(asteroid_list,Asteroid():setPosition(1029289, 302958):setSize(24))
+	--	near Ghosts
+	table.insert(asteroid_list,Asteroid():setPosition(1086434, 280584):setSize(39))
+	table.insert(asteroid_list,Asteroid():setPosition(1084649, 276925):setSize(36))
+	table.insert(asteroid_list,Asteroid():setPosition(1087044, 278014):setSize(210))
+	table.insert(asteroid_list,Asteroid():setPosition(1087524, 271829):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(1090877, 276141):setSize(334))
+	--	near Ktlitans
+	table.insert(asteroid_list,Asteroid():setPosition(1078042, 276439):setSize(185))
+	table.insert(asteroid_list,Asteroid():setPosition(1078808, 285803):setSize(37))
+	table.insert(asteroid_list,Asteroid():setPosition(1075914, 281036):setSize(321))
+	table.insert(asteroid_list,Asteroid():setPosition(1078723, 283930):setSize(28))
+	table.insert(asteroid_list,Asteroid():setPosition(1075574, 285973):setSize(123))
+	table.insert(asteroid_list,Asteroid():setPosition(1081362, 280696):setSize(468))
+	--	near Ktlitans
+	table.insert(asteroid_list,Asteroid():setPosition(1045089, 293671):setSize(265))
+	table.insert(asteroid_list,Asteroid():setPosition(1046224, 298417):setSize(326))
+	table.insert(asteroid_list,Asteroid():setPosition(1050971, 298701):setSize(72))
+	table.insert(asteroid_list,Asteroid():setPosition(1041802, 300730):setSize(182))
+	--	near Ktlitans
+	table.insert(asteroid_list,Asteroid():setPosition(1023656, 293340):setSize(111))
+	table.insert(asteroid_list,Asteroid():setPosition(1021874, 295202):setSize(92))
+	table.insert(asteroid_list,Asteroid():setPosition(1021551, 297226):setSize(319))
+	table.insert(asteroid_list,Asteroid():setPosition(1028028, 299008):setSize(90))
+	table.insert(asteroid_list,Asteroid():setPosition(1027403, 295840):setSize(491))
+	--	near Exuari
+	table.insert(asteroid_list,Asteroid():setPosition(1049645, 231499):setSize(382))
+	table.insert(asteroid_list,Asteroid():setPosition(1053061, 228987):setSize(68))
+	table.insert(asteroid_list,Asteroid():setPosition(1050418, 227909):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(1047737, 230092):setSize(71))
+	table.insert(asteroid_list,Asteroid():setPosition(1048974, 233175):setSize(266))
+	--	near Exuari
+	table.insert(asteroid_list,Asteroid():setPosition(1051071, 220116):setSize(186))
+	table.insert(asteroid_list,Asteroid():setPosition(1048690, 222736):setSize(379))
+	table.insert(asteroid_list,Asteroid():setPosition(1048134, 225911):setSize(76))
+	table.insert(asteroid_list,Asteroid():setPosition(1046388, 219243):setSize(127))
 
+
+	return asteroid_list
+end
+function createBaskStations()
+	local stations = {}
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4417"):setPosition(976289, 247837))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4418"):setPosition(982338, 233848))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4416"):setPosition(992735, 294340))
+	table.insert(stations,SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("DS4373"):setPosition(1013452, 269943))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4415"):setPosition(977990, 275247))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4414"):setPosition(981204, 262204))
+	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("DS368"):setPosition(1031485, 265802))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS393"):setPosition(1054941, 292713))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS893"):setPosition(1083220, 287022))
+	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS381"):setPosition(1085801, 219705))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS741"):setPosition(1079114, 234259))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("DS394"):setPosition(1072852, 295443))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("DS602"):setPosition(1033617, 301079))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("DS1180"):setPosition(1089901, 276132))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS748"):setPosition(1078260, 277446))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS1037"):setPosition(1045129, 297646))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS1324"):setPosition(1026057, 295757))
+	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS1467"):setPosition(1050906, 230994))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("DS1610"):setPosition(1047774, 222642))
+    return stations
+end
+function baskSector()
+	bask_color = true
+	bask_planets = createBaskPlanets()
+	bask_asteroids = createBaskAsteroids()
+	bask_stations = createBaskStations()
+	regionStations = bask_stations
+	if stationBask ~= nil then
+		table.insert(regionStations,stationBask)
+	end
+	return {destroy=removeBaskColor}
+end
+function removeBaskColor()
+	bask_color = false
+	if bask_planets ~= nil then
+		for _, bp in pairs(bask_planets) do
+			bp:destroy()
+		end
+	end
+	bask_planets = nil
+	if bask_asteroids ~= nil then
+		for _, ba in pairs(bask_asteroids) do
+			ba:destroy()
+		end
+	end
+	bask_asteroids = nil
+	if bask_stations ~= nil then
+		for _, bs in pairs(bask_stations) do
+			bs:destroy()
+		end
+	end
+	bask_stations = nil
+end
 
 function placeTknolgBase()
 	if gm_click_mode == "tknolg base" then
@@ -23786,6 +23860,23 @@ function dropJammer()
 		end
 	end
 end
+-----------------------------
+--	Order Ship > Specials  --
+-----------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -MAIN FROM SPECIALS		F	initialGMFunctions
+-- -ORDER SHIP				F	orderShip
+-- +SELECT SHIP				F	changeSpecialShip
+-- +CHANGE FROM ...			D	changeSpecialShip
+-- +CHG ... TO ...			D	changeSpecialShip
+-- +SELECT ...				D	changeSpecialShip
+-- +SHLD DRAIN BEAMS ...	*D	setShieldDrainBeamFactor
+-- +SKIP BEAM ...			*D	setSkipBeamFactor
+-- SHIELD FREQ ADJUST		F	inline
+-- +TACTICAL HOP ...		*D	setTacticalHop
+-- +SPIKY SPIN ...			*D	setSpikySpin
+-- +SPECIAL FACTOR ...		D	setShipEnhancementFactor
+-- SPECIAL GM MSG ON/OFF	D	inline
 function setSpecialsOnNPS()
 	clearGMFunctions()
 	addGMFunction("-Main from Specials",initialGMFunctions)
@@ -23873,6 +23964,14 @@ function setSpecialsOnNPS()
 		setSpecialsOnNPS()
 	end)
 end
+----------------------------------------------
+--	Order Ship > Specials > Special factor  --
+----------------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -MAIN FRM SPCL FCTR		F	initialGMFunctions
+-- -ORDER SHIP				F	orderShip
+-- -SPECIALS				F	setSpecialsOnNPS
+-- -SPECIAL FACTOR ...		D*	inline
 function setShipEnhancementFactor()
 	clearGMFunctions()
 	addGMFunction("-Main frm Spcl Fctr",initialGMFunctions)
@@ -23942,6 +24041,13 @@ function changeSpecialShip()
 	end
 	setSpecialsOnNPS()
 end
+--------------------------------------------------
+--	Order Ship > Specials > Shield drain beams  --
+--------------------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -(ship name) SPECIALS	D	setSpecialsOnNPS
+-- NO SHIELD DRAIN			*	inline
+-- SHLD DRAIN FCTR: ...		D*	inline
 function setShieldDrainBeamFactor()
 	if special_ship ~= nil then
 		clearGMFunctions()
@@ -23975,6 +24081,13 @@ function setShieldDrainBeamFactor()
 		setSpecialsOnNPS()
 	end
 end
+-----------------------------------------
+--	Order Ship > Specials > Skip beam  --
+-----------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -(ship name) SPECIALS	D	setSpecialsOnNPS
+-- NO SKIP BEAM				*	inline
+-- SKIP BEAM FACTOR: ...	D*	inline
 function setSkipBeamFactor()
 	if special_ship ~= nil then
 		clearGMFunctions()
@@ -24007,6 +24120,14 @@ function setSkipBeamFactor()
 		setSpecialsOnNPS()
 	end
 end
+--------------------------------------------
+--	Order Ship > Specials > Tactical hop  --
+--------------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -(ship name) SPECIALS	D	setSpecialsOnNPS
+-- NO TACTICAL HOP			*	inline
+-- +HOP TYPE ...			D	setHopType
+-- +HOP CHANCE ...			D	setHopChance
 function setTacticalHop()
 	if special_ship ~= nil then
 		clearGMFunctions()
@@ -24039,6 +24160,17 @@ function setTacticalHop()
 		setSpecialsOnNPS()
 	end
 end
+------------------------------------------
+--	Order Ship > Specials > Spiky spin  --
+------------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -(ship name) SPECIALS	D	setSpecialsOnNPS
+-- NO SPIKY SPIN			*	inline
+-- SPIKY SPIN 10			*	inline
+-- SPIKY SPIN 25			*	inline
+-- SPIKY SPIN 50			*	inline
+-- SPIKY SPIN 75			*	inline
+-- SPIKY SPIN 90			*	inline
 function setSpikySpin()
 	if special_ship ~= nil then
 		clearGMFunctions()
@@ -24113,6 +24245,17 @@ function setSpikySpin()
 		setSpecialsOnNPS()
 	end
 end
+-------------------------------------------------------
+--	Order Ship > Specials > Tactical hop > Hop type  --
+-------------------------------------------------------
+-- Button Text			   DF*	Related Function(s)
+-- -(ship name) SPECIALS	D	setSpecialsOnNPS
+-- -TACTICAL HOP			F	setTacticalHop
+-- HOP TYPE 1				*	inline
+-- HOP TYPE 2				*	inline
+-- HOP TYPE 3				*	inline
+-- HOP TYPE 4				*	inline
+-- HOP TYPE 5				*	inline
 function setHopType()
 	clearGMFunctions()
 	addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
@@ -24173,6 +24316,18 @@ function setHopType()
 		setTacticalHop()
 	end)
 end
+---------------------------------------------------------
+--	Order Ship > Specials > Tactical hop > Hop chance  --
+---------------------------------------------------------
+-- Button Text				   DF*	Related Function(s)
+-- -(ship name) SPECIALS		D	setSpecialsOnNPS
+-- -TACTICAL HOP				F	setTacticalHop
+-- ... HOP CHANCE - 1 = ...		D	inline
+-- ... HOP CHANCE - 5 = ...		D	inline
+-- ... HOP CHANCE - 10 = ...	D	inline
+-- ... HOP CHANCE + 1 = ...		D	inline
+-- ... HOP CHANCE + 5 = ...		D	inline
+-- ... HOP CHANCE + 10 = ...	D	inline
 function setHopChance()
 	clearGMFunctions()
 	addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
@@ -24563,6 +24718,21 @@ function setShipAI()
 		orderShip()
 	end)
 end
+------------------------------
+--	Order Ship > Formation  --
+------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM FORMATION	F	initialGMFunctions
+-- -ORDER SHIP			F	orderShip
+-- +SELECT SHIP			F	changeFormationShip
+-- +CHANGE FROM ...		D	changeFormationShip
+-- +CHG ... TO ...		D	changeFormationShip
+-- +SELECT ...			D	changeFormationShip
+-- SET FORMATION TARGET F	setFormationTarget
+-- +SHAPE				D	setFormationShape
+-- +SPACING				D	setFormationSpacing
+-- CREATE FORMATION		F	inline
+-- REMOVE FORMATION		F	inline
 function setFormation()
 	clearGMFunctions()
 	addGMFunction("-Main from Formation",initialGMFunctions)
@@ -24661,6 +24831,11 @@ function setFormationTrigger()
 		end)
 	end
 end
+----------------------------------------
+--	Order Ship > Formation > Spacing  --
+----------------------------------------
+-- Button Text FD*	Related Function(s)
+-- SPACING: ...	D	inline
 function setFormationSpacing()
 	clearGMFunctions()
 	if formation_spacing > 1200 then
@@ -24677,6 +24852,16 @@ function setFormationSpacing()
 		end)
 	end
 end
+--------------------------------------
+--	Order Ship > Formation > Shape  --
+--------------------------------------
+-- Button Text FD*	Related Function(s)
+-- +V			F	setFormationCategoryV
+-- +A			F	setFormationCategoryA
+-- +LINE		F	setFormationCategoryLine
+-- +M			F	setFormationCategoryM
+-- +W			F	setFormationCategoryW
+-- +X			F	setFormationCategoryX
 function setFormationShape()
 	clearGMFunctions()
 	addGMFunction("+V",setFormationCategoryV)
@@ -24698,6 +24883,14 @@ function setFormationShape()
 	end
 	--]]
 end
+------------------------------------------
+--	Order Ship > Formation > Shape > X  --
+------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- X			*	inline
+-- X8			*	inline
+-- XAC			*	inline
+-- XAC8			*	inline
 function setFormationCategoryX()
 	clearGMFunctions()
 	local form_list = {"X","X8","Xac","Xac8"}
@@ -24712,6 +24905,14 @@ function setFormationCategoryX()
 		end)
 	end
 end
+------------------------------------------
+--	Order Ship > Formation > Shape > W  --
+------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- W			*	inline
+-- W6			*	inline
+-- WAC			*	inline
+-- WAC6			*	inline
 function setFormationCategoryW()
 	clearGMFunctions()
 	local form_list = {"W","W6","Wac","Wac6"}
@@ -24726,6 +24927,14 @@ function setFormationCategoryW()
 		end)
 	end
 end
+------------------------------------------
+--	Order Ship > Formation > Shape > M  --
+------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- M			*	inline
+-- M6			*	inline
+-- MAC			*	inline
+-- MAC6			*	inline
 function setFormationCategoryM()
 	clearGMFunctions()
 	local form_list = {"M","M6","Mac","Mac6"}
@@ -24740,6 +24949,18 @@ function setFormationCategoryM()
 		end)
 	end
 end
+---------------------------------------------
+--	Order Ship > Formation > Shape > Line  --
+---------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- /			*	inline
+-- /AC			*	inline
+-- -			*	inline
+-- -4			*	inline
+-- \			*	inline
+-- \AC			*	inline
+-- |			*	inline
+-- |4			*	inline
 function setFormationCategoryLine()
 	clearGMFunctions()
 	local form_list = {"/","/ac","-","-4","\\","\\ac","|","|4"}
@@ -24754,6 +24975,14 @@ function setFormationCategoryLine()
 		end)
 	end
 end
+------------------------------------------
+--	Order Ship > Formation > Shape > A  --
+------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- A			*	inline
+-- A4			*	inline
+-- AAC			*	inline
+-- AAC4			*	inline
 function setFormationCategoryA()
 	clearGMFunctions()
 	local form_list = {"A","A4","Aac","Aac4"}
@@ -24768,6 +24997,14 @@ function setFormationCategoryA()
 		end)
 	end
 end
+------------------------------------------
+--	Order Ship > Formation > Shape > V  --
+------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- V			*	inline
+-- V4			*	inline
+-- VAC			*	inline
+-- VAC4			*	inline
 function setFormationCategoryV()
 	clearGMFunctions()
 	local form_list = {"V","V4","Vac","Vac4"}
@@ -24824,6 +25061,164 @@ function gmClickSetFormationTarget(x,y)
 	gm_click_mode = nil
 	onGMClick(nil)
 	setFormation()
+end
+---------------------------
+--	Order Ship > Revert  --
+---------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM REVERT SHIP	F	initialGMFunctions
+-- -ORDER SHIP				F	orderShip
+-- LIST OF REVERTS			F	inline
+-- +SELECT SHIP				F	inline
+-- REVERT					F	inline
+function revertShip()
+	clearGMFunctions()
+	addGMFunction("-Main from revert ship",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	addGMFunction("List of Reverts",function()
+		if enemy_reverts == nil then
+			addGMMessage("No revert list")
+		else
+			if #enemy_reverts < 1 then
+				addGMMessage("Empty revert list")
+			else
+				local msg = "The following ships have been convinced by a player Relay officer to do something other than their original orders:"
+				msg = string.format("Next revert check in %.1f seconds. Revert interval: %i\n%s",revert_timer,revert_timer_interval,msg)
+				for revert_index, ship in ipairs(enemy_reverts) do
+					msg = string.format("%s\n    %s in %s (index %i)",msg,ship:getCallSign(),ship:getSectorName(),revert_index)
+					if ship.original_order ~= nil then
+						msg = string.format("%s original order:%s",msg,ship.original_order)
+					end
+					if ship.original_faction ~= nil then
+						msg = string.format("%s original faction:%s",msg,ship.original_faction)
+					end
+					if ship.original_target ~= nil and ship.original_target:isValid() then
+						msg = string.format("%s\n        original target:%s",msg,ship.original_target:getCallSign())
+					end
+					if ship.original_target_x ~= nil then
+						msg = string.format("%s\n        original target coordinates:%.1f,%.1f",msg,ship.original_target_x,original_target_y)
+					end
+				end
+				addGMMessage(msg)
+			end
+		end
+		revertShip()
+	end)
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMFunction("+Select Ship",revertShip)
+	else
+		if object_list[1].typeName ~= "CpuShip" then
+			addGMFunction("+Select Ship",revertShip)
+		else
+			addGMFunction(string.format("Revert %s",object_list[1]:getCallSign()),function()
+				if object_list[1] ~= nil and object_list[1]:isValid() then
+					local revert_ship = nil
+					local revert_ship_index = nil
+					for revert_index, ship in ipairs(enemy_reverts) do
+						if ship == object_list[1] then
+							revert_ship = ship
+							revert_ship_index = revert_index
+							break
+						end
+					end
+					if revert_ship ~= nil then
+						msg = string.format("Ship %s has been reverted (index %i)",revert_ship:getCallSign(),revert_ship_index)
+						local oo = revert_ship.original_order
+						local otx = revert_ship.original_target_x
+						local oty = revert_ship.original_target_y
+						local ot = revert_ship.original_target
+						if oo ~= nil then
+							if oo == "Attack" then
+								if ot ~= nil and ot:isValid() then
+									revert_ship:orderAttack(ot)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Dock" then
+								if ot ~= nil and ot:isValid() then
+									revert_ship:orderDock(ot)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Defend Target" then
+								if ot ~= nil and ot:isValid() then
+									revert_ship:orderDefendTarget(ot)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Fly towards" then
+								if otx ~= nil and oty ~= nil then
+									revert_ship:orderFlyTowards(otx,oty)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Defend Location" then
+								if otx ~= nil and oty ~= nil then
+									revert_ship:orderDefendLocation(otx,oty)
+								else
+									revert_ship:orderRoaming()
+								end
+							elseif oo == "Fly towards (ignore all)" then
+								if otx ~= nil and oty ~= nil then
+									revert_ship:orderFlyTowardsBlind(otx,oty)
+								else
+									revert_ship:orderRoaming()
+								end
+							else
+								revert_ship:orderRoaming()
+							end
+						else
+							revert_ship:orderRoaming()
+						end
+						--print("reverting ship:",enemy:getCallSign(),"original faction:",enemy.original_faction)
+						if revert_ship.original_faction ~= nil then
+							revert_ship:setFaction(revert_ship.original_faction)
+						end
+						if revert_ship.original_order ~= nil then
+							msg = string.format("%s\nOriginal order:%s",msg,revert_ship.original_order)
+						else
+							msg = string.format("%s\nOriginal order: nil",msg)
+						end
+						if revert_ship.original_faction ~= nil then
+							msg = string.format("%s\nOriginal faction:%s",msg,revert_ship.original_faction)
+						else
+							msg = string.format("%s\nOriginal faction: nil",msg)
+						end
+						if revert_ship.original_target ~= nil then
+							if revert_ship.original_target:isValid() then
+								msg = string.format("%s\nOriginal target:%s",msg,revert_ship.original_target:getCallSign())
+							else
+								msg = string.format("%s\nOriginal target: has become invalid")
+							end
+						else
+							msg = string.format("%s\nOriginal target: nil",msg)
+						end
+						if revert_ship.original_target_x ~= nil then
+							msg = string.format("%s\nOriginal target coordinates:%.1f,%.1f",msg,revert_ship.original_target_x,revert_ship.original_target_y)
+						else
+							msg = string.format("%s\nOriginal target coordinates: nil",msg)
+						end
+						addGMMessage(msg)
+						revert_ship.original_order = nil
+						revert_ship.original_target_x = nil
+						revert_ship.original_target_y = nil
+						revert_ship.original_target = nil
+						revert_ship.original_faction = nil
+						revert_ship.taunt_may_expire = false
+						revert_ship.amenability_may_expire = false
+						enemy_reverts[revert_ship_index] = enemy_reverts[#enemy_reverts]
+						enemy_reverts[#enemy_reverts] = nil
+					else
+						addGMMessage("Selected ship not in revert list")
+					end
+				else
+					addGMMessage("Selected ship is invalid")
+				end
+				revertShip()
+			end)
+		end
+	end
 end
 ----------------------------------
 --	Order Ship > Attach/Detach  --
@@ -27815,9 +28210,11 @@ function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,c
 	end
 	customSupplyDrop:onPickUp(supplyPickupProcess)
 end
-describeFunction("createSupplyDrop",
+describeFunction(	
+	"createSupplyDrop",
 	"create a custom supply drop at a location",
-	{	{"location","position"},
+	{	
+		{"location","position"},
 		{"energy","number", {call = "irandom", min = 0, max = 500}, min = 0},
 		{"homing","number", {call = "irandom", min = 0, max = 5}, min = 0},
 		{"nuke","number", {call = "irandom", min = 0, max = 5}, min = 0},
@@ -27828,8 +28225,8 @@ describeFunction("createSupplyDrop",
 		{"coolant","number", {call = "irandom", min = 0, max = 2}, min = 0},
 		{"probes","number", {call = "irandom", min = 0, max = 5}, min = 0},
 		{"armour","number", {call = "irandom", min = 0, max = 30}, min = 0},
-	})
-
+	}
+)
 function supplyPickupProcess(self, player)
 	if self.repairCrew ~= nil then
 		player:setRepairCrewCount(player:getRepairCrewCount() + self.repairCrew)
@@ -29131,6 +29528,9 @@ end
 -- -TWEAK TERRAIN		F	tweakTerrain
 -- +STATION OPERATIONS	F	stationOperations
 -- +STATION DEFENSE		F	stationDefense
+-- +STATION REPORT		F	stationReport
+-- +STATION GOODS		F	stationGoods
+-- +STATION PROBES		F	stationProbes
 function stationManipulation()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -29140,613 +29540,6 @@ function stationManipulation()
 	addGMFunction("+Station Report",stationReport)
 	addGMFunction("+Station Goods",stationGoods)
 	addGMFunction("+Station Probes",stationProbes)
-end
-function stationReport()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Stn Rpt",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Stn Manipulation",stationManipulation)
-	if regionStations ~= nil and #regionStations > 0 then
-		for _, station in ipairs(regionStations) do
-			if station ~= nil and station:isValid() and station.comms_data ~= nil then
-				addGMFunction(string.format("%s %s",station:getCallSign(),station:getSectorName()),function()
-					local out = string.format("%s %s  %s  %s  Friendliness:%s",station:getSectorName(),station:getCallSign(),station:getTypeName(),station:getFaction(),station.comms_data.friendlyness)
-					out = string.format("%s\nShares Energy: %s,  Repairs Hull: %s,  Restocks Scan Probes: %s",out,station:getSharesEnergyWithDocked(),station:getRepairDocked(),station:getRestocksScanProbes())
-					out = string.format("%s\nFix Probes: %s,  Fix Hack: %s,  Fix Scan: %s,  Fix Combat Maneuver: %s,  Fix Destruct: %s, Fix Slow Tube: %s",out,station.comms_data.probe_launch_repair,station.comms_data.hack_repair,station.comms_data.scan_repair,station.comms_data.combat_maneuver_repair,station.comms_data.self_destruct_repair,station.comms_data.self_destruct_repair,station.comms_data.tube_slow_down_repair)
-					out = string.format("%s\nHoming: %s %s %s,   Nuke: %s %s %s,   Mine: %s %s %s,   EMP: %s %s %s,   HVLI: %s %s %s",out,station.comms_data.weapon_available.Homing,station.comms_data.weapons.Homing,station.comms_data.weapon_cost.Homing,station.comms_data.weapon_available.Nuke,station.comms_data.weapons.Nuke,station.comms_data.weapon_cost.Nuke,station.comms_data.weapon_available.Mine,station.comms_data.weapons.Mine,station.comms_data.weapon_cost.Mine,station.comms_data.weapon_available.EMP,station.comms_data.weapons.EMP,station.comms_data.weapon_cost.EMP,station.comms_data.weapon_available.HVLI,station.comms_data.weapons.HVLI,station.comms_data.weapon_cost.HVLI)
-					out = string.format("%s\n      Cost multipliers and Max Refill:   Friend: %.1f %.1f,   Neutral: %.1f %.1f",out,station.comms_data.reputation_cost_multipliers.friend,station.comms_data.max_weapon_refill_amount.friend,station.comms_data.reputation_cost_multipliers.neutral,station.comms_data.max_weapon_refill_amount.neutral)
-					out = string.format("%s\nServices and their costs:",out)
-					for service, cost in pairs(station.comms_data.service_cost) do
-						if service == "shield_overcharge" then
-							out = string.format("%s\n      %s: %s (%s)",out,service,cost,station.comms_data.shield_overcharge)
-						else
-							out = string.format("%s\n      %s: %s",out,service,cost)
-						end
-					end
-					if station.comms_data.fast_probes ~= nil then
-						out = string.format("%s\nFast Probes: Name:%s   Cost:%s   Quantity:%s   Speed:%s",out,station.comms_data.fast_probes.name,station.comms_data.fast_probes.cost,station.comms_data.fast_probes.quantity,station.comms_data.fast_probes.speed/1000)
-					end
-					if station.comms_data.remote_warp_jammer ~= nil then
-						out = string.format("%s\nRemote Warp Jammer: Name:%s   Cost:%s   Quantity:%s   Speed:%s   Jam Range:%s",out,station.comms_data.remote_warp_jammer.name,station.comms_data.remote_warp_jammer.cost,station.comms_data.remote_warp_jammer.quantity,station.comms_data.remote_warp_jammer.speed/1000,station.comms_data.remote_warp_jammer.warp_jam_range/1000)
-					end
-					if station.comms_data.sensor_boost ~= nil then
-						out = string.format("%s\nSensor Boost: Range:%s   Cost:%s",out,station.comms_data.sensor_boost.value/1000,station.comms_data.sensor_boost.cost)
-					end
-					if station.comms_data.idle_defense_fleet ~= nil then
-						local df_list = ""
-						local df_count = 0
-						for name, template in pairs(station.comms_data.idle_defense_fleet) do
-							if name ~= nil then
-								df_count = df_count + 1
-								if df_list == "" then
-									df_list = string.format("    %s:%s",name,template)
-								else
-									df_list = string.format("%s, %s:%s",df_list,name,template)
-								end
-							end
-						end
-						if df_count > 0 then
-							out = string.format("%s\n%i ships in the idle defense fleet:\n%s",out,df_count,df_list)
-						end
-					end
-					if station.comms_data.goods ~= nil or station.comms_data.trade ~= nil or station.comms_data.buy ~= nil then
-						out = string.format("%s\nGoods:",out)
-						if station.comms_data.goods ~= nil then
-							out = string.format("%s\n    Sell:",out)
-							for good, good_detail in pairs(station.comms_data.goods) do
-								out = string.format("%s\n        %s: Cost:%s   Quantity:%s",out,good,good_detail.cost,good_detail.quantity)
-							end
-						end
-						if station.comms_data.trade ~= nil then
-							out = string.format("%s\n    Trade:",out)
-							for good, trade in pairs(station.comms_data.trade) do
-								out = string.format("%s\n        %s: %s",out,good,trade)
-							end
-						end
-						if station.comms_data.buy ~= nil then
-							out = string.format("%s\n    Buy:",out)
-							for good, amount in pairs(station.comms_data.buy) do
-								out = string.format("%s\n        %s: %s",out,good,amount)
-							end
-						end
-					end
-					addGMMessage(out)
-					stationReport()
-				end)
-			end
-		end
-	else
-		addGMMessage("No region stations. No Action taken. Set player start point to get region stations")
-	end
-end
-function stationProbes()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Station Manipulation",stationManipulation)
-	addGMFunction("+Faster Probes",fastStationProbes)
-	addGMFunction("+Warp Jammer Probes",warpJammerStationProbes)
-	addGMFunction("+Sensor Boost Probes",sensorBoostStationProbes)
-end
-function sensorBoostStationProbes()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Station Manipulation",stationManipulation)
-	addGMFunction("-Probes",stationProbes)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",sensorBoostStationProbes)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",sensorBoostStationProbes)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",sensorBoostStationProbes)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),sensorBoostStationProbes)
-			local sensor_boost_probe_types = {
-				["Spectacle"] = 0,
-				["Binoc"] = 0,
-				["Scope"] = 0,
-			}
-			local qty = 0
-			local name = ""
-			if selected_station.comms_data ~= nil and selected_station.comms_data.sensor_boost_probes ~= nil then
-				if selected_station.comms_data.sensor_boost_probes.quantity ~= nil then
-					qty = selected_station.comms_data.sensor_boost_probes.quantity
-				end
-				if selected_station.comms_data.sensor_boost_probes.name ~= nil then
-					name = selected_station.comms_data.sensor_boost_probes.name
-				end
-				sensor_boost_probe_types[name] = qty
-			end
-			for probe_name, quantity in pairs(sensor_boost_probe_types) do
-				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
-					local speed_list = {
-						["Spectacle"] = 1000,
-						["Binoc"] = 1000,
-						["Scope"] = 1000,
-					}
-					local sensor_range_list = {
-						["Spectacle"] = 30,
-						["Binoc"] = 40,
-						["Scope"] = 50,
-					}
-					local sensor_boost_list = {
-						["Spectacle"] = 10,
-						["Binoc"] = 20,
-						["Scope"] = 30,
-					}
-					local sensor_cost_list = {
-						["Spectacle"] = math.random(16,38),
-						["Binoc"] = math.random(39,55),
-						["Scope"] = math.random(57,78),
-					}
-					if selected_station.comms_data ~= nil and selected_station.comms_data.sensor_boost_probes ~= nil and selected_station.comms_data.sensor_boost_probes.name == probe_name then
-						selected_station.comms_data.sensor_boost_probes.quantity = selected_station.comms_data.sensor_boost_probes.quantity + 1
-					else
-						selected_station.comms_data.sensor_boost_probes = {name = probe_name, cost = sensor_cost_list[probe_name], quantity = 1, speed = speed_list[probe_name], range = sensor_range_list[probe_name], boost = sensor_boost_list[probe_name]}
-					end
-					sensorBoostStationProbes()
-				end)
-				if quantity > 0 then
-					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
-						selected_station.comms_data.sensor_boost_probes.quantity = selected_station.comms_data.sensor_boost_probes.quantity - 1
-						sensorBoostStationProbes()
-					end)
-				end
-			end
-		end
-	end
-end
-function warpJammerStationProbes()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Station Manipulation",stationManipulation)
-	addGMFunction("-Probes",stationProbes)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",warpJammerStationProbes)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",warpJammerStationProbes)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",warpJammerStationProbes)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),warpJammerStationProbes)
-			local warp_jammer_probe_types = {
-				["Mire"] = 0,
-				["Snag"] = 0,
-				["Swamp"] = 0,
-			}
-			local qty = 0
-			local name = ""
-			if selected_station.comms_data ~= nil and selected_station.comms_data.remote_warp_jammer ~= nil then
-				if selected_station.comms_data.remote_warp_jammer.quantity ~= nil then
-					qty = selected_station.comms_data.remote_warp_jammer.quantity
-				end
-				if selected_station.comms_data.remote_warp_jammer.name ~= nil then
-					name = selected_station.comms_data.remote_warp_jammer.name
-				end
-				warp_jammer_probe_types[name] = qty
-			end
-			for probe_name, quantity in pairs(warp_jammer_probe_types) do
-				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
-					local speed_list = {
-						["Mire"] = 2000,
-						["Snag"] = 2500,
-						["Swamp"] = 1500,
-					}
-					local warp_jam_range_list = {
-						["Mire"] = 15000,
-						["Snag"] = 10000,
-						["Swamp"] = 20000,
-					}
-					if selected_station.comms_data ~= nil and selected_station.comms_data.remote_warp_jammer ~= nil and selected_station.comms_data.remote_warp_jammer.name == probe_name then
-						selected_station.comms_data.remote_warp_jammer.quantity = selected_station.comms_data.remote_warp_jammer.quantity + 1
-					else
-						selected_station.comms_data.remote_warp_jammer = {name = probe_name, cost = math.random(9,20), quantity = 1, speed = speed_list[probe_name], warp_jam_range = warp_jam_range_list[probe_name]}
-					end
-					warpJammerStationProbes()
-				end)
-				if quantity > 0 then
-					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
-						selected_station.comms_data.remote_warp_jammer.quantity = selected_station.comms_data.remote_warp_jammer.quantity - 1
-						warpJammerStationProbes()
-					end)
-				end
-			end
-		end
-	end
-end
-function fastStationProbes()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Station Manipulation",stationManipulation)
-	addGMFunction("-Probes",stationProbes)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",fastStationProbes)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",fastStationProbes)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",fastStationProbes)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),fastStationProbes)
-			local fast_probe_types = {
-				["Mark 3"] = 0,
-				["Gogo"] = 0,
-				["Screamer"] = 0,
-			}
-			local qty = 0
-			local name = ""
-			if selected_station.comms_data ~= nil and selected_station.comms_data.fast_probes ~= nil then
-				if selected_station.comms_data.fast_probes.quantity ~= nil then
-					qty = selected_station.comms_data.fast_probes.quantity
-				end
-				if selected_station.comms_data.fast_probes.name ~= nil then
-					name = selected_station.comms_data.fast_probes.name
-				end
-				fast_probe_types[name] = qty
-			end
-			for probe_name, quantity in pairs(fast_probe_types) do
-				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
-					local speed_list = {
-						["Mark 3"] = 2000,
-						["Gogo"] = 3000,
-						["Screamer"] = 4000,
-					}
-					if selected_station.comms_data ~= nil and selected_station.comms_data.fast_probes ~= nil and selected_station.comms_data.fast_probes.name == probe_name then
-						selected_station.comms_data.fast_probes.quantity = selected_station.comms_data.fast_probes.quantity + 1
-					else
-						selected_station.comms_data.fast_probes = {name = probe_name, cost = math.random(3,8), quantity = 1, speed = speed_list[probe_name]}
-					end
-					fastStationProbes()
-				end)
-				if quantity > 0 then
-					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
-						selected_station.comms_data.fast_probes.quantity = selected_station.comms_data.fast_probes.quantity - 1
-						fastStationProbes()
-					end)
-				end
-			end
-		end
-	end
-end
-function stationGoods()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Station Manipulation",stationManipulation)
-	addGMFunction("+Sell Components",stationSellComponents)
-	addGMFunction("+Sell Minerals",stationSellMinerals)
-	addGMFunction("+Buy Components",stationBuyComponents)
-	addGMFunction("+Buy Minerals",stationBuyMinerals)
-	addGMFunction("+Trade Goods",stationTradeGoods)
-end
-function stationSellComponents()
-	clearGMFunctions()
-	addGMFunction("-From Sell Components",stationGoods)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",stationSellComponents)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",stationSellComponents)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",stationSellComponents)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationSellComponents)
-			table.sort(componentGoods)
-			for _, good in ipairs(componentGoods) do
-				local good_quantity = 0
-				if selected_station.comms_data ~= nil and selected_station.comms_data.goods ~= nil then
-					for station_good, good_detail in pairs(selected_station.comms_data.goods) do
-						if station_good == good and good_detail.quantity > 0 then
-							good_quantity = good_detail.quantity
-						end
-					end
-				end
-				addGMFunction(string.format("%s:%i Add",good,good_quantity),function()
-					string.format("")
-					if selected_station.comms_data == nil then
-						selected_station.comms_data = {}
-					end
-					if selected_station.comms_data.goods == nil then
-						selected_station.comms_data.goods = {}
-					end
-					if selected_station.comms_data.goods[good] == nil then
-						selected_station.comms_data.goods[good] = {cost = math.random(50,80), quantity = 1}
-					else
-						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity + 1
-					end
-					stationSellComponents()
-				end)
-				if good_quantity > 0 then
-					addGMFunction(string.format("%s:%i Del",good,good_quantity),function()
-						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity - 1
-						stationSellComponents()
-					end)
-				end
-			end
-		end
-	end
-end
-function stationSellMinerals()
-	clearGMFunctions()
-	addGMFunction("-From Sell Minerals",stationGoods)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",stationSellMinerals)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",stationSellMinerals)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",stationSellMinerals)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationSellMinerals)
-			table.sort(mineralGoods)
-			for _, good in ipairs(mineralGoods) do
-				local good_quantity = 0
-				if selected_station.comms_data ~= nil and selected_station.comms_data.goods ~= nil then
-					for station_good, good_detail in pairs(selected_station.comms_data.goods) do
-						if station_good == good and good_detail.quantity > 0 then
-							good_quantity = good_detail.quantity
-						end
-					end
-				end
-				addGMFunction(string.format("%s:%i Add",good,good_quantity),function()
-					string.format("")
-					if selected_station.comms_data == nil then
-						selected_station.comms_data = {}
-					end
-					if selected_station.comms_data.goods == nil then
-						selected_station.comms_data.goods = {}
-					end
-					if selected_station.comms_data.goods[good] == nil then
-						selected_station.comms_data.goods[good] = {cost = math.random(50,80), quantity = 1}
-					else
-						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity + 1
-					end
-					stationSellMinerals()
-				end)
-				if good_quantity > 0 then
-					addGMFunction(string.format("%s:%i Del",good,good_quantity),function()
-						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity - 1
-						stationSellMinerals()
-					end)
-				end
-			end
-		end
-	end
-end
-function stationBuyComponents()
-	clearGMFunctions()
-	addGMFunction("-From Buy Components",stationGoods)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",stationBuyComponents)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",stationBuyComponents)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",stationBuyComponents)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationBuyComponents)
-			table.sort(componentGoods)
-			for _, good in ipairs(componentGoods) do
-				local good_price = 0
-				if selected_station.comms_data ~= nil and selected_station.comms_data.buy ~= nil then
-					for station_good, price in pairs(selected_station.comms_data.buy) do
-						if station_good == good then
-							good_price = price
-						end
-					end
-				end
-				if good_price == 0 then
-					addGMFunction(string.format("%s Add",good),function()
-						string.format("")
-						if selected_station.comms_data == nil then
-							selected_station.comms_data = {}
-						end
-						if selected_station.comms_data.buy == nil then
-							selected_station.comms_data.buy = {}
-						end
-						selected_station.comms_data.buy[good] = math.random(70,100)
-						stationBuyComponents()
-					end)
-				else
-					addGMFunction(string.format("%s Del",good),function()
-						selected_station.comms_data.buy[good] = nil
-						stationBuyComponents()
-					end)
-				end
-			end
-		end
-	end
-end
-function stationBuyMinerals()
-	clearGMFunctions()
-	addGMFunction("-From Buy Minerals",stationGoods)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",stationBuyMinerals)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",stationBuyMinerals)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",stationBuyMinerals)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationBuyMinerals)
-			table.sort(mineralGoods)
-			for _, good in ipairs(mineralGoods) do
-				local good_price = 0
-				if selected_station.comms_data ~= nil and selected_station.comms_data.buy ~= nil then
-					for station_good, price in pairs(selected_station.comms_data.buy) do
-						if station_good == good then
-							good_price = price
-						end
-					end
-				end
-				if good_price == 0 then
-					addGMFunction(string.format("%s Add",good),function()
-						string.format("")
-						if selected_station.comms_data == nil then
-							selected_station.comms_data = {}
-						end
-						if selected_station.comms_data.buy == nil then
-							selected_station.comms_data.buy = {}
-						end
-						selected_station.comms_data.buy[good] = math.random(70,100)
-						stationBuyMinerals()
-					end)
-				else
-					addGMFunction(string.format("%s Del",good),function()
-						selected_station.comms_data.buy[good] = nil
-						stationBuyMinerals()
-					end)
-				end
-			end
-		end
-	end
-end
-function stationTradeGoods()
-	clearGMFunctions()
-	addGMFunction("-From Trade Goods",stationGoods)
-	local object_list = getGMSelection()
-	if object_list == nil then
-		addGMMessage("Nothing selected. Select a station. No action taken")
-		addGMFunction("+Select Station",stationTradeGoods)
-	else
-		local station_count = 0
-		local selected_station = nil
-		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
-				selected_station = obj
-				station_count = station_count + 1
-			end
-		end
-		if station_count < 1 then
-			addGMMessage("No station selected. Select a station. No action taken")
-			addGMFunction("+Select Station",stationTradeGoods)
-		elseif station_count > 1 then
-			addGMMessage("Select only one station. Select a station. No action taken")
-			addGMFunction("+Select Station",stationTradeGoods)
-		else
-			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationTradeGoods)
-			local tradeGoods = {"food","medicine","luxury"}
-			for _, good in ipairs(tradeGoods) do
-				local good_trade = false
-				if selected_station.comms_data ~= nil and selected_station.comms_data.trade ~= nil then
-					for station_good, val in pairs(selected_station.comms_data.trade) do
-						if station_good == good then
-							if val then
-								good_trade = true
-							end
-						end
-					end
-				end
-				if good_trade then
-					addGMFunction(string.format("%s Del",good),function()
-						selected_station.comms_data.trade[good] = false
-						stationTradeGoods()
-					end)
-				else
-					addGMFunction(string.format("%s Add",good),function()
-						string.format("")
-						if selected_station.comms_data == nil then
-							selected_station.comms_data = {}
-						end
-						if selected_station.comms_data.trade == nil then
-							selected_station.comms_data.trade = {}
-						end
-						selected_station.comms_data.trade[good] = true
-						stationTradeGoods()
-					end)
-				end
-			end
-		end
-	end
 end
 ---------------------------------
 --	Tweak Terrain > Minefield  --
@@ -30318,6 +30111,9 @@ function stationOperations()
 		end
 	end
 end
+--	****************************************************************************************  --
+--	****				Tweak Terrain Station Manipulation Station Defense				****  --
+--	****************************************************************************************  --
 --------------------------------------------------------------
 --	Tweak Terrain > Station Manipulation > Station Defense  --
 --------------------------------------------------------------
@@ -30388,9 +30184,6 @@ function stationDefense()
 		end
 	end
 end
---	****************************************************************************************  --
---	****				Tweak Terrain Station Manipulation Station Defense				****  --
---	****************************************************************************************  --
 --------------------------------------------------------------------------------
 --	Tweak Terrain > Station Manipulation > Station Defense > Defensive Fleet  --
 --------------------------------------------------------------------------------
@@ -31226,6 +31019,746 @@ function setOuterOuterMineOrbit()
 		setOuterOuterMineOrbit()
 	end)
 end
+--	****************************************************************************************  --
+--	****				Tweak Terrain Station Manipulation Station Report				****  --
+--	****************************************************************************************  --
+-------------------------------------------------------------
+--	Tweak Terrain > Station manipulation > Station report  --
+-------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FRM STN RPT	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -STN MANIPULATION	F	stationManipulation
+-- List of regional stations, one per button which calls inline function
+function stationReport()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Stn Rpt",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Stn Manipulation",stationManipulation)
+	if regionStations ~= nil and #regionStations > 0 then
+		for _, station in ipairs(regionStations) do
+			if station ~= nil and station:isValid() and station.comms_data ~= nil then
+				addGMFunction(string.format("%s %s",station:getCallSign(),station:getSectorName()),function()
+					local out = string.format("%s %s  %s  %s  Friendliness:%s",station:getSectorName(),station:getCallSign(),station:getTypeName(),station:getFaction(),station.comms_data.friendlyness)
+					out = string.format("%s\nShares Energy: %s,  Repairs Hull: %s,  Restocks Scan Probes: %s",out,station:getSharesEnergyWithDocked(),station:getRepairDocked(),station:getRestocksScanProbes())
+					out = string.format("%s\nFix Probes: %s,  Fix Hack: %s,  Fix Scan: %s,  Fix Combat Maneuver: %s,  Fix Destruct: %s, Fix Slow Tube: %s",out,station.comms_data.probe_launch_repair,station.comms_data.hack_repair,station.comms_data.scan_repair,station.comms_data.combat_maneuver_repair,station.comms_data.self_destruct_repair,station.comms_data.self_destruct_repair,station.comms_data.tube_slow_down_repair)
+					out = string.format("%s\nHoming: %s %s %s,   Nuke: %s %s %s,   Mine: %s %s %s,   EMP: %s %s %s,   HVLI: %s %s %s",out,station.comms_data.weapon_available.Homing,station.comms_data.weapons.Homing,station.comms_data.weapon_cost.Homing,station.comms_data.weapon_available.Nuke,station.comms_data.weapons.Nuke,station.comms_data.weapon_cost.Nuke,station.comms_data.weapon_available.Mine,station.comms_data.weapons.Mine,station.comms_data.weapon_cost.Mine,station.comms_data.weapon_available.EMP,station.comms_data.weapons.EMP,station.comms_data.weapon_cost.EMP,station.comms_data.weapon_available.HVLI,station.comms_data.weapons.HVLI,station.comms_data.weapon_cost.HVLI)
+					out = string.format("%s\n      Cost multipliers and Max Refill:   Friend: %.1f %.1f,   Neutral: %.1f %.1f",out,station.comms_data.reputation_cost_multipliers.friend,station.comms_data.max_weapon_refill_amount.friend,station.comms_data.reputation_cost_multipliers.neutral,station.comms_data.max_weapon_refill_amount.neutral)
+					out = string.format("%s\nServices and their costs:",out)
+					for service, cost in pairs(station.comms_data.service_cost) do
+						if service == "shield_overcharge" then
+							out = string.format("%s\n      %s: %s (%s)",out,service,cost,station.comms_data.shield_overcharge)
+						else
+							out = string.format("%s\n      %s: %s",out,service,cost)
+						end
+					end
+					if station.comms_data.fast_probes ~= nil then
+						out = string.format("%s\nFast Probes: Name:%s   Cost:%s   Quantity:%s   Speed:%s",out,station.comms_data.fast_probes.name,station.comms_data.fast_probes.cost,station.comms_data.fast_probes.quantity,station.comms_data.fast_probes.speed/1000)
+					end
+					if station.comms_data.remote_warp_jammer ~= nil then
+						out = string.format("%s\nRemote Warp Jammer: Name:%s   Cost:%s   Quantity:%s   Speed:%s   Jam Range:%s",out,station.comms_data.remote_warp_jammer.name,station.comms_data.remote_warp_jammer.cost,station.comms_data.remote_warp_jammer.quantity,station.comms_data.remote_warp_jammer.speed/1000,station.comms_data.remote_warp_jammer.warp_jam_range/1000)
+					end
+					if station.comms_data.sensor_boost ~= nil then
+						out = string.format("%s\nSensor Boost: Range:%s   Cost:%s",out,station.comms_data.sensor_boost.value/1000,station.comms_data.sensor_boost.cost)
+					end
+					if station.comms_data.idle_defense_fleet ~= nil then
+						local df_list = ""
+						local df_count = 0
+						for name, template in pairs(station.comms_data.idle_defense_fleet) do
+							if name ~= nil then
+								df_count = df_count + 1
+								if df_list == "" then
+									df_list = string.format("    %s:%s",name,template)
+								else
+									df_list = string.format("%s, %s:%s",df_list,name,template)
+								end
+							end
+						end
+						if df_count > 0 then
+							out = string.format("%s\n%i ships in the idle defense fleet:\n%s",out,df_count,df_list)
+						end
+					end
+					if station.comms_data.goods ~= nil or station.comms_data.trade ~= nil or station.comms_data.buy ~= nil then
+						out = string.format("%s\nGoods:",out)
+						if station.comms_data.goods ~= nil then
+							out = string.format("%s\n    Sell:",out)
+							for good, good_detail in pairs(station.comms_data.goods) do
+								out = string.format("%s\n        %s: Cost:%s   Quantity:%s",out,good,good_detail.cost,good_detail.quantity)
+							end
+						end
+						if station.comms_data.trade ~= nil then
+							out = string.format("%s\n    Trade:",out)
+							for good, trade in pairs(station.comms_data.trade) do
+								out = string.format("%s\n        %s: %s",out,good,trade)
+							end
+						end
+						if station.comms_data.buy ~= nil then
+							out = string.format("%s\n    Buy:",out)
+							for good, amount in pairs(station.comms_data.buy) do
+								out = string.format("%s\n        %s: %s",out,good,amount)
+							end
+						end
+					end
+					addGMMessage(out)
+					stationReport()
+				end)
+			end
+		end
+	else
+		addGMMessage("No region stations. No Action taken. Set player start point to get region stations")
+	end
+end
+--	****************************************************************************************  --
+--	****				Tweak Terrain Station Manipulation Station Goods				****  --
+--	****************************************************************************************  --
+------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station goods  --
+------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -MAIN FROM GOODS			F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION MANIPULATION	F	stationManipulation
+-- +SELL COMPONENTS			F	stationSellComponents
+-- +SELL MINERALS			F	stationSellMinerals
+-- +BUY COMPONENTS			F	stationBuyComponents
+-- +BUY MINERALS			F	stationBuyMinerals
+-- +TRADE GOODS				F	stationTradeGoods
+function stationGoods()
+	clearGMFunctions()
+	addGMFunction("-Main from Goods",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("+Sell Components",stationSellComponents)
+	addGMFunction("+Sell Minerals",stationSellMinerals)
+	addGMFunction("+Buy Components",stationBuyComponents)
+	addGMFunction("+Buy Minerals",stationBuyMinerals)
+	addGMFunction("+Trade Goods",stationTradeGoods)
+end
+------------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station goods > Sell components  --
+------------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -FROM SELL COMPONENTS	F	stationGoods
+-- +SELECT STATION			F	stationSellComponents
+-- +CHG FRM ...				D	stationSellComponents
+-- (good name):... ADD		D	inline (one for each type of component good)
+-- (good name):... DEL		D	inline (one for each type of component good)
+function stationSellComponents()
+	clearGMFunctions()
+	addGMFunction("-From Sell Components",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationSellComponents)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellComponents)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellComponents)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationSellComponents)
+			table.sort(componentGoods)
+			for _, good in ipairs(componentGoods) do
+				local good_quantity = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.goods ~= nil then
+					for station_good, good_detail in pairs(selected_station.comms_data.goods) do
+						if station_good == good and good_detail.quantity > 0 then
+							good_quantity = good_detail.quantity
+						end
+					end
+				end
+				addGMFunction(string.format("%s:%i Add",good,good_quantity),function()
+					string.format("")
+					if selected_station.comms_data == nil then
+						selected_station.comms_data = {}
+					end
+					if selected_station.comms_data.goods == nil then
+						selected_station.comms_data.goods = {}
+					end
+					if selected_station.comms_data.goods[good] == nil then
+						selected_station.comms_data.goods[good] = {cost = math.random(50,80), quantity = 1}
+					else
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity + 1
+					end
+					stationSellComponents()
+				end)
+				if good_quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",good,good_quantity),function()
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity - 1
+						stationSellComponents()
+					end)
+				end
+			end
+		end
+	end
+end
+----------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station goods > Sell minerals  --
+----------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -FROM SELL MINERALS		F	stationGoods
+-- +SELECT STATION			F	stationSellMinerals
+-- +CHG FRM ...				D	stationSellMinerals
+-- (good name):... ADD		D	inline (one for each type of mineral good)
+-- (good name):... DEL		D	inline (one for each type of mineral good)
+function stationSellMinerals()
+	clearGMFunctions()
+	addGMFunction("-From Sell Minerals",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationSellMinerals)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellMinerals)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationSellMinerals)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationSellMinerals)
+			table.sort(mineralGoods)
+			for _, good in ipairs(mineralGoods) do
+				local good_quantity = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.goods ~= nil then
+					for station_good, good_detail in pairs(selected_station.comms_data.goods) do
+						if station_good == good and good_detail.quantity > 0 then
+							good_quantity = good_detail.quantity
+						end
+					end
+				end
+				addGMFunction(string.format("%s:%i Add",good,good_quantity),function()
+					string.format("")
+					if selected_station.comms_data == nil then
+						selected_station.comms_data = {}
+					end
+					if selected_station.comms_data.goods == nil then
+						selected_station.comms_data.goods = {}
+					end
+					if selected_station.comms_data.goods[good] == nil then
+						selected_station.comms_data.goods[good] = {cost = math.random(50,80), quantity = 1}
+					else
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity + 1
+					end
+					stationSellMinerals()
+				end)
+				if good_quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",good,good_quantity),function()
+						selected_station.comms_data.goods[good].quantity = selected_station.comms_data.goods[good].quantity - 1
+						stationSellMinerals()
+					end)
+				end
+			end
+		end
+	end
+end
+-----------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station goods > Buy components  --
+-----------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -FROM BUY COMPONENTS		F	stationGoods
+-- +SELECT STATION			F	stationBuyComponents
+-- +CHG FRM ...				D	stationBuyComponents
+-- (good name): ADD			D	inline (one for each type of component good)
+-- (good name): DEL			D	inline (one for each type of component good)
+function stationBuyComponents()
+	clearGMFunctions()
+	addGMFunction("-From Buy Components",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationBuyComponents)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyComponents)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyComponents)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationBuyComponents)
+			table.sort(componentGoods)
+			for _, good in ipairs(componentGoods) do
+				local good_price = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.buy ~= nil then
+					for station_good, price in pairs(selected_station.comms_data.buy) do
+						if station_good == good then
+							good_price = price
+						end
+					end
+				end
+				if good_price == 0 then
+					addGMFunction(string.format("%s Add",good),function()
+						string.format("")
+						if selected_station.comms_data == nil then
+							selected_station.comms_data = {}
+						end
+						if selected_station.comms_data.buy == nil then
+							selected_station.comms_data.buy = {}
+						end
+						selected_station.comms_data.buy[good] = math.random(70,100)
+						stationBuyComponents()
+					end)
+				else
+					addGMFunction(string.format("%s Del",good),function()
+						selected_station.comms_data.buy[good] = nil
+						stationBuyComponents()
+					end)
+				end
+			end
+		end
+	end
+end
+---------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station goods > Buy minerals  --
+---------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -FROM BUY MINERALS		F	stationGoods
+-- +SELECT STATION			F	stationBuyMinerals
+-- +CHG FRM ...				D	stationBuyMinerals
+-- (good name): ADD			D	inline (one for each type of mineral good)
+-- (good name): DEL			D	inline (one for each type of mineral good)
+function stationBuyMinerals()
+	clearGMFunctions()
+	addGMFunction("-From Buy Minerals",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationBuyMinerals)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyMinerals)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationBuyMinerals)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationBuyMinerals)
+			table.sort(mineralGoods)
+			for _, good in ipairs(mineralGoods) do
+				local good_price = 0
+				if selected_station.comms_data ~= nil and selected_station.comms_data.buy ~= nil then
+					for station_good, price in pairs(selected_station.comms_data.buy) do
+						if station_good == good then
+							good_price = price
+						end
+					end
+				end
+				if good_price == 0 then
+					addGMFunction(string.format("%s Add",good),function()
+						string.format("")
+						if selected_station.comms_data == nil then
+							selected_station.comms_data = {}
+						end
+						if selected_station.comms_data.buy == nil then
+							selected_station.comms_data.buy = {}
+						end
+						selected_station.comms_data.buy[good] = math.random(70,100)
+						stationBuyMinerals()
+					end)
+				else
+					addGMFunction(string.format("%s Del",good),function()
+						selected_station.comms_data.buy[good] = nil
+						stationBuyMinerals()
+					end)
+				end
+			end
+		end
+	end
+end
+--------------------------------------------------------------------------
+--	Tweak Terrain > Station Manipulation > Station goods > Trade goods  --
+--------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -FROM TRADE GOODS		F	stationGoods
+-- +SELECT STATION			F	stationTradeGoods
+-- +CHG FRM ...				D	stationTradeGoods
+-- FOOD ADD/DEL				D	inline
+-- MEDICINE ADD/DEL			D	inline
+-- LUXURY ADD/DEL			D	inline
+function stationTradeGoods()
+	clearGMFunctions()
+	addGMFunction("-From Trade Goods",stationGoods)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationTradeGoods)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationTradeGoods)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationTradeGoods)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationTradeGoods)
+			local tradeGoods = {"food","medicine","luxury"}
+			for _, good in ipairs(tradeGoods) do
+				local good_trade = false
+				if selected_station.comms_data ~= nil and selected_station.comms_data.trade ~= nil then
+					for station_good, val in pairs(selected_station.comms_data.trade) do
+						if station_good == good then
+							if val then
+								good_trade = true
+							end
+						end
+					end
+				end
+				if good_trade then
+					addGMFunction(string.format("%s Del",good),function()
+						selected_station.comms_data.trade[good] = false
+						stationTradeGoods()
+					end)
+				else
+					addGMFunction(string.format("%s Add",good),function()
+						string.format("")
+						if selected_station.comms_data == nil then
+							selected_station.comms_data = {}
+						end
+						if selected_station.comms_data.trade == nil then
+							selected_station.comms_data.trade = {}
+						end
+						selected_station.comms_data.trade[good] = true
+						stationTradeGoods()
+					end)
+				end
+			end
+		end
+	end
+end
+--	****************************************************************************************  --
+--	****				Tweak Terrain Station Manipulation Station Probes				****  --
+--	****************************************************************************************  --
+-------------------------------------------------------------
+--	Tweak Terrain > Station manipulation > Station probes  --
+-------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM PROBES	F	initialGMFunctions
+-- -TWEAK TERRAIN		F	tweakTerrain
+-- -STN MANIPULATION	F	stationManipulation
+-- +FASTER PROBES		F	fastStationProbes
+-- +WARP JAMMER PROBES	F	warpJammerStationProbes
+-- +SENSOR BOOST PROBES	F	sensorBoostStationProbes
+function stationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main from probes",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("+Faster Probes",fastStationProbes)
+	addGMFunction("+Warp Jammer Probes",warpJammerStationProbes)
+	addGMFunction("+Sensor Boost Probes",sensorBoostStationProbes)
+end
+---------------------------------------------------------------------------
+--	Tweak Terrain > Station manipulation > Station probes > Fast probes  --
+---------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -MAIN FROM FAST		F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION MANIPULATION	F	stationManipulation
+-- -PROBES					F	stationProbes
+-- +SELECT STATION			F	fastStationProbes
+-- +CHG FRM ...				D	fastStationProbes
+-- MARK 3:... ADD			D	inline
+-- GOGO:... ADD				D	inline
+-- SCREAMER:... ADD			D	inline
+-- MARK 3:... DEL			D	inline
+-- GOGO:... DEL				D	inline
+-- SCREAMER:... DEL			D	inline
+function fastStationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main from Fast",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("-Probes",stationProbes)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",fastStationProbes)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",fastStationProbes)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",fastStationProbes)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),fastStationProbes)
+			local fast_probe_types = {
+				["Mark 3"] = 0,
+				["Gogo"] = 0,
+				["Screamer"] = 0,
+			}
+			local qty = 0
+			local name = ""
+			if selected_station.comms_data ~= nil and selected_station.comms_data.fast_probes ~= nil then
+				if selected_station.comms_data.fast_probes.quantity ~= nil then
+					qty = selected_station.comms_data.fast_probes.quantity
+				end
+				if selected_station.comms_data.fast_probes.name ~= nil then
+					name = selected_station.comms_data.fast_probes.name
+				end
+				fast_probe_types[name] = qty
+			end
+			for probe_name, quantity in pairs(fast_probe_types) do
+				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
+					local speed_list = {
+						["Mark 3"] = 2000,
+						["Gogo"] = 3000,
+						["Screamer"] = 4000,
+					}
+					if selected_station.comms_data ~= nil and selected_station.comms_data.fast_probes ~= nil and selected_station.comms_data.fast_probes.name == probe_name then
+						selected_station.comms_data.fast_probes.quantity = selected_station.comms_data.fast_probes.quantity + 1
+					else
+						selected_station.comms_data.fast_probes = {name = probe_name, cost = math.random(3,8), quantity = 1, speed = speed_list[probe_name]}
+					end
+					fastStationProbes()
+				end)
+				if quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
+						selected_station.comms_data.fast_probes.quantity = selected_station.comms_data.fast_probes.quantity - 1
+						fastStationProbes()
+					end)
+				end
+			end
+		end
+	end
+end
+----------------------------------------------------------------------------------
+--	Tweak Terrain > Station manipulation > Station probes > Warp jammer probes  --
+----------------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -MAIN FROM WARP JAM		F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION MANIPULATION	F	stationManipulation
+-- -PROBES					F	stationProbes
+-- +SELECT STATION			F	warpJammerStationProbes
+-- +CHG FRM ...				D	warpJammerStationProbes
+-- MIRE:... ADD				D	inline
+-- SNAG:... ADD				D	inline
+-- SWAMP:... ADD			D	inline
+-- MIRE:... DEL				D	inline
+-- SNAG:... DEL				D	inline
+-- SWAMP:... DEL			D	inline
+function warpJammerStationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main from Warp jam",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("-Probes",stationProbes)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",warpJammerStationProbes)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",warpJammerStationProbes)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",warpJammerStationProbes)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),warpJammerStationProbes)
+			local warp_jammer_probe_types = {
+				["Mire"] = 0,
+				["Snag"] = 0,
+				["Swamp"] = 0,
+			}
+			local qty = 0
+			local name = ""
+			if selected_station.comms_data ~= nil and selected_station.comms_data.remote_warp_jammer ~= nil then
+				if selected_station.comms_data.remote_warp_jammer.quantity ~= nil then
+					qty = selected_station.comms_data.remote_warp_jammer.quantity
+				end
+				if selected_station.comms_data.remote_warp_jammer.name ~= nil then
+					name = selected_station.comms_data.remote_warp_jammer.name
+				end
+				warp_jammer_probe_types[name] = qty
+			end
+			for probe_name, quantity in pairs(warp_jammer_probe_types) do
+				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
+					local speed_list = {
+						["Mire"] = 2000,
+						["Snag"] = 2500,
+						["Swamp"] = 1500,
+					}
+					local warp_jam_range_list = {
+						["Mire"] = 15000,
+						["Snag"] = 10000,
+						["Swamp"] = 20000,
+					}
+					if selected_station.comms_data ~= nil and selected_station.comms_data.remote_warp_jammer ~= nil and selected_station.comms_data.remote_warp_jammer.name == probe_name then
+						selected_station.comms_data.remote_warp_jammer.quantity = selected_station.comms_data.remote_warp_jammer.quantity + 1
+					else
+						selected_station.comms_data.remote_warp_jammer = {name = probe_name, cost = math.random(9,20), quantity = 1, speed = speed_list[probe_name], warp_jam_range = warp_jam_range_list[probe_name]}
+					end
+					warpJammerStationProbes()
+				end)
+				if quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
+						selected_station.comms_data.remote_warp_jammer.quantity = selected_station.comms_data.remote_warp_jammer.quantity - 1
+						warpJammerStationProbes()
+					end)
+				end
+			end
+		end
+	end
+end
+-----------------------------------------------------------------------------------
+--	Tweak Terrain > Station manipulation > Station probes > Sensor boost probes  --
+-----------------------------------------------------------------------------------
+-- Button Text		 	   FD*	Related Function(s)
+-- -MAIN FROM SENSOR		F	initialGMFunctions
+-- -TWEAK TERRAIN			F	tweakTerrain
+-- -STATION MANIPULATION	F	stationManipulation
+-- -PROBES					F	stationProbes
+-- +SELECT STATION			F	sensorBoostStationProbes
+-- +CHG FRM ...				D	sensorBoostStationProbes
+-- SPECTACLE:... ADD		D	inline
+-- BINOC:... ADD			D	inline
+-- SCOPE:... ADD			D	inline
+-- SPECTACLE:... DEL		D	inline
+-- BINOC:... DEL			D	inline
+-- SCOPE:... DEL			D	inline
+function sensorBoostStationProbes()
+	clearGMFunctions()
+	addGMFunction("-Main From Sensor",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("-Probes",stationProbes)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",sensorBoostStationProbes)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",sensorBoostStationProbes)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",sensorBoostStationProbes)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),sensorBoostStationProbes)
+			local sensor_boost_probe_types = {
+				["Spectacle"] = 0,
+				["Binoc"] = 0,
+				["Scope"] = 0,
+			}
+			local qty = 0
+			local name = ""
+			if selected_station.comms_data ~= nil and selected_station.comms_data.sensor_boost_probes ~= nil then
+				if selected_station.comms_data.sensor_boost_probes.quantity ~= nil then
+					qty = selected_station.comms_data.sensor_boost_probes.quantity
+				end
+				if selected_station.comms_data.sensor_boost_probes.name ~= nil then
+					name = selected_station.comms_data.sensor_boost_probes.name
+				end
+				sensor_boost_probe_types[name] = qty
+			end
+			for probe_name, quantity in pairs(sensor_boost_probe_types) do
+				addGMFunction(string.format("%s:%i Add",probe_name,quantity), function()
+					local speed_list = {
+						["Spectacle"] = 1000,
+						["Binoc"] = 1000,
+						["Scope"] = 1000,
+					}
+					local sensor_range_list = {
+						["Spectacle"] = 30,
+						["Binoc"] = 40,
+						["Scope"] = 50,
+					}
+					local sensor_boost_list = {
+						["Spectacle"] = 10,
+						["Binoc"] = 20,
+						["Scope"] = 30,
+					}
+					local sensor_cost_list = {
+						["Spectacle"] = math.random(16,38),
+						["Binoc"] = math.random(39,55),
+						["Scope"] = math.random(57,78),
+					}
+					if selected_station.comms_data ~= nil and selected_station.comms_data.sensor_boost_probes ~= nil and selected_station.comms_data.sensor_boost_probes.name == probe_name then
+						selected_station.comms_data.sensor_boost_probes.quantity = selected_station.comms_data.sensor_boost_probes.quantity + 1
+					else
+						selected_station.comms_data.sensor_boost_probes = {name = probe_name, cost = sensor_cost_list[probe_name], quantity = 1, speed = speed_list[probe_name], range = sensor_range_list[probe_name], boost = sensor_boost_list[probe_name]}
+					end
+					sensorBoostStationProbes()
+				end)
+				if quantity > 0 then
+					addGMFunction(string.format("%s:%i Del",probe_name,quantity), function()
+						selected_station.comms_data.sensor_boost_probes.quantity = selected_station.comms_data.sensor_boost_probes.quantity - 1
+						sensorBoostStationProbes()
+					end)
+				end
+			end
+		end
+	end
+end
 --	****************************************************************  --
 --	****				Tweak Terrain Minefield					****  --
 --	****************************************************************  --
@@ -31916,16 +32449,18 @@ end
 ---------------------------------
 --	Countdown Timer > Purpose  --
 ---------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM TIMER		F	initialGMFunctions
--- -FROM PURPOSE		F	countdownTimer
--- TIMER*				*	inline		asterisk = current selection
--- DEATH				*	inline
--- BREAKDOWN			*	inline
--- MISSION				*	inline
--- DEPARTURE			*	inline
--- DESTRUCTION			*	inline
--- DISCOVERY			*	inline
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM TIMER			F	initialGMFunctions
+-- -FROM PURPOSE			F	countdownTimer
+-- TIMER*					*	inline		asterisk = current selection
+-- DEATH					*	inline
+-- BREAKDOWN				*	inline
+-- MISSION					*	inline
+-- DEPARTURE				*	inline
+-- DESTRUCTION				*	inline
+-- DISCOVERY				*	inline
+-- USE SELECTED OBJ DESC	F*	inline
+-- USOD: ...				D*	inline
 function GMTimerPurpose()
 	clearGMFunctions()
 	addGMFunction("-Main from Timer",initialGMFunctions)
@@ -31979,7 +32514,13 @@ function GMTimerPurpose()
 		GMTimerPurpose()
 	end)
 end
-
+------------------------------
+--	Countdown Timer > Type  --
+------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -FROM TYPE			F	countdownTimer
+-- -TIME				*	inline
+-- -PERCENT				*	inline
 function GMTimerType()
 	clearGMFunctions()
 	addGMFunction("-From Type",countdownTimer)
@@ -32000,15 +32541,17 @@ function GMTimerType()
 		GMTimerType()
 	end)
 end
-
+--	Designed to be called from a web service
 function setTimerPurpose(purpose)
 	timer_purpose = purpose
 end
-describeFunction("setTimerPurpose",
+describeFunction(
+	"setTimerPurpose",
 	"change the purpose of the current timer",
 	{
 		{"Purpose", "string"},
-	})
+	}
+)
 -------------------------------------
 --	Countdown Timer > Add Seconds  --
 -------------------------------------
@@ -32113,14 +32656,17 @@ function changeTimerSpeed()
 		changeTimerSpeed()
 	end)
 end
+--	Designed to be called from a web service
 function setTimerScale(scale)
 	timer_scale = scale
 end
-describeFunction("setTimerScale",
+describeFunction(
+	"setTimerScale",
 	"change the scale current timer",
 	{
 		{"scale", "number",1},
-	})
+	}
+)
 --	*											   *  --
 --	**											  **  --
 --	************************************************  --
@@ -38576,10 +39122,16 @@ function updateInner(delta)
 			if p.prox_scan ~= nil and p.prox_scan > 0 then
 				updatePlayerProximityScan(p)
 			end
+			if planet_magnasol_star ~= nil then
+				updatePlayerMagnasolHeat(delta,p)
+			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
 	if updateDiagnostic then print("update: outside player loop") end
+	if planet_colburn ~= nil then
+		updateMagnasolCollision()
+	end
 	updateCarrierDeployedFighter(delta)
 	if healthCheckTimer < 0 then
 		healthCheckTimer = delta + healthCheckTimerInterval
@@ -40048,6 +40600,88 @@ function updatePlayerProximityScan(p)
 			if obj:isValid() and obj.typeName == "CpuShip" and not obj:isFullyScannedBy(p) then
 				obj:setScanState("simplescan")
 			end
+		end
+	end
+end
+function updateMagnasolCollision()
+	local planet_x, planet_y = planet_colburn:getPosition()
+	local collision_list = getObjectsInRadius(planet_x, planet_y, colburn_radius + 2000)
+	for _, obj in ipairs(collision_list) do
+		local obj_dist = distance(obj,planet_colburn)
+		if obj.typeName == "CpuShip" then
+			if obj_dist <= colburn_radius + shipTemplateDistance[obj:getTypeName()] then
+				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+			end
+		end
+		if obj.typeName == "PlayerSpaceship" then
+			if obj_dist <= colburn_radius + playerShipStats[obj:getTypeName()].distance then
+				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+			end
+		end
+	end
+	planet_x, planet_y = planet_morningstar_moon:getPosition()
+	collision_list = getObjectsInRadius(planet_x, planet_y, morningstar_radius + 2000)
+	for _, obj in ipairs(collision_list) do
+		local obj_dist = distance(obj,planet_morningstar_moon)
+		if obj.typeName == "CpuShip" then
+			if obj_dist <= morningstar_radius + shipTemplateDistance[obj:getTypeName()] then
+				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+			end
+		end
+		if obj.typeName == "PlayerSpaceship" then
+			if obj_dist <= morningstar_radius + playerShipStats[obj:getTypeName()].distance then
+				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+			end
+		end
+	end
+end
+function updatePlayerMagnasolCollision(p)
+	if p:isValid() then
+		local colburn_distance = distance(planet_colburn,p)
+		if colburn_distance <= colburn_radius + playerShipStats[p:getTypeName()].distance then
+			local c_x, c_y = planet_colburn:getPosition()
+			p:takeDamage(100,"kinetic",c_x,c_y)
+		end
+		local morningstar_distance = distance(planet_morningstar_moon,p)
+		if morningstar_distance <= morningstar_radius + playerShipStats[p:getTypeName()].distance then
+			local m_x, m_y = planet_morningstar_moon:getPosition()
+			p:takeDamage(100,"kinetic",m_x,m_y)
+		end
+	end
+end
+function updatePlayerMagnasolHeat(delta,p)
+	if p:isValid() then
+		if stationBask:isValid() then
+			if p:isDocked(stationBask) then
+				return
+			end
+		end
+		local magnasol_distance = distance(planet_magnasol_star,p)
+		if magnasol_distance < 100000 then
+			local heat_impact = delta * (1 - (magnasol_distance/100000)) * .05
+			if p:getShieldsActive() then
+				heat_impact = heat_impact/2
+			end
+--			local out = string.format("impact:%.5f",heat_impact)
+			local system_heat_list = {
+				["reactor"] = {before = p:getSystemHeat("reactor"), after = 0},
+				["beamweapons"] = {before = p:getSystemHeat("beamweapons"), after = 0},
+				["missilesystem"] = {before = p:getSystemHeat("missilesystem"), after = 0},
+				["maneuver"] = {before = p:getSystemHeat("maneuver"), after = 0},
+				["impulse"] = {before = p:getSystemHeat("impulse"), after = 0},
+				["warp"] = {before = p:getSystemHeat("warp"), after = 0},
+				["jumpdrive"] = {before = p:getSystemHeat("jumpdrive"), after = 0},
+				["frontshield"] = {before = p:getSystemHeat("frontshield"), after = 0},
+				["rearshield"] = {before = p:getSystemHeat("rearshield"), after = 0},				
+			}
+			for system, heat in pairs(system_heat_list) do
+				if p:hasSystem(system) then
+					p:setSystemHeat(system,heat.before + heat_impact)
+--					heat.after = p:getSystemHeat(system)
+--					out = string.format("%s, %s:%.5f-%.5f",out,system,heat.before,heat.after)
+				end
+			end
+			print(out)
 		end
 	end
 end
