@@ -112,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.2.2"
+	scenario_version = "4.2.3"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -139,7 +139,7 @@ function setConstants()
 	universe:addAvailableRegion("Astron (U33)",function() return ghostNebulaSector() end, 460500, 320500) -- there was an alternate spawn location of 545336,292452, inital spawn location seems to not work eh I will look at it later - starry
 	universe:addAvailableRegion("Lafrina (T93)",lafrinaSector,-237666,296975)
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
-	universe:addAvailableRegion("Bask",baskSector,1027800,251000)
+	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	initialSandboxDatabaseUpdate()
 	playerSpawnX = 0
@@ -4498,16 +4498,22 @@ function addChristmasArtifact(waypoints)
 			waypoints = waypoints
 		}
 			local texts={
-				"threats to stop nightime life suppport and return the station to silence",
-				"religious text containing allusions to satan's claws",
-				"claims omnipresent observation, regardless of state of consciousness or moral state",
-				"audio message of numerous voices chanting ritualistically together",
-				"broken message threatening to slay the residents of the station",
-				"message containing a threat to deck both crewman hall and engineer holly",
-				"discussions about precious metal fashioned into cylindrical devices tuned to harmonious frequencies",
-				"the sound of cacaphonous striking of bulkheads by a small boy",
-				"a quest for a supernova by three highly ranked CUF officers",
-				"monitor communications from supernatural public relations representatives",
+				"Threats to stop nightime life suppport and return the station to silence",	--silent night
+				"Religious text containing allusions to Satan's Claws",	
+				"Claims omnipresent observation, regardless of state of consciousness or moral state",
+				"Audio message of numerous voices chanting ritualistically together",
+				"Broken message threatening to slay the residents of the station",
+				"Message containing a threat to deck both crewman Hall and engineer Holly",	--Deck the halls
+				"Discussions about precious metal fashioned into cylindrical devices tuned to harmonious frequencies",	--silver bells
+				"The sound of cacaphonous striking of bulkheads by a small boy",	--little drummer boy
+				"A quest for a supernova by three highly ranked CUF officers",	--we three kings
+				"Monitor communications from supernatural public relations representatives",	--hark the herald angels
+				"Stealthily observe maternal unit interacting with aged seasonal magician",	--I saw mommy kissing Santa Clause
+				"Constrain desire for dentition reconstrucion",	--All I want for Christmas is my two front teeth
+				"Matriarch devastated by encounter with lone horned beast with questionable flight qualities",	--grandma got run over by a reindeer
+				"Benign ruler inspects large food cargo set out for consumption",	--good king wenceslas
+				"Sleep induced on males with sunny dispositions",	--god rest ye merry gentlemen
+				"I have the decapitated beast's head with sundry hers and spices",	--the boar's head carol
 			}
 			local art=Artifact():setDescription(texts[irandom(1,#texts)])
 		update_system:addUpdate(art,"xmas waypoints",update_data)
@@ -12353,8 +12359,8 @@ end
 --	Magnasol/Bask
 function createBaskPlanets()
 	local planet_list = {}
-	local magnasol_x = 1058938
-	local magnasol_y = 260657
+	magnasol_x = 1058938
+	magnasol_y = 260657
 	planet_magnasol_star = Planet():setPosition(magnasol_x, magnasol_y):setPlanetRadius(2700):setDistanceFromMovementPlane(-1200):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(.6,.6,1):setCallSign("Magnasol")
 	table.insert(planet_list,planet_magnasol_star)
 	local colburn_angle = random(0,360)
@@ -12511,9 +12517,110 @@ function createBaskAsteroids()
 	table.insert(asteroid_list,Asteroid():setPosition(1048690, 222736):setSize(379))
 	table.insert(asteroid_list,Asteroid():setPosition(1048134, 225911):setSize(76))
 	table.insert(asteroid_list,Asteroid():setPosition(1046388, 219243):setSize(127))
-
-
+	--	near USN
+	table.insert(asteroid_list,Asteroid():setPosition(1090764, 237106):setSize(175))
+	table.insert(asteroid_list,Asteroid():setPosition(1096024, 242669):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(1095032, 238762):setSize(390))
+	table.insert(asteroid_list,Asteroid():setPosition(1098132, 236840):setSize(72))
+	--	near TSN
+	table.insert(asteroid_list,Asteroid():setPosition(1092876, 273444):setSize(32))
+	table.insert(asteroid_list,Asteroid():setPosition(1095706, 278187):setSize(226))
+	table.insert(asteroid_list,Asteroid():setPosition(1095985, 275158):setSize(433))
+	table.insert(asteroid_list,Asteroid():setPosition(1100192, 271488):setSize(128))
+	--	near TSN
+	table.insert(asteroid_list,Asteroid():setPosition(994248, 304217):setSize(478))
+	table.insert(asteroid_list,Asteroid():setPosition(990093, 301973):setSize(339))
+	table.insert(asteroid_list,Asteroid():setPosition(995578, 307375):setSize(61))
+	--	near CUF
+	table.insert(asteroid_list,Asteroid():setPosition(1015895, 290296):setSize(68))
+	table.insert(asteroid_list,Asteroid():setPosition(1016182, 293569):setSize(369))
+	table.insert(asteroid_list,Asteroid():setPosition(1013311, 295465):setSize(210))
+	table.insert(asteroid_list,Asteroid():setPosition(1019973, 294144):setSize(127))
+    --	near CUF
+	table.insert(asteroid_list,Asteroid():setPosition(1062928, 299998):setSize(50))
+	table.insert(asteroid_list,Asteroid():setPosition(1058231, 299446):setSize(350))
+	table.insert(asteroid_list,Asteroid():setPosition(1056942, 303037):setSize(118))
+    --	near USN
+	table.insert(asteroid_list,Asteroid():setPosition(1112689, 197170):setSize(58))
+	table.insert(asteroid_list,Asteroid():setPosition(1113117, 205017):setSize(230))
+	table.insert(asteroid_list,Asteroid():setPosition(1118126, 203732):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(1118923, 198904):setSize(129))
+	table.insert(asteroid_list,Asteroid():setPosition(1114680, 200664):setSize(340))
 	return asteroid_list
+end
+function createBaskNebulae()
+	local nebula_list = {}
+	--southeast blob
+	table.insert(nebula_list,Nebula():setPosition(1084296, 275420))
+	table.insert(nebula_list,Nebula():setPosition(1075619, 280774))
+	table.insert(nebula_list,Nebula():setPosition(1078906, 288622))
+	table.insert(nebula_list,Nebula():setPosition(1072388, 290153))
+	table.insert(nebula_list,Nebula():setPosition(1084725, 284834))
+	table.insert(nebula_list,Nebula():setPosition(1095428, 274483))
+    --south blob
+	table.insert(nebula_list,Nebula():setPosition(1058626, 299446))
+	table.insert(nebula_list,Nebula():setPosition(1054712, 293133))
+	table.insert(nebula_list,Nebula():setPosition(1046917, 296625))
+	table.insert(nebula_list,Nebula():setPosition(1038732, 300769))
+	table.insert(nebula_list,Nebula():setPosition(1029289, 299162))
+	table.insert(nebula_list,Nebula():setPosition(1019745, 295545))
+    --independent west line
+	table.insert(nebula_list,Nebula():setPosition(994089, 303898))
+	table.insert(nebula_list,Nebula():setPosition(987742, 292409))
+	table.insert(nebula_list,Nebula():setPosition(978505, 269252))
+	table.insert(nebula_list,Nebula():setPosition(974327, 248547))
+	table.insert(nebula_list,Nebula():setPosition(979597, 241042))
+	table.insert(nebula_list,Nebula():setPosition(981673, 232498))
+    --central blob
+	table.insert(nebula_list,Nebula():setPosition(1023531, 267071))
+	table.insert(nebula_list,Nebula():setPosition(1022330, 259626))
+	table.insert(nebula_list,Nebula():setPosition(1015554, 255859))
+	table.insert(nebula_list,Nebula():setPosition(1012556, 262578))
+    --northeast group
+	table.insert(nebula_list,Nebula():setPosition(1087727, 229675))
+	table.insert(nebula_list,Nebula():setPosition(1046886, 229587))
+	table.insert(nebula_list,Nebula():setPosition(1052215, 224462))
+	table.insert(nebula_list,Nebula():setPosition(1078106, 225856))
+	table.insert(nebula_list,Nebula():setPosition(1095136, 238024))
+	table.insert(nebula_list,Nebula():setPosition(1114834, 201049))
+	local traveling_nebulae = {}
+	for _, neb in ipairs(nebula_list) do
+		neb.fixed = true
+		local neb_x, neb_y = neb:getPosition()
+		neb.magnasol_dist = distance(magnasol_x, magnasol_y, neb_x, neb_y)
+		neb.exit_angle = angleFromVectorNorth(neb_x, neb_y, magnasol_x, magnasol_y)
+		neb.right_turn = (neb.exit_angle + 90) % 360
+		neb.left_turn = (neb.right_turn + 180) % 360
+		local lt_x, lt_y = vectorFromAngleNorth(neb.left_turn,5000)
+		neb.left_tangent_x = neb_x + lt_x
+		neb.left_tangent_y = neb_y + lt_y
+		local rt_x, rt_y = vectorFromAngleNorth(neb.right_turn,5000)
+		neb.right_tangent_x = neb_x + rt_x
+		neb.right_tangent_y = neb_y + rt_y
+		neb.start_angle = angleFromVectorNorth(neb.left_tangent_x, neb.left_tangent_y, magnasol_x, magnasol_y)
+		neb.finish_angle = angleFromVectorNorth(neb.right_tangent_x, neb.right_tangent_y, magnasol_x, magnasol_y)
+		if neb.finish_angle > neb.start_angle then
+			neb.arc = neb.finish_angle - neb.start_angle
+		else
+			neb.arc = (neb.finish_angle + 360) - neb.start_angle
+		end
+		local travel_angle = (neb.start_angle + random(0,neb.arc)) % 360
+		local travel_distance = random(neb.magnasol_dist,190000)
+		local tn_x, tn_y = vectorFromAngleNorth(travel_angle,travel_distance)
+		local travel_neb = Nebula():setPosition(magnasol_x + tn_x, magnasol_y + tn_y)
+		travel_neb.travel_angle = travel_angle
+		travel_neb.travel_distance = travel_distance
+		travel_neb.fixed = false
+		travel_neb.long_leg = true
+		travel_neb.origin = neb
+		table.insert(traveling_nebulae,travel_neb)
+--		Artifact():setPosition(neb.left_tangent_x, neb.left_tangent_y)
+--		Artifact():setPosition(neb.right_tangent_x, neb.right_tangent_y):setRadarTraceColor(255,0,0)
+	end
+	for _, neb in ipairs(traveling_nebulae) do
+		table.insert(nebula_list,neb)
+	end
+	return nebula_list
 end
 function createBaskStations()
 	local stations = {}
@@ -12536,6 +12643,12 @@ function createBaskStations()
 	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS1324"):setPosition(1026057, 295757))
 	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS1467"):setPosition(1050906, 230994))
 	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("DS1610"):setPosition(1047774, 222642))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("DS447"):setPosition(1094040, 239383))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("DS940"):setPosition(1115305, 200083))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("DS653"):setPosition(1096902, 274759))
+    table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("DS1081"):setPosition(993168, 304300))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("DS795"):setPosition(1016527, 294144))
+	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("DS1222"):setPosition(1059157, 298936))
     return stations
 end
 function baskSector()
@@ -12543,6 +12656,7 @@ function baskSector()
 	bask_planets = createBaskPlanets()
 	bask_asteroids = createBaskAsteroids()
 	bask_stations = createBaskStations()
+	bask_nebulae = createBaskNebulae()
 	regionStations = bask_stations
 	if stationBask ~= nil then
 		table.insert(regionStations,stationBask)
@@ -12569,6 +12683,12 @@ function removeBaskColor()
 		end
 	end
 	bask_stations = nil
+	if bask_nebulae ~= nil then
+		for _, bn in pairs(bask_nebulae) do
+			bs:destroy()
+		end
+	end
+	bask_nebulae = nil
 end
 
 function placeTknolgBase()
@@ -37975,6 +38095,22 @@ function playerShipCargoInventory(p)
 	p:addToShipLog(string.format("Available space: %i",p.cargo),"Yellow")
 	p:addToShipLog(string.format("Escape pods: %i   Available slots: %i",p.max_pods - p.pods,p.pods),"Yellow")
 end
+function levelCoolant(p)
+	if p:isValid() then
+		local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+		local installed_systems = {}
+		for _, system in ipairs(system_list) do
+			if p:hasSystem(system) then
+				table.insert(installed_systems,system)
+			end
+		end
+		local level_coolant = p:getMaxCoolant()/#installed_systems
+		for _, system in ipairs(installed_systems) do
+			p:setSystemCoolant(system,level_coolant)
+			p:commandSetSystemCoolantRequest(system,level_coolant)
+		end
+	end
+end
 ---------------------------------------------------
 --	Dynamic functions linked to update function  --
 ---------------------------------------------------
@@ -39124,13 +39260,14 @@ function updateInner(delta)
 			end
 			if planet_magnasol_star ~= nil then
 				updatePlayerMagnasolHeat(delta,p)
+				updatePlayerMagnasolLevelCoolant(p)
 			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
 	if updateDiagnostic then print("update: outside player loop") end
 	if planet_colburn ~= nil then
-		updateMagnasolCollision()
+		updateMagnasolCollision(delta)
 	end
 	updateCarrierDeployedFighter(delta)
 	if healthCheckTimer < 0 then
@@ -40603,7 +40740,7 @@ function updatePlayerProximityScan(p)
 		end
 	end
 end
-function updateMagnasolCollision()
+function updateMagnasolCollision(delta)
 	local planet_x, planet_y = planet_colburn:getPosition()
 	local collision_list = getObjectsInRadius(planet_x, planet_y, colburn_radius + 2000)
 	for _, obj in ipairs(collision_list) do
@@ -40634,18 +40771,59 @@ function updateMagnasolCollision()
 			end
 		end
 	end
-end
-function updatePlayerMagnasolCollision(p)
-	if p:isValid() then
-		local colburn_distance = distance(planet_colburn,p)
-		if colburn_distance <= colburn_radius + playerShipStats[p:getTypeName()].distance then
-			local c_x, c_y = planet_colburn:getPosition()
-			p:takeDamage(100,"kinetic",c_x,c_y)
+	local magnasol_red_lo = .6
+	local magnasol_red_hi = 1
+	local magnasol_green_lo = .6
+	local magnasol_green_hi = 1
+	local magnasol_red = random(magnasol_red_lo,magnasol_red_hi)
+	local magnasol_green = random(magnasol_green_lo,magnasol_green_hi)
+	planet_magnasol_star:setPlanetAtmosphereColor(magnasol_red,magnasol_green,1)
+--	local distance_printed = false
+	for neb_index, neb in ipairs(bask_nebulae) do
+		if neb:isValid() and not neb.fixed then
+			neb.travel_distance = neb.travel_distance + (delta*50)
+--			if not distance_printed then
+--				print("delta:",delta,"neb index:",neb_index,"travel distance:",neb.travel_distance)
+--				distance_printed = true
+--			end
+			local tn_x, tn_y = vectorFromAngleNorth(neb.travel_angle,neb.travel_distance)
+			neb:setPosition(magnasol_x + tn_x, magnasol_y + tn_y)
+			if neb.travel_distance > 200000 then
+				tn_x, tn_y = neb.origin:getPosition()
+				neb:setPosition(tn_x,tn_y)
+				neb.travel_angle = (neb.start_angle + random(0,neb.arc)) % 360
+				neb.travel_distance = distance(neb,magnasol_x,magnasol_y)
+			end
 		end
-		local morningstar_distance = distance(planet_morningstar_moon,p)
-		if morningstar_distance <= morningstar_radius + playerShipStats[p:getTypeName()].distance then
-			local m_x, m_y = planet_morningstar_moon:getPosition()
-			p:takeDamage(100,"kinetic",m_x,m_y)
+	end
+end
+function updatePlayerMagnasolLevelCoolant(p)
+	if p:isValid() then
+		if p.level_coolant == nil then
+			p.level_coolant = true
+			p.level_coolant_eng = "level_coolant_eng"
+			p:addCustomButton("Engineering",p.level_coolant_eng,"Level Coolant",function()
+				string.format("")
+				levelCoolant(p)
+			end)
+			p.level_coolant_plus = "level_coolant_plus"
+			p:addCustomButton("Engineering+",p.level_coolant_plus,"Level Coolant",function()
+				string.format("")
+				levelCoolant(p)
+			end)
+			p.level_coolant_power = "level_coolant_power"
+			p:addCustomButton("PowerManagement",p.level_coolant_power,"Level Coolant",function()
+				string.format("")
+				levelCoolant(p)
+			end)
+			local level_message = string.format("To: The Engineering Staff of %s\nFrom: Station %s\nSubject: Level Coolant Notification and Warning\n\nWelcome to the Magnasol region. The technicians of station %s installed a level coolant function on your ship. Ships within 100 units of Magnasol experience additional heat generation in their systems due to the unusual nature of Magnasol. The closer %s approaches Magnasol, the more heat your systems will experience. The level coolant button takes all available coolant and spreads it out evenly among all systems. The %s technicians have taken the liberty of triggering this function on your behalf as a demonstration.\n\nThe best way to avoid the heat generation is to stay far away from Magnasol. Your shields reduce the heat generated. %s also has parasol docking to protect ships while they are docked.\n\nEnjoy your tour of the Magnasol system.",p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign(),p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign())
+			p.level_coolant_message_eng = "level_coolant_message_eng"
+			p:addCustomMessage("Engineering",p.level_coolant_message_eng,level_message)
+			p.level_coolant_message_plus = "level_coolant_message_plus"
+			p:addCustomMessage("Engineering+",p.level_coolant_message_plus,level_message)
+			p.level_coolant_message_power = "level_coolant_message_power"
+			p:addCustomMessage("PowerManagement",p.level_coolant_message_power,level_message)
+			levelCoolant(p)
 		end
 	end
 end
@@ -40681,7 +40859,7 @@ function updatePlayerMagnasolHeat(delta,p)
 --					out = string.format("%s, %s:%.5f-%.5f",out,system,heat.before,heat.after)
 				end
 			end
-			print(out)
+--			print(out)
 		end
 	end
 end
