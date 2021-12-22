@@ -112,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.2.3"
+	scenario_version = "4.2.4"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -852,12 +852,12 @@ function setConstants()
 	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,"W")
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Thelonius")
-	makePlayerShipActive("Stick")
-	makePlayerShipActive("Hummer")
-	makePlayerShipActive("Splinter")
-	makePlayerShipActive("Wesson")
+	makePlayerShipActive("Devon")
 	makePlayerShipActive("Ink")
+	makePlayerShipActive("Yorik")
+	makePlayerShipActive("Knuckle Drag")
+	makePlayerShipActive("Flipper")
+	makePlayerShipActive("Eagle")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -12134,7 +12134,6 @@ function createTereshStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
-	
 	--	Bastion
 	--local bastionZone = squareZone(891524, 130398, "Bastion 2 L49")
 	--bastionZone:setColor(0,128,0):setLabel("Bastion")
@@ -12610,6 +12609,7 @@ function createBaskNebulae()
 		local travel_neb = Nebula():setPosition(magnasol_x + tn_x, magnasol_y + tn_y)
 		travel_neb.travel_angle = travel_angle
 		travel_neb.travel_distance = travel_distance
+		travel_neb.arc = neb.arc
 		travel_neb.fixed = false
 		travel_neb.long_leg = true
 		travel_neb.origin = neb
@@ -12624,11 +12624,258 @@ function createBaskNebulae()
 end
 function createBaskStations()
 	local stations = {}
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4417"):setPosition(976289, 247837))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4418"):setPosition(982338, 233848))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4416"):setPosition(992735, 294340))
-	table.insert(stations,SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("DS4373"):setPosition(1013452, 269943))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4415"):setPosition(977990, 275247))
+	local fast_probe_list = {
+		{name = "Mark 3",	cost_lo = 3, cost_hi = 8,	quantity_lo = 1, quantity_hi = 5, speed = 2000},
+		{name = "Gogo",		cost_lo = 6, cost_hi = 11,	quantity_lo = 1, quantity_hi = 5, speed = 3000},
+		{name = "Screamer", cost_lo = 8, cost_hi = 15,	quantity_lo = 1, quantity_hi = 5, speed = 4000},
+	}
+	local selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+	local sensor_probe_list = {
+		{name = "Spectacle",	cost_lo = 16, cost_hi = 41, quantity_lo = 1, quantity_hi = 3, speed = 1000, boost = 10, range = 30},
+		{name = "Binoc",		cost_lo = 37, cost_hi = 52, quantity_lo = 1, quantity_hi = 3, speed = 1000, boost = 20, range = 40},
+		{name = "Scope",		cost_lo = 56, cost_hi = 82, quantity_lo = 1, quantity_hi = 3, speed = 1000, boost = 30, range = 50},
+	}
+	local selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+	local remote_warp_jammer_list = {
+		{name = "Snag",		cost_lo = 9, cost_hi = 20, quantity_lo = 1, quantity_hi = 5, speed = 2500, warp_jam_range = 10000},
+		{name = "Mire",		cost_lo = 9, cost_hi = 20, quantity_lo = 1, quantity_hi = 5, speed = 2000, warp_jam_range = 15000},
+		{name = "Swamp",	cost_lo = 9, cost_hi = 20, quantity_lo = 1, quantity_hi = 5, speed = 1500, warp_jam_range = 20000},
+	}
+	local selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+	--	Element
+	--local elementZone = squareZone(976289, 247837, "Element")
+	--elementZone:setColor(51,153,255):setLabel("E")
+	stationElement = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Element"):setPosition(976289, 247837):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationElement:setShortRangeRadarRange(4000)
+    stationElement.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 63,
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	dilithium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			filament =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We want the minerals in these asteroids",
+    	history = "We've been here for a few months. Mining has been good so far. The heat and radiation from Magnasol is annoying.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 14 then stationElement:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationElement:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationElement:setSharesEnergyWithDocked(false) end
+	station_names[stationElement:getCallSign()] = {stationElement:getSectorName(), stationElement}
+	table.insert(stations,stationElement)
+	--	Forward
+	--local forwardZone = squareZone(982338, 233848, "Forward")
+	--forwardZone:setColor(51,153,255):setLabel("F")
+	stationForward = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Forward"):setPosition(982338, 233848):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationForward:setShortRangeRadarRange(4500)
+	selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+    stationForward.comms_data = {
+    	friendlyness = 74,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,6), 	HVLI = math.random(2,5),	Mine = math.random(2,6),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 43,
+        sensor_boost_probes = selected_sensor_probe,
+        hack_repair =			random(1,100)<20,
+        scan_repair =			random(1,100)<40,
+        tube_slow_down_repair = random(1,100)<34,
+        jump_overcharge =		random(1,100)<36,
+        probe_launch_repair =	random(1,100)<42,
+        scan_repair =			random(1,100)<50,
+        self_destruct_repair =	random(1,100)<60,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	tritanium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			autodoc =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We want the minerals in these asteroids and we got here first",
+    	history = "We found these asteroids near this strange star with its variant (or deviant depending on who you talk to) energy fluctuations. Now everyone wants a peice of the action",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "MU52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 14 then stationForward:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationForward:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationForward:setSharesEnergyWithDocked(false) end
+	station_names[stationForward:getCallSign()] = {stationForward:getSectorName(), stationForward}
+	table.insert(stations,stationForward)
+	--	Lizzy
+	--local lizzyZone = squareZone(992735, 294340, "Lizzy")
+	--lizzyZone:setColor(51,153,255):setLabel("L")
+	stationLizzy = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Lizzy"):setPosition(992735, 294340):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationLizzy:setShortRangeRadarRange(6500)
+	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+    stationLizzy.comms_data = {
+    	friendlyness = 74,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,5),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 63,
+        remote_warp_jammer = selected_remote_warp_jammer,
+        hack_repair =			random(1,100)<30,
+        scan_repair =			random(1,100)<20,
+        tube_slow_down_repair = random(1,100)<54,
+        jump_overcharge =		random(1,100)<66,
+        probe_launch_repair =	random(1,100)<32,
+        scan_repair =			random(1,100)<57,
+        self_destruct_repair =	random(1,100)<20,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	cobalt = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			circuit =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 22, luxury = random(1,100) < 45 },
+        public_relations = true,
+        general_information = "We are the best looking mining station in the area",
+    	history = "The station was set up by a distressed father who lost his daughter in a mining accident. He renamed the station in her memory",
+    	idle_defense_fleet = {
+			DF2 = "MT52 Hornet",
+			DF3 = "MU52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 18 then stationLizzy:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationLizzy:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationLizzy:setSharesEnergyWithDocked(false) end
+	station_names[stationLizzy:getCallSign()] = {stationLizzy:getSectorName(), stationLizzy}
+	table.insert(stations,stationLizzy)
+	--	Torch
+	--local torchZone = squareZone(1013452, 269943, "Torch")
+	--torchZone:setColor(51,153,255):setLabel("T")
+	stationTorch = SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("Torch"):setPosition(1013452, 269943):setDescription("Mining and Research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationTorch:setShortRangeRadarRange(7000)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationTorch.comms_data = {
+    	friendlyness = 84,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,4),	Nuke = math.random(12,19),	EMP = math.random(9,25) },
+        weapon_available = 	{Homing = random(1,100) <= 50,	HVLI = random(1,100) <= 40,	Mine = random(1,100) <= 30,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 60},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 63,
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<50,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<64,
+        jump_overcharge =		random(1,100)<26,
+        probe_launch_repair =	random(1,100)<72,
+        scan_repair =			random(1,100)<47,
+        self_destruct_repair =	random(1,100)<26,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.8},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.75 },
+        goods = {	nickel = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			lifter =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 35 },
+        public_relations = true,
+        general_information = "We mine these asteroids and conduct research on Magnasol",
+    	history = "During our research of Magnasol and the minerals that we extracted from nearby mines, we found a highly volatile combination of minerals an Magnasol residue. All that we collected started burning quite brighly. We were unable to extinguish the flame and could not even figure out the process by which the exotic combination was even burning in vacuum. From a distance, the station resembled a torch, so we renamed the station to match.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MT52 Hornet",
+			DF3 = "MU52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Nirvana R5A",
+			DF7 = "Nirvana R3",
+    	},
+	}
+	if random(1,100) <= 15 then stationTorch:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationTorch:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationTorch:setSharesEnergyWithDocked(false) end
+	station_names[stationTorch:getCallSign()] = {stationTorch:getSectorName(), stationTorch}
+	table.insert(stations,stationTorch)
+	--	Spunk
+	--local spunkZone = squareZone(977990, 275247, "Spunk")
+	--spunkZone:setColor(51,153,255):setLabel("T")
+	stationSpunk = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Spunk"):setPosition(977990, 275247):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSpunk:setShortRangeRadarRange(5500)
+	selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+    stationSpunk.comms_data = {
+    	friendlyness = 84,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "neutral", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,6),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 50,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 20},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        probe_launch_repair =	random(1,100) < 43,
+        sensor_boost_probes = selected_sensor_probe,
+        hack_repair =			random(1,100)<55,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<34,
+        jump_overcharge =		random(1,100)<66,
+        probe_launch_repair =	random(1,100)<42,
+        scan_repair =			random(1,100)<57,
+        self_destruct_repair =	random(1,100)<36,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.6 },
+        goods = {	gold = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			beam =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 55 },
+        public_relations = true,
+        general_information = "We mine these asteroids despite the challenges of dealing with the Magnasol radiation",
+    	history = "We started this station with minimal resources and minimal protection from the Magnasol heat and radiation. Despite these hurdles, we have successfully expanded our mining operations and are competing nicely with our neighbors for mining gains.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MT52 Hornet",
+			DF3 = "MU52 Hornet",
+			DF4 = "Phobos T3",
+			DF5 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 12 then stationSpunk:setRestocksScanProbes(false) end
+	if random(1,100) <= 18 then stationSpunk:setRepairDocked(false) end
+	if random(1,100) <= 15 then stationSpunk:setSharesEnergyWithDocked(false) end
+	station_names[stationSpunk:getCallSign()] = {stationSpunk:getSectorName(), stationSpunk}
+	table.insert(stations,stationSpunk)
+	
+	
 	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4414"):setPosition(981204, 262204))
 	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("DS368"):setPosition(1031485, 265802))
 	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS393"):setPosition(1054941, 292713))
@@ -15723,7 +15970,7 @@ function createPlayerShipHummer()
 	return playerHummer
 end
 function createPlayerShipInk()
-	playerInk = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Gabble")
+	playerInk = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Ink")
 	playerInk:setTypeName("Squid")
 	playerInk:setRepairCrewCount(5)					--more repair crew (vs 2)
 	playerInk:setShieldsMax(100, 100)				--stronger shields (vs 70, 70)
