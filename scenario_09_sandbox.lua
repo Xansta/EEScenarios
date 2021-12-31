@@ -1,6 +1,6 @@
 -- Name: Sandbox
 -- Description: GM controlled missions
---- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh
+--- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh, Bask
 --- Version 4
 --- Latest version: https://github.com/Xansta/EEScenarios
 --- Wiki: https://github.com/Xansta/EEScenarios/wiki/Sandbox
@@ -112,14 +112,16 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "4.2.4"
+	scenario_version = "5.0.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
 	healthDiagnostic = false
 	specialty_probe_diagnostic = false
-	change_enemy_order_diagnostic = true
+	change_enemy_order_diagnostic = false
+	magnasol_nebula_diagnostic = false
+	distance_diagnostic = false
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
@@ -297,8 +299,8 @@ function setConstants()
 		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG5},
 		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG6},
 		["Ryder"] =				{strength = 41, adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	hop_angle = 90,	hop_range = 1180,	create = stockTemplate},
-		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7500,	hop_angle = 0,	hop_range = 980,	create = predator},
-		["Predator V2"] =		{strength = 43,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8500,	hop_angle = 0,	hop_range = 980,	create = predatorV2},
+		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7500,	hop_angle = 0,	hop_range = 980,	create = predator},
+		["Predator V2"] =		{strength = 43,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8500,	hop_angle = 0,	hop_range = 980,	create = predatorV2},
 		["Diva"] =				{strength = 44,	adder = false,	missiler = true,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 2500,	create = diva},
 		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = stockTemplate},
 		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 15,	hop_range = 2500,	create = hurricane},
@@ -1073,6 +1075,11 @@ function setConstants()
 								["Fiend G4"] =						400,
 								["Fiend G5"] =						400,
 								["Fiend G6"] =						400,
+								["Farco 3"] =						200,
+								["Farco 5"] =						200,
+								["Farco 8"] =						200,
+								["Farco 11"] =						200,
+								["Farco 13"] =						200,
 								["K2 Fighter"] =					300,
 								["K3 Fighter"] =					300,
 								["Racer"] =							200,
@@ -1379,6 +1386,9 @@ function setConstants()
 	lafrina_commerce = false
 	lafrina_commerce_assets = {}
 	lafrina_commerce_timer = commerce_timer_interval
+	bask_commerce = false
+	bask_commerce_assets = {}
+	bask_commerce_timer = commerce_timer_interval
 	explosion_type = "Normal"
 	explosion_damage = 50
 	explosion_size = 1000
@@ -1731,9 +1741,9 @@ function createSkeletonUniverse()
 			DF8 = "Elara P2",
     	},
 	}
-	station_names[stationTeresh:getCallSign()] = {stationTeresh:getSectorName(), stationTeresh}
-	stationTeresh.skeleton_station = true
-	table.insert(skeleton_stations,stationTeresh)
+	station_names[stationBask:getCallSign()] = {stationBask:getSectorName(), stationBask}
+	stationBask.skeleton_station = true
+	table.insert(skeleton_stations,stationBask)
 end
 function createFleurNebula()
     Nebula():setPosition(22028, 25793):setCallSign("Fleur")
@@ -2023,6 +2033,9 @@ function orderFleet()
 					local formation_heading = (attack_angle + 180) % 360
 					formation_lead:setHeading(formation_heading)
 					local lead_x, lead_y = formation_lead:getPosition()
+					if distance_diagnostic then
+						print("distance_diagnostic 1 target_x:",target_x,"target_y:",target_y,"fleet_center_x:",fleet_center_x,"fleet_center_y:",fleet_center_y)
+					end
 					local radius = distance(target_x, target_y, fleet_center_x, fleet_center_y)
 					local pyramid_tier = math.min(#fleet_list[selected_fleet_index],max_pyramid_tier)
 					for index, ship in ipairs(fleet_list[selected_fleet_index]) do
@@ -2042,6 +2055,9 @@ function orderFleet()
 							local follow_x, follow_y = ship:getPosition()
 							local base_angle = angleFromVectorNorth(follow_x, follow_y, lead_x, lead_y)
 							local adjusted_angle = (base_angle + 270) % 360
+							if distance_diagnostic then
+								print("distance_diagnostic 2 lead_x:",lead_x,"lead_y:",lead_y,"follow_x:",follow_x,"follow_y:",follow_y)
+							end
 							local placement_spacing = distance(lead_x, lead_y, follow_x, follow_y)
 							local form_x, form_y = vectorFromAngleNorth(adjusted_angle,placement_spacing)
 							ship:orderFlyFormation(formation_lead,form_x, form_y)
@@ -2681,6 +2697,9 @@ function setExplosion()
 				local damage_list = getObjectsInRadius(exp_x, exp_y, explosion_range)
 				if #damage_list > 0 then
 					for i=1,#damage_list do
+						if distance_diagnostic then
+							print("distance_diagnostic 3 damage_list[i]:",damage_list[i],"exp_x:",exp_x,"exp_y:",exp_y,"i:",i)
+						end
 						local dist = distance(damage_list[i], exp_x, exp_y)
 						local applied_damage = explosion_damage
 						if explosion_damage_degredation == "Linear" then
@@ -2791,6 +2810,9 @@ function applyExplosionDamage(x,y)
 		local damage_list = getObjectsInRadius(x, y, explosion_range)
 		if #damage_list > 0 then
 			for i=1,#damage_list do
+				if distance_diagnostic then
+					print("distance_diagnostic 4 damage_list[i]:",damage_list[i],"x:",x,"y:",y,"i:",i)
+				end
 				local dist = distance(damage_list[i], x, y)
 				local applied_damage = explosion_damage
 				if explosion_damage_degredation == "Linear" then
@@ -2980,17 +3002,227 @@ function freighterCommerce()
 		end
 		addGMFunction(button_label,lafrinaFreighterCommerce)
 	end
+	if bask_color then
+		button_label = "Bask"
+		if bask_commerce then
+			button_label = button_label .. " On"
+		else
+			button_label = button_label .. " Off"
+		end
+		addGMFunction(button_label,baskFreighterCommerce)
+	end
+end
+function baskFreighterCommerce()
+	if bask_commerce then
+		removeBaskCommerce()
+	else
+		local bask_freighters_message = "Bask Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		local escort_ship = nil
+		local escort_count = 0
+		local escort_type = {
+			{chance = 36, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 23, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(bask_commerce_assets,escort_ship)
+			end
+		end
+		--Space Sedan
+		ship = spaceSedan()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 63, type = "MT52 Hornet"},
+			{chance = 38, type = "MU52 Hornet"},
+			{chance = 21, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(bask_commerce_assets,escort_ship)
+			end
+		end
+		--Omnibus
+		ship = omnibus()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 47, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 16, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(bask_commerce_assets,escort_ship)
+			end
+		end
+		--Fuel Freighter 5
+		ship = CpuShip():setTemplate("Fuel Freighter 5")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 37, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 16, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(bask_commerce_assets,escort_ship)
+			end
+		end
+		--Garbage Freighter 2
+		local ship = CpuShip():setTemplate("Garbage Freighter 2")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		--Service Jonque
+		ship = serviceJonque()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 38, type = "MT52 Hornet"},
+			{chance = 21, type = "MU52 Hornet"},
+			{chance = 12, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(bask_commerce_assets,escort_ship)
+			end
+		end
+		addGMMessage(bask_freighters_message)
+		bask_commerce = true
+	end
+	freighterCommerce()
 end
 function lafrinaFreighterCommerce()
 	if lafrina_commerce then
 		removeLafrinaCommerce()
 	else
+		local lafrina_freighters_message = "Lafrina Commerce Assets:"
 		--Courier
 		local ship = courier()
-		identifyFreighter(ship)
-		if ship:isEnemy(stationMarielle) then
-			ship:setFaction("Arlenians")
-		end
+		identifyFreighter(ship,stationLafrina)
 		regionCommerceDestination(ship,stationLafrina)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
@@ -2999,13 +3231,11 @@ function lafrinaFreighterCommerce()
 		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(lafrina_commerce_assets,ship)
 		--Work Wagon
 		ship = workWagon()
-		identifyFreighter(ship)
-		if ship:isEnemy(stationMarielle) then
-			ship:setFaction("Arlenians")
-		end
+		identifyFreighter(ship,stationLafrina)
 		regionCommerceDestination(ship,stationLafrina)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3014,6 +3244,7 @@ function lafrinaFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(lafrina_commerce_assets,ship)
 		local escort_ship = nil
 		local escort_count = 0
@@ -3036,6 +3267,7 @@ function lafrinaFreighterCommerce()
 				table.insert(lafrina_commerce_assets,escort_ship)
 			end
 		end
+		addGMMessage(lafrina_freighters_message)
 		lafrina_commerce = true
 	end
 	freighterCommerce()
@@ -3044,9 +3276,10 @@ function kentarFreighterCommerce()
 	if kentar_commerce then
 		removeKentarCommerce()
 	else
+		local kentar_freighters_message = "Kentar Commerce Assets:"
 		--Courier
 		local ship = courier()
-		identifyFreighter(ship)
+		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3055,10 +3288,11 @@ function kentarFreighterCommerce()
 		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		--Work Wagon
 		ship = workWagon()
-		identifyFreighter(ship)
+		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3067,6 +3301,7 @@ function kentarFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		local escort_ship = nil
 		local escort_count = 0
@@ -3091,8 +3326,7 @@ function kentarFreighterCommerce()
 		end
 		--Space Sedan
 		ship = spaceSedan()
-		identifyFreighter(ship)
-		addFreighter("Space Sedan",ship)	--update science database if applicable
+		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3101,6 +3335,7 @@ function kentarFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
 		escort_type = {
@@ -3124,7 +3359,7 @@ function kentarFreighterCommerce()
 		end
 		--Omnibus
 		ship = omnibus()
-		identifyFreighter(ship)
+		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3133,6 +3368,7 @@ function kentarFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
 		escort_type = {
@@ -3157,7 +3393,7 @@ function kentarFreighterCommerce()
 		--Fuel Freighter 5
 		ship = CpuShip():setTemplate("Fuel Freighter 5")
 		ship:setCommsScript(""):setCommsFunction(commsShip)
-		identifyFreighter(ship)
+		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3166,6 +3402,7 @@ function kentarFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
 		escort_type = {
@@ -3186,6 +3423,7 @@ function kentarFreighterCommerce()
 				table.insert(kentar_commerce_assets,escort_ship)
 			end
 		end
+		addGMMessage(kentar_freighters_message)
 		kentar_commerce = true
 	end
 	freighterCommerce()
@@ -3194,10 +3432,11 @@ function icarusFreighterCommerce()
 	if icarus_commerce then
 		removeIcarusCommerce()
 	else
+		local icarus_freighters_message = "Icarus Commerce Assets:"
 		--Garbage Freighter 2
 		local ship = CpuShip():setTemplate("Garbage Freighter 2")
 		ship:setCommsScript(""):setCommsFunction(commsShip)
-		identifyFreighter(ship)
+		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3206,15 +3445,11 @@ function icarusFreighterCommerce()
 		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		--Courier
-		ship = CpuShip():setTemplate("Personnel Freighter 1")
-		ship:setTypeName("Courier"):setCommsScript(""):setCommsFunction(commsShip)
-		ship:setWarpDrive(true)
-		ship:setWarpSpeed(1500)
-		ship:setRotationMaxSpeed(20)
-		identifyFreighter(ship)
-		addFreighter("Courier",ship)	--update science database if applicable
+		ship = courier()
+		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3223,14 +3458,11 @@ function icarusFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		--Work Wagon
-		ship = CpuShip():setTemplate("Equipment Freighter 2")
-		ship:setTypeName("Work Wagon"):setCommsScript(""):setCommsFunction(commsShip)
-		ship:setWarpDrive(true)
-		ship:setWarpSpeed(200)
-		identifyFreighter(ship)
-		addFreighter("Work Wagon",ship)	--update science database if applicable
+		ship = workWagon()
+		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3239,6 +3471,7 @@ function icarusFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		local escort_ship = nil
 		local escort_count = 0
@@ -3263,7 +3496,7 @@ function icarusFreighterCommerce()
 		end
 		--Laden Lorry
 		ship = ladenLorry()
-		identifyFreighter(ship)
+		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3272,6 +3505,7 @@ function icarusFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		escort_count = 0
 		escort_type = {
@@ -3293,9 +3527,17 @@ function icarusFreighterCommerce()
 				table.insert(icarus_commerce_assets,escort_ship)
 			end
 		end
+		addGMMessage(icarus_freighters_message)
 		icarus_commerce = true
 	end
 	freighterCommerce()
+end
+function removeBaskCommerce()
+	for index, ship in ipairs(bask_commerce_assets) do
+		ship:destroy()
+	end
+	bask_commerce_assets = {}
+	bask_commerce = false
 end
 function removeLafrinaCommerce()
 	for index, ship in ipairs(lafrina_commerce_assets) do
@@ -3328,10 +3570,8 @@ function skeletalFreighterCommerce()
 	else
 		local skeletal_freighters_message = "Skeletal Commerce Assets:"
 		--Space Sedan
-		local ship = CpuShip():setTemplate("Personnel Jump Freighter 3")
-		ship:setTypeName("Space Sedan"):setCommsScript(""):setCommsFunction(commsShip)
+		local ship = spaceSedan()
 		identifyFreighter(ship)
-		addFreighter("Space Sedan",ship)	--update science database if applicable
 		skeletalDestination(ship)
 		local origin_x, origin_y = ship.commerce_origin:getPosition()
 		local destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3340,7 +3580,7 @@ function skeletalFreighterCommerce()
 		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
-		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
+		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
 		local escort_ship = nil
 		local escort_count = 0
@@ -3364,10 +3604,8 @@ function skeletalFreighterCommerce()
 			end
 		end
 		--Omnibus
-		ship = CpuShip():setTemplate("Personnel Jump Freighter 5")
-		ship:setTypeName("Omnibus"):setCommsScript(""):setCommsFunction(commsShip)
+		ship = omnibus()
 		identifyFreighter(ship)
-		addFreighter("Omnibus",ship)	--update science database if applicable
 		skeletalDestination(ship)
 		origin_x, origin_y = ship.commerce_origin:getPosition()
 		destination_x, destination_y = ship.commerce_target:getPosition()
@@ -3376,7 +3614,7 @@ function skeletalFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
-		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
+		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
 		escort_count = 0
 		escort_type = {
@@ -3409,7 +3647,7 @@ function skeletalFreighterCommerce()
 		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 		ship:setPosition(start_x + ds_x, start_y + ds_y)
 		ship:orderDock(ship.commerce_target)
-		skeletal_freighters_message = string.format("%s\n%s %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getCallSign(),ship:getFaction())
+		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
 		escort_count = 0
 		escort_type = {
@@ -3436,87 +3674,103 @@ function skeletalFreighterCommerce()
 	end
 	freighterCommerce()
 end
-function identifyFreighter(ship)
+function identifyFreighter(ship,region_station)
 	local ship_type = ship:getTypeName()
 	local ship_id = nil
 	if ship_type == "Space Sedan" then
-		if skeletal_space_sedan == nil then
-			skeletal_space_sedan = {}
+		if space_sedan_names == nil then
+			space_sedan_names = {}
 		end
-		if #skeletal_space_sedan == 0 then
-			skeletal_space_sedan = {
+		if #space_sedan_names == 0 then
+			space_sedan_names = {
 				{name = "Bangles N Glitter",	faction = "CUF"},
 				{name = "Mauve Mynock",			faction = "Human Navy"},
 				{name = "Tartan Tram",			faction = "TSN"},
 				{name = "Stardust Deluxe",		faction = "Independent"},
 				{name = "Equitable Exit",		faction = "USN"},
+				{name = "Demure Departure",		faction = "Arlenians"},
+				{name = "Slam Door",			faction = "Kraylor"},
+				{name = "Hidey Hole",			faction = "Ktlitans"},
+				{name = "Bespoke Break",		faction = "Ghosts"},
 			}
 		end
-		ship_id = tableRemoveRandom(skeletal_space_sedan)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+		ship_id = tableRemoveRandom(space_sedan_names)
+		ship:setFaction(ship_id.faction):setCallSign(ship_id.name)
 	elseif ship_type == "Omnibus" then
-		if skeletal_omnibus == nil then
-			skeletal_omnibus = {}
+		if omnibus_names == nil then
+			omnibus_names = {}
 		end
-		if #skeletal_omnibus == 0 then
-			skeletal_omnibus = {
+		if #omnibus_names == 0 then
+			omnibus_names = {
 				{name = "Moya Munge",		faction = "CUF"},
 				{name = "Green Gwaihir",	faction = "Human Navy"},
 				{name = "Metropol",			faction = "TSN"},
 				{name = "Gillig",			faction = "Arlenians"},
 				{name = "Grech",			faction = "USN"},
 				{name = "Kamaz",			faction = "Independent"},
+				{name = "Hunting Hound",	faction = "Kraylor"},
+				{name = "Springing Spider",	faction = "Ktlitans"},
+				{name = "Bandwidth Bus",	faction = "Ghosts"},
 			}
 		end
-		ship_id = tableRemoveRandom(skeletal_omnibus)
+		ship_id = tableRemoveRandom(omnibus_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Service Jonque" then
-		if skeletal_service_jonque == nil then
-			skeletal_service_jonque = {}
+		if service_jonque_names == nil then
+			service_jonque_names = {}
 		end
-		if #skeletal_service_jonque == 0 then
-			skeletal_service_jonque = {
+		if #service_jonque_names == 0 then
+			service_jonque_names = {
 				{name = "Knapheide",		faction = "CUF"},
 				{name = "Gator",			faction = "Human Navy"},
 				{name = "Parry",			faction = "TSN"},
 				{name = "Stahl",			faction = "Independent"},
 				{name = "Crane",			faction = "USN"},
 				{name = "Moran",			faction = "Arlenians"},
+				{name = "Marabunta",		faction = "Kraylor"},
+				{name = "Caterpillar",		faction = "Ktlitans"},
+				{name = "Red Robot",		faction = "Ghosts"},
 			}
 		end
-		ship_id = tableRemoveRandom(skeletal_service_jonque)
+		ship_id = tableRemoveRandom(service_jonque_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Garbage Freighter 2" then
-		if garbage_2 == nil then
-			garbage_2 = {}
+		if garbage_2_names == nil then
+			garbage_2_names = {}
 		end
-		if #garbage_2 == 0 then
-			garbage_2 = {
+		if #garbage_2_names == 0 then
+			garbage_2_names = {
 				{name = "Heil",				faction = "CUF"},
 				{name = "Transwest",		faction = "Human Navy"},
 				{name = "Qiufan",			faction = "TSN"},
 				{name = "Garwood",			faction = "Arlenians"},
 				{name = "Hino",				faction = "USN"},
 				{name = "Gareth",			faction = "Independent"},
+				{name = "Vital Vulture",	faction = "Kraylor"},
+				{name = "Mystery Maggot",	faction = "Ktlitans"},
+				{name = "Coy Collector",	faction = "Ghosts"},
 			}
 		end
-		ship_id = tableRemoveRandom(garbage_2)
+		ship_id = tableRemoveRandom(garbage_2_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Fuel Freighter 5" then
-		if fuel_5 == nil then
-			fuel_5 = {}
+		if fuel_5_names == nil then
+			fuel_5_names = {}
 		end
-		if #fuel_5 == 0 then
-			fuel_5 = {
-				{name = "Exxon",			faction = "CUF"},
-				{name = "Shell",			faction = "Human Navy"},
-				{name = "Enron",			faction = "TSN"},
-				{name = "WeiChai",			faction = "Independent"},
-				{name = "Bosch",			faction = "USN"},
-				{name = "Nikola",			faction = "Arlenians"},
+		if #fuel_5_names == 0 then
+			fuel_5_names = {
+				{name = "Exxon",				faction = "CUF"},
+				{name = "Shell",				faction = "Human Navy"},
+				{name = "Enron",				faction = "TSN"},
+				{name = "WeiChai",				faction = "Independent"},
+				{name = "Bosch",				faction = "USN"},
+				{name = "Nikola",				faction = "Arlenians"},
+				{name = "Carnivorous Canary",	faction = "Kraylor"},
+				{name = "Gnarly Gnat",			faction = "Ktlitans"},
+				{name = "Electrasol",			faction = "Ghosts"},
 			}
 		end
-		ship_id = tableRemoveRandom(fuel_5)
+		ship_id = tableRemoveRandom(fuel_5_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Courier" then
 		if courier_names == nil then
@@ -3530,6 +3784,9 @@ function identifyFreighter(ship)
 				{name = "Benatar",			faction = "Arlenians"},
 				{name = "Jellyfish",		faction = "USN"},
 				{name = "Hecate",			faction = "Independent"},
+				{name = "Crazy Cougar",		faction = "Kraylor"},
+				{name = "Finnicky Flattie",	faction = "Ktlitans"},
+				{name = "Omni-Overclock",	faction = "Ghosts"},
 			}
 		end
 		ship_id = tableRemoveRandom(courier_names)
@@ -3546,26 +3803,46 @@ function identifyFreighter(ship)
 				{name = "Torque",			faction = "Arlenians"},
 				{name = "Hulk",				faction = "USN"},
 				{name = "Forbid",			faction = "Independent"},
+				{name = "Red Rex",			faction = "Kraylor"},
+				{name = "Dusky Darwin",		faction = "Ktlitans"},
+				{name = "Scarred Steel",	faction = "Ghosts"},
 			}
 		end
 		ship_id = tableRemoveRandom(work_wagon_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
 	elseif ship_type == "Laden Lorry" then
-		if laden_lorry == nil then
-			laden_lorry = {}
+		if laden_lorry_names == nil then
+			laden_lorry_names = {}
 		end
-		if #laden_lorry == 0 then
-			laden_lorry = {
+		if #laden_lorry_names == 0 then
+			laden_lorry_names = {
 				{name = "Lowboy",			faction = "Arlenians"},
 				{name = "Luton",			faction = "Human Navy"},
 				{name = "Reefer",			faction = "TSN"},
 				{name = "Convoy",			faction = "CUF"},
 				{name = "Hulk",				faction = "USN"},
 				{name = "Atlas",			faction = "Independent"},
+				{name = "Thing Thumb",		faction = "Kraylor"},
+				{name = "Whispy Web",		faction = "Ktlitans"},
+				{name = "Brown Bag",		faction = "Ghosts"},
 			}
 		end
-		ship_id = tableRemoveRandom(laden_lorry)
+		ship_id = tableRemoveRandom(laden_lorry_names)
 		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	end
+	if region_station ~= nil then
+		local region_stations = getRegionStations(region_station)
+		local visitable_stations = 0
+		if #region_stations > 0 then
+			for _, station in ipairs(region_stations) do
+				if station ~= nil and station:isValid() and not station:isEnemy(ship) then
+					visitable_stations = visitable_stations + 1
+				end
+			end
+		end
+		if visitable_stations < 2 then
+			ship:setFaction(region_station:getFaction())
+		end
 	end
 end
 function skeletalDestination(ship)
@@ -3573,7 +3850,7 @@ function skeletalDestination(ship)
 	if #skeleton_stations > 0 then
 		for index, station in ipairs(skeleton_stations) do
 			if station ~= nil and station:isValid() then
-				if station:isFriendly(ship) and not station:isEnemy(ship) then
+				if not station:isEnemy(ship) then
 					if ship.commerce_target ~= nil then
 						if station ~= ship.commerce_target then
 							table.insert(station_pool,station)
@@ -3617,60 +3894,86 @@ function skeletalDestination(ship)
 		end
 	end
 end
-function regionCommerceDestination(ship,region_station)
---	print("in region commerce destination:",ship:getCallSign(),region_station:getCallSign())
-	local station_pool = {}
+function getRegionStations(region_station)
 	local region_stations = {}
 	local primary_station = nil
 	if region_station == stationIcarus then
---		print("Icarus")
 		region_stations = icarusStations
 		if stationIcarus ~= nil and stationIcarus:isValid() then
 			primary_station = stationIcarus
 		end
 	elseif region_station == stationKentar then
---		print("Kentar")
 		region_stations = kentar_stations
 		if stationKentar ~= nil and stationKentar:isValid() then
 			primary_station = stationKentar
 		end
 	elseif region_station == stationLafrina then
---		print("Lafrina")
 		region_stations = lafrina_stations
 		if stationLafrina ~= nil and stationLafrina:isValid() then
 			primary_station = stationLafrina
 		end
 	elseif region_station == stationTeresh then
---		print("Teresh")
 		region_stations = teresh_stations
 		if stationTeresh ~= nil and stationTeresh:isValid() then
 			primary_station = stationTeresh
 		end
 	elseif region_station == stationAstron then
---		print("Astron")
 		--not enough stations to warrant commercial traffic
 		if stationAstron ~= nil and stationAstron:isValid() then
 			primary_station = stationAstron
 		end
+	elseif region_station == stationBask then
+		region_stations = bask_stations
+		if stationBask ~= nil and stationBask:isValid() then
+			primary_station = stationBask
+		end
 	end
+	return region_stations, primary_station
+end
+function regionCommerceDestination(ship,region_station)
+--	print("in region commerce destination:",ship:getCallSign(),region_station:getCallSign())
+	local station_pool = {}
+	local avoid_commerce = {
+		stationKeyhole23, stationHarriet, stationHelena, stationVilairre, stationRespite
+	}
+	local region_stations, primary_station = getRegionStations(region_station)
 	if #region_stations > 0 then
 		for index, station in ipairs(region_stations) do
 			if station ~= nil and station:isValid() then
-				if station:isFriendly(ship) and not station:isEnemy(ship) then
+				if not station:isEnemy(ship) then
+					local avoid = false
 					if ship.commerce_target ~= nil then
 						if station ~= ship.commerce_target then
-							if station ~= stationKeyhole23 then
+							for _, avoid_station in pairs(avoid_commerce) do
+								if station == avoid_station then
+									avoid = true
+									break
+								end
+							end
+							if not avoid then
 								table.insert(station_pool,station)
 							end
 						end
 					elseif ship.commerce_origin ~= nil then
 						if station ~= ship.commerce_origin then
-							if station ~= stationKeyhole23 then
+							for _, avoid_station in pairs(avoid_commerce) do
+								if station == avoid_station then
+									avoid = true
+									break
+								end
+							end
+							if not avoid then
 								table.insert(station_pool,station)
 							end
 						end
 					else
-						if station ~= stationKeyhole23 then
+						for _, avoid_station in pairs(avoid_commerce) do
+							if station == avoid_station then
+								avoid = true
+								break
+							end
+						end
+						if not avoid then
 							table.insert(station_pool,station)
 						end
 					end
@@ -3682,6 +3985,8 @@ function regionCommerceDestination(ship,region_station)
 	end
 	if primary_station ~= nil then
 		table.insert(station_pool,primary_station)
+	else
+		primary_station = stationIcarus
 	end
 --	print("station pool count:",#station_pool)
 	ship.commerce_target = tableRemoveRandom(station_pool)
@@ -3704,7 +4009,7 @@ function regionCommerceDestination(ship,region_station)
 			print("ship commerce origin:",ship.commerce_origin:getCallSign())
 		end
 		if ship.commerce_origin == nil then
-			ship.commerce_origin = stationIcarus
+			ship.commerce_origin = primary_station
 		end
 	end
 end
@@ -5449,6 +5754,9 @@ function setDefaultPlayerSpawnPoint()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-From Plyr Spwn Pt",setStartRegion)
+	local region_group_1 = {
+		"Icarus", "Kentar", "Lafrina", "Teresh", "Astron", "Bask"
+	}
 	for i=1,#universe.available_regions do
 		local region=universe.available_regions[i]
 		local has_been_created=universe:hasRegionSpawned(region)
@@ -5456,15 +5764,59 @@ function setDefaultPlayerSpawnPoint()
 		if startRegion==region.name then
 			button_name=button_name .. "*"
 		end
-		addGMFunction(button_name, function()
-			playerSpawnX=region.spawn_x
-			playerSpawnY=region.spawn_y
-			if not has_been_created then
-				universe:spawnRegion(region)
+		local found_in_group_1 = false
+		for _, group_1 in ipairs(region_group_1) do
+			if string.find(button_name,group_1) then
+				found_in_group_1 = true
 			end
-			startRegion=region.name
-			setDefaultPlayerSpawnPoint()
-		end)
+		end
+		if found_in_group_1 then
+			addGMFunction(button_name, function()
+				playerSpawnX=region.spawn_x
+				playerSpawnY=region.spawn_y
+				if not has_been_created then
+					universe:spawnRegion(region)
+				end
+				startRegion=region.name
+				setDefaultPlayerSpawnPoint()
+			end)
+		end
+	end
+	addGMFunction("+Other Regions",setDefaultPlayerSpawnPointsInOtherRegions)
+end
+function setDefaultPlayerSpawnPointsInOtherRegions()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Start Region",setStartRegion)
+	addGMFunction("-Player Spawn Point",setDefaultPlayerSpawnPoint)
+	local region_group_2 = {
+		"Eris", "Santa"
+	}
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local has_been_created=universe:hasRegionSpawned(region)
+		local button_name=region.name
+		if startRegion==region.name then
+			button_name=button_name .. "*"
+		end
+		local found_in_group_2 = false
+		for _, group_1 in ipairs(region_group_2) do
+			if string.find(button_name,group_1) then
+				found_in_group_2 = true
+			end
+		end
+		if found_in_group_2 then
+			addGMFunction(button_name, function()
+				playerSpawnX=region.spawn_x
+				playerSpawnY=region.spawn_y
+				if not has_been_created then
+					universe:spawnRegion(region)
+				end
+				startRegion=region.name
+				setDefaultPlayerSpawnPoint()
+			end)
+		end
 	end
 end
 -----------------------------------------------
@@ -8492,6 +8844,9 @@ function createKentarOrbitingAsteroids()
     }
     for i=1,#asteroid_details do
     	local static_asteroid = Asteroid():setPosition(asteroid_details[i][1],asteroid_details[i][2]):setSize(asteroid_details[i][3])
+--		if distance_diagnostic then
+--			print("distance_diagnostic 5 static_asteroid:",static_asteroid,"planet_rigil:",planet_rigil)
+--		end
     	local orbit_distance = distance(static_asteroid,planet_rigil)
     	local s_orbit = .8
     	local f_orbit = 1.5
@@ -8558,6 +8913,9 @@ function createKentarOrbitingAsteroids()
     }
     for i=1,#asteroid_details do
     	local static_asteroid = Asteroid():setPosition(asteroid_details[i][1],asteroid_details[i][2]):setSize(asteroid_details[i][3])
+--		if distance_diagnostic then
+--			print("distance_diagnostic 6 damage_list[i]:",damage_list[i],"x:",x,"y:",y,"i:",i)
+--		end
     	local orbit_distance = distance(static_asteroid,planet_rigil)
     	local s_orbit = 1.1
     	local f_orbit = 1.7
@@ -12361,25 +12719,28 @@ function createBaskPlanets()
 	magnasol_x = 1058938
 	magnasol_y = 260657
 	planet_magnasol_star = Planet():setPosition(magnasol_x, magnasol_y):setPlanetRadius(2700):setDistanceFromMovementPlane(-1200):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(.6,.6,1):setCallSign("Magnasol")
+	planet_magnasol_star:setRadarSignatureInfo(.95,.5,.01)
 	table.insert(planet_list,planet_magnasol_star)
 	local colburn_angle = random(0,360)
 	colburn_radius = 1600
 	local colburn_x, colburn_y = vectorFromAngle(colburn_angle,distance(magnasol_x, magnasol_y, 992967, 259826))
 	planet_colburn = Planet():setPosition(magnasol_x + colburn_x, magnasol_y + colburn_y):setPlanetRadius(colburn_radius):setDistanceFromMovementPlane(-800):setPlanetCloudTexture("planets/clouds-3.png")
 	planet_colburn:setPlanetSurfaceTexture("planets/planet-5.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.3,0.1,0.1)
-	planet_colburn:setCallSign("Colburn"):setOrbit(planet_magnasol_star,500)
+	planet_colburn:setCallSign("Colburn"):setOrbit(planet_magnasol_star,500):setAxialRotationTime(350)
 	table.insert(planet_list,planet_colburn)
 	local argyle_x, argyle_y = vectorFromAngle((colburn_angle + random(120,240)) % 360,distance(magnasol_x, magnasol_y, 956076, 260158))
 	planet_argyle = Planet():setPosition(magnasol_x + argyle_x, magnasol_y + argyle_y):setPlanetRadius(3200):setDistanceFromMovementPlane(-1000):setPlanetCloudTexture("planets/clouds-2.png")
 	planet_argyle:setPlanetSurfaceTexture("planets/planet-4.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.6,0.3,0.1)
-	planet_argyle:setCallSign("Argyle"):setOrbit(planet_magnasol_star,500)
+	planet_argyle:setCallSign("Argyle"):setOrbit(planet_magnasol_star,5000):setAxialRotationTime(700)
 	table.insert(planet_list,planet_argyle)
 	local morningstar_x, morningstar_y = vectorFromAngle(random(0,360),3500)
 	morningstar_radius = 900
 	planet_morningstar_moon = Planet():setPosition(magnasol_x + colburn_x + morningstar_x, magnasol_y + colburn_y + morningstar_y):setPlanetRadius(morningstar_radius):setDistanceFromMovementPlane(-700)
 	planet_morningstar_moon:setPlanetSurfaceTexture("planets/moon-3.png")
-	planet_morningstar_moon:setCallSign("Morningstar"):setOrbit(planet_colburn,20)
+	planet_morningstar_moon:setCallSign("Morningstar"):setOrbit(planet_colburn,20):setAxialRotationTime(200)
 	table.insert(planet_list,planet_morningstar_moon)
+	updateMagnasol = updateMagnasolCollision
+	return planet_list
 end
 function createBaskAsteroids()
 	local asteroid_list = {}
@@ -12461,7 +12822,7 @@ function createBaskAsteroids()
 	table.insert(asteroid_list,Asteroid():setPosition(1056068, 295793):setSize(432))
 	table.insert(asteroid_list,Asteroid():setPosition(1056635, 288988):setSize(157))
 	table.insert(asteroid_list,Asteroid():setPosition(1057392, 291823):setSize(56))
-	table.insert(asteroid_list,Asteroid():setPosition(1051910, 292768):setSize(316))
+	table.insert(asteroid_list,Asteroid():setPosition(1050801, 293649):setSize(316))
 	table.insert(asteroid_list,Asteroid():setPosition(1052132, 289686):setSize(238))
 	--	near Arlenians
 	table.insert(asteroid_list,Asteroid():setPosition(1082508, 287871):setSize(343))
@@ -12586,6 +12947,9 @@ function createBaskNebulae()
 	for _, neb in ipairs(nebula_list) do
 		neb.fixed = true
 		local neb_x, neb_y = neb:getPosition()
+		if distance_diagnostic then
+			print("distance_diagnostic 8 magnasol_x:",magnasol_x,"magnasol_y:",magnasol_y,"neb_x:",neb_x,"neb_y:",neb_y)
+		end
 		neb.magnasol_dist = distance(magnasol_x, magnasol_y, neb_x, neb_y)
 		neb.exit_angle = angleFromVectorNorth(neb_x, neb_y, magnasol_x, magnasol_y)
 		neb.right_turn = (neb.exit_angle + 90) % 360
@@ -12605,6 +12969,9 @@ function createBaskNebulae()
 		end
 		local travel_angle = (neb.start_angle + random(0,neb.arc)) % 360
 		local travel_distance = random(neb.magnasol_dist,190000)
+		if magnasol_nebula_diagnostic then
+			travel_distance = 195000
+		end
 		local tn_x, tn_y = vectorFromAngleNorth(travel_angle,travel_distance)
 		local travel_neb = Nebula():setPosition(magnasol_x + tn_x, magnasol_y + tn_y)
 		travel_neb.travel_angle = travel_angle
@@ -12651,6 +13018,42 @@ function createBaskStations()
 	if selected_remote_warp_jammer ~= nil then
 		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
 	end
+	--	Respite
+	--		update_system:addOrbitTargetUpdate(stationHarriet,planet_ursid,4500,23*2*math.pi,0)
+	stationRespite = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Respite"):setDescription("Obervatory"):setCommsScript(""):setCommsFunction(commsStation)
+    stationRespite:setShortRangeRadarRange(5000)
+	update_system:addOrbitTargetUpdate(stationRespite,planet_argyle,4500,230*2*math.pi,0)
+    stationRespite.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	autodoc =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We study the effects of Magnasol on Argyle",
+    	history = "The plants show an unusually high mutation rate. We are trying to determine if it's Magnasol's energy, the streams of exotic material or some other combination that's impacting the ecology.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 14 then stationRespite:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationRespite:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationRespite:setSharesEnergyWithDocked(false) end
+	station_names[stationRespite:getCallSign()] = {stationRespite:getSectorName(), stationRespite}
+	table.insert(stations,stationRespite)
 	--	Element
 	--local elementZone = squareZone(976289, 247837, "Element")
 	--elementZone:setColor(51,153,255):setLabel("E")
@@ -12662,10 +13065,8 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        probe_launch_repair =	random(1,100) < 63,
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<30,
-        scan_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<30,
         jump_overcharge =		random(1,100)<30,
         probe_launch_repair =	random(1,100)<30,
@@ -12706,10 +13107,8 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,6), 	HVLI = math.random(2,5),	Mine = math.random(2,6),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        probe_launch_repair =	random(1,100) < 43,
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<20,
-        scan_repair =			random(1,100)<40,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<36,
         probe_launch_repair =	random(1,100)<42,
@@ -12752,10 +13151,8 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,5),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        probe_launch_repair =	random(1,100) < 63,
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<30,
-        scan_repair =			random(1,100)<20,
         tube_slow_down_repair = random(1,100)<54,
         jump_overcharge =		random(1,100)<66,
         probe_launch_repair =	random(1,100)<32,
@@ -12797,10 +13194,8 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,4),	Nuke = math.random(12,19),	EMP = math.random(9,25) },
         weapon_available = 	{Homing = random(1,100) <= 50,	HVLI = random(1,100) <= 40,	Mine = random(1,100) <= 30,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 60},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        probe_launch_repair =	random(1,100) < 63,
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<50,
-        scan_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<64,
         jump_overcharge =		random(1,100)<26,
         probe_launch_repair =	random(1,100)<72,
@@ -12844,10 +13239,8 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,6),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 50,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 20},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        probe_launch_repair =	random(1,100) < 43,
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<55,
-        scan_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<66,
         probe_launch_repair =	random(1,100)<42,
@@ -12874,35 +13267,1274 @@ function createBaskStations()
 	if random(1,100) <= 15 then stationSpunk:setSharesEnergyWithDocked(false) end
 	station_names[stationSpunk:getCallSign()] = {stationSpunk:getSectorName(), stationSpunk}
 	table.insert(stations,stationSpunk)
-	
-	
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS4414"):setPosition(981204, 262204))
-	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("DS368"):setPosition(1031485, 265802))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS393"):setPosition(1054941, 292713))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS893"):setPosition(1083220, 287022))
-	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS381"):setPosition(1085801, 219705))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("DS741"):setPosition(1079114, 234259))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("DS394"):setPosition(1072852, 295443))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("DS602"):setPosition(1033617, 301079))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("DS1180"):setPosition(1089901, 276132))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS748"):setPosition(1078260, 277446))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS1037"):setPosition(1045129, 297646))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS1324"):setPosition(1026057, 295757))
-	table.insert(stations,SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS1467"):setPosition(1050906, 230994))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("DS1610"):setPosition(1047774, 222642))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("DS447"):setPosition(1094040, 239383))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("DS940"):setPosition(1115305, 200083))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("DS653"):setPosition(1096902, 274759))
-    table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("DS1081"):setPosition(993168, 304300))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("DS795"):setPosition(1016527, 294144))
-	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("DS1222"):setPosition(1059157, 298936))
+	--	Butte
+	--local butteZone = squareZone(981204, 262204, "Butte")
+	--butteZone:setColor(51,153,255):setLabel("B")
+	stationButte = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Butte"):setPosition(981204, 262204):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationButte:setShortRangeRadarRange(5500)
+	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+    stationButte.comms_data = {
+    	friendlyness = 81,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 50,	Mine = random(1,100) <= 80,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        remote_warp_jammer = selected_remote_warp_jammer,
+        hack_repair =			random(1,100)<55,
+        tube_slow_down_repair = random(1,100)<34,
+        jump_overcharge =		random(1,100)<66,
+        probe_launch_repair =	random(1,100)<42,
+        scan_repair =			random(1,100)<57,
+        self_destruct_repair =	random(1,100)<36,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			impulse =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 42, luxury = random(1,100) < 35 },
+        public_relations = true,
+        general_information = "We're just your friendly neighborhood miners, looking for the next major mineral discovery.",
+    	history = "Our mining station is named after the mining town established in the late 1800s on Earth on the North American continent",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 11 then stationButte:setRestocksScanProbes(false) end
+	if random(1,100) <= 12 then stationButte:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationButte:setSharesEnergyWithDocked(false) end
+	station_names[stationButte:getCallSign()] = {stationButte:getSectorName(), stationButte}
+	table.insert(stations,stationButte)
+	--	Pillia
+	--local pilliaZone = squareZone(1031485, 265802, "Pillia")
+	--pilliaZone:setColor(51,153,255):setLabel("B")
+	stationPillia = SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("Pillia"):setPosition(1031485, 265802):setDescription("Mining and Research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationPillia:setShortRangeRadarRange(5500)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationPillia.comms_data = {
+    	friendlyness = 51,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 50,	HVLI = random(1,100) <= 60,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<55,
+        tube_slow_down_repair = random(1,100)<34,
+        jump_overcharge =		random(1,100)<66,
+        probe_launch_repair =	random(1,100)<42,
+        scan_repair =			random(1,100)<37,
+        self_destruct_repair =	random(1,100)<26,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.2},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	nickel = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			warp =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 42, luxury = random(1,100) < 35 },
+        public_relations = true,
+        general_information = "The minerals and energy in this area are fascinating to us.",
+    	history = "We established this mining and research facility shortly after receiving information about the properties of the asteroids and the energy emanating from Magnolia. Numerous advances in our scientific knowledge have come as a direct result of the research being conducted here.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Cucaracha",
+			DF5 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 16 then stationPillia:setRestocksScanProbes(false) end
+	if random(1,100) <= 12 then stationPillia:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationPillia:setSharesEnergyWithDocked(false) end
+	station_names[stationPillia:getCallSign()] = {stationPillia:getSectorName(), stationPillia}
+	table.insert(stations,stationPillia)
+	--	Milornden
+	--local milorndenZone = squareZone(1054941, 292713, "Milornden")
+	--milorndenZone:setColor(51,153,255):setLabel("M")
+	stationMilornden = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Milornden"):setPosition(1054941, 292713):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMilornden:setShortRangeRadarRange(5500)
+	selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+    stationMilornden.comms_data = {
+    	friendlyness = 61,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 60,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost_probes = selected_sensor_probe,
+        hack_repair =			random(1,100)<75,
+        scan_repair =			random(1,100)<50,
+        tube_slow_down_repair = random(1,100)<84,
+        jump_overcharge =		random(1,100)<66,
+        probe_launch_repair =	random(1,100)<32,
+        self_destruct_repair =	random(1,100)<26,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.3},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.75 },
+        goods = {	dilithium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			robotic =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 22, medicine = random(1,100) < 36, luxury = random(1,100) < 45 },
+        public_relations = true,
+        general_information = "The minerals here are incredible! These asteroids are loaded. This mining facility has yielded the largest supply of exotic metals ever recorded.",
+    	history = "This station was established with the second wave of mining stations arriving in the area. By this time, word had spread far and wide about the mining possibilities here.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 11 then stationMilornden:setRestocksScanProbes(false) end
+	if random(1,100) <= 12 then stationMilornden:setRepairDocked(false) end
+	if random(1,100) <= 15 then stationMilornden:setSharesEnergyWithDocked(false) end
+	station_names[stationMilornden:getCallSign()] = {stationMilornden:getSectorName(), stationMilornden}
+	table.insert(stations,stationMilornden)
+	--	Arleigna
+	--local arleignaZone = squareZone(1083220, 287022, "Arleigna")
+	--arleignaZone:setColor(51,153,255):setLabel("A")
+	stationArleigna = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Arleigna"):setPosition(1083220, 287022):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationArleigna:setShortRangeRadarRange(5500)
+	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+    stationArleigna.comms_data = {
+    	friendlyness = 71,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,4),	Mine = math.random(2,5),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        remote_warp_jammer = selected_remote_warp_jammer,
+        hack_repair =			random(1,100)<45,
+        scan_repair =			random(1,100)<60,
+        tube_slow_down_repair = random(1,100)<74,
+        jump_overcharge =		random(1,100)<26,
+        probe_launch_repair =	random(1,100)<52,
+        self_destruct_repair =	random(1,100)<36,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	tritanium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			lifter =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 22, medicine = random(1,100) < 32, luxury = random(1,100) < 55 },
+        public_relations = true,
+        general_information = "We mine minerals. We also host the occasional dance party",
+    	history = "The original sation founders were artisans looking for a more lucrative way of life. They've largely converted over to mining as their primary source of income, but some of their original traditions are still observed.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MT52 Hornet",
+			DF5 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 11 then stationArleigna:setRestocksScanProbes(false) end
+	if random(1,100) <= 12 then stationArleigna:setRepairDocked(false) end
+	if random(1,100) <= 13 then stationArleigna:setSharesEnergyWithDocked(false) end
+	station_names[stationArleigna:getCallSign()] = {stationArleigna:getSectorName(), stationArleigna}
+	table.insert(stations,stationArleigna)
+	--	Shanghai
+	--local shanghaiZone = squareZone(1094040, 239383, "Shanghai")
+	--shanghaiZone:setColor(0,128,0):setLabel("S")
+	stationShanghai = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Shanghai"):setPosition(1094040, 239383):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationShanghai:setShortRangeRadarRange(6500)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationShanghai.comms_data = {
+    	friendlyness = 77,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,5),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 27},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<25,
+        scan_repair =			random(1,100)<60,
+        tube_slow_down_repair = random(1,100)<74,
+        jump_overcharge =		random(1,100)<46,
+        probe_launch_repair =	random(1,100)<52,
+        self_destruct_repair =	random(1,100)<36,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	cobalt = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			transporter =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 45 },
+        public_relations = true,
+        general_information = "We gather energy from Magnasol and mine minerals from the nearby asteroids",
+    	history = "We plan to be the primary source of minerals and energy in this region and beyond. Our station is named after the Earth city where the largest volume of cargo shipping occurred during the early 21st century.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MT52 Hornet",
+			DF5 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 11 then stationShanghai:setRestocksScanProbes(false) end
+	if random(1,100) <= 12 then stationShanghai:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationShanghai:setSharesEnergyWithDocked(false) end
+	station_names[stationShanghai:getCallSign()] = {stationShanghai:getSectorName(), stationShanghai}
+	table.insert(stations,stationShanghai)
+	--	Hai Tac
+	--local haitacZone = squareZone(1115305, 200083, "Hai Tac")
+	--haitacZone:setColor(0,128,0):setLabel("H")
+	stationHaiTac = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Hai Tac"):setPosition(1115305, 200083):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationHaiTac:setShortRangeRadarRange(6000)
+	selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+    stationHaiTac.comms_data = {
+    	friendlyness = 37,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,6), 	HVLI = math.random(2,6),	Mine = math.random(3,8),	Nuke = math.random(12,16),	EMP = math.random(8,14) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 27},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost_probes = selected_sensor_probe,
+        hack_repair =			random(1,100)<55,
+        scan_repair =			random(1,100)<60,
+        tube_slow_down_repair = random(1,100)<54,
+        jump_overcharge =		random(1,100)<46,
+        probe_launch_repair =	random(1,100)<22,
+        self_destruct_repair =	random(1,100)<16,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	gold = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			tractor =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 22, luxury = random(1,100) < 45 },
+        public_relations = true,
+        general_information = "We mine stuff. Buy from us or else.",
+    	history = "Our station is named after the archipelago on Earth, a resting place for weary travelers.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MT52 Hornet",
+			DF5 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 31 then stationHaiTac:setRestocksScanProbes(false) end
+	if random(1,100) <= 12 then stationHaiTac:setRepairDocked(false) end
+	if random(1,100) <= 21 then stationHaiTac:setSharesEnergyWithDocked(false) end
+	station_names[stationHaiTac:getCallSign()] = {stationHaiTac:getSectorName(), stationHaiTac}
+	table.insert(stations,stationHaiTac)
+	--	Promethean
+	--local prometheanZone = squareZone(1096902, 274759, "Promethean")
+	--prometheanZone:setColor(0,128,0):setLabel("P")
+	stationPromethean = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Promethean"):setPosition(1096902, 274759):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationPromethean:setShortRangeRadarRange(6500)
+	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+    stationPromethean.comms_data = {
+    	friendlyness = 57,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,3),	Mine = math.random(2,7),	Nuke = math.random(14,17),	EMP = math.random(8,17) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        remote_warp_jammer = selected_remote_warp_jammer,
+        hack_repair =			random(1,100)<55,
+        scan_repair =			random(1,100)<60,
+        tube_slow_down_repair = random(1,100)<74,
+        jump_overcharge =		random(1,100)<46,
+        probe_launch_repair =	random(1,100)<32,
+        self_destruct_repair =	random(1,100)<26,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	platinum = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			optic =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 26, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "We mine the nearby asteroids for exotic minerals, some of which are created as a result of the energy output of Magnasol.",
+    	history = "Our station was named after several attempts to establish it resulted in destructive fires. We *will* steal the fire from Magnasol.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MT52 Hornet",
+			DF5 = "Nirvana R5A",
+			DF6 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 21 then stationPromethean:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationPromethean:setRepairDocked(false) end
+	if random(1,100) <= 14 then stationPromethean:setSharesEnergyWithDocked(false) end
+	station_names[stationPromethean:getCallSign()] = {stationPromethean:getSectorName(), stationPromethean}
+	table.insert(stations,stationPromethean)
+	--	Oberon
+	--local oberonZone = squareZone(993168, 304300, "Oberon")
+	--oberonZone:setColor(0,128,0):setLabel("O")
+	stationOberon = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Oberon"):setPosition(993168, 304300):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationOberon:setShortRangeRadarRange(7000)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationOberon.comms_data = {
+    	friendlyness = 67,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,18),	EMP = math.random(9,17) },
+        weapon_available = 	{Homing = random(1,100) <= 55,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<35,
+        scan_repair =			random(1,100)<50,
+        tube_slow_down_repair = random(1,100)<74,
+        jump_overcharge =		random(1,100)<66,
+        probe_launch_repair =	random(1,100)<22,
+        self_destruct_repair =	random(1,100)<36,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	dilithium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			repulsor =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 36, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "We are miners by trade, though we several members of our community dabble in other things.",
+    	history = "We named our station after the mythical Oberon: handome in bearing, small in stature and king of the fairies. We will tame the Magnasol fairy fire",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Phobos T3",
+			DF5 = "Nirvana R5A",
+			DF6 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 11 then stationOberon:setRestocksScanProbes(false) end
+	if random(1,100) <= 18 then stationOberon:setRepairDocked(false) end
+	if random(1,100) <= 14 then stationOberon:setSharesEnergyWithDocked(false) end
+	station_names[stationOberon:getCallSign()] = {stationOberon:getSectorName(), stationOberon}
+	table.insert(stations,stationOberon)
+	--	Tall Table
+	--local talltableZone = squareZone(1016527, 294144, "Tall Table")
+	--talltableZone:setColor(0,128,0):setLabel("T")
+	stationTallTable = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Tall Table"):setPosition(1016527, 294144):setDescription("Mining and recreation"):setCommsScript(""):setCommsFunction(commsStation)
+    stationTallTable:setShortRangeRadarRange(5500)
+	selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+    stationTallTable.comms_data = {
+    	friendlyness = 87,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,4), 	HVLI = math.random(1,4),	Mine = math.random(1,9),	Nuke = math.random(16,21),	EMP = math.random(8,13) },
+        weapon_available = 	{Homing = random(1,100) <= 55,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost_probes = selected_sensor_probe,
+        hack_repair =			random(1,100)<65,
+        scan_repair =			random(1,100)<50,
+        tube_slow_down_repair = random(1,100)<24,
+        jump_overcharge =		random(1,100)<36,
+        probe_launch_repair =	random(1,100)<72,
+        self_destruct_repair =	random(1,100)<46,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.25},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	tritanium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			nanites =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 16, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "We pick the fruits of these asteroids and share the bounty with our neighbors.",
+    	history = "We started off as a place to rest and get a drink, but found that the mining paid the bills better. Yet, we still provide accomodations and the occasional meal for travelers.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK8",
+			DF5 = "Nirvana R5A",
+			DF6 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 11 then stationTallTable:setRestocksScanProbes(false) end
+	if random(1,100) <= 13 then stationTallTable:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationTallTable:setSharesEnergyWithDocked(false) end
+	station_names[stationTallTable:getCallSign()] = {stationTallTable:getSectorName(), stationTallTable}
+	table.insert(stations,stationTallTable)
+	--	Jealous Juncture
+	--local jealousjunctureZone = squareZone(1059157, 298936, "Jealous Juncture")
+	--jealousjunctureZone:setColor(0,128,0):setLabel("J")
+	stationJealousJuncture = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Jealous Juncture"):setPosition(1059157, 298936):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationJealousJuncture:setShortRangeRadarRange(4500)
+	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+    stationJealousJuncture.comms_data = {
+    	friendlyness = 67,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,5),	Mine = math.random(2,7),	Nuke = math.random(13,16),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        remote_warp_jammer = selected_remote_warp_jammer,
+        hack_repair =			random(1,100)<25,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<64,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<42,
+        self_destruct_repair =	random(1,100)<76,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	nickel =		{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			communication =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 26, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "We harvest minerals, especially the exotic ones resulting from the Magnasol radiation.",
+    	history = "When we first arrived there was some contention over this location. Eventually, the other faction moved to a different location, but they still wish they had this location. Based on that history, we named our station Jealous Juncture.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK8",
+			DF5 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 15 then stationJealousJuncture:setRestocksScanProbes(false) end
+	if random(1,100) <= 19 then stationJealousJuncture:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationJealousJuncture:setSharesEnergyWithDocked(false) end
+	station_names[stationJealousJuncture:getCallSign()] = {stationJealousJuncture:getSectorName(), stationJealousJuncture}
+	table.insert(stations,stationJealousJuncture)
+	--	Krowtok
+	--local krowtokZone = squareZone(1085801, 219705, "Krowtok")
+	--krowtokZone:setColor(128,0,0):setLabel("K")
+	stationKrowtok = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Krowtok"):setPosition(1085801, 219705):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationKrowtok:setShortRangeRadarRange(6500)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationKrowtok.comms_data = {
+    	friendlyness = 47,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,5),	Mine = math.random(2,7),	Nuke = math.random(13,16),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<25,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<64,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<42,
+        self_destruct_repair =	random(1,100)<76,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	cobalt =	{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			beam =		{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 36, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "[translated to the common Human trading language] We mine asteroids and destroy our enemies.",
+    	history = "[translated to the common Human trading language] Krowtok means 'tooth of the fierce lizard monster.' We give this token as a rite of passage to young adults and for special occasions. This station represents a significant achievement.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK8",
+			DF5 = "Nirvana R5A",
+			DF6 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 35 then stationKrowtok:setRestocksScanProbes(false) end
+	if random(1,100) <= 25 then stationKrowtok:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationKrowtok:setSharesEnergyWithDocked(false) end
+	station_names[stationKrowtok:getCallSign()] = {stationKrowtok:getSectorName(), stationKrowtok}
+	table.insert(stations,stationKrowtok)
+	--	Taklor
+	--local taklorZone = squareZone(1079114, 234259, "Taklor")
+	--taklorZone:setColor(128,0,0):setLabel("T")
+	stationTaklor = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Taklor"):setPosition(1079114, 234259):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationTaklor:setShortRangeRadarRange(4500)
+	selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+    stationTaklor.comms_data = {
+    	friendlyness = 37,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost_probes = selected_sensor_probe,
+        hack_repair =			random(1,100)<25,
+        scan_repair =			random(1,100)<70,
+        tube_slow_down_repair = random(1,100)<44,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<62,
+        self_destruct_repair =	random(1,100)<36,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	gold =		{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			shield =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 46, medicine = random(1,100) < 32, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "[translated to the common Human trading language] We destroy our enemies and mine asteroids",
+    	history = "[translated to the common Human trading language] Taklor means 'talon of the stealthy bird of prey.' This symolizes unwavering ambition against all odds.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK8",
+			DF5 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 13 then stationTaklor:setRestocksScanProbes(false) end
+	if random(1,100) <= 25 then stationTaklor:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationTaklor:setSharesEnergyWithDocked(false) end
+	station_names[stationTaklor:getCallSign()] = {stationTaklor:getSectorName(), stationTaklor}
+	table.insert(stations,stationTaklor)
+	--	Nexus-47
+	--local nexus47Zone = squareZone(1072852, 295443, "Nexus-47")
+	--nexus47Zone:setColor(128,0,0):setLabel("N")
+	stationNexus47 = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Nexus-47"):setPosition(1072852, 295443):setDescription("Mining and coordination"):setCommsScript(""):setCommsFunction(commsStation)
+    stationNexus47:setShortRangeRadarRange(5500)
+	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+    stationNexus47.comms_data = {
+    	friendlyness = 57,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        remote_warp_jammer = selected_remote_warp_jammer,
+        hack_repair =			random(1,100)<65,
+        scan_repair =			random(1,100)<70,
+        tube_slow_down_repair = random(1,100)<44,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<22,
+        self_destruct_repair =	random(1,100)<36,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	platinum =	{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			software =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 27, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "We mine for metals and silicates among these asteroids.",
+    	history = "This region drew us to it due to its unusual energy combined with ripe mining zones. We coordinate the mining efforts here.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK8",
+			DF5 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 13 then stationNexus47:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationNexus47:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationNexus47:setSharesEnergyWithDocked(false) end
+	station_names[stationNexus47:getCallSign()] = {stationNexus47:getSectorName(), stationNexus47}
+	table.insert(stations,stationNexus47)
+	--	Source
+	--local sourceZone = squareZone(1033617, 301079, "Source")
+	--sourceZone:setColor(128,0,0):setLabel("S")
+	stationSource = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Source"):setPosition(1033617, 301079):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSource:setShortRangeRadarRange(6500)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationSource.comms_data = {
+    	friendlyness = 57,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 85,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<65,
+        scan_repair =			random(1,100)<70,
+        tube_slow_down_repair = random(1,100)<44,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<42,
+        self_destruct_repair =	random(1,100)<56,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	nickel =	{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			robotic =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 17, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "We mine for metals and specialized energy.",
+    	history = "We are the source for minerals, energy, code, artificial intelligence and whatever else is needed.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK8",
+			DF5 = "Prador",
+    	},
+	}
+	if random(1,100) <= 13 then stationSource:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationSource:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationSource:setSharesEnergyWithDocked(false) end
+	station_names[stationSource:getCallSign()] = {stationSource:getSectorName(), stationSource}
+	table.insert(stations,stationSource)
+	--	Splice
+	--local spliceZone = squareZone(1089901, 276132, "Splice")
+	--spliceZone:setColor(128,0,0):setLabel("X")
+	stationSplice = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Splice"):setPosition(1089901, 276132):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSplice:setShortRangeRadarRange(7500)
+	selected_sensor_probe = sensor_probe_list[math.random(1,#sensor_probe_list + 1)]
+	if selected_sensor_probe ~= nil then
+		selected_sensor_probe = {name = selected_sensor_probe.name, cost = math.random(selected_sensor_probe.cost_lo,selected_sensor_probe.cost_hi), quantity = math.random(selected_sensor_probe.quantity_lo,selected_sensor_probe.quantity_hi), speed = selected_sensor_probe.speed, boost = selected_sensor_probe.boost, range = selected_sensor_probe.range}
+	end
+    stationSplice.comms_data = {
+    	friendlyness = 67,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        sensor_boost_probes = selected_sensor_probe,
+        hack_repair =			random(1,100)<65,
+        scan_repair =			random(1,100)<70,
+        tube_slow_down_repair = random(1,100)<34,
+        jump_overcharge =		random(1,100)<26,
+        probe_launch_repair =	random(1,100)<42,
+        self_destruct_repair =	random(1,100)<56,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.6 },
+        goods = {	dilithium =	{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			android =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 17, medicine = random(1,100) < 12, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "We mine for minerals, energy and exotic metals.",
+    	history = "Our directive is to splice into this rich vein of resources.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK8",
+			DF5 = "Prador",
+    	},
+	}
+	if random(1,100) <= 23 then stationSplice:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationSplice:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationSplice:setSharesEnergyWithDocked(false) end
+	station_names[stationSplice:getCallSign()] = {stationSplice:getSectorName(), stationSplice}
+	table.insert(stations,stationSplice)
+	--	Adephaga
+	--local adephagaZone = squareZone(1078260, 277446, "Adephaga")
+	--adephagaZone:setColor(128,0,0):setLabel("A")
+	stationAdephaga = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Adephaga"):setPosition(1078260, 277446):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationAdephaga:setShortRangeRadarRange(4500)
+	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
+	if selected_remote_warp_jammer ~= nil then
+		selected_remote_warp_jammer = {name = selected_remote_warp_jammer.name, cost = math.random(selected_remote_warp_jammer.cost_lo,selected_remote_warp_jammer.cost_hi), quantity = math.random(selected_remote_warp_jammer.quantity_lo,selected_remote_warp_jammer.quantity_hi), speed = selected_remote_warp_jammer.speed, warp_jam_range = selected_remote_warp_jammer.warp_jam_range}
+	end
+    stationAdephaga.comms_data = {
+    	friendlyness = 37,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        remote_warp_jammer = selected_remote_warp_jammer,
+        hack_repair =			random(1,100)<45,
+        scan_repair =			random(1,100)<70,
+        tube_slow_down_repair = random(1,100)<34,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<62,
+        self_destruct_repair =	random(1,100)<26,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.25},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	tritanium =	{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			circuit =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 17, medicine = random(1,100) < 32, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "[translated to the common Human trading language] We mine for minerals and energy",
+    	history = "[translated to the common Human trading language] The queen directed us to construct this station.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 13 then stationAdephaga:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationAdephaga:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationAdephaga:setSharesEnergyWithDocked(false) end
+	station_names[stationAdephaga:getCallSign()] = {stationAdephaga:getSectorName(), stationAdephaga}
+	table.insert(stations,stationAdephaga)
+	--	Archostemata
+	--local archostemataZone = squareZone(1045129, 297646, "Archostemata")
+	--archostemataZone:setColor(128,0,0):setLabel("A")
+	stationArchostemata = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Archostemata"):setPosition(1045129, 297646):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationArchostemata:setShortRangeRadarRange(5500)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationArchostemata.comms_data = {
+    	friendlyness = 27,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<45,
+        scan_repair =			random(1,100)<70,
+        tube_slow_down_repair = random(1,100)<64,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<32,
+        self_destruct_repair =	random(1,100)<26,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	cobalt =	{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			filament =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 17, medicine = random(1,100) < 32, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "[translated to the common Human trading language] We mine for minerals and energy.",
+    	history = "[translated to the common Human trading language] The queen directed us to construct this station.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 13 then stationArchostemata:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationArchostemata:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationArchostemata:setSharesEnergyWithDocked(false) end
+	station_names[stationArchostemata:getCallSign()] = {stationArchostemata:getSectorName(), stationArchostemata}
+	table.insert(stations,stationArchostemata)
+	--	Coleoptera
+	--local coleopteraZone = squareZone(1026057, 295757, "Coleoptera")
+	--coleopteraZone:setColor(128,0,0):setLabel("C")
+	stationColeoptera = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Coleoptera"):setPosition(1026057, 295757):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationColeoptera:setShortRangeRadarRange(5500)
+	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
+	if selected_fast_probe ~= nil then
+		selected_fast_probe = {name = selected_fast_probe.name, cost = math.random(selected_fast_probe.cost_lo,selected_fast_probe.cost_hi), quantity = math.random(selected_fast_probe.quantity_lo,selected_fast_probe.quantity_hi), speed = selected_fast_probe.speed}
+	end
+    stationColeoptera.comms_data = {
+    	friendlyness = 17,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
+        weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        fast_probes = selected_fast_probe,
+        hack_repair =			random(1,100)<45,
+        scan_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<64,
+        jump_overcharge =		random(1,100)<56,
+        probe_launch_repair =	random(1,100)<72,
+        self_destruct_repair =	random(1,100)<26,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	nickel =		{quantity = math.random(5,9),	cost = math.random(50,80)}, 
+        			transporter =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 17, medicine = random(1,100) < 32, luxury = random(1,100) < 25 },
+        public_relations = true,
+        general_information = "[translated to the common Human trading language] We mine for minerals and energy.",
+    	history = "[translated to the common Human trading language] The queen directed us to construct this station.",
+    	idle_defense_fleet = {
+			DF1 = "Phobos T3",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "Adder MK5",
+			DF5 = "Cucaracha",
+    	},
+	}
+	if random(1,100) <= 13 then stationColeoptera:setRestocksScanProbes(false) end
+	if random(1,100) <= 15 then stationColeoptera:setRepairDocked(false) end
+	if random(1,100) <= 11 then stationColeoptera:setSharesEnergyWithDocked(false) end
+	station_names[stationColeoptera:getCallSign()] = {stationColeoptera:getSectorName(), stationColeoptera}
+	table.insert(stations,stationColeoptera)
+	--	enemy stations
+	stationPegortamex = SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("Pegortamex"):setPosition(1050906, 230994):setCommsScript(""):setCommsFunction(commsStation)
+	table.insert(stations,stationPegortamex)
+	stationFetundotak = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Fetundotak"):setPosition(1047774, 222642):setCommsScript(""):setCommsFunction(commsStation)
+	table.insert(stations,stationFetundotak)
     return stations
+end
+function createBaskPatrols()
+	bask_patrol_fleets = {}
+	local patrol_ships = {}
+	local patrol_list = {
+		"Kraylor01",
+		"Kraylor02",
+		"Exuari01",
+		"Exuari02",		
+		"TSN01",		
+		"Ghosts01",		
+		"Ktlitans01",		
+		"Arlenians01",
+		"Ghosts02",
+		"CUF01",
+		"Arlenians02",
+		"Ktlitans02",
+		"Ghosts03",
+		"Ktlitans03",
+		"CUF02",
+		"TSN02",
+		"Independent01",
+		"Independent02",
+		"USN01",
+		"Independent03",
+		"Independent04",
+		"Independent05",
+		"USN02",
+		"Human01",
+		"Arlenians03",
+		"Independent06",
+	}
+	for _, patrol_name in ipairs(patrol_list) do
+		local patrol = createBaskPatrol(patrol_name)
+		if patrol ~= nil then
+			table.insert(bask_patrol_fleets,{name=patrol_name,ships=patrol})
+			for _, ship in ipairs(patrol) do
+				table.insert(patrol_ships,ship)
+			end
+		end
+	end
+	return patrol_ships
+end
+function createBaskPatrol(patrol_name)
+	local patrol = {}
+	local named_patrol = {
+		["Kraylor01"] = {
+			faction = "Kraylor",
+			station = stationKrowtok,
+			leader_template = "Cucaracha",
+			follower_template = "K3 Fighter",
+			formation_shape = "V",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1092506,	y = 219392},
+				{x = 1103038,	y = 238727},
+				{x = 1091113,	y = 242182},
+				{x = 1076347,	y = 234604},
+				{x = 1071172,	y = 228103},
+				{x = 1074118,	y = 212371},
+			}
+		},
+		["Kraylor02"] = {
+			faction = "Kraylor",
+			station = stationTaklor,
+			leader_template = "Blockade Runner",
+			follower_template = "Fighter",
+			formation_shape = "X",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = 1101966,	y = 228740},
+				{x = 1094513,	y = 231826},
+				{x = 1089045,	y = 231385},
+				{x = 1081548,	y = 234781},
+				{x = 1084768,	y = 220405},
+				{x = 1076389,	y = 218861},
+				{x = 1069157,	y = 228651},
+				{x = 1081548,	y = 234781},
+				{x = 1084768,	y = 220405},
+			}
+		},
+		["Exuari01"] = {
+			faction = "Exuari",
+			station = stationPegortamex,
+			leader_template = "Farco 11",
+			follower_template = "Fighter",
+			formation_shape = "Aac",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1057338,	y = 231554},
+				{x = 1039536,	y = 226590},
+				{x = 1042845,	y = 221397},
+				{x = 1045641,	y = 230470},
+				{x = 1051124,	y = 239636},
+			}
+		},
+		["Exuari02"] = {
+			faction = "Exuari",
+			station = stationFetundotak,
+			leader_template = "Cucaracha",
+			follower_template = "K2 Fighter",
+			formation_shape = "X",
+			formation_spacing = 900,
+			patrol_points = {
+				{x = 1046504,	y = 223196},
+				{x = 1057308,	y = 228469},
+				{x = 1046246,	y = 216889},
+				{x = 1059221,	y = 219319},
+				{x = 1050950,	y = 225677},
+			}
+		},
+		["TSN01"] = {
+			faction = "TSN",
+			station = stationPromethean,
+			leader_template = "Farco 5",
+			follower_template = "Fighter",
+			formation_shape = "Vac",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1093564,	y = 280916},
+				{x = 1096306,	y = 262811},
+				{x = 1107576,	y = 273068},
+				{x = 1096659,	y = 272882},
+				{x = 1088534,	y = 268706},
+				{x = 1092122,	y = 275037},
+			}
+		},
+		["Ghosts01"] = {
+			faction = "Ghosts",
+			station = stationSplice,
+			leader_template = "Cucaracha",
+			follower_template = "MT52 Hornet",
+			formation_shape = "Vac",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1090784,	y = 283754},
+				{x = 1089428,	y = 277545},
+				{x = 1088936,	y = 268354},
+				{x = 1080681,	y = 269981},
+				{x = 1089428,	y = 277545},
+				{x = 1098471,	y = 281537},
+			}
+		},
+		["Ktlitans01"] = {
+			faction = "Ktlitans",
+			station = stationAdephaga,
+			leader_template = "Ktlitan Destroyer",
+			follower_template = "K2 Fighter",
+			formation_shape = "V",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1077536,	y = 271763},
+				{x = 1081959,	y = 276421},
+				{x = 1078749,	y = 280726},
+				{x = 1075501,	y = 283740},
+				{x = 1069160,	y = 283114},
+				{x = 1070373,	y = 275716},
+			}
+		},
+		["Arlenians01"] = {
+			faction = "Arlenians",
+			station = stationArleigna,
+			leader_template = "Farco 5",
+			follower_template = "Fighter",
+			formation_shape = "Vac",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1081462,	y = 285257},
+				{x = 1085398,	y = 286227},
+				{x = 1089740,	y = 289921},
+				{x = 1082837,	y = 295098},
+				{x = 1080060,	y = 287899},
+			}
+		},
+		["Ghosts02"] = {
+			faction = "Ghosts",
+			station = stationNexus47,
+			leader_template = "Blockade Runner",
+			follower_template = "K3 Fighter",
+			formation_shape = "Xac",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = 1067949,	y = 281961},
+				{x = 1075024,	y = 288549},
+				{x = 1071907,	y = 293239},
+				{x = 1074780,	y = 300179},
+				{x = 1071907,	y = 293239},
+				{x = 1075024,	y = 288549},
+			}
+		},
+		["CUF01"] = {
+			faction = "CUF",
+			station = stationJealousJuncture,
+			leader_template = "Sentinel",
+			follower_template = "Fighter",
+			formation_shape = "V",
+			formation_spacing = 1200,
+			patrol_points = {
+				{x = 1062095,	y = 291436},
+				{x = 1055284,	y = 300037},
+				{x = 1065028,	y = 306400},
+				{x = 1048374,	y = 308439},
+				{x = 1055284,	y = 300037},
+			}
+		},
+		["Arlenians02"] = {
+			faction = "Arlenians",
+			station = stationMilornden,
+			leader_template = "K2 Breaker",
+			follower_template = "K2 Fighter",
+			formation_shape = "W",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1052609,	y = 302526},
+				{x = 1052920,	y = 296486},
+				{x = 1054726,	y = 291491},
+				{x = 1060987,	y = 288957},
+				{x = 1053199,	y = 284783},
+				{x = 1054726,	y = 291491},
+				{x = 1052920,	y = 296486},
+			}
+		},
+		["Ktlitans02"] = {
+			faction = "Ktlitans",
+			station = stationArchostemata,
+			leader_template = "Ktlitan Destroyer",
+			follower_template = "Fighter",
+			formation_shape = "X",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = 1041485,	y = 289564},
+				{x = 1043207,	y = 297454},
+				{x = 1046372,	y = 304692},
+				{x = 1043207,	y = 297454},
+			}
+		},
+		["Ghosts03"] = {
+			faction = "Ghosts",
+			station = stationSource,
+			leader_template = "Farco 11",
+			follower_template = "K3 Fighter",
+			formation_shape = "V",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = 1036085,	y = 306459},
+				{x = 1030525,	y = 305917},
+				{x = 1032720,	y = 301840},
+				{x = 1033804,	y = 298846},
+				{x = 1035971,	y = 296337},
+				{x = 1034602,	y = 292374},
+				{x = 1031836,	y = 295225},
+				{x = 1033804,	y = 298846},
+			}
+		},
+		["Ktlitans03"] = {
+			faction = "Ktlitans",
+			station = stationColeoptera,
+			leader_template = "Cucaracha",
+			follower_template = "Ktlitan Scout",
+			formation_shape = "V",
+			formation_spacing = 900,
+			patrol_points = {
+				{x = 1025358,	y = 304394},
+				{x = 1022067,	y = 301754},
+				{x = 1024996,	y = 295280},
+				{x = 1026588,	y = 292098},
+				{x = 1025394,	y = 289385},
+				{x = 1030204,	y = 291989},
+				{x = 1026588,	y = 292098},
+				{x = 1024996,	y = 295280},
+			}
+		},
+		["CUF02"] = {
+			faction = "CUF",
+			station = stationTallTable,
+			leader_template = "Blockade Runner",
+			follower_template = "Cucaracha",
+			formation_shape = "V",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1017917,	y = 302639},
+				{x = 1013121,	y = 299849},
+				{x = 1018147,	y = 293878},
+				{x = 1017917,	y = 288091},
+				{x = 1022343,	y = 289013},
+				{x = 1018147,	y = 293878},
+			}
+		},
+		["TSN02"] = {
+			faction = "TSN",
+			station = stationOberon,
+			leader_template = "Tempest",
+			follower_template = "Fighter",
+			formation_shape = "Xac",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 990516,	y = 311972},
+				{x = 987104,	y = 308238},
+				{x = 992764,	y = 302246},
+				{x = 993735,	y = 296850},
+				{x = 998639,	y = 301168},
+				{x = 995076,	y = 305832},
+			}
+		},
+		["Independent01"] = {
+			faction = "Independent",
+			station = stationLizzy,
+			leader_template = "Farco 11",
+			follower_template = "Fighter",
+			formation_shape = "V",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 989893,	y = 291122},
+				{x = 981340,	y = 291582},
+				{x = 982423,	y = 286440},
+				{x = 989738,	y = 286654},
+				{x = 991678,	y = 288768},
+			}
+		},
+		["Independent02"] = {
+			faction = "Independent",
+			station = stationSpunk,
+			leader_template = "Ktlitan Destroyer",
+			follower_template = "K3 Fighter",
+			formation_shape = "Vac",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 979617,	y = 279060},
+				{x = 972463,	y = 276041},
+				{x = 976992,	y = 271972},
+				{x = 980733,	y = 271381},
+				{x = 983161,	y = 273875},
+			}
+		},
+		["USN01"] = {
+			faction = "USN",
+			station = stationShanghai,
+			leader_template = "Farco 5",
+			follower_template = "K2 Fighter",
+			formation_shape = "V",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1097700,	y = 246733},
+				{x = 1090519,	y = 245350},
+				{x = 1095425,	y = 240800},
+				{x = 1102428,	y = 241603},
+			}
+		},
+		["Independent03"] = {
+			faction = "Independent",
+			station = stationButte,
+			leader_template = "Cucaracha",
+			follower_template = "Fighter",
+			formation_shape = "V",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 981242,	y = 261074},
+				{x = 971014,	y = 264340},
+				{x = 982032,	y = 254040},
+			}
+		},
+		["Independent04"] = {
+			faction = "Independent",
+			station = stationElement,
+			leader_template = "Guard",
+			follower_template = "MU52 Hornet",
+			formation_shape = "Aac4",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 968692,	y = 241948},
+				{x = 976885,	y = 246257},
+				{x = 982924,	y = 247316},
+				{x = 976885,	y = 246257},
+			}
+		},
+		["Independent05"] = {
+			faction = "Independent",
+			station = stationForward,
+			leader_template = "Ktlitan Destroyer",
+			follower_template = "K3 Fighter",
+			formation_shape = "V",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 975403,	y = 228371},
+				{x = 979635,	y = 231586},
+				{x = 983541,	y = 232481},
+				{x = 988952,	y = 231260},
+				{x = 983378,	y = 224872},
+			}
+		},
+		["USN02"] = {
+			faction = "USN",
+			station = stationHaiTac,
+			leader_template = "Ktlitan Destroyer",
+			follower_template = "K3 Fighter",
+			formation_shape = "X",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1107242,	y = 202049},
+				{x = 1115063,	y = 203035},
+				{x = 1117640,	y = 210139},
+				{x = 1110558,	y = 208256},
+			}
+		},
+		["Human01"] = {
+			faction = "Human Navy",
+			station = stationBask,
+			leader_template = "Dreadnought",
+			follower_template = "Fighter",
+			formation_shape = "X",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1029715,	y = 243974},
+				{x = 1028298,	y = 258481},
+				{x = 1024781,	y = 250812},
+				{x = 1010860,	y = 248370},
+			}
+		},
+		["Arlenians03"] = {
+			faction = "Arlenians",
+			station = stationPillia,
+			leader_template = "Cucaracha",
+			follower_template = "K2 Fighter",
+			formation_shape = "M",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 1030203,	y = 259947},
+				{x = 1034208,	y = 265808},
+				{x = 1024683,	y = 273428},
+				{x = 1029275,	y = 266297},
+			}
+		},
+		["Independent06"] = {
+			faction = "Independent",
+			station = stationTorch,
+			leader_template = "Farco 13",
+			follower_template = "MT52 Hornet",
+			formation_shape = "X8",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = 1005828,	y = 259751},
+				{x = 1007392,	y = 270449},
+				{x = 1012374,	y = 273624},
+				{x = 1019896,	y = 273331},
+				{x = 1016672,	y = 268495},
+			}
+		},
+	}
+	if named_patrol[patrol_name] ~= nil and named_patrol[patrol_name].station ~= nil and named_patrol[patrol_name].station:isValid() then
+		local leader_ship = ship_template[named_patrol[patrol_name].leader_template].create(named_patrol[patrol_name].faction,named_patrol[patrol_name].leader_template)
+		table.insert(patrol,leader_ship)
+		leader_ship.patrol_points = named_patrol[patrol_name].patrol_points
+		local fleet_prefix = generateCallSignPrefix()
+		local start_point = math.random(1,#leader_ship.patrol_points-1)
+		local next_point = start_point + 1
+		local prebuilt_fleet_x = leader_ship.patrol_points[start_point].x
+		local prebuilt_fleet_y = leader_ship.patrol_points[start_point].y
+		leader_ship:setPosition(prebuilt_fleet_x, prebuilt_fleet_y)
+		local first_patrol_point_x = leader_ship.patrol_points[next_point].x
+		local first_patrol_point_y = leader_ship.patrol_points[next_point].y
+		local prebuilt_angle = angleFromVectorNorth(first_patrol_point_x,first_patrol_point_y,prebuilt_fleet_x,prebuilt_fleet_y)
+		leader_ship:setHeading(prebuilt_angle)
+		leader_ship.formation_ships = {}
+		for _, form in ipairs(fly_formation[named_patrol[patrol_name].formation_shape]) do
+			local ship = ship_template[named_patrol[patrol_name].follower_template].create(named_patrol[patrol_name].faction,named_patrol[patrol_name].follower_template)
+			table.insert(patrol,ship)
+			local form_x, form_y = vectorFromAngleNorth(prebuilt_angle + form.angle, form.dist * named_patrol[patrol_name].formation_spacing)
+			local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * named_patrol[patrol_name].formation_spacing)
+			ship:setPosition(prebuilt_fleet_x + form_x, prebuilt_fleet_y + form_y):setHeading(prebuilt_angle):orderFlyFormation(leader_ship,form_prime_x,form_prime_y)
+			ship:setCallSign(generateCallSign(fleet_prefix))
+			table.insert(leader_ship.formation_ships,ship)
+		end
+		leader_ship:orderFlyTowards(first_patrol_point_x,first_patrol_point_y)
+		update_system:addPatrol(leader_ship,leader_ship.patrol_points,next_point,5)
+		return patrol
+	else
+		return nil
+	end
 end
 function baskSector()
 	bask_color = true
 	bask_planets = createBaskPlanets()
 	bask_asteroids = createBaskAsteroids()
 	bask_stations = createBaskStations()
+	bask_patrols = createBaskPatrols()
 	bask_nebulae = createBaskNebulae()
 	regionStations = bask_stations
 	if stationBask ~= nil then
@@ -12912,27 +14544,40 @@ function baskSector()
 end
 function removeBaskColor()
 	bask_color = false
+	--	planets
 	if bask_planets ~= nil then
 		for _, bp in pairs(bask_planets) do
 			bp:destroy()
 		end
 	end
 	bask_planets = nil
+	--	asteroids
 	if bask_asteroids ~= nil then
 		for _, ba in pairs(bask_asteroids) do
 			ba:destroy()
 		end
 	end
 	bask_asteroids = nil
+	--	stations
 	if bask_stations ~= nil then
 		for _, bs in pairs(bask_stations) do
-			bs:destroy()
+			if bs ~= stationBask then
+				bs:destroy()
+			end
 		end
 	end
 	bask_stations = nil
+	--	patrols
+	if bask_patrols ~= nil then
+		for _, bp in pairs(bask_patrols) do
+			bp:destroy()
+		end
+	end
+	bask_patrols = nil
+	--	nebulae
 	if bask_nebulae ~= nil then
 		for _, bn in pairs(bask_nebulae) do
-			bs:destroy()
+			bn:destroy()
 		end
 	end
 	bask_nebulae = nil
@@ -13321,6 +14966,7 @@ function tweakRelay()
 	addGMFunction("+Cargo",changePlayerCargo)
 	addGMFunction("+Reputation",changePlayerReputation)
 	addGMFunction("+Waypoint",addWaypoint)
+	addGMFunction("+Specialty Probes",playerSpecialtyProbes)
 end
 ---------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Player Message  --
@@ -14017,6 +15663,419 @@ function gmClickZoneWaypoint(x,y)
 		end
 	end
 	addGMMessage(string.format("Waypoint added to:\n%s",player_list))
+end
+function playerSpecialtyProbes()
+	clearGMFunctions()
+	addGMFunction("-Main From Specialty",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	addGMFunction("+Fast Probes",playerFastProbes)
+	addGMFunction("+Sensor Boost Probes",playerSensorBoostProbes)
+	addGMFunction("+Warp Jammer Probes",playerWarpJammerProbes)
+end
+function playerWarpJammerProbes()
+	clearGMFunctions()
+	addGMFunction("-Specialty Probes",playerSpecialtyProbes)
+	local selected_list = getGMSelection()
+	local players_selected = {}
+	for _, obj in ipairs(selected_list) do
+		if obj.typeName == "PlayerSpaceship" then
+			table.insert(players_selected,obj)
+		end
+	end
+	local player_list = ""
+	if #players_selected == 0 then
+		players_selected = getActivePlayerShips()	--select them all
+	end
+	if #players_selected > 0 then
+		addGMFunction("Refresh Probe Button",function()
+			for _, p in ipairs(players_selected) do
+				refreshSpecialProbeButton(p)
+			end
+		end)
+		local warp_jammer_probe_type_names = {
+			"Snag",
+			"Mire",
+			"Swamp",
+		}
+		local warp_jammer_details = {
+			["Snag"] = {speed = 2500, range = 10000},
+			["Mire"] = {speed = 2000, range = 15000},
+			["Swamp"] = {speed = 1500, range = 20000},
+		}
+		for _, p in ipairs(players_selected) do
+			for _, probe_type_name in ipairs(warp_jammer_probe_type_names) do
+				local probe_count = 0
+				local matching_index = 0
+				if p.probe_type_list ~= nil then
+					if #p.probe_type_list > 0 then
+						for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+							if probe_type_item.name == probe_type_name then
+								matching_index = probe_type_index
+								break
+							end
+						end
+						if matching_index > 0 then
+							probe_count = p.probe_type_list[matching_index].count
+						end
+					end
+				end
+				if probe_count > 0 then
+					addGMFunction(string.format("%s %s %i-1=%i",p:getCallSign(),probe_type_name,probe_count,probe_count-1),function()
+						string.format("")
+						p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+						cycleProbeType(p)
+						local docked_station = p:getDockedWith()
+						if docked_station ~= nil then
+							local probe_message_options = {
+								string.format("%s station personnel conducting routine inspections discovered that one of your %s type probe kits was faulty, removing the defective kit before it could damage %s",docked_station:getCallSign(),probe_type_name,p:getCallSign()),
+								string.format("Automated inventory validation systems on %s corrected your inventory on % type probe kits. Your systems showed you had one more than physically present.",docked_station:getCallSign(),probe_type_name),
+								string.format("%s introduced a docking fee protocol. After some quick negotiation, you agreed to exchange a %s type probe kit for the fee.",docked_station:getCallSign(),probe_type_name),
+							}
+							local probe_message = probe_message_options[math.random(1,#probe_message_options)]
+							p.probe_message_relay = "probe_message_relay"
+							p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+							p.probe_message_ops = "probe_message_ops"
+							p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+						else
+							local undocked_probe_message_options = {
+								string.format("A member of the engineering team just sent you an apologetic message. It seems that while conducting maintenance on a nearby system, they accidentally destroyed one of your %s type probe kits.",probe_type_name),
+								string.format("The warranty just expired on one of your %s type probe kits. Rather than risk damage to %s, automated systems have removed the potentially hazardous device.",probe_type_name,p:getCallSign()),
+								string.format("Recent engine activity has inadvertently damaged one of the %s type probe kits. The technicians have removed the damaged device for safety purposes.",probe_type_name),
+							}
+							local probe_message = undocked_probe_message_options[math.random(1,#undocked_probe_message_options)]
+							p.probe_message_relay = "probe_message_relay"
+							p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+							p.probe_message_ops = "probe_message_ops"
+							p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+						end
+						playerWarpJammerProbes()
+					end)
+				end
+				addGMFunction(string.format("%s %s %i+1=%i",p:getCallSign(),probe_type_name,probe_count,probe_count+1),function()
+					string.format("")
+					if p.probe_type_list == nil then
+						p.probe_type_list = {}
+						table.insert(p.probe_type_list,{name = "standard", count = -1})
+					end
+					if matching_index > 0 then
+						p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count + 1
+					else
+						table.insert(p.probe_type_list,{name = probe_type_name, count = 1, speed = warp_jammer_details[probe_type_name].speed, warp_jam_range = warp_jammer_details[probe_type_name].range})
+					end
+					local docked_station = p:getDockedWith() 
+					if docked_station ~= nil then
+						local probe_message_options = {
+							string.format("One of the younger members of the crew on %s provided you with a %s type probe kit as part of an educational assignment.",docked_station:getCallSign(),probe_type_name),
+							string.format("A maintenance technician on %s gave you an extra %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+							string.format("You received a semi-automated thank you gift from %s: a %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+						}
+						local probe_message = probe_message_options[math.random(1,#probe_message_options)]
+						p.probe_message_relay = "probe_message_relay"
+						p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+						p.probe_message_ops = "probe_message_ops"
+						p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+					else
+						local undocked_probe_message_options = {
+							string.format("A member of the engineering techincal crew fabricated a %s type probe kit and added it to your inventory.",probe_type_name),
+							string.format("Ensign Goody Pop took the remains of a replicator failure and created a %s type probe kit for you.",probe_type_name),
+							string.format("From the leftovers of a failed academic science project, a crewmember was able to fabricate a %s type probe kit.",probe_type_name),
+						}
+						local probe_message = undocked_probe_message_options[math.random(1,#undocked_probe_message_options)]
+						p.probe_message_relay = "probe_message_relay"
+						p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+						p.probe_message_ops = "probe_message_ops"
+						p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+					end
+					p.probe_type = "standard"
+					cycleProbeType(p,probe_type_name)
+					p.probe_type_button = "probe_type_button"
+					p:addCustomButton("Relay",p.probe_type_button,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+					p.probe_type_button_ops = "probe_type_button_ops"
+					p:addCustomButton("Operations",p.probe_type_button_ops,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+					playerWarpJammerProbes()
+				end)
+			end
+		end
+	else
+		addGMMessage("No players. No action taken")
+	end
+end
+function playerSensorBoostProbes()
+	clearGMFunctions()
+	addGMFunction("-Specialty Probes",playerSpecialtyProbes)
+	local selected_list = getGMSelection()
+	local players_selected = {}
+	for _, obj in ipairs(selected_list) do
+		if obj.typeName == "PlayerSpaceship" then
+			table.insert(players_selected,obj)
+		end
+	end
+	local player_list = ""
+	if #players_selected == 0 then
+		players_selected = getActivePlayerShips()	--select them all
+	end
+	if #players_selected > 0 then
+		addGMFunction("Refresh Probe Button",function()
+			for _, p in ipairs(players_selected) do
+				refreshSpecialProbeButton(p)
+			end
+		end)
+		local sensor_boost_probe_type_names = {
+			"Spectacle",
+			"Binoc",
+			"Scope",
+		}
+		local sensor_boost_details = {
+			["Spectacle"] = {speed = 1000, range = 30, boost = 10},
+			["Binoc"] = {speed = 1000, range = 40, boost = 20},
+			["Scope"] = {speed = 1000, range = 50, boost = 30},
+		}
+		for _, p in ipairs(players_selected) do
+			for _, probe_type_name in ipairs(sensor_boost_probe_type_names) do
+				local probe_count = 0
+				local matching_index = 0
+				if p.probe_type_list ~= nil then
+					if #p.probe_type_list > 0 then
+						for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+							if probe_type_item.name == probe_type_name then
+								matching_index = probe_type_index
+								break
+							end
+						end
+						if matching_index > 0 then
+							probe_count = p.probe_type_list[matching_index].count
+						end
+					end
+				end
+				if probe_count > 0 then
+					addGMFunction(string.format("%s %s %i-1=%i",p:getCallSign(),probe_type_name,probe_count,probe_count-1),function()
+						string.format("")
+						p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+						cycleProbeType(p)
+						local docked_station = p:getDockedWith()
+						if docked_station ~= nil then
+							local probe_message_options = {
+								string.format("%s station personnel conducting routine inspections discovered that one of your %s type probe kits was faulty, removing the defective kit before it could damage %s",docked_station:getCallSign(),probe_type_name,p:getCallSign()),
+								string.format("Automated inventory validation systems on %s corrected your inventory on % type probe kits. Your systems showed you had one more than physically present.",docked_station:getCallSign(),probe_type_name),
+								string.format("%s introduced a docking fee protocol. After some quick negotiation, you agreed to exchange a %s type probe kit for the fee.",docked_station:getCallSign(),probe_type_name),
+							}
+							local probe_message = probe_message_options[math.random(1,#probe_message_options)]
+							p.probe_message_relay = "probe_message_relay"
+							p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+							p.probe_message_ops = "probe_message_ops"
+							p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+						else
+							local undocked_probe_message_options = {
+								string.format("A member of the engineering team just sent you an apologetic message. It seems that while conducting maintenance on a nearby system, they accidentally destroyed one of your %s type probe kits.",probe_type_name),
+								string.format("The warranty just expired on one of your %s type probe kits. Rather than risk damage to %s, automated systems have removed the potentially hazardous device.",probe_type_name,p:getCallSign()),
+								string.format("Recent engine activity has inadvertently damaged one of the %s type probe kits. The technicians have removed the damaged device for safety purposes.",probe_type_name),
+							}
+							local probe_message = undocked_probe_message_options[math.random(1,#undocked_probe_message_options)]
+							p.probe_message_relay = "probe_message_relay"
+							p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+							p.probe_message_ops = "probe_message_ops"
+							p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+						end
+						playerSensorBoostProbes()
+					end)
+				end
+				addGMFunction(string.format("%s %s %i+1=%i",p:getCallSign(),probe_type_name,probe_count,probe_count+1),function()
+					string.format("")
+					if p.probe_type_list == nil then
+						p.probe_type_list = {}
+						table.insert(p.probe_type_list,{name = "standard", count = -1})
+					end
+					if matching_index > 0 then
+						p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count + 1
+					else
+						table.insert(p.probe_type_list,{name = probe_type_name, count = 1, speed = sensor_boost_details[probe_type_name].speed, boost = sensor_boost_details[probe_type_name].boost, range = sensor_boost_details[probe_type_name].range})
+					end
+					local docked_station = p:getDockedWith() 
+					if docked_station ~= nil then
+						local probe_message_options = {
+							string.format("One of the younger members of the crew on %s provided you with a %s type probe kit as part of an educational assignment.",docked_station:getCallSign(),probe_type_name),
+							string.format("A maintenance technician on %s gave you an extra %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+							string.format("You received a semi-automated thank you gift from %s: a %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+						}
+						local probe_message = probe_message_options[math.random(1,#probe_message_options)]
+						p.probe_message_relay = "probe_message_relay"
+						p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+						p.probe_message_ops = "probe_message_ops"
+						p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+					else
+						local undocked_probe_message_options = {
+							string.format("A member of the engineering techincal crew fabricated a %s type probe kit and added it to your inventory.",probe_type_name),
+							string.format("Ensign Goody Pop took the remains of a replicator failure and created a %s type probe kit for you.",probe_type_name),
+							string.format("From the leftovers of a failed academic science project, a crewmember was able to fabricate a %s type probe kit.",probe_type_name),
+						}
+						local probe_message = undocked_probe_message_options[math.random(1,#undocked_probe_message_options)]
+						p.probe_message_relay = "probe_message_relay"
+						p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+						p.probe_message_ops = "probe_message_ops"
+						p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+					end
+					p.probe_type = "standard"
+					cycleProbeType(p,probe_type_name)
+					p.probe_type_button = "probe_type_button"
+					p:addCustomButton("Relay",p.probe_type_button,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+					p.probe_type_button_ops = "probe_type_button_ops"
+					p:addCustomButton("Operations",p.probe_type_button_ops,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+					playerSensorBoostProbes()
+				end)
+			end
+		end
+	else
+		addGMMessage("No players. No action taken")
+	end
+end
+function playerFastProbes()
+	clearGMFunctions()
+	addGMFunction("-Specialty Probes",playerSpecialtyProbes)
+	local selected_list = getGMSelection()
+	local players_selected = {}
+	for _, obj in ipairs(selected_list) do
+		if obj.typeName == "PlayerSpaceship" then
+			table.insert(players_selected,obj)
+		end
+	end
+	local player_list = ""
+	if #players_selected == 0 then
+		players_selected = getActivePlayerShips()	--select them all
+	end
+	if #players_selected > 0 then
+		addGMFunction("Refresh Probe Button",function()
+			for _, p in ipairs(players_selected) do
+				refreshSpecialProbeButton(p)
+			end
+		end)
+		local fast_probe_type_names = {
+			"Mark 3",
+			"Gogo",
+			"Screamer",
+		}
+		local fast_probe_speeds = {
+			["Mark 3"] = 2000,
+			["Gogo"] = 3000,
+			["Screamer"] = 4000,
+		}
+		for _, p in ipairs(players_selected) do
+			for _, probe_type_name in ipairs(fast_probe_type_names) do
+				local probe_count = 0
+				local matching_index = 0
+				if p.probe_type_list ~= nil then
+					if #p.probe_type_list > 0 then
+						for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+							if probe_type_item.name == probe_type_name then
+								matching_index = probe_type_index
+								break
+							end
+						end
+						if matching_index > 0 then
+							probe_count = p.probe_type_list[matching_index].count
+						end
+					end
+				end
+				if probe_count > 0 then
+					addGMFunction(string.format("%s %s %i-1=%i",p:getCallSign(),probe_type_name,probe_count,probe_count-1),function()
+						string.format("")
+						p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+						cycleProbeType(p)
+						local docked_station = p:getDockedWith()
+						if docked_station ~= nil then
+							local probe_message_options = {
+								string.format("%s station personnel conducting routine inspections discovered that one of your %s type probe kits was faulty, removing the defective kit before it could damage %s",docked_station:getCallSign(),probe_type_name,p:getCallSign()),
+								string.format("Automated inventory validation systems on %s corrected your inventory on % type probe kits. Your systems showed you had one more than physically present.",docked_station:getCallSign(),probe_type_name),
+								string.format("%s introduced a docking fee protocol. After some quick negotiation, you agreed to exchange a %s type probe kit for the fee.",docked_station:getCallSign(),probe_type_name),
+							}
+							local probe_message = probe_message_options[math.random(1,#probe_message_options)]
+							p.probe_message_relay = "probe_message_relay"
+							p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+							p.probe_message_ops = "probe_message_ops"
+							p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+						else
+							local undocked_probe_message_options = {
+								string.format("A member of the engineering team just sent you an apologetic message. It seems that while conducting maintenance on a nearby system, they accidentally destroyed one of your %s type probe kits.",probe_type_name),
+								string.format("The warranty just expired on one of your %s type probe kits. Rather than risk damage to %s, automated systems have removed the potentially hazardous device.",probe_type_name,p:getCallSign()),
+								string.format("Recent engine activity has inadvertently damaged one of the %s type probe kits. The technicians have removed the damaged device for safety purposes.",probe_type_name),
+							}
+							local probe_message = undocked_probe_message_options[math.random(1,#undocked_probe_message_options)]
+							p.probe_message_relay = "probe_message_relay"
+							p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+							p.probe_message_ops = "probe_message_ops"
+							p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+						end
+						playerFastProbes()
+					end)
+				end
+				addGMFunction(string.format("%s %s %i+1=%i",p:getCallSign(),probe_type_name,probe_count,probe_count+1),function()
+					string.format("")
+					if p.probe_type_list == nil then
+						p.probe_type_list = {}
+						table.insert(p.probe_type_list,{name = "standard", count = -1})
+					end
+					if matching_index > 0 then
+						p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count + 1
+					else
+						table.insert(p.probe_type_list,{name = probe_type_name, count = 1, speed = fast_probe_speeds[probe_type_name]})
+					end
+					local docked_station = p:getDockedWith() 
+					if docked_station ~= nil then
+						local probe_message_options = {
+							string.format("One of the younger members of the crew on %s provided you with a %s type probe kit as part of an educational assignment.",docked_station:getCallSign(),probe_type_name),
+							string.format("A maintenance technician on %s gave you an extra %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+							string.format("You received a semi-automated thank you gift from %s: a %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+						}
+						local probe_message = probe_message_options[math.random(1,#probe_message_options)]
+						p.probe_message_relay = "probe_message_relay"
+						p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+						p.probe_message_ops = "probe_message_ops"
+						p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+					else
+						local undocked_probe_message_options = {
+							string.format("A member of the engineering techincal crew fabricated a %s type probe kit and added it to your inventory.",probe_type_name),
+							string.format("Ensign Goody Pop took the remains of a replicator failure and created a %s type probe kit for you.",probe_type_name),
+							string.format("From the leftovers of a failed academic science project, a crewmember was able to fabricate a %s type probe kit.",probe_type_name),
+						}
+						local probe_message = undocked_probe_message_options[math.random(1,#undocked_probe_message_options)]
+						p.probe_message_relay = "probe_message_relay"
+						p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+						p.probe_message_ops = "probe_message_ops"
+						p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+					end
+					p.probe_type = "standard"
+					cycleProbeType(p,probe_type_name)
+					p.probe_type_button = "probe_type_button"
+					p:addCustomButton("Relay",p.probe_type_button,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+					p.probe_type_button_ops = "probe_type_button_ops"
+					p:addCustomButton("Operations",p.probe_type_button_ops,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(p)
+					end)
+					playerFastProbes()
+				end)
+			end
+		end
+	else
+		addGMMessage("No players. No action taken")
+	end
 end
 --	************************************************************************************************  --
 --	****				Initial Set Up Player Ships Tweak Player Tweak Relay Cargo				****  --
@@ -18402,6 +20461,13 @@ function gmClicksetPrebuiltFleetTarget(x,y)
 	onGMClick(nil)
 	setPrebuiltFleet()
 end
+function gmClickSpawnPrebuiltFleet(x,y)
+	prebuilt_fleet_x = x
+	prebuilt_fleet_y = y
+	gm_click_mode = "set prebuilt target"
+	onGMClick(gmClicksetPrebuiltFleetTarget)
+	setPrebuiltFleet()
+end
 function spawnPrebuiltFleet()
 	if gm_click_mode == "spawn prebuilt fleet" then
 		gm_click_mode = nil
@@ -18414,13 +20480,6 @@ function spawnPrebuiltFleet()
 			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   spawn prebuilt fleet\nGM click mode.",prev_mode))
 		end
 	end
-	setPrebuiltFleet()
-end
-function gmClickSpawnPrebuiltFleet(x,y)
-	prebuilt_fleet_x = x
-	prebuilt_fleet_y = y
-	gm_click_mode = "set prebuilt target"
-	onGMClick(gmClicksetPrebuiltFleetTarget)
 	setPrebuiltFleet()
 end
 function setPrebuiltFleetTarget()
@@ -20283,6 +22342,9 @@ function playerShipDamage(self,instigator)
 			until(instigator:getBeamWeaponRange(bi) < 1)
 			beam_damage = beam_damage / bi * instigator.skip_beam_factor / 2	--average multiplied by factor
 			beam_range = beam_range / bi 
+			if distance_diagnostic then
+				print("distance_diagnostic 9 self:",self,"instigator:",instigator)
+			end
 			local dist = distance(self,instigator)
 			if dist < beam_range then
 				self:setHull(math.max(self:getHull() - beam_damage,0))
@@ -25645,6 +27707,9 @@ function attachAnythingToNPS()
 	for i=1,#nearby_objects do
 		local temp_object = nearby_objects[i]
 		if temp_object.typeName == "CpuShip" and (not isInGMSelection(temp_object)) then
+			if distance_diagnostic then
+				print("distance_diagnostic 10 temp_object:",temp_object,"current_selected_object:",current_selected_object)
+			end		
 			local ship_distance = distance(temp_object,current_selected_object)
 			table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
 		end
@@ -28648,6 +30713,9 @@ function attachArtifact()
 			local temp_object = nearby_objects[i]
 			local temp_type = temp_object.typeName
 			if temp_type == "CpuShip" then
+				if distance_diagnostic then
+					print("distance_diagnostic 11 temp_object:",temp_object,"current_selected_object:",current_selected_object)
+				end		
 				local ship_distance = distance(temp_object,current_selected_object)
 				table.insert(cpu_ship_list,{distance = ship_distance, ship = temp_object})
 			end
@@ -32303,6 +34371,9 @@ function gmClickMineLineStart(x,y)
 end
 function gmClickMineLineEnd(x,y)
 	mine_line_start_marker:destroy()
+	if distance_diagnostic then
+		print("distance_diagnostic 12 mine_line_start_x:",mine_line_start_x,"mine_line_start_y:",mine_line_start_y,"x:",x,"y:",y)
+	end		
 	local line_length = distance(mine_line_start_x,mine_line_start_y,x,y)
 	local angle = angleFromVectorNorth(x,y,mine_line_start_x,mine_line_start_y)
 	local mine_count = 0
@@ -32520,6 +34591,9 @@ end
 function gmClickMineArcEnd(x,y)
 	mine_arc_start_marker:destroy()
 	mine_arc_center_marker:destroy()
+	if distance_diagnostic then
+		print("distance_diagnostic 13 mine_arc_start_x:",mine_arc_start_x,"mine_arc_start_y:",mine_arc_start_y,"mine_arc_center_x:",mine_arc_center_x,"mine_arc_center_y:",mine_arc_center_y)
+	end		
 	local arc_radius = distance(mine_arc_center_x,mine_arc_center_y,mine_arc_start_x,mine_arc_start_y)
 	local angle = angleFromVectorNorth(mine_arc_start_x,mine_arc_start_y,mine_arc_center_x,mine_arc_center_y)
 	local final_angle = angleFromVectorNorth(x,y,mine_arc_center_x,mine_arc_center_y)
@@ -34811,6 +36885,9 @@ function influenceEnemy(tauntable,amenable,enemy_health,rep)
 	if dist_effect_by_faction[faction] ~= nil then
 		dist_effect = dist_effect_by_faction[faction]
 	end
+	if distance_diagnostic then
+		print("distance_diagnostic 14 comms_source:",comms_source:getCallSign(),"comms_target:",comms_target:getCallSign())
+	end		
 	local comms_dist = distance(comms_source,comms_target)
 	if comms_dist < 20000 then
 		comms_dist = 0
@@ -36750,6 +38827,7 @@ function handleDockedState()
 			["Astron"] = 	{station = stationAstron,		region = "Astron (U33)",						spawn_x = 460500,									spawn_y = 320500,									has_spawned = astron_color,												spawn_terrain = ghostNebulaSector,										despawn_terrain = removeAstronColor										},
 			["Lafrina"] =	{station = stationLafrina,		region = "Lafrina (T93)",						spawn_x = -237666,									spawn_y = 296975,									has_spawned = universe:hasRegionSpawned(universe.available_regions[5]),	spawn_terrain = lafrinaSector,											despawn_terrain = removeLafrinaColor									},
 			["Teresh"] =	{station = stationTeresh,		region = "Teresh (K44)",						spawn_x = 800001,									spawn_y = 120001,									has_spawned = teresh_color,												spawn_terrain = tereshSector,											despawn_terrain = removeTereshColor										},
+			["Bask"] =		{station = stationBask,			region = "Bask (R56)",							spawn_x = 1027800,									spawn_y = 251000,									has_spawned = bask_color,												spawn_terrain = baskSector,												despawn_terrain = removeBaskColor										},
 		}
 		local skeleton_docked = false
 		for name, jc_item in pairs(jump_corridor_list) do
@@ -38451,6 +40529,9 @@ function addTractorObjectButtons(p,tractor_objects)
 			p:addCustomButton("Engineering",p.tractor_lock_button,"Lock on Tractor",function()
 				local cpx, cpy = p:getPosition()
 				local tpx, tpy = p.tractor_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 15 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
 				if tractor_object_distance < 1000 then
 					p.tractor_target_lock = true
@@ -38473,6 +40554,9 @@ function addTractorObjectButtons(p,tractor_objects)
 			p:addCustomButton("Engineering+",p.tractor_lock_button_plus,"Lock on Tractor",function()
 				local cpx, cpy = p:getPosition()
 				local tpx, tpy = p.tractor_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 16 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
 				if tractor_object_distance < 1000 then
 					p.tractor_target_lock = true
@@ -38501,6 +40585,9 @@ function addTractorObjectButtons(p,tractor_objects)
 			p:addCustomButton("Engineering",p.tractor_target_button,string.format("Target %s",label_type),function()
 				string.format("")	--necessary to have global reference for Serious Proton engine
 				tpx, tpy = p.tractor_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 17 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
 				local theta = math.atan(tpy - cpy,tpx - cpx)
 				if theta < 0 then
@@ -38528,6 +40615,9 @@ function addTractorObjectButtons(p,tractor_objects)
 			p:addCustomButton("Engineering+",p.tractor_target_button_plus,string.format("Target %s",label_type),function()
 				string.format("")	--necessary to have global reference for Serious Proton engine
 				tpx, tpy = p.tractor_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 17 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
 				local theta = math.atan(tpy - cpy,tpx - cpx)
 				if theta < 0 then
@@ -38733,6 +40823,9 @@ function addMiningButtons(p,mining_objects)
 			p:addCustomButton("Science",p.mining_lock_button,"Lock for Mining",function()
 				local cpx, cpy = p:getPosition()
 				local tpx, tpy = p.mining_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 18 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local asteroid_distance = distance(cpx,cpy,tpx,tpy)
 				if asteroid_distance < 1000 then
 					p.mining_target_lock = true
@@ -38753,6 +40846,9 @@ function addMiningButtons(p,mining_objects)
 			p:addCustomButton("Operations",p.mining_lock_button_ops,"Lock for Mining",function()
 				local cpx, cpy = p:getPosition()
 				local tpx, tpy = p.mining_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 19 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local asteroid_distance = distance(cpx,cpy,tpx,tpy)
 				if asteroid_distance < 1000 then
 					p.mining_target_lock = true
@@ -38773,6 +40869,9 @@ function addMiningButtons(p,mining_objects)
 			p:addCustomButton("Science",p.mining_target_button,"Target Asteroid",function()
 				string.format("")	--necessary to have global reference for Serious Proton engine
 				tpx, tpy = p.mining_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 20 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
 				local theta = math.atan(tpy - cpy,tpx - cpx)
 				if theta < 0 then
@@ -38813,6 +40912,9 @@ function addMiningButtons(p,mining_objects)
 			p:addCustomButton("Operations",p.mining_target_button_ops,"Target Asteroid",function()
 				string.format("")	--necessary to have global reference for Serious Proton engine
 				tpx, tpy = p.mining_target:getPosition()
+				if distance_diagnostic then
+					print("distance_diagnostic 21 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+				end		
 				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
 				local theta = math.atan(tpy - cpy,tpx - cpx)
 				if theta < 0 then
@@ -39176,6 +41278,9 @@ function patrolProbe(self)
 		local angle = angleFromVectorNorth(probe_x, probe_y, player_x, player_y)
 		local angle = (angle + 60) % 360
 		if self.patrol_distance == nil then
+			if distance_diagnostic then
+				print("distance_diagnostic 22 self:",self,"p:",p)
+			end		
 			self.patrol_distance = distance(self,p)
 		end
 		local npp_x, npp_y = vectorFromAngleNorth(angle,self.patrol_distance)
@@ -39187,20 +41292,38 @@ function patrolProbe(self)
 end
 function cycleProbeType(p,probe_type)
 	if p.probe_type ~= nil then
+		if specialty_probe_diagnostic then
+			print("Cycle Probe Type: player probe type is not nil:",p.probe_type)
+		end
 		local type_cycled = false
 		if probe_type ~= nil then
+			if specialty_probe_diagnostic then
+				print("Cycle Probe Type: passed probe type is not nil:",probe_type)
+			end
 			if p.probe_type ~= probe_type then
 				type_cycled = true
 				p.probe_type = probe_type
+				if specialty_probe_diagnostic then
+					print("Cycle Probe Type: player probe type set to passed probe type")
+				end
 			end
 		else
+			if specialty_probe_diagnostic then
+				print("Cycle Probe Type: passed probe type is nil")
+			end
 			if p.probe_type_list == nil then
 				p.probe_type_list = {}
 				table.insert(p.probe_type_list,{name = "standard", count = -1})
 			end
 			local matching_index = 0
 			for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+				if specialty_probe_diagnostic then
+					print("Cycle Probe Type: processing type list, type:",probe_type_item.name,"index:",probe_type_index,"count:",probe_type_item.count)
+				end
 				if probe_type_item.name == p.probe_type then
+					if specialty_probe_diagnostic then
+						print("Cycle Probe Type: list item matches player probe type")
+					end
 					matching_index = probe_type_index
 					break
 				end
@@ -39210,66 +41333,100 @@ function cycleProbeType(p,probe_type)
 				if matching_index > #p.probe_type_list then
 					matching_index = 1
 				end
+				if specialty_probe_diagnostic then
+					print("Cycle Probe Type: updated matching index:",matching_index)
+				end
 				if p.probe_type ~= p.probe_type_list[matching_index].name then
 					p.probe_type = p.probe_type_list[matching_index].name
 					type_cycled = true
+					if specialty_probe_diagnostic then
+						print("Cycle Probe Type: updated type did not match player probe type. Set to match and indicate cycled:",p.probe_type)
+					end
 				end
 				if p.probe_type_list[matching_index].count == 0 then
+					if specialty_probe_diagnostic then
+						print("Cycle Probe Type: matched type count is zero. Cycle again")
+					end
 					cycleProbeType(p)
 				end
 			else
 				if p.probe_type ~= "standard" then
+					if specialty_probe_diagnostic then
+						print("Cycle Probe Type: No match. Player probe type not standard, set to standard and indicate cycled")
+					end
 					p.probe_type = "standard"
 					type_cycled = true
 				end
 			end
 		end
 		if type_cycled then
+			if specialty_probe_diagnostic then
+				print("Cycle Probe Type: remove button when cycled")
+			end
 			if p.probe_type_button ~= nil then
 				p:removeCustom(p.probe_type_button)
+				p.probe_type_button = nil
 			end
 			if p.probe_type_button_ops ~= nil then
 				p:removeCustom(p.probe_type_button_ops)
+				p.probe_type_button_ops = nil
 			end
 		end
-		if p.probe_type_list ~= nil and #p.probe_type_list > 1 then
-			local non_standard_probes = 0
-			for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
-				if probe_type_item.name ~= "standard" then
-					non_standard_probes = non_standard_probes + probe_type_item.count
-				end
+		if specialty_probe_diagnostic then
+			print("Cycle Probe Type: check to update button, list:",p.probe_type_list,"list count:",#p.probe_type_list)
+		end
+		refreshSpecialProbeButton(p)
+	end
+end	
+function refreshSpecialProbeButton(p)
+	if p.probe_type_list ~= nil and #p.probe_type_list > 1 then
+		local non_standard_probes = 0
+		for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+			if specialty_probe_diagnostic then
+				print("Cycle Probe Type: processing type list 2nd time, type:",probe_type_item.name,"index:",probe_type_index,"count:",probe_type_item.count)
 			end
-			if non_standard_probes > 0 then
-				local button_label = string.format("Probes: %s",p.probe_type)
-				if p.probe_type ~= "standard" then
-					local probe_quantity = 0
-					for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
-						if probe_type_item.name == p.probe_type then
-							if probe_type_item.count ~= nil then
-								probe_quantity = math.min(probe_type_item.count,p:getScanProbeCount())
-							end
+			if probe_type_item.name ~= "standard" then
+				non_standard_probes = non_standard_probes + probe_type_item.count
+			end
+		end
+		if specialty_probe_diagnostic then
+			print("Cycle Probe Type: non standard probes found:",non_standard_probes)
+		end
+		if non_standard_probes > 0 then
+			local button_label = string.format("Probes: %s",p.probe_type)
+			if specialty_probe_diagnostic then
+				print("Cycle Probe Type: set base label:",button_label)
+			end
+			if p.probe_type ~= "standard" then
+				local probe_quantity = 0
+				for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+					if probe_type_item.name == p.probe_type then
+						if probe_type_item.count ~= nil then
+							probe_quantity = math.min(probe_type_item.count,p:getScanProbeCount())
 						end
 					end
-					button_label = string.format("%s (%i)",button_label,probe_quantity)
 				end
-				if p:hasPlayerAtPosition("Relay") then
-					p.probe_type_button = "probe_type_button"
-					p:addCustomButton("Relay",p.probe_type_button,button_label,function()
-						string.format("")
-						cycleProbeType(p)
-					end)
-				end
-				if p:hasPlayerAtPosition("Operations") then
-					p.probe_type_button_ops = "probe_type_button_ops"
-					p:addCustomButton("Operations",p.probe_type_button_ops,button_label,function()
-						string.format("")
-						cycleProbeType(p)
-					end)
+				button_label = string.format("%s (%i)",button_label,probe_quantity)
+				if specialty_probe_diagnostic then
+					print("Cycle Probe Type: modified specialty label:",button_label)
 				end
 			end
+			p.probe_type_button = "probe_type_button"
+			p:addCustomButton("Relay",p.probe_type_button,button_label,function()
+				string.format("")
+				cycleProbeType(p)
+			end)
+			if specialty_probe_diagnostic then
+				print("p.probe_type_button:",p.probe_type_button,"button_label:",button_label)
+			end
+			p.probe_type_button_ops = "probe_type_button_ops"
+			p:addCustomButton("Operations",p.probe_type_button_ops,button_label,function()
+				string.format("")
+				cycleProbeType(p)
+			end)
 		end
 	end
-end		
+end	
 function probeWarpJammer(self,x,y)
 	WarpJammer():setPosition(x,y):setRange(self.warp_jam_range):setFaction(self:getFaction())
 	self:onArrival(nil)
@@ -39303,8 +41460,11 @@ function updateInner(delta)
 									end
 								end
 								if detected_enemy_ship then
+									local s_x, s_y = current_station:getPosition()
+									local e_x, e_y = obj:getPosition()
+									local enemy_bearing = math.floor(angleFromVectorNorth(e_x, e_y, s_x, s_y))
 									warning_station = current_station
-									warning_message = string.format("[%s in %s] We detect one or more enemies nearby",current_station:getCallSign(),current_station:getSectorName())
+									warning_message = string.format("[%s in %s] We detect one or more enemies nearby bearing %i",current_station:getCallSign(),current_station:getSectorName(),enemy_bearing)
 									if warning_includes_ship_type then
 										warning_message = string.format("%s. At least one is of type %s",warning_message,obj:getTypeName())
 									end
@@ -39450,10 +41610,10 @@ function updateInner(delta)
 				updatePlayerSoftTemplate(p)
 			end
 			local player_name = p:getCallSign()
-			if warning_station ~= nil then
+			if warning_station ~= nil and not warning_station:isEnemy(p) then
 				p:addToShipLog(warning_message,"Red")
 			end
-			if warning_ship ~= nil then
+			if warning_ship ~= nil and not warning_ship:isEnemy(p) then
 				p:addToShipLog(ship_warning_message,"Red")
 			end
 			p:wrappedAddCustomInfo("name_tag_positions","name_tag",string.format("%s in %s",player_name,p:getSectorName()))
@@ -39496,8 +41656,17 @@ function updateInner(delta)
 			if p.patrol_probe > 0 then
 				updatePlayerPatrolProbes(p)
 			end
-			if p.probe_type ~= nil and p.probe_type ~= "standard" then
-				updatePlayerSpecialtyProbes(p)
+			if p.probe_type ~= nil then
+--				if probe_type_refresh_timer == nil then
+--					probe_type_refresh_timer = getScenarioTime() + 15
+--				end
+--				if probe_type_refresh_timer < getScenarioTime() then
+--					refreshSpecialProbeButton(p)
+--					probe_type_refresh_timer = getScenarioTime() + 15
+--				end
+				if p.probe_type ~= "standard" then
+					updatePlayerSpecialtyProbes(p)
+				end
 			end
 			if p.turbo_torp then
 				updatePlayerTurboTorpedo(delta,p)
@@ -39513,8 +41682,8 @@ function updateInner(delta)
 		end	--player loop
 	end
 	if updateDiagnostic then print("update: outside player loop") end
-	if planet_colburn ~= nil then
-		updateMagnasolCollision(delta)
+	if planet_colburn ~= nil and planet_colburn:isValid() then
+		updateMagnasol(delta)
 	end
 	updateCarrierDeployedFighter(delta)
 	if healthCheckTimer < 0 then
@@ -39572,6 +41741,13 @@ function updateInner(delta)
 		if lafrina_commerce_timer < 0 then
 			updateCommerce(lafrina_commerce_assets,stationLafrina)
 			lafrina_commerce_timer = commerce_timer_interval
+		end
+	end
+	if bask_commerce then
+		bask_commerce_timer = bask_commerce_timer - delta
+		if bask_commerce_timer < 0 then
+			updateCommerce(bask_commerce_assets,stationBask)
+			bask_commerce_timer = commerce_timer_interval
 		end
 	end
 	if updateDiagnostic then print("update: end of update function") end
@@ -40158,9 +42334,11 @@ function updatePlayerLongRangeSensors(p)
 	end
 	local impact_range = math.max(base_range*sensor_impact,p:getShortRangeRadarRange())
 	local sensor_jammer_impact = 0
-	local accumulated_jammer_impact = 0
 	for jammer_name, sensor_jammer in pairs(sensor_jammer_list) do
 		if sensor_jammer ~= nil and sensor_jammer:isValid() then
+			if distance_diagnostic then
+				print("distance_diagnostic 23 p:",p,"sensor_jammer:",sensor_jammer)
+			end		
 			local jammer_distance = distance(p,sensor_jammer)
 			if jammer_distance < sensor_jammer.jam_range then
 				if sensor_jammer.jam_impact_units then
@@ -40169,40 +42347,44 @@ function updatePlayerLongRangeSensors(p)
 					sensor_jammer_impact = math.max(sensor_jammer_impact,impact_range*sensor_jammer.jam_impact/100000*(1-(jammer_distance/sensor_jammer.jam_range)))
 				end
 			end
-			accumulated_jammer_impact = accumulated_jammer_impact + sensor_jammer_impact
 		else
 			sensor_jammer_list[jammer_name] = nil
 		end
 	end
-	impact_range = math.max(p:getShortRangeRadarRange(),impact_range - accumulated_jammer_impact)
+	impact_range = math.max(p:getShortRangeRadarRange(),impact_range - sensor_jammer_impact)
 	local probe_scan_boost_impact = 0
-	local accumulated_scan_boost_impact = 0
 	for boost_probe_index, boost_probe in ipairs(boost_probe_list) do
 		if boost_probe ~= nil and boost_probe:isValid() then
 			if specialty_probe_diagnostic then
 				print("Processing specialty probe in list, index:",boost_probe_index,"player:",p:getCallSign())
 			end
+			if distance_diagnostic then
+				print("distance_diagnostic 24 boost_probe:",boost_probe,"p:",p)
+			end		
 			local boost_probe_distance = distance(boost_probe,p)
 			if boost_probe_distance < boost_probe.range*1000 then
 				if boost_probe_distance < boost_probe.range*1000/2 then
-					probe_scan_boost_impact = boost_probe.boost*1000
+					if specialty_probe_diagnostic then
+						print("current probe scan impact:",probe_scan_boost_impact)
+					end
+					probe_scan_boost_impact = math.max(probe_scan_boost_impact,boost_probe.boost*1000)
 				else
 					local best_boost = boost_probe.boost*1000
 					local adjusted_range = boost_probe.range*1000
 					local half_adjusted_range = adjusted_range/2
 					local raw_scan_gradient = boost_probe_distance/half_adjusted_range
 					local scan_gradient = 2 - raw_scan_gradient
-					probe_scan_boost_impact = best_boost * scan_gradient
 					if specialty_probe_diagnostic then
 						print("boost:",boost_probe.boost,"distance:",boost_probe_distance,"range:",boost_probe.range)
 						print("best boost:",best_boost,"adjusted range:",adjusted_range,"half adjusted range:",half_adjusted_range,"raw scan gradient:",raw_scan_gradient,"scan gradient:",scan_gradient)
+						print("current probe scan impact:",probe_scan_boost_impact)
 					end
+					probe_scan_boost_impact = math.max(probe_scan_boost_impact,best_boost * scan_gradient)
 				end
 				if specialty_probe_diagnostic then
-					print("In range. Range:",boost_probe.range*1000,"distance:",boost_probe_distance,"impact:",probe_scan_boost_impact)
+					print("In range. Range:",boost_probe.range*1000,"distance:",boost_probe_distance,"new probe scan impact:",probe_scan_boost_impact)
 				end
 			end
-			accumulated_scan_boost_impact = accumulated_scan_boost_impact + probe_scan_boost_impact
 		else
 			boost_probe_list[boost_probe_index] = boost_probe_list[#boost_probe_list]
 			boost_probe_list[#boost_probe_list] = nil
@@ -40212,12 +42394,7 @@ function updatePlayerLongRangeSensors(p)
 			break
 		end
 	end
-	impact_range = math.max(p:getShortRangeRadarRange(),impact_range + accumulated_scan_boost_impact)
-	if specialty_probe_diagnostic then
-		if accumulated_scan_boost_impact > 0 then
-			print("Accumulated boost range impact:",accumulated_scan_boost_impact,"impact to apply to sensors:",impact_range)
-		end
-	end
+	impact_range = math.max(p:getShortRangeRadarRange(),impact_range + probe_scan_boost_impact)
 	p:setLongRangeRadarRange(impact_range)
 end
 function updatePlayerTractor(p,player_velocity,nearby_objects)
@@ -40991,33 +43168,68 @@ function updateMagnasolCollision(delta)
 	local planet_x, planet_y = planet_colburn:getPosition()
 	local collision_list = getObjectsInRadius(planet_x, planet_y, colburn_radius + 2000)
 	for _, obj in ipairs(collision_list) do
-		local obj_dist = distance(obj,planet_colburn)
-		if obj.typeName == "CpuShip" then
-			if obj_dist <= colburn_radius + shipTemplateDistance[obj:getTypeName()] then
-				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+		if obj:isValid() then
+			if distance_diagnostic then
+				print("distance_diagnostic 25 obj:",obj,"planet_colburn:",planet_colburn)
+			end		
+			local obj_dist = distance(obj,planet_colburn)
+			local ship_distance = 400
+			local obj_type_name = ""
+			if obj.typeName == "CpuShip" then
+				obj_type_name = obj:getTypeName()
+				if obj_type_name ~= nil then
+					ship_distance = shipTemplateDistance[obj:getTypeName()]
+					if ship_distance == nil then
+						print("distance not retrieved from ship template for cpu ship:",obj:getCallSign(),"defaulting to ship distance 400")
+						ship_distance = 400
+					end
+				else
+					print("type name nil on cpu ship:",obj:getCallSign(),"defaulting to ship distance 400")
+				end
+				if obj_dist <= colburn_radius + ship_distance then
+					obj:takeDamage(100,"kinetic",planet_x,planet_y)
+				end
 			end
-		end
-		if obj.typeName == "PlayerSpaceship" then
-			if obj_dist <= colburn_radius + playerShipStats[obj:getTypeName()].distance then
-				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+			if obj.typeName == "PlayerSpaceship" then
+				obj_type_name = obj:getTypeName()
+				if obj_type_name ~= nil then
+					ship_distance = playerShipStats[obj:getTypeName()].distance
+					if ship_distance == nil then
+						print("distance not retrieved from player ship stats for player ship:",obj:getCallSign(),"defaulting to ship distance 400")
+						ship_distance = 400
+					end
+				else
+					print("type name nil on player ship:",obj:getCallSign(),"defaulting to ship distance 400")
+				end
+				if obj_dist <= colburn_radius + ship_distance then
+					obj:takeDamage(100,"kinetic",planet_x,planet_y)
+				end
 			end
 		end
 	end
 	planet_x, planet_y = planet_morningstar_moon:getPosition()
 	collision_list = getObjectsInRadius(planet_x, planet_y, morningstar_radius + 2000)
 	for _, obj in ipairs(collision_list) do
-		local obj_dist = distance(obj,planet_morningstar_moon)
-		if obj.typeName == "CpuShip" then
-			if obj_dist <= morningstar_radius + shipTemplateDistance[obj:getTypeName()] then
-				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+		if obj:isValid() then
+			if distance_diagnostic then
+				print("distance_diagnostic 26 obj:",obj,"planet_morningstar_moon:",planet_morningstar_moon)
+			end		
+			local obj_dist = distance(obj,planet_morningstar_moon)
+			if obj.typeName == "CpuShip" then
+				if obj_dist <= morningstar_radius + shipTemplateDistance[obj:getTypeName()] then
+					obj:takeDamage(100,"kinetic",planet_x,planet_y)
+				end
 			end
-		end
-		if obj.typeName == "PlayerSpaceship" then
-			if obj_dist <= morningstar_radius + playerShipStats[obj:getTypeName()].distance then
-				obj:takeDamage(100,"kinetic",planet_x,planet_y)
+			if obj.typeName == "PlayerSpaceship" then
+				if obj_dist <= morningstar_radius + playerShipStats[obj:getTypeName()].distance then
+					obj:takeDamage(100,"kinetic",planet_x,planet_y)
+				end
 			end
 		end
 	end
+	updateMagnasol = updateMagnasolColor
+end
+function updateMagnasolColor(delta)
 	local magnasol_red_lo = .6
 	local magnasol_red_hi = 1
 	local magnasol_green_lo = .6
@@ -41025,24 +43237,61 @@ function updateMagnasolCollision(delta)
 	local magnasol_red = random(magnasol_red_lo,magnasol_red_hi)
 	local magnasol_green = random(magnasol_green_lo,magnasol_green_hi)
 	planet_magnasol_star:setPlanetAtmosphereColor(magnasol_red,magnasol_green,1)
---	local distance_printed = false
-	for neb_index, neb in ipairs(bask_nebulae) do
-		if neb:isValid() and not neb.fixed then
-			neb.travel_distance = neb.travel_distance + (delta*50)
---			if not distance_printed then
---				print("delta:",delta,"neb index:",neb_index,"travel distance:",neb.travel_distance)
---				distance_printed = true
---			end
-			local tn_x, tn_y = vectorFromAngleNorth(neb.travel_angle,neb.travel_distance)
-			neb:setPosition(magnasol_x + tn_x, magnasol_y + tn_y)
-			if neb.travel_distance > 200000 then
-				tn_x, tn_y = neb.origin:getPosition()
-				neb:setPosition(tn_x,tn_y)
-				neb.travel_angle = (neb.start_angle + random(0,neb.arc)) % 360
-				neb.travel_distance = distance(neb,magnasol_x,magnasol_y)
+	updateMagnasol = updateMagnasolNebula
+end
+function updateMagnasolNebula(delta)
+	if bask_nebulae ~= nil and #bask_nebulae > 0 then
+		for neb_index, neb in ipairs(bask_nebulae) do
+			if neb:isValid() and not neb.fixed then
+				neb.travel_distance = neb.travel_distance + (delta*random(10,90))	
+				local tn_x, tn_y = vectorFromAngleNorth(neb.travel_angle,neb.travel_distance)
+				neb:setPosition(magnasol_x + tn_x, magnasol_y + tn_y)
+				if neb.travel_distance > 200000 then
+					tn_x, tn_y = neb.origin:getPosition()
+					neb:setPosition(tn_x,tn_y)
+					neb.travel_angle = (neb.origin.start_angle + random(0,neb.arc)) % 360
+					if distance_diagnostic then
+						print("distance_diagnostic 27 neb:",neb,"magnasol_x:",magnasol_x,"magnasol_y:",magnasol_y)
+					end		
+					neb.travel_distance = distance(neb,magnasol_x,magnasol_y)
+				end
 			end
 		end
 	end
+	updateMagnasol = updateMagnasolPatrols
+end
+function updateMagnasolPatrols(delta)
+	for _, fleet in ipairs(bask_patrol_fleets) do
+		local ship_deleted = false
+		for  index, ship in ipairs(fleet.ships) do
+			if ship ~= nil then
+				if not ship:isValid() then
+					fleet.ships[index] = fleet.ships[#fleet.ships]
+					fleet.ships[#fleet.ships] = nil
+					ship_deleted = true
+					break
+				end
+			else
+				fleet.ships[index] = fleet.ships[#fleet.ships]
+				fleet.ships[#fleet.ships] = nil
+				ship_deleted = true
+				break
+			end
+		end
+		if not ship_deleted then
+			if #fleet.ships == 0 then
+				if fleet.regen == nil then
+					fleet.regen = getScenarioTime() + 30
+				else
+					if fleet.regen < getScenarioTime() then
+						fleet.ships = createBaskPatrol(fleet.name)
+						fleet.regen = nil
+					end
+				end
+			end
+		end
+	end
+	updateMagnasol = updateMagnasolCollision
 end
 function updatePlayerMagnasolLevelCoolant(p)
 	if p:isValid() then
@@ -41081,32 +43330,37 @@ function updatePlayerMagnasolHeat(delta,p)
 				return
 			end
 		end
-		local magnasol_distance = distance(planet_magnasol_star,p)
-		if magnasol_distance < 100000 then
-			local heat_impact = delta * (1 - (magnasol_distance/100000)) * .05
-			if p:getShieldsActive() then
-				heat_impact = heat_impact/2
-			end
---			local out = string.format("impact:%.5f",heat_impact)
-			local system_heat_list = {
-				["reactor"] = {before = p:getSystemHeat("reactor"), after = 0},
-				["beamweapons"] = {before = p:getSystemHeat("beamweapons"), after = 0},
-				["missilesystem"] = {before = p:getSystemHeat("missilesystem"), after = 0},
-				["maneuver"] = {before = p:getSystemHeat("maneuver"), after = 0},
-				["impulse"] = {before = p:getSystemHeat("impulse"), after = 0},
-				["warp"] = {before = p:getSystemHeat("warp"), after = 0},
-				["jumpdrive"] = {before = p:getSystemHeat("jumpdrive"), after = 0},
-				["frontshield"] = {before = p:getSystemHeat("frontshield"), after = 0},
-				["rearshield"] = {before = p:getSystemHeat("rearshield"), after = 0},				
-			}
-			for system, heat in pairs(system_heat_list) do
-				if p:hasSystem(system) then
-					p:setSystemHeat(system,heat.before + heat_impact)
---					heat.after = p:getSystemHeat(system)
---					out = string.format("%s, %s:%.5f-%.5f",out,system,heat.before,heat.after)
+		if planet_magnasol_star:isValid() then
+			if distance_diagnostic then
+				print("distance_diagnostic 28 planet_magnasol_star:",planet_magnasol_star,"p:",p)
+			end		
+			local magnasol_distance = distance(planet_magnasol_star,p)
+			if magnasol_distance < 100000 then
+				local heat_impact = delta * (1 - (magnasol_distance/100000)) * .05
+				if p:getShieldsActive() then
+					heat_impact = heat_impact/2
 				end
+	--			local out = string.format("impact:%.5f",heat_impact)
+				local system_heat_list = {
+					["reactor"] = {before = p:getSystemHeat("reactor"), after = 0},
+					["beamweapons"] = {before = p:getSystemHeat("beamweapons"), after = 0},
+					["missilesystem"] = {before = p:getSystemHeat("missilesystem"), after = 0},
+					["maneuver"] = {before = p:getSystemHeat("maneuver"), after = 0},
+					["impulse"] = {before = p:getSystemHeat("impulse"), after = 0},
+					["warp"] = {before = p:getSystemHeat("warp"), after = 0},
+					["jumpdrive"] = {before = p:getSystemHeat("jumpdrive"), after = 0},
+					["frontshield"] = {before = p:getSystemHeat("frontshield"), after = 0},
+					["rearshield"] = {before = p:getSystemHeat("rearshield"), after = 0},				
+				}
+				for system, heat in pairs(system_heat_list) do
+					if p:hasSystem(system) then
+						p:setSystemHeat(system,heat.before + heat_impact)
+	--					heat.after = p:getSystemHeat(system)
+	--					out = string.format("%s, %s:%.5f-%.5f",out,system,heat.before,heat.after)
+					end
+				end
+	--			print(out)
 			end
---			print(out)
 		end
 	end
 end
