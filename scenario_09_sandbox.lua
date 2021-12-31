@@ -112,7 +112,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.0.0"
+	scenario_version = "5.1.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -14763,6 +14763,33 @@ function tweakPlayerShip()
 	addGMFunction("+Player Message",playerMessage)
 	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
 	addGMFunction("+Sensors",playerSensors)
+	addGMFunction("+Helm",playerHelm)
+end
+function playerHelm()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Helm",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p:hasSystem("warp") then
+			addGMFunction(string.format("+Chg %s",p:getCallSign()),playerHelm)
+			addGMFunction(string.format("Warp %i+50=%i",p:getWarpSpeed(),p:getWarpSpeed()+50),function()
+				string.format("")
+				p:setWarpSpeed(p:getWarpSpeed()+50)
+				playerHelm()
+			end)
+			addGMFunction(string.format("Warp %i-50=%i",p:getWarpSpeed(),p:getWarpSpeed()-50),function()
+				string.format("")
+				p:setWarpSpeed(p:getWarpSpeed()-50)
+				playerHelm()
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
 end
 function playerSensors()
 	clearGMFunctions()
@@ -15545,6 +15572,7 @@ function changePlayerCargo()
 	addGMFunction("+Remove Cargo",removeCargo)
 	addGMFunction("+Add Mineral",addMineralCargo)
 	addGMFunction("+Add Component",addComponentCargo)
+	addGMFunction("+Add Arbitrary",addArbitraryCargo)
 end
 -------------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Reputation  --
@@ -16185,6 +16213,90 @@ function addComponentCargo()
 	else
 		addGMMessage("No player selected. No action taken")
 	end
+end
+function addArbitraryCargo()
+	clearGMFunctions()
+	addGMFunction("-Main from Arbitrary",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	addGMFunction("-Cargo From Arbitrary",changePlayerCargo)
+	if cargo_source_object == nil then
+		addGMFunction("+Sel Src Cargo Obj",changeCargoSourceObject)
+	else
+		if cargo_source_object:isValid() then
+			addGMFunction("+Chg Src Cargo Obj",changeCargoSourceObject)
+		else
+			addGMFunction("+Sel Src Cargo Obj",changeCargoSourceObject)
+		end
+	end
+	if player_to_get_cargo == nil then
+		addGMFunction("+Select Cargo Player",function()
+			local p = playerShipSelected()
+			if p ~= nil then
+				player_to_get_cargo = p
+			else
+				addGMMessage("No player selected. No action taken")
+			end
+			addArbitraryCargo()
+		end)
+	else
+		local button_label = "+Select Cargo Player"
+		if player_to_get_cargo:isValid() then
+			button_label = string.format("+Chg %s",player_to_get_cargo:getCallSign())
+		end
+		addGMFunction(button_label,function()
+			local p = playerShipSelected()
+			if p ~= nil then
+				player_to_get_cargo = p
+			else
+				addGMMessage("No player selected. No action taken")
+			end
+			addArbitraryCargo()
+		end)
+	end
+	if player_to_get_cargo ~= nil and player_to_get_cargo:isValid() and cargo_source_object ~= nil and cargo_source_object:isValid() then
+		addGMFunction("Test Selections",function()
+			local out = "Clicking the Add Cargo button will cause cargo of type"
+			addGMMessage(string.format("Clicking the Add Cargo button will cause cargo of type\n%s\nto be added to player ship\n%s",cargo_source_object:getDescription(),player_to_get_cargo:getCallSign()))
+			addArbitraryCargo()
+		end)
+		addGMFunction("Add Cargo",function()
+			local p = player_to_get_cargo
+			local good = cargo_source_object:getDescription()
+			if p.cargo > 0 then
+				if p.goods == nil then
+					p.goods = {}
+				end
+				if p.goods[good] == nil then
+					p.goods[good] = 0
+				end
+				p.goods[good] = p.goods[good] + 1
+				p.cargo = p.cargo - 1
+				addGMMessage(string.format("one %s added",good))
+			else
+				addGMMessage("Insufficient cargo space")
+			end
+		end)
+	end
+end
+function changeCargoSourceObject()
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			cargo_source_object = object_list[1]
+			local source = cargo_source_object:getDescription()
+			if source ~= nil then
+				player_cargo_name_source = source
+			end
+			addGMMessage(string.format("Object in %s selected to identify cargo name source.\nplace cargo name text in unscanned description field",cargo_source_object:getSectorName()))
+		else
+			addGMMessage("Select only one object to use to identify cargo name source via its unscanned description field. No action taken")
+		end
+	else
+		addGMMessage("Select an object to use to identify cargo name source via its unscanned description field. No action taken")
+	end 
+	addArbitraryCargo()
 end
 --	************************************************************************************************  --
 --	****				Initial Set Up Player Ships Tweak Player Ship Log Message				****  --
