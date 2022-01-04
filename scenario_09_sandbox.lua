@@ -1,7 +1,7 @@
 -- Name: Sandbox
 -- Description: GM controlled missions
 --- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh, Bask
---- Version 4
+--- Version 5
 --- Latest version: https://github.com/Xansta/EEScenarios
 --- Wiki: https://github.com/Xansta/EEScenarios/wiki/Sandbox
 --- USN Discord: https://discord.gg/PntGG3a 
@@ -23,8 +23,9 @@ require("utils.lua")
 require("sandbox_science_database.lua")
 require("utils_customElements.lua")
 require("sandbox_library.lua")
+--	scenario also needs border_defend_station.lua
 
--- maps filenames that where moved after 2021.6.23 release
+-- maps filenames that were moved after 2021.6.23 release
 function getFilenameCompatible(new_filename)
 	if getEEVersion() ==  2021623 then
 		local lookup = {
@@ -112,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.1.0"
+	scenario_version = "5.2.1"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -122,6 +123,7 @@ function init()
 	change_enemy_order_diagnostic = false
 	magnasol_nebula_diagnostic = false
 	distance_diagnostic = false
+	commerce_diagnostic = false
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
@@ -855,7 +857,7 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Devon")
-	makePlayerShipActive("Ink")
+	makePlayerShipActive("Hearken")
 	makePlayerShipActive("Yorik")
 	makePlayerShipActive("Knuckle Drag")
 	makePlayerShipActive("Flipper")
@@ -935,179 +937,188 @@ function setConstants()
 	supply_probes_range_max = 0
 	supply_armor_range_min = 0
 	supply_armor_range_max = 0
-	shipTemplateDistance = {	["MT52 Hornet"] =					100,
-								["MU52 Hornet"] =					100,
-								["Adder MK5"] =						100,
-								["Adder MK4"] =						100,
-								["Adder MK6"] =						100,
-								["WX-Lindworm"] =					100,
-								["Phobos T3"] =						200,
-								["Phobos M3"] =						200,
-								["Guard"] =							600,
-								["Nirvana R5"] =					200,
-								["Sentinel"] =						600,
-								["Nirvana R5A"] =					200,
-								["Storm"] =							200,
-								["Warden"] =						600,
-								["Piranha F12"] =					200,
-								["Piranha F10"] =					200,
-								["Piranha F12.M"] =					200,
-								["Piranha F8"] =					200,
-								["Stalker Q7"] =					200,
-								["Stalker R7"] =					200,
-								["Ranus U"] =						200,
-								["Flavia"] =						200,
-								["Flavia Falcon"] =					200,
-								["Tug"] =							200,
-								["Cucaracha"] =						200,
-								["Fighter"] =						100,
-								["Karnack"] =						200,
-								["Cruiser"] =						200,
-								["Missile Cruiser"] =				200,
-								["Gunship"] =						400,
-								["Adv. Gunship"] =					400,
-								["Strikeship"] = 					200,
-								["Adv. Striker"] = 					300,
-								["Dreadnought"] =					400,
-								["Battlestation"] =					2000,
-								["Ryder"] =							2000,
-								["Fortress"] =						2000,
-								["Weapons platform"] =				200,
-								["Blockade Runner"] =				400,
-								["Ktlitan Fighter"] =				300,
-								["Ktlitan Breaker"] =				300,
-								["Ktlitan Worker"] =				300,
-								["Ktlitan Drone"] =					300,
-								["Ktlitan Feeder"] =				300,
-								["Ktlitan Scout"] =					300,
-								["Ktlitan Destroyer"] = 			500,
-								["Ktlitan Queen"] =					500,
-								["Transport1x1"] =					600,
-								["Transport1x2"] =					600,
-								["Transport1x3"] =					600,
-								["Transport1x4"] =					800,
-								["Transport1x5"] =					800,
-								["Transport2x1"] =					600,
-								["Transport2x2"] =					600,
-								["Transport2x3"] =					600,
-								["Transport2x4"] =					800,
-								["Transport2x5"] =					800,
-								["Transport3x1"] =					600,
-								["Transport3x2"] =					600,
-								["Transport3x3"] =					600,
-								["Transport3x4"] =					800,
-								["Transport3x5"] =					800,
-								["Transport4x1"] =					600,
-								["Transport4x2"] =					600,
-								["Transport4x3"] =					600,
-								["Transport4x4"] =					800,
-								["Transport4x5"] =					800,
-								["Transport5x1"] =					600,
-								["Transport5x2"] =					600,
-								["Transport5x3"] =					600,
-								["Transport5x4"] =					800,
-								["Transport5x5"] =					800,
-								["Odin"] = 							1500,
-								["Atlantis X23"] =					400,
-								["Starhammer II"] =					400,
-								["Defense platform"] =				800,
-								["Personnel Freighter 1"] =			600,
-								["Personnel Freighter 2"] =			600,
-								["Personnel Freighter 3"] =			600,
-								["Personnel Freighter 4"] =			800,
-								["Personnel Freighter 5"] =			800,
-								["Personnel Jump Freighter 3"] =	600,
-								["Personnel Jump Freighter 4"] =	800,
-								["Personnel Jump Freighter 5"] =	800,
-								["Goods Freighter 1"] =				600,
-								["Goods Freighter 2"] =				600,
-								["Goods Freighter 3"] =				600,
-								["Goods Freighter 4"] =				800,
-								["Goods Freighter 5"] =				800,
-								["Goods Jump Freighter 3"] =		600,
-								["Goods Jump Freighter 4"] =		800,
-								["Goods Jump Freighter 5"] =		800,
-								["Garbage Freighter 1"] =			600,
-								["Garbage Freighter 2"] =			600,
-								["Garbage Freighter 3"] =			600,
-								["Garbage Freighter 4"] =			800,
-								["Garbage Freighter 5"] =			800,
-								["Garbage Jump Freighter 3"] =		600,
-								["Garbage Jump Freighter 4"] =		800,
-								["Garbage Jump Freighter 5"] =		800,
-								["Equipment Freighter 1"] =			600,
-								["Equipment Freighter 2"] =			600,
-								["Equipment Freighter 3"] =			600,
-								["Equipment Freighter 4"] =			800,
-								["Equipment Freighter 5"] =			800,
-								["Equipment Jump Freighter 3"] =	600,
-								["Equipment Jump Freighter 4"] =	800,
-								["Equipment Jump Freighter 5"] =	800,
-								["Fuel Freighter 1"] =				600,
-								["Fuel Freighter 2"] =				600,
-								["Fuel Freighter 3"] =				600,
-								["Fuel Freighter 4"] =				800,
-								["Fuel Freighter 5"] =				800,
-								["Fuel Jump Freighter 3"] =			600,
-								["Fuel Jump Freighter 4"] =			800,
-								["Fuel Jump Freighter 5"] =			800,
-								["Adder MK3"] =						100,
-								["Adder MK7"] =						100,
-								["Adder MK8"] =						100,
-								["Adder MK9"] =						100,
-								["Phobos R2"] =						200,
-								["MV52 Hornet"] =					100,
-								["Dagger"] =						100,
-								["Flash"] =							100,
-								["Munemi"] =						100,
-								["Maniapak"] =						100,
-								["Ranger"] =						100,
-								["Buster"] =						100,
-								["Blade"] =							300,
-								["Gunner"] =						100,
-								["Shooter"] =						100,
-								["Jagger"] =						100,
-								["MT55 Hornet"] =					100,
-								["MU55 Hornet"] =					100,
-								["Nirvana R3"] =					200,
-								["Hunter"] =						200,
-								["Fiend G3"] =						400,
-								["Fiend G4"] =						400,
-								["Fiend G5"] =						400,
-								["Fiend G6"] =						400,
-								["Farco 3"] =						200,
-								["Farco 5"] =						200,
-								["Farco 8"] =						200,
-								["Farco 11"] =						200,
-								["Farco 13"] =						200,
-								["K2 Fighter"] =					300,
-								["K3 Fighter"] =					300,
-								["Racer"] =							200,
-								["Stalker Q5"] =					200,
-								["Stalker R5"] =					200,
-								["Strike"] =						200,
-								["Dash"] =							200,
-								["Jade 5"] =						100,
-								["Waddle 5"] =						100,
-								["Lite Drone"] = 					300,
-								["Heavy Drone"] = 					300,
-								["Jacket Drone"] =					300,
-								["Elara P2"] =						200,
-								["WZ-Lindworm"] =					100,
-								["Tempest"] =						200,
-								["Enforcer"] =						400,
-								["Enforcer V2"] =					400,
-								["Predator"] =						200,
-								["Predator V2"] =					200,
-								["Atlantis Y42"] =					400,
-								["Starhammer V"] =					400,
-								["Gulper"] =						400,
-								["Diva"] =							350,
-								["Loki"] =							1500,
-								["Tyr"] =							2000,
-								["Prador"] =						2000,
-								["Gnat"] =							300,
-								["Jump Carrier"] =					800		}
+	shipTemplateDistance = {
+		["Adder MK3"] =						100,
+		["Adder MK4"] =						100,
+		["Adder MK5"] =						100,
+		["Adder MK6"] =						100,
+		["Adder MK7"] =						100,
+		["Adder MK8"] =						100,
+		["Adder MK9"] =						100,
+		["Adv. Gunship"] =					400,
+		["Adv. Striker"] = 					300,
+		["Atlantis X23"] =					400,
+		["Atlantis Y42"] =					400,
+		["Battlestation"] =					2000,
+		["Blockade Runner"] =				400,
+		["Blade"] =							300,
+		["Buster"] =						100,
+		["Courier"] =						600,
+		["Cruiser"] =						200,
+		["Cucaracha"] =						200,
+		["Dagger"] =						100,
+		["Dash"] =							200,
+		["Defense platform"] =				800,
+		["Diva"] =							350,
+		["Dreadnought"] =					400,
+		["Elara P2"] =						200,
+		["Enforcer"] =						400,
+		["Enforcer V2"] =					400,
+		["Equipment Freighter 1"] =			600,
+		["Equipment Freighter 2"] =			600,
+		["Equipment Freighter 3"] =			600,
+		["Equipment Freighter 4"] =			800,
+		["Equipment Freighter 5"] =			800,
+		["Equipment Jump Freighter 3"] =	600,
+		["Equipment Jump Freighter 4"] =	800,
+		["Equipment Jump Freighter 5"] =	800,
+		["Farco 3"] =						200,
+		["Farco 5"] =						200,
+		["Farco 8"] =						200,
+		["Farco 11"] =						200,
+		["Farco 13"] =						200,
+		["Fiend G3"] =						400,
+		["Fiend G4"] =						400,
+		["Fiend G5"] =						400,
+		["Fiend G6"] =						400,
+		["Fighter"] =						100,
+		["Flash"] =							100,
+		["Flavia"] =						200,
+		["Flavia Falcon"] =					200,
+		["Fortress"] =						2000,
+		["Fuel Freighter 1"] =				600,
+		["Fuel Freighter 2"] =				600,
+		["Fuel Freighter 3"] =				600,
+		["Fuel Freighter 4"] =				800,
+		["Fuel Freighter 5"] =				800,
+		["Fuel Jump Freighter 3"] =			600,
+		["Fuel Jump Freighter 4"] =			800,
+		["Fuel Jump Freighter 5"] =			800,
+		["Garbage Freighter 1"] =			600,
+		["Garbage Freighter 2"] =			600,
+		["Garbage Freighter 3"] =			600,
+		["Garbage Freighter 4"] =			800,
+		["Garbage Freighter 5"] =			800,
+		["Garbage Jump Freighter 3"] =		600,
+		["Garbage Jump Freighter 4"] =		800,
+		["Garbage Jump Freighter 5"] =		800,
+		["Gnat"] =							300,
+		["Goods Freighter 1"] =				600,
+		["Goods Freighter 2"] =				600,
+		["Goods Freighter 3"] =				600,
+		["Goods Freighter 4"] =				800,
+		["Goods Freighter 5"] =				800,
+		["Goods Jump Freighter 3"] =		600,
+		["Goods Jump Freighter 4"] =		800,
+		["Goods Jump Freighter 5"] =		800,
+		["Guard"] =							600,	--transport_1_1
+		["Gulper"] =						400,
+		["Gunner"] =						100,
+		["Gunship"] =						400,
+		["Heavy Drone"] = 					300,
+		["Hunter"] =						200,
+		["Jacket Drone"] =					300,
+		["Jade 5"] =						100,
+		["Jagger"] =						100,
+		["Jump Carrier"] =					800,		
+		["Karnack"] =						200,
+		["K2 Fighter"] =					300,
+		["K3 Fighter"] =					300,
+		["Ktlitan Breaker"] =				300,
+		["Ktlitan Destroyer"] = 			500,
+		["Ktlitan Drone"] =					300,
+		["Ktlitan Feeder"] =				300,
+		["Ktlitan Fighter"] =				300,
+		["Ktlitan Queen"] =					500,
+		["Ktlitan Scout"] =					300,
+		["Ktlitan Worker"] =				300,
+		["Laden Lorry"] =					600,
+		["Lite Drone"] = 					300,
+		["Loki"] =							1500,
+		["Maniapak"] =						100,
+		["Missile Cruiser"] =				200,
+		["MT52 Hornet"] =					100,
+		["MT55 Hornet"] =					100,
+		["MU52 Hornet"] =					100,
+		["MU55 Hornet"] =					100,
+		["Munemi"] =						100,
+		["MV52 Hornet"] =					100,
+		["Nirvana R3"] =					200,
+		["Nirvana R5"] =					200,
+		["Nirvana R5A"] =					200,
+		["Odin"] = 							1500,
+		["Omnibus"] = 						800,
+		["Personnel Freighter 1"] =			600,
+		["Personnel Freighter 2"] =			600,
+		["Personnel Freighter 3"] =			600,
+		["Personnel Freighter 4"] =			800,
+		["Personnel Freighter 5"] =			800,
+		["Personnel Jump Freighter 3"] =	600,
+		["Personnel Jump Freighter 4"] =	800,
+		["Personnel Jump Freighter 5"] =	800,
+		["Phobos M3"] =						200,
+		["Phobos R2"] =						200,
+		["Phobos T3"] =						200,
+		["Physics Research"] =				600,
+		["Piranha F10"] =					200,
+		["Piranha F12"] =					200,
+		["Piranha F12.M"] =					200,
+		["Piranha F8"] =					200,
+		["Prador"] =						2000,
+		["Predator"] =						200,
+		["Predator V2"] =					200,
+		["Racer"] =							200,
+		["Ranger"] =						100,
+		["Ranus U"] =						200,
+		["Ryder"] =							2000,
+		["Sentinel"] =						600,
+		["Service Jonque"] =				800,
+		["Shooter"] =						100,
+		["Space Sedan"] =					600,
+		["Stalker Q5"] =					200,
+		["Stalker Q7"] =					200,
+		["Stalker R5"] =					200,
+		["Stalker R7"] =					200,
+		["Starhammer II"] =					400,
+		["Starhammer V"] =					400,
+		["Storm"] =							200,
+		["Strike"] =						200,
+		["Strikeship"] = 					200,
+		["Tempest"] =						200,
+		["Transport1x1"] =					600,
+		["Transport1x2"] =					600,
+		["Transport1x3"] =					600,
+		["Transport1x4"] =					800,
+		["Transport1x5"] =					800,
+		["Transport2x1"] =					600,
+		["Transport2x2"] =					600,
+		["Transport2x3"] =					600,
+		["Transport2x4"] =					800,
+		["Transport2x5"] =					800,
+		["Transport3x1"] =					600,
+		["Transport3x2"] =					600,
+		["Transport3x3"] =					600,
+		["Transport3x4"] =					800,
+		["Transport3x5"] =					800,
+		["Transport4x1"] =					600,
+		["Transport4x2"] =					600,
+		["Transport4x3"] =					600,
+		["Transport4x4"] =					800,
+		["Transport4x5"] =					800,
+		["Transport5x1"] =					600,
+		["Transport5x2"] =					600,
+		["Transport5x3"] =					600,
+		["Transport5x4"] =					800,
+		["Transport5x5"] =					800,
+		["Tug"] =							200,
+		["Tyr"] =							2000,
+		["Waddle 5"] =						100,
+		["Warden"] =						600,
+		["Weapons platform"] =				200,
+		["Work Wagon"] =					600,
+		["WX-Lindworm"] =					100,
+		["WZ-Lindworm"] =					100,
+	}
 	unscannedClues = {	["Energy Signature"] = "Energy signature",
 						["Trace Elements"] = "Trace elements",
 						["Warp Residue"] = "Warp residue",
@@ -3863,31 +3874,39 @@ function skeletalDestination(ship)
 						table.insert(station_pool,station)
 					end
 				else
-					print("station",station:getCallSign(),station:getFaction(),"is an enemy to",ship:getCallSign(),ship:getFaction())
+					if commerce_diagnostic then
+						print("station",station:getCallSign(),station:getFaction(),"is an enemy to",ship:getCallSign(),ship:getFaction())
+					end
 				end
 			end
 		end
 	else
-		print("skeletal stations is empty")
+		if commerce_diagnostic then
+			print("skeletal stations is empty")
+		end
 	end
 	ship.commerce_target = tableRemoveRandom(station_pool)
 	if ship.commerce_target == nil then
-		print("got nothing from station pool, assigning Icarus")
+		if commerce_diagnostic then
+			print("got nothing from station pool, assigning Icarus")
+		end
 		ship.commerce_target = stationIcarus
 	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableRemoveRandom(station_pool)
-		if ship.commerce_origin == nil then
-			print("ship commerce origin is nil")
-			if #station_pool > 0 then
-				for index, station in ipairs(station_pool) do
-					print("index:",index,"station:",station:getCallSign())
+		if commerce_diagnostic then
+			if ship.commerce_origin == nil then
+				print("ship commerce origin is nil")
+				if #station_pool > 0 then
+					for index, station in ipairs(station_pool) do
+						print("index:",index,"station:",station:getCallSign())
+					end
+				else
+					print("station pool is empty")
 				end
 			else
-				print("station pool is empty")
+				print("ship commerce origin:",ship.commerce_origin:getCallSign())
 			end
-		else
-			print("ship commerce origin:",ship.commerce_origin:getCallSign())
 		end
 		if ship.commerce_origin == nil then
 			ship.commerce_origin = stationIcarus
@@ -3981,7 +4000,9 @@ function regionCommerceDestination(ship,region_station)
 			end
 		end
 	else
-		print("regional stations is empty")
+		if commerce_diagnostic then
+			print("regional stations is empty")
+		end
 	end
 	if primary_station ~= nil then
 		table.insert(station_pool,primary_station)
@@ -3991,22 +4012,26 @@ function regionCommerceDestination(ship,region_station)
 --	print("station pool count:",#station_pool)
 	ship.commerce_target = tableRemoveRandom(station_pool)
 	if ship.commerce_target == nil then
-		print("got nothing from station pool, assigning primary station:",primary_station:getCallSign())
+		if commerce_diagnostic then
+			print("got nothing from station pool, assigning primary station:",primary_station:getCallSign())
+		end
 		ship.commerce_target = primary_station
 	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableRemoveRandom(station_pool)
-		if ship.commerce_origin == nil then
-			print("ship commerce origin is nil")
-			if #station_pool > 0 then
-				for index, station in ipairs(station_pool) do
-					print("index:",index,"station:",station:getCallSign())
+		if commerce_diagnostic then
+			if ship.commerce_origin == nil then
+				print("ship commerce origin is nil")
+				if #station_pool > 0 then
+					for index, station in ipairs(station_pool) do
+						print("index:",index,"station:",station:getCallSign())
+					end
+				else
+					print("station pool is empty")
 				end
 			else
-				print("station pool is empty")
+				print("ship commerce origin:",ship.commerce_origin:getCallSign())
 			end
-		else
-			print("ship commerce origin:",ship.commerce_origin:getCallSign())
 		end
 		if ship.commerce_origin == nil then
 			ship.commerce_origin = primary_station
@@ -5942,18 +5967,18 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 2 then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"dp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
---		elseif i == 3 then
---			dp3Zone = squareZone(icx+dpx,icy+dpy,"dp3")
---			dp3Zone:setColor(0,128,0):setLabel("3")
---		else		
+		if i == 6 then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"dp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
+		elseif i == 1 then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"dp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -37858,8 +37883,14 @@ function commsStation()
 		["Huge Station"]	= 5,
     }
     local temp_type = comms_target:getTypeName()
-    local panic_range = comms_target:getShortRangeRadarRange()/range_divisor[temp_type]
+    local panic_range = 5000
+    if temp_type == nil then
+    	print("template name nil for:",comms_target:getCallSign(),"defaulting panic range to 5000")
+    else
+	    panic_range = comms_target:getShortRangeRadarRange()/range_divisor[temp_type]	
+    end
     if panic_range == nil then
+    	print("calculating panic range failed. Defaulting to 5000")
     	panic_range = 5000
     end
     if comms_target:areEnemiesInRange(panic_range) then
@@ -43279,14 +43310,15 @@ end
 function updateMagnasolCollision(delta)
 	local planet_x, planet_y = planet_colburn:getPosition()
 	local collision_list = getObjectsInRadius(planet_x, planet_y, colburn_radius + 2000)
+	local obj_dist = 0
+	local ship_distance = 0
+	local obj_type_name = ""
 	for _, obj in ipairs(collision_list) do
 		if obj:isValid() then
 			if distance_diagnostic then
 				print("distance_diagnostic 25 obj:",obj,"planet_colburn:",planet_colburn)
 			end		
-			local obj_dist = distance(obj,planet_colburn)
-			local ship_distance = 400
-			local obj_type_name = ""
+			obj_dist = distance(obj,planet_colburn)
 			if obj.typeName == "CpuShip" then
 				obj_type_name = obj:getTypeName()
 				if obj_type_name ~= nil then
@@ -43326,14 +43358,34 @@ function updateMagnasolCollision(delta)
 			if distance_diagnostic then
 				print("distance_diagnostic 26 obj:",obj,"planet_morningstar_moon:",planet_morningstar_moon)
 			end		
-			local obj_dist = distance(obj,planet_morningstar_moon)
+			obj_dist = distance(obj,planet_morningstar_moon)
 			if obj.typeName == "CpuShip" then
-				if obj_dist <= morningstar_radius + shipTemplateDistance[obj:getTypeName()] then
+				obj_type_name = obj:getTypeName()
+				if obj_type_name ~= nil then
+					ship_distance = shipTemplateDistance[obj:getTypeName()]
+					if ship_distance == nil then
+						print("When calculating distance to morningstar, could not get the distance for ship template:",obj:getTypeName(),"defaulting to 400")
+						ship_distance = 400
+					end
+				else
+					print("morningstar test: type name nil on cpu ship:",obj:getCallSign(),"defaulting to ship distance 400")
+				end
+				if obj_dist <= morningstar_radius + ship_distance then
 					obj:takeDamage(100,"kinetic",planet_x,planet_y)
 				end
 			end
 			if obj.typeName == "PlayerSpaceship" then
-				if obj_dist <= morningstar_radius + playerShipStats[obj:getTypeName()].distance then
+				obj_type_name = obj:getTypeName()
+				if obj_type_name ~= nil then
+					ship_distance = playerShipStats[obj:getTypeName()].distance
+					if ship_distance == nil then
+						print("distance not retrieved from player ship stats for player ship:",obj:getCallSign(),"defaulting to ship distance 400")
+						ship_distance = 400
+					end
+				else
+					print("type name nil on player ship:",obj:getCallSign(),"defaulting to ship distance 400")
+				end
+				if obj_dist <= morningstar_radius + ship_distance then
 					obj:takeDamage(100,"kinetic",planet_x,planet_y)
 				end
 			end
