@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.2.1"
+	scenario_version = "5.3.1"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -711,78 +711,80 @@ function setConstants()
 	}
 --	patrol_probe value should be between 0 and 5 not inclusive (0 = no patrol probes). The higher the value, the faster the patrol probe and the fewer patrol probes available 
 	playerShipStats = {	
-		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2	},
-		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
+		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
 	--	Custom player ships	
-		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0	},
-		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0	},
-		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0	},
-		["Eldridge"]			= { strength = 20,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3	},
-		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9	},
-		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0	},
-		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9	},
-		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9	},
-		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 4,	prox_scan = 0	},
-		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Lurker"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 21000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 1	},
-		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2	},
-		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9	},
-		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1	},
-		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9	},
-		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 3.5,	prox_scan = 0	},
-		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3	},
-		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9	},
-		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1	},
-		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0	},
-		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0	},
-		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1	},
-		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9	},
+		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	},
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	},
+		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	},
+		["Eldridge"]			= { strength = 20,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	},
+		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	},
+		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	},
+		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9,	},
+		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9,	},
+		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 4,	prox_scan = 0,	},
+		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Lurker"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 21000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 1,	},
+		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	},
+		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	},
+		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1,	},
+		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Phobos T2.2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	},
+		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 3.5,	prox_scan = 0,	},
+		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	},
+		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	},
+		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	},
+		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	},
+		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	},
 	}	
 	-- this table has ended up not in alphabetical order
 	-- likewise the creation functions are no longer in alphabetical order
@@ -828,7 +830,7 @@ function setConstants()
 	addPlayerShip("Manxman",	"Nusret",		createPlayerShipManxman		,"J")
 	addPlayerShip("Mixer",		"Amalgam",		createPlayerShipMixer		,"J")
 	addPlayerShip("Narsil",		"Proto-Atlantis",createPlayerShipNarsil		,"W")
-	addPlayerShip("Nimbus",		"Phobos T2",	createPlayerShipNimbus		,"J")
+	addPlayerShip("Nimbus",		"Phobos T2.2",	createPlayerShipNimbus		,"J")
 	addPlayerShip("Osprey",		"Flavia 2C",	createPlayerShipOsprey		,"W")
 	addPlayerShip("Outcast",	"Scatter",		createPlayerShipOutcast		,"J")
 	addPlayerShip("Pinwheel",	"Rotor"	,		createPlayerShipPinwheel	,"W")
@@ -848,7 +850,7 @@ function setConstants()
 	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,"W")
 	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,"W")
 	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,"W")
-	addPlayerShip("Terror",		"Phobos T2",	createPlayerShipTerror		,"J")
+	addPlayerShip("Terror",		"Phobos T2.2",	createPlayerShipTerror		,"J")
 	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,"W")
 	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,"J")
 	addPlayerShip("Vision",		"Era",			createPlayerShipVision		,"W")
@@ -18496,7 +18498,7 @@ end
 function createPlayerShipNarsil()
 	--experimental
 	playerNarsil = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Narsil")
-	playerNarsil:setTypeName("Proto-Atlantis")
+	playerNarsil:setTypeName("Proto-Atlantis 2")
 	playerNarsil:setRepairCrewCount(4)					--more repair crew (vs 3)
 	playerNarsil:setImpulseMaxSpeed(70)					--slower impulse max (vs 90)
 	playerNarsil:setRotationMaxSpeed(14)				--faster spin (vs 10)
@@ -18525,7 +18527,7 @@ function createPlayerShipNarsil()
 end
 function createPlayerShipNimbus()
 	playerNimbus = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Nimbus")
-	playerNimbus:setTypeName("Phobos T2")
+	playerNimbus:setTypeName("Phobos T2.2")
 	playerNimbus:setRepairCrewCount(5)					--more repair crew (vs 3)
 	playerNimbus:setJumpDrive(true)						--jump drive (vs none)
 	playerNimbus.max_jump_range = 25000					--shorter than typical (vs 50)
@@ -19328,7 +19330,7 @@ function createPlayerShipTango()
 end
 function createPlayerShipTerror()
 	playerPhobosT2 = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Terror")
-	playerPhobosT2:setTypeName("Phobos T2")
+	playerPhobosT2:setTypeName("Phobos T2.2")
 	playerPhobosT2:setRepairCrewCount(4)					--more repair crew (vs 3)
 	playerPhobosT2:setJumpDrive(true)						--jump drive (vs none)
 	playerPhobosT2.max_jump_range = 25000					--shorter than typical (vs 50)
@@ -20306,9 +20308,23 @@ function updatePlayerSoftTemplate(p)
 		p.healthyBeam = 1.0
 		p.prevBeam = 1.0
 	end
-	if p:getWeaponTubeCount() > 0 then
+	local tube_count = p:getWeaponTubeCount()
+	if tube_count > 0 then
 		p.healthyMissile = 1.0
 		p.prevMissile = 1.0
+		p.tube_size = ""
+		for i=1,tube_count do
+			local tube_size = p:getTubeSize(i-1)
+			if tube_size == "small" then
+				p.tube_size = p.tube_size .. "S"
+			end
+			if tube_size == "medium" then
+				p.tube_size = p.tube_size .. "M"
+			end
+			if tube_size == "large" then
+				p.tube_size = p.tube_size .. "L"
+			end
+		end
 	end
 	if p:hasWarpDrive() then
 		p.healthyWarp = 1.0
@@ -22364,7 +22380,6 @@ function fillPrefixPool()
 	end
 end
 function getFactionPrefix(faction)
-	--get the faction names from another scenario if desired
 	local faction_prefix = nil
 	if faction == "Kraylor" then
 		if kraylor_names == nil then
@@ -22426,10 +22441,836 @@ function getFactionPrefix(faction)
 		faction_prefix = human_names[human_name_choice]
 		table.remove(human_names,human_name_choice)
 	end
+	if faction == "Arlenians" then
+		if arlenian_names == nil then
+			setArlenianNames()
+		else
+			if #arlenian_names < 1 then
+				setArlenianNames()
+			end
+		end
+		local arlenian_name_choice = math.random(1,#arlenian_names)
+		faction_prefix = arlenian_names[arlenian_name_choice]
+		table.remove(arlenian_names,arlenian_name_choice)
+	end
+	if faction == "USN" then
+		if usn_names == nil then
+			setUsnNames()
+		else
+			if #usn_names < 1 then
+				setUsnNames()
+			end
+		end
+		local usn_name_choice = math.random(1,#usn_names)
+		faction_prefix = usn_names[usn_name_choice]
+		table.remove(usn_names,usn_name_choice)
+	end
+	if faction == "TSN" then
+		if tsn_names == nil then
+			setTsnNames()
+		else
+			if #tsn_names < 1 then
+				setTsnNames()
+			end
+		end
+		local tsn_name_choice = math.random(1,#tsn_names)
+		faction_prefix = tsn_names[tsn_name_choice]
+		table.remove(tsn_names,tsn_name_choice)
+	end
+	if faction == "CUF" then
+		if cuf_names == nil then
+			setCufNames()
+		else
+			if #cuf_names < 1 then
+				setCufNames()
+			end
+		end
+		local cuf_name_choice = math.random(1,#cuf_names)
+		faction_prefix = cuf_names[cuf_name_choice]
+		table.remove(cuf_names,cuf_name_choice)
+	end
+	if faction == "Ktlitans" then
+		if ktlitan_names == nil then
+			setKtlitanNames()
+		else
+			if #ktlitan_names < 1 then
+				setKtlitanNames()
+			end
+		end
+		local ktlitan_name_choice = math.random(1,#ktlitan_names)
+		faction_prefix = ktlitan_names[ktlitan_name_choice]
+		table.remove(ktlitan_names,ktlitan_name_choice)
+	end
 	if faction_prefix == nil then
 		faction_prefix = generateCallSignPrefix()
 	end
 	return faction_prefix
+end
+function setGhostsNames()
+	ghosts_names = {}
+	table.insert(ghosts_names,"Abstract")
+	table.insert(ghosts_names,"Ada")
+	table.insert(ghosts_names,"Assemble")
+	table.insert(ghosts_names,"Assert")
+	table.insert(ghosts_names,"Backup")
+	table.insert(ghosts_names,"BASIC")
+	table.insert(ghosts_names,"Big Iron")
+	table.insert(ghosts_names,"BigEndian")
+	table.insert(ghosts_names,"Binary")
+	table.insert(ghosts_names,"Bit")
+	table.insert(ghosts_names,"Block")
+	table.insert(ghosts_names,"Boot")
+	table.insert(ghosts_names,"Branch")
+	table.insert(ghosts_names,"BTree")
+	table.insert(ghosts_names,"Bubble")
+	table.insert(ghosts_names,"Byte")
+	table.insert(ghosts_names,"Capacitor")
+	table.insert(ghosts_names,"Case")
+	table.insert(ghosts_names,"Chad")
+	table.insert(ghosts_names,"Charge")
+	table.insert(ghosts_names,"COBOL")
+	table.insert(ghosts_names,"Collate")
+	table.insert(ghosts_names,"Compile")
+	table.insert(ghosts_names,"Control")
+	table.insert(ghosts_names,"Construct")
+	table.insert(ghosts_names,"Cycle")
+	table.insert(ghosts_names,"Data")
+	table.insert(ghosts_names,"Debug")
+	table.insert(ghosts_names,"Decimal")
+	table.insert(ghosts_names,"Decision")
+	table.insert(ghosts_names,"Default")
+	table.insert(ghosts_names,"DIMM")
+	table.insert(ghosts_names,"Displacement")
+	table.insert(ghosts_names,"Edge")
+	table.insert(ghosts_names,"Exit")
+	table.insert(ghosts_names,"Factor")
+	table.insert(ghosts_names,"Flag")
+	table.insert(ghosts_names,"Float")
+	table.insert(ghosts_names,"Flow")
+	table.insert(ghosts_names,"FORTRAN")
+	table.insert(ghosts_names,"Fullword")
+	table.insert(ghosts_names,"GIGO")
+	table.insert(ghosts_names,"Graph")
+	table.insert(ghosts_names,"Hack")
+	table.insert(ghosts_names,"Hash")
+	table.insert(ghosts_names,"Halfword")
+	table.insert(ghosts_names,"Hertz")
+	table.insert(ghosts_names,"Hexadecimal")
+	table.insert(ghosts_names,"Indicator")
+	table.insert(ghosts_names,"Initialize")
+	table.insert(ghosts_names,"Integer")
+	table.insert(ghosts_names,"Integrate")
+	table.insert(ghosts_names,"Interrupt")
+	table.insert(ghosts_names,"Java")
+	table.insert(ghosts_names,"Lisp")
+	table.insert(ghosts_names,"List")
+	table.insert(ghosts_names,"Logic")
+	table.insert(ghosts_names,"Loop")
+	table.insert(ghosts_names,"Lua")
+	table.insert(ghosts_names,"Magnetic")
+	table.insert(ghosts_names,"Mask")
+	table.insert(ghosts_names,"Memory")
+	table.insert(ghosts_names,"Mnemonic")
+	table.insert(ghosts_names,"Micro")
+	table.insert(ghosts_names,"Model")
+	table.insert(ghosts_names,"Nibble")
+	table.insert(ghosts_names,"Octal")
+	table.insert(ghosts_names,"Order")
+	table.insert(ghosts_names,"Operator")
+	table.insert(ghosts_names,"Parameter")
+	table.insert(ghosts_names,"Pascal")
+	table.insert(ghosts_names,"Pattern")
+	table.insert(ghosts_names,"Pixel")
+	table.insert(ghosts_names,"Point")
+	table.insert(ghosts_names,"Polygon")
+	table.insert(ghosts_names,"Port")
+	table.insert(ghosts_names,"Process")
+	table.insert(ghosts_names,"RAM")
+	table.insert(ghosts_names,"Raster")
+	table.insert(ghosts_names,"Rate")
+	table.insert(ghosts_names,"Redundant")
+	table.insert(ghosts_names,"Reference")
+	table.insert(ghosts_names,"Refresh")
+	table.insert(ghosts_names,"Register")
+	table.insert(ghosts_names,"Resistor")
+	table.insert(ghosts_names,"ROM")
+	table.insert(ghosts_names,"Routine")
+	table.insert(ghosts_names,"Ruby")
+	table.insert(ghosts_names,"SAAS")
+	table.insert(ghosts_names,"Sequence")
+	table.insert(ghosts_names,"Share")
+	table.insert(ghosts_names,"Silicon")
+	table.insert(ghosts_names,"SIMM")
+	table.insert(ghosts_names,"Socket")
+	table.insert(ghosts_names,"Sort")
+	table.insert(ghosts_names,"Structure")
+	table.insert(ghosts_names,"Switch")
+	table.insert(ghosts_names,"Symbol")
+	table.insert(ghosts_names,"Trace")
+	table.insert(ghosts_names,"Transistor")
+	table.insert(ghosts_names,"Value")
+	table.insert(ghosts_names,"Vector")
+	table.insert(ghosts_names,"Version")
+	table.insert(ghosts_names,"View")
+	table.insert(ghosts_names,"WYSIWYG")
+	table.insert(ghosts_names,"XOR")
+end
+function setExuariNames()
+	exuari_names = {}
+	table.insert(exuari_names,"Astonester")
+	table.insert(exuari_names,"Ametripox")
+	table.insert(exuari_names,"Bakeltevex")
+	table.insert(exuari_names,"Baropledax")
+	table.insert(exuari_names,"Batongomox")
+	table.insert(exuari_names,"Bekilvimix")
+	table.insert(exuari_names,"Benoglopok")
+	table.insert(exuari_names,"Bilontipur")
+	table.insert(exuari_names,"Bolictimik")
+	table.insert(exuari_names,"Bomagralax")
+	table.insert(exuari_names,"Buteldefex")
+	table.insert(exuari_names,"Catondinab")
+	table.insert(exuari_names,"Chatorlonox")
+	table.insert(exuari_names,"Culagromik")
+	table.insert(exuari_names,"Dakimbinix")
+	table.insert(exuari_names,"Degintalix")
+	table.insert(exuari_names,"Dimabratax")
+	table.insert(exuari_names,"Dokintifix")
+	table.insert(exuari_names,"Dotandirex")
+	table.insert(exuari_names,"Dupalgawax")
+	table.insert(exuari_names,"Ekoftupex")
+	table.insert(exuari_names,"Elidranov")
+	table.insert(exuari_names,"Fakobrovox")
+	table.insert(exuari_names,"Femoplabix")
+	table.insert(exuari_names,"Fibatralax")
+	table.insert(exuari_names,"Fomartoran")
+	table.insert(exuari_names,"Gateldepex")
+	table.insert(exuari_names,"Gamutrewal")
+	table.insert(exuari_names,"Gesanterux")
+	table.insert(exuari_names,"Gimardanax")
+	table.insert(exuari_names,"Hamintinal")
+	table.insert(exuari_names,"Holangavak")
+	table.insert(exuari_names,"Igolpafik")
+	table.insert(exuari_names,"Inoklomat")
+	table.insert(exuari_names,"Jamewtibex")
+	table.insert(exuari_names,"Jepospagox")
+	table.insert(exuari_names,"Kajortonox")
+	table.insert(exuari_names,"Kapogrinix")
+	table.insert(exuari_names,"Kelitravax")
+	table.insert(exuari_names,"Kipaldanax")
+	table.insert(exuari_names,"Kodendevex")
+	table.insert(exuari_names,"Kotelpedex")
+	table.insert(exuari_names,"Kutandolak")
+	table.insert(exuari_names,"Lakirtinix")
+	table.insert(exuari_names,"Lapoldinek")
+	table.insert(exuari_names,"Lavorbonox")
+	table.insert(exuari_names,"Letirvinix")
+	table.insert(exuari_names,"Lowibromax")
+	table.insert(exuari_names,"Makintibix")
+	table.insert(exuari_names,"Makorpohox")
+	table.insert(exuari_names,"Matoprowox")
+	table.insert(exuari_names,"Mefinketix")
+	table.insert(exuari_names,"Motandobak")
+	table.insert(exuari_names,"Nakustunux")
+	table.insert(exuari_names,"Nequivonax")
+	table.insert(exuari_names,"Nitaldavax")
+	table.insert(exuari_names,"Nobaldorex")
+	table.insert(exuari_names,"Obimpitix")
+	table.insert(exuari_names,"Owaklanat")
+	table.insert(exuari_names,"Pakendesik")
+	table.insert(exuari_names,"Pazinderix")
+	table.insert(exuari_names,"Pefoglamuk")
+	table.insert(exuari_names,"Pekirdivix")
+	table.insert(exuari_names,"Potarkadax")
+	table.insert(exuari_names,"Pulendemex")
+	table.insert(exuari_names,"Quatordunix")
+	table.insert(exuari_names,"Rakurdumux")
+	table.insert(exuari_names,"Ralombenik")
+	table.insert(exuari_names,"Regosporak")
+	table.insert(exuari_names,"Retordofox")
+	table.insert(exuari_names,"Rikondogox")
+	table.insert(exuari_names,"Rokengelex")
+	table.insert(exuari_names,"Rutarkadax")
+	table.insert(exuari_names,"Sakeldepex")
+	table.insert(exuari_names,"Setiftimix")
+	table.insert(exuari_names,"Siparkonal")
+	table.insert(exuari_names,"Sopaldanax")
+	table.insert(exuari_names,"Sudastulux")
+	table.insert(exuari_names,"Takeftebex")
+	table.insert(exuari_names,"Taliskawit")
+	table.insert(exuari_names,"Tegundolex")
+	table.insert(exuari_names,"Tekintipix")
+	table.insert(exuari_names,"Tiposhomox")
+	table.insert(exuari_names,"Tokaldapax")
+	table.insert(exuari_names,"Tomuglupux")
+	table.insert(exuari_names,"Tufeldepex")
+	table.insert(exuari_names,"Unegremek")
+	table.insert(exuari_names,"Uvendipax")
+	table.insert(exuari_names,"Vatorgopox")
+	table.insert(exuari_names,"Venitribix")
+	table.insert(exuari_names,"Vobalterix")
+	table.insert(exuari_names,"Wakintivix")
+	table.insert(exuari_names,"Wapaltunix")
+	table.insert(exuari_names,"Wekitrolax")
+	table.insert(exuari_names,"Wofarbanax")
+	table.insert(exuari_names,"Xeniplofek")
+	table.insert(exuari_names,"Yamaglevik")
+	table.insert(exuari_names,"Yakildivix")
+	table.insert(exuari_names,"Yegomparik")
+	table.insert(exuari_names,"Zapondehex")
+	table.insert(exuari_names,"Zikandelat")
+end
+function setKraylorNames()		
+	kraylor_names = {}
+	table.insert(kraylor_names,"Abroten")
+	table.insert(kraylor_names,"Ankwar")
+	table.insert(kraylor_names,"Bakrik")
+	table.insert(kraylor_names,"Belgor")
+	table.insert(kraylor_names,"Benkop")
+	table.insert(kraylor_names,"Blargvet")
+	table.insert(kraylor_names,"Bloktarg")
+	table.insert(kraylor_names,"Bortok")
+	table.insert(kraylor_names,"Bredjat")
+	table.insert(kraylor_names,"Chankret")
+	table.insert(kraylor_names,"Chatork")
+	table.insert(kraylor_names,"Chokarp")
+	table.insert(kraylor_names,"Cloprak")
+	table.insert(kraylor_names,"Coplek")
+	table.insert(kraylor_names,"Cortek")
+	table.insert(kraylor_names,"Daltok")
+	table.insert(kraylor_names,"Darpik")
+	table.insert(kraylor_names,"Dastek")
+	table.insert(kraylor_names,"Dotark")
+	table.insert(kraylor_names,"Drambok")
+	table.insert(kraylor_names,"Duntarg")
+	table.insert(kraylor_names,"Earklat")
+	table.insert(kraylor_names,"Ekmit")
+	table.insert(kraylor_names,"Fakret")
+	table.insert(kraylor_names,"Fapork")
+	table.insert(kraylor_names,"Fawtrik")
+	table.insert(kraylor_names,"Fenturp")
+	table.insert(kraylor_names,"Feplik")
+	table.insert(kraylor_names,"Figront")
+	table.insert(kraylor_names,"Floktrag")
+	table.insert(kraylor_names,"Fonkack")
+	table.insert(kraylor_names,"Fontreg")
+	table.insert(kraylor_names,"Foondrap")
+	table.insert(kraylor_names,"Frotwak")
+	table.insert(kraylor_names,"Gastonk")
+	table.insert(kraylor_names,"Gentouk")
+	table.insert(kraylor_names,"Gonpruk")
+	table.insert(kraylor_names,"Gortak")
+	table.insert(kraylor_names,"Gronkud")
+	table.insert(kraylor_names,"Hewtang")
+	table.insert(kraylor_names,"Hongtag")
+	table.insert(kraylor_names,"Hortook")
+	table.insert(kraylor_names,"Indrut")
+	table.insert(kraylor_names,"Iprant")
+	table.insert(kraylor_names,"Jakblet")
+	table.insert(kraylor_names,"Jonket")
+	table.insert(kraylor_names,"Jontot")
+	table.insert(kraylor_names,"Kandarp")
+	table.insert(kraylor_names,"Kantrok")
+	table.insert(kraylor_names,"Kiptak")
+	table.insert(kraylor_names,"Kortrant")
+	table.insert(kraylor_names,"Krontgat")
+	table.insert(kraylor_names,"Lobreck")
+	table.insert(kraylor_names,"Lokrant")
+	table.insert(kraylor_names,"Lomprok")
+	table.insert(kraylor_names,"Lutrank")
+	table.insert(kraylor_names,"Makrast")
+	table.insert(kraylor_names,"Moklahft")
+	table.insert(kraylor_names,"Morpug")
+	table.insert(kraylor_names,"Nagblat")
+	table.insert(kraylor_names,"Nokrat")
+	table.insert(kraylor_names,"Nomek")
+	table.insert(kraylor_names,"Notark")
+	table.insert(kraylor_names,"Ontrok")
+	table.insert(kraylor_names,"Orkpent")
+	table.insert(kraylor_names,"Peechak")
+	table.insert(kraylor_names,"Plogrent")
+	table.insert(kraylor_names,"Pokrint")
+	table.insert(kraylor_names,"Potarg")
+	table.insert(kraylor_names,"Prangtil")
+	table.insert(kraylor_names,"Quagbrok")
+	table.insert(kraylor_names,"Quimprill")
+	table.insert(kraylor_names,"Reekront")
+	table.insert(kraylor_names,"Ripkort")
+	table.insert(kraylor_names,"Rokust")
+	table.insert(kraylor_names,"Rontrait")
+	table.insert(kraylor_names,"Saknep")
+	table.insert(kraylor_names,"Sengot")
+	table.insert(kraylor_names,"Skitkard")
+	table.insert(kraylor_names,"Skopgrek")
+	table.insert(kraylor_names,"Sletrok")
+	table.insert(kraylor_names,"Slorknat")
+	table.insert(kraylor_names,"Spogrunk")
+	table.insert(kraylor_names,"Staklurt")
+	table.insert(kraylor_names,"Stonkbrant")
+	table.insert(kraylor_names,"Swaktrep")
+	table.insert(kraylor_names,"Tandrok")
+	table.insert(kraylor_names,"Takrost")
+	table.insert(kraylor_names,"Tonkrut")
+	table.insert(kraylor_names,"Torkrot")
+	table.insert(kraylor_names,"Trablok")
+	table.insert(kraylor_names,"Trokdin")
+	table.insert(kraylor_names,"Unkelt")
+	table.insert(kraylor_names,"Urjop")
+	table.insert(kraylor_names,"Vankront")
+	table.insert(kraylor_names,"Vintrep")
+	table.insert(kraylor_names,"Volkerd")
+	table.insert(kraylor_names,"Vortread")
+	table.insert(kraylor_names,"Wickurt")
+	table.insert(kraylor_names,"Xokbrek")
+	table.insert(kraylor_names,"Yeskret")
+	table.insert(kraylor_names,"Zacktrope")
+end
+function setIndependentNames()
+	independent_names = {}
+	table.insert(independent_names,"Akdroft")	--faux Kraylor
+	table.insert(independent_names,"Bletnik")	--faux Kraylor
+	table.insert(independent_names,"Brogfent")	--faux Kraylor
+	table.insert(independent_names,"Cruflech")	--faux Kraylor
+	table.insert(independent_names,"Dengtoct")	--faux Kraylor
+	table.insert(independent_names,"Fiklerg")	--faux Kraylor
+	table.insert(independent_names,"Groftep")	--faux Kraylor
+	table.insert(independent_names,"Hinkflort")	--faux Kraylor
+	table.insert(independent_names,"Irklesht")	--faux Kraylor
+	table.insert(independent_names,"Jotrak")	--faux Kraylor
+	table.insert(independent_names,"Kargleth")	--faux Kraylor
+	table.insert(independent_names,"Lidroft")	--faux Kraylor
+	table.insert(independent_names,"Movrect")	--faux Kraylor
+	table.insert(independent_names,"Nitrang")	--faux Kraylor
+	table.insert(independent_names,"Poklapt")	--faux Kraylor
+	table.insert(independent_names,"Raknalg")	--faux Kraylor
+	table.insert(independent_names,"Stovtuk")	--faux Kraylor
+	table.insert(independent_names,"Trongluft")	--faux Kraylor
+	table.insert(independent_names,"Vactremp")	--faux Kraylor
+	table.insert(independent_names,"Wunklesp")	--faux Kraylor
+	table.insert(independent_names,"Yentrilg")	--faux Kraylor
+	table.insert(independent_names,"Zeltrag")	--faux Kraylor
+	table.insert(independent_names,"Avoltojop")		--faux Exuari
+	table.insert(independent_names,"Bimartarax")	--faux Exuari
+	table.insert(independent_names,"Cidalkapax")	--faux Exuari
+	table.insert(independent_names,"Darongovax")	--faux Exuari
+	table.insert(independent_names,"Felistiyik")	--faux Exuari
+	table.insert(independent_names,"Gopendewex")	--faux Exuari
+	table.insert(independent_names,"Hakortodox")	--faux Exuari
+	table.insert(independent_names,"Jemistibix")	--faux Exuari
+	table.insert(independent_names,"Kilampafax")	--faux Exuari
+	table.insert(independent_names,"Lokuftumux")	--faux Exuari
+	table.insert(independent_names,"Mabildirix")	--faux Exuari
+	table.insert(independent_names,"Notervelex")	--faux Exuari
+	table.insert(independent_names,"Pekolgonex")	--faux Exuari
+	table.insert(independent_names,"Rifaltabax")	--faux Exuari
+	table.insert(independent_names,"Sobendeyex")	--faux Exuari
+	table.insert(independent_names,"Tinaftadax")	--faux Exuari
+	table.insert(independent_names,"Vadorgomax")	--faux Exuari
+	table.insert(independent_names,"Wilerpejex")	--faux Exuari
+	table.insert(independent_names,"Yukawvalak")	--faux Exuari
+	table.insert(independent_names,"Zajiltibix")	--faux Exuari
+	table.insert(independent_names,"Alter")		--faux Ghosts
+	table.insert(independent_names,"Assign")	--faux Ghosts
+	table.insert(independent_names,"Brain")		--faux Ghosts
+	table.insert(independent_names,"Break")		--faux Ghosts
+	table.insert(independent_names,"Boundary")	--faux Ghosts
+	table.insert(independent_names,"Code")		--faux Ghosts
+	table.insert(independent_names,"Compare")	--faux Ghosts
+	table.insert(independent_names,"Continue")	--faux Ghosts
+	table.insert(independent_names,"Core")		--faux Ghosts
+	table.insert(independent_names,"CRUD")		--faux Ghosts
+	table.insert(independent_names,"Decode")	--faux Ghosts
+	table.insert(independent_names,"Decrypt")	--faux Ghosts
+	table.insert(independent_names,"Device")	--faux Ghosts
+	table.insert(independent_names,"Encode")	--faux Ghosts
+	table.insert(independent_names,"Encrypt")	--faux Ghosts
+	table.insert(independent_names,"Event")		--faux Ghosts
+	table.insert(independent_names,"Fetch")		--faux Ghosts
+	table.insert(independent_names,"Frame")		--faux Ghosts
+	table.insert(independent_names,"Go")		--faux Ghosts
+	table.insert(independent_names,"IO")		--faux Ghosts
+	table.insert(independent_names,"Interface")	--faux Ghosts
+	table.insert(independent_names,"Kilo")		--faux Ghosts
+	table.insert(independent_names,"Modify")	--faux Ghosts
+	table.insert(independent_names,"Pin")		--faux Ghosts
+	table.insert(independent_names,"Program")	--faux Ghosts
+	table.insert(independent_names,"Purge")		--faux Ghosts
+	table.insert(independent_names,"Retrieve")	--faux Ghosts
+	table.insert(independent_names,"Store")		--faux Ghosts
+	table.insert(independent_names,"Unit")		--faux Ghosts
+	table.insert(independent_names,"Wire")		--faux Ghosts
+	table.insert(independent_names,"Chakak")		--faux Ktlitans
+	table.insert(independent_names,"Chakik")		--faux Ktlitans
+	table.insert(independent_names,"Chaklik")		--faux Ktlitans
+	table.insert(independent_names,"Kaklak")		--faux Ktlitans
+	table.insert(independent_names,"Kiklak")		--faux Ktlitans
+	table.insert(independent_names,"Kitpak")		--faux Ktlitans
+	table.insert(independent_names,"Kitplak")		--faux Ktlitans
+	table.insert(independent_names,"Pipklat")		--faux Ktlitans
+	table.insert(independent_names,"Piptik")		--faux Ktlitans
+end
+function setCufNames()
+	cuf_names = {}
+	table.insert(cuf_names,"Allegro")
+	table.insert(cuf_names,"Bonafide")
+	table.insert(cuf_names,"Brief Blur")
+	table.insert(cuf_names,"Byzantine Born")
+	table.insert(cuf_names,"Celeste")
+	table.insert(cuf_names,"Chosen Charter")
+	table.insert(cuf_names,"Conundrum")
+	table.insert(cuf_names,"Crazy Clef")
+	table.insert(cuf_names,"Curtail")
+	table.insert(cuf_names,"Dark Demesne")
+	table.insert(cuf_names,"Diminutive Drama")
+	table.insert(cuf_names,"Draconian Destiny")
+	table.insert(cuf_names,"Fickle Frown")
+	table.insert(cuf_names,"Final Freeze")
+	table.insert(cuf_names,"Fried Feather")
+	table.insert(cuf_names,"Frozen Flare")
+	table.insert(cuf_names,"Gaunt Gator")
+	table.insert(cuf_names,"Hidden Harpoon")
+	table.insert(cuf_names,"Intense Interest")
+	table.insert(cuf_names,"Lackadaisical")
+	table.insert(cuf_names,"Largess")
+	table.insert(cuf_names,"Ointment")
+	table.insert(cuf_names,"Plush Puzzle")
+	table.insert(cuf_names,"Slick")
+	table.insert(cuf_names,"Thumper")
+	table.insert(cuf_names,"Torpid")
+	table.insert(cuf_names,"Triple Take")
+end
+function setUsnNames()
+	usn_names = {}
+	table.insert(usn_names,"Belladonna")
+	table.insert(usn_names,"Broken Dragon")
+	table.insert(usn_names,"Burning Knave")
+	table.insert(usn_names,"Corona Flare")
+	table.insert(usn_names,"Daring the Deep")
+	table.insert(usn_names,"Dragon's Cutlass")
+	table.insert(usn_names,"Dragon's Sadness")
+	table.insert(usn_names,"Elusive Doom")
+	table.insert(usn_names,"Fast Flare")
+	table.insert(usn_names,"Flying Flare")
+	table.insert(usn_names,"Fulminate")
+	table.insert(usn_names,"Gaseous Gale")
+	table.insert(usn_names,"Golden Anger")
+	table.insert(usn_names,"Greedy Promethean")
+	table.insert(usn_names,"Happy Mynock")
+	table.insert(usn_names,"Jimi Saru")
+	table.insert(usn_names,"Jolly Roger")
+	table.insert(usn_names,"Killer's Grief")
+	table.insert(usn_names,"Mad Delight")
+	table.insert(usn_names,"Nocturnal Neptune")
+	table.insert(usn_names,"Obscure Orbiter")
+	table.insert(usn_names,"Red Rift")
+	table.insert(usn_names,"Rusty Belle")
+	table.insert(usn_names,"Silver Pearl")
+	table.insert(usn_names,"Sodden Corsair")
+	table.insert(usn_names,"Solar Sailor")
+	table.insert(usn_names,"Solar Secret")
+	table.insert(usn_names,"Sun's Grief")
+	table.insert(usn_names,"Tortuga Shadows")
+	table.insert(usn_names,"Trinity")
+	table.insert(usn_names,"Wayfaring Wind")
+end
+function setTsnNames()
+	tsn_names = {}
+	table.insert(tsn_names,"Aegis")
+	table.insert(tsn_names,"Allegiance")
+	table.insert(tsn_names,"Apollo")
+	table.insert(tsn_names,"Ares")
+	table.insert(tsn_names,"Casper")
+	table.insert(tsn_names,"Charger")
+	table.insert(tsn_names,"Dauntless")
+	table.insert(tsn_names,"Demeter")
+	table.insert(tsn_names,"Eagle")
+	table.insert(tsn_names,"Excalibur")
+	table.insert(tsn_names,"Falcon")
+	table.insert(tsn_names,"Guardian")
+	table.insert(tsn_names,"Hawk")
+	table.insert(tsn_names,"Hera")
+	table.insert(tsn_names,"Horizon")
+	table.insert(tsn_names,"Hunter")
+	table.insert(tsn_names,"Hydra")
+	table.insert(tsn_names,"Intrepid")
+	table.insert(tsn_names,"Lancer")
+	table.insert(tsn_names,"Montgomery")
+	table.insert(tsn_names,"Nemesis")
+	table.insert(tsn_names,"Osiris")
+	table.insert(tsn_names,"Pegasus")
+	table.insert(tsn_names,"Phoenix")
+	table.insert(tsn_names,"Poseidon")
+	table.insert(tsn_names,"Raven")
+	table.insert(tsn_names,"Sabre")
+	table.insert(tsn_names,"Stalker")
+	table.insert(tsn_names,"Valkyrie")
+	table.insert(tsn_names,"Viper")
+end
+function setHumanNames()
+	human_names = {}
+	table.insert(human_names,"Andromeda")
+	table.insert(human_names,"Angelica")
+	table.insert(human_names,"Artemis")
+	table.insert(human_names,"Barrier")
+	table.insert(human_names,"Beauteous")
+	table.insert(human_names,"Bliss")
+	table.insert(human_names,"Bonita")
+	table.insert(human_names,"Bounty Hunter")
+	table.insert(human_names,"Bueno")
+	table.insert(human_names,"Capitol")
+	table.insert(human_names,"Castigator")
+	table.insert(human_names,"Centurion")
+	table.insert(human_names,"Chakalaka")
+	table.insert(human_names,"Charity")
+	table.insert(human_names,"Christmas")
+	table.insert(human_names,"Chutzpah")
+	table.insert(human_names,"Constantine")
+	table.insert(human_names,"Crystal")
+	table.insert(human_names,"Dauntless")
+	table.insert(human_names,"Defiant")
+	table.insert(human_names,"Discovery")
+	table.insert(human_names,"Dorcas")
+	table.insert(human_names,"Elite")
+	table.insert(human_names,"Empathy")
+	table.insert(human_names,"Enlighten")
+	table.insert(human_names,"Enterprise")
+	table.insert(human_names,"Escape")
+	table.insert(human_names,"Exclamatory")
+	table.insert(human_names,"Faith")
+	table.insert(human_names,"Felicity")
+	table.insert(human_names,"Firefly")
+	table.insert(human_names,"Foresight")
+	table.insert(human_names,"Forthright")
+	table.insert(human_names,"Fortitude")
+	table.insert(human_names,"Frankenstein")
+	table.insert(human_names,"Gallant")
+	table.insert(human_names,"Gladiator")
+	table.insert(human_names,"Glider")
+	table.insert(human_names,"Godzilla")
+	table.insert(human_names,"Grind")
+	table.insert(human_names,"Happiness")
+	table.insert(human_names,"Hearken")
+	table.insert(human_names,"Helena")
+	table.insert(human_names,"Heracles")
+	table.insert(human_names,"Honorable Intentions")
+	table.insert(human_names,"Hope")
+	table.insert(human_names,"Inertia")
+	table.insert(human_names,"Ingenius")
+	table.insert(human_names,"Injurious")
+	table.insert(human_names,"Insight")
+	table.insert(human_names,"Insufferable")
+	table.insert(human_names,"Insurmountable")
+	table.insert(human_names,"Intractable")
+	table.insert(human_names,"Intransigent")
+	table.insert(human_names,"Jenny")
+	table.insert(human_names,"Juice")
+	table.insert(human_names,"Justice")
+	table.insert(human_names,"Jurassic")
+	table.insert(human_names,"Karma Cast")
+	table.insert(human_names,"Knockout")
+	table.insert(human_names,"Leila")
+	table.insert(human_names,"Light Fantastic")
+	table.insert(human_names,"Livid")
+	table.insert(human_names,"Lolita")
+	table.insert(human_names,"Mercury")
+	table.insert(human_names,"Moira")
+	table.insert(human_names,"Mona Lisa")
+	table.insert(human_names,"Nancy")
+	table.insert(human_names,"Olivia")
+	table.insert(human_names,"Ominous")
+	table.insert(human_names,"Oracle")
+	table.insert(human_names,"Orca")
+	table.insert(human_names,"Pandemic")
+	table.insert(human_names,"Parsimonious")
+	table.insert(human_names,"Personal Prejudice")
+	table.insert(human_names,"Porpoise")
+	table.insert(human_names,"Pristine")
+	table.insert(human_names,"Purple Passion")
+	table.insert(human_names,"Renegade")
+	table.insert(human_names,"Revelation")
+	table.insert(human_names,"Rosanna")
+	table.insert(human_names,"Rozelle")
+	table.insert(human_names,"Sainted Gramma")
+	table.insert(human_names,"Shazam")
+	table.insert(human_names,"Starbird")
+	table.insert(human_names,"Stargazer")
+	table.insert(human_names,"Stile")
+	table.insert(human_names,"Streak")
+	table.insert(human_names,"Take Flight")
+	table.insert(human_names,"Taskmaster")
+	table.insert(human_names,"The Way")
+	table.insert(human_names,"Tornado")
+	table.insert(human_names,"Trailblazer")
+	table.insert(human_names,"Trident")
+	table.insert(human_names,"Triple Threat")
+	table.insert(human_names,"Turnabout")
+	table.insert(human_names,"Undulator")
+	table.insert(human_names,"Urgent")
+	table.insert(human_names,"Victoria")
+	table.insert(human_names,"Wee Bit")
+	table.insert(human_names,"Wet Willie")
+end
+function setKtlitanNames()
+	ktlitan_names = {}
+	table.insert(ktlitan_names,"Chaklak")
+	table.insert(ktlitan_names,"Chaklit")
+	table.insert(ktlitan_names,"Chitlat")
+	table.insert(ktlitan_names,"Chitlit")
+	table.insert(ktlitan_names,"Chitpik")
+	table.insert(ktlitan_names,"Chokpit")
+	table.insert(ktlitan_names,"Choktip")
+	table.insert(ktlitan_names,"Choktot")
+	table.insert(ktlitan_names,"Chotlap")
+	table.insert(ktlitan_names,"Chotlat")
+	table.insert(ktlitan_names,"Chotlot")
+	table.insert(ktlitan_names,"Kaftlit")
+	table.insert(ktlitan_names,"Kaplak")
+	table.insert(ktlitan_names,"Kaplat")
+	table.insert(ktlitan_names,"Kichpak")
+	table.insert(ktlitan_names,"Kichpik")
+	table.insert(ktlitan_names,"Kichtak")
+	table.insert(ktlitan_names,"Kiftlat")
+	table.insert(ktlitan_names,"Kiftak")
+	table.insert(ktlitan_names,"Kiftakt")
+	table.insert(ktlitan_names,"Kiftlikt")
+	table.insert(ktlitan_names,"Kiftlit")
+	table.insert(ktlitan_names,"Kiklat")
+	table.insert(ktlitan_names,"Kiklik")
+	table.insert(ktlitan_names,"Kiklit")
+	table.insert(ktlitan_names,"Kiplit")
+	table.insert(ktlitan_names,"Kiptot")
+	table.insert(ktlitan_names,"Kitchip")
+	table.insert(ktlitan_names,"Kitchit")
+	table.insert(ktlitan_names,"Kitlaft")
+	table.insert(ktlitan_names,"Kitlak")
+	table.insert(ktlitan_names,"Kitlakt")
+	table.insert(ktlitan_names,"Kitlich")
+	table.insert(ktlitan_names,"Kitlik")
+	table.insert(ktlitan_names,"Kitpok")
+	table.insert(ktlitan_names,"Koptich")
+	table.insert(ktlitan_names,"Koptlik")
+	table.insert(ktlitan_names,"Kotplat")
+	table.insert(ktlitan_names,"Pachtik")
+	table.insert(ktlitan_names,"Paflak")
+	table.insert(ktlitan_names,"Paftak")
+	table.insert(ktlitan_names,"Paftik")
+	table.insert(ktlitan_names,"Pakchit")
+	table.insert(ktlitan_names,"Pakchok")
+	table.insert(ktlitan_names,"Paktok")
+	table.insert(ktlitan_names,"Piklit")
+	table.insert(ktlitan_names,"Piflit")
+	table.insert(ktlitan_names,"Piftik")
+	table.insert(ktlitan_names,"Pitlak")
+	table.insert(ktlitan_names,"Pochkik")
+	table.insert(ktlitan_names,"Pochkit")
+	table.insert(ktlitan_names,"Poftlit")
+	table.insert(ktlitan_names,"Pokchap")
+	table.insert(ktlitan_names,"Pokchat")
+	table.insert(ktlitan_names,"Poktat")
+	table.insert(ktlitan_names,"Poklit")
+	table.insert(ktlitan_names,"Potlak")
+	table.insert(ktlitan_names,"Tachpik")
+	table.insert(ktlitan_names,"Tachpit")
+	table.insert(ktlitan_names,"Taklit")
+	table.insert(ktlitan_names,"Talkip")
+	table.insert(ktlitan_names,"Talpik")
+	table.insert(ktlitan_names,"Taltkip")
+	table.insert(ktlitan_names,"Taltkit")
+	table.insert(ktlitan_names,"Tichpik")
+	table.insert(ktlitan_names,"Tikplit")
+	table.insert(ktlitan_names,"Tiklich")
+	table.insert(ktlitan_names,"Tiklip")
+	table.insert(ktlitan_names,"Tiklip")
+	table.insert(ktlitan_names,"Tilpit")
+	table.insert(ktlitan_names,"Tiltlit")
+	table.insert(ktlitan_names,"Tochtik")
+	table.insert(ktlitan_names,"Tochkap")
+	table.insert(ktlitan_names,"Tochpik")
+	table.insert(ktlitan_names,"Tochpit")
+	table.insert(ktlitan_names,"Tochkit")
+	table.insert(ktlitan_names,"Totlop")
+	table.insert(ktlitan_names,"Totlot")
+end
+function setArlenianNames()
+	arlenian_names = {}
+	table.insert(arlenian_names,"Balura")
+	table.insert(arlenian_names,"Baminda")
+	table.insert(arlenian_names,"Belarne")
+	table.insert(arlenian_names,"Bilanna")
+	table.insert(arlenian_names,"Calonda")
+	table.insert(arlenian_names,"Carila")
+	table.insert(arlenian_names,"Carulda")
+	table.insert(arlenian_names,"Charma")
+	table.insert(arlenian_names,"Choralle")
+	table.insert(arlenian_names,"Corlune")
+	table.insert(arlenian_names,"Damilda")
+	table.insert(arlenian_names,"Dilenda")
+	table.insert(arlenian_names,"Dorla")
+	table.insert(arlenian_names,"Elena")
+	table.insert(arlenian_names,"Emerla")
+	table.insert(arlenian_names,"Famelda")
+	table.insert(arlenian_names,"Finelle")
+	table.insert(arlenian_names,"Fontaine")
+	table.insert(arlenian_names,"Forlanne")
+	table.insert(arlenian_names,"Gendura")
+	table.insert(arlenian_names,"Gilarne")
+	table.insert(arlenian_names,"Grizelle")
+	table.insert(arlenian_names,"Hilerna")
+	table.insert(arlenian_names,"Homella")
+	table.insert(arlenian_names,"Jarille")
+	table.insert(arlenian_names,"Jindarre")
+	table.insert(arlenian_names,"Juminde")
+	table.insert(arlenian_names,"Kalena")
+	table.insert(arlenian_names,"Kimarna")
+	table.insert(arlenian_names,"Kolira")
+	table.insert(arlenian_names,"Lanerra")
+	table.insert(arlenian_names,"Lamura")
+	table.insert(arlenian_names,"Lavila")
+	table.insert(arlenian_names,"Lavorna")
+	table.insert(arlenian_names,"Lendura")
+	table.insert(arlenian_names,"Limala")
+	table.insert(arlenian_names,"Lorelle")
+	table.insert(arlenian_names,"Mavelle")
+	table.insert(arlenian_names,"Menola")
+	table.insert(arlenian_names,"Merla")
+	table.insert(arlenian_names,"Mitelle")
+	table.insert(arlenian_names,"Mivelda")
+	table.insert(arlenian_names,"Morainne")
+	table.insert(arlenian_names,"Morda")
+	table.insert(arlenian_names,"Morlena")
+	table.insert(arlenian_names,"Nadela")
+	table.insert(arlenian_names,"Naminda")
+	table.insert(arlenian_names,"Nilana")
+	table.insert(arlenian_names,"Nurelle")
+	table.insert(arlenian_names,"Panela")
+	table.insert(arlenian_names,"Pelnare")
+	table.insert(arlenian_names,"Pilera")
+	table.insert(arlenian_names,"Povelle")
+	table.insert(arlenian_names,"Quilarre")
+	table.insert(arlenian_names,"Ramila")
+	table.insert(arlenian_names,"Renatha")
+	table.insert(arlenian_names,"Rendelle")
+	table.insert(arlenian_names,"Rinalda")
+	table.insert(arlenian_names,"Riderla")
+	table.insert(arlenian_names,"Rifalle")
+	table.insert(arlenian_names,"Samila")
+	table.insert(arlenian_names,"Salura")
+	table.insert(arlenian_names,"Selinda")
+	table.insert(arlenian_names,"Simanda")
+	table.insert(arlenian_names,"Sodila")
+	table.insert(arlenian_names,"Talinda")
+	table.insert(arlenian_names,"Tamierre")
+	table.insert(arlenian_names,"Telorre")
+	table.insert(arlenian_names,"Terila")
+	table.insert(arlenian_names,"Turalla")
+	table.insert(arlenian_names,"Valerna")
+	table.insert(arlenian_names,"Vilanda")
+	table.insert(arlenian_names,"Vomera")
+	table.insert(arlenian_names,"Wanelle")
+	table.insert(arlenian_names,"Warenda")
+	table.insert(arlenian_names,"Wilena")
+	table.insert(arlenian_names,"Wodarla")
+	table.insert(arlenian_names,"Yamelda")
+	table.insert(arlenian_names,"Yelanda")
 end
 function tableRemoveRandom(array)
 --	Remove random element from array and return it.
@@ -22443,7 +23284,6 @@ function tableRemoveRandom(array)
     array[selected_item], array[array_item_count] = array[array_item_count], array[selected_item]
     return table.remove(array)
 end
-
 function playerShipDamage(self,instigator)
 	string.format("")
 	if instigator ~= nil then
@@ -25844,7 +26684,7 @@ function serviceJonque(enemyFaction)
 		ship:setShortRangeRadarRange(ship_template["Service Jonque"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Service Jonque")
+	ship:setTypeName("Service Jonque"):setCommsScript(""):setCommsFunction(commsServiceJonque)
 	addFreighter("Service Jonque",ship)	--update science database if applicable
 	return ship
 end
@@ -37828,6 +38668,440 @@ function revertCheck(delta)
 	end
 	plotRevert = revertWait
 end
+function commsServiceJonque()
+	if comms_target.comms_data == nil then
+		comms_target.comms_data = {friendlyness = random(0.0, 100.0)}
+	end
+	comms_data = comms_target.comms_data
+	if comms_source:isFriendly(comms_target) then
+		return friendlyServiceJonqueComms(comms_data)
+	end
+	if comms_source:isEnemy(comms_target) and comms_target:isFriendOrFoeIdentifiedBy(comms_source) then
+		return enemyComms(comms_data)
+	end
+	return neutralServiceJonqueComms(comms_data)
+end
+function friendlyServiceJonqueComms(comms_data)
+	if comms_data.friendlyness < 20 then
+		setCommsMessage("What do you want?");
+	else
+		setCommsMessage("Sir, how can we assist?");
+	end
+	addCommsReply("Defend a waypoint", function()
+		if comms_source:getWaypointCount() == 0 then
+			setCommsMessage("No waypoints set. Please set a waypoint first.");
+		else
+			setCommsMessage("Which waypoint should we defend?");
+			for n=1,comms_source:getWaypointCount() do
+				addCommsReply("Defend WP" .. n, function()
+					comms_target:orderDefendLocation(comms_source:getWaypoint(n))
+					setCommsMessage("We are heading to assist at WP" .. n ..".");
+					addCommsReply("Back", commsShip)
+				end)
+			end
+		end
+		addCommsReply("Back", commsServiceJonque)
+	end)
+	if comms_data.friendlyness > 0.2 then
+		addCommsReply("Assist me", function()
+			setCommsMessage("Heading toward you to assist.");
+			comms_target:orderDefendTarget(comms_source)
+			addCommsReply("Back", commsServiceJonque)
+		end)
+	end
+	addCommsReply("Report status", function()
+		msg = "Hull: " .. math.floor(comms_target:getHull() / comms_target:getHullMax() * 100) .. "%\n"
+		local shields = comms_target:getShieldCount()
+		if shields == 1 then
+			msg = msg .. "Shield: " .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+		elseif shields == 2 then
+			msg = msg .. "Front Shield: " .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+			msg = msg .. "Rear Shield: " .. math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100) .. "%\n"
+		else
+			for n=0,shields-1 do
+				msg = msg .. "Shield " .. n .. ": " .. math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100) .. "%\n"
+			end
+		end
+		setCommsMessage(msg);
+		addCommsReply("Back", commsServiceJonque)
+	end)
+	for _, obj in ipairs(comms_target:getObjectsInRange(5000)) do
+		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+			addCommsReply("Dock at " .. obj:getCallSign(), function()
+				setCommsMessage("Docking at " .. obj:getCallSign() .. ".");
+				comms_target:orderDock(obj)
+				addCommsReply("Back", commsServiceJonque)
+			end)
+		end
+	end
+	if distance(comms_source,comms_target) < 5000 then
+		commonServiceOptions()
+	end
+end
+function neutralServiceJonqueComms(comms_data)
+	if comms_data.friendlyness < 20 then
+		setCommsMessage("What do you want?")
+	else
+		setCommsMessage("Sir, how can we assist?")
+	end
+	addCommsReply("How are you doing?", function()
+		msg = "Hull: " .. math.floor(comms_target:getHull() / comms_target:getHullMax() * 100) .. "%\n"
+		local shields = comms_target:getShieldCount()
+		if shields == 1 then
+			msg = msg .. "Shield: " .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+		elseif shields == 2 then
+			msg = msg .. "Front Shield: " .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+			msg = msg .. "Rear Shield: " .. math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100) .. "%\n"
+		else
+			for n=0,shields-1 do
+				msg = msg .. "Shield " .. n .. ": " .. math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100) .. "%\n"
+			end
+		end
+		setCommsMessage(msg);
+		addCommsReply("Back", commsServiceJonque)
+	end)
+	commonServiceOptions()
+end
+function commonServiceOptions()
+	addCommsReply("Service options",function()
+		local offer_repair = false
+		if not comms_source:getCanLaunchProbe() then
+			offer_repair = true
+		end
+		if not offer_repair and not comms_source:getCanHack() then
+			offer_repair = true
+		end
+		if not offer_repair and not comms_source:getCanScan() then
+			offer_repair = true
+		end
+		if not offer_repair and not comms_source:getCanCombatManeuver() then
+			offer_repair = true
+		end
+		if not offer_repair and not comms_source:getCanSelfDestruct() then
+			offer_repair = true
+		end
+		if offer_repair then
+			addCommsReply("Repair ship system",function()
+				setCommsMessage(string.format("What system would you like repaired?"))
+				if not comms_source:getCanLaunchProbe() then
+					addCommsReply("Repair probe launch system",function()
+						if distance(comms_source,comms_target) < 5000 then
+							comms_source:setCanLaunchProbe(true)
+							setCommsMessage("Your probe launch system has been repaired")
+						else
+							setCommsMessage("You need to stay close if you want me to fix your ship")
+						end
+						addCommsReply("Back", commsServiceJonque)
+					end)
+				end
+				if not comms_source:getCanHack() then
+					addCommsReply("Repair hacking system",function()
+						if distance(comms_source,comms_target) < 5000 then
+							comms_source:setCanHack(true)
+							setCommsMessage("Your hack system has been repaired")
+						else
+							setCommsMessage("You need to stay close if you want me to fix your ship")
+						end
+						addCommsReply("Back", commsServiceJonque)
+					end)
+				end
+				if not comms_source:getCanScan() then
+					addCommsReply("Repair scanning system",function()
+						if distance(comms_source,comms_target) < 5000 then
+							comms_source:setCanScan(true)
+							setCommsMessage("Your scanners have been repaired")
+						else
+							setCommsMessage("You need to stay close if you want me to fix your ship")
+						end
+						addCommsReply("Back", commsServiceJonque)
+					end)
+				end
+				if not comms_source:getCanCombatManeuver() then
+					addCommsReply("Repair combat maneuver",function()
+						if distance(comms_source,comms_target) < 5000 then
+							comms_source:setCanCombatManeuver(true)
+							setCommsMessage("Your combat maneuver has been repaired")
+						else
+							setCommsMessage("You need to stay close if you want me to fix your ship")
+						end
+						addCommsReply("Back", commsServiceJonque)
+					end)
+				end
+				if not comms_source:getCanSelfDestruct() then
+					addCommsReply("Repair self destruct system",function()
+						if distance(comms_source,comms_target) < 5000 then
+							comms_source:setCanSelfDestruct(true)
+							setCommsMessage("Your self destruct system has been repaired")
+						else
+							setCommsMessage("You need to stay close if you want me to fix your ship")
+						end
+						addCommsReply("Back", commsServiceJonque)
+					end)
+				end
+				addCommsReply("Back", commsServiceJonque)
+			end)
+		end
+		local offer_hull_repair = false
+		if comms_source:getHull() < comms_source:getHullMax() then
+			offer_hull_repair = true
+		end
+		if offer_hull_repair then
+			local full_repair = comms_source:getHullMax() - comms_source:getHull()
+			local premium = 30
+			if full_repair > 100 then
+				premium = 100
+			elseif full_repair > 50 then
+				premium = 60
+			end
+			addCommsReply(string.format("Full hull repair (%i reputation)",math.floor(full_repair + premium)),function()
+				if distance(comms_source,comms_target) < 5000 then
+					if comms_source:takeReputationPoints(math.floor(full_repair + premium)) then
+						comms_source:setHull(comms_source:getHullMax())
+						setCommsMessage("All fixed up and ready to go")
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+				else
+					setCommsMessage("You need to stay close if you want me to fix your ship")
+				end
+				addCommsReply("Back", commsServiceJonque)
+			end)
+			addCommsReply(string.format("Add %i%% to hull (%i reputation)",math.floor(full_repair/2/comms_source:getHullMax()*100),math.floor(full_repair/2 + premium/2)),function()
+				if distance(comms_source,comms_target) < 5000 then
+					if comms_source:takeReputationPoints(math.floor(full_repair/2 + premium/2)) then
+						comms_source:setHull(comms_source:getHull() + (full_repair/2))
+						setCommsMessage("Repairs completed as requested")
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+				else
+					setCommsMessage("You need to stay close if you want me to fix your ship")
+				end
+				addCommsReply("Back", commsServiceJonque)
+			end)
+			addCommsReply(string.format("Add %i%% to hull (%i reputation)",math.floor(full_repair/3/comms_source:getHullMax()*100),math.floor(full_repair/3)),function()
+				if distance(comms_source,comms_target) < 5000 then
+					if comms_source:takeReputationPoints(math.floor(full_repair/3)) then
+						comms_source:setHull(comms_source:getHull() + (full_repair/3))
+						setCommsMessage("Repairs completed as requested")
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+				else
+					setCommsMessage("You need to stay close if you want me to fix your ship")
+				end
+				addCommsReply("Back", commsServiceJonque)
+			end)
+		end
+		local offer_ordnance = false
+		local ordnance_inventory = 0
+		for ordnance_type, count in pairs(comms_target.comms_data.weapon_inventory) do
+			ordnance_inventory = ordnance_inventory + count
+		end
+		local player_missile_types = {
+			["Homing"] = {shoots = false, max = 0, current = 0, need=0},
+			["Nuke"] = {shoots = false, max = 0, current = 0, need=0},
+			["Mine"] = {shoots = false, max = 0, current = 0, need=0},
+			["EMP"] = {shoots = false, max = 0, current = 0, need=0},
+			["HVLI"] = {shoots = false, max = 0, current = 0, need=0},
+		}
+		if ordnance_inventory > 0 then
+			for missile_type, ord in pairs(player_missile_types) do
+				ord.max = comms_source:getWeaponStorageMax(missile_type)
+				if ord.max ~= nil and ord.max > 0 then
+					ord.shoots = true
+					ord.current = comms_source:getWeaponStorage(missile_type)
+					if ord.current < ord.max then
+						ord.need = ord.max - ord.current
+						if comms_target.comms_data.weapon_inventory[missile_type] > 0 then
+							offer_ordnance = true
+						end
+					end
+				end
+			end
+		end
+		if offer_ordnance then
+			addCommsReply("Restock ordnance",function()
+				for missile_type, ord in pairs(player_missile_types) do
+					if ord.current < ord.max and comms_target.comms_data.weapon_inventory[missile_type] > 0 then
+						comms_data = comms_target.comms_data
+						setCommsMessage("What kind of ordnance?")
+						addCommsReply(string.format("%s (%i reputation each)",missile_type,getWeaponCost(missile_type)),function()
+							if distance(comms_source,comms_target) < 5000 then
+								if comms_target.comms_data.weapon_inventory[missile_type] >= ord.need then
+									if comms_source:takeReputationPoints(getWeaponCost(missile_type)*ord.need) then
+										comms_source:setWeaponStorage(missile_type,ord.max)
+										comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - ord.need
+										setCommsMessage(string.format("Restocked your %s type ordnance",missile_type))
+									else
+										if comms_source:getReputationPoints() > getWeaponCost(missile_type) then
+											setCommsMessage(string.format("You don't have enough reputation to fully replenish your %s type ordnance. You need %i and you only have %i. How would you like to proceed?",missile_type,getWeaponCost(missile_type)*ord.need,math.floor(comms_source:getReputationPoints())))
+											addCommsReply(string.format("Get one (%i reputation)",getWeaponCost(missile_type)), function()
+												if distance(comms_source,comms_target) < 5000 then
+													if comms_source:takeReputationPoints(getWeaponCost(missile_type)) then
+														comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + 1)
+														comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - 1
+														setCommsMessage(string.format("One %s provided",missile_type))
+													else
+														setCommsMessage("Insufficient reputation")
+													end
+												else
+													setCommsMessage("You need to stay close if you want me to restock your ordnance")
+												end
+												addCommsReply("Back", commsServiceJonque)
+											end)
+											if comms_source:getReputationPoints() > getWeaponCost(missile_type)*2 then
+												local max_afford = 0
+												local missile_count = 0
+												repeat
+													max_afford = max_afford + getWeaponCost(missile_type)
+													missile_count = missile_count + 1
+												until(max_afford + getWeaponCost(missile_type) > comms_source:getReputationPoints())
+												addCommsReply(string.format("Get %i (%i reputation)",missile_count,max_afford),function()
+													if distance(comms_source,comms_target) < 5000 then
+														if comms_source:takeReputationPoints(getWeaponCost(missile_type)*missile_count) then
+															comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + missile_count)
+															comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - missile_count
+															setCommsMessage(string.format("%i %ss provided",missile_count,missile_type))
+														else
+															setCommsMessage("Insufficient reputation")
+														end
+													else
+														setCommsMessage("You need to stay close if you want me to restock your ordnance")
+													end
+													addCommsReply("Back", commsServiceJonque)
+												end)
+											end
+										else
+											setCommsMessage("Insufficient reputation")
+										end
+									end
+								else
+									setCommsMessage(string.format("I don't have enough %s type ordnance to fully restock you. How would you like to proceed?",missile_type))
+									addCommsReply("We'll take all you've got",function()
+										if comms_source:takeReputationPoints(getWeaponCost(missile_type)*comms_target.comms_data.weapon_inventory[missile_type]) then
+											comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + comms_target.comms_data.weapon_inventory[missile_type])
+											if comms_target.comms_data.weapon_inventory[missile_type] > 1 then
+												setCommsMessage(string.format("%i %ss provided",missile_count,missile_type))
+											else
+												setCommsMessage(string.format("One %s provided",missile_type))
+											end
+											comms_target.comms_data.weapon_inventory[missile_type] = 0
+										else
+											setCommsMessage(string.format("You don't have enough reputation to get all of our %s type ordnance. You need %i and you only have %i. How would you like to proceed?",missile_type,getWeaponCost(missile_type)*comms_target.comms_data.weapon_inventory[missile_type],math.floor(comms_source:getReputationPoints())))
+											addCommsReply(string.format("Get one (%i reputation)",getWeaponCost(missile_type)), function()
+												if distance(comms_source,comms_target) < 5000 then
+													if comms_source:takeReputationPoints(getWeaponCost(missile_type)) then
+														comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + 1)
+														comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - 1
+														setCommsMessage(string.format("One %s provided",missile_type))
+													else
+														setCommsMessage("Insufficient reputation")
+													end
+												else
+													setCommsMessage("You need to stay close if you want me to restock your ordnance")
+												end
+												addCommsReply("Back", commsServiceJonque)
+											end)
+											if comms_source:getReputationPoints() > getWeaponCost(missile_type)*2 then
+												local max_afford = 0
+												local missile_count = 0
+												repeat
+													max_afford = max_afford + getWeaponCost(missile_type)
+													missile_count = missile_count + 1
+												until(max_afford + getWeaponCost(missile_type) > comms_source:getReputationPoints())
+												addCommsReply(string.format("Get %i (%i reputation)",missile_count,max_afford),function()
+													if distance(comms_source,comms_target) < 5000 then
+														if comms_source:takeReputationPoints(getWeaponCost(missile_type)*missile_count) then
+															comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + missile_count)
+															comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] + missile_count
+															setCommsMessage(string.format("%i %ss provided",missile_count,missile_type))
+														else
+															setCommsMessage("Insufficient reputation")
+														end
+													else
+														setCommsMessage("You need to stay close if you want me to restock your ordnance")
+													end
+													addCommsReply("Back", commsServiceJonque)
+												end)
+											end
+										end
+									end)
+									addCommsReply(string.format("Get one (%i reputation)",getWeaponCost(missile_type)), function()
+										if distance(comms_source,comms_target) < 5000 then
+											if comms_source:takeReputationPoints(getWeaponCost(missile_type)) then
+												comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + 1)
+												comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - 1
+												setCommsMessage(string.format("One %s provided",missile_type))
+											else
+												setCommsMessage("Insufficient reputation")
+											end
+										else
+											setCommsMessage("You need to stay close if you want me to restock your ordnance")
+										end
+										addCommsReply("Back", commsServiceJonque)
+									end)
+								end
+							else
+								setCommsMessage("You need to stay close if you want me to restock your ordnance")
+							end
+							addCommsReply("Back", commsServiceJonque)
+						end)
+					end
+				end
+				addCommsReply("Back", commsServiceJonque)
+			end)
+		end
+		local offer_probes = false
+		if comms_source:getScanProbeCount() < comms_source:getMaxScanProbeCount() then
+			offer_probes = true
+		end
+		if offer_probes then
+			addCommsReply("Restock scan probes (5 reputation)",function()
+				if distance(comms_source,comms_target) < 5000 then
+					if comms_source:takeReputationPoints(5) then
+						comms_source:setScanProbeCount(comms_source:getMaxScanProbeCount())
+						setCommsMessage("I replenished your probes for you.")
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+				else
+					setCommsMessage("You need to stay close if you'd like your probes restocked.")
+				end
+				addCommsReply("Back", commsServiceJonque)
+			end)
+		end
+		local offer_power = false
+		if comms_source:getEnergyLevel() < comms_source:getEnergyLevelMax()/2 then
+			offer_power = true
+		end
+		if offer_power then
+			local power_charge = math.floor((comms_source:getEnergyLevelMax() - comms_source:getEnergyLevel())/3)
+			addCommsReply(string.format("Quick charge the main batteries (%i reputation)",power_charge),function()
+				if distance(comms_source,comms_target) < 5000 then
+					if comms_source:takeReputationPoints(power_charge) then
+						comms_source:setEnergyLevel(comms_source:getEnergyLevelMax())
+						comms_source:commandSetSystemPowerRequest("reactor",1)
+						comms_source:setSystemPower("reactor",1)
+						comms_source:setSystemHeat("reactor",2)
+						setCommsMessage("Your batteries have been charged")
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+				else
+					setCommsMessage("You need to stay close if you want your batteries charged quickly")
+				end
+				addCommsReply("Back", commsServiceJonque)
+			end)
+		end
+		if offer_hull_repair or offer_repair or offer_ordnance or offer_probes or offer_power then
+			setCommsMessage("How can I help you get your ship in good running order?")
+		else
+			setCommsMessage("There's nothing on your ship that I can help you fix. Sorry.")
+		end
+	end)
+end
+
 -----------------------------
 --	Station communication  --
 -----------------------------
@@ -37857,11 +39131,13 @@ function commsStation()
             sensor_boost = "neutral",
 			preorder = "friend",
             activatedefensefleet = "neutral",
+            servicejonque = "neutral",
         },
         service_cost = {
             supplydrop = math.random(80,120),
             reinforcements = math.random(125,175),
             activatedefensefleet = 20,
+            servicejonque = math.random(100,150)
         },
         reputation_cost_multipliers = {
             friend = 1.0,
@@ -40423,6 +41699,106 @@ function handleUndockedState()
         end)
     end
 	requestReinforcements(commsStation)
+    if isAllowedTo(comms_target.comms_data.services.servicejonque) then
+    	addCommsReply("Please send a service jonque for repairs", function()
+    		local out = string.format("Would you like the service jonque to come to you directly or would you prefer to set up a rendezvous via a waypoint? Either way, you will need %.1f reputation.",getServiceCost("servicejonque"))
+    		addCommsReply("Direct",function()
+    			if comms_source:takeReputationPoints(getServiceCost("servicejonque")) then
+					ship = serviceJonque(comms_target:getFaction()):setPosition(comms_target:getPosition()):setCallSign(generateCallSign(nil,comms_target:getFaction())):setScanned(true):orderDefendTarget(comms_source)
+					ship.comms_data = {
+						friendlyness = random(0.0, 100.0),
+						weapons = {
+							Homing = comms_target.comms_data.weapons.Homing,
+							HVLI = comms_target.comms_data.weapons.HVLI,
+							Mine = comms_target.comms_data.weapons.Mine,
+							Nuke = comms_target.comms_data.weapons.Nuke,
+							EMP = comms_target.comms_data.weapons.EMP,
+						},
+						weapon_cost = {
+							Homing = comms_target.comms_data.weapon_cost.Homing * 2,
+							HVLI = comms_target.comms_data.weapon_cost.HVLI * 2,
+							Mine = comms_target.comms_data.weapon_cost.Mine * 2,
+							Nuke = comms_target.comms_data.weapon_cost.Nuke * 2,
+							EMP = comms_target.comms_data.weapon_cost.EMP * 2,
+						},
+						weapon_inventory = {
+							Homing = 40,
+							HVLI = 40,
+							Mine = 20,
+							Nuke = 10,
+							EMP = 10,
+						},
+						weapon_inventory_max = {
+							Homing = 40,
+							HVLI = 40,
+							Mine = 20,
+							Nuke = 10,
+							EMP = 10,
+						},
+						reputation_cost_multipliers = {
+							friend = comms_target.comms_data.reputation_cost_multipliers.friend,
+							neutral = math.max(comms_target.comms_data.reputation_cost_multipliers.friend,comms_target.comms_data.reputation_cost_multipliers.neutral/2)
+						},
+					}
+					setCommsMessage(string.format("We have dispatched %s to come to you to help with repairs",ship:getCallSign()))
+    			else
+					setCommsMessage("Insufficient reputation")
+    			end
+    		end)
+    		if comms_source:getWaypointCount() < 1 then
+    			out = out .. "\n\nNote: if you want to use a waypoint, you will have to back out and set one and come back."
+    		else
+    			for n=1,comms_source:getWaypointCount() do
+    				addCommsReply(string.format("Rendezvous at waypoint %i",n),function()
+    					if comms_source:takeReputationPoints(getServiceCost("servicejonque")) then
+    						ship = serviceJonque(comms_target:getFaction()):setPosition(comms_target:getPosition()):setCallSign(generateCallSign(nil,comms_target:getFaction())):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
+							ship.comms_data = {
+								friendlyness = random(0.0, 100.0),
+								weapons = {
+									Homing = comms_target.comms_data.weapons.Homing,
+									HVLI = comms_target.comms_data.weapons.HVLI,
+									Mine = comms_target.comms_data.weapons.Mine,
+									Nuke = comms_target.comms_data.weapons.Nuke,
+									EMP = comms_target.comms_data.weapons.EMP,
+								},
+								weapon_cost = {
+									Homing = comms_target.comms_data.weapon_cost.Homing * 2,
+									HVLI = comms_target.comms_data.weapon_cost.HVLI * 2,
+									Mine = comms_target.comms_data.weapon_cost.Mine * 2,
+									Nuke = comms_target.comms_data.weapon_cost.Nuke * 2,
+									EMP = comms_target.comms_data.weapon_cost.EMP * 2,
+								},
+								weapon_inventory = {
+									Homing = 40,
+									HVLI = 40,
+									Mine = 20,
+									Nuke = 10,
+									EMP = 10,
+								},
+								weapon_inventory_max = {
+									Homing = 40,
+									HVLI = 40,
+									Mine = 20,
+									Nuke = 10,
+									EMP = 10,
+								},
+								reputation_cost_multipliers = {
+									friend = comms_target.comms_data.reputation_cost_multipliers.friend,
+									neutral = math.max(comms_target.comms_data.reputation_cost_multipliers.friend,comms_target.comms_data.reputation_cost_multipliers.neutral/2)
+								},
+							}
+    						setCommsMessage(string.format("We have dispatched %s to rendezvous at waypoint %i",ship:getCallSign(),n))
+    					else
+    						setCommsMessage("Insufficient reputation")
+    					end
+    					addCommsReply("Back", commsStation)
+    				end)
+    			end
+    		end
+    		setCommsMessage(out)
+    		addCommsReply("Back", commsStation)
+    	end)
+    end
     if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) and 
     	comms_target.comms_data.idle_defense_fleet ~= nil then
     	local defense_fleet_count = 0
@@ -41760,6 +43136,13 @@ function updateInner(delta)
 				p:addToShipLog(ship_warning_message,"Red")
 			end
 			p:wrappedAddCustomInfo("name_tag_positions","name_tag",string.format("%s in %s",player_name,p:getSectorName()))
+			if p.tube_size ~= nil then
+				local tube_size_banner = string.format("Tube sizes: %s",p.tube_size)
+				if #p.tube_size == 1 then
+					tube_size_banner = string.format("Tube size: %s",p.tube_size)
+				end
+				p:wrappedAddCustomInfo("Weapons","tube_sizes",tube_size_banner)
+			end
 			updatePlayerPodTelemetryButton(p)
 			if updateDiagnostic then print("update: valid player: inventory button") end
 			if p.inventoryButton == nil then
