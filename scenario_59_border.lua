@@ -107,7 +107,7 @@ end
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.2.0"
+	scenario_version = "5.2.1"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -236,6 +236,7 @@ function init()
 	printDetailedStats = true
 	change_enemy_order_diagnostic = false
 	distance_diagnostic = false
+	repair_system_diagnostic = false
 	setConstants()	--missle type names, template names and scores, deployment directions, player ship names, etc.
 	repeat
 		setGossipSnippets()
@@ -302,18 +303,6 @@ function init()
 	plotExDk = expediteDockCheck
 	plotShowPlayerInfo = showPlayerInfoOnConsole
 	plotMining = checkForMining
-	enemyVesselDestroyedNameList = {}
-	enemyVesselDestroyedType = {}
-	enemyVesselDestroyedValue = {}
-	friendlyVesselDestroyedNameList = {}
-	friendlyVesselDestroyedType = {}
-	friendlyVesselDestroyedValue = {}
-	friendlyStationDestroyedNameList = {}
-	friendlyStationDestroyedValue = {}
-	enemyStationDestroyedNameList = {}
-	enemyStationDestroyedValue = {}
-	neutralStationDestroyedNameList = {}
-	neutralStationDestroyedValue = {}
 	enemy_reverts = {}
 	revert_timer_interval = 7
 	revert_timer = revert_timer_interval
@@ -758,6 +747,18 @@ function setConstants()
 		{"reactor","maneuver","frontshield"},
 		{"reactor","maneuver","rearshield"}
 	}
+	enemyVesselDestroyedNameList = {}
+	enemyVesselDestroyedType = {}
+	enemyVesselDestroyedValue = {}
+	friendlyVesselDestroyedNameList = {}
+	friendlyVesselDestroyedType = {}
+	friendlyVesselDestroyedValue = {}
+	friendlyStationDestroyedNameList = {}
+	friendlyStationDestroyedValue = {}
+	enemyStationDestroyedNameList = {}
+	enemyStationDestroyedValue = {}
+	neutralStationDestroyedNameList = {}
+	neutralStationDestroyedValue = {}
 	--minutes and danger
 	enemyReinforcementSchedule = {
 		{30, 1},
@@ -10360,8 +10361,17 @@ function handleDockedState()
 			setCommsMessage(string.format("What system would you like repaired?\n\nReputation: %i",math.floor(comms_source:getReputationPoints())))
 			local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
 			for _, system in ipairs(system_list) do
+				if repair_system_diagnostic then
+					print("offer repair system:",system)
+				end
 				if comms_target.comms_data.system_repair[system] then
+					if repair_system_diagnostic then
+						print(comms_target:getCallSign(),"can repair:",system)
+					end
 					if comms_source:getSystemHealthMax(system) < 1 then
+						if repair_system_diagnostic then
+							print(comms_source:getCallSign(),"needs repairs on:",system,"current health max:",comms_source:getSystemHealthMax(system))
+						end
 						addCommsReply(string.format("Repair %s (current max is %i%%) (5 Rep)",system,math.floor(comms_source:getSystemHealthMax(system)*100)),function()
 							if comms_source:takeReputationPoints(5) then
 								comms_source:setSystemHealthMax(system,1)
@@ -10375,7 +10385,13 @@ function handleDockedState()
 					end
 				end
 				if comms_target.comms_data.coolant_pump_repair[system] then
-					if comms_source:getSystemCoolantRate(system) < comms_source.normal_coolant_rate then
+					if repair_system_diagnostic then
+						print(comms_target:getCallSign(),"can repair the coolant pump for:",system)
+					end
+					if comms_source:getSystemCoolantRate(system) < comms_source.normal_coolant_rate[system] then
+						if repair_system_diagnostic then
+							print(comms_source:getCallSign(),"needs the coolant pump repaired for:",system)
+						end
 						addCommsReply(string.format("Repair %s coolant pump (5 Rep)",system),function()
 							if comms_source:takeReputationPoints(5) then
 								comms_source:setSystemCoolantRate(system,comms_source.normal_coolant_rate[system])
@@ -10389,7 +10405,13 @@ function handleDockedState()
 				end
 			end
 			if comms_target.comms_data.probe_launch_repair then
+				if repair_system_diagnostic then
+					print(comms_target:getCallSign(),"can repair probe launcher")
+				end
 				if not comms_source:getCanLaunchProbe() then
+					if repair_system_diagnostic then
+						print(comms_source:getCallSign(),"needs probe launch system repaired")
+					end
 					addCommsReply("Repair probe launch system (5 Rep)",function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source:setCanLaunchProbe(true)
@@ -10402,7 +10424,13 @@ function handleDockedState()
 				end
 			end
 			if comms_target.comms_data.hack_repair then
+				if repair_system_diagnostic then
+					print(comms_target:getCallSign(),"can repair hacking")
+				end
 				if not comms_source:getCanHack() then
+					if repair_system_diagnostic then
+						print(comms_source:getCallSign(),"needs hacking repaired")
+					end
 					addCommsReply("Repair hacking system (5 Rep)",function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source:setCanHack(true)
@@ -10415,7 +10443,13 @@ function handleDockedState()
 				end
 			end
 			if comms_target.comms_data.scan_repair then
+				if repair_system_diagnostic then
+					print(comms_target:getCallSign(),"can repair scanners")
+				end
 				if not comms_source:getCanScan() then
+					if repair_system_diagnostic then
+						print(comms_source:getCallSign(),"needs scanners repaired")
+					end
 					addCommsReply("Repair scanners (5 Rep)",function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source:setCanScan(true)
@@ -10428,7 +10462,13 @@ function handleDockedState()
 				end
 			end
 			if comms_target.comms_data.combat_maneuver_repair then
+				if repair_system_diagnostic then
+					print(comms_target:getCallSign(),"can repair combat maneuver")
+				end
 				if not comms_source:getCanCombatManeuver() then
+					if repair_system_diagnostic then
+						print(comms_source:getCallSign(),"needs combat maneuver repaired")
+					end
 					addCommsReply("Repair combat maneuver (5 Rep)",function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source:setCanCombatManeuver(true)
@@ -10441,7 +10481,13 @@ function handleDockedState()
 				end
 			end
 			if comms_target.comms_data.self_destruct_repair then
+				if repair_system_diagnostic then
+					print(comms_target:getCallSign(),"can repair self destruct")
+				end
 				if not comms_source:getCanSelfDestruct() then
+					if repair_system_diagnostic then
+						print(comms_source:getCallSign(),"needs self destruct system repaired")
+					end
 					addCommsReply("Repair self destruct system (5 Rep)",function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source:setCanSelfDestruct(true)
