@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.3.2"
+	scenario_version = "5.4.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -14986,8 +14986,8 @@ function playerShipSelected()
 	local selected_matches_player = false
 	for i=1,#object_list do
 		local current_selected_object = object_list[i]
-		for pidx=1,8 do
-			p = getPlayerShip(pidx)
+		local players = getActivePlayerShips()
+		for pidx, p in ipairs(players) do
 			if p ~= nil and p:isValid() then
 				if p == current_selected_object then
 					selected_matches_player = true
@@ -15175,8 +15175,8 @@ function playerShipLogMessage()
 			ship_log_message = string.format("[%s in %s] %s",player_message_source:getCallSign(),player_message_source:getSectorName(),message_object:getDescription())
 		end
 		if type(player_ship_message_destination) == "string" then
-			for pidx=1,32 do
-				local p = getPlayerShip(pidx)
+			local players = getActivePlayerShips()
+			for pidx, p in ipairs(players) do
 				if p ~= nil and p:isValid() then
 					p:addToShipLog(ship_log_message,player_ship_log_message_color)
 				end
@@ -15250,8 +15250,8 @@ function playerHailMessage()
 			hail_message = string.format("[Sector %s] %s",player_message_source:getSectorName(),message_object:getDescription())
 		end
 		if type(player_ship_message_destination) == "string" then
-			for pidx=1,32 do
-				local p = getPlayerShip(pidx)
+			local players = getActivePlayerShips()
+			for pidx, p in ipairs(players) do
 				if p ~= nil and p:isValid() then
 					player_message_source:sendCommsMessage(p,hail_message)
 				end
@@ -15712,8 +15712,8 @@ function gmClickZoneWaypoint(x,y)
 			player_list = player_list .. " " .. p:getCallSign()
 		end
 	else
-		for pidx=1,32 do
-			local p = getPlayerShip(pidx)
+		local players = getActivePlayerShips()
+		for pidx, p in ipairs(players) do
 			if p ~= nil and p:isValid() then
 				p:commandAddWaypoint(x,y)
 				player_list = player_list .. " " .. p:getCallSign()
@@ -16495,8 +16495,8 @@ function setPlayerShipMessageDestination()
 		player_ship_message_destination = "All"
 		setPlayerShipMessageDestination()
 	end)
-	for pidx=1,32 do
-		local p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			button_label = p:getCallSign()
 			if type(player_ship_message_destination) == "table" and p == player_ship_message_destination then
@@ -20215,8 +20215,8 @@ end
 --General use functions for spawning fleets
 function playerPower()
 	local playerShipScore = 0
-	for pidx=1,8 do
-		local p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			playerShipScore = playerShipScore + p.shipScore
 		end
@@ -21702,8 +21702,8 @@ function parmSpawnShip()
 			local selected_player = nil
 			for i=1,#object_list do
 				local curSelObj = object_list[i]
-				for pidx=1,8 do
-					local p = getPlayerShip(pidx)
+				local players = getActivePlayerShips()
+				for pidx, p in ipairs(players) do
 					if p ~= nil and p:isValid() then
 						if p == curSelObj then
 							selectedMatchesPlayer = true
@@ -21812,8 +21812,8 @@ function parmSpawnFleet()
 			local selected_player = nil
 			for i=1,#objectList do
 				local curSelObj = objectList[i]
-				for pidx=1,8 do
-					local p = getPlayerShip(pidx)
+				local players = getActivePlayerShips()
+				for pidx, p in ipairs(players) do
 					if p ~= nil and p:isValid() then
 						if p == curSelObj then
 							selectedMatchesPlayer = true
@@ -29458,8 +29458,8 @@ function podPickupProcess(self,retriever)
 			table.remove(rendezvousPoints,rpi)
 		end
 	end
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			for pb, enabled in pairs(p.podButton) do
 				if pb == podCallSign then
@@ -29787,22 +29787,22 @@ function artifactToPod()
 	pod:onPickUp(podPickupProcess)
 	escapePodList[podCallSign] = pod
 	table.insert(rendezvousPoints,pod)
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if p.podButton == nil then
 				p.podButton = {}
 			end
 			p.podButton[podCallSign] = true
 			p:wrappedAddCustomButton("Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for pb, enabled in pairs(p.podButton) do
+				local players_prime = getActivePlayerShips()
+				for pidx_prime, p_prime in ipairs(players_prime) do
+					if p_prime ~= nil and p_prime:isValid() then
+						for pb, enabled in pairs(p_prime.podButton) do
 							if enabled and pb == podCallSign then
-								p:wrappedRemoveCustom(pb)
-								p:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p.podButton[pb] = false
+								p_prime:wrappedRemoveCustom(pb)
+								p_prime:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p_prime.podButton[pb] = false
 							end
 						end
 					end
@@ -29839,22 +29839,22 @@ function podCreation(originx, originy, vectorx, vectory)
 	pod:onPickUp(podPickupProcess)
 	escapePodList[podCallSign] = pod
 	table.insert(rendezvousPoints,pod)
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if p.podButton == nil then
 				p.podButton = {}
 			end
 			p.podButton[podCallSign] = true
 			p:wrappedAddCustomButton("Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for pb, enabled in pairs(p.podButton) do
+				local players_prime = getActivePlayerShips()
+				for pidx_prime, p_prime in ipairs(players_prime) do
+					if p_prime ~= nil and p_prime:isValid() then
+						for pb, enabled in pairs(p_prime.podButton) do
 							if enabled and pb == podCallSign then
-								p:wrappedRemoveCustom(pb)
-								p:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p.podButton[pb] = false
+								p_prime:wrappedRemoveCustom(pb)
+								p_prime:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
+								p_prime.podButton[pb] = false
 							end
 						end
 					end
@@ -29983,22 +29983,22 @@ function marineCreation(originx, originy, vectorx, vectory, associatedObjectName
 	marinePointList[marineCallSign] = marinePoint
 	--table.insert(marinePointList,marinePoint)
 	table.insert(rendezvousPoints,marinePoint)
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if p.marinePointButton == nil then
 				p.marinePointButton = {}
 			end
 			p.marinePointButton[marineCallSign] = true
 			p:wrappedAddCustomButton("Engineering",marineCallSign,string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for mpb, enabled in pairs(p.marinePointButton) do
+				local players_prime = getActivePlayerShips()
+				for pidx_prime, p_prime in ipairs(players_prime) do
+					if p_prime ~= nil and p_prime:isValid() then
+						for mpb, enabled in pairs(p_prime.marinePointButton) do
 							if enabled and mpb == marineCallSign then
-								p:wrappedRemoveCustom(mpb)
-								p:wrappedAddCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
-								p.marinePointButton[mpb] = false
+								p_prime:wrappedRemoveCustom(mpb)
+								p_prime:wrappedAddCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
+								p_prime.marinePointButton[mpb] = false
 							end
 						end
 					end
@@ -30021,8 +30021,8 @@ function marinePointPickupProcess(self,retriever)
 			table.remove(rendezvousPoints,rpi)
 		end
 	end
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			for mpb, enabled in pairs(p.marinePointButton) do
 				if mpb == marineCallSign then
@@ -30309,22 +30309,22 @@ function engineerCreation(originx, originy, vectorx, vectory, associatedObjectNa
 	engineerPoint.associatedObjectName = associatedObjectName
 	engineerPointList[engineerCallSign] = engineerPoint
 	table.insert(rendezvousPoints,engineerPoint)
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if p.engineerPointButton == nil then
 				p.engineerPointButton = {}
 			end
 			p.engineerPointButton[engineerCallSign] = true
 			p:wrappedAddCustomButton("Engineering",engineerCallSign,string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for epb, enabled in pairs(p.engineerPointButton) do
+				local players_prime = getActivePlayerShips()
+				for pidx_prime, p_prime in ipairs(players_prime) do
+					if p_prime ~= nil and p_prime:isValid() then
+						for epb, enabled in pairs(p_prime.engineerPointButton) do
 							if enabled and epb == engineerCallSign then
-								p:wrappedRemoveCustom(epb)
-								p:wrappedAddCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
-								p.engineerPointButton[epb] = false
+								p_prime:wrappedRemoveCustom(epb)
+								p_prime:wrappedAddCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
+								p_prime.engineerPointButton[epb] = false
 							end
 						end
 					end
@@ -30347,8 +30347,8 @@ function engineerPointPickupProcess(self,retriever)
 			table.remove(rendezvousPoints,rpi)
 		end
 	end
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			for epb, enabled in pairs(p.engineerPointButton) do
 				if epb == engineerCallSign then
@@ -30635,22 +30635,22 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	medicPoint.initial_rotation = medicPoint:getRotation()
 	medicPointList[medicCallSign] = medicPoint
 	table.insert(rendezvousPoints,medicPoint)
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if p.medicPointButton == nil then
 				p.medicPointButton = {}
 			end
 			p.medicPointButton[medicCallSign] = true
 			p:wrappedAddCustomButton("Engineering",medicCallSign,string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
-				for pidx=1,8 do
-					p = getPlayerShip(pidx)
-					if p ~= nil and p:isValid() then
-						for mpb, enabled in pairs(p.medicPointButton) do
+				local players_prime = getActivePlayerShips()
+				for pidx, p in ipairs(players_prime) do
+					if p_prime ~= nil and p_prime:isValid() then
+						for mpb, enabled in pairs(p_prime.medicPointButton) do
 							if enabled and mpb == medicCallSign then
-								p:wrappedRemoveCustom(mpb)
-								p:wrappedAddCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
-								p.medicPointButton[mpb] = false
+								p_prime:wrappedRemoveCustom(mpb)
+								p_prime:wrappedAddCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
+								p_prime.medicPointButton[mpb] = false
 							end
 						end
 					end
@@ -30673,8 +30673,8 @@ function medicPointPickupProcess(self,retriever)
 			table.remove(rendezvousPoints,rpi)
 		end
 	end
-	for pidx=1,8 do
-		p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			for mpb, enabled in pairs(p.medicPointButton) do
 				if mpb == medicCallSign then
@@ -40260,8 +40260,8 @@ function handleDockedState()
 		end
 		if skeleton_docked then
 			local all_docked = true
-			for pidx=1,8 do
-				local p = getPlayerShip(pidx)
+			local players = getActivePlayerShips()
+			for pidx, p in ipairs(players) do
 				if p ~= nil and p:isValid() then
 					if not p:isDocked(comms_target) then
 						all_docked = false
@@ -40282,12 +40282,12 @@ function handleDockedState()
 						addCommsReply(string.format("Take jump corridor to %s",jc_item.station:getCallSign()),function()
 							playerSpawnX = jc_item.spawn_x
 							playerSpawnY = jc_item.spawn_y
-							for pidx=1,8 do
-								local p = getPlayerShip(pidx)
-								if p ~= nil and p:isValid() then
-									p:commandUndock()
-									p:setPosition(playerSpawnX,playerSpawnY)
-									p:commandImpulse(0)
+							local players_prime = getActivePlayerShips()
+							for pidx_prime, p_prime in ipairs(players_prime) do
+								if p_prime ~= nil and p_prime:isValid() then
+									p_prime:commandUndock()
+									p_prime:setPosition(playerSpawnX,playerSpawnY)
+									p_prime:commandImpulse(0)
 								end
 							end
 							local jt = comms_target:getObjectsInRange(5000)
@@ -40314,660 +40314,6 @@ function handleDockedState()
 				end
 			end
 		end
-		--[[
-		if comms_target == stationIcarus or comms_target == stationKentar or comms_target == stationAstron or comms_target == stationLafrina or comms_target == stationTeresh then
-			local all_docked = true
-			for pidx=1,8 do
-				local p = getPlayerShip(pidx)
-				if p ~= nil and p:isValid() then
-					if not p:isDocked(comms_target) then
-						all_docked = false
-						break
-					end
-				end
-			end
-			if all_docked then
-				if comms_target == stationIcarus then
-					addCommsReply("Take jump corridor to Kentar",function()
-						playerSpawnX = 250000
-						playerSpawnY = 250000
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Kentar (R17)"
-						if not kentar_color then
-							createKentarColor()
-						end
-						removeIcarusColor()
-						setCommsMessage("Transferred to Kentar")
-					end)
-					addCommsReply("Take jump corridor to Astron",function()
-						local region = universe.available_regions[4]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						universe:removeRegion(universe.available_regions[1])
-						setCommsMessage("Transferred to Astron")
-					end)
-					addCommsReply("Take jump corridor to Lafrina",function()
-						local region = universe.available_regions[5]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						universe:removeRegion(universe.available_regions[1])
-						setCommsMessage("Transferred to Lafrina")
-					end)
-					addCommsReply("Take jump corridor to Teresh",function()
-						local region = universe.available_regions[6]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						universe:removeRegion(universe.available_regions[1])
-						setCommsMessage("Transferred to Teresh")
-					end)
-				elseif comms_target == stationKentar then
-					addCommsReply("Take jump corridor to Icarus", function()
-						playerSpawnX = 0
-						playerSpawnY = 0
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Icarus (F5)"
-						if not icarus_color then
-							createIcarusColor()
-						end
-						removeKentarColor()
-						setCommsMessage("Transferred to Icarus")
-					end)
-					addCommsReply("Take jump corridor to Astron",function()
-						local region = universe.available_regions[4]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						removeKentarColor()
-						setCommsMessage("Transferred to Astron")
-					end)
-					addCommsReply("Take jump corridor to Lafrina",function()
-						local region = universe.available_regions[5]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						removeKentarColor()
-						setCommsMessage("Transferred to Lafrina")
-					end)
-					addCommsReply("Take jump corridor to Teresh",function()
-						local region = universe.available_regions[6]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						removeKentarColor()
-						setCommsMessage("Transferred to Teresh")
-					end)
-				elseif comms_target == stationAstron then
-					addCommsReply("Take jump corridor to Icarus", function()
-						playerSpawnX = 0
-						playerSpawnY = 0
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Icarus (F5)"
-						if not icarus_color then
-							createIcarusColor()
-						end
-						universe:removeRegion(universe.available_regions[4])
-						setCommsMessage("Transferred to Icarus")
-					end)
-					addCommsReply("Take jump corridor to Kentar",function()
-						playerSpawnX = 250000
-						playerSpawnY = 250000
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Kentar (R17)"
-						if not kentar_color then
-							createKentarColor()
-						end
-						universe:removeRegion(universe.available_regions[4])
-						setCommsMessage("Transferred to Kentar")
-					end)
-					addCommsReply("Take jump corridor to Lafrina",function()
-						local region = universe.available_regions[5]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						universe:removeRegion(universe.available_regions[4])
-						setCommsMessage("Transferred to Lafrina")
-					end)
-					addCommsReply("Take jump corridor to Teresh",function()
-						local region = universe.available_regions[6]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						universe:removeRegion(universe.available_regions[4])
-						setCommsMessage("Transferred to Teresh")
-					end)
-				elseif comms_target == stationLafrina then
-					addCommsReply("Take jump corridor to Icarus", function()
-						playerSpawnX = 0
-						playerSpawnY = 0
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Icarus (F5)"
-						if not icarus_color then
-							createIcarusColor()
-						end
-						removeLafrinaColor()
-						setCommsMessage("Transferred to Icarus")
-					end)
-					addCommsReply("Take jump corridor to Kentar",function()
-						playerSpawnX = 250000
-						playerSpawnY = 250000
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Kentar (R17)"
-						if not kentar_color then
-							createKentarColor()
-						end
-						removeLafrinaColor()
-						setCommsMessage("Transferred to Kentar")
-					end)
-					addCommsReply("Take jump corridor to Astron",function()
-						local region = universe.available_regions[4]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						removeLafrinaColor()
-						setCommsMessage("Transferred to Astron")
-					end)
-					addCommsReply("Take jump corridor to Teresh",function()
-						local region = universe.available_regions[6]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						removeLafrinaColor()
-						setCommsMessage("Transferred to Teresh")
-					end)
-				elseif comms_target == stationTeresh then
-					addCommsReply("Take jump corridor to Icarus", function()
-						playerSpawnX = 0
-						playerSpawnY = 0
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Icarus (F5)"
-						if not icarus_color then
-							createIcarusColor()
-						end
-						removeTereshColor()
-						setCommsMessage("Transferred to Icarus")
-					end)				
-					addCommsReply("Take jump corridor to Kentar",function()
-						playerSpawnX = 250000
-						playerSpawnY = 250000
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = "Kentar (R17)"
-						if not kentar_color then
-							createKentarColor()
-						end
-						removeTereshColor()
-						setCommsMessage("Transferred to Kentar")
-					end)
-					addCommsReply("Take jump corridor to Lafrina",function()
-						local region = universe.available_regions[5]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						removeTereshColor()
-						setCommsMessage("Transferred to Lafrina")
-					end)					
-					addCommsReply("Take jump corridor to Astron",function()
-						local region = universe.available_regions[4]
-						playerSpawnX = region.spawn_x
-						playerSpawnY = region.spawn_y
-						for pidx=1,8 do
-							local p = getPlayerShip(pidx)
-							if p ~= nil and p:isValid() then
-								p:commandUndock()
-								p:setPosition(playerSpawnX,playerSpawnY)
-							end
-						end
-						local jt = comms_target:getObjectsInRange(5000)
-						jump_train = {}
-						if #jt > 0 then
-							for index, ship in ipairs(jt) do
-								if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
-									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
-									ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
-									ship.jump_corridor_y = playerSpawnY+fleetPosDelta1y[index+1]*500
-									ship.move_test_count = 0
-									ship:setPosition(playerSpawnX+fleetPosDelta1x[index+1]*500,playerSpawnY+fleetPosDelta1y[index+1]*500)
-									table.insert(jump_train,ship)
-								end
-							end
-						end
-						startRegion = region.name
-						if not universe:hasRegionSpawned(region) then
-							universe:spawnRegion(region)
-						end
-						removeTereshColor()
-						setCommsMessage("Transferred to Astron")
-					end)
-				end
-			end
-		end
-		--]]
 	end
 end	--end of handleDockedState function
 function isAllowedTo(state)
@@ -42747,8 +42093,8 @@ end
 --------------------------
 function activePlayerShips()
 	local return_list = ""
-	for i=1,32 do
-		local ship = getPlayerShip(i)
+	local players = getActivePlayerShips()
+	for pidx, ship in ipairs(players) do
 		if ship ~= nil and ship:isValid() then
 			return_list = return_list .. ship:getCallSign()
 		end
@@ -43119,9 +42465,8 @@ function updateInner(delta)
 	end
 	if updateDiagnostic then print("update: universe update") end
 	update_system:update(delta)
-	for pidx=1,8 do
-		if updateDiagnostic then print("update: pidx: " .. pidx) end
-		local p = getPlayerShip(pidx)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
 			-- if the template has been update pull data from the soft template
@@ -43140,9 +42485,9 @@ function updateInner(delta)
 			end
 			p:wrappedAddCustomInfo("name_tag_positions","name_tag",string.format("%s in %s",player_name,p:getSectorName()))
 			if p.tube_size ~= nil then
-				local tube_size_banner = string.format("Tube sizes: %s",p.tube_size)
+				local tube_size_banner = string.format("%s tubes: %s",p:getCallSign(),p.tube_size)
 				if #p.tube_size == 1 then
-					tube_size_banner = string.format("Tube size: %s",p.tube_size)
+					tube_size_banner = string.format("%s tube: %s",p:getCallSign(),p.tube_size)
 				end
 				p:wrappedAddCustomInfo("Weapons","tube_sizes",tube_size_banner)
 			end
