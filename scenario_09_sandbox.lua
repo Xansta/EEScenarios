@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.4.0"
+	scenario_version = "5.5.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -744,6 +744,7 @@ function setConstants()
 		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	},
 		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
 		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	},
+		["Fowl"]				= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
 		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
 		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9,	},
 		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9,	},
@@ -4490,7 +4491,7 @@ function customButtons()
 	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
 	-- though when I get round to one of the next improvements to gateway this may need to change anyway
 	addGMFunction("contact gm",function ()
-		playerFleet:addCustomButton("Relay","gm contact","calibrate",function (player)
+		playerFleet:wrappedAddCustomButton("Relay","gm contact","calibrate",function (player)
 			if not openGMComms(player) then
 				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
 			end
@@ -15853,12 +15854,12 @@ function playerWarpJammerProbes()
 					p:addCustomButton("Relay",p.probe_type_button,"Probes: standard",function()
 						string.format("")
 						cycleProbeType(p)
-					end)
+					end,10)
 					p.probe_type_button_ops = "probe_type_button_ops"
 					p:addCustomButton("Operations",p.probe_type_button_ops,"Probes: standard",function()
 						string.format("")
 						cycleProbeType(p)
-					end)
+					end,10)
 					playerWarpJammerProbes()
 				end)
 			end
@@ -15987,12 +15988,12 @@ function playerSensorBoostProbes()
 					p:addCustomButton("Relay",p.probe_type_button,"Probes: standard",function()
 						string.format("")
 						cycleProbeType(p)
-					end)
+					end,10)
 					p.probe_type_button_ops = "probe_type_button_ops"
 					p:addCustomButton("Operations",p.probe_type_button_ops,"Probes: standard",function()
 						string.format("")
 						cycleProbeType(p)
-					end)
+					end,10)
 					playerSensorBoostProbes()
 				end)
 			end
@@ -16121,12 +16122,12 @@ function playerFastProbes()
 					p:addCustomButton("Relay",p.probe_type_button,"Probes: standard",function()
 						string.format("")
 						cycleProbeType(p)
-					end)
+					end,10)
 					p.probe_type_button_ops = "probe_type_button_ops"
 					p:addCustomButton("Operations",p.probe_type_button_ops,"Probes: standard",function()
 						string.format("")
 						cycleProbeType(p)
-					end)
+					end,10)
 					playerFastProbes()
 				end)
 			end
@@ -18682,8 +18683,8 @@ function createPlayerShipQuarter()
 	playerBarrow:setJumpDriveRange(playerBarrow.min_jump_range,playerBarrow.max_jump_range)
 	playerBarrow:setJumpDriveCharge(playerBarrow.max_jump_range)
 	playerBarrow.carrier_space_group = {
-		["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet", state = "aboard", launch_button = "launch_carpenter"},
-		["Chack"] =		{create = createPlayerShipFowl, state = "aboard", launch_button = "launch_chack"},
+		["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5},
+		["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10},
 	}
 	playerBarrow.launch_bay = "empty"
 	playerBarrow:onTakingDamage(playerShipDamage)
@@ -20286,12 +20287,12 @@ function updatePlayerSoftTemplate(p)
 				p:addCustomButton("Relay",p.patrol_probe_button,"Patrol Probe Off",function()
 					string.format("")
 					togglePatrolProbeState(p)
-				end)
+				end,10)
 				p.patrol_probe_button_ops = "patrol_probe_button_ops"
 				p:addCustomButton("Operations",p.patrol_probe_button_ops,"Patrol Probe Off",function()
 					string.format("")
 					togglePatrolProbeState(p)
-				end)
+				end,10)
 			end
 			p.score_settings_source = tempTypeName
 		else
@@ -39888,14 +39889,14 @@ function handleDockedState()
 									comms_source:addCustomButton("Relay",comms_source.probe_type_button,"Probes: standard",function()
 										string.format("")
 										cycleProbeType(comms_source)
-									end)
+									end,10)
 								end
 								if comms_source:hasPlayerAtPosition("Operations") then
 									comms_source.probe_type_button_ops = "probe_type_button_ops"
 									comms_source:addCustomButton("Operations",comms_source.probe_type_button_ops,"Probes: standard",function()
 										string.format("")
 										cycleProbeType(comms_source)
-									end)
+									end,10)
 								end
 							else
 								setCommsMessage("Insufficient reputation")
@@ -39942,14 +39943,14 @@ function handleDockedState()
 									comms_source:addCustomButton("Relay",comms_source.probe_type_button,"Probes: standard",function()
 										string.format("")
 										cycleProbeType(comms_source)
-									end)
+									end,10)
 								end
 								if comms_source:hasPlayerAtPosition("Operations") then
 									comms_source.probe_type_button_ops = "probe_type_button_ops"
 									comms_source:addCustomButton("Operations",comms_source.probe_type_button_ops,"Probes: standard",function()
 										string.format("")
 										cycleProbeType(comms_source)
-									end)
+									end,10)
 								end
 							else
 								setCommsMessage("Insufficient reputation")
@@ -39988,14 +39989,14 @@ function handleDockedState()
 									comms_source:addCustomButton("Relay",comms_source.probe_type_button,"Probes: standard",function()
 										string.format("")
 										cycleProbeType(comms_source)
-									end)
+									end,10)
 								end
 								if comms_source:hasPlayerAtPosition("Operations") then
 									comms_source.probe_type_button_ops = "probe_type_button_ops"
 									comms_source:addCustomButton("Operations",comms_source.probe_type_button_ops,"Probes: standard",function()
 										string.format("")
 										cycleProbeType(comms_source)
-									end)
+									end,10)
 								end
 							else
 								setCommsMessage("Insufficient reputation")
@@ -41274,6 +41275,23 @@ function getFriendStatus()
     end
 end
 function playerShipCargoInventory(p)
+	local out = string.format("%s Current cargo:",p:getCallSign())
+	local goodCount = 0
+	if p.goods ~= nil then
+		for good, goodQuantity in pairs(p.goods) do
+			goodCount = goodCount + 1
+			out = string.format("%s\n     %s: %i",out,good,goodQuantity)
+		end
+	end
+	if goodCount < 1 then
+		out = string.format("%s\n     Empty",out)
+	end
+	out = string.format("%s\nAvailable space: %i",out,p.cargo)
+	out = string.format("%s\nEscape pods: %i   Available pod slots: %i",out,p.max_pods - p.pods,p.pods)
+	return out
+end
+--[[
+function playerShipCargoInventory(p)
 	p:addToShipLog(string.format("%s Current cargo:",p:getCallSign()),"Yellow")
 	local goodCount = 0
 	if p.goods ~= nil then
@@ -41288,6 +41306,7 @@ function playerShipCargoInventory(p)
 	p:addToShipLog(string.format("Available space: %i",p.cargo),"Yellow")
 	p:addToShipLog(string.format("Escape pods: %i   Available slots: %i",p.max_pods - p.pods,p.pods),"Yellow")
 end
+--]]
 function levelCoolant(p)
 	if p:isValid() then
 		local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
@@ -41413,7 +41432,7 @@ function addTractorObjectButtons(p,tractor_objects)
 					p.tractor_target = nil
 				end
 				removeTractorObjectButtons(p)
-			end)
+			end,13)
 		end
 	end
 	if p.tractor_lock_button_plus == nil then
@@ -41438,7 +41457,7 @@ function addTractorObjectButtons(p,tractor_objects)
 					p.tractor_target = nil
 				end
 				removeTractorObjectButtons(p)
-			end)
+			end,13)
 		end
 	end
 	if p.tractor_target_button == nil then
@@ -41468,7 +41487,7 @@ function addTractorObjectButtons(p,tractor_objects)
 				end
 				local target_description = "target_description"
 				p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
-			end)
+			end,14)
 		end
 	end
 	if p.tractor_target_button_plus == nil then
@@ -41498,7 +41517,7 @@ function addTractorObjectButtons(p,tractor_objects)
 				end
 				local target_description_plus = "target_description_plus"
 				p:addCustomMessage("Engineering+",target_description_plus,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
-			end)
+			end,14)
 		end
 	end
 	if #tractor_objects > 1 then
@@ -41570,7 +41589,7 @@ function addTractorObjectButtons(p,tractor_objects)
 							p.tractor_target = nil
 						end
 					end
-				end)
+				end,15)
 			end
 		end
 		if p.tractor_next_target_button_plus == nil then
@@ -41641,7 +41660,7 @@ function addTractorObjectButtons(p,tractor_objects)
 							p.tractor_target = nil
 						end
 					end
-				end)
+				end,15)
 			end
 		end
 	else
@@ -41705,7 +41724,7 @@ function addMiningButtons(p,mining_objects)
 					p.mining_target = nil
 				end
 				removeMiningButtons(p)
-			end)
+			end,20)
 		end
 	end
 	if p.mining_lock_button_ops == nil then
@@ -41728,7 +41747,7 @@ function addMiningButtons(p,mining_objects)
 					p.mining_target = nil
 				end
 				removeMiningButtons(p)
-			end)
+			end,20)
 		end
 	end
 	if p.mining_target_button == nil then
@@ -41771,7 +41790,7 @@ function addMiningButtons(p,mining_objects)
 				end
 				local target_description = "target_description"
 				p:addCustomMessage("Science",target_description,string.format("Distance: %.1fU\nBearing: %.1f\nMineral traces detected: %s",target_distance,angle,minerals))
-			end)
+			end,21)
 		end
 	end
 	if p.mining_target_button_ops == nil then
@@ -41814,7 +41833,7 @@ function addMiningButtons(p,mining_objects)
 				end
 				local target_description_ops = "target_description_ops"
 				p:addCustomMessage("Operations",target_description_ops,string.format("Distance: %.1fU\nBearing: %.1f\nMineral traces detected: %s",target_distance,angle,minerals))
-			end)
+			end,21)
 		end
 	end
 	if #mining_objects > 1 then
@@ -41886,7 +41905,7 @@ function addMiningButtons(p,mining_objects)
 							p.mining_target = nil
 						end
 					end
-				end)
+				end,22)
 			end
 		end		
 		if p.mining_next_target_button_ops == nil then
@@ -41957,7 +41976,7 @@ function addMiningButtons(p,mining_objects)
 							p.mining_target = nil
 						end
 					end
-				end)
+				end,22)
 			end
 		end
 	else
@@ -42121,12 +42140,12 @@ function togglePatrolProbeState(p)
 	p:addCustomButton("Relay",p.patrol_probe_button,string.format("Patrol Probe %s",p.patrol_probe_state),function()
 		string.format("")
 		togglePatrolProbeState(p)
-	end)
+	end,10)
 	p:removeCustom(p.patrol_probe_button_ops)
 	p:addCustomButton("Operations",p.patrol_probe_button_ops,string.format("Patrol Probe %s",p.patrol_probe_state),function()
 		string.format("")
 		togglePatrolProbeState(p)
-	end)
+	end,10)
 end
 function patrolProbeDone(self)
 	string.format("")
@@ -42283,7 +42302,7 @@ function refreshSpecialProbeButton(p)
 			p:addCustomButton("Relay",p.probe_type_button,button_label,function()
 				string.format("")
 				cycleProbeType(p)
-			end)
+			end,10)
 			if specialty_probe_diagnostic then
 				print("p.probe_type_button:",p.probe_type_button,"button_label:",button_label)
 			end
@@ -42291,7 +42310,7 @@ function refreshSpecialProbeButton(p)
 			p:addCustomButton("Operations",p.probe_type_button_ops,button_label,function()
 				string.format("")
 				cycleProbeType(p)
-			end)
+			end,10)
 		end
 	end
 end	
@@ -42493,9 +42512,7 @@ function updateInner(delta)
 			end
 			updatePlayerPodTelemetryButton(p)
 			if updateDiagnostic then print("update: valid player: inventory button") end
-			if p.inventoryButton == nil then
-				updatePlayerInventoryButton(p,player_name)
-			end
+			updatePlayerInventoryButton(p,player_name)
 			if updateDiagnostic then print("update: valid player: rendezvous point message") end
 			if #rendezvousPoints > 0 then
 				updatePlayerRendezvousPoints(p)
@@ -42640,7 +42657,7 @@ function updatePlayerPodTelemetryButton(p)
 				p:addCustomButton("Relay",p.pod_telemetry,"Pod Telemetry",function()
 					string.format("")	--global context for serious proton
 					showPodTelemetry(p)
-				end)
+				end,11)
 			end
 		end
 		if p:hasPlayerAtPosition("Operations") then
@@ -42649,7 +42666,7 @@ function updatePlayerPodTelemetryButton(p)
 				p:addCustomButton("Operations",p.pod_telemetry_ops,"Pod Telemetry",function()
 					string.format("")	--global context for serious proton
 					showPodTelemetry(p)
-				end)
+				end,11)
 			end
 		end
 	else
@@ -42671,20 +42688,16 @@ function updatePlayerInventoryButton(p,player_name)
 		end
 	end
 	if goodCount > 0 or p.pods < p.max_pods then		--add inventory button when cargo or pods acquired
-		if p:hasPlayerAtPosition("Relay") then
-			if p.inventoryButton == nil then
-				local tbi = "inventory" .. player_name
-				p:addCustomButton("Relay",tbi,"Inventory",function () playerShipCargoInventory(p) end)
-				p.inventoryButton = true
-			end
-		end
-		if p:hasPlayerAtPosition("Operations") then
-			if p.inventoryButton == nil then
-				local tbi = "inventoryOp" .. player_name
-				p:addCustomButton("Operations",tbi,"Inventory", function () playerShipCargoInventory(p) end)
-				p.inventoryButton = true
-			end
-		end
+		p:addCustomButton("Relay",string.format("inventory_button_relay_%s",player_name),"Inventory",function() 
+			string.format("")
+			local out = playerShipCargoInventory(p) 
+			p:addCustomMessage("Relay","inventory_message",out)
+		end,12)
+		p:addCustomButton("Operations",string.format("inventory_button_ops_%s",player_name),"Inventory", function()
+			string.format("")
+			local out = playerShipCargoInventory(p) 
+			p:addCustomMessage("Operations","inventory_message",out)
+		end,12)
 	end
 end
 function updatePlayerRendezvousPoints(p)
@@ -42966,7 +42979,7 @@ function updatePlayerDamageControl(p)
 				end
 				p.dmg_msg = "dmg_msg"
 				p:addCustomMessage("Engineering",p.dmg_msg,dmg_msg)
-			end)
+			end,20)
 		end
 		if p:hasPlayerAtPosition("Engineering+") then
 			p.damage_report_plus = "damage_report_plus"
@@ -43002,7 +43015,7 @@ function updatePlayerDamageControl(p)
 				end
 				p.dmg_msg = "dmg_msg"
 				p:addCustomMessage("Engineering+",p.dmg_msg,dmg_msg)
-			end)
+			end,20)
 		end
 	end
 end
@@ -43035,11 +43048,11 @@ function updatePlayerExpediteDock(delta,p)
 		else
 			if p:hasPlayerAtPosition("Relay") then
 				p.expedite_dock_timer_info = "expedite_dock_timer_info"
-				p:addCustomInfo("Relay",p.expedite_dock_timer_info,"Fast Dock Expired")						
+				p:addCustomInfo("Relay",p.expedite_dock_timer_info,"Fast Dock Expired",2)					
 			end
 			if p:hasPlayerAtPosition("Operations") then
 				p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
-				p:addCustomInfo("Relay",p.expedite_dock_timer_info_ops,"Fast Dock Expired")						
+				p:addCustomInfo("Operations",p.expedite_dock_timer_info_ops,"Fast Dock Expired",2)						
 			end
 		end
 	else	--timer not expired
@@ -43053,11 +43066,11 @@ function updatePlayerExpediteDock(delta,p)
 		end
 		if p:hasPlayerAtPosition("Relay") then
 			p.expedite_dock_timer_info = "expedite_dock_timer_info"
-			p:addCustomInfo("Relay",p.expedite_dock_timer_info,expedite_dock_timer_status)
+			p:addCustomInfo("Relay",p.expedite_dock_timer_info,expedite_dock_timer_status,2)
 		end
 		if p:hasPlayerAtPosition("Operations") then
 			p.expedite_dock_timer_info_ops = "expedite_dock_timer_info_ops"
-			p:addCustomInfo("Operations",p.expedite_dock_timer_info_ops,expedite_dock_timer_status)
+			p:addCustomInfo("Operations",p.expedite_dock_timer_info_ops,expedite_dock_timer_status,2)
 		end					
 	end
 	if p.expedite_dock_station ~= nil and p.expedite_dock_station:isValid() then
@@ -43290,7 +43303,7 @@ function updatePlayerTractor(p,player_velocity,nearby_objects)
 						p:removeCustom(p.disengage_tractor_button_plus)
 						p.disengage_tractor_button = nil
 						p.disengage_tractor_button_plus = nil
-					end)
+					end,16)
 				end
 				if p.disengage_tractor_button_plus == nil then
 					p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
@@ -43300,7 +43313,7 @@ function updatePlayerTractor(p,player_velocity,nearby_objects)
 						p:removeCustom(p.disengage_tractor_button_plus)
 						p.disengage_tractor_button = nil
 						p.disengage_tractor_button_plus = nil
-					end)
+					end,16)
 				end
 			else
 				p.tractor_target_lock = false
@@ -43381,7 +43394,7 @@ function updatePlayerTractor(p,player_velocity,nearby_objects)
 							p.tractor_target_lock = false
 							p:removeCustom(p.disengage_tractor_button)
 							p.disengage_tractor_button = nil
-						end)
+						end,16)
 					end
 					if p.disengage_tractor_button_plus == nil then
 						p.disengage_tractor_button_plus = "disengage_tractor_button_plus"
@@ -43389,7 +43402,7 @@ function updatePlayerTractor(p,player_velocity,nearby_objects)
 							p.tractor_target_lock = false
 							p:removeCustom(p.disengage_tractor_button_plus)
 							p.disengage_tractor_button_plus = nil
-						end)
+						end,16)
 					end
 				else	--invalid tractor target
 					p.tractor_target_lock = false
@@ -43469,7 +43482,7 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 								p.mining_timer = delta + 5
 								p:removeCustom(p.trigger_mine_beam_button)
 								p.trigger_mine_beam_button = nil
-							end)
+							end,11)
 						end
 					end
 					if p.trigger_mine_beam_button_tac == nil then
@@ -43480,7 +43493,7 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 								p.mining_timer = delta + 5
 								p:removeCustom(p.trigger_mine_beam_button_tac)
 								p.trigger_mine_beam_button_tac = nil
-							end)
+							end,11)
 						end
 					end
 				end
@@ -43561,6 +43574,91 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 		p.mining_timer = nil
 	end
 end
+function updatePlayerCarrierSpaceGroup(delta,p)
+	if p.launch_bay == "empty" then
+		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
+			if fighter_details.state == "aboard" then
+				p:addCustomButton("Weapons",string.format("%s_wea",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
+					p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+					p:addCustomMessage("Weapons",p.launch_start_message,p.launch_start_message)
+					for f_name, f_details in pairs(p.carrier_space_group) do
+						p:removeCustom(string.format("%s_wea",f_details.launch_button))
+						p:removeCustom(string.format("%s_tac",f_details.launch_button))
+					end
+					p.launch_bay = "loaded"
+					fighter_details.state = "charge"
+				end,12)
+				p:addCustomButton("Tactical",string.format("%s_tac",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
+					p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+					p:addCustomMessage("Tactical",p.launch_start_message,p.launch_start_message)
+					for f_name, f_details in pairs(p.carrier_space_group) do
+						p:removeCustom(string.format("%s_wea",f_details.launch_button))
+						p:removeCustom(string.format("%s_tac",f_details.launch_button))
+					end
+					p.launch_bay = "loaded"
+					fighter_details.state = "charge"
+				end,12)
+			end
+		end
+	elseif p.launch_bay == "loaded" then
+		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
+			if fighter_details.state == "charge" then
+				p.charge_launch = "charge_launch"
+				p:addCustomButton("Engineering",string.format("%s_eng",p.charge_launch),"Charge Launch Sys",function()
+					if p:getEnergyLevel() > 50 then
+						p.launch_timer = fighter_details.time
+						p:setEnergyLevel(p:getEnergyLevel() - 50)
+						p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s) after fighter launched",fighter_name,p.launch_timer)
+						p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
+						p:removeCustom(string.format("%s_eng",p.charge_launch))
+						p:removeCustom(string.format("%s_plus",p.charge_launch))
+						fighter_details.state = "gather"
+					else
+						p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
+						p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
+					end
+				end,10)
+				p:addCustomButton("Engineering+",string.format("%s_plus",p.charge_launch),"Charge Launch Sys",function()
+					if p:getEnergyLevel() > 50 then
+						p.launch_timer = fighter_details.time
+						p:setEnergyLevel(p:getEnergyLevel() - 50)
+						p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s) after fighter launched",fighter_name,p.launch_timer)
+						p:addCustomMessage("Engineering+",p.launch_charged_message,p.launch_charged_message)
+						p:removeCustom(string.format("%s_eng",p.charge_launch))
+						p:removeCustom(string.format("%s_plus",p.charge_launch))
+						fighter_details.state = "gather"
+					else
+						p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
+						p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
+					end
+				end,10)
+			end
+			if fighter_details.state == "gather" then
+				p.launch_timer = p.launch_timer - delta
+				if p.launch_timer < 0 then
+					if p.launch_countdown ~= nil then
+						p:removeCustom(string.format("%s_relay",p.launch_countdown))
+						p:removeCustom(string.format("%s_ops",p.launch_countdown))
+						p.launch_countdown = nil
+					end
+					local fx, fy = p:getPosition()
+					local fighter = fighter_details.create(fighter_details.template)
+					fighter:setPosition(fx,fy):setCallSign(fighter_name):setHeading(p:getHeading())
+					carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
+					fighter.retract_time = fighter_details.time
+					fighter_details.state = "deployed"
+					p:addToShipLog(string.format("Launch of %s complete",fighter_name),"Green")
+					p.launch_bay = "empty"
+				else
+					p.launch_countdown = "launch_countdown"
+					p:addCustomInfo("Relay",string.format("%s_relay",p.launch_countdown),string.format("Launch: %i",math.floor(p.launch_timer)),1)
+					p:addCustomInfo("Operations",string.format("%s_ops",p.launch_countdown),string.format("Launch: %i",math.floor(p.launch_timer)),1)
+				end
+			end
+		end
+	end
+end
+--[[
 function updatePlayerCarrierSpaceGroup(delta,p)
 	if p.launch_bay == "empty" then
 		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
@@ -43851,6 +43949,7 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 		end
 	end
 end
+--]]
 function updatePlayerPatrolProbes(p)
 	if p.patrol_probe > 5 then
 		p.patrol_probe = 5
@@ -44001,7 +44100,7 @@ function updatePlayerTurboTorpedo(delta,p)
 							p.turbo_torp_active = true
 							p:removeCustom(p.turbo_torp_button)
 							p.turbo_torp_button = nil
-						end)
+						end,13)
 					end
 				end
 				if p.turbo_torp_button_tac == nil then
@@ -44011,7 +44110,7 @@ function updatePlayerTurboTorpedo(delta,p)
 							p.turbo_torp_active = true
 							p:removeCustom(p.turbo_torp_button_tac)
 							p.turbo_torp_button_tac = nil
-						end)
+						end,13)
 					end
 				end
 			else
@@ -44196,12 +44295,12 @@ function updatePlayerMagnasolLevelCoolant(p)
 			p:addCustomButton("Engineering",p.level_coolant_eng,"Level Coolant",function()
 				string.format("")
 				levelCoolant(p)
-			end)
+			end,11)
 			p.level_coolant_plus = "level_coolant_plus"
 			p:addCustomButton("Engineering+",p.level_coolant_plus,"Level Coolant",function()
 				string.format("")
 				levelCoolant(p)
-			end)
+			end,11)
 			p.level_coolant_power = "level_coolant_power"
 			p:addCustomButton("PowerManagement",p.level_coolant_power,"Level Coolant",function()
 				string.format("")
@@ -44261,6 +44360,135 @@ function updatePlayerMagnasolHeat(delta,p)
 end
 function updateCarrierDeployedFighter(delta)
 	for fighter_name, fighter_details in pairs(carrier_deployed_fighter) do
+		local fighter = fighter_details.fighter
+		if fighter ~= nil and fighter:isValid() then
+			local carrier = fighter_details.carrier
+			if carrier ~= nil and carrier:isValid() then
+				local dock_banner = false
+				local fighter_heading = fighter:getHeading()
+				local carrier_heading = carrier:getHeading()
+				if distance(fighter,carrier) < 1000 then
+					fighter_heading = fighter_heading + 360
+					carrier_heading = carrier_heading + 360
+					if math.abs(fighter_heading - carrier_heading) < 10 then
+						dock_banner = true
+					end
+				end
+				if dock_banner then
+					fighter.dock_banner = string.format("%s_dock_banner",fighter_name)
+					local vx, vy = fighter:getVelocity()
+					local fighter_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
+					vx, vy = carrier:getVelocity()
+					local carrier_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
+					local dock_status = string.format("Match B:%.1f V:%.1f",fighter_heading - carrier_heading,fighter_velocity - carrier_velocity)
+					if math.abs(fighter_heading - carrier_heading) < 1 then
+						if math.abs(fighter_velocity - carrier_velocity) < 1 then
+							if fighter.retract_timer == nil then
+								fighter.retract_timer = fighter.retract_time
+							end
+							fighter.retract_timer = fighter.retract_timer - delta
+							if fighter.retract_timer < 0 then
+								dock_status = string.format("%s   0",dock_status)
+								fighter.dock_with_carrier_button = "dock_with_carrier_button"
+								fighter:addCustomButton("Helms",string.format("%s_helm",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+									local transfer_map = {}
+									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
+									for _, console in ipairs(consoles) do
+										if fighter:hasPlayerAtPosition(console) then
+											table.insert(transfer_map,console)
+										end
+									end
+									fighter:transferPlayersToShip(carrier)
+									fighter:destroy()
+									carrier.carrier_space_group[fighter_name].state = "aboard"
+									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
+									carrier_deployed_fighter[fighter_name] = nil
+									for _, console in ipairs(transfer_map) do
+										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
+									end
+								end,10)
+								fighter:addCustomButton("Tactical",string.format("%s_tac",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+									local transfer_map = {}
+									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
+									for _, console in ipairs(consoles) do
+										if fighter:hasPlayerAtPosition(console) then
+											table.insert(transfer_map,console)
+										end
+									end
+									fighter:transferPlayersToShip(carrier)
+									fighter:destroy()
+									carrier.carrier_space_group[fighter_name].state = "aboard"
+									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
+									carrier_deployed_fighter[fighter_name] = nil
+									for _, console in ipairs(transfer_map) do
+										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
+									end
+								end,10)
+								fighter:addCustomButton("Single",string.format("%s_one",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+									local transfer_map = {}
+									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
+									for _, console in ipairs(consoles) do
+										if fighter:hasPlayerAtPosition(console) then
+											table.insert(transfer_map,console)
+										end
+									end
+									fighter:transferPlayersToShip(carrier)
+									fighter:destroy()
+									carrier.carrier_space_group[fighter_name].state = "aboard"
+									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
+									carrier_deployed_fighter[fighter_name] = nil
+									for _, console in ipairs(transfer_map) do
+										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
+									end
+								end,10)
+							else
+								dock_status = string.format("%s   %.1f",dock_status,fighter.retract_timer)
+								if fighter.dock_with_carrier_button ~= nil then
+									fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+									fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+									fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+									fighter.dock_with_carrier_button = nil
+									fighter.retract_timer = nil
+								end
+							end
+						else
+							if fighter.dock_with_carrier_button ~= nil then
+								fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+								fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+								fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+								fighter.dock_with_carrier_button = nil
+								fighter.retract_timer = nil
+							end
+						end
+					else
+						if fighter.dock_with_carrier_button ~= nil then
+							fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+							fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+							fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+							fighter.dock_with_carrier_button = nil
+							fighter.retract_timer = nil
+						end
+					end
+					fighter:addCustomInfo("Helms",string.format("%s_helm",fighter.dock_banner),dock_status)
+					fighter:addCustomInfo("Helms",string.format("%s_tac",fighter.dock_banner),dock_status)
+				else
+					if fighter.dock_banner ~= nil then
+						fighter:removeCustom(string.format("%s_helm",fighter.dock_banner))
+						fighter:removeCustom(string.format("%s_tac",fighter.dock_banner))
+						fighter.dock_banner = nil
+					end
+				end
+			else
+				carrier_deployed_fighter[fighter_name] = nil
+			end
+		else
+			carrier_deployed_fighter[fighter_name] = nil
+		end
+	end
+end
+--[[
+function updateCarrierDeployedFighter(delta)
+	for fighter_name, fighter_details in pairs(carrier_deployed_fighter) do
 		if fighter_details.fighter ~= nil and fighter_details.fighter:isValid() then
 			if fighter_details.carrier ~= nil and fighter_details.carrier:isValid() then
 				if fighter_details.fighter:isDocked(fighter_details.carrier) then
@@ -44315,6 +44543,7 @@ function updateCarrierDeployedFighter(delta)
 		end
 	end
 end
+--]]
 function updateJumpTrain()
 	if #jump_train > 0 then
 		for index, ship in ipairs(jump_train) do
