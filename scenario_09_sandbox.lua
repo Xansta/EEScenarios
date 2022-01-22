@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.5.0"
+	scenario_version = "5.6.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -43644,6 +43644,9 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 					local fx, fy = p:getPosition()
 					local fighter = fighter_details.create(fighter_details.template)
 					fighter:setPosition(fx,fy):setCallSign(fighter_name):setHeading(p:getHeading())
+					fighter:commandSetAutoRepair(true):setAutoCoolant(true)
+					fighter:addCustomInfo("Engineering",string.format("%s_eng",fighter_name),string.format("%s Auto-cool/repair On",fighter_name))
+					fighter:addCustomInfo("Engineering+",string.format("%s_plus",fighter_name),string.format("%s Auto-cool/repair On",fighter_name))
 					carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
 					fighter.retract_time = fighter_details.time
 					fighter_details.state = "deployed"
@@ -44469,8 +44472,8 @@ function updateCarrierDeployedFighter(delta)
 							fighter.retract_timer = nil
 						end
 					end
-					fighter:addCustomInfo("Helms",string.format("%s_helm",fighter.dock_banner),dock_status)
-					fighter:addCustomInfo("Helms",string.format("%s_tac",fighter.dock_banner),dock_status)
+					fighter:addCustomInfo("Helms",string.format("%s_helm",fighter.dock_banner),dock_status,5)
+					fighter:addCustomInfo("Tactical",string.format("%s_tac",fighter.dock_banner),dock_status,5)
 				else
 					if fighter.dock_banner ~= nil then
 						fighter:removeCustom(string.format("%s_helm",fighter.dock_banner))
