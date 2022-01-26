@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.6.0"
+	scenario_version = "5.6.1"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -744,7 +744,7 @@ function setConstants()
 		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	},
 		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
 		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	},
-		["Fowl"]				= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
+		["Fowl"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
 		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
 		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9,	},
 		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9,	},
@@ -771,6 +771,7 @@ function setConstants()
 		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
 		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
 		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	},
+		["Roc"]					= { strength = 25,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
 		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
 		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
 		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
@@ -850,6 +851,7 @@ function setConstants()
 	addPlayerShip("Spyder",		"Atlantis II",	createPlayerShipSpyder		,"J")
 	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,"W")
 	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,"W")
+	addPlayerShip("Swoop",		"Roc",			createPlayerShipRoc			,"W")
 	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,"W")
 	addPlayerShip("Terror",		"Phobos T2.2",	createPlayerShipTerror		,"J")
 	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,"W")
@@ -859,7 +861,7 @@ function setConstants()
 	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,"W")
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Devon")
+	makePlayerShipActive("Swoop")
 	makePlayerShipActive("Hearken")
 	makePlayerShipActive("Yorik")
 	makePlayerShipActive("Knuckle Drag")
@@ -6212,9 +6214,10 @@ function createIcarusStations()
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
 	--Cindy's Folly
-	--local cindyZone = squareZone(81075, -1304, "Cindy's Folly 3 E9")
-	--cindyZone:setColor(51,153,255)
-    stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 3"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local cindyZone = squareZone(81075, -1304, "Cindy's Folly 4 E9")
+	cindyZone:setColor(51,153,255)
+	--[[
+    stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 4"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 37 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 44 then hvliAvail = true else hvliAvail = false end
     if random(1,100) <= 23 then mineAvail = true else mineAvail = false end
@@ -6248,6 +6251,7 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationCindyFolly:setSharesEnergyWithDocked(false) end
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
+	--]]
 	--Elysium F4m2.5 
 	--local elysiumZone = squareZone(-7504, 1384, "Elysium 5 F4.3")
 	--elysiumZone:setColor(51,153,255)
@@ -6762,9 +6766,10 @@ function createIcarusStations()
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	--Speculator
-	--local speculatorZone = squareZone(55000,108000, "Speculator 2 K7")
-	--speculatorZone:setColor(0,255,0)
-    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 2"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local speculatorZone = squareZone(55000,108000, "Speculator 3 K7")
+	speculatorZone:setColor(0,255,0)
+	--[[
+    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 3"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationSpeculator:setShortRangeRadarRange(13000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -6805,6 +6810,7 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationSpeculator:setSharesEnergyWithDocked(false) end
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
+	--]]
 	--Stromboli
 	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3 F10")
 	--stromboliZone:setColor(51,153,255)
@@ -18891,6 +18897,72 @@ function createPlayerShipRip()
 	playerLurker:onTakingDamage(playerShipDamage)
 	playerLurker:addReputationPoints(50)
 	return playerLurker	
+end
+function createPlayerShipRoc()
+	playerRoc = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Swoop")
+	playerRoc:setTypeName("Roc")
+	playerRoc:setRepairCrewCount(5)					--more repair crew (vs 3)
+	playerRoc:setWarpDrive(true)					--warp drive (vs none)
+	playerRoc:setWarpSpeed(440)
+	playerRoc:setShieldsMax(150,50)					--strong front, weak rear (vs 100,100)
+	playerRoc:setShields(150,50)
+	playerRoc:setImpulseMaxSpeed(75)				--slower impulse max (vs 80)
+	playerRoc:setRotationMaxSpeed(9)				--slower spin (vs 10)
+	playerRoc:setAcceleration(15)					--slower acceleration (vs 20)
+--                 			  Arc, Dir, Range, CycleTime, Damage
+	playerRoc:setBeamWeapon(0, 30,  10,	 1000,		 8.0, 6)	--shorter, narrower (vs 1.2u, 90 deg) 
+	playerRoc:setBeamWeapon(1, 30, -10,	 1000,		 8.0, 6)	--shorter, narrower (vs 1.2u, 90 deg) 
+	playerRoc:setBeamWeapon(2, 10, 180,	 1500,		 1.0, 0.5)	--fast weak turreted 3rd beam 
+--									  Arc,	Dir, Rotate speed
+	playerRoc:setBeamWeaponTurret( 2, 360,	180, 3)		
+	playerRoc:setWeaponTubeCount(8)					--more (vs 3)
+	playerRoc:setWeaponTubeDirection(0, 4)			--more angled (vs  -1)	
+	playerRoc:setWeaponTubeDirection(1,-4)			--more angled (vs   1)	
+	playerRoc:setWeaponTubeDirection(2, 0)			--forward (vs rear)	
+	playerRoc:setWeaponTubeDirection(3, 90)
+	playerRoc:setWeaponTubeDirection(4, 90)
+	playerRoc:setWeaponTubeDirection(5,-90)
+	playerRoc:setWeaponTubeDirection(6,-90)
+	playerRoc:setWeaponTubeDirection(7,180)
+	playerRoc:setTubeSize(0,"small")				--small (vs medium)
+	playerRoc:setTubeSize(1,"small")				--small (vs medium)
+	playerRoc:setTubeSize(4,"large")
+	playerRoc:setTubeSize(6,"large")
+	playerRoc:setTubeLoadTime(0,5)					--faster load time (vs 10)
+	playerRoc:setTubeLoadTime(1,5)					--faster load time (vs 10)
+	playerRoc:setTubeLoadTime(4,20)					--slower load time (vs 10)
+	playerRoc:setTubeLoadTime(6,20)					--slower load time (vs 10)
+	playerRoc:setTubeLoadTime(7,15)					--slower load time (vs 10)
+	playerRoc:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI & Homing (vs all but mine)
+	playerRoc:weaponTubeAllowMissle(0,"Homing")
+	playerRoc:setWeaponTubeExclusiveFor(1,"HVLI")	--HVLI & Homing (vs all but mine)
+	playerRoc:weaponTubeAllowMissle(1,"Homing")
+	playerRoc:setWeaponTubeExclusiveFor(2,"HVLI")	--HVLI (vs mine)
+	playerRoc:weaponTubeDisallowMissle(3,"Mine")
+	playerRoc:weaponTubeDisallowMissle(4,"Mine")
+	playerRoc:weaponTubeDisallowMissle(5,"Mine")
+	playerRoc:weaponTubeDisallowMissle(6,"Mine")
+	playerRoc:setWeaponTubeExclusiveFor(7,"Mine")
+	playerRoc:setWeaponStorageMax("HVLI",18)		--more (vs 0)
+	playerRoc:setSystemCoolantRate("reactor",		1.35)	--more (vs 1.2)
+	playerRoc:setSystemCoolantRate("beamweapons",	1.2)	--same (vs 1.2)
+	playerRoc:setSystemCoolantRate("maneuver",		1.1)	--less (vs 1.2)
+	playerRoc:setSystemCoolantRate("jumpdrive",		1.25)	--more (vs 1.2)
+	playerRoc:setSystemCoolantRate("impulse",		1.15)	--less (vs 1.2)
+	playerRoc:setSystemCoolantRate("missilesystem",	1.25)	--more (vs 1.2)
+	playerRoc:setSystemCoolantRate("frontshield",	1.1)	--less (vs 1.2)
+	playerRoc:setSystemCoolantRate("rearshield",	1.2)	--same (vs 1.2)
+	playerRoc:setSystemPowerRate("reactor",			0.40)	--more (vs 0.30)
+	playerRoc:setSystemPowerRate("jumpdrive",		0.3)	--same (vs 0.30)
+	playerRoc:setSystemPowerRate("beamweapons",		0.275)	--less (vs 0.30)
+	playerRoc:setSystemPowerRate("maneuver",		0.225)	--less (vs 0.30)
+	playerRoc:setSystemPowerRate("impulse",			0.25)	--less (vs 0.30)
+	playerRoc:setSystemPowerRate("missilesystem",	0.3)	--same (vs 0.30)
+	playerRoc:setSystemPowerRate("frontshield",		0.225)	--less (vs 0.30)
+	playerRoc:setSystemPowerRate("rearshield",		0.325)	--more (vs 0.30)
+	playerRoc:onTakingDamage(playerShipDamage)
+	playerRoc:addReputationPoints(50)
+	return playerRoc	
 end
 function createPlayerShipRocinante()
 	playerWindmill = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Rocinante")
