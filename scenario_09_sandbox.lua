@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.6.1"
+	scenario_version = "5.7.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -182,6 +182,7 @@ function setConstants()
 	ship_enhancement_factor = 1		--1 is normal (rare)
 	enhancement_warning_message = true
 	spiky_spin_ships = {}
+	impulse_boost_ships = {}
 
 	ship_template = {	--ordered by relative strength
 		-- unarmed
@@ -319,6 +320,7 @@ function setConstants()
 		["Enforcer V2"] =		{strength = 83,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 0,	hop_range = 1280,	create = enforcerV2},
 		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 12000,	hop_angle = 0,	hop_range = 1480,	create = starhammerIII},
 		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 15000,	hop_angle = 0,	hop_range = 1480,	create = starhammerV},
+		["Strongarm"] =			{strength = 95,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 1480,	create = strongarm},
 		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2480,	create = stockTemplate},
 		["Fortress"] =			{strength = 130,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2380,	create = stockTemplate},
 		["Tyr"] =				{strength = 150,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 90,	hop_range = 2480,	create = tyr},
@@ -711,82 +713,83 @@ function setConstants()
 	}
 --	patrol_probe value should be between 0 and 5 not inclusive (0 = no patrol probes). The higher the value, the faster the patrol probe and the fewer patrol probes available 
 	playerShipStats = {	
-		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	},
-		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
+		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
 	--	Custom player ships	
-		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	},
-		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	},
-		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	},
-		["Eldridge"]			= { strength = 20,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	},
-		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	},
-		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	},
-		["Fowl"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9,	},
-		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9,	},
-		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 4,	prox_scan = 0,	},
-		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Lurker"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 21000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 1,	},
-		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	},
-		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	},
-		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1,	},
-		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Phobos T2.2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	},
-		["Roc"]					= { strength = 25,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 3.5,	prox_scan = 0,	},
-		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	},
-		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	},
-		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	},
-		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	},
-		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	},
-		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	},
-		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	},
+		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 2,	},
+		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	epjam = 1,	},
+		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Eldridge"]			= { strength = 20,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	epjam = 0,	},
+		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 3,	},
+		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	epjam = 0,	},
+		["Fowl"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	},
+		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	},
+		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9,	epjam = 0,	},
+		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 4,	prox_scan = 0,	epjam = 0,	},
+		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Lurker"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 21000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	},
+		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	epjam = 0,	},
+		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1,	epjam = 0,	},
+		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Phobos T2.2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	epjam = 0,	},
+		["Roc"]					= { strength = 25,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	},
+		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 3.5,	prox_scan = 0,	epjam = 0,	},
+		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 0,	},
+		["Sloop"]				= { strength = 20,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 4500, tractor = true,		mining = true,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 2,	},
+		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	},
+		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	},
+		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	},
+		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
+		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	},
+		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
+		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	},
 	}	
 	-- this table has ended up not in alphabetical order
 	-- likewise the creation functions are no longer in alphabetical order
@@ -828,6 +831,7 @@ function setConstants()
 --	addPlayerShip("Knick",		"Glass Cannon",	createPlayerShipKnick		,"J"},"Experimental - not ready for use"
 	addPlayerShip("Knuckle Drag","Destroyer III",createPlayerShipSimian		,"J")
 	addPlayerShip("Lancelot",	"Noble",		createPlayerShipLancelot	,"J")
+	addPlayerShip("Levant",		"Sloop",		createPlayerShipSloop		,"J")
 	addPlayerShip("Magnum",		"Focus",		createPlayerShipMagnum		,"J")
 	addPlayerShip("Manxman",	"Nusret",		createPlayerShipManxman		,"J")
 	addPlayerShip("Mixer",		"Amalgam",		createPlayerShipMixer		,"J")
@@ -16988,7 +16992,7 @@ end
 --			2 tubes (negative then positive)
 --		Phobos				AtlasHeavyFighter
 --			2 beams (positive then negative)
---			2 tubes (positive then negative)
+--			3 tubes (positive then negative then rear for mine)
 --		Hornet				WespeScout
 --			2 beams (positive then negative)
 --		Player Cruiser		battleship_destroyer_5_upgraded	
@@ -18944,6 +18948,7 @@ function createPlayerShipRoc()
 	playerRoc:weaponTubeDisallowMissle(6,"Mine")
 	playerRoc:setWeaponTubeExclusiveFor(7,"Mine")
 	playerRoc:setWeaponStorageMax("HVLI",18)		--more (vs 0)
+	playerRoc:setWeaponStorage("HVLI", 18)
 	playerRoc:setSystemCoolantRate("reactor",		1.35)	--more (vs 1.2)
 	playerRoc:setSystemCoolantRate("beamweapons",	1.2)	--same (vs 1.2)
 	playerRoc:setSystemCoolantRate("maneuver",		1.1)	--less (vs 1.2)
@@ -19145,6 +19150,44 @@ function createPlayerShipSlingshot()
 	playerWrocket:onTakingDamage(playerShipDamage)
 	playerWrocket:addReputationPoints(50)
 	return playerWrocket
+end
+function createPlayerShipSloop()
+	playerSloop = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Levant")
+	playerSloop:setTypeName("Sloop")
+	playerSloop:setRepairCrewCount(5)				--more repair crew (vs 3)
+	playerSloop:setJumpDrive(true)
+	playerSloop.max_jump_range = 35000				--shorter than typical (vs 50)
+	playerSloop.min_jump_range = 3500				--shorter than typical (vs 5)
+	playerSloop:setJumpDriveRange(playerSloop.min_jump_range,playerSloop.max_jump_range)
+	playerSloop:setJumpDriveCharge(playerSloop.max_jump_range)
+	playerSloop:setImpulseMaxSpeed(90)				--faster impulse max (vs 80)
+	playerSloop:setRotationMaxSpeed(15)				--faster spin (vs 10)
+	playerSloop:setAcceleration(15)					--slower acceleration (vs 20)
+--                 				Arc, Dir, Range, CycleTime, Damage
+	playerSloop:setBeamWeapon(0, 40,  10,	 1200,	   8.0, 6)	--narrower (vs 90 deg) 
+	playerSloop:setBeamWeapon(1, 40, -10,	 1200,	   8.0, 6)	--narrower (vs 90 deg) 
+	playerSloop:setWeaponTubeCount(5)					--more (vs 3)
+	playerSloop:setWeaponTubeDirection(0, 10)			--more angled (vs  -1)	
+	playerSloop:setWeaponTubeDirection(1,-10)			--more angled (vs   1)	
+	playerSloop:setWeaponTubeDirection(3,170)	
+	playerSloop:setWeaponTubeDirection(4,190)
+	playerSloop:setWeaponTubeExclusiveFor(0,"Homing")	--Homing (vs all but mine)
+	playerSloop:setWeaponTubeExclusiveFor(1,"Homing")	--Homing (vs all but mine)
+	playerSloop:setWeaponTubeExclusiveFor(3,"Mine")
+	playerSloop:setWeaponTubeExclusiveFor(4,"Mine")
+	playerSloop:setWeaponStorageMax("Homing",12)		--more (vs 10)
+	playerSloop:setWeaponStorage("Homing", 12)
+	playerSloop:setWeaponStorageMax("Mine",6)			--more (vs 4)
+	playerSloop:setWeaponStorage("Mine", 6)
+	playerSloop:setWeaponStorageMax("Nuke",0)			--less (vs 2)
+	playerSloop:setWeaponStorage("Nuke", 0)
+	playerSloop:setWeaponStorageMax("EMP",0)			--less (vs 3)
+	playerSloop:setWeaponStorage("EMP", 0)
+	playerSloop:setWeaponStorageMax("HVLI",0)			--less (vs 3)
+	playerSloop:setWeaponStorage("HVLI", 0)
+	playerSloop:onTakingDamage(playerShipDamage)
+	playerSloop:addReputationPoints(50)
+	return playerSloop	
 end
 function createplayerShipSneak()
 	playerSneak = PlayerSpaceship():setTemplate("Repulse"):setTypeName("Skray"):setFaction("Human Navy"):setCallSign("5N3AK-E")
@@ -20365,6 +20408,19 @@ function updatePlayerSoftTemplate(p)
 					string.format("")
 					togglePatrolProbeState(p)
 				end,10)
+			end
+			p.epjam = playerShipStats[tempTypeName].epjam
+			if p.epjam > 0 then
+				--not working yet
+				p.epjam_button_wea = "epjam_button_wea"
+				local epjam_size = {"S","M","L"}
+				p:addCustomButton("Weapons",p.epjam_button_wea,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+					triggerEpjam(p)
+				end,14)
+				p.epjam_button_tac = "epjam_button_tac"
+				p:addCustomButton("Tactical",p.epjam_button_tac,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+					triggerEpjam(p)
+				end,14)
 			end
 			p.score_settings_source = tempTypeName
 		else
@@ -23477,6 +23533,16 @@ function npcShipDamage(self, instigator)
 			table.insert(spiky_spin_ships,self)
 		end
 	end
+	if self.boost_impulse_factor ~= nil and self.boost_impulse_active == nil and self.boost_impulse_cooling == nil then
+		local desperation = (1 - self:getHull()/self:getHullMax())*100
+		if math.random(1,100) + desperation > 50 then
+			self.boost_impulse_normal = self:getImpulseMaxSpeed()
+			self:setImpulseMaxSpeed(self:getImpulseMaxSpeed()*self.boost_impulse_degree_factor)
+			self.boost_impulse_active = getScenarioTime() + self.boost_impulse_time_factor
+			self.boost_impulse_cooling = getScenarioTime() + (self.boost_impulse_time_factor * 2)
+			table.insert(impulse_boost_ships,self)
+		end
+	end
 end
 function modifiedValue()
 	local modChance = random(1,100)
@@ -23512,6 +23578,13 @@ function addEnhancementToScienceDatabase(enhancement_type)
 			enhancement_db:addEntry("Shield Drain Beam")
 			shield_drain_beam_db = queryScienceDatabase("Ships","Enhancements","Shield Drain Beam")
 			shield_drain_beam_db:setLongDescription("If a ship is equipped with Shield Drain Beam capability, their beam weapons have been enhanced to particularly negatively impact the target's shields. The damage is applied to all shield arcs and reduces the shield charge. The degree of impact depends on the shield drain factor. In addition to the normal beam damage, the draining damage is the normal beam damage multiplied by the factor applied to all shield arcs.")
+		end
+	elseif enhancement_type == "Boost Impulse" then
+		local boost_impulse_db = queryScienceDatabase("Ships","Enhancements","Boost Impulse")
+		if boost_impulse_db == nil then
+			enhancement_db:addEntry("Boost Impulse")
+			boost_impulse_db = queryScienceDatabase("Ships","Enhancements","Boost Impulse")
+			boost_impulse_db:setLongDescription("If a ship is equipped with Boost Impulse, it can temporarily increase its maximum impulse speed, something learned from observing CUF ships. The numeric expression indicates seconds x speed multiplier.")
 		end
 	elseif enhancement_type == "Skip Beam" then
 		local skip_beam_db = queryScienceDatabase("Ships","Enhancements","Skip Beam")
@@ -23579,6 +23652,15 @@ function setShipEnhancement(ship)
 			ship.spiky_spin = math.random(25,50)
 			table.insert(enhancements,string.format("Spiky Spin %i",ship.spiky_spin))
 			addEnhancementToScienceDatabase("Spiky Spin")
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			local impulse_boost_degree_factors = {1.5,1.75,2,2.5,3}
+			local impulse_boost_time_factors = {3,5,8,13,21,34}
+			ship.boost_impulse_degree_factor = impulse_boost_degree_factors[math.random(1,#impulse_boost_degree_factors)]
+			ship.boost_impulse_time_factor = impulse_boost_time_factors[math.random(1,#impulse_boost_time_factors)]
+			ship.boost_impulse_factor = string.format("%ix%s",ship.boost_impulse_time_factor,ship.boost_impulse_degree_factor)
+			table.insert(enhancements,string.format("Boost Impulse %s",ship.boost_impulse_factor))
+			addEnhancementToScienceDatabase("Boost Impulse")
 		end
 	end
 	if #enhancements > 0 then
@@ -25739,6 +25821,60 @@ function prador(enemyFaction)
 	end
 	return ship
 end
+function strongarm(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Strongarm"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Strongarm"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Strongarm")
+	ship:setImpulseMaxSpeed(75)				--faster impulse (vs 60)
+	ship:setAcceleration(35)				--faster acceleration (vs 25)
+	ship:setShieldsMax(250,200,200)			--different shields (vs 100, 150)
+	ship:setShields(250,200,200)					
+	ship:setHullMax(150)					--stronger hull (vs 70)
+	ship:setHull(150)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	75,	   25,	1500,		6,		 8)	--wider, realigned, longer (vs 60, -15, 1000)
+	ship:setBeamWeapon(1,	75,	  -25,	1500,		6,		 8)	--wider, realigned, longer (vs 60,  15, 1000)
+	ship:setBeamWeapon(2,	30,	   10,	2000,		6,		 8)	--wider, realigned, longer (vs 25, 170, 1000)
+	ship:setBeamWeapon(3,	30,	  -10,	2000,		6,		 8)	--wider, realigned, longer (vs 25, 190, 1000)
+	ship:setBeamWeapon(4,  170,	  180,	1500,		6,		 8)	--additional rear, wide beam
+	ship:setWeaponTubeCount(2)					--more (vs 0)
+	ship:setWeaponTubeDirection(0,  90)				
+	ship:setWeaponTubeDirection(1, -90)
+	ship:setTubeLoadTime(0,15)
+	ship:setTubeLoadTime(1,16)
+	ship:setWeaponStorageMax("Homing",	8)		--more (vs 0)
+	ship:setWeaponStorage("Homing",		8)
+	ship:setWeaponStorageMax("Nuke", 	1)		--more (vs 0)
+	ship:setWeaponStorage("Nuke",		1)
+	ship:setWeaponStorageMax("EMP", 	3)		--more (vs 0)
+	ship:setWeaponStorage("EMP",		3)
+	ship:setWeaponStorageMax("HVLI", 	12)		--more (vs 0)
+	ship:setWeaponStorage("HVLI",		12)
+	local strongarm_db = queryScienceDatabase("Ships","Frigate","Strongarm")
+	if strongarm_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Strongarm")
+		strongarm_db = queryScienceDatabase("Ships","Frigate","Strongarm")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+			strongarm_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Black operations took control of an undisclosed shipyard and heavily modified the Blockade Runner into the Strongarm. They sped up impulse and acceleration, strenghtened the shields and hull, lengthened and realigned the beams and added missile tubes.",
+			{
+				{key = "Tube 90", value = "15 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 270", value = "16 sec"},		--torpedo tube size, direction and load speed
+				{key = "Missile Storage", value = "H:8 E:3 N:1 L:12"},
+			},
+			nil,
+			"battleship_destroyer_3_upgraded"
+		)
+	end
+	return ship
+end
+
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
 	modified_db:setImage(base_db:getImage())
@@ -27388,47 +27524,7 @@ function setSpecialsOnNPS()
 	end
 	addGMFunction(selection_label,changeSpecialShip)
 	if special_ship_selected then
-		button_label = "+Shld Drain Beams"
-		if special_ship.shield_drain_beam_factor ~= nil then
-			button_label = string.format("%s* %i",button_label,special_ship.shield_drain_beam_factor)
-		end
-		addGMFunction(button_label,setShieldDrainBeamFactor)
-		button_label = "+Skip Beam"
-		if special_ship.skip_beam_factor ~= nil then
-			button_label = string.format("%s* %i",button_label,special_ship.skip_beam_factor)
-		end
-		addGMFunction(button_label,setSkipBeamFactor)
-		button_label = "Shield Freq Adjust"
-		if special_ship.adjust_shield_frequency_automatically ~= nil and special_ship.adjust_shield_frequency_automatically then
-			button_label = string.format("%s*",button_label)
-		end
-		addGMFunction(button_label,function()
-			if special_ship.adjust_shield_frequency_automatically == nil then
-				special_ship.adjust_shield_frequency_automatically = true
-				setSpecialDescription(special_ship)
-				addEnhancementToScienceDatabase("Shield Frequency Adjuster")
-			else
-				if special_ship.adjust_shield_frequency_automatically then
-					special_ship.adjust_shield_frequency_automatically = false
-					setSpecialDescription(special_ship)
-				else
-					special_ship.adjust_shield_frequency_automatically = true
-					setSpecialDescription(special_ship)
-					addEnhancementToScienceDatabase("Shield Frequency Adjuster")
-				end
-			end
-			setSpecialsOnNPS()
-		end)
-		button_label = "+Tactical Hop"
-		if special_ship.tactical_hop ~= nil then
-			button_label = string.format("%s %s",button_label,special_ship.tactical_hop)
-		end
-		addGMFunction(button_label,setTacticalHop)
-		button_label = "+Spiky Spin"
-		if special_ship.spiky_spin ~= nil then
-			button_label = string.format("%s %s",button_label,special_ship.spiky_spin)
-		end
-		addGMFunction(button_label,setSpikySpin)
+		addGMFunction("+Select Special",selectSpecial)
 	end
 	addGMFunction(string.format("+Special Factor %i",ship_enhancement_factor),setShipEnhancementFactor)
 	button_label = "Special GM Msg"
@@ -27445,6 +27541,59 @@ function setSpecialsOnNPS()
 		end
 		setSpecialsOnNPS()
 	end)
+end
+function selectSpecial()
+	clearGMFunctions()
+	addGMFunction("-Main from select special",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	addGMFunction("-Specials",setSpecialsOnNPS)
+	addGMFunction(string.format("+Change from %s",special_ship:getCallSign()),changeSpecialShip)
+	local button_label = "+Shld Drain Beams"
+	if special_ship.shield_drain_beam_factor ~= nil then
+		button_label = string.format("%s* %i",button_label,special_ship.shield_drain_beam_factor)
+	end
+	addGMFunction(button_label,setShieldDrainBeamFactor)
+	button_label = "+Boost Impulse"
+	if special_ship.boost_impulse_factor ~= nil then
+		button_label = string.format("%s* %s",button_label,special_ship.boost_impulse_factor)
+	end
+	addGMFunction(button_label,setBoostImpulseFactor)
+	button_label = "+Skip Beam"
+	if special_ship.skip_beam_factor ~= nil then
+		button_label = string.format("%s* %i",button_label,special_ship.skip_beam_factor)
+	end
+	addGMFunction(button_label,setSkipBeamFactor)
+	button_label = "Shield Freq Adjust"
+	if special_ship.adjust_shield_frequency_automatically ~= nil and special_ship.adjust_shield_frequency_automatically then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		if special_ship.adjust_shield_frequency_automatically == nil then
+			special_ship.adjust_shield_frequency_automatically = true
+			setSpecialDescription(special_ship)
+			addEnhancementToScienceDatabase("Shield Frequency Adjuster")
+		else
+			if special_ship.adjust_shield_frequency_automatically then
+				special_ship.adjust_shield_frequency_automatically = false
+				setSpecialDescription(special_ship)
+			else
+				special_ship.adjust_shield_frequency_automatically = true
+				setSpecialDescription(special_ship)
+				addEnhancementToScienceDatabase("Shield Frequency Adjuster")
+			end
+		end
+		selectSpecial()
+	end)
+	button_label = "+Tactical Hop"
+	if special_ship.tactical_hop ~= nil then
+		button_label = string.format("%s %s",button_label,special_ship.tactical_hop)
+	end
+	addGMFunction(button_label,setTacticalHop)
+	button_label = "+Spiky Spin"
+	if special_ship.spiky_spin ~= nil then
+		button_label = string.format("%s %s",button_label,special_ship.spiky_spin)
+	end
+	addGMFunction(button_label,setSpikySpin)
 end
 ----------------------------------------------
 --	Order Ship > Specials > Special factor  --
@@ -27523,6 +27672,167 @@ function changeSpecialShip()
 	end
 	setSpecialsOnNPS()
 end
+function setBoostImpulseFactor()
+	if special_ship ~= nil then
+		clearGMFunctions()
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
+		local button_label = "No Impulse Boost"
+		if special_ship.boost_impulse_factor == nil then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			string.format("")
+			special_ship.boost_impulse_factor = nil
+			special_ship.boost_impulse_time_factor = nil
+			special_ship.boost_impulse_degree_factor = nil
+			setSpecialDescription(special_ship)
+			setBoostImpulseFactor()
+		end)
+		local impulse_boost_time_factors = {3,5,8,13,21,34}
+		local current_index = 3
+		if special_ship.boost_impulse_time_factor ~= nil then
+			for index, factor in ipairs(impulse_boost_time_factors) do
+				if special_ship.boost_impulse_time_factor == factor then
+					current_index = index
+					break
+				end
+			end
+		end
+		if current_index > 1 then
+			if current_index > #impulse_boost_time_factors - 1 then
+				for i=#impulse_boost_time_factors-2,#impulse_boost_time_factors do
+					local factor = impulse_boost_time_factors[i]
+					button_label = string.format("Boost Seconds:%i",factor)
+					if special_ship.boost_impulse_time_factor == factor then
+						button_label = button_label .. "*"
+					end
+					addGMFunction(button_label,function()
+						string.format("")
+						special_ship.boost_impulse_time_factor = factor
+						if special_ship.boost_impulse_degree_factor == nil then
+							special_ship.boost_impulse_degree_factor = 2
+						end
+						special_ship.boost_impulse_factor = string.format("%ix%s",special_ship.boost_impulse_time_factor,special_ship.boost_impulse_degree_factor)
+						setSpecialDescription(special_ship)
+						addEnhancementToScienceDatabase("Boost Impulse")
+						setBoostImpulseFactor()
+					end)
+				end
+			else
+				for i=current_index-1,current_index+1 do
+					local factor = impulse_boost_time_factors[i]
+					button_label = string.format("Boost Seconds:%i",factor)
+					if special_ship.boost_impulse_time_factor == factor then
+						button_label = button_label .. "*"
+					end
+					addGMFunction(button_label,function()
+						string.format("")
+						special_ship.boost_impulse_time_factor = factor
+						if special_ship.boost_impulse_degree_factor == nil then
+							special_ship.boost_impulse_degree_factor = 2
+						end
+						special_ship.boost_impulse_factor = string.format("%ix%s",special_ship.boost_impulse_time_factor,special_ship.boost_impulse_degree_factor)
+						setSpecialDescription(special_ship)
+						addEnhancementToScienceDatabase("Boost Impulse")
+						setBoostImpulseFactor()
+					end)
+				end
+			end
+		else
+			for i=1,3 do
+				local factor = impulse_boost_time_factors[i]
+				button_label = string.format("Boost Seconds:%i",factor)
+				if special_ship.boost_impulse_time_factor == factor then
+					button_label = button_label .. "*"
+				end
+				addGMFunction(button_label,function()
+					string.format("")
+					special_ship.boost_impulse_time_factor = factor
+					if special_ship.boost_impulse_degree_factor == nil then
+						special_ship.boost_impulse_degree_factor = 2
+					end
+					special_ship.boost_impulse_factor = string.format("%ix%s",special_ship.boost_impulse_time_factor,special_ship.boost_impulse_degree_factor)
+					setSpecialDescription(special_ship)
+					addEnhancementToScienceDatabase("Boost Impulse")
+					setBoostImpulseFactor()
+				end)
+			end
+		end
+		local impulse_boost_degree_factors = {1.5,1.75,2,2.5,3}
+		current_index = 3
+		if special_ship.boost_impulse_degree_factor ~= nil then
+			for index, factor in ipairs(impulse_boost_degree_factors) do
+				if special_ship.boost_impulse_degree_factor == factor then
+					current_index = index
+					break
+				end
+			end
+		end
+		if current_index > 1 then
+			if current_index > #impulse_boost_degree_factors - 1 then
+				for i=#impulse_boost_degree_factors-2,#impulse_boost_degree_factors do
+					local factor = impulse_boost_degree_factors[i]
+					button_label = string.format("Boost Degree:%s",factor)
+					if special_ship.boost_impulse_degree_factor == factor then
+						button_label = button_label .. "*"
+					end
+					addGMFunction(button_label,function()
+						string.format("")
+						special_ship.boost_impulse_degree_factor = factor
+						if special_ship.boost_impulse_time_factor == nil then
+							special_ship.boost_impulse_time_factor = 8
+						end
+						special_ship.boost_impulse_factor = string.format("%ix%s",special_ship.boost_impulse_time_factor,special_ship.boost_impulse_degree_factor)
+						setSpecialDescription(special_ship)
+						addEnhancementToScienceDatabase("Boost Impulse")
+						setBoostImpulseFactor()
+					end)
+				end
+			else
+				for i=current_index-1,current_index+1 do
+					local factor = impulse_boost_degree_factors[i]
+					button_label = string.format("Boost Degree:%s",factor)
+					if special_ship.boost_impulse_degree_factor == factor then
+						button_label = button_label .. "*"
+					end
+					addGMFunction(button_label,function()
+						string.format("")
+						special_ship.boost_impulse_degree_factor = factor
+						if special_ship.boost_impulse_time_factor == nil then
+							special_ship.boost_impulse_time_factor = 8
+						end
+						special_ship.boost_impulse_factor = string.format("%ix%s",special_ship.boost_impulse_time_factor,special_ship.boost_impulse_degree_factor)
+						setSpecialDescription(special_ship)
+						addEnhancementToScienceDatabase("Boost Impulse")
+						setBoostImpulseFactor()
+					end)
+				end
+			end
+		else
+			for i=1,3 do
+				local factor = impulse_boost_degree_factors[i]
+				button_label = string.format("Boost Degree:%s",factor)
+				if special_ship.boost_impulse_degree_factor == factor then
+					button_label = button_label .. "*"
+				end
+				addGMFunction(button_label,function()
+					string.format("")
+					special_ship.boost_impulse_degree_factor = factor
+					if special_ship.boost_impulse_time_factor == nil then
+						special_ship.boost_impulse_time_factor = 8
+					end
+					special_ship.boost_impulse_factor = string.format("%ix%s",special_ship.boost_impulse_time_factor,special_ship.boost_impulse_degree_factor)
+					setSpecialDescription(special_ship)
+					addEnhancementToScienceDatabase("Boost Impulse")
+					setBoostImpulseFactor()
+				end)
+			end
+		end
+	else
+		addGMMessage("Must select CPU ship. No action taken")
+		selectSpecial()
+	end
+end
 --------------------------------------------------
 --	Order Ship > Specials > Shield drain beams  --
 --------------------------------------------------
@@ -27533,7 +27843,7 @@ end
 function setShieldDrainBeamFactor()
 	if special_ship ~= nil then
 		clearGMFunctions()
-		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
 		local button_label = "No Shield Drain"
 		if special_ship.shield_drain_beam_factor == nil then
 			button_label = button_label .. "*"
@@ -27560,20 +27870,20 @@ function setShieldDrainBeamFactor()
 		end
 	else
 		addGMMessage("Must select CPU ship. No action taken")
-		setSpecialsOnNPS()
+		selectSpecial()
 	end
 end
 -----------------------------------------
 --	Order Ship > Specials > Skip beam  --
 -----------------------------------------
 -- Button Text			   DF*	Related Function(s)
--- -(ship name) SPECIALS	D	setSpecialsOnNPS
+-- -(ship name) SPECIALS	D	selectSpecial
 -- NO SKIP BEAM				*	inline
 -- SKIP BEAM FACTOR: ...	D*	inline
 function setSkipBeamFactor()
 	if special_ship ~= nil then
 		clearGMFunctions()
-		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
 		local button_label = "No Skip Beam"
 		if special_ship.skip_beam_factor == nil then
 			button_label = button_label .. "*"
@@ -27599,21 +27909,21 @@ function setSkipBeamFactor()
 		end
 	else
 		addGMMessage("Must select CPU ship. No action taken")
-		setSpecialsOnNPS()
+		selectSpecial()
 	end
 end
 --------------------------------------------
 --	Order Ship > Specials > Tactical hop  --
 --------------------------------------------
 -- Button Text			   DF*	Related Function(s)
--- -(ship name) SPECIALS	D	setSpecialsOnNPS
+-- -(ship name) SPECIALS	D	selectSpecial
 -- NO TACTICAL HOP			*	inline
 -- +HOP TYPE ...			D	setHopType
 -- +HOP CHANCE ...			D	setHopChance
 function setTacticalHop()
 	if special_ship ~= nil then
 		clearGMFunctions()
-		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
 		local button_label = "No Tactical Hop"
 		if special_ship.tactical_hop == nil then
 			button_label = button_label .. "*"
@@ -27639,7 +27949,7 @@ function setTacticalHop()
 		end
 	else
 		addGMMessage("Must select CPU ship. No action taken")
-		setSpecialsOnNPS()
+		selectSpecial()
 	end
 end
 ------------------------------------------
@@ -27656,7 +27966,7 @@ end
 function setSpikySpin()
 	if special_ship ~= nil then
 		clearGMFunctions()
-		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
 		local button_label = "No Spiky Spin"
 		if special_ship.spiky_spin == nil then
 			button_label = button_label .. "*"
@@ -27724,7 +28034,7 @@ function setSpikySpin()
 		end)
 	else
 		addGMMessage("Must select CPU ship. No action taken")
-		setSpecialsOnNPS()
+		selectSpecial()
 	end
 end
 -------------------------------------------------------
@@ -27740,7 +28050,7 @@ end
 -- HOP TYPE 5				*	inline
 function setHopType()
 	clearGMFunctions()
-	addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
+	addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
 	addGMFunction("-Tactical Hop",setTacticalHop)
 	local button_label = "Hop Type 1"
 	if special_ship.tactical_hop == 1 then
@@ -27812,7 +28122,7 @@ end
 -- ... HOP CHANCE + 10 = ...	D	inline
 function setHopChance()
 	clearGMFunctions()
-	addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),setSpecialsOnNPS)
+	addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
 	addGMFunction("-Tactical Hop",setTacticalHop)
 	if special_ship.tactical_hop_chance == nil then
 		special_ship.tactical_hop_chance = 25
@@ -27864,6 +28174,13 @@ function setSpecialDescription(ship)
 	local special_description = ""
 	if ship.shield_drain_beam_factor ~= nil then
 		special_description = string.format("Factor %i shield draining beams.",ship.shield_drain_beam_factor)
+	end
+	if ship.boost_impulse_factor ~= nil then
+		if special_description == "" then
+			special_description = string.format("Boost Impulse %s.",ship.boost_impulse_factor)
+		else
+			special_description = string.format("%s Boost Impulse %s.",special_description,ship.boost_impulse_factor)
+		end
 	end
 	if ship.skip_beam_factor ~= nil then
 		if special_description == "" then
@@ -42179,6 +42496,19 @@ function movingObjects(delta)
 		end
 	end
 end
+function triggerEpjam(p)
+	string.format("")
+	local e_launch = -80000	--test position
+--	local e_launch = -1000000
+	p.epjam_launcher = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Exuari")
+	p.epjam_launcher:setTubeLoadTime(0,0)
+	p.epjam_launcher:setPosition(e_launch,e_launch)
+	p.epjam_launcher:commandLoadTube(0,"EMP")
+	p.epjam_launcher:commandFireTubeAtTarget(0,p)
+	p:removeCustom(p.epjam_button_wea)
+	p:removeCustom(p.epjam_button_tac)
+end
+
 --------------------------
 --	External functions  --
 --------------------------
@@ -42641,6 +42971,9 @@ function updateInner(delta)
 				updatePlayerMagnasolHeat(delta,p)
 				updatePlayerMagnasolLevelCoolant(p)
 			end
+			if p.epjam_launcher ~= nil then
+				catchEpjamMissile(p)
+			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -42663,6 +42996,20 @@ function updateInner(delta)
 			ship.spiky_spin_active = nil
 			ship.spiky_spin_cooling = nil
 			table.remove(spiky_spin_ships,index)
+			break
+		end
+	end
+	for index, ship in pairs(impulse_boost_ships) do
+		local current_clock = getScenarioTime()
+		if current_clock > ship.boost_impulse_active then
+			if ship:getImpulseMaxSpeed() ~= ship.boost_impulse_normal then
+				ship:setImpulseMaxSpeed(ship.boost_impulse_normal)
+			end
+		end
+		if current_clock > ship.boost_impulse_cooling then
+			ship.boost_impulse_active = nil
+			ship.boosk_impulse_cooling = nil
+			table.remove(impulse_boost_ships,index)
 			break
 		end
 	end
@@ -44025,6 +44372,57 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 	end
 end
 --]]
+function catchEpjamMissile(p)
+	if p.epjam_recharge == nil then
+		local tube_size = {"small","medium","large"}
+		if p.epjam_launcher.typeName == "PlayerSpaceship" then
+			local objs = p.epjam_launcher:getObjectsInRange(1000)
+			local missile_caught = false
+			for _, obj in ipairs(objs) do
+				if obj.typeName == "EMPMissile" then
+					obj:setMissileSize(tube_size[p.epjam])
+					local verify_size = obj:getMissileSize()
+					p.epjam_launcher:destroy()
+					p.epjam_launcher = obj
+					p:commandSetShieldFrequency(math.random(0,20))
+					missile_caught = true
+					break
+				end
+			end
+			if not missile_caught then
+				p.epjam_launcher:setTubeLoadTime(0,0)
+				p.epjam_launcher:commandLoadTube(0,"EMP")
+				p.epjam_launcher:commandFireTubeAtTarget(0,p)
+			end
+		elseif p.epjam_launcher.typeName == "EMPMissile" then
+			if p.epjam_launcher:getMissileSize() == tube_size[p.epjam] then
+				local p_x, p_y = p:getPosition()
+				p.epjam_launcher:setPosition(p_x, p_y)
+				p.epjam_recharge = getScenarioTime() + 60
+			else
+				p.epjam_launcher:setMissileSize(tube_size[p.epjam])
+				local verify_size = p.epjam_launcher:getMissileSize()
+				print("subsequent time missile size:",verify_size)
+			end
+		else
+			print("ejam launcher invalid")
+		end
+	else
+		if getScenarioTime() > p.epjam_recharge then
+			p.epjam_button_wea = "epjam_button_wea"
+			local epjam_size = {"S","M","L"}
+			p:addCustomButton("Weapons",p.epjam_button_wea,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+				triggerEpjam(p)
+			end,14)
+			p.epjam_button_tac = "epjam_button_tac"
+			p:addCustomButton("Tactical",p.epjam_button_tac,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+				triggerEpjam(p)
+			end,14)
+			p.epjam_launcher = nil
+			p.epjam_recharge = nil
+		end
+	end
+end
 function updatePlayerPatrolProbes(p)
 	if p.patrol_probe > 5 then
 		p.patrol_probe = 5
