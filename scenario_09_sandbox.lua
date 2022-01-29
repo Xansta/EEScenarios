@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.7.0"
+	scenario_version = "5.8.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -2422,9 +2422,48 @@ function orderShip()
 		if ships_only then
 			addGMFunction(button_label,toggleShipSensorJammer)
 		end
+		if #object_list == 1 and ships_only then
+			if obj:getTypeName() == "Service Jonque" then
+				addGMFunction("+Jonque",function()
+					setServiceJonque(obj)
+				end)
+			end
+		end
 	end
 end
-
+function setServiceJonque(service_jonque)
+	string.format("")
+	clearGMFunctions()
+	addGMFunction("-Main from Jonque",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	addGMFunction("Report",function()
+		local out = "Weapons availability, cost, inventory, max_inventory:"
+		if service_jonque ~= nil and service_jonque:isValid() then
+			local missile_types = {"Homing","HVLI","Mine","Nuke","EMP"}
+			for _, weapon in ipairs(missile_types) do
+				out = string.format("%s\n    %s: %s, %i, %i, %i",out,weapon,service_jonque.comms_data.weapons[weapon],math.floor(service_jonque.comms_data.weapon_cost[weapon]),service_jonque.comms_data.weapon_inventory[weapon],service_jonque.comms_data.weapon_inventory_max[weapon])
+			end
+		else
+			out = "Invalid Service Jonque. No action taken"
+		end
+		addGMMessage(out)
+	end)
+	addGMFunction("Replenish",function()
+		local out = "Invalid Service Jonque. No action taken."
+		if service_jonque ~= nil and service_jonque:isValid() then
+			out = string.format("Service Jonque %s has been replenished.\nWeapons availability, cost, inventory, max_inventory:",service_jonque:getCallSign())
+			local missile_types = {"Homing","HVLI","Mine","Nuke","EMP"}
+			for _, weapon in ipairs(missile_types) do
+				service_jonque.comms_data.weapon_inventory[weapon] = service_jonque.comms_data.weapon_inventory_max[weapon]
+			end
+			local missile_types = {"Homing","HVLI","Mine","Nuke","EMP"}
+			for _, weapon in ipairs(missile_types) do
+				out = string.format("%s\n    %s: %s, %i, %i, %i",out,weapon,service_jonque.comms_data.weapons[weapon],math.floor(service_jonque.comms_data.weapon_cost[weapon]),service_jonque.comms_data.weapon_inventory[weapon],service_jonque.comms_data.weapon_inventory_max[weapon])
+			end
+		end
+		addGMMessage(out)
+	end)
+end
 function toggleShipSensorJammer()
 	local object_list = getGMSelection()
 	if #object_list > 0 then
@@ -20411,7 +20450,6 @@ function updatePlayerSoftTemplate(p)
 			end
 			p.epjam = playerShipStats[tempTypeName].epjam
 			if p.epjam > 0 then
-				--not working yet
 				p.epjam_button_wea = "epjam_button_wea"
 				local epjam_size = {"S","M","L"}
 				p:addCustomButton("Weapons",p.epjam_button_wea,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
@@ -39469,7 +39507,7 @@ function commonServiceOptions()
 			offer_power = true
 		end
 		if offer_power then
-			local power_charge = math.floor((comms_source:getEnergyLevelMax() - comms_source:getEnergyLevel())/3)
+			local power_charge = math.floor((comms_source:getEnergyLevelMax() - comms_source:getEnergyLevel())/5)
 			addCommsReply(string.format("Quick charge the main batteries (%i reputation)",power_charge),function()
 				if distance(comms_source,comms_target) < 5000 then
 					if comms_source:takeReputationPoints(power_charge) then

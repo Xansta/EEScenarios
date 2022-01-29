@@ -93,17 +93,27 @@ function initialSandboxDatabaseUpdate()
 		 local mining_db = queryScienceDatabase("Equipment","Mining")
 		 mining_db:setLongDescription("Mining equipment allows the ship to extract minerals from nearby asteroids. The helm officer, science officer and the weapons officer work together to conduct this operation. The science officer needs to target the asteroid first. This button may appear under the scanning widget on the science console. The asteroid needs to be closer than one unit to the ship. The ship must be traveling at less than half a unit per minute. Targeting an asteroid will automatically conduct a basic scan of the selected. If more than one asteroid is in range to be mined, science can select a different target with the 'Other mining target' button. Once an asteroid has been targeted, science locks the mining beam onto the asteroid. Weapons can then trigger the mining beam to start mining. It takes a few seconds to get the minerals which are placed in the cargo hold. The mining function will not be enabled if the ship is out of range, moving too fast or there is insufficient cargo space for any mined minerals.")
 	end
-------------------------------------
---	Turbo Torpedo database entry  --
-------------------------------------
+--------------------------------------------
+--	Specialized weapons database entries  --
+--------------------------------------------
 	local weapon_db = queryScienceDatabase("Weapons")
 	if weapon_db ~= nil then
+		--	Turbo Torpedoes
 		local turbo_db = queryScienceDatabase("Weapons","Turbo Torpedos")
 		if turbo_db == nil then
 			weapon_db:addEntry("Turbo Torpedos")
 			turbo_db = queryScienceDatabase("Weapons","Turbo Torpedos")
 			if turbo_db ~= nil then
 				turbo_db:setLongDescription("A limited number of CUF ships come equipped with turbo torpedo capability. When enabled, the next launched torpedo flies much faster than normal. Unfortunately, the guidance software on the torpedo and in the weapons targeting computer does not fully account for the reduced maneuverability of the torpedo in turbo mode. Hence, a straighter aimed trajectory is recommended when using the turbo torpedo capability. However, the enemy ship will find it harder to dodge a turbo torpedo when properly aimed. The turbo torpedo capability takes between 55 and 90 seconds to recharge between uses. The turbo capability is currently limited to EMP, Nuke or Homing missile types and may be restricted further depending on the individual ship installation.\n\nKnown ship types with Turbo Torpedo capability:\nMantis, Focus, Fresnel")
+			end
+		end
+		--	EPJAM device
+		local epjam_db = queryScienceDatabase("Weapons","EPJAM")
+		if epjam_db == nil then
+			weapon_db:addEntry("EPJAM")
+			epjam_db = queryScienceDatabase("Weapons","EPJAM")
+			if epjam_db ~= nil then
+				epjam_db:setLongDescription("CUF installed EPJAM equipment on some ships. If the weapons officer triggers the EPJAM, the shields go down and an EMP pulse emanates from the ship. Unfortunately, this triggers a shield calibration cycle to a random frequency, so be cautious and coordinate with your helm officer. The EPJAM field varies in size from small (1/2 unit), medium (1 unit) and large (2 units). The EPJAM device takes one minute to recharge.\n\nKnown CUF ship classes with an EPJAM device installed: Barrow, Chavez, Era, Fowl, Nusret, Roc, Sloop, Vermin, Wombat")
 			end
 		end
 	end
@@ -660,6 +670,7 @@ function initialSandboxDatabaseUpdate()
 ---------------------------
 --	Custom player ships  --
 ---------------------------
+--	Need to add descriptions for Roc, Sloop and Fowl
 	local prototype_db = ships_db:addEntry("Prototype")
 	prototype_db = queryScienceDatabase("Ships","Prototype")
 	prototype_db:setLongDescription("Prototype ships are those that are under development or are otherwise considered experimental. Some have seen service in and around Icarus or Kentar. Some have been through several iterations after being tested in the field. Many have been scrapped due to poor design, the ravages of space or perhaps the simple passage of time.")
@@ -789,6 +800,7 @@ function initialSandboxDatabaseUpdate()
 	vermin_db:setKeyValue("Beam weapon 10:40","Rng:.8 Dmg:6 Cyc:6")
 	vermin_db:setKeyValue("Small Tube 180","10 sec / Mine")
 	vermin_db:setKeyValue("Storage Mine","4")
+	vermin_db:setKeyValue("EPJAM Device","Radius: 1/2 unit (S)")
 	vermin_db:setImage(getFilenameCompatible("radar/fighter.png"))
 	vermin_db:setModelDataName("small_fighter_1")
 --	Wombat
@@ -816,6 +828,7 @@ function initialSandboxDatabaseUpdate()
 	wombat_db:setKeyValue("  Tube 180","10 sec / HVLI, EMP, Nuke")
 	wombat_db:setKeyValue("   Tube 180","10 sec / Mine")
 	wombat_db:setKeyValue("Storage Missiles","H:8 N:1 M:2 E:2 L:12")
+	wombat_db:setKeyValue("EPJAM Device","Radius: 1 unit (M)")
 	wombat_db:setImage(getFilenameCompatible("radar/fighter.png"))
 	wombat_db:setModelDataName("LindwurmFighterBlue")
 --	XR-Lindworm
@@ -900,6 +913,7 @@ function initialSandboxDatabaseUpdate()
 	chavez_db:setKeyValue("Storage Mine",4)
 	chavez_db:setKeyValue("Storage EMP",4)
 	chavez_db:setKeyValue("Storage HVLI",6)
+	chavez_db:setKeyValue("EPJAM device","Radius: 1/2 unit (S)")
 	chavez_db:setImage(getFilenameCompatible("radar/piranha.png"))
 	chavez_db:setModelDataName("HeavyCorvetteGreen")
 --	Eldridge
@@ -950,6 +964,7 @@ function initialSandboxDatabaseUpdate()
 	era_db:setKeyValue("Storage Nuke",1)
 	era_db:setKeyValue("Storage Mine",1)
 	era_db:setKeyValue("Storage HVLI",5)
+	era_db:setKeyValue("EPJAM Device","Radius: 2 units (L)")
 	era_db:setImage(getFilenameCompatible("radar/tug.png"))
 	era_db:setModelDataName("LightCorvetteGrey")
 --	Flavia 2C
@@ -1054,6 +1069,7 @@ function initialSandboxDatabaseUpdate()
 	nusret_db:setKeyValue("Tube 180","8 sec")
 	nusret_db:setKeyValue("Storage Homing",8)
 	nusret_db:setKeyValue("Storage Mine",8)
+	nusret_db:setKeyValue("EPJAM Device","Radius: 2 units (L)")
 	nusret_db:setImage(getFilenameCompatible("radar/tug.png"))
 	nusret_db:setModelDataName("space_tug")
 --	Pacu
@@ -1537,6 +1553,7 @@ function initialSandboxDatabaseUpdate()
 	barrow_db:setKeyValue("Dock classes","Starfighter Frigate Corvette")
 	barrow_db:setKeyValue("Beam weapon 0:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
 	barrow_db:setKeyValue("Beam weapon 180:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
+	barrow_db:setKeyValue("EPJAM Device","Radius: 1 unit (M)")
 	barrow_db:setImage(getFilenameCompatible("radar/transport.png"))
 	barrow_db:setModelDataName("transport_4_2")
 --	Bermuda
