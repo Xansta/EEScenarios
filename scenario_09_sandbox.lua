@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.8.0"
+	scenario_version = "5.9.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -762,6 +762,7 @@ function setConstants()
 		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	epjam = 0,	},
 		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
 		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	},
+		["Orca"]				= { strength = 19,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	},
 		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1,	epjam = 0,	},
 		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
 		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
@@ -787,7 +788,7 @@ function setConstants()
 		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	},
 		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	},
 		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
-		["Wombat"]				= { strength = 17,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	},
+		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	},
 		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
 		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	},
 	}	
@@ -810,7 +811,9 @@ function setConstants()
 	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,"W")
 	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,"J")
 	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,"J")
+--	addPlayerShip("Espadon",	"Orca",			createPlayerShipEspadon		,"W")
 	addPlayerShip("Falcon",		"Eldridge",		createPlayerShipFalcon		,"W")
+	addPlayerShip("Farrah",		"Wombat",		createPlayerShipDevon		,"W")
 	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,"J")
 	addPlayerShip("Flaire",		"Peacock",		createPlayerShipFlaire		,"J")
 	addPlayerShip("Flipper",	"Midian",		createPlayerShipFlipper		,"W")
@@ -852,6 +855,7 @@ function setConstants()
 	addPlayerShip("Sparrow",	"Vermin",		createPlayerShipSparrow		,"W")
 	addPlayerShip("Slingshot",	"Wrocket",		createPlayerShipSlingshot	,"J")
 	addPlayerShip("Splinter",	"Fresnel",		createPlayerShipSplinter	,"J")
+	addPlayerShip("Spike",		"Surkov",		createPlayerShipStick		,"W")
 	addPlayerShip("Spyder",		"Atlantis II",	createPlayerShipSpyder		,"J")
 	addPlayerShip("Stick",		"Surkov",		createPlayerShipStick		,"W")
 	addPlayerShip("Sting",		"Surkov",		createPlayerShipSting		,"W")
@@ -866,11 +870,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Swoop")
-	makePlayerShipActive("Hearken")
+	makePlayerShipActive("Cobra")
 	makePlayerShipActive("Yorik")
 	makePlayerShipActive("Knuckle Drag")
-	makePlayerShipActive("Flipper")
-	makePlayerShipActive("Rip")
+	makePlayerShipActive("Spike")
+	makePlayerShipActive("Farrah")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1079,10 +1083,12 @@ function setConstants()
 		["Racer"] =							200,
 		["Ranger"] =						100,
 		["Ranus U"] =						200,
+		["Roc"] =						200,
 		["Ryder"] =							2000,
 		["Sentinel"] =						600,
 		["Service Jonque"] =				800,
 		["Shooter"] =						100,
+		["Sloop"] =							200,
 		["Space Sedan"] =					600,
 		["Stalker Q5"] =					200,
 		["Stalker Q7"] =					200,
@@ -6809,9 +6815,8 @@ function createIcarusStations()
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	--Speculator
-	local speculatorZone = squareZone(55000,108000, "Speculator 3 K7")
-	speculatorZone:setColor(0,255,0)
-	--[[
+	--local speculatorZone = squareZone(55000,108000, "Speculator 3 K7")
+	--speculatorZone:setColor(0,255,0)
     stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 3"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationSpeculator:setShortRangeRadarRange(13000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -6853,7 +6858,6 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationSpeculator:setSharesEnergyWithDocked(false) end
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
-	--]]
 	--Stromboli
 	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3 F10")
 	--stromboliZone:setColor(51,153,255)
@@ -17515,7 +17519,7 @@ function createPlayerShipDarkstar()
 	return playerDarkstar
 end
 function createPlayerShipDevon()
-	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
+	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(100)							--stronger hull (vs 75)
 	playerWombat:setHull(100)
@@ -17549,12 +17553,12 @@ function createPlayerShipDevon()
 	playerWombat:weaponTubeAllowMissle(3,"EMP")
 	playerWombat:weaponTubeAllowMissle(3,"Nuke")
 	playerWombat:setWeaponTubeExclusiveFor(4,"Mine")
-	playerWombat:setWeaponStorageMax("Mine",2)				--more (vs 0)
-	playerWombat:setWeaponStorage("Mine",   2)				
-	playerWombat:setWeaponStorageMax("EMP",2)				--more (vs 0)
-	playerWombat:setWeaponStorage("EMP",   2)				
-	playerWombat:setWeaponStorageMax("Nuke",1)				--more (vs 0)
-	playerWombat:setWeaponStorage("Nuke",   1)				
+	playerWombat:setWeaponStorageMax("Mine",3)				--more (vs 0)
+	playerWombat:setWeaponStorage("Mine",   3)				
+	playerWombat:setWeaponStorageMax("EMP",3)				--more (vs 0)
+	playerWombat:setWeaponStorage("EMP",   3)				
+	playerWombat:setWeaponStorageMax("Nuke",2)				--more (vs 0)
+	playerWombat:setWeaponStorage("Nuke",   2)				
 	playerWombat:setWeaponStorageMax("Homing",8)			--more (vs 3)
 	playerWombat:setWeaponStorage("Homing",   8)				
 	playerWombat:onTakingDamage(playerShipDamage)
@@ -17646,6 +17650,15 @@ function createPlayerShipEnola()
 	playerEnola:onTakingDamage(playerShipDamage)
 	playerEnola:addReputationPoints(50)
 	return playerEnola
+end
+function createPlayerShipEspadon()
+	playerOrca = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Espadon")
+	playerOrca:setTypeName("Orca")
+	playerOrca:setBeamWeapon(0, 0,  0,	 0,		 0, 0)
+	playerOrca:setBeamWeapon(1, 0,  0,	 0,		 0, 0)
+	playerOrca:onTakingDamage(playerShipDamage)
+	playerOrca:addReputationPoints(50)
+	return playerOrca	
 end
 function createPlayerShipFalcon()
 	playerFalcon = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Falcon")
@@ -18955,9 +18968,9 @@ function createPlayerShipRoc()
 --                 			  Arc, Dir, Range, CycleTime, Damage
 	playerRoc:setBeamWeapon(0, 30,  10,	 1000,		 8.0, 6)	--shorter, narrower (vs 1.2u, 90 deg) 
 	playerRoc:setBeamWeapon(1, 30, -10,	 1000,		 8.0, 6)	--shorter, narrower (vs 1.2u, 90 deg) 
-	playerRoc:setBeamWeapon(2, 10, 180,	 1500,		 1.0, 0.5)	--fast weak turreted 3rd beam 
+	playerRoc:setBeamWeapon(2, 10, 180,	 1500,		 2.0, 0.5)	--weak turreted 3rd beam 
 --									  Arc,	Dir, Rotate speed
-	playerRoc:setBeamWeaponTurret( 2, 360,	180, 3)		
+	playerRoc:setBeamWeaponTurret( 2, 310,	180, 1)		
 	playerRoc:setWeaponTubeCount(8)					--more (vs 3)
 	playerRoc:setWeaponTubeDirection(0, 4)			--more angled (vs  -1)	
 	playerRoc:setWeaponTubeDirection(1,-4)			--more angled (vs   1)	
@@ -19337,15 +19350,15 @@ function createPlayerShipSpyder()
 	return playerSpyder
 end
 function createPlayerShipStick()
-	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Stick")
+	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Spike")	--stick, spike
 	playerStick:setTypeName("Surkov")
 	playerStick:setRepairCrewCount(3)	--more repair crew (vs 2)
 	playerStick:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
 	playerStick:setJumpDrive(false)		--no jump
 	playerStick:setWarpDrive(true)		--add warp
 	playerStick:setWarpSpeed(500)
-	playerStick:setShieldsMax(100,70)	--stronger (vs 70,70)
-	playerStick:setShields(100,70)
+	playerStick:setShieldsMax(80,120)	--stronger (vs 70,70)
+	playerStick:setShields(80,120)
 	playerStick:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
 	playerStick:setWeaponTubeDirection(0, -90)
 	playerStick:weaponTubeDisallowMissle(0,"Mine")
@@ -42536,13 +42549,10 @@ function movingObjects(delta)
 end
 function triggerEpjam(p)
 	string.format("")
-	local e_launch = -80000	--test position
---	local e_launch = -1000000
-	p.epjam_launcher = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Exuari")
-	p.epjam_launcher:setTubeLoadTime(0,0)
-	p.epjam_launcher:setPosition(e_launch,e_launch)
-	p.epjam_launcher:commandLoadTube(0,"EMP")
-	p.epjam_launcher:commandFireTubeAtTarget(0,p)
+	p:commandSetShieldFrequency(math.random(0,20))	
+	local tube_size = {"small","medium","large"}
+	EMPMissile():setPosition(p:getPosition()):setLifetime(0):setMissileSize(tube_size[p.epjam])
+	p.epjam_recharge = getScenarioTime() + 60
 	p:removeCustom(p.epjam_button_wea)
 	p:removeCustom(p.epjam_button_tac)
 end
@@ -43009,7 +43019,7 @@ function updateInner(delta)
 				updatePlayerMagnasolHeat(delta,p)
 				updatePlayerMagnasolLevelCoolant(p)
 			end
-			if p.epjam_launcher ~= nil then
+			if p.epjam_recharge ~= nil then
 				catchEpjamMissile(p)
 			end
 			if updateDiagnostic then print("update: end of player loop") end
@@ -44411,54 +44421,17 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 end
 --]]
 function catchEpjamMissile(p)
-	if p.epjam_recharge == nil then
-		local tube_size = {"small","medium","large"}
-		if p.epjam_launcher.typeName == "PlayerSpaceship" then
-			local objs = p.epjam_launcher:getObjectsInRange(1000)
-			local missile_caught = false
-			for _, obj in ipairs(objs) do
-				if obj.typeName == "EMPMissile" then
-					obj:setMissileSize(tube_size[p.epjam])
-					local verify_size = obj:getMissileSize()
-					p.epjam_launcher:destroy()
-					p.epjam_launcher = obj
-					p:commandSetShieldFrequency(math.random(0,20))
-					missile_caught = true
-					break
-				end
-			end
-			if not missile_caught then
-				p.epjam_launcher:setTubeLoadTime(0,0)
-				p.epjam_launcher:commandLoadTube(0,"EMP")
-				p.epjam_launcher:commandFireTubeAtTarget(0,p)
-			end
-		elseif p.epjam_launcher.typeName == "EMPMissile" then
-			if p.epjam_launcher:getMissileSize() == tube_size[p.epjam] then
-				local p_x, p_y = p:getPosition()
-				p.epjam_launcher:setPosition(p_x, p_y)
-				p.epjam_recharge = getScenarioTime() + 60
-			else
-				p.epjam_launcher:setMissileSize(tube_size[p.epjam])
-				local verify_size = p.epjam_launcher:getMissileSize()
-				print("subsequent time missile size:",verify_size)
-			end
-		else
-			print("ejam launcher invalid")
-		end
-	else
-		if getScenarioTime() > p.epjam_recharge then
-			p.epjam_button_wea = "epjam_button_wea"
-			local epjam_size = {"S","M","L"}
-			p:addCustomButton("Weapons",p.epjam_button_wea,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
-				triggerEpjam(p)
-			end,14)
-			p.epjam_button_tac = "epjam_button_tac"
-			p:addCustomButton("Tactical",p.epjam_button_tac,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
-				triggerEpjam(p)
-			end,14)
-			p.epjam_launcher = nil
-			p.epjam_recharge = nil
-		end
+	if getScenarioTime() > p.epjam_recharge then
+		p.epjam_button_wea = "epjam_button_wea"
+		local epjam_size = {"S","M","L"}
+		p:addCustomButton("Weapons",p.epjam_button_wea,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+			triggerEpjam(p)
+		end,14)
+		p.epjam_button_tac = "epjam_button_tac"
+		p:addCustomButton("Tactical",p.epjam_button_tac,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+			triggerEpjam(p)
+		end,14)
+		p.epjam_recharge = nil
 	end
 end
 function updatePlayerPatrolProbes(p)
