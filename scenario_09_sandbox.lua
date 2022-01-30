@@ -42535,14 +42535,10 @@ function movingObjects(delta)
 	end
 end
 function triggerEpjam(p)
-	string.format("")
-	local e_launch = -80000	--test position
---	local e_launch = -1000000
-	p.epjam_launcher = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Exuari")
-	p.epjam_launcher:setTubeLoadTime(0,0)
-	p.epjam_launcher:setPosition(e_launch,e_launch)
-	p.epjam_launcher:commandLoadTube(0,"EMP")
-	p.epjam_launcher:commandFireTubeAtTarget(0,p)
+	local tube_size = {"small","medium","large"}
+	EMPMissile():setPosition(p:getPosition()):setLifetime(0):setMissileSize(tube_size[p.epjam])
+	p.epjam_recharge = getScenarioTime() + 60
+	p:commandSetShieldFrequency(math.random(0,20))
 	p:removeCustom(p.epjam_button_wea)
 	p:removeCustom(p.epjam_button_tac)
 end
@@ -43009,7 +43005,7 @@ function updateInner(delta)
 				updatePlayerMagnasolHeat(delta,p)
 				updatePlayerMagnasolLevelCoolant(p)
 			end
-			if p.epjam_launcher ~= nil then
+			if p.epjam_recharge ~= nil then
 				catchEpjamMissile(p)
 			end
 			if updateDiagnostic then print("update: end of player loop") end
@@ -44411,54 +44407,17 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 end
 --]]
 function catchEpjamMissile(p)
-	if p.epjam_recharge == nil then
-		local tube_size = {"small","medium","large"}
-		if p.epjam_launcher.typeName == "PlayerSpaceship" then
-			local objs = p.epjam_launcher:getObjectsInRange(1000)
-			local missile_caught = false
-			for _, obj in ipairs(objs) do
-				if obj.typeName == "EMPMissile" then
-					obj:setMissileSize(tube_size[p.epjam])
-					local verify_size = obj:getMissileSize()
-					p.epjam_launcher:destroy()
-					p.epjam_launcher = obj
-					p:commandSetShieldFrequency(math.random(0,20))
-					missile_caught = true
-					break
-				end
-			end
-			if not missile_caught then
-				p.epjam_launcher:setTubeLoadTime(0,0)
-				p.epjam_launcher:commandLoadTube(0,"EMP")
-				p.epjam_launcher:commandFireTubeAtTarget(0,p)
-			end
-		elseif p.epjam_launcher.typeName == "EMPMissile" then
-			if p.epjam_launcher:getMissileSize() == tube_size[p.epjam] then
-				local p_x, p_y = p:getPosition()
-				p.epjam_launcher:setPosition(p_x, p_y)
-				p.epjam_recharge = getScenarioTime() + 60
-			else
-				p.epjam_launcher:setMissileSize(tube_size[p.epjam])
-				local verify_size = p.epjam_launcher:getMissileSize()
-				print("subsequent time missile size:",verify_size)
-			end
-		else
-			print("ejam launcher invalid")
-		end
-	else
-		if getScenarioTime() > p.epjam_recharge then
-			p.epjam_button_wea = "epjam_button_wea"
-			local epjam_size = {"S","M","L"}
-			p:addCustomButton("Weapons",p.epjam_button_wea,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
-				triggerEpjam(p)
-			end,14)
-			p.epjam_button_tac = "epjam_button_tac"
-			p:addCustomButton("Tactical",p.epjam_button_tac,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
-				triggerEpjam(p)
-			end,14)
-			p.epjam_launcher = nil
-			p.epjam_recharge = nil
-		end
+	if getScenarioTime() > p.epjam_recharge then
+		p.epjam_button_wea = "epjam_button_wea"
+		local epjam_size = {"S","M","L"}
+		p:addCustomButton("Weapons",p.epjam_button_wea,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+			triggerEpjam(p)
+		end,14)
+		p.epjam_button_tac = "epjam_button_tac"
+		p:addCustomButton("Tactical",p.epjam_button_tac,string.format("Trigger %s EPJAM",epjam_size[p.epjam]),function()
+			triggerEpjam(p)
+		end,14)
+		p.epjam_recharge = nil
 	end
 end
 function updatePlayerPatrolProbes(p)
