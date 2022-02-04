@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.9.0"
+	scenario_version = "5.9.1"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -319,6 +319,7 @@ function setConstants()
 		["Dreadnought"] =		{strength = 80,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Enforcer V2"] =		{strength = 83,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 0,	hop_range = 1280,	create = enforcerV2},
 		["Starhammer III"] =	{strength = 85,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 12000,	hop_angle = 0,	hop_range = 1480,	create = starhammerIII},
+		["Dread No More"] =		{strength = 87,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 0,	hop_range = 980,	create = dreadNoMore},
 		["Starhammer V"] =		{strength = 90,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 15000,	hop_angle = 0,	hop_range = 1480,	create = starhammerV},
 		["Strongarm"] =			{strength = 95,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 1480,	create = strongarm},
 		["Battlestation"] =		{strength = 100,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2480,	create = stockTemplate},
@@ -685,24 +686,28 @@ function setConstants()
 	prebuilt_leaders = {
 		["Cucaracha"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
 		["Dreadnought"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Dread No More"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["MT52 Hornet"] = {"MU52 Hornet","Ktlitan Scout"},
+		["Heavy Drone"] = {"MU52 Hornet","Ktlitan Scout"},
 		["Nirvana R3"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Nirvana R5"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Nirvana R5A"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Blockade Runner"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Enforcer V2"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Sentinel"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Tyr"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Prador"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Strongarm"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 	}
 	prebuilt_leader = "Nirvana R5"	--default
 	prebuilt_followers = {
-		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
-		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A", "MT52 Hornet"},
-		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
-		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
-		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
-		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
-		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A", "MT52 Hornet"},
-		["Cucaracha"] =			{"Dreadnought", "Nirvana R3", "Blockade Runner", "Enforcer V2", "Sentinel", "Nirvana R5", "Nirvana R5A"},
+		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A", "Heavy Drone"},
+		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A", "MT52 Hornet"},
+		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
+		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
+		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
+		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
+		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A", "MT52 Hornet", "Heavy Drone"},
+		["Cucaracha"] =			{"Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
 	}
 	prebuilt_follower = "MT52 Hornet"	--default
 	fleet_exclusions = {
@@ -973,6 +978,7 @@ function setConstants()
 		["Dash"] =							200,
 		["Defense platform"] =				800,
 		["Diva"] =							350,
+		["Dread No More"] =					400,
 		["Dreadnought"] =					400,
 		["Elara P2"] =						200,
 		["Enforcer"] =						400,
@@ -25921,6 +25927,41 @@ function strongarm(enemyFaction)
 			},
 			nil,
 			"battleship_destroyer_3_upgraded"
+		)
+	end
+	return ship
+end
+function dreadNoMore(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Dreadnought"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Dread No More"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Dread No More"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Dread No More")
+	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(12)								--faster maneuver (vs 1.5)
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	25,	   -5,	1500,		7,		11)	--narrower (vs 90), more forward (vs dir -25), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(1,	25,	    5,	1500,		7,		11)	--narrower (vs 90), more forward (vs dir  25), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(2,	65,	  -45,	1200,		7,		11)	--narrower (vs 100), more forward (vs dir -60), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(3,	65,	   45,	1200,		7,		11)	--narrower (vs 100), more forward (vs dir  60), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(4,	20,	    0,	2000,		7,		11)	--narrower (vs 30), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(5,  100,	  180,	1200,		7,		11)	--slower (vs 6), stronger (vs 8)
+	local dread_no_more_db = queryScienceDatabase("Ships","Dreadnought","Dread No More")
+	if dread_no_more_db == nil then
+		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
+		dreadnought_db:addEntry("Dread No More")
+		dread_no_more_db = queryScienceDatabase("Ships","Dreadnought","Dread No More")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Dreadnought","Dreadnought"),	--base ship database entry
+			dread_no_more_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Encounter the Dread No More and you will dread no more since you'll be dead, at least that's what the designers had in mind. The improvements over the base Dreadnought include faster impulse and maneuvering, a stronger hull and beams that do more damage.",
+			nil,
+			nil,		--jump range
+			"battleship_destroyer_1_upgraded"
 		)
 	end
 	return ship
