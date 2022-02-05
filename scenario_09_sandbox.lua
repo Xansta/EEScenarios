@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.9.1"
+	scenario_version = "5.10.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -37975,6 +37975,13 @@ function friendlyComms(comms_data)
 				addCommsReply("Back", commsShip)
 			end)
 		end
+	end
+	if comms_target.patrol_points ~= nil then
+		addCommsReply("Return to patrol duties",function()
+			comms_target:orderFlyTowards(comms_target.patrol_points[comms_target.patrol_point_index].x,comms_target.patrol_points[comms_target.patrol_point_index].y)
+			setCommsMessage("Returning to patrol duties")
+			addCommsReply("Back", commsShip)
+		end)
 	end
 	if comms_target.fleet ~= nil then
 		addCommsReply(string.format("Direct Squadron %s",comms_target.fleet), function()
