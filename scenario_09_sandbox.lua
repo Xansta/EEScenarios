@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.10.1"
+	scenario_version = "5.10.2"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -791,6 +791,7 @@ function setConstants()
 		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
 		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
 		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	},
+		["Torch"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
 		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	},
 		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	},
 		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	},
@@ -832,6 +833,7 @@ function setConstants()
 	addPlayerShip("Hearken",	"Redhook",		createPlayerShipHearken		,"J")
 	addPlayerShip("Hrothgar",	"Nusret",		createPlayerShipHrothgar	,"J")
 	addPlayerShip("Hummer",		"XR-Lindworm",	createPlayerShipHummer		,"W")
+	addPlayerShip("Ignite",		"Torch",		createPlayerShipTorch		,"W")
 	addPlayerShip("Ink",		"Squid",		createPlayerShipInk			,"J")
 	addPlayerShip("Jarvis",		"Butler",		createPlayerShipJarvis		,"W")
 	addPlayerShip("Jeeves",		"Butler",		createPlayerShipJeeves		,"W")
@@ -876,10 +878,10 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Swoop")
 	makePlayerShipActive("Cobra")
-	makePlayerShipActive("Yorik")
-	makePlayerShipActive("Knuckle Drag")
+	makePlayerShipActive("Manxman")
+	makePlayerShipActive("Outcast")
 	makePlayerShipActive("Spike")
-	makePlayerShipActive("Farrah")
+	makePlayerShipActive("Ignite")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -6436,9 +6438,8 @@ function createIcarusStations()
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
 	--Macassa
-	local macassaZone = squareZone(16335, -18034, "Macassa 11 E5")
-	macassaZone:setColor(0,128,0):setLabel("10")
-	--[[
+--	local macassaZone = squareZone(16335, -18034, "Macassa 11 E5")
+--	macassaZone:setColor(0,128,0):setLabel("10")
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 11"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMacassa:setShortRangeRadarRange(8000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -6470,7 +6471,6 @@ function createIcarusStations()
 	if random(1,100) <= 9  then stationMacassa:setSharesEnergyWithDocked(false) end
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
-	--]]
 	--Maximilian
 	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
 	--maximilianZone:setColor(51,153,255)
@@ -6981,9 +6981,8 @@ function createIcarusStations()
 	station_names[stationTransylvania:getCallSign()] = {stationTransylvania:getSectorName(), stationTransylvania}
 	table.insert(stations,stationTransylvania)
 	--Wookie F4m5 
-	local wookieZone = squareZone(-11280, 7425, "Wookie-ock F4")	-- -oka means 4, kin means 5, gookie means 6, De means 7, -ock means 8
-	wookieZone:setColor(51,153,255)
-	--[[
+--	local wookieZone = squareZone(-11280, 7425, "Wookie-ock F4")	-- -oka means 4, kin means 5, gookie means 6, De means 7, -ock means 8
+--	wookieZone:setColor(51,153,255)
     stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-ock"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7018,7 +7017,6 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
-	--]]
 	return stations
 end
 function createIcarusArtifacts()
@@ -17085,7 +17083,7 @@ function createPlayerShipAmbition()
 	playerAmbition:setJumpDriveRange(playerAmbition.min_jump_range,playerAmbition.max_jump_range)
 	playerAmbition:setJumpDriveCharge(playerAmbition.max_jump_range)
 --                 				   Arc, Dir, Range, CycleTime, Dmg
-	playerAmbition:setBeamWeapon(0, 10,  15,  1200,         8, 6)
+	playerAmbition:setBeamWeapon(0, 10,  15,  1200,         8, 6)	--uncrossed (vs crossed)
 	playerAmbition:setBeamWeapon(1, 10, -15,  1200,         8, 6)
 --										 Arc, Dir, Rotate speed
 	playerAmbition:setBeamWeaponTurret(0, 90,  15, .2)		--slow turret beams
@@ -17301,6 +17299,9 @@ function createPlayerShipBlazon()
 	playerBlazon:setBeamWeaponTurret(1,60, 15,2)			-- 2: slower than default 6
 	playerBlazon:setBeamWeapon(2,20,0,1200,6,5)				-- add forward facing beam
 	playerBlazon:setWeaponTubeCount(3)						-- add tubes
+	playerBlazon:setTubeLoadTime(0,10)
+	playerBlazon:setTubeLoadTime(1,10)
+	playerBlazon:setTubeLoadTime(2,15)
 	playerBlazon:setWeaponTubeDirection(0,-60)
 	playerBlazon:setWeaponTubeDirection(1,60)
 	playerBlazon:setWeaponTubeDirection(2,180)
@@ -17528,6 +17529,7 @@ function createPlayerShipDarkstar()
 end
 function createPlayerShipDevon()
 	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
+	--aka Devon or Farrah or Shannon
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(100)							--stronger hull (vs 75)
 	playerWombat:setHull(100)
@@ -18153,6 +18155,7 @@ function createPlayerShipHearken()
 end
 function createPlayerShipHrothgar()
 	playerNusret = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Hrothgar")
+	--aka Beowulf
 	playerNusret:setTypeName("Nusret")
 	playerNusret:setHullMax(150)						--stronger hull (vs 100)
 	playerNusret:setHull(150)
@@ -19114,6 +19117,7 @@ function createPlayerShipRogue()
 end
 function createPlayerShipSimian()
 	playerSimian = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Knuckle Drag")
+	--aka Knuckle Drag or Simian
 	playerSimian:setTypeName("Destroyer III")
 	playerSimian:setWarpDrive(false)
 	playerSimian:setJumpDrive(true)
@@ -19358,7 +19362,8 @@ function createPlayerShipSpyder()
 	return playerSpyder
 end
 function createPlayerShipStick()
-	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Spike")	--stick, spike
+	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Spike")	
+	--aka stick or spike
 	playerStick:setTypeName("Surkov")
 	playerStick:setRepairCrewCount(3)	--more repair crew (vs 2)
 	playerStick:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
@@ -19610,6 +19615,39 @@ function createPlayerShipThunderbird()
 	playerThunderbird:addReputationPoints(50)
 	return playerThunderbird
 end
+function createPlayerShipTorch()
+	playerTorch = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Ignite")
+	playerTorch:setTypeName("Torch")
+	playerTorch:setWarpDrive(true)					--add warp (vs none)
+	playerTorch:setImpulseMaxSpeed(100)				--slower impulse max (vs 110)
+	playerTorch:setAcceleration(30)					--slower (vs 40)
+	playerTorch:setWarpSpeed(960)
+	playerTorch:setHullMax(100)						--stronger hull (vs 60)
+	playerTorch:setHull(100)
+	local update_data = {
+		update = function (self, obj, delta)
+			local upper_heat = 0.98
+			local heat = math.clamp(obj:getSystemHeat("beamweapons"),0,upper_heat)
+			heat = heat/upper_heat
+			--					Arc,  Dir, Range,		  Cycle Time, Dmg
+			obj:setBeamWeapon(0, 90,    0,  1000, math.lerp(6,3,heat),	3)
+			obj:setBeamWeapon(1, 45, -7.5,   900, math.lerp(6,2,heat),	4)
+			obj:setBeamWeapon(2, 45,  7.5,   900, math.lerp(6,2,heat),	4)
+			obj:setBeamWeapon(3, 30,    0,   700, math.lerp(6,1,heat),	5)
+		end
+	}
+	update_system:addUpdate(playerTorch,"dynamic heating cycle beams", update_data)
+	playerTorch:setWeaponTubeDirection(0,-180)			--back (vs front)
+	playerTorch:setTubeLoadTime(0, 25)					--slower (vs 10)
+	playerTorch:setWeaponTubeExclusiveFor(0,"Mine")		--mine only (vs HVLI)
+	playerTorch:setWeaponStorageMax("HVLI",	0)			--less (vs 4)
+	playerTorch:setWeaponStorage("HVLI", 	0)				
+	playerTorch:setWeaponStorageMax("Mine",	4)			--more (vs 0)
+	playerTorch:setWeaponStorage("Mine", 	4)				
+	playerTorch:onTakingDamage(playerShipDamage)
+	playerTorch:addReputationPoints(50)
+	return playerTorch
+end
 function createPlayerShipVision()
 	playerVision = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Vision")
 	playerVision:setTypeName("Era")
@@ -19796,7 +19834,8 @@ function createPlayerShipFowl()
 	return playerFowl
 end
 function createPlayerShipPhargus()
-	playerPhargus = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy")
+	playerPhargus = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Gringo")
+	--aka Gringo
 	playerPhargus:setTypeName("Phargus")
 	playerPhargus:setShieldsMax(70,50)					--weaker (vs 100,100)
 	playerPhargus:setShields(70,50)
