@@ -113,7 +113,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.10.2"
+	scenario_version = "5.10.3"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -137,7 +137,7 @@ function setConstants()
 	playerFleet=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
-	universe:addAvailableRegion("Riptide Binary Pair", riptideBinarySector,0,0)
+	universe:addAvailableRegion("Riptide Binary Pair", riptideBinarySector,-40005,-280220)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(390000,210000) end,-390000, 210000)
 	--Original in the midst of the ghosts near Astron spawn point: 586367, 296408
@@ -5879,7 +5879,7 @@ function setDefaultPlayerSpawnPointsInOtherRegions()
 	addGMFunction("-Start Region",setStartRegion)
 	addGMFunction("-Player Spawn Point",setDefaultPlayerSpawnPoint)
 	local region_group_2 = {
-		"Eris", "Santa"
+		"Eris", "Santa", "Riptide",
 	}
 	for i=1,#universe.available_regions do
 		local region=universe.available_regions[i]
@@ -5984,436 +5984,6 @@ function changeTerrain()
 	end
 end
 
---- Riptide binary sector
-function riptideBinarySector()
-	local objects = {}
-
-	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(-50005, -290220):
-		setScanningParameters(2, 3):setDescriptions("Unclassified black hole", 
-			"Mass: 15.3 M Sol\n"..
-			"---\n" ..
-			"Stellar remnant locked in a dance with its partner. Likely a remnant of ~20 M☉ dwarf star.\n" ..
-			"Friction between gas molecules in the accretion disk causes electric discharges, which has a draining effect on shields.\n" ..
-			"Anomaly detected: slightly positive electric charge (+0.01 Coulombs). Normally, black holes are electrically neutral."
-			)
-	table.insert(objects, riptideAlphaStar)
-
-	local centerX, centerY = riptideAlphaStar:getPosition()
-
-	local riptideBeta = Planet():setCallSign("Riptide B"):setPosition(centerX, centerY + 6000):
-		setPlanetRadius(500):setOrbit(riptideAlphaStar, 30):setAxialRotationTime(10):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(1, 1, 1):
-		setScanningParameters(2, 3):setDescriptions("Unclassified star", 
-			"Mass: 0.5 M Sol\n"..
-			"---\n" ..
-			"A typical white dwarf in a binary system, tidaly locked with its parent Black Hole.\n"
-			)
-	table.insert(objects, riptideBeta)
-
-	local riptideGammaOrbitPeriod = 8000
-	local riptideGammaOrbitRadius = 100000
-	local riptideGamma = Planet():setCallSign("Riptide C"):setPosition(centerX, centerY + riptideGammaOrbitRadius):
-		setPlanetRadius(4000):setOrbit(riptideAlphaStar, riptideGammaOrbitPeriod):setAxialRotationTime(180):
-		setPlanetSurfaceTexture("planets/gas-1.png"):
-		setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(.2,.1,.1):
-		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
-			"Planet type: Hypermassive Jupiter\n" ..
-			"Mass: 232,000 M Earth" ..
-			"Surface temp. [K]: 8300\n" ..
-			"Composition: 99% Hydrogen, 0.8% Helium, noble gases\n" ..
-			"---\n" ..
-			"Abnormally large Jupiter. It seems to be feeding the black hole in the center of this system.\n" ..
-			"Est. lifetime before planet evaporates completely: ~200,000 years."
-			)
-	table.insert(objects, riptideGamma)
-
-
-	--- I hand-placed asteroids based on this point, and was too lazy to convert to relative measurements. But let's do it programatically.
-	local asteroidsPosDatumX = -50005
-	local asteroidsPosDatumY = -290220
-	local asteroids = {
-		{posX = 7485, posY = -213247, size= 124, type="Asteroid"},
-		{posX = -115013, posY = -218045, size= 121, type="Asteroid"},
-		{posX = -112653, posY = -212735, size= 129, type="Asteroid"},
-		{posX = -122290, posY = -225125, size= 129, type="Asteroid"},
-		{posX = -119536, posY = -239480, size= 125, type="Asteroid"},
-		{posX = -130287, posY = -230881, size= 122, type="Asteroid"},
-		{posX = -130156, posY = -226698, size= 124, type="Asteroid"},
-		{posX = -125436, posY = -221978, size= 111, type="Asteroid"},
-		{posX = -127610, posY = -228471, size= 120, type="Asteroid"},
-		{posX = -127599, posY = -233974, size= 130, type="Asteroid"},
-		{posX = -131384, posY = -233590, size= 116, type="Asteroid"},
-		{posX = -132070, posY = -234733, size= 121, type="Asteroid"},
-		{posX = -136449, posY = -236137, size= 130, type="Asteroid"},
-		{posX = -138219, posY = -227681, size= 117, type="Asteroid"},
-		{posX = -133499, posY = -227288, size= 112, type="Asteroid"},
-		{posX = -137403, posY = -233514, size= 300, type="Asteroid"},
-		{posX = -141759, posY = -235744, size= 120, type="Asteroid"},
-		{posX = -139595, posY = -252066, size= 124, type="Asteroid"},
-		{posX = -141759, posY = -247347, size= 129, type="Asteroid"},
-		{posX = -141955, posY = -228468, size= 120, type="Asteroid"},
-		{posX = -140222, posY = -240447, size= 129, type="Asteroid"},
-		{posX = -140775, posY = -243020, size= 200, type="Asteroid"},
-		{posX = -136717, posY = -236485, size= 115, type="Asteroid"},
-		{posX = -137825, posY = -242824, size= 121, type="Asteroid"},
-		{posX = -138698, posY = -238085, size= 126, type="Asteroid"},
-		{posX = -136449, posY = -245970, size= 114, type="Asteroid"},
-		{posX = -133499, posY = -232794, size= 116, type="Asteroid"},
-		{posX = -133696, posY = -240267, size= 128, type="Asteroid"},
-		{posX = -140775, posY = -259146, size= 128, type="Asteroid"},
-		{posX = -143673, posY = -252432, size= 125, type="Asteroid"},
-		{posX = -146886, posY = -256849, size= 122, type="Asteroid"},
-		{posX = -147917, posY = -259875, size= 114, type="Asteroid"},
-		{posX = -147308, posY = -247304, size= 129, type="Asteroid"},
-		{posX = -148603, posY = -241742, size= 126, type="Asteroid"},
-		{posX = -145888, posY = -252263, size= 117, type="Asteroid"},
-		{posX = 30406, posY = -242591, size= 110, type="Asteroid"},
-		{posX = 29776, posY = -245739, size= 120, type="Asteroid"},
-		{posX = 41866, posY = -246243, size= 111, type="Asteroid"},
-		{posX = 40355, posY = -248006, size= 600, type="Asteroid"},
-		{posX = 41614, posY = -244354, size= 128, type="Asteroid"},
-		{posX = 45518, posY = -251784, size= 125, type="Asteroid"},
-		{posX = 44637, posY = -252036, size= 124, type="Asteroid"},
-		{posX = 42748, posY = -244354, size= 121, type="Asteroid"},
-		{posX = 44259, posY = -245865, size= 119, type="Asteroid"},
-		{posX = 35947, posY = -244354, size= 500, type="Asteroid"},
-		{posX = 34436, posY = -239442, size= 125, type="Asteroid"},
-		{posX = 39725, posY = -239694, size= 116, type="Asteroid"},
-		{posX = 39599, posY = -237427, size= 115, type="Asteroid"},
-		{posX = 36703, posY = -234782, size= 119, type="Asteroid"},
-		{posX = 41363, posY = -232642, size= 114, type="Asteroid"},
-		{posX = 43000, posY = -236546, size= 115, type="Asteroid"},
-		{posX = 14286, posY = -218410, size= 122, type="Asteroid"},
-		{posX = 22094, posY = -221559, size= 122, type="Asteroid"},
-		{posX = 18064, posY = -215892, size= 300, type="Asteroid"},
-		{posX = 23227, posY = -221433, size= 112, type="Asteroid"},
-		{posX = 29146, posY = -234657, size= 115, type="Asteroid"},
-		{posX = 29272, posY = -234405, size= 128, type="Asteroid"},
-		{posX = 26502, posY = -227730, size= 118, type="Asteroid"},
-		{posX = 30658, posY = -229871, size= 110, type="Asteroid"},
-		{posX = 25872, posY = -236168, size= 400, type="Asteroid"},
-		{posX = 24361, posY = -232642, size= 124, type="Asteroid"},
-		{posX = 23101, posY = -228612, size= 116, type="Asteroid"},
-		{posX = 22724, posY = -234027, size= 111, type="Asteroid"},
-		{posX = 36199, posY = -229997, size= 116, type="Asteroid"},
-		{posX = 31539, posY = -232390, size= 127, type="Asteroid"},
-		{posX = 34436, posY = -235916, size= 110, type="Asteroid"},
-		{posX = 35066, posY = -234279, size= 124, type="Asteroid"},
-		{posX = 28769, posY = -225967, size= 113, type="Asteroid"},
-		{posX = 27761, posY = -231256, size= 130, type="Asteroid"},
-		{posX = 45644, posY = -240450, size= 125, type="Asteroid"},
-		{posX = 47533, posY = -239316, size= 113, type="Asteroid"},
-		{posX = 46274, posY = -245739, size= 111, type="Asteroid"},
-		{posX = 38466, posY = -245361, size= 123, type="Asteroid"},
-		{posX = 38466, posY = -242717, size= 116, type="Asteroid"},
-		{posX = 31791, posY = -238057, size= 121, type="Asteroid"},
-		{posX = 30784, posY = -239190, size= 118, type="Asteroid"},
-		{posX = 28139, posY = -238435, size= 121, type="Asteroid"},
-		{posX = 35821, posY = -237049, size= 113, type="Asteroid"},
-		{posX = 46022, posY = -262363, size= 111, type="Asteroid"},
-		{posX = 44637, posY = -261104, size= 128, type="Asteroid"},
-		{posX = 46148, posY = -256192, size= 112, type="Asteroid"},
-		{posX = 46400, posY = -257955, size= 123, type="Asteroid"},
-		{posX = 51564, posY = -266393, size= 122, type="Asteroid"},
-		{posX = 13610, posY = -216959, size =125, type="VisualAsteroid"}, 
-		{posX = -118374, posY = -216156, size =113, type="VisualAsteroid"}, 
-		{posX = -134437, posY = -236101, size =122, type="VisualAsteroid"}, 
-		{posX = -132027, posY = -231014, size =128, type="VisualAsteroid"}, 
-		{posX = -136177, posY = -240518, size =114, type="VisualAsteroid"}, 
-		{posX = -126673, posY = -219101, size =115, type="VisualAsteroid"}, 
-		{posX = -136980, posY = -239715, size =117, type="VisualAsteroid"}, 
-		{posX = -143405, posY = -243597, size =122, type="VisualAsteroid"}, 
-		{posX = -150366, posY = -257518, size =116, type="VisualAsteroid"}, 
-		{posX = -146350, posY = -261936, size =117, type="VisualAsteroid"}, 
-		{posX = -149161, posY = -247077, size =122, type="VisualAsteroid"}, 
-		{posX = -148760, posY = -251495, size =111, type="VisualAsteroid"}, 
-		{posX = 31413, posY = -243865, size =117, type="VisualAsteroid"}, 
-		{posX = 43594, posY = -246274, size =124, type="VisualAsteroid"}, 
-		{posX = 38909, posY = -248148, size =118, type="VisualAsteroid"}, 
-		{posX = 44531, posY = -257117, size =116, type="VisualAsteroid"}, 
-		{posX = 42255, posY = -251629, size =112, type="VisualAsteroid"}, 
-		{posX = 43594, posY = -253369, size =111, type="VisualAsteroid"}, 
-		{posX = 42523, posY = -241991, size =118, type="VisualAsteroid"}, 
-		{posX = 32484, posY = -233825, size =116, type="VisualAsteroid"}, 
-		{posX = -146752, posY = -239715, size =122, type="VisualAsteroid"}, 
-		{posX = 21641, posY = -224054, size =129, type="VisualAsteroid"}, 
-		{posX = 30342, posY = -228070, size =119, type="VisualAsteroid"}, 
-		{posX = 35696, posY = -228337, size =127, type="VisualAsteroid"}, 
-		{posX = 48413, posY = -241188, size =129, type="VisualAsteroid"}, 
-		{posX = 48413, posY = -241188, size =129, type="VisualAsteroid"}, 
-	}
-
-	for i=1, #asteroids do
-		local a = asteroids[i]
-		local relX = asteroids[i].posX - asteroidsPosDatumX
-		local relY = asteroids[i].posY - asteroidsPosDatumY
-		local absX = centerX + relX
-		local absY = centerY + relY
-		local as = nil
-		if a.type == "Asteroid" then
-			as = Asteroid()
-		elseif a.type == "VisualAsteroid" then
-			as = VisualAsteroid()
-		else
-			assert(false)
-		end
-		
-		as:setPosition(absX, absY):setSize(a.size)
-
-		local initialOrbitAngle = angleFromVectorNorth(absX, absY, centerX, centerY) - 90
-		local orbitRadius = distance(asteroids[i].posX, asteroids[i].posY, asteroidsPosDatumX, asteroidsPosDatumY)
-		update_system:addOrbitTargetUpdate(as, riptideAlphaStar, orbitRadius, riptideGammaOrbitPeriod, initialOrbitAngle)
-		table.insert(objects, as)
-	end
-
-
-	local riptideDelta = Planet():setCallSign("Riptide D"):setPosition(centerX - riptideGammaOrbitRadius * math.sqrt(3) / 2, centerY + riptideGammaOrbitRadius / 2):
-		setPlanetRadius(500):setOrbit(riptideAlphaStar, riptideGammaOrbitPeriod):setAxialRotationTime(60):
-		setPlanetSurfaceTexture("planets/moon-1.png"):
-		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
-			"Planet type: Planetoid\n" ..
-			"Mass: 0.0001 M Earth" ..
-			"Composition: 91% Fe, 8.5 Ni, traces of rare earth elements\n" ..
-			"---\n" ..
-			"The largest planetoid in this system, sitting comfortably in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
-				riptideAlphaStar:getCallSign() .. " system.\n" ..
-			"Anomaly detected: rich deposits of latinum found below the regolith."
-			)
-	table.insert(objects, riptideDelta)
-
-
-	local icarusToRiptideWormHole = WormHole():setPosition(19778, 114698): --- next to Speculator 3
-		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
-			"Anomaly type: Wormhole\n" ..
-			"Leads to: Riptide sector"
-			):setTargetPosition(centerX + 10000, centerY + 10000)-- nebula next to Speculator 3
-	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
-		update=function(self, obj, delta)
-			if not obj:isValid() then
-				return
-			end
-			obj:setRotation(getScenarioTime() * 5)
-		end
-	})
-
-
-
-	-- local gravityAcceleration = 500000000 -- if 1/x2 used
-	local gravityAcceleration = 5000 -- if 1/x used
-	local slowOrbitDegPerSec = 360 / riptideGammaOrbitPeriod
-	local fastOrbitDegPerSec = 30
-
-	blackHoleOrbitUpdater = function(obj, centerX, centerY, minSpeed, maxSpeed, minSpeedDistance, maxSpeedDistance, gravityAcceleration)
-		if not obj:isValid() then
-			return
-		end
-		-- 1/x decay
-		local a = (minSpeed - maxSpeed) * (maxSpeedDistance * minSpeedDistance) / (minSpeedDistance - maxSpeedDistance)
-		local b = maxSpeed - a / minSpeedDistance
-	
-		local objX, objY = obj:getPosition()
-		local orbitAngle = angleFromVectorNorth(objX, objY, centerX, centerY)
-		local update_data = {
-			centerX = centerX,
-			centerY = centerY,
-			currentDistance = distance(obj, centerX, centerY),
-			minSpeed = minSpeed,
-			maxSpeed = maxSpeed,
-			minSpeedDistance = minSpeedDistance,
-			maxSpeedDistance = maxSpeedDistance,
-			orbitAngle = orbitAngle,
-			a = a,
-			b = b,
-			gravityAcceleration = gravityAcceleration,
-			edit = {
-				{name = "currentDistance" , fixedAdjAmount=100},
-			},
-			update = function (self, obj, delta)
-
-				local actualX, actualY = obj:getPosition()
-				local actualOrbitAngle = angleFromVectorNorth(actualX, actualY, centerX, centerY)
-				if actualOrbitAngle ~= self.orbitAngle then
-					--- somebody changed the angle somehow (e.g. tractor or GM), use the new value
-					self.orbitAngle = actualOrbitAngle
-				end
-				local actualDistance = distance(actualX, actualY, centerX, centerY)
-				if actualDistance ~= self.currentDistance then
-					--- somebody changed the distance somehow (e.g. tractor or GM), use the new value
-					self.currentDistance = actualDistance
-				end
-
-				if self.currentDistance > 2*maxSpeedDistance then
-					--- outside sphere of influence
-					return
-				end
-				
-				local orbitSpeed = a / (self.currentDistance) + b
-
-				orbitSpeed = math.min(orbitSpeed, self.maxSpeed)
-				orbitSpeed = math.max(orbitSpeed, self.minSpeed)
-
-				self.orbitAngle = (self.orbitAngle + (orbitSpeed*delta)) % 360
-
-				-- local orbit_decay = gravityAcceleration / (self.currentDistance * self.currentDistance)
-				local orbit_decay = gravityAcceleration / (self.currentDistance)
-				if orbit_decay > self.maxSpeed then
-					orbit_decay = self.maxSpeed
-				end
-				self.currentDistance = self.currentDistance - orbit_decay
-				
-				local dx, dy = vectorFromAngleNorth(self.orbitAngle, self.currentDistance)
-				obj:setPosition(centerX + dx, centerY + dy)
-			end
-		}
-		update_system:addUpdate(obj, "riptide accretion disk updater", update_data)
-	end
-
-
-
-	local riptideToIcarusWormHole = WormHole():setPosition(centerX + riptideGammaOrbitRadius * math.sqrt(3) / 2, centerY + riptideGammaOrbitRadius / 2):
-		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
-			"Anomaly type: Wormhole\n" ..
-			"Leads to: Icarus sector" ..
-			"---\n" ..
-			"Stabilised space time tunnel leading to somewhere in Icarus system. Its orbit places it in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
-				riptideAlphaStar:getCallSign() .. " system.\n"
-			):setTargetPosition(49157, 123520) -- nebula next to Speculator 3
-		
-	local wormHoleX, wormHoleY = riptideToIcarusWormHole:getPosition()
-	local wormHoleInitialOrbitAngle = angleFromVectorNorth(wormHoleX, wormHoleY, centerX, centerY) - 90
-	local wormHoleOrbitRadius = distance(wormHoleX, wormHoleY, centerX, centerY)
-	blackHoleOrbitUpdater(riptideToIcarusWormHole, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
-	update_system:addUpdate(riptideToIcarusWormHole, "riptide-icarus wormhole rotation", {
-		update=function(self, obj, delta)
-			if not obj:isValid() then
-				return
-			end
-			obj:setRotation(getScenarioTime() * 10)
-		end
-	})
-	table.insert(objects, riptideToIcarusWormHole)
-
-
-	--- For a scenario; comment/remove if not needed
-	local maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
-		setScanningParameters(2, 3):setDescriptions("Unscanned Arlenian vessel", 
-			"Lifesigns: unsure; check the scanner border readout\n" ..
-			"Life support status: OK\n" ..
-			"Reactor: OK\n" ..
-			"Damage report: engines 0% (field repairs impossible)"
-		):setSystemHealthMax("maneuver", 0):setSystemHealthMax("impulse", 0):setSystemHealthMax("warp", 0):setSystemHealthMax("jumpdrive", 0)
-
-	local maryCelesteX, maryCelesteY = maryCeleste:getPosition()
-	local mcx, mcy = vectorFromAngle(wormHoleInitialOrbitAngle - 2, wormHoleOrbitRadius) --- lagging behind wormhole slightly
-	--- the solution to this puzzle is to tractor Mary Celeste onto slightly lower orbit; it will eventually catch up with the wormhole
-	maryCeleste:setPosition(centerX + mcx, centerY + mcy)
-    maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
-	blackHoleOrbitUpdater(maryCeleste, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
-	update_system:addUpdate(maryCeleste, "mary celesete blinking SOS callsign", {
-		update=function(self, obj, delta)
-			if not obj:isValid() then
-				return
-			end
-			blips = {1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0}
-			currBlip = math.floor(getScenarioTime() * 4) % #blips
-			if blips[currBlip] == 1 then
-				obj:setCallSign("Mary Celeste")
-			else       
-				obj:setCallSign("")
-			end
-		end
-	})
-
-
-	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
-		if not obj:isValid() then
-			return
-		end
-		local nx, ny = obj:getPosition()
-		local angle = angleFromVectorNorth(nx, ny, centerX, centerY)
-		obj:setRotation(angle) --- keep facing towards the central black hole
-
-		if distance(nx, ny, centerX, centerY) < 25000 and getScenarioTime() > self.nextExplosionAt then
-			self.nextExplosionAt = getScenarioTime() + irandom(0, 10)
-
-			local size = irandom(100,1000)
-			local ee = ElectricExplosionEffect():setPosition(nx + irandom(-2000, 2000), ny + irandom(-2000, 2000)):setSize(irandom(100,1000)):setOnRadar(true)
-			local objs = ee:getObjectsInRange(size)
-			for i=1, #objs do
-				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
-					local newShields = {}
-					for j=1, objs[i]:getShieldCount() do
-						table.insert(newShields, 0.8 * objs[i]:getShieldLevel(j))
-					end
-					objs[i]:setShields(table.unpack(newShields))
-				end
-			end
-		end
-	end
-
-	-- nebulas which have stable orbits
-	local amount = 100
-	local distMin = 10000
-	local distMax = riptideGammaOrbitRadius
-	for n=1, amount do
-		local angle = random(0, 360)
-		local radius = random(distMin, distMax)
-		local x = centerX + math.cos(angle / 180 * math.pi) * radius
-		local y = centerY + math.sin(angle / 180 * math.pi) * radius
-		local neb = Nebula():setPosition(x, y)
-		blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
-		update_system:addUpdate(neb, "nebula misc", {
-			nextExplosionAt=0,
-			update=nebulaRotationAndFrictionUpdater
-		})
-		table.insert(objects, neb)
-	end
-
-	--- nebulas which are sucked from red giant
-	nebulaSpawner = function(self, obj, delta)
-		local numNebulas = irandom(1, 3)
-		for i=1, numNebulas do
-			local sx, sy = riptideGamma:getPosition()
-
-			local angleToCenter = angleFromVectorNorth(sx, sy, centerX, centerY)
-			local dpx, dpy = vectorFromAngle(angleToCenter,1000)
-
-			local neb = Nebula():setPosition(sx + dpx + irandom(-1000, 1000), sy + dpy + irandom(-1000, 1000))
-
-
-			local thisGravAccel = gravityAcceleration * random(80, 120) -- little bit of jitter so it spreads out nicely
-			--- some tweaking here to get a nice spiral
-			blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec * 0.8, 10000, riptideGammaOrbitRadius, thisGravAccel)	
-			update_system:addUpdate(neb, "nebula misc", {
-				nextExplosionAt=0,
-				update=nebulaRotationAndFrictionUpdater
-			})
-
-			table.insert(objects, neb)
-			neb:onDestroyed(function(obj, instigator)
-				--- remove self from objects
-				for i=1, #objects do
-					if obj == objects[i] then
-						table.remove(objects, i)
-						break
-					end
-				end
-			end)
-		end
-	end
-	update_system:addPeriodicCallback(riptideGamma, nebulaSpawner, 5, 0, 2)
-
-
-	local ret = {
-		destroy = function(self)
-			removeIcarusColor()
-			for i=1, #self.objects do
-				self.objects[i]:destroy()
-			end
-		end,
-		objects = objects
-	}
-	return ret
-end
 
 -- Icarus area stations, asteroids, mines, etc. 
 function icarusSector()
@@ -15104,6 +14674,439 @@ function removeBaskColor()
 		end
 	end
 	bask_nebulae = nil
+end
+--- Riptide binary sector
+function riptideBinarySector()
+	local objects = {}
+
+	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(-50005, -290220):
+		setScanningParameters(2, 3):setDescriptions("Unclassified black hole", 
+			"Mass: 15.3 M Sol\n"..
+			"---\n" ..
+			"Stellar remnant locked in a dance with its partner. Likely a remnant of ~20 M☉ dwarf star.\n" ..
+			"Friction between gas molecules in the accretion disk causes electric discharges, which has a draining effect on shields.\n" ..
+			"Anomaly detected: slightly positive electric charge (+0.01 Coulombs). Normally, black holes are electrically neutral."
+			)
+	table.insert(objects, riptideAlphaStar)
+
+	local centerX, centerY = riptideAlphaStar:getPosition()
+
+	local riptideBeta = Planet():setCallSign("Riptide B"):setPosition(centerX, centerY + 6000):
+		setPlanetRadius(500):setOrbit(riptideAlphaStar, 30):setAxialRotationTime(10):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(1, 1, 1):
+		setScanningParameters(2, 3):setDescriptions("Unclassified star", 
+			"Mass: 0.5 M Sol\n"..
+			"---\n" ..
+			"A typical white dwarf in a binary system, tidaly locked with its parent Black Hole.\n"
+			)
+	table.insert(objects, riptideBeta)
+
+	local riptideGammaOrbitPeriod = 8000
+	local riptideGammaOrbitRadius = 100000
+	local riptideGamma = Planet():setCallSign("Riptide C"):setPosition(centerX, centerY + riptideGammaOrbitRadius):
+		setPlanetRadius(4000):setOrbit(riptideAlphaStar, riptideGammaOrbitPeriod):setAxialRotationTime(180):
+		setPlanetSurfaceTexture("planets/gas-1.png"):
+		setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(.2,.1,.1):
+		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
+			"Planet type: Hypermassive Jupiter\n" ..
+			"Mass: 232,000 M Earth" ..
+			"Surface temp. [K]: 8300\n" ..
+			"Composition: 99% Hydrogen, 0.8% Helium, noble gases\n" ..
+			"---\n" ..
+			"Abnormally large Jupiter. It seems to be feeding the black hole in the center of this system.\n" ..
+			"Est. lifetime before planet evaporates completely: ~200,000 years."
+			)
+	table.insert(objects, riptideGamma)
+
+
+	--- I hand-placed asteroids based on this point, and was too lazy to convert to relative measurements. But let's do it programatically.
+	local asteroidsPosDatumX = -50005
+	local asteroidsPosDatumY = -290220
+	local asteroids = {
+		{posX = 7485, posY = -213247, size= 124, type="Asteroid"},
+		{posX = -115013, posY = -218045, size= 121, type="Asteroid"},
+		{posX = -112653, posY = -212735, size= 129, type="Asteroid"},
+		{posX = -122290, posY = -225125, size= 129, type="Asteroid"},
+		{posX = -119536, posY = -239480, size= 125, type="Asteroid"},
+		{posX = -130287, posY = -230881, size= 122, type="Asteroid"},
+		{posX = -130156, posY = -226698, size= 124, type="Asteroid"},
+		{posX = -125436, posY = -221978, size= 111, type="Asteroid"},
+		{posX = -127610, posY = -228471, size= 120, type="Asteroid"},
+		{posX = -127599, posY = -233974, size= 130, type="Asteroid"},
+		{posX = -131384, posY = -233590, size= 116, type="Asteroid"},
+		{posX = -132070, posY = -234733, size= 121, type="Asteroid"},
+		{posX = -136449, posY = -236137, size= 130, type="Asteroid"},
+		{posX = -138219, posY = -227681, size= 117, type="Asteroid"},
+		{posX = -133499, posY = -227288, size= 112, type="Asteroid"},
+		{posX = -137403, posY = -233514, size= 300, type="Asteroid"},
+		{posX = -141759, posY = -235744, size= 120, type="Asteroid"},
+		{posX = -139595, posY = -252066, size= 124, type="Asteroid"},
+		{posX = -141759, posY = -247347, size= 129, type="Asteroid"},
+		{posX = -141955, posY = -228468, size= 120, type="Asteroid"},
+		{posX = -140222, posY = -240447, size= 129, type="Asteroid"},
+		{posX = -140775, posY = -243020, size= 200, type="Asteroid"},
+		{posX = -136717, posY = -236485, size= 115, type="Asteroid"},
+		{posX = -137825, posY = -242824, size= 121, type="Asteroid"},
+		{posX = -138698, posY = -238085, size= 126, type="Asteroid"},
+		{posX = -136449, posY = -245970, size= 114, type="Asteroid"},
+		{posX = -133499, posY = -232794, size= 116, type="Asteroid"},
+		{posX = -133696, posY = -240267, size= 128, type="Asteroid"},
+		{posX = -140775, posY = -259146, size= 128, type="Asteroid"},
+		{posX = -143673, posY = -252432, size= 125, type="Asteroid"},
+		{posX = -146886, posY = -256849, size= 122, type="Asteroid"},
+		{posX = -147917, posY = -259875, size= 114, type="Asteroid"},
+		{posX = -147308, posY = -247304, size= 129, type="Asteroid"},
+		{posX = -148603, posY = -241742, size= 126, type="Asteroid"},
+		{posX = -145888, posY = -252263, size= 117, type="Asteroid"},
+		{posX = 30406, posY = -242591, size= 110, type="Asteroid"},
+		{posX = 29776, posY = -245739, size= 120, type="Asteroid"},
+		{posX = 41866, posY = -246243, size= 111, type="Asteroid"},
+		{posX = 40355, posY = -248006, size= 600, type="Asteroid"},
+		{posX = 41614, posY = -244354, size= 128, type="Asteroid"},
+		{posX = 45518, posY = -251784, size= 125, type="Asteroid"},
+		{posX = 44637, posY = -252036, size= 124, type="Asteroid"},
+		{posX = 42748, posY = -244354, size= 121, type="Asteroid"},
+		{posX = 44259, posY = -245865, size= 119, type="Asteroid"},
+		{posX = 35947, posY = -244354, size= 500, type="Asteroid"},
+		{posX = 34436, posY = -239442, size= 125, type="Asteroid"},
+		{posX = 39725, posY = -239694, size= 116, type="Asteroid"},
+		{posX = 39599, posY = -237427, size= 115, type="Asteroid"},
+		{posX = 36703, posY = -234782, size= 119, type="Asteroid"},
+		{posX = 41363, posY = -232642, size= 114, type="Asteroid"},
+		{posX = 43000, posY = -236546, size= 115, type="Asteroid"},
+		{posX = 14286, posY = -218410, size= 122, type="Asteroid"},
+		{posX = 22094, posY = -221559, size= 122, type="Asteroid"},
+		{posX = 18064, posY = -215892, size= 300, type="Asteroid"},
+		{posX = 23227, posY = -221433, size= 112, type="Asteroid"},
+		{posX = 29146, posY = -234657, size= 115, type="Asteroid"},
+		{posX = 29272, posY = -234405, size= 128, type="Asteroid"},
+		{posX = 26502, posY = -227730, size= 118, type="Asteroid"},
+		{posX = 30658, posY = -229871, size= 110, type="Asteroid"},
+		{posX = 25872, posY = -236168, size= 400, type="Asteroid"},
+		{posX = 24361, posY = -232642, size= 124, type="Asteroid"},
+		{posX = 23101, posY = -228612, size= 116, type="Asteroid"},
+		{posX = 22724, posY = -234027, size= 111, type="Asteroid"},
+		{posX = 36199, posY = -229997, size= 116, type="Asteroid"},
+		{posX = 31539, posY = -232390, size= 127, type="Asteroid"},
+		{posX = 34436, posY = -235916, size= 110, type="Asteroid"},
+		{posX = 35066, posY = -234279, size= 124, type="Asteroid"},
+		{posX = 28769, posY = -225967, size= 113, type="Asteroid"},
+		{posX = 27761, posY = -231256, size= 130, type="Asteroid"},
+		{posX = 45644, posY = -240450, size= 125, type="Asteroid"},
+		{posX = 47533, posY = -239316, size= 113, type="Asteroid"},
+		{posX = 46274, posY = -245739, size= 111, type="Asteroid"},
+		{posX = 38466, posY = -245361, size= 123, type="Asteroid"},
+		{posX = 38466, posY = -242717, size= 116, type="Asteroid"},
+		{posX = 31791, posY = -238057, size= 121, type="Asteroid"},
+		{posX = 30784, posY = -239190, size= 118, type="Asteroid"},
+		{posX = 28139, posY = -238435, size= 121, type="Asteroid"},
+		{posX = 35821, posY = -237049, size= 113, type="Asteroid"},
+		{posX = 46022, posY = -262363, size= 111, type="Asteroid"},
+		{posX = 44637, posY = -261104, size= 128, type="Asteroid"},
+		{posX = 46148, posY = -256192, size= 112, type="Asteroid"},
+		{posX = 46400, posY = -257955, size= 123, type="Asteroid"},
+		{posX = 51564, posY = -266393, size= 122, type="Asteroid"},
+		{posX = 13610, posY = -216959, size =125, type="VisualAsteroid"}, 
+		{posX = -118374, posY = -216156, size =113, type="VisualAsteroid"}, 
+		{posX = -134437, posY = -236101, size =122, type="VisualAsteroid"}, 
+		{posX = -132027, posY = -231014, size =128, type="VisualAsteroid"}, 
+		{posX = -136177, posY = -240518, size =114, type="VisualAsteroid"}, 
+		{posX = -126673, posY = -219101, size =115, type="VisualAsteroid"}, 
+		{posX = -136980, posY = -239715, size =117, type="VisualAsteroid"}, 
+		{posX = -143405, posY = -243597, size =122, type="VisualAsteroid"}, 
+		{posX = -150366, posY = -257518, size =116, type="VisualAsteroid"}, 
+		{posX = -146350, posY = -261936, size =117, type="VisualAsteroid"}, 
+		{posX = -149161, posY = -247077, size =122, type="VisualAsteroid"}, 
+		{posX = -148760, posY = -251495, size =111, type="VisualAsteroid"}, 
+		{posX = 31413, posY = -243865, size =117, type="VisualAsteroid"}, 
+		{posX = 43594, posY = -246274, size =124, type="VisualAsteroid"}, 
+		{posX = 38909, posY = -248148, size =118, type="VisualAsteroid"}, 
+		{posX = 44531, posY = -257117, size =116, type="VisualAsteroid"}, 
+		{posX = 42255, posY = -251629, size =112, type="VisualAsteroid"}, 
+		{posX = 43594, posY = -253369, size =111, type="VisualAsteroid"}, 
+		{posX = 42523, posY = -241991, size =118, type="VisualAsteroid"}, 
+		{posX = 32484, posY = -233825, size =116, type="VisualAsteroid"}, 
+		{posX = -146752, posY = -239715, size =122, type="VisualAsteroid"}, 
+		{posX = 21641, posY = -224054, size =129, type="VisualAsteroid"}, 
+		{posX = 30342, posY = -228070, size =119, type="VisualAsteroid"}, 
+		{posX = 35696, posY = -228337, size =127, type="VisualAsteroid"}, 
+		{posX = 48413, posY = -241188, size =129, type="VisualAsteroid"}, 
+		{posX = 48413, posY = -241188, size =129, type="VisualAsteroid"}, 
+	}
+
+	for i=1, #asteroids do
+		local a = asteroids[i]
+		local relX = asteroids[i].posX - asteroidsPosDatumX
+		local relY = asteroids[i].posY - asteroidsPosDatumY
+		local absX = centerX + relX
+		local absY = centerY + relY
+		local as = nil
+		if a.type == "Asteroid" then
+			as = Asteroid()
+		elseif a.type == "VisualAsteroid" then
+			as = VisualAsteroid()
+		else
+			assert(false)
+		end
+		
+		as:setPosition(absX, absY):setSize(a.size)
+
+		local initialOrbitAngle = angleFromVectorNorth(absX, absY, centerX, centerY) - 90
+		local orbitRadius = distance(asteroids[i].posX, asteroids[i].posY, asteroidsPosDatumX, asteroidsPosDatumY)
+		update_system:addOrbitTargetUpdate(as, riptideAlphaStar, orbitRadius, riptideGammaOrbitPeriod, initialOrbitAngle)
+		table.insert(objects, as)
+	end
+
+
+	local riptideDelta = Planet():setCallSign("Riptide D"):setPosition(centerX - riptideGammaOrbitRadius * math.sqrt(3) / 2, centerY + riptideGammaOrbitRadius / 2):
+		setPlanetRadius(500):setOrbit(riptideAlphaStar, riptideGammaOrbitPeriod):setAxialRotationTime(60):
+		setPlanetSurfaceTexture("planets/moon-1.png"):
+		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
+			"Planet type: Planetoid\n" ..
+			"Mass: 0.0001 M Earth" ..
+			"Composition: 91% Fe, 8.5 Ni, traces of rare earth elements\n" ..
+			"---\n" ..
+			"The largest planetoid in this system, sitting comfortably in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
+				riptideAlphaStar:getCallSign() .. " system.\n" ..
+			"Anomaly detected: rich deposits of latinum found below the regolith."
+			)
+	table.insert(objects, riptideDelta)
+
+
+	local icarusToRiptideWormHole = WormHole():setPosition(19778, 114698): --- next to Speculator 3
+		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
+			"Anomaly type: Wormhole\n" ..
+			"Leads to: Riptide sector"
+			):setTargetPosition(centerX + 10000, centerY + 10000)-- nebula next to Speculator 3
+	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
+		update=function(self, obj, delta)
+			if not obj:isValid() then
+				return
+			end
+			obj:setRotation(getScenarioTime() * 5)
+		end
+	})
+	table.insert(objects,icarusToRiptideWormHole)
+
+
+
+	-- local gravityAcceleration = 500000000 -- if 1/x2 used
+	local gravityAcceleration = 5000 -- if 1/x used
+	local slowOrbitDegPerSec = 360 / riptideGammaOrbitPeriod
+	local fastOrbitDegPerSec = 30
+
+	blackHoleOrbitUpdater = function(obj, centerX, centerY, minSpeed, maxSpeed, minSpeedDistance, maxSpeedDistance, gravityAcceleration)
+		if not obj:isValid() then
+			return
+		end
+		-- 1/x decay
+		local a = (minSpeed - maxSpeed) * (maxSpeedDistance * minSpeedDistance) / (minSpeedDistance - maxSpeedDistance)
+		local b = maxSpeed - a / minSpeedDistance
+	
+		local objX, objY = obj:getPosition()
+		local orbitAngle = angleFromVectorNorth(objX, objY, centerX, centerY)
+		local update_data = {
+			centerX = centerX,
+			centerY = centerY,
+			currentDistance = distance(obj, centerX, centerY),
+			minSpeed = minSpeed,
+			maxSpeed = maxSpeed,
+			minSpeedDistance = minSpeedDistance,
+			maxSpeedDistance = maxSpeedDistance,
+			orbitAngle = orbitAngle,
+			a = a,
+			b = b,
+			gravityAcceleration = gravityAcceleration,
+			edit = {
+				{name = "currentDistance" , fixedAdjAmount=100},
+			},
+			update = function (self, obj, delta)
+
+				local actualX, actualY = obj:getPosition()
+				local actualOrbitAngle = angleFromVectorNorth(actualX, actualY, centerX, centerY)
+				if actualOrbitAngle ~= self.orbitAngle then
+					--- somebody changed the angle somehow (e.g. tractor or GM), use the new value
+					self.orbitAngle = actualOrbitAngle
+				end
+				local actualDistance = distance(actualX, actualY, centerX, centerY)
+				if actualDistance ~= self.currentDistance then
+					--- somebody changed the distance somehow (e.g. tractor or GM), use the new value
+					self.currentDistance = actualDistance
+				end
+
+				if self.currentDistance > 2*maxSpeedDistance then
+					--- outside sphere of influence
+					return
+				end
+				
+				local orbitSpeed = a / (self.currentDistance) + b
+
+				orbitSpeed = math.min(orbitSpeed, self.maxSpeed)
+				orbitSpeed = math.max(orbitSpeed, self.minSpeed)
+
+				self.orbitAngle = (self.orbitAngle + (orbitSpeed*delta)) % 360
+
+				-- local orbit_decay = gravityAcceleration / (self.currentDistance * self.currentDistance)
+				local orbit_decay = gravityAcceleration / (self.currentDistance)
+				if orbit_decay > self.maxSpeed then
+					orbit_decay = self.maxSpeed
+				end
+				self.currentDistance = self.currentDistance - orbit_decay
+				
+				local dx, dy = vectorFromAngleNorth(self.orbitAngle, self.currentDistance)
+				obj:setPosition(centerX + dx, centerY + dy)
+			end
+		}
+		update_system:addUpdate(obj, "riptide accretion disk updater", update_data)
+	end
+
+
+
+	local riptideToIcarusWormHole = WormHole():setPosition(centerX + riptideGammaOrbitRadius * math.sqrt(3) / 2, centerY + riptideGammaOrbitRadius / 2):
+		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
+			"Anomaly type: Wormhole\n" ..
+			"Leads to: Icarus sector" ..
+			"---\n" ..
+			"Stabilised space time tunnel leading to somewhere in Icarus system. Its orbit places it in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
+				riptideAlphaStar:getCallSign() .. " system.\n"
+			):setTargetPosition(49157, 123520) -- nebula next to Speculator 3
+		
+	local wormHoleX, wormHoleY = riptideToIcarusWormHole:getPosition()
+	local wormHoleInitialOrbitAngle = angleFromVectorNorth(wormHoleX, wormHoleY, centerX, centerY) - 90
+	local wormHoleOrbitRadius = distance(wormHoleX, wormHoleY, centerX, centerY)
+	blackHoleOrbitUpdater(riptideToIcarusWormHole, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
+	update_system:addUpdate(riptideToIcarusWormHole, "riptide-icarus wormhole rotation", {
+		update=function(self, obj, delta)
+			if not obj:isValid() then
+				return
+			end
+			obj:setRotation(getScenarioTime() * 10)
+		end
+	})
+	table.insert(objects, riptideToIcarusWormHole)
+
+
+	--- For a scenario; comment/remove if not needed
+	local maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
+		setScanningParameters(2, 3):setDescriptions("Unscanned Arlenian vessel", 
+			"Lifesigns: unsure; check the scanner border readout\n" ..
+			"Life support status: OK\n" ..
+			"Reactor: OK\n" ..
+			"Damage report: engines 0% (field repairs impossible)"
+		):setSystemHealthMax("maneuver", 0):setSystemHealthMax("impulse", 0):setSystemHealthMax("warp", 0):setSystemHealthMax("jumpdrive", 0)
+
+	local maryCelesteX, maryCelesteY = maryCeleste:getPosition()
+	local mcx, mcy = vectorFromAngle(wormHoleInitialOrbitAngle - 2, wormHoleOrbitRadius) --- lagging behind wormhole slightly
+	--- the solution to this puzzle is to tractor Mary Celeste onto slightly lower orbit; it will eventually catch up with the wormhole
+	maryCeleste:setPosition(centerX + mcx, centerY + mcy)
+    maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
+	blackHoleOrbitUpdater(maryCeleste, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
+	update_system:addUpdate(maryCeleste, "mary celesete blinking SOS callsign", {
+		update=function(self, obj, delta)
+			if not obj:isValid() then
+				return
+			end
+			blips = {1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0}
+			currBlip = math.floor(getScenarioTime() * 4) % #blips
+			if blips[currBlip] == 1 then
+				obj:setCallSign("Mary Celeste")
+			else       
+				obj:setCallSign("")
+			end
+		end
+	})
+
+
+	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
+		if not obj:isValid() then
+			return
+		end
+		local nx, ny = obj:getPosition()
+		local angle = angleFromVectorNorth(nx, ny, centerX, centerY)
+		obj:setRotation(angle) --- keep facing towards the central black hole
+
+		if distance(nx, ny, centerX, centerY) < 25000 and getScenarioTime() > self.nextExplosionAt then
+			self.nextExplosionAt = getScenarioTime() + irandom(0, 10)
+
+			local size = irandom(100,1000)
+			local ee = ElectricExplosionEffect():setPosition(nx + irandom(-2000, 2000), ny + irandom(-2000, 2000)):setSize(irandom(100,1000)):setOnRadar(true)
+			local objs = ee:getObjectsInRange(size)
+			for i=1, #objs do
+				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+					local newShields = {}
+					for j=1, objs[i]:getShieldCount() do
+						table.insert(newShields, 0.8 * objs[i]:getShieldLevel(j))
+					end
+					objs[i]:setShields(table.unpack(newShields))
+				end
+			end
+		end
+	end
+
+	-- nebulas which have stable orbits
+	local amount = 100
+	local distMin = 10000
+	local distMax = riptideGammaOrbitRadius
+	for n=1, amount do
+		local angle = random(0, 360)
+		local radius = random(distMin, distMax)
+		local x = centerX + math.cos(angle / 180 * math.pi) * radius
+		local y = centerY + math.sin(angle / 180 * math.pi) * radius
+		local neb = Nebula():setPosition(x, y)
+		blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
+		update_system:addUpdate(neb, "nebula misc", {
+			nextExplosionAt=0,
+			update=nebulaRotationAndFrictionUpdater
+		})
+		table.insert(objects, neb)
+	end
+
+	--- nebulas which are sucked from red giant
+	nebulaSpawner = function(self, obj, delta)
+		local numNebulas = irandom(1, 3)
+		for i=1, numNebulas do
+			local sx, sy = riptideGamma:getPosition()
+
+			local angleToCenter = angleFromVectorNorth(sx, sy, centerX, centerY)
+			local dpx, dpy = vectorFromAngle(angleToCenter,1000)
+
+			local neb = Nebula():setPosition(sx + dpx + irandom(-1000, 1000), sy + dpy + irandom(-1000, 1000))
+
+
+			local thisGravAccel = gravityAcceleration * random(80, 120) -- little bit of jitter so it spreads out nicely
+			--- some tweaking here to get a nice spiral
+			blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec * 0.8, 10000, riptideGammaOrbitRadius, thisGravAccel)	
+			update_system:addUpdate(neb, "nebula misc", {
+				nextExplosionAt=0,
+				update=nebulaRotationAndFrictionUpdater
+			})
+
+			table.insert(objects, neb)
+			neb:onDestroyed(function(obj, instigator)
+				--- remove self from objects
+				for i=1, #objects do
+					if obj == objects[i] then
+						table.remove(objects, i)
+						break
+					end
+				end
+			end)
+		end
+	end
+	update_system:addPeriodicCallback(riptideGamma, nebulaSpawner, 5, 0, 2)
+
+
+	local ret = {
+		destroy = function(self)
+--			removeIcarusColor()
+			for i=1, #self.objects do
+				if self.objects[i] ~= nil then
+					self.objects[i]:destroy()
+				end
+			end
+		end,
+		objects = objects
+	}
+	return ret
 end
 
 function placeTknolgBase()
