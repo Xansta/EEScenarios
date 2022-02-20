@@ -139,7 +139,7 @@ function setConstants()
 	playerFleet=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
-	universe:addAvailableRegion("Riptide Binary Pair", riptideBinarySector,-40005,-280220)
+	universe:addAvailableRegion("Riptide Binary (G67)", riptideBinarySector,-732730, 30101)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(390000,210000) end,-390000, 210000)
 	--Original in the midst of the ghosts near Astron spawn point: 586367, 296408
@@ -14682,7 +14682,10 @@ end
 function riptideBinarySector()
 	local objects = {}
 
-	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(-50005, -290220):
+	local regionCenterX = -742942
+	local regionCenterY = 30096
+
+	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(regionCenterX, regionCenterY):
 		setScanningParameters(2, 3):setDescriptions("Unclassified black hole", 
 			"Mass: 15.3 M Sol\n"..
 			"---\n" ..
@@ -14711,7 +14714,7 @@ function riptideBinarySector()
 		setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(.2,.1,.1):
 		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
 			"Planet type: Hypermassive Jupiter\n" ..
-			"Mass: 232,000 M Earth" ..
+			"Mass: 232,000 M Earth\n" ..
 			"Surface temp. [K]: 8300\n" ..
 			"Composition: 99% Hydrogen, 0.8% Helium, noble gases\n" ..
 			"---\n" ..
@@ -14865,8 +14868,8 @@ function riptideBinarySector()
 		setPlanetSurfaceTexture("planets/moon-1.png"):
 		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
 			"Planet type: Planetoid\n" ..
-			"Mass: 0.0001 M Earth" ..
-			"Composition: 91% Fe, 8.5 Ni, traces of rare earth elements\n" ..
+			"Mass: 0.0001 M Earth\n" ..
+			"Composition: 91% Fe, 8.5% Ni, traces of rare earth elements\n" ..
 			"---\n" ..
 			"The largest planetoid in this system, sitting comfortably in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
 				riptideAlphaStar:getCallSign() .. " system.\n" ..
@@ -14879,7 +14882,7 @@ function riptideBinarySector()
 		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
 			"Anomaly type: Wormhole\n" ..
 			"Leads to: Riptide sector"
-			):setTargetPosition(centerX + 10000, centerY + 10000)-- nebula next to Speculator 3
+			):setTargetPosition(centerX + 10000, centerY)
 	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
 		update=function(self, obj, delta)
 			if not obj:isValid() then
@@ -14889,7 +14892,6 @@ function riptideBinarySector()
 		end
 	})
 	table.insert(objects,icarusToRiptideWormHole)
-
 
 
 	-- local gravityAcceleration = 500000000 -- if 1/x2 used
@@ -14964,7 +14966,7 @@ function riptideBinarySector()
 
 
 
-	local riptideToIcarusWormHole = WormHole():setPosition(centerX + riptideGammaOrbitRadius * math.sqrt(3) / 2, centerY + riptideGammaOrbitRadius / 2):
+	local riptideToIcarusWormHole = WormHole():setPosition(centerX, centerY - riptideGammaOrbitRadius):
 		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
 			"Anomaly type: Wormhole\n" ..
 			"Leads to: Icarus sector" ..
@@ -14994,7 +14996,10 @@ function riptideBinarySector()
 			"Lifesigns: unsure; check the scanner border readout\n" ..
 			"Life support status: OK\n" ..
 			"Reactor: OK\n" ..
-			"Damage report: engines 0% (field repairs impossible)"
+			"Damage report:\n* engines 0% (field repairs impossible)\n" ..
+			"* gravity stabilizers: 0% (field repairs impossible)\n" ..
+			"---\n" ..
+			"Hypothesis: disabled gravity stabilizers is the reason for ship's drift."
 		):setSystemHealthMax("maneuver", 0):setSystemHealthMax("impulse", 0):setSystemHealthMax("warp", 0):setSystemHealthMax("jumpdrive", 0)
 
 	local maryCelesteX, maryCelesteY = maryCeleste:getPosition()
@@ -15036,6 +15041,7 @@ function riptideBinarySector()
 			for i=1, #objs do
 				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
 					local newShields = {}
+					--- TODO: if shields are down, don't apply damage
 					for j=1, objs[i]:getShieldCount() do
 						table.insert(newShields, 0.8 * objs[i]:getShieldLevel(j))
 					end
@@ -15100,7 +15106,6 @@ function riptideBinarySector()
 
 	local ret = {
 		destroy = function(self)
---			removeIcarusColor()
 			for i=1, #self.objects do
 				if self.objects[i] ~= nil then
 					self.objects[i]:destroy()
@@ -37282,12 +37287,14 @@ end
 -- -CUSTOM				F	customButtons
 -- +MOTM				F	mmotmOneOff
 -- +STARRY				F	starryOneOff
+-- +KOSAI				F	kosaiOneOff
 function oneOffs()
 	clearGMFunctions()
 	addGMFunction("-Main From 1-Offs",initialGMFunctions)
 	addGMFunction("-Custom",customButtons)
 	addGMFunction("+MMOTM",mmotmOneOff)
 	addGMFunction("+Starry",starryOneOff)
+	addGMFunction("+Kosai",kosaiOneOff)
 end
 ----------------------------------------------
 --	Custom > Dangerous description grabber  --
@@ -38280,6 +38287,163 @@ function starryChristmas()
 			end
 		end
 	end)
+end
+
+
+----------------------------------
+--	Custom > One-Offs > Kosai  --
+----------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM KOSAI	F	initialGMFunctions
+-- -CUSTOM				F	customButtons
+-- -ONE-OFFS			F	oneOffs
+function kosaiOneOff()
+	clearGMFunctions()
+	addGMFunction("-Main From Kosai",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-One-Offs",oneOffs)
+	addGMFunction("Exhuari Riptide warp stabilizer outpost", function()
+		-- find the wormhole close to these coordinates
+		-- we do this to separate one-off logic from terrain setup logic
+		local wh = nil
+		local objs = getObjectsInRadius(19791, 114868, 10000)
+		for i=1, #objs do
+			if objs[i].typeName == "WormHole" then
+				wh = objs[i]
+				break
+			end
+		end
+		local originalWhTargetX, originalWhTargetY = wh:getTargetPosition()
+		local whx, why = wh:getPosition()
+		wh:setTargetPosition(whx + irandom(-30000, 30000), why + irandom(-30000, 30000))
+
+
+		local stabilizers = {}
+		local numStabilizers = 5
+		local angleSeparation = 360 / numStabilizers
+		for i=1, numStabilizers do
+
+			local dist = 3000
+			local dx, dy = vectorFromAngle(angleSeparation*i, dist)
+
+			local name = string.format("Stabilizer %i", i)
+			local stab = WarpJammer():setPosition(whx + dx, why + dy):setScanningParameters(2, 2):
+				setRadarSignatureInfo(.2,.4,.1):setFaction("Exuari"):
+				setDescriptions("Wormhole stabilizer","Wormhole stabilizer. Exhuari don't have the tech to manufacture these. " ..
+					"It must've been bought from another, more advanced faction (Arlenians?).\n\n" ..
+					"At least 3 are required to stabilize a wormhole."):
+				setCallSign(name):setRange(2000)
+
+			table.insert(stabilizers, stab)
+		end
+
+		update_system:addPeriodicCallback(wh, function(obj)
+			local objs = obj:getObjectsInRange(5000)
+			local stabilizers = {}
+			for i=1, #objs do
+				if objs[i].typeName == "WarpJammer" then
+					table.insert(stabilizers, objs[i])
+				end
+			end
+			local allHuman = true
+			for i=1, #stabilizers do
+				if stabilizers[i]:getFaction() ~= "Human Navy" then
+					allHuman = false
+					break
+				end
+			end
+			if allHuman and #stabilizers >= 3 then
+				obj:setTargetPosition(originalWhTargetX, originalWhTargetY)
+			else
+				obj:setTargetPosition(whx + irandom(-30000, 30000), why + irandom(-30000, 30000))
+			end
+		end, 5, 0, 0)
+
+		CpuShip():setFaction("Exuari"):setTemplate("Nirvana R5A"):setCallSign("T34"):setPosition(19841, 111462):orderDefendLocation(21117, 110714):setImpulseMaxSpeed(140.0):setRotationMaxSpeed(34.6):setBeamWeapon(0, 112, 345, 1200, 2.9, 1.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 112, 15, 1200, 2.9, 1.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 112, 50, 1200, 2.9, 1.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 112, 310, 1200, 2.9, 1.0):setBeamWeaponTurret(3, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Adv. Gunship"):setCallSign("T45"):setPosition(22066, 111280):setShortRangeRadarRange(6500):orderDefendLocation(20352, 110950):setTypeName("Fiend G5"):setImpulseMaxSpeed(107.0):setRotationMaxSpeed(8.9):setJumpDrive(true):setJumpDriveRange(5000.00, 35000.00):setWeaponStorage("Homing", 2):setBeamWeapon(0, 58, 345, 1000, 5.2, 8.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 58, 15, 1000, 5.2, 8.0):setBeamWeaponTurret(1, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Battlestation"):setCallSign("T51"):setPosition(22890, 112829):setShortRangeRadarRange(9000):orderDefendLocation(24043, 112775):setHullMax(123):setHull(123):setImpulseMaxSpeed(42.5):setRotationMaxSpeed(2.7):setBeamWeapon(0, 137, 270, 2500, 6.1, 4.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 137, 270, 2500, 6.0, 4.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 137, 90, 2500, 6.1, 4.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 137, 90, 2500, 6.0, 4.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 137, 270, 2500, 5.9, 4.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 137, 270, 2500, 6.2, 4.0):setBeamWeaponTurret(5, 0, 0, 0):setBeamWeapon(6, 137, 90, 2500, 5.9, 4.0):setBeamWeaponTurret(6, 0, 0, 0):setBeamWeapon(7, 137, 90, 2500, 6.2, 4.0):setBeamWeaponTurret(7, 0, 0, 0):setBeamWeapon(8, 137, 270, 2500, 6.1, 4.0):setBeamWeaponTurret(8, 0, 0, 0):setBeamWeapon(9, 137, 270, 2500, 6.0, 4.0):setBeamWeaponTurret(9, 0, 0, 0):setBeamWeapon(10, 137, 90, 2500, 6.1, 4.0):setBeamWeaponTurret(10, 0, 0, 0):setBeamWeapon(11, 137, 90, 2500, 6.0, 4.0):setBeamWeaponTurret(11, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Starhammer II"):setCallSign("T52"):setPosition(22371, 115530):setShortRangeRadarRange(15000):orderDefendLocation(23760, 116037):setTypeName("Starhammer V"):setImpulseMaxSpeed(121.6):setRotationMaxSpeed(28.1):setShieldsMax(450.00, 350.00, 250.00, 250.00, 350.00):setShields(450.00, 350.00, 250.00, 250.00, 350.00):setWeaponStorageMax("Homing", 20):setWeaponStorage("Homing", 19):setWeaponStorage("EMP", 1):setWeaponStorageMax("HVLI", 36):setWeaponStorage("HVLI", 36):setBeamWeapon(0, 60, 350, 2000, 6.5, 11.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 60, 10, 2000, 6.5, 11.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 60, 340, 1500, 6.5, 11.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 60, 20, 1500, 6.5, 11.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 60, 180, 1500, 6.5, 11.0):setBeamWeaponTurret(4, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Drone"):setCallSign("T31"):setPosition(21425, 112075):orderDefendLocation(20917, 110828):setTypeName("Lite Drone"):setHullMax(20):setHull(20):setImpulseMaxSpeed(243.9):setRotationMaxSpeed(37.5):setBeamWeapon(0, 40, 0, 726, 4.0, 4.8):setBeamWeaponTurret(0, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Piranha F12.M"):setCallSign("T38"):setPosition(15316, 111449):setShortRangeRadarRange(6000):orderDefendLocation(17077, 111446):setTypeName("Piranha F10"):setHullMax(55):setHull(55):setRotationMaxSpeed(11.8):setShieldsMax(50.00, 50.00):setShields(50.00, 50.00):setTubeSize(0,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 10):setWeaponStorage("Homing", 8):setWeaponStorageMax("Nuke", 6):setWeaponStorage("Nuke", 4):setWeaponStorageMax("HVLI", 20):setWeaponStorage("HVLI", 18)
+		CpuShip():setFaction("Exuari"):setTemplate("MU52 Hornet"):setCallSign("T48"):setPosition(16054, 110762):orderDefendLocation(17230, 111688)
+		CpuShip():setFaction("Exuari"):setTemplate("MU52 Hornet"):setCallSign("T35"):setPosition(14218, 115754):setShortRangeRadarRange(5500):orderDefendLocation(14944, 117042):setTypeName("MU55 Hornet"):setHullMax(41):setHull(41):setImpulseMaxSpeed(135.0):setRotationMaxSpeed(29.0):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("Homing", 6):setWeaponStorage("Homing", 5)
+		CpuShip():setFaction("Exuari"):setTemplate("Gunship"):setCallSign("T33"):setPosition(16354, 114669):setShortRangeRadarRange(6500):orderDefendLocation(15226, 115627):setTypeName("Fiend G4"):setImpulseMaxSpeed(74.5):setWarpDrive(true):setWarpSpeed(800.00):setWeaponStorage("Homing", 3)
+		CpuShip():setFaction("Exuari"):setTemplate("Phobos T3"):setCallSign("T44"):setPosition(13290, 116990):orderDefendLocation(14327, 115936):setTypeName("Farco 13"):setRotationMaxSpeed(15.0):setShieldsMax(90.00, 70.00):setShields(90.00, 70.00):setWeaponStorageMax("Homing", 16):setWeaponStorage("Homing", 14):setWeaponStorageMax("HVLI", 30):setWeaponStorage("HVLI", 30):setBeamWeapon(0, 90, -15, 1500, 5.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 90, 15, 1500, 5.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 20, 0, 1800, 5.0, 4.0):setBeamWeaponTurret(2, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Dash"):setCallSign("T55"):setPosition(25444, 115987):setShortRangeRadarRange(5500):orderDefendLocation(24106, 116617):setImpulseMaxSpeed(140.0):setRotationMaxSpeed(24.0):setWeaponStorage("HVLI", 3):setBeamWeapon(0, 46, 355, 1000, 6.0, 7.5):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 46, 5, 1000, 6.0, 7.5):setBeamWeaponTurret(1, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Blade"):setCallSign("T30"):setPosition(24494, 114834):orderDefendLocation(25032, 116212):setHullMax(34):setHull(34):setImpulseMaxSpeed(250.5):setRotationMaxSpeed(67.5):setBeamWeapon(0, 67, 0, 1000, 4.0, 4.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 67, 0, 1000, 4.0, 4.0):setBeamWeaponTurret(1, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Gunship"):setCallSign("T42"):setPosition(24678, 113409):setShortRangeRadarRange(6500):orderDefendLocation(24920, 111949):setTypeName("Fiend G3"):setImpulseMaxSpeed(99.5):setRotationMaxSpeed(8.3):setJumpDrive(true):setJumpDriveRange(5000.00, 35000.00):setWeaponStorage("Homing", 3):setBeamWeapon(0, 50, 345, 1137, 6.0, 8.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 50, 15, 1137, 6.0, 8.0):setBeamWeaponTurret(1, 0, 0, 0)	
+		CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("T5"):orderRoaming():setPosition(15886, 114322):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 9657, 5.1, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 9657, 5.1, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 9657, 5.1, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 9657, 5.1, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("T6"):orderRoaming():setPosition(25257, 113065):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0)
+		CpuShip():setFaction("Exuari"):setTemplate("Garbage Freighter 3"):setCallSign("T1"):setPosition(22063, 110994):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Physics Research"):setImpulseMaxSpeed(65.0):setRotationMaxSpeed(10.0):setShieldsMax(80.00, 80.00):setShields(80.00, 80.00)
+	end)
+	addGMFunction("Lafrina ktlitan hive", function()
+		local d1 = CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Destroyer"):setCallSign("Modliszka 1"):setPosition(-341191, 292403):orderDefendLocation(-339856, 291764):setWeaponStorage("Homing", 19)
+		CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Drone"):setCallSign("Karaluch 1"):setPosition(-341573, 289154):orderDefendTarget(d1)
+		CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Drone"):setCallSign("Karaluch 2"):setPosition(-341273, 289150):orderDefendTarget(d1)
+		CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Worker"):setCallSign("Gnojak 1"):setPosition(-342740, 294780):orderDefendLocation(-344210, 294602)
+		CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Worker"):setCallSign("Gnojak 2"):setPosition(-341906, 295395):orderDefendLocation(-343355, 295696)
+		local d2 = CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Destroyer"):setCallSign("Modliszka 2"):setPosition(-350301, 297996):orderDefendLocation(-348821, 297981):setWeaponStorage("Homing", 22)
+		CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Drone"):setCallSign("Mrowka 1"):setPosition(-348178, 295709):orderDefendTarget(d2)
+		CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Drone"):setCallSign("Mrowka 2"):setPosition(-348428, 295465):orderDefendTarget(d2)
+
+		local queen = CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Queen"):setCallSign("Krolowa"):setPosition(-343210, 298220):orderDefendLocation(-343979, 295282):setWeaponStorage("EMP", 2)
+		queen:setDescriptions("Ktlitan queen", "This Ktlitan queen decided that the heat from Balinor star would provide energy for her new hive. \n" ..
+			"Looks like the queen is in her reproductive period, constantly producing offspring drones. \nNote: newly spawned drones can't survive far " ..
+			"from the queen (est. 20,000 units).")
+
+		queen.maxEscorts = 10
+		queen.lastEscortId = 1
+		queen.escorts = {}
+		update_system:addPeriodicCallback(queen, function(obj)
+			if not obj:isValid() then
+				return
+			end
+			if not obj:areEnemiesInRange(obj:getLongRangeRadarRange()) then
+				return
+			end
+			local qx, qy = obj:getPosition()
+
+			while true do
+				local removed = false
+				for i=1, #obj.escorts do
+					print(i)
+					-- local ex, ey  = obj.escorts[i]:getPosition()
+					-- print(ex, ey, qx, qy)
+					if not obj.escorts[i]:isValid() then
+						print("Invalid")
+						table.remove(obj.escorts, i)
+						removed = true
+						break
+
+					elseif distance(obj.escorts[i], obj) > 20000 then
+						ExplosionEffect():setPosition(obj.escorts[i]:getPosition()):setSize(500)
+						obj.escorts[i]:destroy()
+						table.remove(obj.escorts, i)
+						removed = true
+						break
+					end
+				end
+				if not removed then
+					break
+				end
+			end
+
+			if #obj.escorts < obj.maxEscorts then
+				local qh = obj:getRotation()
+				local dx, dy = vectorFromAngle(-qh, 100)
+
+				local template = "Ktlitan Drone"
+				if irandom(0, 100) < 50 then
+					template = "Ktlitan Worker"
+				end
+				local newEscort = CpuShip():setFaction("Ktlitans"):setTemplate(template):setCallSign(string.format("Robotnica %i", obj.lastEscortId)):setPosition(qx + dx, qy + dy):setRotation(-qh):orderDefendTarget(obj)
+				obj.lastEscortId = obj.lastEscortId + 1
+				table.insert(obj.escorts, newEscort)
+			end
+
+		end, 10, 0, 5)
+	end)
+
 end
 
 --	Inserted for future enhancement. Not hooked in yet.
