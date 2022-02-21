@@ -19,6 +19,8 @@
 -- look at how onGMClick has been used and pick one of improve on gm click | improve sandbox code
 -- eris at long last
 
+-- ideas: PDC (enemy and player), Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health/hack level
+
 require("utils.lua")
 require("sandbox_science_database.lua")
 require("utils_customElements.lua")
@@ -113,7 +115,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.10.3"
+	scenario_version = "5.11.0"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -184,6 +186,7 @@ function setConstants()
 	enhancement_warning_message = true
 	spiky_spin_ships = {}
 	impulse_boost_ships = {}
+	pdc_ships = {}
 
 	ship_template = {	--ordered by relative strength
 		-- unarmed
@@ -873,15 +876,15 @@ function setConstants()
 	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,"W")
 	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,"J")
 	addPlayerShip("Vision",		"Era",			createPlayerShipVision		,"W")
-	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Watson",		"Holmes",		createPlayerShipWatson		,"W")
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
+	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Swoop")
 	makePlayerShipActive("Cobra")
 	makePlayerShipActive("Manxman")
 	makePlayerShipActive("Outcast")
-	makePlayerShipActive("Spike")
+	makePlayerShipActive("Quill")
 	makePlayerShipActive("Ignite")
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -24148,6 +24151,13 @@ function addEnhancementToScienceDatabase(enhancement_type)
 			spiky_spin_db = queryScienceDatabase("Ships","Enhancements","Spiky Spin")
 			spiky_spin_db:setLongDescription("If a ship is equipped with Spiky Spin, they can spike up the performance of their maneuvering systems temporarily under combat conditions. This allows them to spin rapidly to bring weapons to bear on a desired target. The number given in the Science description represents the likelihood that the spike will function when desired.")
 		end
+	elseif enhancement_type == "Point Defense Cannon" then
+		local pdc_db = queryScienceDatabase("Ships","Enhancements","Point Defense Cannon")
+		if pdc_db == nil then
+			enhancement_db:addEntry("Point Defense Cannon")
+			pdc_db = queryScienceDatabase("Ships","Enhancements","Point Defense Cannon")
+			pdc_db:setLongDescription("If a ship is equipped with a Point Defense Cannon, it can shoot down incoming missiles if the targeting computer can get a lock. The factor shown represents the percentage chance of locking on to a missile based on the targeting computer's capability.")
+		end
 	end
 end
 function setShipEnhancement(ship)
@@ -24160,6 +24170,15 @@ function setShipEnhancement(ship)
 				ship.shield_drain_beam_factor = beam_factors[math.random(1,#beam_factors)]
 				table.insert(enhancements,string.format("Shield Drain Beam. Factor:%i",ship.shield_drain_beam_factor))
 				addEnhancementToScienceDatabase("Shield Drain Beam")
+			end
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			if ship:getBeamWeaponRange(0) > 1 then
+				local pdc_factors = {20,30,50,75,90}
+				ship.pdc_factor = pdc_factors[math.random(1,#pdc_factors)]
+				table.insert(pdc_ships,ship)
+				table.insert(enhancements,string.format("Point Defense Cannon. Factor %i%%",ship.pdc_factor))
+				addEnhancementToScienceDatabase("Point Defense Cannon")
 			end
 		end
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
@@ -28111,27 +28130,40 @@ function setSpecialsOnNPS()
 		setSpecialsOnNPS()
 	end)
 end
+function selectSpecialWeapons()
+	clearGMFunctions()
+	addGMFunction("-Main from special weapons",initialGMFunctions)
+	addGMFunction("-Order Ship",orderShip)
+	addGMFunction("-Specials",setSpecialsOnNPS)
+	addGMFunction("-Select Special",selectSpecial)
+	local button_label = "+Shld Drain Beams"
+	if special_ship.shield_drain_beam_factor ~= nil then
+		button_label = string.format("%s* %i",button_label,special_ship.shield_drain_beam_factor)
+	end
+	addGMFunction(button_label,setShieldDrainBeamFactor)
+	button_label = "+Skip Beam"
+	if special_ship.skip_beam_factor ~= nil then
+		button_label = string.format("%s* %i",button_label,special_ship.skip_beam_factor)
+	end
+	addGMFunction(button_label,setSkipBeamFactor)
+	button_label = "+PDC"
+	if special_ship.pdc_factor ~= nil then
+		button_label = string.format("%s* %i",button_label,special_ship.pdc_factor)
+	end
+	addGMFunction(button_label,setPdcFactor)
+end
 function selectSpecial()
 	clearGMFunctions()
 	addGMFunction("-Main from select special",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
 	addGMFunction("-Specials",setSpecialsOnNPS)
 	addGMFunction(string.format("+Change from %s",special_ship:getCallSign()),changeSpecialShip)
-	local button_label = "+Shld Drain Beams"
-	if special_ship.shield_drain_beam_factor ~= nil then
-		button_label = string.format("%s* %i",button_label,special_ship.shield_drain_beam_factor)
-	end
-	addGMFunction(button_label,setShieldDrainBeamFactor)
-	button_label = "+Boost Impulse"
+	addGMFunction("+Special Weapons",selectSpecialWeapons)
+	local button_label = "+Boost Impulse"
 	if special_ship.boost_impulse_factor ~= nil then
 		button_label = string.format("%s* %s",button_label,special_ship.boost_impulse_factor)
 	end
 	addGMFunction(button_label,setBoostImpulseFactor)
-	button_label = "+Skip Beam"
-	if special_ship.skip_beam_factor ~= nil then
-		button_label = string.format("%s* %i",button_label,special_ship.skip_beam_factor)
-	end
-	addGMFunction(button_label,setSkipBeamFactor)
 	button_label = "Shield Freq Adjust"
 	if special_ship.adjust_shield_frequency_automatically ~= nil and special_ship.adjust_shield_frequency_automatically then
 		button_label = string.format("%s*",button_label)
@@ -28413,6 +28445,7 @@ function setShieldDrainBeamFactor()
 	if special_ship ~= nil then
 		clearGMFunctions()
 		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
+		addGMFunction("-Special Weapons",selectSpecialWeapons)
 		local button_label = "No Shield Drain"
 		if special_ship.shield_drain_beam_factor == nil then
 			button_label = button_label .. "*"
@@ -28453,6 +28486,7 @@ function setSkipBeamFactor()
 	if special_ship ~= nil then
 		clearGMFunctions()
 		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
+		addGMFunction("-Special Weapons",selectSpecialWeapons)
 		local button_label = "No Skip Beam"
 		if special_ship.skip_beam_factor == nil then
 			button_label = button_label .. "*"
@@ -28474,6 +28508,41 @@ function setSkipBeamFactor()
 				setSpecialDescription(special_ship)
 				addEnhancementToScienceDatabase("Skip Beam")
 				setSkipBeamFactor()
+			end)
+		end
+	else
+		addGMMessage("Must select CPU ship. No action taken")
+		selectSpecial()
+	end
+end
+function setPdcFactor()
+	if special_ship ~= nil then
+		clearGMFunctions()
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
+		addGMFunction("-Special Weapons",selectSpecialWeapons)
+		local button_label = "No PDC"
+		if special_ship.pdc_factor == nil then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			string.format("")
+			special_ship.pdc_factor = nil
+			setSpecialDescription(special_ship)
+			setPdcFactor()
+		end)
+		local pdc_factors = {20,30,50,75,90}
+		for _, factor in ipairs(pdc_factors) do
+			button_label = string.format("PDC Factor: %i",factor)
+			if special_ship.pdc_factor ~= nil and special_ship.pdc_factor == factor then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				string.format("")
+				special_ship.pdc_factor = factor
+				table.insert(pdc_ships,special_ship)
+				setSpecialDescription(special_ship)
+				addEnhancementToScienceDatabase("Point Defense Cannon")
+				setPdcFactor()
 			end)
 		end
 	else
@@ -28780,6 +28849,13 @@ function setSpecialDescription(ship)
 			special_description = string.format("Spiky Spin %i.",ship.spiky_spin)
 		else
 			special_description = string.format("%s Spiky Spin %i.",special_description,ship.spiky_spin)
+		end
+	end
+	if ship.pdc_factor ~= nil then
+		if special_description == "" then
+			special_description = string.format("Factor %i%% Point Defense Cannons.",ship.pdc_factor)
+		else
+			special_description = string.format("%s Factor %i%% Point Defense Cannons.",special_description,ship.pdc_factor)
 		end
 	end
 	if special_description == "" then
@@ -43583,6 +43659,57 @@ function updateInner(delta)
 			ship.boost_impulse_active = nil
 			ship.boosk_impulse_cooling = nil
 			table.remove(impulse_boost_ships,index)
+			break
+		end
+	end
+	for index, ship in pairs(pdc_ships) do
+		if ship ~= nil and ship:isValid() then
+			print(string.format("pdc ship: %s",ship:getCallSign()))
+			local template_name = ship:getTypeName()
+			if template_name == nil then
+				print("template name for item in pdc ship list cannot be determined")
+			end
+			local base_distance = shipTemplateDistance[template_name]
+			if base_distance == nil then
+				print(string.format("Cannot determine the ship size based on the template name. Check the shipTemplateDistance table for template %s",template_name))
+			else
+				local obj_list = ship:getObjectsInRange(base_distance + 500)
+				for _, obj in ipairs(obj_list) do
+					local obj_type = obj.typeName
+					if obj_type == "HomingMissile" or obj_type == "HVLI" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+						if obj.pdc_cycle == nil then
+							local adjusted_factor = ship.pdc_factor * ship:getSystemHealth("beamweapons")
+							obj.pdc_success = (random(1,100) <= adjusted_factor)
+							obj.pdc_cycle = {}
+							local attempts = math.random(1,8)
+							local trigger_time = getScenarioTime()
+							local interval = 1/attempts
+							for i=1,attempts do
+								obj.pdc_cycle[i] = {time = trigger_time, done = false, len = interval*.75}
+								trigger_time = trigger_time + interval
+							end
+						end
+						local current_time = getScenarioTime()
+						local completed_shots = true
+						for _, shot in ipairs(obj.pdc_cycle) do
+							if not shot.done then
+								if current_time >= shot.time then
+									BeamEffect():setSource(ship,0,0,0):setTarget(obj,0,0):setBeamFireSoundPower(2):setRing(false):setDuration(shot.len)
+									shot.done = true
+								end
+								completed_shots = false
+							end
+						end
+						if completed_shots and obj.pdc_success then
+							local exp_x, exp_y = obj:getPosition()
+							ExplosionEffect():setPosition(exp_x,exp_y):setSize(40):setOnRadar(true)
+							obj:destroy()
+						end
+					end
+				end
+			end
+		else
+			table.remove(pdc_ships,index)
 			break
 		end
 	end
