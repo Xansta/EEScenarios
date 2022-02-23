@@ -6013,6 +6013,7 @@ function icarusSector()
 end
 function createIcarusColor()
 	icarus_color = true
+	icarusWormholeRiptideStuff = {}
 	icarusDefensePlatforms = {}
 	icarusMines = {}
 	icarus_artifacts = createIcarusArtifacts()
@@ -6059,9 +6060,45 @@ function createIcarusColor()
 	end
 	--planetBespin = Planet():setPosition(40000,5000):setPlanetRadius(3000):setDistanceFromMovementPlane(-2000):setCallSign("Donflist")
 	--planetBespin:setPlanetSurfaceTexture("planets/gas-1.png"):setAxialRotationTime(300):setDescription("Mining and Gambling")
+
+	local icarusToRiptideWormHole = WormHole():setPosition(19778, 114698): --- next to Speculator 3
+		setScanningParameters(2, 3):setDescriptions("Wormhole leading to Riptide Binary system", 
+			"Anomaly type: Wormhole"):setTargetPosition(-722730, 30101)
+	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
+		update=function(self, obj, delta)
+			if not obj:isValid() then
+				return
+			end
+			obj:setRotation(getScenarioTime() * 5)
+		end
+	})
+	table.insert(icarusWormholeRiptideStuff, icarusToRiptideWormHole)
+
+	local whx, why = icarusToRiptideWormHole:getPosition()
+	local stabilizers = {}
+	local numStabilizers = 5
+	local angleSeparation = 360 / numStabilizers
+	for i=1, numStabilizers do
+		local dist = 3000
+		local dx, dy = vectorFromAngle(angleSeparation*i, dist)
+
+		local name = string.format("Stabilizer %i", i)
+		local stab = WarpJammer():setPosition(whx + dx, why + dy):setScanningParameters(2, 2):
+			setRadarSignatureInfo(.2,.4,.1):setFaction("Human Navy"):
+			setDescriptions("Wormhole stabilizer","Wormhole stabilizer. Exhuari don't have the tech to manufacture these. " ..
+				"It must've been bought from another, more advanced faction (Arlenians?).\n\n" ..
+				"At least 3 are required to stabilize a wormhole."):
+			setCallSign(name):setRange(2000)
+		table.insert(icarusWormholeRiptideStuff, stab)
+	end
 end
 function removeIcarusColor()
 	icarus_color = false
+	if icarusWormholeRiptideStuff ~= nil then
+		for _, thing in pairs(icarusDefensePlatforms) do
+			thing:destroy()
+		end
+	end
 	if icarusDefensePlatforms ~= nil then
 		for _,dp in pairs(icarusDefensePlatforms) do
 			dp:destroy()
@@ -14877,21 +14914,6 @@ function riptideBinarySector()
 			)
 	table.insert(objects, riptideDelta)
 
-
-	local icarusToRiptideWormHole = WormHole():setPosition(19778, 114698): --- next to Speculator 3
-		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
-			"Anomaly type: Wormhole\n" ..
-			"Leads to: Riptide sector"
-			):setTargetPosition(centerX + 10000, centerY)
-	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
-		update=function(self, obj, delta)
-			if not obj:isValid() then
-				return
-			end
-			obj:setRotation(getScenarioTime() * 5)
-		end
-	})
-	table.insert(objects,icarusToRiptideWormHole)
 
 	local gravityAcceleration = 500000
 	local slowOrbitDegPerSec = 360 / riptideGammaOrbitPeriod
