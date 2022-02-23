@@ -180,7 +180,7 @@ function setConstants()
 	revert_timer = revert_timer_interval
 	plotRevert = revertWait
 	tractor_sound = "sfx/emp_explosion.wav"
-	tractor_sound_power = .25
+	tractor_sound_power = .05
 	sensor_impact = 1	--normal
 	ship_enhancement_factor = 1		--1 is normal (rare)
 	enhancement_warning_message = true
@@ -14682,8 +14682,8 @@ end
 function riptideBinarySector()
 	local objects = {}
 
-	local regionCenterX = -742942
-	local regionCenterY = 30096
+	local regionCenterX = -740031
+	local regionCenterY = 19946
 
 	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(regionCenterX, regionCenterY):
 		setScanningParameters(2, 3):setDescriptions("Unclassified black hole", 
@@ -14893,9 +14893,7 @@ function riptideBinarySector()
 	})
 	table.insert(objects,icarusToRiptideWormHole)
 
-
-	-- local gravityAcceleration = 500000000 -- if 1/x2 used
-	local gravityAcceleration = 5000 -- if 1/x used
+	local gravityAcceleration = 500000
 	local slowOrbitDegPerSec = 360 / riptideGammaOrbitPeriod
 	local fastOrbitDegPerSec = 30
 
@@ -14903,21 +14901,28 @@ function riptideBinarySector()
 		if not obj:isValid() then
 			return
 		end
+
 		-- 1/x decay
 		local a = (minSpeed - maxSpeed) * (maxSpeedDistance * minSpeedDistance) / (minSpeedDistance - maxSpeedDistance)
 		local b = maxSpeed - a / minSpeedDistance
 	
+		local currentDistance = distance(obj, centerX, centerY)
+
 		local objX, objY = obj:getPosition()
-		local orbitAngle = angleFromVectorNorth(objX, objY, centerX, centerY)
+		local initialAngle = angleFromVectorNorth(objX, objY, centerX, centerY)
+
 		local update_data = {
+			startTime = getScenarioTime(),
 			centerX = centerX,
 			centerY = centerY,
-			currentDistance = distance(obj, centerX, centerY),
+			expectedPosX = objX,
+			expectedPosY = objY,
+			initialAngle = initialAngle,
+			currentDistance = currentDistance,
 			minSpeed = minSpeed,
 			maxSpeed = maxSpeed,
 			minSpeedDistance = minSpeedDistance,
 			maxSpeedDistance = maxSpeedDistance,
-			orbitAngle = orbitAngle,
 			a = a,
 			b = b,
 			gravityAcceleration = gravityAcceleration,
@@ -14926,39 +14931,53 @@ function riptideBinarySector()
 			},
 			update = function (self, obj, delta)
 
-				local actualX, actualY = obj:getPosition()
-				local actualOrbitAngle = angleFromVectorNorth(actualX, actualY, centerX, centerY)
-				if actualOrbitAngle ~= self.orbitAngle then
-					--- somebody changed the angle somehow (e.g. tractor or GM), use the new value
-					self.orbitAngle = actualOrbitAngle
-				end
-				local actualDistance = distance(actualX, actualY, centerX, centerY)
-				if actualDistance ~= self.currentDistance then
-					--- somebody changed the distance somehow (e.g. tractor or GM), use the new value
-					self.currentDistance = actualDistance
-				end
-
 				if self.currentDistance > 2*maxSpeedDistance then
 					--- outside sphere of influence
 					return
 				end
 				
-				local orbitSpeed = a / (self.currentDistance) + b
+				local orbitSpeedDegPerSec = self.a / (self.currentDistance) + self.b
+				orbitSpeedDegPerSec = math.min(orbitSpeedDegPerSec, self.maxSpeed)
+				orbitSpeedDegPerSec = math.max(orbitSpeedDegPerSec, self.minSpeed)
 
-				orbitSpeed = math.min(orbitSpeed, self.maxSpeed)
-				orbitSpeed = math.max(orbitSpeed, self.minSpeed)
+				local period = 360 / orbitSpeedDegPerSec
 
-				self.orbitAngle = (self.orbitAngle + (orbitSpeed*delta)) % 360
-
-				-- local orbit_decay = gravityAcceleration / (self.currentDistance * self.currentDistance)
-				local orbit_decay = gravityAcceleration / (self.currentDistance)
-				if orbit_decay > self.maxSpeed then
-					orbit_decay = self.maxSpeed
-				end
-				self.currentDistance = self.currentDistance - orbit_decay
+				local stime = getScenarioTime()
 				
-				local dx, dy = vectorFromAngleNorth(self.orbitAngle, self.currentDistance)
+				local newObjX, newObjY = obj:getPosition()
+				local orbitDecay = delta * gravityAcceleration / (self.currentDistance)
+				if orbitDecay > 0 then
+					if orbitDecay > self.maxSpeed then
+						orbitDecay = self.maxSpeed
+					end
+					self.currentDistance = self.currentDistance - orbitDecay
+
+					--- orbit radius changed, reset phase
+					self.initialAngle = angleFromVectorNorth(newObjX, newObjY, self.centerX, self.centerY)
+					self.startTime = stime - delta --- why subtract delta, see below
+				else	
+					--- we can't handle orbit decay and external perturbations at the same time (couldn't get it to work)
+					local posDeviation = distance(newObjX, newObjY, self.expectedPosX, self.expectedPosY)
+					if posDeviation > 0.1 then
+						--- orbit radius changed, reset phase
+						self.initialAngle = angleFromVectorNorth(newObjX, newObjY, self.centerX, self.centerY)
+						self.currentDistance = distance(newObjX, newObjY, self.centerX, self.centerY)
+						--- not completely sure why but thanks to subtracting the delta, the orbital movement is "added" onto external perturbations.
+						self.startTime = stime - delta 
+					end
+				end
+
+				if self.currentDistance < 0 then
+					self.currentDistance = 0
+				end
+
+				local orbitAngleDeg = self.initialAngle + 360 * (stime - self.startTime) / period
+
+				local dx, dy = vectorFromAngleNorth(orbitAngleDeg, self.currentDistance)
 				obj:setPosition(centerX + dx, centerY + dy)
+
+				self.expectedPosX = centerX + dx
+				self.expectedPosY = centerY + dy
 			end
 		}
 		update_system:addUpdate(obj, "riptide accretion disk updater", update_data)
@@ -14988,7 +15007,7 @@ function riptideBinarySector()
 		end
 	})
 	table.insert(objects, riptideToIcarusWormHole)
-
+	
 
 	--- For a scenario; comment/remove if not needed
 	local maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
@@ -15030,10 +15049,40 @@ function riptideBinarySector()
 		end
 		local nx, ny = obj:getPosition()
 		local angle = angleFromVectorNorth(nx, ny, centerX, centerY)
-		obj:setRotation(angle) --- keep facing towards the central black hole
+		obj:setRotation(obj.facingAngle + angle) --- keep facing towards the central black hole
 
 		if distance(nx, ny, centerX, centerY) < 25000 and getScenarioTime() > self.nextExplosionAt then
-			self.nextExplosionAt = getScenarioTime() + irandom(0, 10)
+			local shipInFrictionArea = false
+			local objs = getObjectsInRadius(centerX, centerY, 30000)
+			for i=1, #objs do
+				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+					shipInFrictionArea = true
+					break
+				end
+			end
+
+			if shipInFrictionArea then
+				self.nextExplosionAt = getScenarioTime() + irandom(0, 10)
+			else 
+				--- resource optimization (apparently there is a memory leak when spawning explosions)
+				-- obviously this isn't a fix, but let's spawn explosions less frequently when "noone is there to see it"
+				self.nextExplosionAt = getScenarioTime() + irandom(0, 100)
+			end
+
+			local shipInNebula = false
+			local objs = obj:getObjectsInRange(5000)
+			for i=1, #objs do
+				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+					shipInNebula = true
+					break
+				end
+			end
+			if not shipInNebula then
+				--- lower chance of spawning if no ship in this particular nebula
+				if irandom(0, 100) < 70 then
+					return
+				end
+			end
 
 			local size = irandom(100,1000)
 			local ee = ElectricExplosionEffect():setPosition(nx + irandom(-2000, 2000), ny + irandom(-2000, 2000)):setSize(irandom(100,1000)):setOnRadar(true)
@@ -15041,11 +15090,12 @@ function riptideBinarySector()
 			for i=1, #objs do
 				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
 					local newShields = {}
-					--- TODO: if shields are down, don't apply damage
-					for j=1, objs[i]:getShieldCount() do
-						table.insert(newShields, 0.8 * objs[i]:getShieldLevel(j))
+					if objs[i]:getShieldsActive() then
+						for j=1, objs[i]:getShieldCount() do
+							table.insert(newShields, 0.8 * objs[i]:getShieldLevel(j))
+						end
+						objs[i]:setShields(table.unpack(newShields))
 					end
-					objs[i]:setShields(table.unpack(newShields))
 				end
 			end
 		end
@@ -15061,6 +15111,7 @@ function riptideBinarySector()
 		local x = centerX + math.cos(angle / 180 * math.pi) * radius
 		local y = centerY + math.sin(angle / 180 * math.pi) * radius
 		local neb = Nebula():setPosition(x, y)
+		neb.facingAngle = irandom(0, 360)
 		blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
 		update_system:addUpdate(neb, "nebula misc", {
 			nextExplosionAt=0,
@@ -15070,42 +15121,48 @@ function riptideBinarySector()
 	end
 
 	--- nebulas which are sucked from red giant
-	nebulaSpawner = function(self, obj, delta)
+	nebulaSpawner = function(obj, objectsRef)
 		local numNebulas = irandom(1, 3)
 		for i=1, numNebulas do
 			local sx, sy = riptideGamma:getPosition()
 
-			local angleToCenter = angleFromVectorNorth(sx, sy, centerX, centerY)
-			local dpx, dpy = vectorFromAngle(angleToCenter,1000)
+			local angleToCenter = angleFromVectorNorth(centerX, centerY, sx, sy)
+			local dpx, dpy = vectorFromAngleNorth(angleToCenter, 1000)
 
-			local neb = Nebula():setPosition(sx + dpx + irandom(-1000, 1000), sy + dpy + irandom(-1000, 1000))
-
+			local neb = Nebula():setPosition(sx + dpx + irandom(-500, 500), sy + dpy + irandom(-500, 500))
+			neb.facingAngle = irandom(0, 360)
 
 			local thisGravAccel = gravityAcceleration * random(80, 120) -- little bit of jitter so it spreads out nicely
 			--- some tweaking here to get a nice spiral
-			blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec * 0.8, 10000, riptideGammaOrbitRadius, thisGravAccel)	
+			blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 10000, riptideGammaOrbitRadius, thisGravAccel)
 			update_system:addUpdate(neb, "nebula misc", {
 				nextExplosionAt=0,
 				update=nebulaRotationAndFrictionUpdater
 			})
 
-			table.insert(objects, neb)
+			table.insert(objectsRef, neb)
 			neb:onDestroyed(function(obj, instigator)
 				--- remove self from objects
-				for i=1, #objects do
-					if obj == objects[i] then
-						table.remove(objects, i)
+				-- well, not really remove, because it messes up the destroy hook of the region
+				-- but set as nil to conserve memory (I hope)
+				for i=1, #objectsRef do
+					if obj == objectsRef[i] then
+						objectsRef[i] = nil
 						break
 					end
 				end
 			end)
 		end
 	end
-	update_system:addPeriodicCallback(riptideGamma, nebulaSpawner, 5, 0, 2)
+	update_system:addPeriodicCallback(riptideGamma, nebulaSpawner, 5, 0, 2, objects)
 
+	print("[Riptide Binary] starting objects", #objects)
 
 	local ret = {
 		destroy = function(self)
+			print("[Riptide Binary] removing objects", #self.objects)
+
+			lastCount = #self.objects
 			for i=1, #self.objects do
 				if self.objects[i] ~= nil then
 					self.objects[i]:destroy()
