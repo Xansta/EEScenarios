@@ -1914,7 +1914,7 @@ function updateSystem:addPatrol(obj, patrol_points, patrol_point_index, patrol_c
 	}
 	self:addUpdate(obj,"patrol",update_data)
 end
-function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_time, random_jitter, data)
+function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_time, random_jitter)
 	-- TODO - currently only one periodic function can be on a update object, this probably should be fixed
 	-- the callback is called every period seconds, it can be called multiple times if delta is big or period is small
 	-- it is undefined if called with an exact amount of delta == period as to if the callback is called that update or not
@@ -1936,14 +1936,13 @@ function updateSystem:addPeriodicCallback(obj, callback, period, accumulated_tim
 			{name = "period" , fixedAdjAmount=1},
 			{name = "accumulated_time", fixedAdjAmount=1}
 		},
-		data = data,
 		update = function (self,obj,delta)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(delta)=="number")
 			self.accumulated_time = self.accumulated_time + delta
 			if self.accumulated_time > self.period then
-				self.callback(obj, data)
+				self.callback(obj)
 				self.accumulated_time = self.accumulated_time - self.period - random(0,self.random_jitter)
 				-- we could do this via a loop
 				-- or via calling back into this own function

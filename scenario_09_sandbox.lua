@@ -180,7 +180,7 @@ function setConstants()
 	revert_timer = revert_timer_interval
 	plotRevert = revertWait
 	tractor_sound = "sfx/emp_explosion.wav"
-	tractor_sound_power = .05
+	tractor_sound_power = .25
 	sensor_impact = 1	--normal
 	ship_enhancement_factor = 1		--1 is normal (rare)
 	enhancement_warning_message = true
@@ -6063,89 +6063,21 @@ function createIcarusColor()
 end
 function removeIcarusColor()
 	icarus_color = false
-	if icarusWormholeRiptideStuff ~= nil then
-		for _, thing in pairs(icarusWormholeRiptideStuff) do
-			thing:destroy()
-		end
-	end
-	icarusWormholeRiptideStuff = nil
-	if icarusDefensePlatforms ~= nil then
-		for _,dp in pairs(icarusDefensePlatforms) do
-			dp:destroy()
-		end
-	end
-	icarusDefensePlatforms = nil
-	if icarusMines ~= nil then
-		for _,m in pairs(icarusMines) do
-			m:destroy()
-		end
-	end
-	icarusMines = nil
-	if icarus_artifacts ~= nil then
-		for _,ia in pairs(icarus_artifacts) do
-			ia:destroy()
-		end
-	end
-	if macassaAsteroids ~= nil then
-		for _,a in pairs(macassaAsteroids) do
-			a:destroy()
-		end
-	end
-	macassaAsteroids = nil
-	if aquariusAsteroids ~= nil then
-		for _,a in pairs(aquariusAsteroids) do
-			a:destroy()
-		end
-	end
-	aquariusAsteroids = nil
-	if cindyFollyAsteroids ~= nil then
-		for _,a in pairs(cindyFollyAsteroids) do
-			a:destroy()
-		end
-	end
-	cindyFollyAsteroids = nil
-	if H0_to_K2_asteroids ~= nil then
-		for _,a in pairs(H0_to_K2_asteroids) do
-			a:destroy()
-		end
-	end
-	H0_to_K2_asteroids = nil
-	if J4_to_L8_asteroids ~= nil then
-		for _,a in pairs(J4_to_L8_asteroids) do
-			a:destroy()
-		end
-	end
-	J4_to_L8_asteroids = nil
-	if H1_to_I2_mines ~= nil then
-		for _,a in pairs(H1_to_I2_mines) do
-			a:destroy()
-		end
-	end
-	H1_to_I2_mines = nil
-	if J0_to_K0_nebulae ~= nil then
-		for _,a in pairs(J0_to_K0_nebulae) do
-			a:destroy()
-		end
-	end
-	J0_to_K0_nebulae = nil
-	if J4_to_L8_nebulae ~= nil then
-		for _,a in pairs(J4_to_L8_nebulae) do
-			a:destroy()
-		end
-	end
-	J4_to_L8_nebulae = nil
-	if borlanFeatures ~= nil then
-		for _,a in pairs(borlanFeatures) do
-			a:destroy()
-		end
-	end
-	borlanFeatures = nil
-	if finneganFeatures ~= nil then
-		for _,a in pairs(finneganFeatures) do
-			a:destroy()
-		end
-	end
-	finneganFeatures = nil
+	icarusWormholeRiptideStuff = destroyEEtable(icarusWormholeRiptideStuff)
+	icarusDefensePlatforms = destroyEEtable(icarusDefensePlatforms)
+	icarusMines = destroyEEtable(icarusMines)
+	icarus_artifacts = destroyEEtable(icarus_artifacts)
+	macassaAsteroids = destroyEEtable(macassaAsteroids)
+	icarusWormholeRiptideStuff = destroyEEtable(icarusWormholeRiptideStuff)
+	aquariusAsteroids = destroyEEtable(aquariusAsteroids)
+	cindyFollyAsteroids = destroyEEtable(cindyFollyAsteroids)
+	H0_to_K2_asteroids = destroyEEtable(H0_to_K2_asteroids)
+	J4_to_L8_asteroids = destroyEEtable(J4_to_L8_asteroids)
+	H1_to_I2_mines = destroyEEtable(H1_to_I2_mines)
+	J0_to_K0_nebulae = destroyEEtable(J0_to_K0_nebulae)
+	J4_to_L8_nebulae = destroyEEtable(J4_to_L8_nebulae)
+	borlanFeatures = destroyEEtable(borlanFeatures)
+	finneganFeatures = destroyEEtable(finneganFeatures)
 	if icarusStations ~= nil then
 		for _,s in pairs(icarusStations) do
 			if not s.skeleton_station then
@@ -15149,7 +15081,7 @@ function riptideBinarySector()
 	end
 
 	--- nebulas which are sucked from red giant
-	nebulaSpawner = function(obj, objectsRef)
+	nebulaSpawner = function(obj)
 		local numNebulas = irandom(1, 3)
 		for i=1, numNebulas do
 			local sx, sy = riptideGamma:getPosition()
@@ -15168,27 +15100,27 @@ function riptideBinarySector()
 				update=nebulaRotationAndFrictionUpdater
 			})
 
-			table.insert(objectsRef, neb)
+			table.insert(objects, neb)
 			neb:onDestroyed(function(obj, instigator)
 				--- remove self from objects
 				-- well, not really remove, because it messes up the destroy hook of the region
 				-- but set as nil to conserve memory (I hope)
-				for i=1, #objectsRef do
-					if obj == objectsRef[i] then
-						objectsRef[i] = nil
+				for i=1, #objects do
+					if obj == objects[i] then
+						objects[i] = nil
 						break
 					end
 				end
 			end)
 		end
 	end
-	update_system:addPeriodicCallback(riptideGamma, nebulaSpawner, 5, 0, 2, objects)
+	update_system:addPeriodicCallback(riptideGamma, nebulaSpawner, 5, 0, 2)
 
-	print("[Riptide Binary] starting objects", #objects)
+	addGMMessage("[Riptide Binary] starting objects, count=" .. #objects)
 
 	local ret = {
 		destroy = function(self)
-			print("[Riptide Binary] removing objects", #self.objects)
+			addGMMessage("[Riptide Binary] removing objects, count=" .. #self.objects)
 
 			lastCount = #self.objects
 			for i=1, #self.objects do
@@ -26552,6 +26484,51 @@ function dreadNoMore(enemyFaction)
 	end
 	return ship
 end
+function tsarina(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
+		setBeamWeapon(0, 90, -15, 1000.0, 6.0, 10):
+		setBeamWeapon(1, 90, -45, 1000.0, 6.0, 10):
+		setBeamWeapon(3, 90, 15, 1000.0, 6.0, 10):
+		setBeamWeapon(4, 90, 45, 1000.0, 6.0, 10):
+		setTubeSize(0, "small"):
+		setTubeSize(1, "small"):
+		setWeaponStorage("Nuke", 0):
+		setWeaponStorage("EMP", 0):
+		setWeaponStorage("Homing", 0):
+		setWeaponStorage("HVLI", 100):
+		setHull(600):
+		setShields(100, 100, 100):
+		setAI("fighter"):
+		setTypeName("Ktlitan Tsarina"):
+		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable.  " ..
+			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
+			"Once the leading Tsarina is destroyed, the formation is broken.")
+	ship:setRotationMaxSpeed(2 * ship:getRotationMaxSpeed())
+	ship:onTakingDamage(npcShipDamage)
+
+	--- note: for now, the snake formation is implemented as a Kosai's One-Off
+
+	local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
+	if tsarinaDb == nil then
+		local parentDb = queryScienceDatabase("Ships", "No class")
+		parentDb:addEntry("Ktlitan Tsarina")
+		local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
+		addShipToDatabase(
+			queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina"),
+			tsarinaDb,
+			ship,
+			"Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable. " ..
+			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
+			"Once the leading Tsarina is destroyed, the formation is broken.",
+			nil,
+			nil,
+			"sci_fi_alien_ship_8"
+		)
+	end
+
+	return ship
+end
+
 
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
@@ -38406,27 +38383,8 @@ function kosaiOneOff()
 		end)
 
 		spawnSnakeFunc = function(x, y)
-			local queen = CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Queen"):
-				setBeamWeapon(0, 90, -15, 1000.0, 6.0, 10):
-				setBeamWeapon(1, 90, -45, 1000.0, 6.0, 10):
-				setBeamWeapon(3, 90, 15, 1000.0, 6.0, 10):
-				setBeamWeapon(4, 90, 45, 1000.0, 6.0, 10):
-				setTubeSize(0, "small"):
-				setTubeSize(1, "small"):
-				setWeaponStorage("Nuke", 0):
-				setWeaponStorage("EMP", 0):
-				setWeaponStorage("Homing", 0):
-				setWeaponStorage("HVLI", 100):
-				setHull(600):
-				setShields(100, 100, 100):
-				setAI("fighter"):
-				setTypeName("Ktlitan Tsarina"):
-				setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable, " ..
-					"Focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
-					"Once the leading Tsarina is destroyed, the formation is broken.")
-			queen:setRotationMaxSpeed(2 * queen:getRotationMaxSpeed())
+			local queen = tsarina("Ktlitans")
 			queen:setCallSign(snakeCallSigns[snakeCurrCallSign])
-
 			queen:setPosition(x, y)
 			queen:orderDefendLocation(queen:getPosition())
 
