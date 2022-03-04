@@ -139,7 +139,7 @@ function setConstants()
 	playerFleet=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
-	universe:addAvailableRegion("Riptide Binary Pair", riptideBinarySector,-40005,-280220)
+	universe:addAvailableRegion("Riptide Binary (G67)", riptideBinarySector,-732730, 30101)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(390000,210000) end,-390000, 210000)
 	--Original in the midst of the ghosts near Astron spawn point: 586367, 296408
@@ -6027,6 +6027,7 @@ function createIcarusColor()
 	borlanFeatures = createBorlanFeatures()
 	finneganFeatures = createFinneganFeatures()
 	icarusStations = createIcarusStations()
+	icarusWormholeRiptideStuff = createIcarusToRiptideWormholeArea()
 	regionStations = icarusStations
 	if stationIcarus ~= nil then
 		table.insert(regionStations,stationIcarus)
@@ -6062,83 +6063,21 @@ function createIcarusColor()
 end
 function removeIcarusColor()
 	icarus_color = false
-	if icarusDefensePlatforms ~= nil then
-		for _,dp in pairs(icarusDefensePlatforms) do
-			dp:destroy()
-		end
-	end
-	icarusDefensePlatforms = nil
-	if icarusMines ~= nil then
-		for _,m in pairs(icarusMines) do
-			m:destroy()
-		end
-	end
-	icarusMines = nil
-	if icarus_artifacts ~= nil then
-		for _,ia in pairs(icarus_artifacts) do
-			ia:destroy()
-		end
-	end
-	if macassaAsteroids ~= nil then
-		for _,a in pairs(macassaAsteroids) do
-			a:destroy()
-		end
-	end
-	macassaAsteroids = nil
-	if aquariusAsteroids ~= nil then
-		for _,a in pairs(aquariusAsteroids) do
-			a:destroy()
-		end
-	end
-	aquariusAsteroids = nil
-	if cindyFollyAsteroids ~= nil then
-		for _,a in pairs(cindyFollyAsteroids) do
-			a:destroy()
-		end
-	end
-	cindyFollyAsteroids = nil
-	if H0_to_K2_asteroids ~= nil then
-		for _,a in pairs(H0_to_K2_asteroids) do
-			a:destroy()
-		end
-	end
-	H0_to_K2_asteroids = nil
-	if J4_to_L8_asteroids ~= nil then
-		for _,a in pairs(J4_to_L8_asteroids) do
-			a:destroy()
-		end
-	end
-	J4_to_L8_asteroids = nil
-	if H1_to_I2_mines ~= nil then
-		for _,a in pairs(H1_to_I2_mines) do
-			a:destroy()
-		end
-	end
-	H1_to_I2_mines = nil
-	if J0_to_K0_nebulae ~= nil then
-		for _,a in pairs(J0_to_K0_nebulae) do
-			a:destroy()
-		end
-	end
-	J0_to_K0_nebulae = nil
-	if J4_to_L8_nebulae ~= nil then
-		for _,a in pairs(J4_to_L8_nebulae) do
-			a:destroy()
-		end
-	end
-	J4_to_L8_nebulae = nil
-	if borlanFeatures ~= nil then
-		for _,a in pairs(borlanFeatures) do
-			a:destroy()
-		end
-	end
-	borlanFeatures = nil
-	if finneganFeatures ~= nil then
-		for _,a in pairs(finneganFeatures) do
-			a:destroy()
-		end
-	end
-	finneganFeatures = nil
+	icarusWormholeRiptideStuff = destroyEEtable(icarusWormholeRiptideStuff)
+	icarusDefensePlatforms = destroyEEtable(icarusDefensePlatforms)
+	icarusMines = destroyEEtable(icarusMines)
+	icarus_artifacts = destroyEEtable(icarus_artifacts)
+	macassaAsteroids = destroyEEtable(macassaAsteroids)
+	icarusWormholeRiptideStuff = destroyEEtable(icarusWormholeRiptideStuff)
+	aquariusAsteroids = destroyEEtable(aquariusAsteroids)
+	cindyFollyAsteroids = destroyEEtable(cindyFollyAsteroids)
+	H0_to_K2_asteroids = destroyEEtable(H0_to_K2_asteroids)
+	J4_to_L8_asteroids = destroyEEtable(J4_to_L8_asteroids)
+	H1_to_I2_mines = destroyEEtable(H1_to_I2_mines)
+	J0_to_K0_nebulae = destroyEEtable(J0_to_K0_nebulae)
+	J4_to_L8_nebulae = destroyEEtable(J4_to_L8_nebulae)
+	borlanFeatures = destroyEEtable(borlanFeatures)
+	finneganFeatures = destroyEEtable(finneganFeatures)
 	if icarusStations ~= nil then
 		for _,s in pairs(icarusStations) do
 			if not s.skeleton_station then
@@ -7024,6 +6963,41 @@ function createIcarusStations()
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
 	return stations
+end
+function createIcarusToRiptideWormholeArea()
+
+	local ret = {}
+	local icarusToRiptideWormHole = WormHole():setPosition(19778, 114698): --- next to Speculator 3
+		setScanningParameters(2, 3):setDescriptions("Wormhole leading to Riptide Binary system", 
+			"Anomaly type: Wormhole"):setTargetPosition(-676981, 24767)
+	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
+		update=function(self, obj, delta)
+			if not obj:isValid() then
+				return
+			end
+			obj:setRotation(getScenarioTime() * 5)
+		end
+	})
+	table.insert(ret, icarusToRiptideWormHole)
+
+	local whx, why = icarusToRiptideWormHole:getPosition()
+	local stabilizers = {}
+	local numStabilizers = 5
+	local angleSeparation = 360 / numStabilizers
+	for i=1, numStabilizers do
+		local dist = 3000
+		local dx, dy = vectorFromAngle(angleSeparation*i, dist)
+
+		local name = string.format("Stabilizer %i", i)
+		local stab = WarpJammer():setPosition(whx + dx, why + dy):setScanningParameters(2, 2):
+			setRadarSignatureInfo(.2,.4,.1):setFaction("Human Navy"):
+			setDescriptions("Wormhole stabilizer","Wormhole stabilizer. Brought here by the Exuari, captured by Human Navy.\n" ..
+				"Technology is of Arlenian origin. "):
+			setCallSign(name):setRange(2000)
+		table.insert(ret, stab)
+	end
+
+	return ret
 end
 function createIcarusArtifacts()
 	local artifact_list = {}
@@ -14682,7 +14656,10 @@ end
 function riptideBinarySector()
 	local objects = {}
 
-	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(-50005, -290220):
+	local regionCenterX = -740031
+	local regionCenterY = 19946
+
+	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(regionCenterX, regionCenterY):
 		setScanningParameters(2, 3):setDescriptions("Unclassified black hole", 
 			"Mass: 15.3 M Sol\n"..
 			"---\n" ..
@@ -14711,7 +14688,7 @@ function riptideBinarySector()
 		setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(.2,.1,.1):
 		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
 			"Planet type: Hypermassive Jupiter\n" ..
-			"Mass: 232,000 M Earth" ..
+			"Mass: 232,000 M Earth\n" ..
 			"Surface temp. [K]: 8300\n" ..
 			"Composition: 99% Hydrogen, 0.8% Helium, noble gases\n" ..
 			"---\n" ..
@@ -14865,8 +14842,8 @@ function riptideBinarySector()
 		setPlanetSurfaceTexture("planets/moon-1.png"):
 		setScanningParameters(2, 3):setDescriptions("Unclassified planet", 
 			"Planet type: Planetoid\n" ..
-			"Mass: 0.0001 M Earth" ..
-			"Composition: 91% Fe, 8.5 Ni, traces of rare earth elements\n" ..
+			"Mass: 0.0001 M Earth\n" ..
+			"Composition: 91% Fe, 8.5% Ni, traces of rare earth elements\n" ..
 			"---\n" ..
 			"The largest planetoid in this system, sitting comfortably in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
 				riptideAlphaStar:getCallSign() .. " system.\n" ..
@@ -14875,25 +14852,7 @@ function riptideBinarySector()
 	table.insert(objects, riptideDelta)
 
 
-	local icarusToRiptideWormHole = WormHole():setPosition(19778, 114698): --- next to Speculator 3
-		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
-			"Anomaly type: Wormhole\n" ..
-			"Leads to: Riptide sector"
-			):setTargetPosition(centerX + 10000, centerY + 10000)-- nebula next to Speculator 3
-	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
-		update=function(self, obj, delta)
-			if not obj:isValid() then
-				return
-			end
-			obj:setRotation(getScenarioTime() * 5)
-		end
-	})
-	table.insert(objects,icarusToRiptideWormHole)
-
-
-
-	-- local gravityAcceleration = 500000000 -- if 1/x2 used
-	local gravityAcceleration = 5000 -- if 1/x used
+	local gravityAcceleration = 500000
 	local slowOrbitDegPerSec = 360 / riptideGammaOrbitPeriod
 	local fastOrbitDegPerSec = 30
 
@@ -14901,21 +14860,28 @@ function riptideBinarySector()
 		if not obj:isValid() then
 			return
 		end
+
 		-- 1/x decay
 		local a = (minSpeed - maxSpeed) * (maxSpeedDistance * minSpeedDistance) / (minSpeedDistance - maxSpeedDistance)
 		local b = maxSpeed - a / minSpeedDistance
 	
+		local currentDistance = distance(obj, centerX, centerY)
+
 		local objX, objY = obj:getPosition()
-		local orbitAngle = angleFromVectorNorth(objX, objY, centerX, centerY)
+		local initialAngle = angleFromVectorNorth(objX, objY, centerX, centerY)
+
 		local update_data = {
+			startTime = getScenarioTime(),
 			centerX = centerX,
 			centerY = centerY,
-			currentDistance = distance(obj, centerX, centerY),
+			expectedPosX = objX,
+			expectedPosY = objY,
+			initialAngle = initialAngle,
+			currentDistance = currentDistance,
 			minSpeed = minSpeed,
 			maxSpeed = maxSpeed,
 			minSpeedDistance = minSpeedDistance,
 			maxSpeedDistance = maxSpeedDistance,
-			orbitAngle = orbitAngle,
 			a = a,
 			b = b,
 			gravityAcceleration = gravityAcceleration,
@@ -14924,39 +14890,53 @@ function riptideBinarySector()
 			},
 			update = function (self, obj, delta)
 
-				local actualX, actualY = obj:getPosition()
-				local actualOrbitAngle = angleFromVectorNorth(actualX, actualY, centerX, centerY)
-				if actualOrbitAngle ~= self.orbitAngle then
-					--- somebody changed the angle somehow (e.g. tractor or GM), use the new value
-					self.orbitAngle = actualOrbitAngle
-				end
-				local actualDistance = distance(actualX, actualY, centerX, centerY)
-				if actualDistance ~= self.currentDistance then
-					--- somebody changed the distance somehow (e.g. tractor or GM), use the new value
-					self.currentDistance = actualDistance
-				end
-
 				if self.currentDistance > 2*maxSpeedDistance then
 					--- outside sphere of influence
 					return
 				end
 				
-				local orbitSpeed = a / (self.currentDistance) + b
+				local orbitSpeedDegPerSec = self.a / (self.currentDistance) + self.b
+				orbitSpeedDegPerSec = math.min(orbitSpeedDegPerSec, self.maxSpeed)
+				orbitSpeedDegPerSec = math.max(orbitSpeedDegPerSec, self.minSpeed)
 
-				orbitSpeed = math.min(orbitSpeed, self.maxSpeed)
-				orbitSpeed = math.max(orbitSpeed, self.minSpeed)
+				local period = 360 / orbitSpeedDegPerSec
 
-				self.orbitAngle = (self.orbitAngle + (orbitSpeed*delta)) % 360
-
-				-- local orbit_decay = gravityAcceleration / (self.currentDistance * self.currentDistance)
-				local orbit_decay = gravityAcceleration / (self.currentDistance)
-				if orbit_decay > self.maxSpeed then
-					orbit_decay = self.maxSpeed
-				end
-				self.currentDistance = self.currentDistance - orbit_decay
+				local stime = getScenarioTime()
 				
-				local dx, dy = vectorFromAngleNorth(self.orbitAngle, self.currentDistance)
+				local newObjX, newObjY = obj:getPosition()
+				local orbitDecay = delta * gravityAcceleration / (self.currentDistance)
+				if orbitDecay > 0 then
+					if orbitDecay > self.maxSpeed then
+						orbitDecay = self.maxSpeed
+					end
+					self.currentDistance = self.currentDistance - orbitDecay
+
+					--- orbit radius changed, reset phase
+					self.initialAngle = angleFromVectorNorth(newObjX, newObjY, self.centerX, self.centerY)
+					self.startTime = stime - delta --- why subtract delta, see below
+				else	
+					--- we can't handle orbit decay and external perturbations at the same time (couldn't get it to work)
+					local posDeviation = distance(newObjX, newObjY, self.expectedPosX, self.expectedPosY)
+					if posDeviation > 0.1 then
+						--- orbit radius changed, reset phase
+						self.initialAngle = angleFromVectorNorth(newObjX, newObjY, self.centerX, self.centerY)
+						self.currentDistance = distance(newObjX, newObjY, self.centerX, self.centerY)
+						--- not completely sure why but thanks to subtracting the delta, the orbital movement is "added" onto external perturbations.
+						self.startTime = stime - delta 
+					end
+				end
+
+				if self.currentDistance < 0 then
+					self.currentDistance = 0
+				end
+
+				local orbitAngleDeg = self.initialAngle + 360 * (stime - self.startTime) / period
+
+				local dx, dy = vectorFromAngleNorth(orbitAngleDeg, self.currentDistance)
 				obj:setPosition(centerX + dx, centerY + dy)
+
+				self.expectedPosX = centerX + dx
+				self.expectedPosY = centerY + dy
 			end
 		}
 		update_system:addUpdate(obj, "riptide accretion disk updater", update_data)
@@ -14964,7 +14944,7 @@ function riptideBinarySector()
 
 
 
-	local riptideToIcarusWormHole = WormHole():setPosition(centerX + riptideGammaOrbitRadius * math.sqrt(3) / 2, centerY + riptideGammaOrbitRadius / 2):
+	local riptideToIcarusWormHole = WormHole():setPosition(centerX, centerY - riptideGammaOrbitRadius):
 		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
 			"Anomaly type: Wormhole\n" ..
 			"Leads to: Icarus sector" ..
@@ -14986,7 +14966,7 @@ function riptideBinarySector()
 		end
 	})
 	table.insert(objects, riptideToIcarusWormHole)
-
+	
 
 	--- For a scenario; comment/remove if not needed
 	local maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
@@ -14994,7 +14974,10 @@ function riptideBinarySector()
 			"Lifesigns: unsure; check the scanner border readout\n" ..
 			"Life support status: OK\n" ..
 			"Reactor: OK\n" ..
-			"Damage report: engines 0% (field repairs impossible)"
+			"Damage report:\n* engines 0% (field repairs impossible)\n" ..
+			"* gravity stabilizers: 0% (field repairs impossible)\n" ..
+			"---\n" ..
+			"Hypothesis: disabled gravity stabilizers is the reason for ship's drift."
 		):setSystemHealthMax("maneuver", 0):setSystemHealthMax("impulse", 0):setSystemHealthMax("warp", 0):setSystemHealthMax("jumpdrive", 0)
 
 	local maryCelesteX, maryCelesteY = maryCeleste:getPosition()
@@ -15017,6 +15000,7 @@ function riptideBinarySector()
 			end
 		end
 	})
+	table.insert(objects, maryCeleste)
 
 
 	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
@@ -15025,10 +15009,40 @@ function riptideBinarySector()
 		end
 		local nx, ny = obj:getPosition()
 		local angle = angleFromVectorNorth(nx, ny, centerX, centerY)
-		obj:setRotation(angle) --- keep facing towards the central black hole
+		obj:setRotation(obj.facingAngle + angle) --- keep facing towards the central black hole
 
 		if distance(nx, ny, centerX, centerY) < 25000 and getScenarioTime() > self.nextExplosionAt then
-			self.nextExplosionAt = getScenarioTime() + irandom(0, 10)
+			local shipInFrictionArea = false
+			local objs = getObjectsInRadius(centerX, centerY, 30000)
+			for i=1, #objs do
+				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+					shipInFrictionArea = true
+					break
+				end
+			end
+
+			if shipInFrictionArea then
+				self.nextExplosionAt = getScenarioTime() + irandom(0, 10)
+			else 
+				--- resource optimization (apparently there is a memory leak when spawning explosions)
+				-- obviously this isn't a fix, but let's spawn explosions less frequently when "noone is there to see it"
+				self.nextExplosionAt = getScenarioTime() + irandom(0, 100)
+			end
+
+			local shipInNebula = false
+			local objs = obj:getObjectsInRange(5000)
+			for i=1, #objs do
+				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+					shipInNebula = true
+					break
+				end
+			end
+			if not shipInNebula then
+				--- lower chance of spawning if no ship in this particular nebula
+				if irandom(0, 100) < 70 then
+					return
+				end
+			end
 
 			local size = irandom(100,1000)
 			local ee = ElectricExplosionEffect():setPosition(nx + irandom(-2000, 2000), ny + irandom(-2000, 2000)):setSize(irandom(100,1000)):setOnRadar(true)
@@ -15036,10 +15050,12 @@ function riptideBinarySector()
 			for i=1, #objs do
 				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
 					local newShields = {}
-					for j=1, objs[i]:getShieldCount() do
-						table.insert(newShields, 0.8 * objs[i]:getShieldLevel(j))
+					if objs[i]:getShieldsActive() then
+						for j=1, objs[i]:getShieldCount() do
+							table.insert(newShields, 0.8 * objs[i]:getShieldLevel(j))
+						end
+						objs[i]:setShields(table.unpack(newShields))
 					end
-					objs[i]:setShields(table.unpack(newShields))
 				end
 			end
 		end
@@ -15055,6 +15071,7 @@ function riptideBinarySector()
 		local x = centerX + math.cos(angle / 180 * math.pi) * radius
 		local y = centerY + math.sin(angle / 180 * math.pi) * radius
 		local neb = Nebula():setPosition(x, y)
+		neb.facingAngle = irandom(0, 360)
 		blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
 		update_system:addUpdate(neb, "nebula misc", {
 			nextExplosionAt=0,
@@ -15064,20 +15081,20 @@ function riptideBinarySector()
 	end
 
 	--- nebulas which are sucked from red giant
-	nebulaSpawner = function(self, obj, delta)
+	nebulaSpawner = function(obj)
 		local numNebulas = irandom(1, 3)
 		for i=1, numNebulas do
 			local sx, sy = riptideGamma:getPosition()
 
-			local angleToCenter = angleFromVectorNorth(sx, sy, centerX, centerY)
-			local dpx, dpy = vectorFromAngle(angleToCenter,1000)
+			local angleToCenter = angleFromVectorNorth(centerX, centerY, sx, sy)
+			local dpx, dpy = vectorFromAngleNorth(angleToCenter, 1000)
 
-			local neb = Nebula():setPosition(sx + dpx + irandom(-1000, 1000), sy + dpy + irandom(-1000, 1000))
-
+			local neb = Nebula():setPosition(sx + dpx + irandom(-500, 500), sy + dpy + irandom(-500, 500))
+			neb.facingAngle = irandom(0, 360)
 
 			local thisGravAccel = gravityAcceleration * random(80, 120) -- little bit of jitter so it spreads out nicely
 			--- some tweaking here to get a nice spiral
-			blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec * 0.8, 10000, riptideGammaOrbitRadius, thisGravAccel)	
+			blackHoleOrbitUpdater(neb, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 10000, riptideGammaOrbitRadius, thisGravAccel)
 			update_system:addUpdate(neb, "nebula misc", {
 				nextExplosionAt=0,
 				update=nebulaRotationAndFrictionUpdater
@@ -15086,9 +15103,11 @@ function riptideBinarySector()
 			table.insert(objects, neb)
 			neb:onDestroyed(function(obj, instigator)
 				--- remove self from objects
+				-- well, not really remove, because it messes up the destroy hook of the region
+				-- but set as nil to conserve memory (I hope)
 				for i=1, #objects do
 					if obj == objects[i] then
-						table.remove(objects, i)
+						objects[i] = nil
 						break
 					end
 				end
@@ -15097,10 +15116,13 @@ function riptideBinarySector()
 	end
 	update_system:addPeriodicCallback(riptideGamma, nebulaSpawner, 5, 0, 2)
 
+	addGMMessage("[Riptide Binary] starting objects, count=" .. #objects)
 
 	local ret = {
 		destroy = function(self)
---			removeIcarusColor()
+			addGMMessage("[Riptide Binary] removing objects, count=" .. #self.objects)
+
+			lastCount = #self.objects
 			for i=1, #self.objects do
 				if self.objects[i] ~= nil then
 					self.objects[i]:destroy()
@@ -26462,6 +26484,51 @@ function dreadNoMore(enemyFaction)
 	end
 	return ship
 end
+function tsarina(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
+		setBeamWeapon(0, 90, -15, 1000.0, 6.0, 10):
+		setBeamWeapon(1, 90, -45, 1000.0, 6.0, 10):
+		setBeamWeapon(3, 90, 15, 1000.0, 6.0, 10):
+		setBeamWeapon(4, 90, 45, 1000.0, 6.0, 10):
+		setTubeSize(0, "small"):
+		setTubeSize(1, "small"):
+		setWeaponStorage("Nuke", 0):
+		setWeaponStorage("EMP", 0):
+		setWeaponStorage("Homing", 0):
+		setWeaponStorage("HVLI", 100):
+		setHull(600):
+		setShields(100, 100, 100):
+		setAI("fighter"):
+		setTypeName("Ktlitan Tsarina"):
+		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable.  " ..
+			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
+			"Once the leading Tsarina is destroyed, the formation is broken.")
+	ship:setRotationMaxSpeed(2 * ship:getRotationMaxSpeed())
+	ship:onTakingDamage(npcShipDamage)
+
+	--- note: for now, the snake formation is implemented as a Kosai's One-Off
+
+	local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
+	if tsarinaDb == nil then
+		local parentDb = queryScienceDatabase("Ships", "No class")
+		parentDb:addEntry("Ktlitan Tsarina")
+		local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
+		addShipToDatabase(
+			queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina"),
+			tsarinaDb,
+			ship,
+			"Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable. " ..
+			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
+			"Once the leading Tsarina is destroyed, the formation is broken.",
+			nil,
+			nil,
+			"sci_fi_alien_ship_8"
+		)
+	end
+
+	return ship
+end
+
 
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
@@ -37282,12 +37349,14 @@ end
 -- -CUSTOM				F	customButtons
 -- +MOTM				F	mmotmOneOff
 -- +STARRY				F	starryOneOff
+-- +KOSAI				F	kosaiOneOff
 function oneOffs()
 	clearGMFunctions()
 	addGMFunction("-Main From 1-Offs",initialGMFunctions)
 	addGMFunction("-Custom",customButtons)
 	addGMFunction("+MMOTM",mmotmOneOff)
 	addGMFunction("+Starry",starryOneOff)
+	addGMFunction("+Kosai",kosaiOneOff)
 end
 ----------------------------------------------
 --	Custom > Dangerous description grabber  --
@@ -38280,6 +38349,229 @@ function starryChristmas()
 			end
 		end
 	end)
+end
+
+
+----------------------------------
+--	Custom > One-Offs > Kosai  --
+----------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM KOSAI	F	initialGMFunctions
+-- -CUSTOM				F	customButtons
+-- -ONE-OFFS			F	oneOffs
+snakeCallSigns = {
+	"Żmija", "Wąż", "Gniewosz", "Zaskroniec", "Grzechotnik", "Dusiciel", "Kobra"
+}
+snakeCurrCallSign = 1
+function kosaiOneOff()
+	clearGMFunctions()
+	addGMFunction("-Main From Kosai",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-One-Offs",oneOffs)
+	addGMFunction("Ktlitan Snake", function()
+		removeGMFunction("Ktlitan Snake")
+		addGMFunction(">Ktlitan Snake<", function()
+			onGMClick(nil)
+			kosaiOneOff()
+		end)
+		onGMClick(function(x, y)
+			spawnSnakeFunc(x, y)
+			snakeCurrCallSign = snakeCurrCallSign % #snakeCallSigns + 1
+
+			onGMClick(nil)
+			kosaiOneOff()
+		end)
+
+		spawnSnakeFunc = function(x, y)
+			local queen = tsarina("Ktlitans")
+			queen:setCallSign(snakeCallSigns[snakeCurrCallSign])
+			queen:setPosition(x, y)
+			queen:orderDefendLocation(queen:getPosition())
+
+			local snake = {}
+			table.insert(snake, queen)
+
+			updateFunc = function (self, obj, delta)
+				if not obj.hasQueen then
+					return
+				end
+
+				--- follow your parent
+				if obj.parent == nil or not obj.parent:isValid() then
+					return
+				end
+
+				--- this is the most sensible AI mode to fly in. Ship will engage anything in short radar range, with leash distance of additional 1000 units.
+				-- but we will overwrite pretty much everything about it.
+				obj:orderFlyFormation(obj.parent, -500, 0)
+
+				local px, py = obj.parent:getPosition()
+				local dx, dy = vectorFromAngle(180 + obj.parent:getRotation(), 500)
+				local tgtX, tgtY = px + dx, py + dy
+				--- tgt is the exact point in formation
+
+				--- "overwrite" ship AI - rotation
+				local objX, objY = obj:getPosition()
+				local angleToTgt = angleFromVectorNorth(tgtX, tgtY, objX, objY)
+
+				local maxRot = obj:getRotationMaxSpeed()
+				local currHeading = obj:getHeading()
+
+				local deltaAngleClockwise = (angleToTgt - currHeading) % 360
+				local deltaAngleCounterclockwise = 360 - deltaAngleClockwise
+
+				if deltaAngleClockwise < deltaAngleCounterclockwise then
+					if obj:getAngularVelocity() < 0 then
+						obj:setHeading(currHeading + 4*maxRot*delta)
+					else
+						obj:setHeading(currHeading + 2*maxRot*delta)
+					end
+				else
+					if obj:getAngularVelocity() > 0 then
+						obj:setHeading(currHeading - 4*maxRot*delta)
+					else
+						obj:setHeading(currHeading - 2*maxRot*delta)
+					end
+				end
+
+				--- "overwrite" ship AI - speed
+				local objVX, objVY = obj:getVelocity()
+				local objSpeed = math.sqrt(objVX*objVX + objVY*objVY)
+
+				local parentVX, parentVY = obj.parent:getVelocity()
+				local parentSpeed = math.sqrt(parentVX*parentVX + parentVY*parentVY)
+
+				--- are the vectors pointing in the same general direction (cos theta > 0?) (calculate using dot product)
+				local cosTheta = (objVX * parentVX + objVY * parentVY) / (objSpeed * parentSpeed)
+
+				if distance(tgtX, tgtY, objX, objY) < 500 then
+					if objSpeed > parentSpeed then
+						if cosTheta > 0 then
+							obj:setAcceleration(obj.accelFwd, obj.accelRev)
+						else
+							obj:setAcceleration(obj.accelFwd, 0)
+						end
+						obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
+
+					else
+						obj:setAcceleration(obj.accelFwd, 0)
+						obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
+					end
+				else
+
+					if objSpeed > 2*parentSpeed then
+						if cosTheta > 0 then
+							obj:setAcceleration(obj.accelFwd, obj.accelRev)
+						else
+							obj:setAcceleration(obj.accelFwd, 0)
+						end
+						obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
+
+					else
+						obj:setAcceleration(obj.accelFwd, 0)
+
+						obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
+					end
+				end
+			end
+
+			local tailComposition = {
+				"Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Destroyer"
+			}
+
+			for i=1, #tailComposition do
+
+				local node = CpuShip():setFaction("Ktlitans"):setTemplate(tailComposition[i]):setCallSign(string.format("Tail %i", i))
+
+				if tailComposition[i] == "Ktlitan Destroyer" then
+					node:setWeaponStorageMax("EMP", 5):setWeaponStorage("EMP", 5):setWeaponStorage("Homing", node:getWeaponStorage("Homing") * 2)
+				end
+
+
+				node:setCallSign(string.format("%s %i", snakeCallSigns[snakeCurrCallSign], i))
+
+				node.hasQueen = true
+				node.child = nil
+				node.parent = snake[i]
+				node.parent.child = node
+
+				node.originalImpulseFwd, node.originalImpulseRev = node:getImpulseMaxSpeed()
+				node.originalRotation = node:getRotationMaxSpeed()
+				node.originalAccelFwd, node.originalAccelRev = node:getAcceleration()
+
+				node:orderFlyFormation(node.parent, -500, 0)
+
+				node:setImpulseMaxSpeed(queen:getImpulseMaxSpeed() * 1.5):
+					setRotationMaxSpeed(queen:getRotationMaxSpeed()):setAI("default"):
+					setAcceleration(queen:getAcceleration() * 2, queen:getAcceleration() * 2)
+
+				node.maxImpulseFwd, node.maxImpulseRev = node.parent:getImpulseMaxSpeed()
+				node.accelFwd, node.accelRev = node.parent:getImpulseMaxSpeed()
+
+				local px, py = node.parent:getPosition()
+				local dx, dy = vectorFromAngle(180 + node.parent:getRotation(), 1500)
+				node:setPosition(px + dx, py + dy)
+				node:setRotation(node.parent:getRotation())
+
+				update_system:addUpdate(node, "snake tail segment", {
+					update = updateFunc,
+				})
+				table.insert(snake, node)
+			end
+
+			removeFromSnakeFunc = function(obj)
+				if obj.parent ~= nil and obj.parent:isValid() then
+					if obj.child ~= nil and obj.child:isValid() then
+						obj.parent.child = obj.child
+					else
+						obj.parent.child = nil
+					end
+				end
+				if obj.child ~= nil and obj.child:isValid() then
+					if obj.parent ~= nil and obj.parent:isValid() then
+						obj.child.parent = obj.parent
+					else
+						obj.child.parent = nil
+					end
+				end
+			end
+
+			for i=1, #snake do
+				snake[i].nextStateChange = getScenarioTime() + 5
+				snake[i].state = 0
+				snake[i]:onDestroyed(function(obj, instigator)
+					print("Destroyed", obj:getCallSign(), "parent", obj.parent, "child", obj.child)
+					if snake[i] == queen then
+						print("Queen destroyed, snake formation broken")
+						local curr = snake[i].child
+						while curr ~= nil do
+							print(curr:getCallSign())
+							curr:setImpulseMaxSpeed(curr.originalImpulseFwd, curr.originalImpulseRev)
+							curr:setRotationMaxSpeed(curr.originalRotation)
+							curr:setAcceleration(curr.originalAccelFwd, curr.originalAccelRev)
+							curr:orderDefendLocation(curr:getPosition())
+							curr.hasQueen = false
+							curr = curr.child
+						end
+					end
+
+					removeFromSnakeFunc(obj)
+				end)
+				snake[i]:onTakingDamage(function(obj, instigator)
+
+					if obj:getSystemHealth("maneuver") < 0 or obj:getSystemHealth("impulse") < 0 then
+						print("Disabled", obj:getCallSign())
+						-- we are disabled; remove from snake formation
+						removeFromSnakeFunc(obj)
+						obj:orderDefendLocation(obj:getPosition())
+					end
+				end)
+
+			end
+		end
+
+	end)
+
 end
 
 --	Inserted for future enhancement. Not hooked in yet.
