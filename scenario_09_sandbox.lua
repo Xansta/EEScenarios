@@ -115,7 +115,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.12.1"
+	scenario_version = "5.12.2"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -6036,21 +6036,21 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
---		elseif i == 1 then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
---			dp1Zone:setColor(0,128,0):setLabel("1")
---		elseif i == 2 then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
---		else		
+		if i == 5 then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
+			dp5Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 1 then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 2 then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -6586,9 +6586,10 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
---	local pistilZone = squareZone(24834, 20416, "Pistil 7 G6")
---	pistilZone:setColor(0,128,0)
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 7"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local pistilZone = squareZone(24834, 20416, "Pistil 8 G6")
+	pistilZone:setColor(0,128,0):setLabel("P")
+	--[[
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 8"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -6629,6 +6630,7 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
+	--]]
 	--Relay-13
 	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
 	--relay13Zone:setColor(0,255,0)
@@ -14851,7 +14853,41 @@ function riptideBinarySector()
 			)
 	table.insert(objects, riptideDelta)
 
-
+	--Riptide Research
+    stationRiptideResearch = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Riptide Research"):setDescription("Stellar phenomenon research"):setCommsScript(""):setCommsFunction(commsStation)
+	stationRiptideResearch:setPosition(centerX - (riptideGammaOrbitRadius * math.sqrt(3) / 2) + 1300, centerY + riptideGammaOrbitRadius / 2)
+	update_system:addOrbitTargetUpdate(stationRiptideResearch, riptideDelta, 1300, 700, 0)
+	stationRiptideResearch:setShortRangeRadarRange(8500)
+	stationRiptideResearch.comms_data = {
+    	friendlyness = 77,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
+        weapon_available = 	{Homing = true,		HVLI = true,			Mine = random(1,100)<50,Nuke = random(1,100)<30,	EMP = random(1,100)<40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        hack_repair =			true,
+        scan_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
+        sensor_boost = {value = 10000, cost = 20},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
+        goods = {	nickel = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
+        			dilithium =	{quantity = math.random(6,12),	cost = math.random(75,95)},
+        		},
+        trade = {	food = false, medicine = random(1,100)<=13, luxury = true },
+        public_relations = true,
+        general_information = "We're here to scan all the interesting planetary bodies and nebulae in the area. The mining operation is incidental",
+    	history = "After the wormhole near Speculator was found and this region was identified, several scientists got funding together to construct this station to further our knowledge of all the things flitting about and why they might be behaving in this manner.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "WX-Lindworm",
+    	},
+	}
+	stationRiptideResearch:setRestocksScanProbes(random(1,100)<87)
+	stationRiptideResearch:setRepairDocked(random(1,100)<76)
+	stationRiptideResearch:setSharesEnergyWithDocked(random(1,100)<92)
+	table.insert(objects, stationRiptideResearch)
+	
 	local gravityAcceleration = 500000
 	local slowOrbitDegPerSec = 360 / riptideGammaOrbitPeriod
 	local fastOrbitDegPerSec = 30
