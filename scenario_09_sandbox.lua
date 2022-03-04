@@ -115,7 +115,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.11.0"
+	scenario_version = "5.12.1"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -880,12 +880,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Swoop")
-	makePlayerShipActive("Cobra")
-	makePlayerShipActive("Manxman")
-	makePlayerShipActive("Outcast")
-	makePlayerShipActive("Quill")
-	makePlayerShipActive("Ignite")
+	makePlayerShipActive("Flaire")		--J
+	makePlayerShipActive("Rogue")		--J
+	makePlayerShipActive("Rattler")		--J
+	makePlayerShipActive("Tango")		--W
+	makePlayerShipActive("Pinwheel")	--W
+	makePlayerShipActive("Crux")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -19353,15 +19353,35 @@ end
 function createPlayerShipRattler()
 	playerRattler = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rattler")
 	playerRattler:setTypeName("MX-Lindworm")
-	playerRattler:setRepairCrewCount(2)
+	playerRattler:setRepairCrewCount(2)						--more (vs 1)
 	playerRattler:setJumpDrive(true)
 	playerRattler.max_jump_range = 20000					--shorter than typical (vs 50)
 	playerRattler.min_jump_range = 3000						--shorter than typical (vs 5)
 	playerRattler:setJumpDriveRange(playerRattler.min_jump_range,playerRattler.max_jump_range)
 	playerRattler:setJumpDriveCharge(playerRattler.max_jump_range)
-	playerRattler:setImpulseMaxSpeed(85)
-	playerRattler:setBeamWeaponTurret( 0, 270, 180, 1)
-	playerRattler:setShortRangeRadarRange(6000)				--longer short range sensors (vs 5000)
+	playerRattler:setImpulseMaxSpeed(77)					--faster (vs 70)
+	playerRattler:setShortRangeRadarRange(6000)				--longer (vs 5000)
+--											Arc, Dir, Rotate speed
+	playerRattler:setBeamWeaponTurret( 0,   270, 180, 1)	--slower turret (vs 4)
+	playerRattler:setWeaponTubeCount(4)						--more (vs 3)
+	playerRattler:setTubeSize(0,"large")					--large (vs small)
+	playerRattler:setTubeSize(1,"medium")					--medium (vs small)
+	playerRattler:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI (vs any)
+	playerRattler:setWeaponTubeExclusiveFor(1,"Nuke")		--only Nuke (vs HVLI)
+	playerRattler:setWeaponTubeExclusiveFor(2,"Homing")		--only Homing & EMP (vs HVLI)
+	playerRattler:weaponTubeAllowMissle(2,"EMP")			
+	playerRattler:setTubeLoadTime(1,25)						--slower load time (vs 10)
+	playerRattler:setWeaponTubeDirection(3,180)
+	playerRattler:setWeaponTubeExclusiveFor(3,"Mine")
+	playerRattler:setTubeLoadTime(3,45)						--slower load time (vs 10)
+	playerRattler:setWeaponStorageMax("Homing",5)			--more (vs 3)
+	playerRattler:setWeaponStorage("Homing",   5)				
+	playerRattler:setWeaponStorageMax("EMP",   4)			--more (vs 0)
+	playerRattler:setWeaponStorage("EMP",      4)				
+	playerRattler:setWeaponStorageMax("Nuke",  2)			--more (vs 0)
+	playerRattler:setWeaponStorage("Nuke",     2)
+	playerRattler:setWeaponStorageMax("Mine",  2)			--more (vs 0)
+	playerRattler:setWeaponStorage("Mine",     2)
 	playerRattler:onTakingDamage(playerShipDamage)
 	playerRattler:addReputationPoints(50)
 	return playerRattler
