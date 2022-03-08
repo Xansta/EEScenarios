@@ -14684,7 +14684,7 @@ function riptideBinarySector()
 			"Stellar remnant locked in a dance with its partner. Likely a remnant of ~20 M☉ dwarf star.\n" ..
 			"Friction between gas molecules in the accretion disk causes electric discharges, which has a draining effect on shields.\n" ..
 			"Anomaly detected: slightly positive electric charge (+0.01 Coulombs). Normally, black holes are electrically neutral."
-			)
+			):setScanned(true)
 	table.insert(objects, riptideAlphaStar)
 
 	local centerX, centerY = riptideAlphaStar:getPosition()
@@ -14695,7 +14695,7 @@ function riptideBinarySector()
 			"Mass: 0.5 M Sol\n"..
 			"---\n" ..
 			"A typical white dwarf in a binary system, tidaly locked with its parent Black Hole.\n"
-			)
+			):setScanned(true)
 	table.insert(objects, riptideBeta)
 
 	local riptideGammaOrbitPeriod = 8000
@@ -14712,7 +14712,7 @@ function riptideBinarySector()
 			"---\n" ..
 			"Abnormally large Jupiter. It seems to be feeding the black hole in the center of this system.\n" ..
 			"Est. lifetime before planet evaporates completely: ~200,000 years."
-			)
+			):setScanned(true)
 	table.insert(objects, riptideGamma)
 
 
@@ -14866,7 +14866,7 @@ function riptideBinarySector()
 			"The largest planetoid in this system, sitting comfortably in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
 				riptideAlphaStar:getCallSign() .. " system.\n" ..
 			"Anomaly detected: rich deposits of latinum found below the regolith."
-			)
+			):setScanned(true)
 	table.insert(objects, riptideDelta)
 
 	--Riptide Research
@@ -15003,7 +15003,7 @@ function riptideBinarySector()
 			"---\n" ..
 			"Stabilised space time tunnel leading to somewhere in Icarus system. Its orbit places it in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
 				riptideAlphaStar:getCallSign() .. " system.\n"
-			):setTargetPosition(49157, 123520) -- nebula next to Speculator 3
+			):setScanned(true):setTargetPosition(49157, 123520) -- nebula next to Speculator 3
 		
 	local wormHoleX, wormHoleY = riptideToIcarusWormHole:getPosition()
 	local wormHoleInitialOrbitAngle = angleFromVectorNorth(wormHoleX, wormHoleY, centerX, centerY) - 90
@@ -15020,39 +15020,39 @@ function riptideBinarySector()
 	table.insert(objects, riptideToIcarusWormHole)
 	
 
-	--- For a scenario; comment/remove if not needed
-	local maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
-		setScanningParameters(2, 3):setDescriptions("Unscanned Arlenian vessel", 
-			"Lifesigns: unsure; check the scanner border readout\n" ..
-			"Life support status: OK\n" ..
-			"Reactor: OK\n" ..
-			"Damage report:\n* engines 0% (field repairs impossible)\n" ..
-			"* gravity stabilizers: 0% (field repairs impossible)\n" ..
-			"---\n" ..
-			"Hypothesis: disabled gravity stabilizers is the reason for ship's drift."
-		):setSystemHealthMax("maneuver", 0):setSystemHealthMax("impulse", 0):setSystemHealthMax("warp", 0):setSystemHealthMax("jumpdrive", 0)
+	-- --- For a scenario; comment/remove if not needed
+	-- local maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
+	-- 	setScanningParameters(2, 3):setDescriptions("Unscanned Arlenian vessel", 
+	-- 		"Lifesigns: unsure; check the scanner border readout\n" ..
+	-- 		"Life support status: OK\n" ..
+	-- 		"Reactor: OK\n" ..
+	-- 		"Damage report:\n* engines 0% (field repairs impossible)\n" ..
+	-- 		"* gravity stabilizers: 0% (field repairs impossible)\n" ..
+	-- 		"---\n" ..
+	-- 		"Hypothesis: disabled gravity stabilizers is the reason for ship's drift."
+	-- 	):setSystemHealthMax("maneuver", 0):setSystemHealthMax("impulse", 0):setSystemHealthMax("warp", 0):setSystemHealthMax("jumpdrive", 0)
 
-	local maryCelesteX, maryCelesteY = maryCeleste:getPosition()
-	local mcx, mcy = vectorFromAngle(wormHoleInitialOrbitAngle - 2, wormHoleOrbitRadius) --- lagging behind wormhole slightly
-	--- the solution to this puzzle is to tractor Mary Celeste onto slightly lower orbit; it will eventually catch up with the wormhole
-	maryCeleste:setPosition(centerX + mcx, centerY + mcy)
-    maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
-	blackHoleOrbitUpdater(maryCeleste, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
-	update_system:addUpdate(maryCeleste, "mary celesete blinking SOS callsign", {
-		update=function(self, obj, delta)
-			if not obj:isValid() then
-				return
-			end
-			blips = {1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0}
-			currBlip = math.floor(getScenarioTime() * 4) % #blips
-			if blips[currBlip] == 1 then
-				obj:setCallSign("Mary Celeste")
-			else       
-				obj:setCallSign("")
-			end
-		end
-	})
-	table.insert(objects, maryCeleste)
+	-- local maryCelesteX, maryCelesteY = maryCeleste:getPosition()
+	-- local mcx, mcy = vectorFromAngle(wormHoleInitialOrbitAngle - 2, wormHoleOrbitRadius) --- lagging behind wormhole slightly
+	-- --- the solution to this puzzle is to tractor Mary Celeste onto slightly lower orbit; it will eventually catch up with the wormhole
+	-- maryCeleste:setPosition(centerX + mcx, centerY + mcy)
+    -- maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
+	-- blackHoleOrbitUpdater(maryCeleste, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
+	-- update_system:addUpdate(maryCeleste, "mary celesete blinking SOS callsign", {
+	-- 	update=function(self, obj, delta)
+	-- 		if not obj:isValid() then
+	-- 			return
+	-- 		end
+	-- 		blips = {1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0}
+	-- 		currBlip = math.floor(getScenarioTime() * 4) % #blips
+	-- 		if blips[currBlip] == 1 then
+	-- 			obj:setCallSign("Mary Celeste")
+	-- 		else       
+	-- 			obj:setCallSign("")
+	-- 		end
+	-- 	end
+	-- })
+	-- table.insert(objects, maryCeleste)
 
 
 	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
