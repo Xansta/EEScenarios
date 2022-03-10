@@ -1,5 +1,5 @@
 -- Name: Sandbox
--- Description: GM controlled missions
+-- Description: GM Controlled missions
 --- Regions defined: Icarus, Kentar, Astron, Lafrina, Teresh, Bask
 --- Version 5
 --- Latest version: https://github.com/Xansta/EEScenarios
@@ -7,7 +7,7 @@
 --- USN Discord: https://discord.gg/PntGG3a 
 --- USN uses this sandbox Saturdays at 1600 UTC. 
 --- Newcomers are welcome to join us. Please post feedback about the sandbox on the EEScenarios github repository.
--- Type: GM Controlled missions
+-- Type: Development
 -- Author: Xansta and Starry
 
 -- Starry's todo list
@@ -115,7 +115,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.12.2"
+	scenario_version = "5.13.1"
 	ee_version = "2021.06.23"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -520,7 +520,7 @@ function setConstants()
 	-- rough hexagonal deployment
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
-
+	formation_spacing = 1000
 	fly_formation = {
 		["V"] =		{
 						{angle = 60	, dist = 1	},
@@ -687,31 +687,42 @@ function setConstants()
 						{angle = 210, dist = 2	},
 					},
 	}
-	prebuilt_leaders = {
-		["Cucaracha"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
-		["Dreadnought"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Dread No More"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["MT52 Hornet"] = {"MU52 Hornet","Ktlitan Scout"},
-		["Heavy Drone"] = {"MU52 Hornet","Ktlitan Scout"},
-		["Nirvana R3"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Nirvana R5"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Nirvana R5A"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Blockade Runner"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Sentinel"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Tyr"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Prador"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Strongarm"] = {"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+	prebuilt_leaders = {		--120			125				120		140					140			140			150				100
+		["Cucaracha"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
+		["Dreadnought"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Dread No More"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["MT52 Hornet"] =		{"MU52 Hornet","Ktlitan Scout"},
+		["Heavy Drone"] =		{"MU52 Hornet","Ktlitan Scout"},
+		["Nirvana R3"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Nirvana R5"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Nirvana R5A"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Blockade Runner"] =	{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Sentinel"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Strongarm"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Phobos T3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Phobos T4"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Phobos R2"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Farco 3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Farco 5"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Farco 8"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Farco 11"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Farco 13"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Gunship"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Adv. Gunship"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Adder MK5"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Adder MK6"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Adder MK7"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 	}
 	prebuilt_leader = "Nirvana R5"	--default
-	prebuilt_followers = {
-		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A", "Heavy Drone"},
-		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A", "MT52 Hornet"},
-		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
-		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
-		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
-		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
-		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A", "MT52 Hornet", "Heavy Drone"},
-		["Cucaracha"] =			{"Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Tyr", "Prador", "Nirvana R5A"},
+	prebuilt_followers = {		--100			30				65			60					70			70				50				75			70				60			60		60			60			60			60			60				55			60			60				80			80			80
+		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "Heavy Drone"},
+		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet"},
+		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+		["Cucaracha"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
 	}
 	prebuilt_follower = "MT52 Hornet"	--default
 	fleet_exclusions = {
@@ -880,12 +891,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Flaire")		--J
-	makePlayerShipActive("Rogue")		--J
-	makePlayerShipActive("Rattler")		--J
-	makePlayerShipActive("Tango")		--W
-	makePlayerShipActive("Pinwheel")	--W
-	makePlayerShipActive("Crux")		--W
+	makePlayerShipActive("Darkstar")	--J
+	makePlayerShipActive("Fist")		--J
+	makePlayerShipActive("Blaire")		--B
+	makePlayerShipActive("Farrah")		--W
+	makePlayerShipActive("Claw")		--W
+	makePlayerShipActive("Osprey")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -6036,15 +6047,18 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 5 then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
-			dp5Zone:setColor(0,128,0):setLabel("5")
+		if i == 6 then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
 		elseif i == 1 then
 			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
 			dp1Zone:setColor(0,128,0):setLabel("1")
 		elseif i == 2 then
 			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
 			dp2Zone:setColor(0,128,0):setLabel("2")
+		elseif i == 3 then
+			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
+			dp3Zone:setColor(0,128,0):setLabel("3")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -6110,9 +6124,10 @@ function createIcarusStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Aquarius F4m9
-	--local aquariusZone = squareZone(-4295, 14159, "Aquarius VIII F4.9")
-	--aquariusZone:setColor(51,153,255)
-    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius VIII"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local aquariusZone = squareZone(-4295, 14159, "Aquarius IX F4.9")
+	aquariusZone:setColor(51,153,255):setLabel("A")
+	--[[
+    stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius IX"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -6156,6 +6171,7 @@ function createIcarusStations()
 	if random(1,100) <= 37 then stationAquarius:setSharesEnergyWithDocked(false) end
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
+	--]]
 	--Borlan
 	--local borlanZone = squareZone(68808, 39300, "Borlan 2 G8")
 	--borlanZone:setColor(51,153,255)
@@ -24330,8 +24346,8 @@ function phobosR2(enemyFaction)
 	end
 	ship:onTakingDamage(npcShipDamage)
 	ship:setTypeName("Phobos R2")
-	ship:setWeaponTubeCount(1)			--one tube (vs 2)
-	ship:setWeaponTubeDirection(0,0)	
+	ship:setWeaponTubeDirection(0,0)	--straight tubes vs angled
+	ship:setWeaponTubeDirection(1,0)	
 	ship:setImpulseMaxSpeed(55)			--slower impulse (vs 60)
 	ship:setRotationMaxSpeed(15)		--faster maneuver (vs 10)
 	local phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
@@ -24343,9 +24359,10 @@ function phobosR2(enemyFaction)
 			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
 			phobos_r2_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube",
+			"The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but straight tubes instead of angled tubes",
 			{
 				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},	--torpedo tube direction and load speed
 			},
 			nil,
 			"AtlasHeavyFighterYellow"
