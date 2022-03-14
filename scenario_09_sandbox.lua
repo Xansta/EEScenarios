@@ -139,7 +139,7 @@ function setConstants()
 	playerFleet=fleetCustom:create()
 	update_edit_object=nil
 	universe:addAvailableRegion("Icarus (F5)",icarusSector,0,0)
-	universe:addAvailableRegion("Riptide Binary (G67)", riptideBinarySector,-732730, 30101)
+	universe:addAvailableRegion("Riptide Binary (G67)", riptideBinarySector,-780000, 20000)
 	universe:addAvailableRegion("Kentar (R17)",kentarSector,250000,250000)
 	universe:addAvailableRegion("Eris (WIP)",function() return erisSector(390000,210000) end,-390000, 210000)
 	--Original in the midst of the ghosts near Astron spawn point: 586367, 296408
@@ -6987,7 +6987,7 @@ function createIcarusToRiptideWormholeArea()
 	local ret = {}
 	local icarusToRiptideWormHole = WormHole():setPosition(19778, 114698): --- next to Speculator 3
 		setScanningParameters(2, 3):setDescriptions("Wormhole leading to Riptide Binary system", 
-			"Anomaly type: Wormhole"):setTargetPosition(-676981, 24767)
+			"Anomaly type: Wormhole"):setTargetPosition(-780000, 20000)
 	update_system:addUpdate(icarusToRiptideWormHole, "icarus-riptide wormhole rotation", {
 		update=function(self, obj, delta)
 			if not obj:isValid() then
@@ -14684,7 +14684,7 @@ function riptideBinarySector()
 			"Stellar remnant locked in a dance with its partner. Likely a remnant of ~20 M☉ dwarf star.\n" ..
 			"Friction between gas molecules in the accretion disk causes electric discharges, which has a draining effect on shields.\n" ..
 			"Anomaly detected: slightly positive electric charge (+0.01 Coulombs). Normally, black holes are electrically neutral."
-			)
+			):setScanned(true)
 	table.insert(objects, riptideAlphaStar)
 
 	local centerX, centerY = riptideAlphaStar:getPosition()
@@ -14695,7 +14695,7 @@ function riptideBinarySector()
 			"Mass: 0.5 M Sol\n"..
 			"---\n" ..
 			"A typical white dwarf in a binary system, tidaly locked with its parent Black Hole.\n"
-			)
+			):setScanned(true)
 	table.insert(objects, riptideBeta)
 
 	local riptideGammaOrbitPeriod = 8000
@@ -14712,8 +14712,53 @@ function riptideBinarySector()
 			"---\n" ..
 			"Abnormally large Jupiter. It seems to be feeding the black hole in the center of this system.\n" ..
 			"Est. lifetime before planet evaporates completely: ~200,000 years."
-			)
+			):setScanned(true)
 	table.insert(objects, riptideGamma)
+
+
+	-- r = R cubicRoot(Msmall / 3Mlarge)
+	-- Msmall = mGammaInEarhts = 317.8
+	-- mSolInEarths = 333000
+	-- Mlarge = mAlphaInEarths = 0.5 * mSolInEarths
+	local langrange2FromRiptideGamma = riptideGammaOrbitRadius * 0.86
+	local anomalyOrbitRadius = riptideGammaOrbitRadius + langrange2FromRiptideGamma
+	local spacetimeLens = Planet():setPosition(centerX, centerY + anomalyOrbitRadius):
+		setPlanetCloudTexture("./skybox/front.png"):
+		setPlanetSurfaceTexture("./skybox/right.png"):
+		setAxialRotationTime(360):
+		setPlanetRadius(2000):setOrbit(riptideAlphaStar, riptideGammaOrbitPeriod):
+		setScanningParameters(3, 4):setDescriptions("Unknown spacetime anomaly", 
+			"Type: unknown spacetime anomaly.\n"..
+			"---\n" ..
+			"Preliminary scans show that this anomaly acts like a spacetime lens of sorts. It acts both in spatial and time directions. " .. 
+			"Events taking place in another part of the universe can be seen through it. " ..
+			"It is not clear whether the anomaly is traversable. More research is required."
+		)
+	table.insert(objects, spacetimeLens)
+
+	lensedStationComms = function(comms_source, comms_target) 
+		setCommsMessage("---------------------")
+		addCommsReply("Contact",function()
+			commsSwitchToGM()
+			addGMMessage(string.format("Player ship %s in %s initiating contact to GM on %s station %s in %s.\nPrompt was %s %s", comms_source:getCallSign(), comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
+			addCommsReply("Back", commsStation)
+		end)
+	end
+	lensedStation = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):
+		setCallSign("Psamtik"):
+		setDescription("An Arlenian station is detected inside the anomaly."):
+		setCommsScript(""):setCommsFunction(lensedStationComms):setScanned(false)
+	update_system:addUpdate(lensedStation, "riptide-icarus wormhole rotation", {
+		anomaly=spacetimeLens,
+		update=function(self, obj, delta)
+			if not obj:isValid() then
+				return
+			end
+			local anX, anY = self.anomaly:getPosition()
+			obj:setPosition(anX + 300, anY + 300) -- stay inside the center of anomaly
+		end
+	})
+	table.insert(objects, lensedStation)
 
 
 	--- I hand-placed asteroids based on this point, and was too lazy to convert to relative measurements. But let's do it programatically.
@@ -14866,11 +14911,11 @@ function riptideBinarySector()
 			"The largest planetoid in this system, sitting comfortably in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
 				riptideAlphaStar:getCallSign() .. " system.\n" ..
 			"Anomaly detected: rich deposits of latinum found below the regolith."
-			)
+			):setScanned(true)
 	table.insert(objects, riptideDelta)
 
 	--Riptide Research
-    stationRiptideResearch = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Riptide Research"):setDescription("Stellar phenomenon research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationRiptideResearch = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Hossenfelder"):setDescription("Stellar phenomenon research"):setCommsScript(""):setCommsFunction(commsStation)
 	stationRiptideResearch:setPosition(centerX - (riptideGammaOrbitRadius * math.sqrt(3) / 2) + 1300, centerY + riptideGammaOrbitRadius / 2)
 	update_system:addOrbitTargetUpdate(stationRiptideResearch, riptideDelta, 1300, 700, 0)
 	stationRiptideResearch:setShortRangeRadarRange(8500)
@@ -14991,7 +15036,7 @@ function riptideBinarySector()
 				self.expectedPosY = centerY + dy
 			end
 		}
-		update_system:addUpdate(obj, "riptide accretion disk updater", update_data)
+		update_system:addUpdate(obj, "blackhole orbit", update_data)
 	end
 
 
@@ -15003,7 +15048,7 @@ function riptideBinarySector()
 			"---\n" ..
 			"Stabilised space time tunnel leading to somewhere in Icarus system. Its orbit places it in a Lagrange point of " .. riptideGamma:getCallSign() .. " - " ..
 				riptideAlphaStar:getCallSign() .. " system.\n"
-			):setTargetPosition(49157, 123520) -- nebula next to Speculator 3
+			):setScanned(true):setTargetPosition(49157, 123520) -- nebula next to Speculator 3
 		
 	local wormHoleX, wormHoleY = riptideToIcarusWormHole:getPosition()
 	local wormHoleInitialOrbitAngle = angleFromVectorNorth(wormHoleX, wormHoleY, centerX, centerY) - 90
@@ -15020,24 +15065,21 @@ function riptideBinarySector()
 	table.insert(objects, riptideToIcarusWormHole)
 	
 
-	--- For a scenario; comment/remove if not needed
-	local maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
-		setScanningParameters(2, 3):setDescriptions("Unscanned Arlenian vessel", 
-			"Lifesigns: unsure; check the scanner border readout\n" ..
+	-- --- For a scenario; comment/remove if not needed
+	-- note: maryCeleste is a global variable - so we can remove orbit function in kosaiOneOff
+	maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("M-ry_Cls---te"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
+		setScanningParameters(2, 3):setDescriptions("Unknown Arlenian Vessel", 
+			"Scan matches last known signatures of Mary Celeste with 99.9999% accuracy.\n" .. 
+			"Discrepancy: various noble gas content increased by 2ppm." ..
+			"Lifesigns: none\n" ..
 			"Life support status: OK\n" ..
 			"Reactor: OK\n" ..
-			"Damage report:\n* engines 0% (field repairs impossible)\n" ..
-			"* gravity stabilizers: 0% (field repairs impossible)\n" ..
-			"---\n" ..
-			"Hypothesis: disabled gravity stabilizers is the reason for ship's drift."
-		):setSystemHealthMax("maneuver", 0):setSystemHealthMax("impulse", 0):setSystemHealthMax("warp", 0):setSystemHealthMax("jumpdrive", 0)
+			"Damage report: none"
+		):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius)
+	maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
 
-	local maryCelesteX, maryCelesteY = maryCeleste:getPosition()
-	local mcx, mcy = vectorFromAngle(wormHoleInitialOrbitAngle - 2, wormHoleOrbitRadius) --- lagging behind wormhole slightly
-	--- the solution to this puzzle is to tractor Mary Celeste onto slightly lower orbit; it will eventually catch up with the wormhole
-	maryCeleste:setPosition(centerX + mcx, centerY + mcy)
-    maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
-	blackHoleOrbitUpdater(maryCeleste, centerX, centerY, slowOrbitDegPerSec, fastOrbitDegPerSec, 5000, riptideGammaOrbitRadius, 0)
+	update_system:addOrbitTargetUpdate(maryCeleste, riptideAlphaStar, 7000, 45, 0)
+
 	update_system:addUpdate(maryCeleste, "mary celesete blinking SOS callsign", {
 		update=function(self, obj, delta)
 			if not obj:isValid() then
@@ -15046,14 +15088,13 @@ function riptideBinarySector()
 			blips = {1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0}
 			currBlip = math.floor(getScenarioTime() * 4) % #blips
 			if blips[currBlip] == 1 then
-				obj:setCallSign("Mary Celeste")
+				obj:setCallSign("M-ry_Cls---te")
 			else       
 				obj:setCallSign("")
 			end
 		end
 	})
 	table.insert(objects, maryCeleste)
-
 
 	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
 		if not obj:isValid() then
@@ -38644,6 +38685,43 @@ function kosaiOneOff()
 		end
 
 	end)
+	addGMFunction("Remove Mary Celeste orbit", function()
+		update_system:removeUpdateNamed(maryCeleste, "orbit target")
+	end)
+	-- addGMFunction("HyperPortal", function()
+	-- 	removeGMFunction("HyperPortal")
+	-- 	addGMFunction(">HyperPortal<", function()
+	-- 		onGMClick(nil)
+	-- 		kosaiOneOff()
+	-- 	end)
+	-- 	onGMClick(function(x, y)
+	-- 		spawnHyperPortal(x, y)
+	-- 		-- snakeCurrCallSign = snakeCurrCallSign % #snakeCallSigns + 1
+
+	-- 		onGMClick(nil)
+	-- 		kosaiOneOff()
+	-- 	end)
+
+	-- 	spawnHyperPortal = function(x, y)
+	-- 		local p = Planet():setPosition(x, y):setPlanetRadius(2000)    --:setPlanetAtmosphereTexture("./blackHole3d.png"):setPlanetAtmosphereColor(.9, .9, .9) --:setPlanetCloudRadius(10000)
+	-- 			-- setPlanetCloudTexture("./texture/electric_sphere_texture.png"):setPlanetCloudRadius(2100):setPlanetSurfaceTexture("./skybox/right.png")
+	-- 			-- setPlanetCloudTexture("./texture/shield_hit_effect.png"):setPlanetCloudRadius(2100):setPlanetSurfaceTexture("./skybox/right.png")
+	-- 			p:setPlanetCloudTexture("./skybox/bottom.png")
+
+
+	-- 		-- update_system:addUpdate(p, "pp", {
+	-- 		-- 	skyboxes = {"left.png", "bottom.png", "front.png", "right.png", "top.png"}, -- "back.png" is left out because the "seam" is very visible
+	-- 		-- 	update = function(self, obj, delta)
+	-- 		-- 		local tanArg = getScenarioTime() / 5
+	-- 		-- 		obj:setAxialRotationTime(300 * math.abs(math.tan(tanArg)))
+
+	-- 		-- 		local currentSkybox = (math.floor(tanArg / math.pi) % #self.skyboxes) + 1
+	-- 		-- 		-- obj:setPlanetSurfaceTexture(string.format("./skybox/%s", self.skyboxes[currentSkybox]))
+	-- 		-- 		obj:setPlanetCloudTexture(string.format("./skybox/%s", self.skyboxes[currentSkybox]))
+	-- 		-- 	end
+	-- 		-- })
+	-- 	end
+	-- end)
 
 end
 
