@@ -9,6 +9,34 @@
 --- Newcomers are welcome to join us. Please post feedback about the sandbox on the EEScenarios github repository.
 -- Type: Development
 -- Author: Xansta and Starry
+-- Setting[Start Region]: Determine the start region for the session
+-- Start Region[Icarus|Default]: Large station normally with 6 defense platforms and small minefields
+-- Start Region[Kentar]: Large station normally with 3 defense platforms
+-- Start Region[Astron]: Small station no defenses on the edge of a huge nebula field where Ghosts reside
+-- Start Region[Lafrina]: Small station no defenses near primarily Arlenian occupied space
+-- Start Region[Teresh]: Large station normally with 5 defense platforms and small minefields
+-- Start Region[Bask]: Medium station no defenses. Multiple factions, intense star, Magnasol
+-- Setting[Warning]: Configures whether stations and ships in a region warn the players about enemies
+-- Warning[On|Default]: Players warned about enemies observed
+-- Warning[Off]: Players not warned about enemies observed
+-- Setting[Warn Ship Type]: Configures whether the warnings include ship types
+-- Warn Ship Type[On|Default]: Enemy warnings include ship type if applicable
+-- Warn Ship Type[Off]: Enemy warnings don't include ship type
+-- Setting[Warn Proximity]: Configures how close the enemies get before a warning is sent
+-- Warn Proximity[20|default]: Warning sent when enemies are within twenty units
+-- Warn Proximity[30]: Warning sent when enemies are within thirty units
+-- Warn Proximity[5]: Warning sent when enemies are within five units
+-- Warn Proximity[10]: Warning sent when enemies are within ten units
+-- Setting[Jump Corridor]: Is a jump corridor available between primary region stations when players dock. Automates region transition
+-- Jump Corridor[Off|Default]: No jump corridor between primary region stations
+-- Jump Corridor[On]: Jump corridor available between primary region stations
+-- Setting[Special Factor]: Base chance of special ability being added to spawned enemy: ship strength * special factor = the chance in 1000 that a special will be added
+-- Special Factor[0]: No specials
+-- Special Factor[1|Default]: Special factor one (default)
+-- Special Factor[2]: Special factor two
+-- Special Factor[3]: Special factor three
+-- Special Factor[5]: Special factor five
+-- Special Factor[8]: Special factor eight
 
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
@@ -115,8 +143,8 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.13.2"
-	ee_version = "2021.06.23"
+	scenario_version = "5.14.0"
+	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -130,7 +158,38 @@ function init()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
 	createSkeletonUniverse()
+	applySettings()
 	runAllTests()
+end
+function applySettings()
+	local start_region = getScenarioSetting("Start Region")
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		if string.find(region.name,start_region) then
+			playerSpawnX=region.spawn_x
+			playerSpawnY=region.spawn_y
+			universe:spawnRegion(region)
+			startRegion=region.name
+			break
+		end
+	end
+	if getScenarioSetting("Warning") == "On" then
+		automated_station_danger_warning = true
+	else
+		automated_station_danger_warning = false
+	end
+	if getScenarioSetting("Warn Ship Type") == "On" then
+		warning_includes_ship_type = true
+	else
+		warning_includes_ship_type = false
+	end
+	station_sensor_range = getScenarioSetting("Warn Proximity") * 1000
+	if getScenarioSetting("Jump Corridor") == "On" then
+		jump_corridor = true
+	else
+		jump_corridor = false
+	end
+	ship_enhancement_factor = getScenarioSetting("Special Factor")
 end
 function setConstants()
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
