@@ -143,7 +143,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.14.0"
+	scenario_version = "5.15.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -192,6 +192,7 @@ function applySettings()
 	ship_enhancement_factor = getScenarioSetting("Special Factor")
 end
 function setConstants()
+	difficulty = 1
 	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
 	universe=universe()
 	update_system=updateSystem:create()
@@ -950,12 +951,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Darkstar")	--J
-	makePlayerShipActive("Fist")		--J
-	makePlayerShipActive("Blaire")		--B
+	makePlayerShipActive("Spyder")		--J
+	makePlayerShipActive("Argonaut")	--J
+	makePlayerShipActive("Nimbus")		--B
 	makePlayerShipActive("Sting")		--W
-	makePlayerShipActive("Claw")		--W
-	makePlayerShipActive("Jarvis")		--W
+	makePlayerShipActive("Sparrow")		--W
+	makePlayerShipActive("Narsil")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -41282,75 +41283,11 @@ function handleDockedState()
 		end
 	end
 	if comms_source:isFriendly(comms_target) then
-		if random(1,100) <= 20 then
-			if comms_source:getRepairCrewCount() < comms_source.maxRepairCrew then
-				hireCost = math.random(30,60)
-			else
-				hireCost = math.random(45,90)
-			end
-			addCommsReply(string.format("Recruit repair crew member for %i reputation",hireCost), function()
-				if not comms_source:takeReputationPoints(hireCost) then
-					setCommsMessage("Insufficient reputation")
-				else
-					comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
-					resetPreviousSystemHealth(comms_source)
-					setCommsMessage("Repair crew member hired")
-				end
-				addCommsReply("Back", commsStation)
-			end)
-		end
-		if comms_source.initialCoolant ~= nil then
-			if math.random(1,100) <= 20 then
-				local coolantCost = math.random(45,90)
-				if comms_source:getMaxCoolant() < comms_source.initialCoolant then
-					coolantCost = math.random(30,60)
-				end
-				addCommsReply(string.format("Purchase coolant for %i reputation",coolantCost), function()
-					if not comms_source:takeReputationPoints(coolantCost) then
-						setCommsMessage("Insufficient reputation")
-					else
-						comms_source:setMaxCoolant(comms_source:getMaxCoolant() + 2)
-						setCommsMessage("Additional coolant purchased")
-					end
-					addCommsReply("Back", commsStation)
-				end)
-			end
-		end
+		getRepairCrewFromStation("friendly")
+		getCoolantFromStation("friendly")
 	else
-		if random(1,100) <= 20 then
-			if comms_source:getRepairCrewCount() < comms_source.maxRepairCrew then
-				hireCost = math.random(45,90)
-			else
-				hireCost = math.random(60,120)
-			end
-			addCommsReply(string.format("Recruit repair crew member for %i reputation",hireCost), function()
-				if not comms_source:takeReputationPoints(hireCost) then
-					setCommsMessage("Insufficient reputation")
-				else
-					comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
-					resetPreviousSystemHealth(comms_source)
-					setCommsMessage("Repair crew member hired")
-				end
-				addCommsReply("Back", commsStation)
-			end)
-		end
-		if comms_source.initialCoolant ~= nil then
-			if math.random(1,100) <= 20 then
-				local coolantCost = math.random(60,120)
-				if comms_source:getMaxCoolant() < comms_source.initialCoolant then
-					coolantCost = math.random(45,90)
-				end
-				addCommsReply(string.format("Purchase coolant for %i reputation",coolantCost), function()
-					if not comms_source:takeReputationPoints(coolantCost) then
-						setCommsMessage("Insufficient reputation")
-					else
-						comms_source:setMaxCoolant(comms_source:getMaxCoolant() + 2)
-						setCommsMessage("Additional coolant purchased")
-					end
-					addCommsReply("Back", commsStation)
-				end)
-			end
-		end
+		getRepairCrewFromStation("neutral")
+		getCoolantFromStation("neutral")
 	end
 --	sensor_boost_probes = {name = "Scope", cost = math.random(56,82), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
 	if comms_target.comms_data.fast_probes ~= nil or comms_target.comms_data.remote_warp_jammer ~= nil or comms_target.comms_data.sensor_boost_probes ~= nil then
@@ -41860,6 +41797,177 @@ function handleDockedState()
 		end
 	end
 end	--end of handleDockedState function
+function getRepairCrewFromStation(relationship)
+	addCommsReply(_("trade-comms","Recruit repair crew member"),function()
+		if comms_target.comms_data.available_repair_crew == nil then
+			comms_target.comms_data.available_repair_crew = math.random(0,3)
+		end
+		if comms_target.comms_data.available_repair_crew > 0 then	--station has repair crew available
+			if comms_target.comms_data.crew_available_delay == nil then
+				comms_target.comms_data.crew_available_delay = 0
+			end
+			if getScenarioTime() > comms_target.comms_data.crew_available_delay then	--no delay in progress
+				if random(1,5) <= (3 - difficulty) then		--repair crew available
+					local hire_cost = math.random(45,90)
+					if relationship ~= "friendly" then
+						hire_cost = math.random(60,120)
+					end
+					if comms_source:getRepairCrewCount() < comms_source.maxRepairCrew then
+						hire_cost = math.random(30,60)
+						if relationship ~= "friendly" then
+							hire_cost = math.random(45,90)
+						end
+					end
+					setCommsMessage(_("trade-comms","We have a repair crew candidate for you to consider"))
+					addCommsReply(string.format(_("trade-comms", "Recruit repair crew member for %i reputation"),hire_cost), function()
+						if not comms_source:takeReputationPoints(hire_cost) then
+							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						else
+							comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
+							comms_target.comms_data.available_repair_crew = comms_target.comms_data.available_repair_crew - 1
+							if comms_target.comms_data.available_repair_crew <= 0 then
+								comms_target.comms_data.new_repair_crew_delay = getScenarioTime() + random(200,500)
+							end
+							setCommsMessage(_("trade-comms", "Repair crew member hired"))
+						end
+						addCommsReply(_("Back"), commsStation)
+					end)
+				else	--repair crew delayed
+					local delay_reason = {
+						_("trade-comms","A possible repair recruit is awaiting final certification. They should be available in "),
+						_("trade-comms","There's one repair crew candidate completing their license application. They should be available in "),
+						_("trade-comms","One repair crew should be getting here from their medical checkout in "),
+					}
+					local delay_seconds = math.random(10,30)
+					comms_target.comms_data.crew_available_delay = getScenarioTime() + delay_seconds
+					comms_target.comms_data.crew_available_delay_reason = delay_reason[math.random(1,#delay_reason)]
+					setCommsMessage(string.format(_("trade-comms","%s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
+				end
+			else	--delay in progress
+				local delay_seconds = math.floor(comms_target.comms_data.crew_available_delay - getScenarioTime())
+				if delay_seconds > 1 then
+					setCommsMessage(string.format(_("trade-comms","%s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
+				else
+					setCommsMessage(string.format(_("trade-comms","%s a second"),comms_target.comms_data.crew_available_delay_reason))
+				end
+			end
+		else	--station does not have repair crew available
+			if comms_target.comms_data.new_repair_crew_delay == nil then
+				comms_target.comms_data.new_repair_crew_delay = 0
+			end
+			if getScenarioTime() > comms_target.comms_data.new_repair_crew_delay then
+				comms_target.comms_data.available_repair_crew = math.random(1,3)
+				local delay_reason = {
+					_("trade-comms","A possible repair recruit is awaiting final certification. They should be available in "),
+					_("trade-comms","There's one repair crew candidate completing their license application. They should be available in "),
+					_("trade-comms","One repair crew should be getting here from their medical checkout in "),
+				}
+				local delay_seconds = math.random(10,30)
+				comms_target.comms_data.crew_available_delay = getScenarioTime() + delay_seconds
+				comms_target.comms_data.crew_available_delay_reason = delay_reason[math.random(1,#delay_reason)]
+				setCommsMessage(string.format(_("trade-comms","Several arrived on station earlier. %s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
+			else
+				local delay_time = math.floor(comms_target.comms_data.new_repair_crew_delay - getScenarioTime())
+				local delay_minutes = math.floor(delay_time / 60)
+				local delay_seconds = math.floor(delay_time % 60)
+				local delay_status = string.format(_("trade-comms","%i seconds"),delay_seconds)
+				if delay_seconds == 1 then
+					delay_status = string.format(_("trade-comms","%i second"),delay_seconds)
+				end
+				if delay_minutes > 0 then
+					if delay_minutes > 1 then
+						delay_status = string.format(_("trade-comms","%i minutes and %s"),delay_minutes,delay_status)
+					else
+						delay_status = string.format(_("trade-comms","%i minute and %s"),delay_minutes,delay_status)
+					end							
+				end
+				setCommsMessage(string.format(_("trade-comms","There are some repair crew recruits in route for %s. Travel time remaining is %s."),comms_target:getCallSign(),delay_status))
+			end
+		end
+		addCommsReply(_("Back"), commsStation)
+	end)
+end
+function getCoolantFromStation(relationship)
+	if comms_source.initialCoolant ~= nil then
+		addCommsReply(_("trade-comms","Purchase Coolant"),function()
+			if comms_target.comms_data.coolant_inventory == nil then
+				comms_target.comms_data.coolant_inventory = math.random(0,3)*2
+			end
+			if comms_target.comms_data.coolant_inventory > 0 then	--station has coolant
+				if comms_target.comms_data.coolant_packaging_delay == nil then
+					comms_target.comms_data.coolant_packaging_delay = 0
+				end
+				if getScenarioTime() > comms_target.comms_data.coolant_packaging_delay then		--no delay
+					if math.random(1,5) <= (3 - difficulty) then
+						local coolantCost = math.random(45,90)
+						if relationship ~= "friendly" then
+							coolantCost = math.random(60,120)
+						end
+						if comms_source:getMaxCoolant() < comms_source.initialCoolant then
+							coolantCost = math.random(30,60)
+							if relationship ~= "friendly" then
+								coolantCost = math.random(45,90)
+							end
+						end
+						setCommsMessage(_("trade-comms","We've got some coolant available for you"))
+						addCommsReply(string.format(_("trade-comms", "Purchase coolant for %i reputation"),coolantCost), function()
+							if not comms_source:takeReputationPoints(coolantCost) then
+								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							else
+								comms_source:setMaxCoolant(comms_source:getMaxCoolant() + 2)
+								comms_target.comms_data.coolant_inventory = comms_target.comms_data.coolant_inventory - 2
+								if comms_target.comms_data.coolant_inventory <= 0 then
+									comms_target.comms_data.coolant_inventory_delay = getScenarioTime() + random(60,300)
+								end
+								setCommsMessage(_("trade-comms", "Additional coolant purchased"))
+							end
+							addCommsReply(_("Back"), commsStation)
+						end)
+					else
+						local delay_seconds = math.random(3,20)
+						comms_target.comms_data.coolant_packaging_delay = getScenarioTime() + delay_seconds
+						setCommsMessage(string.format(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transport. They say thay should have it working in about %i seconds"),delay_seconds))
+					end
+				else	--delay in progress
+					local delay_seconds = math.floor(comms_target.comms_data.coolant_packaging_delay - getScenarioTime())
+					if delay_seconds > 1 then
+						setCommsMessage(string.format(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transport. They say they should have it working in about %i seconds"),delay_seconds))
+					else
+						setCommsMessage(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transportation. They say they should have it working in a second"))
+					end
+				end
+			else	--station is out of coolant
+				if comms_target.comms_data.coolant_inventory_delay == nil then
+					comms_target.comms_data.coolant_inventory_delay = 0
+				end
+				if getScenarioTime() > comms_target.comms_data.coolant_inventory_delay then
+					comms_target.comms_data.coolant_inventory = math.random(1,3)*2
+					local delay_seconds = math.random(3,20)
+					comms_target.comms_data.coolant_packaging_delay = getScenarioTime() + delay_seconds
+					setCommsMessage(string.format(_("trade-comms","Our coolant production facility just made some, but it's not quite ready to be transported. The preparation facility says it should take about %i seconds"),delay_seconds))
+				else
+					local delay_time = math.floor(comms_target.comms_data.coolant_inventory_delay - getScenarioTime())
+					local delay_minutes = math.floor(delay_time / 60)
+					local delay_seconds = math.floor(delay_time % 60)
+					local delay_status = string.format(_("trade-comms","%i seconds"),delay_seconds)
+					if delay_seconds == 1 then
+						delay_status = string.format(_("trade-comms","%i second"),delay_seconds)
+					end
+					if delay_minutes > 0 then
+						if delay_minutes > 1 then
+							delay_status = string.format(_("trade-comms","%i minutes and %s"),delay_minutes,delay_status)
+						else
+							delay_status = string.format(_("trade-comms","%i minute and %s"),delay_minutes,delay_status)
+						end							
+					end
+					setCommsMessage(string.format(_("trade-comms","Our coolant production facility is making more right now. Coolant manufacturing time remaining is %s."),delay_status))
+				end
+			end
+			addCommsReply(_("Back"), commsStation)
+		end)
+	end
+end
+
 function isAllowedTo(state)
     if state == "friend" and comms_source:isFriendly(comms_target) then
         return true
