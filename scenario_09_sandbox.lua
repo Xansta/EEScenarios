@@ -143,7 +143,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.15.1"
+	scenario_version = "5.16.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1537,6 +1537,17 @@ function createSkeletonUniverse()
 			phobosreinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<60},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<60},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<60},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<90},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        },
         jump_overcharge =		true,
         shield_overcharge =		true,
         probe_launch_repair =	true,
@@ -1585,6 +1596,17 @@ function createSkeletonUniverse()
         	supplydrop = math.random(90,110), 
         	reinforcements = math.random(140,160),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<70},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<70},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<90},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<85},
         },
         jump_overcharge =		true,
         shield_overcharge =		true,
@@ -1679,6 +1701,17 @@ function createSkeletonUniverse()
         	reinforcements = math.random(140,180),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<70},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<90},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<75},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<75},
+        },
         jump_overcharge =		true,
         shield_overcharge =		true,
         probe_launch_repair =	true,
@@ -1722,6 +1755,17 @@ function createSkeletonUniverse()
         	supplydrop = math.random(90,110), 
         	reinforcements = math.random(140,160),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         jump_overcharge =		true,
         shield_overcharge =		true,
@@ -1773,6 +1817,17 @@ function createSkeletonUniverse()
 			phobosreinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<70},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<70},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<80},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        },
         jump_overcharge =		true,
         shield_overcharge =		true,
         probe_launch_repair =	true,
@@ -1821,6 +1876,17 @@ function createSkeletonUniverse()
    			hornetreinforcements =	math.random(75,125),
 			phobosreinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<80},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<90},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
         },
         jump_overcharge =		true,
         shield_overcharge =		true,
@@ -2696,6 +2762,17 @@ function tweakTerrain()
 					        weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
 							weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
 							service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+							system_repair = {
+								["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+								["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+								["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+								["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+								["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+								["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+								["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+								["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+								["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+							},
 							reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
 							max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
 							goods = {	[componentGoods[math.random(1,#componentGoods)]]	=	{quantity = math.random(1,5),	cost = math.random(60,95)},
@@ -2714,6 +2791,17 @@ function tweakTerrain()
 								weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
 								weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
 								service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+								system_repair = {
+									["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+									["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+									["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+									["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+									["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+									["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+									["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+									["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+									["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+								},
 								reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
 								max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
 								goods = {	[componentGoods[math.random(1,#componentGoods)]]	=	{quantity = math.random(1,5),	cost = math.random(60,95)},
@@ -2758,6 +2846,17 @@ function tweakTerrain()
 									weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
 									weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
 									service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+									system_repair = {
+										["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+										["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+										["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+										["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+										["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+										["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+										["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+										["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+										["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+									},
 									reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
 									max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
 									goods = {	[componentGoods[math.random(1,#componentGoods)]]	=	{quantity = math.random(1,5),	cost = math.random(60,95)},
@@ -5088,6 +5187,17 @@ function santaContainment()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = true,HVLI = true,		Mine = true,		Nuke = true,			EMP = true},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -5135,6 +5245,17 @@ function santaContainment()
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = true,HVLI = true,		Mine = true,		Nuke = true,			EMP = true},
         service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -6203,6 +6324,17 @@ function createIcarusStations()
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        },
         shield_overcharge =		true,
         hack_repair =			true,
         scan_repair =			true,
@@ -6250,6 +6382,17 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
         },
         shield_overcharge =		true,
         probe_launch_repair =	true,
@@ -6310,6 +6453,17 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
@@ -6344,6 +6498,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         hack_repair =			true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
@@ -6386,6 +6551,17 @@ function createIcarusStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
         },
         hack_repair =			true,
         scan_repair =			true,
@@ -6439,6 +6615,17 @@ function createIcarusStations()
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         shield_overcharge =		true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<60,
@@ -6475,6 +6662,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(13,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         sensor_boost = {value = 5000, cost = 5},
@@ -6508,6 +6706,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2,				HVLI = math.random(2,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
@@ -6547,6 +6756,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         hack_repair =			true,
         scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -6590,6 +6810,17 @@ function createIcarusStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
         },
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -6638,6 +6869,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	optic = 	{quantity = math.random(5,10),	cost = math.random(60,70)}	},
@@ -6677,6 +6919,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         fast_probes = {name = "Screamer", cost = math.random(8,15), quantity = math.random(1,5), speed = 4000},
@@ -6723,6 +6976,17 @@ function createIcarusStations()
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -6767,6 +7031,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(1,5),	HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(11,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         scan_repair =			true,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -6809,6 +7084,17 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         jump_overcharge =		true,
         shield_overcharge =		true,
@@ -6858,6 +7144,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = 2, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         hack_repair =			true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -6907,6 +7204,17 @@ function createIcarusStations()
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         shield_overcharge =		true,
         hack_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
@@ -6954,6 +7262,17 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
         },
         shield_overcharge =		true,
         hack_repair =			true,
@@ -7018,6 +7337,17 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        },
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -8045,6 +8375,17 @@ function createKentarStations()
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -8381,6 +8722,17 @@ function createKentarStations()
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        },
         shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -8430,6 +8782,17 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         combat_maneuver_repair=	true,
@@ -8471,6 +8834,17 @@ function createKentarStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(32,58),	EMP = 20 },
         weapon_available = 	{Homing = false,	HVLI = false,			Mine = false,			Nuke = true,				EMP = true},
         service_cost = 		{supplydrop = math.random(180,320), reinforcements = math.random(225,375)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			true,
@@ -8513,6 +8887,17 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         shield_overcharge =		true,
         probe_launch_repair =	true,
@@ -8563,6 +8948,17 @@ function createKentarStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         hack_repair =			true,
         scan_repair =			true,
         sensor_boost = {value = 5000, cost = 5},
@@ -8616,6 +9012,17 @@ function createKentarStations()
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         shield_overcharge =		true,
         probe_launch_repair =	true,
         combat_maneuver_repair=	random(1,100)<30,
@@ -8663,6 +9070,17 @@ function createKentarStations()
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -8709,6 +9127,17 @@ function createKentarStations()
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        },
         shield_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -8752,6 +9181,17 @@ function createKentarStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         probe_launch_repair =	true,
         combat_maneuver_repair=	true,
@@ -8798,6 +9238,17 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         shield_overcharge =		true,
         probe_launch_repair =	true,
@@ -11815,6 +12266,17 @@ function createLafrinaStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(4,6),Nuke = math.random(12,20),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = true,				HVLI = false,			Mine = random(1,100)<30,Nuke = random(1,100)<30,	EMP = random(1,100)<73	},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         hack_repair =			random(1,100) < 63,
         scan_repair =			random(1,100)<30,
@@ -11846,6 +12308,17 @@ function createLafrinaStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100)<30,Mine = true,			Nuke = random(1,100)<30,	EMP = random(1,100)<30	},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	random(1,100) < 63,
         hack_repair =			true,
         scan_repair =			true,
@@ -11887,6 +12360,17 @@ function createLafrinaStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	random(1,100) < 63,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         hack_repair =			true,
@@ -11931,6 +12415,17 @@ function createLafrinaStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         shield_overcharge =		true,
         probe_launch_repair =	true,
@@ -11982,6 +12477,17 @@ function createLafrinaStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         hack_repair =			random(1,100) < 63,
         scan_repair =			true,
@@ -12024,6 +12530,17 @@ function createLafrinaStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<50},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<50},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<60},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<90},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<75},
         },
         shield_overcharge =		true,
         probe_launch_repair =	random(1,100) < 83,
@@ -12077,6 +12594,17 @@ function createLafrinaStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = false,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        },
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			random(1,100) < 83,
@@ -12119,6 +12647,17 @@ function createLafrinaStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = false,		Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	true,
         hack_repair =			true,
         scan_repair =			random(1,100) < 83,
@@ -12651,6 +13190,17 @@ function createTereshStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	random(1,100) < 63,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         sensor_boost_probes = {name = "Spectacle", cost = math.random(16,41), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
@@ -12689,6 +13239,17 @@ function createTereshStations()
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),	Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100) <= 80,	Mine = true,			Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
         hack_repair =			true,
         scan_repair =			true,
@@ -12731,6 +13292,17 @@ function createTereshStations()
 			phobosreinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
         },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         jump_overcharge =		true,
         probe_launch_repair =	true,
         scan_repair =			true,
@@ -12764,6 +13336,17 @@ function createTereshStations()
    			hornetreinforcements =	math.random(75,125),
 			phobosreinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         shield_overcharge =		true,
         hack_repair =			true,
@@ -12799,6 +13382,17 @@ function createTereshStations()
    			hornetreinforcements =	math.random(75,125),
 			phobosreinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<85},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
         },
         hack_repair =			true,
         combat_maneuver_repair=	true,
@@ -13177,6 +13771,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         hack_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<30,
         jump_overcharge =		random(1,100)<30,
@@ -13213,6 +13818,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<30,
@@ -13255,6 +13871,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,6), 	HVLI = math.random(2,5),	Mine = math.random(2,6),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        },
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<20,
         tube_slow_down_repair = random(1,100)<34,
@@ -13299,6 +13926,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,5),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<54,
@@ -13342,6 +13980,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,4),	Nuke = math.random(12,19),	EMP = math.random(9,25) },
         weapon_available = 	{Homing = random(1,100) <= 50,	HVLI = random(1,100) <= 40,	Mine = random(1,100) <= 30,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 60},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<60},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<50},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<60},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<95},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<90},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<75},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<75},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<50,
         tube_slow_down_repair = random(1,100)<64,
@@ -13387,6 +14036,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,6),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 50,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 20},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<55,
         tube_slow_down_repair = random(1,100)<34,
@@ -13430,6 +14090,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 50,	Mine = random(1,100) <= 80,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<55,
         tube_slow_down_repair = random(1,100)<34,
@@ -13472,6 +14143,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 50,	HVLI = random(1,100) <= 60,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<55},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<55},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<55,
         tube_slow_down_repair = random(1,100)<34,
@@ -13515,6 +14197,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 60,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<75,
         scan_repair =			random(1,100)<50,
@@ -13558,6 +14251,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,4),	Mine = math.random(2,5),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<45,
         scan_repair =			random(1,100)<60,
@@ -13601,6 +14305,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,5),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 27},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<60,
@@ -13644,6 +14359,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(3,6), 	HVLI = math.random(2,6),	Mine = math.random(3,8),	Nuke = math.random(12,16),	EMP = math.random(8,14) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 27},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        },
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<55,
         scan_repair =			random(1,100)<60,
@@ -13687,6 +14413,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,3),	Mine = math.random(2,7),	Nuke = math.random(14,17),	EMP = math.random(8,17) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<55,
         scan_repair =			random(1,100)<60,
@@ -13731,6 +14468,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,18),	EMP = math.random(9,17) },
         weapon_available = 	{Homing = random(1,100) <= 55,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<35,
         scan_repair =			random(1,100)<50,
@@ -13775,6 +14523,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(1,4), 	HVLI = math.random(1,4),	Mine = math.random(1,9),	Nuke = math.random(16,21),	EMP = math.random(8,13) },
         weapon_available = 	{Homing = random(1,100) <= 55,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<65,
         scan_repair =			random(1,100)<50,
@@ -13819,6 +14578,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,5),	Mine = math.random(2,7),	Nuke = math.random(13,16),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<30,
@@ -13862,6 +14632,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,5),	Mine = math.random(2,7),	Nuke = math.random(13,16),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<50},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<65},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<30,
@@ -13906,6 +14687,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<70,
@@ -13949,6 +14741,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<65,
         scan_repair =			random(1,100)<70,
@@ -13992,6 +14795,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 85,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<65,
         scan_repair =			random(1,100)<70,
@@ -14035,6 +14849,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        },
         sensor_boost_probes = selected_sensor_probe,
         hack_repair =			random(1,100)<65,
         scan_repair =			random(1,100)<70,
@@ -14078,6 +14903,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         remote_warp_jammer = selected_remote_warp_jammer,
         hack_repair =			random(1,100)<45,
         scan_repair =			random(1,100)<70,
@@ -14121,6 +14957,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<45,
         scan_repair =			random(1,100)<70,
@@ -14164,6 +15011,17 @@ function createBaskStations()
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         fast_probes = selected_fast_probe,
         hack_repair =			random(1,100)<45,
         scan_repair =			random(1,100)<30,
@@ -14985,6 +15843,17 @@ function riptideBinarySector()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = random(1,100)<50,Nuke = random(1,100)<30,	EMP = random(1,100)<40},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         hack_repair =			true,
         scan_repair =			true,
         tube_slow_down_repair = random(1,100)<30,
@@ -19200,18 +20069,23 @@ function createPlayerShipNarsil()
 	playerNarsil:setShieldsMax(150,150)					--weaker shields (vs 200)
 	playerNarsil:setShields(150,150)
 	playerNarsil:setWeaponTubeCount(6)					--one more forward tube, less flexible ordnance
-	playerNarsil:setWeaponTubeDirection(0,0)			--front facing
-	playerNarsil:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(1,-90)			--left facing
-	playerNarsil:weaponTubeDisallowMissle(1,"Mine")		--all but mine
-	playerNarsil:setWeaponTubeDirection(2,-90)			--left facing
-	playerNarsil:setWeaponTubeExclusiveFor(2,"HVLI")	--HVLI only
-	playerNarsil:setWeaponTubeDirection(3,90)			--right facing
-	playerNarsil:weaponTubeDisallowMissle(3,"Mine")		--all but mine
-	playerNarsil:setWeaponTubeDirection(4,90)			--right facing
-	playerNarsil:setWeaponTubeExclusiveFor(4,"HVLI")	--HVLI only
+	playerNarsil:setWeaponTubeDirection(1, 90)			--right facing (vs left)
+	playerNarsil:setWeaponTubeDirection(2,  0)			--front facing (vs right)
+	playerNarsil:setWeaponTubeDirection(4,-90)			--left facing (vs rear)
 	playerNarsil:setWeaponTubeDirection(5,180)			--rear facing
-	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")	--Mine only
+	playerNarsil:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only (vs any)
+	playerNarsil:setWeaponTubeExclusiveFor(1,"HVLI")	--HVLI only (vs any)
+	playerNarsil:setWeaponTubeExclusiveFor(2,"HVLI")	--HVLI only (vs any)
+	playerNarsil:setWeaponTubeExclusiveFor(4,"HVLI")	--All but mine (vs mine only)
+	playerNarsil:weaponTubeAllowMissle(4,"Nuke")
+	playerNarsil:weaponTubeAllowMissle(4,"Homing")
+	playerNarsil:weaponTubeAllowMissle(4,"EMP")
+	playerNarsil:setWeaponTubeExclusiveFor(5,"Mine")
+	playerNarsil:setTubeSize(0,"large")					--left tube large (vs normal)
+	playerNarsil:setTubeSize(1,"large")					--right tube large (vs normal)
+	playerNarsil:setTubeLoadTime(0,12)					--slower (vs 8)
+	playerNarsil:setTubeLoadTime(1,12)					--slower (vs 8)
+	playerNarsil:setTubeLoadTime(5,15)					--slower (vs 8)
 	playerNarsil:onTakingDamage(playerShipDamage)
 	playerNarsil:addReputationPoints(50)
 	return playerNarsil
@@ -26918,6 +27792,17 @@ function missilePod(enemyFaction)
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	random(1,100) < 73,
         hack_repair =			random(1,100) < 67,
         scan_repair =			random(1,100) < 63,
@@ -27414,6 +28299,17 @@ function commandBase(enemyFaction)
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	random(1,100) < 93,
         hack_repair =			random(1,100) < 87,
         scan_repair =			random(1,100) < 83,
@@ -27507,6 +28403,17 @@ function militaryOutpost(enemyFaction)
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	random(1,100) < 83,
         hack_repair =			random(1,100) < 77,
         scan_repair =			random(1,100) < 73,
@@ -27583,6 +28490,17 @@ function sniperTower(enemyFaction)
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
         service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
         probe_launch_repair =	random(1,100) < 83,
         hack_repair =			random(1,100) < 77,
         scan_repair =			random(1,100) < 73,
@@ -41067,9 +41985,67 @@ function handleDockedState()
 			offer_repair = true
 		end
 	end
+	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+	local pretty_system = {
+		["reactor"] = "reactor",
+		["beamweapons"] = "beam weapons",
+		["missilesystem"] = "missile system",
+		["maneuver"] = "maneuver",
+		["impulse"] = "impulse engines",
+		["warp"] = "warp drive",
+		["jumpdrive"] = "jump drive",
+		["frontshield"] = "front shield",
+		["rearshield"] = "rear shield",
+	}
+	local system_repair_list = {}
+	if comms_target.comms_data.system_repair ~= nil then
+		for _, system in ipairs(system_list) do
+			if comms_source:hasSystem(system) then
+				if comms_source:getSystemHealthMax(system) < 1 then
+					if comms_target.comms_data.system_repair[system].avail then
+						if comms_target.comms_data.system_repair[system].cost > 0 then
+							if comms_target.player_system_repair_service == nil then
+								offer_repair = true
+								table.insert(system_repair_list,system)
+							else
+								if comms_target.player_system_repair_service[comms_source] == nil then
+									offer_repair = true
+									table.insert(system_repair_list,system)
+								else
+									if comms_target.player_system_repair_service[comms_source][system] == nil then
+										offer_repair = true
+										table.insert(system_repair_list,system)
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 	if offer_repair then
 		addCommsReply("Repair ship system",function()
 			setCommsMessage("What system would you like repaired?")
+			if #system_repair_list > 0 then
+				for index, system in ipairs(system_repair_list) do
+					addCommsReply(string.format("Repair %s max health up to %.1f%% (%i Rep)",pretty_system[system],comms_target.comms_data.system_repair[system].max*100,comms_target.comms_data.system_repair[system].cost), function()
+						if comms_source:takeReputationPoints(comms_target.comms_data.system_repair[system].cost) then
+							if comms_target.player_system_repair_service == nil then
+								comms_target.player_system_repair_service = {}
+							end
+							if comms_target.player_system_repair_service[comms_source] == nil then
+								comms_target.player_system_repair_service[comms_source] = {}
+							end
+							comms_target.player_system_repair_service[comms_source][system] = true
+							setCommsMessage(string.format("We'll start working on your %s maximum health right away",pretty_system[system]))
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			end
 			if ctd.probe_launch_repair then
 				if not comms_source:getCanLaunchProbe() then
 					addCommsReply("Repair probe launch system (5 Rep)",function()
@@ -44233,6 +45209,7 @@ function updateInner(delta)
 			if p.epjam_recharge ~= nil then
 				catchEpjamMissile(p)
 			end
+			updatePlayerSystemHealthRepair(delta,p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -44538,6 +45515,15 @@ function updatePlayerDamageConsequences(p)
 						upper_consequence = upper_consequence + 1
 						table.insert(consequence_list,"tube_time")
 					end
+					local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+					for _, system in ipairs(system_list) do
+						if p:hasSystem(system) then
+							if p:getSystemHealth(system) < p:getSystemHealthMax(system) then
+								upper_consequence = upper_consequence + 1
+								table.insert(consequence_list,system)
+							end
+						end
+					end
 					consequence = math.random(1,upper_consequence)
 					if consequence == 1 then
 						p:setRepairCrewCount(p:getRepairCrewCount() - 1)
@@ -44589,6 +45575,19 @@ function updatePlayerDamageConsequences(p)
 								tube_index = tube_index + 1
 							until(tube_index >= tube_count)
 							p:wrappedAddCustomMessage("Engineering","tube_slow_down_message","Tube damage has caused tube load time to increase")
+						else
+							local found_system = false
+							for _, system in ipairs(system_list) do
+								if system == named_consequence then
+									found_system = true
+									break
+								end
+							end
+							if not found_system then
+								named_consequence = "reactor"
+							end
+							p:setSystemHealthMax(named_consequence,(p:getSystemHealthMax(named_consequence) - p:getSystemHealth(named_consequence))/2)
+							p:wrappedAddCustomMessage("Engineering","severe_damage",string.format("Severe damage to %s",named_consequence))
 						end
 					end	--coolant loss branch
 				end	--could lose coolant branch
@@ -44746,6 +45745,130 @@ function updatePlayerDamageControl(p)
 				p:addCustomMessage("Engineering+",p.dmg_msg,dmg_msg)
 			end,20)
 		end
+	end
+	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+	local pretty_system = {
+		["reactor"] = "Reactor",
+		["beamweapons"] = "Beam Weapons",
+		["missilesystem"] = "Missile System",
+		["maneuver"] = "Maneuver",
+		["impulse"] = "Impulse Engines",
+		["warp"] = "Warp Drive",
+		["jumpdrive"] = "Jump Drive",
+		["frontshield"] = "Front Shield",
+		["rearshield"] = "Rear Shield",
+	}
+	local docked_station = p:getDockedWith()
+	local compromised_systems = {}
+	for _, system in ipairs(system_list) do
+		local health_max = p:getSystemHealthMax(system)
+		if health_max < 1 then
+			local station_max = nil
+			if docked_station ~= nil then
+				if docked_station:isValid() then
+					if docked_station.comms_data ~= nil then
+						if docked_station.comms_data.system_repair ~= nil then
+							local station_system = docked_station.comms_data.system_repair[system]
+							if station_system.avail then
+								station_max = station_system.max
+							end
+						end
+					end
+				end
+			end
+			table.insert(compromised_systems,{system=system,max=health_max,station_max=station_max})
+		end
+	end
+	if #compromised_systems > 0 then
+		max_health_msg = ""
+		local has_compromised_system = false
+		for index, system in ipairs(compromised_systems) do
+			if p:hasSystem(system.system) then
+				has_compromised_system = true
+				max_health_msg = string.format("%s\n%.1f%% %s",max_health_msg,system.max*100,pretty_system[system.system])
+				if system.station_max ~= nil then
+					max_health_msg = string.format("%s, %s can repair max health to %.1f%%",max_health_msg,docked_station:getCallSign(),system.station_max*100)
+				end
+			end
+		end
+		if has_compromised_system then
+			max_health_msg = string.format("Maximum health of severely damaged systems repairable in the field by your repair crew:%s",max_health_msg)
+			p.max_health_eng = "max_health_eng"
+			p:addCustomButton("Engineering",p.max_health_eng,"Max Health",function()
+				p.max_health_msg_eng = "max_health_msg_eng"
+				p:addCustomMessage("Engineering",p.max_health_msg_eng,max_health_msg)
+			end,21)
+			p.max_health_plus = "max_health_plus"
+			p:addCustomButton("Engineering+",p.max_health_plus,"Max Health",function()
+				p.max_health_msg_plus = "max_health_msg_plus"
+				p:addCustomMessage("Engineering+",p.max_health_msg_plus,max_health_msg)
+			end,21)
+		else
+			if p.max_health_eng ~= nil then
+				p:removeCustom(p.max_health_eng)
+				p.max_health_eng = nil
+			end
+			if p.max_health_plus ~= nil then
+				p:removeCustom(p.max_health_plus)
+				p.max_health_plus = nil
+			end
+		end
+	else
+		if p.max_health_eng ~= nil then
+			p:removeCustom(p.max_health_eng)
+			p.max_health_eng = nil
+		end
+		if p.max_health_plus ~= nil then
+			p:removeCustom(p.max_health_plus)
+			p.max_health_plus = nil
+		end
+	end
+end
+function updatePlayerSystemHealthRepair(delta,p)
+	local docked_station = p:getDockedWith()
+	if docked_station == nil then
+		return
+	else
+		if docked_station:isValid() then
+			if docked_station.comms_data == nil then
+				return
+			else
+				if docked_station.comms_data.system_repair == nil then
+					return
+				end
+			end
+		else
+			return
+		end
+	end
+--	print("player:",p:getCallSign(),"station docked:",docked_station:getCallSign())
+	local system_repair_list = {}
+	for system, repair in pairs(docked_station.comms_data.system_repair) do
+		if repair.avail then
+			if p:hasSystem(system) then
+				local current_system_health_max = p:getSystemHealthMax(system)
+--				print("system:",system,"current max health:",current_system_health_max,"repair max:",repair.max)
+				if current_system_health_max < 1 then
+					if current_system_health_max < repair.max then
+						if repair.cost > 0 then
+							if docked_station.player_system_repair_service ~= nil then
+								if docked_station.player_system_repair_service[p] ~= nil then
+									if docked_station.player_system_repair_service[p][system] ~= nil then
+										table.insert(system_repair_list,{system=system,current_max=current_system_health_max,max=repair.max})
+									end
+								end
+							end
+						else
+							table.insert(system_repair_list,{system=system,current_max=current_system_health_max,max=repair.max})
+						end
+					end
+				end
+			end
+		end
+	end
+	if #system_repair_list > 0 then
+		selected_system = system_repair_list[math.random(1,#system_repair_list)]
+		p:setSystemHealthMax(selected_system.system,math.min((selected_system.current_max + (delta/30)),selected_system.max))
 	end
 end
 function updatePlayerExpediteDock(delta,p)
