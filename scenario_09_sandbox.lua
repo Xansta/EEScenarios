@@ -392,8 +392,6 @@ function setConstants()
 		["Prador"] =			{strength = 160,adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9500,	hop_angle = 0,	hop_range = 2480,	create = prador},
 		["Odin"] =				{strength = 250,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = stockTemplate},
 		["Loki"] =				{strength = 260,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = loki},
-		["Ktlitan Tsarina"] =	{strength = 500,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = tsarina},
-		["Ktlitan Countess"] =	{strength = 500,adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = countess},
 	}
 	fleet_group = {
 		["adder"] = "Adders",
@@ -15996,53 +15994,35 @@ function riptideBinarySector()
 	table.insert(objects, riptideToIcarusWormHole)
 	
 
-	--- ktlitan artifacts to be picked up - for a scenario. Comment/remove if not needed
-	local art1 = Artifact():setModel("artifact3"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(2, 3):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of enzyme generator, but we don't have sufficient equipment on board to analyze it.")
-	local art2 = Artifact():setModel("artifact4"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(1, 2):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of incubator, but we don't have sufficient equipment on board to analyze it.")
-	local art3 = Artifact():setModel("artifact7"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(2, 1):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of power source, but we don't have sufficient equipment on board to analyze it.")
-	update_system:addOrbitTargetUpdate(art1, riptideAlphaStar, 8000, 55, 0)
-	update_system:addOrbitTargetUpdate(art2, riptideAlphaStar, 7000, 45, 120)
-	update_system:addOrbitTargetUpdate(art3, riptideAlphaStar, 7500, 50, 220)
-	local art4 = Artifact():setModel("artifact3"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(2, 3):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of enzyme generator, but we don't have sufficient equipment on board to analyze it.")
-	local art5 = Artifact():setModel("artifact4"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(1, 2):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of incubator, but we don't have sufficient equipment on board to analyze it.")
-	local art6 = Artifact():setModel("artifact7"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(2, 1):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of power source, but we don't have sufficient equipment on board to analyze it.")
-	update_system:addOrbitTargetUpdate(art4, riptideAlphaStar, riptideGammaOrbitRadius, riptideGammaOrbitPeriod, 27)
-	update_system:addOrbitTargetUpdate(art5, riptideAlphaStar, riptideGammaOrbitRadius - 2000, riptideGammaOrbitPeriod, 37)
-	update_system:addOrbitTargetUpdate(art6, riptideAlphaStar, riptideGammaOrbitRadius + 3000, riptideGammaOrbitPeriod, 45)
-	local art7 = Artifact():setModel("artifact3"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(2, 3):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of enzyme generator, but we don't have sufficient equipment on board to analyze it.")
-	local art8 = Artifact():setModel("artifact4"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(1, 2):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of incubator, but we don't have sufficient equipment on board to analyze it.")
-	local art9 = Artifact():setModel("artifact7"):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius):allowPickup(true):setScanningParameters(2, 1):
-		setDescriptions("Ktlitan artifact", "Ktlitan artifact. It seems like some sort of power source, but we don't have sufficient equipment on board to analyze it.")
-	update_system:addOrbitTargetUpdate(art7, riptideGamma, 6000, 60, 33)
-	update_system:addOrbitTargetUpdate(art8, riptideGamma, 7000, 75, 120)
-	update_system:addOrbitTargetUpdate(art9, riptideGamma, 8000, 90, 220)
-	table.insert(objects, art1)
-	table.insert(objects, art2)
-	table.insert(objects, art3)
-	table.insert(objects, art4)
-	table.insert(objects, art5)
-	table.insert(objects, art6)
-	table.insert(objects, art7)
-	table.insert(objects, art8)
-	table.insert(objects, art9)
-
-
 	-- --- For a scenario; comment/remove if not needed
 	-- note: maryCeleste is a global variable - so we can remove orbit function in kosaiOneOff
-	maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
+	maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("M-ry_Cls---te"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
 		setScanningParameters(2, 3):setDescriptions("Unknown Arlenian Vessel", 
-			"Derelict Arlenian vessel, crewed by humans trying to figure out the mystery of Psamtik station."
-		)
+			"Scan matches last known signatures of Mary Celeste with 99.9999% accuracy.\n" .. 
+			"Discrepancy: various noble gas content increased by 2ppm." ..
+			"Lifesigns: none\n" ..
+			"Life support status: OK\n" ..
+			"Reactor: OK\n" ..
+			"Damage report: none"
+		):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius)
 	maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
-	maryCeleste:setPosition(centerX + 3000, centerY + anomalyOrbitRadius):setJumpDrive(true):orderDock(lensedStation):setFaction("Human Navy")
+
+	update_system:addOrbitTargetUpdate(maryCeleste, riptideAlphaStar, 7000, 45, 0)
+
+	update_system:addUpdate(maryCeleste, "mary celesete blinking SOS callsign", {
+		update=function(self, obj, delta)
+			if not obj:isValid() then
+				return
+			end
+			blips = {1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0}
+			currBlip = math.floor(getScenarioTime() * 4) % #blips
+			if blips[currBlip] == 1 then
+				obj:setCallSign("M-ry_Cls---te")
+			else       
+				obj:setCallSign("")
+			end
+		end
+	})
 	table.insert(objects, maryCeleste)
 
 	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
@@ -27552,31 +27532,29 @@ function dreadNoMore(enemyFaction)
 	end
 	return ship
 end
-
-snakeCallSigns = {
-	"Żmija", "Wąż", "Gniewosz", "Zaskroniec", "Grzechotnik", "Dusiciel", "Kobra"
-}
-snakeCurrCallSign = 1
 function tsarina(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
-		setBeamWeapon(1, 70, -90, 1000.0, 6.0, 10):
-		setBeamWeapon(2, 70, 90, 1000.0, 6.0, 10):
+		setBeamWeapon(0, 90, -15, 1000.0, 6.0, 10):
+		setBeamWeapon(1, 90, -45, 1000.0, 6.0, 10):
+		setBeamWeapon(3, 90, 15, 1000.0, 6.0, 10):
+		setBeamWeapon(4, 90, 45, 1000.0, 6.0, 10):
 		setTubeSize(0, "small"):
 		setTubeSize(1, "small"):
 		setWeaponStorage("Nuke", 0):
 		setWeaponStorage("EMP", 0):
 		setWeaponStorage("Homing", 0):
 		setWeaponStorage("HVLI", 100):
-		setHull(300):
-		setShields(100, 50, 50):
+		setHull(600):
+		setShields(100, 100, 100):
 		setAI("fighter"):
 		setTypeName("Ktlitan Tsarina"):
-		setImpulseMaxSpeed(250):
-		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's side shields are weaker.  " ..
+		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable.  " ..
 			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
 			"Once the leading Tsarina is destroyed, the formation is broken.")
 	ship:setRotationMaxSpeed(2 * ship:getRotationMaxSpeed())
 	ship:onTakingDamage(npcShipDamage)
+
+	--- note: for now, the snake formation is implemented as a Kosai's One-Off
 
 	local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
 	if tsarinaDb == nil then
@@ -27587,7 +27565,7 @@ function tsarina(enemyFaction)
 			queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina"),
 			tsarinaDb,
 			ship,
-			"Ktlitan Tsarina is a subtype of Ktlitan Queen. It's side shields are weaker. " ..
+			"Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable. " ..
 			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
 			"Once the leading Tsarina is destroyed, the formation is broken.",
 			nil,
@@ -27595,307 +27573,6 @@ function tsarina(enemyFaction)
 			"sci_fi_alien_ship_8"
 		)
 	end
-
-	local snake = {}
-	table.insert(snake, ship)
-
-	snakeTailSetupFunc = function (self, obj, delta) 
-		local myCallSign = snakeCallSigns[snakeCurrCallSign]
-		obj:setCallSign(myCallSign)
-		snakeCurrCallSign = snakeCurrCallSign % #snakeCallSigns + 1
-
-		updateFunc = function (self, obj, delta)
-			if not obj.hasQueen then
-				return
-			end
-
-			--- follow your parent
-			if obj.parent == nil or not obj.parent:isValid() then
-				return
-			end
-
-			--- this is the most sensible AI mode to fly in. Ship will engage anything in short radar range, with leash distance of additional 1000 units.
-			-- but we will overwrite pretty much everything about it.
-			obj:orderFlyFormation(obj.parent, -500, 0)
-
-			local px, py = obj.parent:getPosition()
-			local dx, dy = vectorFromAngle(180 + obj.parent:getRotation(), 500)
-			local tgtX, tgtY = px + dx, py + dy
-			--- tgt is the exact point in formation
-
-			--- "overwrite" ship AI - rotation
-			local objX, objY = obj:getPosition()
-			local angleToTgt = angleFromVectorNorth(tgtX, tgtY, objX, objY)
-
-			local maxRot = obj:getRotationMaxSpeed()
-			local currHeading = obj:getHeading()
-
-			local deltaAngleClockwise = (angleToTgt - currHeading) % 360
-			local deltaAngleCounterclockwise = 360 - deltaAngleClockwise
-
-			if deltaAngleClockwise < deltaAngleCounterclockwise then
-				if obj:getAngularVelocity() < 0 then
-					obj:setHeading(currHeading + 4*maxRot*delta)
-				else
-					obj:setHeading(currHeading + 2*maxRot*delta)
-				end
-			else
-				if obj:getAngularVelocity() > 0 then
-					obj:setHeading(currHeading - 4*maxRot*delta)
-				else
-					obj:setHeading(currHeading - 2*maxRot*delta)
-				end
-			end
-
-			--- "overwrite" ship AI - speed
-			local objVX, objVY = obj:getVelocity()
-			local objSpeed = math.sqrt(objVX*objVX + objVY*objVY)
-
-			local parentVX, parentVY = obj.parent:getVelocity()
-			local parentSpeed = math.sqrt(parentVX*parentVX + parentVY*parentVY)
-
-			--- are the vectors pointing in the same general direction (cos theta > 0?) (calculate using dot product)
-			local cosTheta = (objVX * parentVX + objVY * parentVY) / (objSpeed * parentSpeed)
-
-			if distance(tgtX, tgtY, objX, objY) < 500 then
-				if objSpeed > parentSpeed then
-					if cosTheta > 0 then
-						obj:setAcceleration(obj.accelFwd, obj.accelRev)
-					else
-						obj:setAcceleration(obj.accelFwd, 0)
-					end
-					obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
-
-				else
-					obj:setAcceleration(obj.accelFwd, 0)
-					obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
-				end
-			else
-
-				if objSpeed > 2*parentSpeed then
-					if cosTheta > 0 then
-						obj:setAcceleration(obj.accelFwd, obj.accelRev)
-					else
-						obj:setAcceleration(obj.accelFwd, 0)
-					end
-					obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
-
-				else
-					obj:setAcceleration(obj.accelFwd, 0)
-
-					obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
-				end
-			end
-		end
-
-		local tailComposition = {
-			"Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Destroyer"
-		}
-
-		for i=1, #tailComposition do
-
-			local node = CpuShip():setFaction(obj:getFaction()):setTemplate(tailComposition[i])
-
-			if tailComposition[i] == "Ktlitan Destroyer" then
-				node:setWeaponStorageMax("EMP", 5):setWeaponStorage("Homing", node:getWeaponStorage("Homing") * 10)
-			end
-
-			node:setCallSign(string.format("%s seg %i", myCallSign, i))
-
-			node.hasQueen = true
-			node.child = nil
-			node.parent = snake[i]
-			node.parent.child = node
-
-			node.originalImpulseFwd, node.originalImpulseRev = node:getImpulseMaxSpeed()
-			node.originalRotation = node:getRotationMaxSpeed()
-			node.originalAccelFwd, node.originalAccelRev = node:getAcceleration()
-
-			node:orderFlyFormation(node.parent, -500, 0)
-
-			node:setImpulseMaxSpeed(self.queen:getImpulseMaxSpeed() * 1.5):
-				setRotationMaxSpeed(self.queen:getRotationMaxSpeed()):setAI("default"):
-				setAcceleration(self.queen:getAcceleration() * 2, self.queen:getAcceleration() * 2)
-
-			node.maxImpulseFwd, node.maxImpulseRev = node.parent:getImpulseMaxSpeed()
-			node.accelFwd, node.accelRev = node.parent:getImpulseMaxSpeed()
-
-			local px, py = node.parent:getPosition()
-			local dx, dy = vectorFromAngle(180 + node.parent:getRotation(), 1500)
-			node:setPosition(px + dx, py + dy)
-			node:setRotation(node.parent:getRotation())
-
-			update_system:addUpdate(node, "snake tail segment", {
-				update = updateFunc,
-			})
-			table.insert(snake, node)
-		end
-
-		removeFromSnakeFunc = function(obj)
-			if obj.parent ~= nil and obj.parent:isValid() then
-				if obj.child ~= nil and obj.child:isValid() then
-					obj.parent.child = obj.child
-				else
-					obj.parent.child = nil
-				end
-			end
-			if obj.child ~= nil and obj.child:isValid() then
-				if obj.parent ~= nil and obj.parent:isValid() then
-					obj.child.parent = obj.parent
-				else
-					obj.child.parent = nil
-				end
-			end
-		end
-
-		for i=1, #snake do
-			snake[i]:onDestroyed(function(obj, instigator)
-				if snake[i] == self.queen then
-					local curr = snake[i].child
-					while curr ~= nil do
-						curr:setImpulseMaxSpeed(curr.originalImpulseFwd, curr.originalImpulseRev)
-						curr:setRotationMaxSpeed(curr.originalRotation)
-						curr:setAcceleration(curr.originalAccelFwd, curr.originalAccelRev)
-						curr:orderDefendLocation(curr:getPosition())
-						curr.hasQueen = false
-						curr = curr.child
-					end
-				end
-
-				removeFromSnakeFunc(obj)
-			end)
-			snake[i]:onTakingDamage(function(obj, instigator)
-
-				if obj:getSystemHealth("maneuver") < 0 or obj:getSystemHealth("impulse") < 0 then
-					-- we are disabled; remove from snake formation
-					removeFromSnakeFunc(obj)
-					obj:orderDefendLocation(obj:getPosition())
-				end
-			end)
-		end
-
-		update_system:removeThisUpdate(obj, self)
-	end
-
-	update_system:addUpdate(ship, "snake formation init", {
-		queen = ship,
-		update = snakeTailSetupFunc
-	})
-
-	return ship
-end
-
-countessCallSigns = {
-	"Bogusława", "Tolimira", "Rzepica", "Dobrogniewa", "Ludmiła"
-}
-countessCurrCallSign = 1
-function countess(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
-		setBeamWeapon(1, 90, 180, 1000.0, 6.0, 30):
-		setWeaponTubeDirection(0, 90):setTubeSize(0, "medium"):setTubeLoadTime(0, 15):
-		setWeaponTubeDirection(1, 270):setTubeSize(1, "medium"):setTubeLoadTime(1, 15):
-		setWeaponStorage("Nuke", 0):
-		setWeaponStorage("EMP", 50):
-		setWeaponStorage("Homing", 50):
-		setWeaponStorage("HVLI", 0):
-		setHull(450):
-		setShields(75, 100, 100):
-		setAI("missilevolley"):
-		setJumpDrive(true):
-		setTypeName("Ktlitan Countess"):
-		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Countess is a subtype of Ktlitan Queen. It's slower, but it has the ability to spawn offspring (max 5 at the same time) when in danger. " ..
-			"The offspring cannot survive if their parent Ktlitan Countess is 10k U away from them. Prefers to stay out of direct combat."):
-		setImpulseMaxSpeed(100)
-	ship:onTakingDamage(npcShipDamage)
-
-	local countessDb = queryScienceDatabase("Ships", "No class", "Ktlitan Countess")
-	if countessDb == nil then
-		local parentDb = queryScienceDatabase("Ships", "No class")
-		parentDb:addEntry("Ktlitan Countess")
-		local countessDb = queryScienceDatabase("Ships", "No class", "Ktlitan Countess")
-		addShipToDatabase(
-			queryScienceDatabase("Ships", "No class", "Ktlitan Countess"),
-			countessDb,
-			ship,
-			"Ktlitan Countess is a subtype of Ktlitan Queen. It's slower, but it has the ability to spawn offspring (max 5 at the same time) when in danger. " ..
-			"The offspring cannot survive if their parent Ktlitan Countess is 10k U away from them. Prefers to stay out of direct combat.",
-			nil,
-			nil,
-			"sci_fi_alien_ship_8"
-		)
-	end
-
-	countessSetupFunc = function(self, obj, delta)
-		obj:setCallSign(countessCallSigns[countessCurrCallSign])
-		countessCurrCallSign = countessCurrCallSign % #countessCallSigns + 1
-
-		update_system:removeThisUpdate(obj, self)
-	end
-
-	update_system:addUpdate(ship, "countess init", {
-		update = countessSetupFunc
-	})
-
-
-	ship.maxEscorts = 5
-	ship.lastEscortId = 1
-	ship.escorts = {}
-	update_system:addPeriodicCallback(ship, function(obj)
-		if not obj:isValid() then
-			return
-		end
-		local qx, qy = obj:getPosition()
-	
-		while true do
-			local removed = false
-			for i=1, #obj.escorts do
-				if not obj.escorts[i]:isValid() then
-					table.remove(obj.escorts, i)
-					removed = true
-					break
-
-				elseif distance(obj.escorts[i], obj) > 10000 then
-					ExplosionEffect():setPosition(obj.escorts[i]:getPosition()):setSize(500)
-					obj.escorts[i]:destroy()
-					table.remove(obj.escorts, i)
-					removed = true
-					break
-				end
-			end
-			if not removed then
-				break
-			end
-		end
-
-		if not obj:areEnemiesInRange(obj:getLongRangeRadarRange() / 2) then
-			return
-		end
-		if #obj.escorts < obj.maxEscorts then
-			local qh = obj:getRotation()
-			local dx, dy = vectorFromAngle(-qh, 100)
-
-			local rand = irandom(0, 100)
-
-			if rand < 5 then
-				template = "Ktlitan Destroyer"
-			elseif rand < 15 then
-				template = "Ktlitan Fighter"
-			elseif rand < 25 then
-				template = "Ktlitan Breaker"
-			elseif rand < 35 then
-				template = "Ktlitan Feeder"
-			elseif rand < 50 then
-				template = "Ktlitan Scout"
-			elseif rand < 80 then
-				template = "Ktlitan Drone"
-			else
-				template = "Ktlitan Worker"
-			end
-			local newEscort = CpuShip():setFaction(obj:getFaction()):setTemplate(template):setCallSign(string.format("%s chld %i", obj:getCallSign(), obj.lastEscortId)):setPosition(qx + dx, qy + dy):setRotation(-qh):orderDefendTarget(obj)
-			obj.lastEscortId = obj.lastEscortId + 1
-			table.insert(obj.escorts, newEscort)
-		end
-	end, 10, 0, 5)
 
 	return ship
 end
@@ -39774,11 +39451,221 @@ end
 -- -MAIN FROM KOSAI	F	initialGMFunctions
 -- -CUSTOM				F	customButtons
 -- -ONE-OFFS			F	oneOffs
+snakeCallSigns = {
+	"Żmija", "Wąż", "Gniewosz", "Zaskroniec", "Grzechotnik", "Dusiciel", "Kobra"
+}
+snakeCurrCallSign = 1
 function kosaiOneOff()
 	clearGMFunctions()
 	addGMFunction("-Main From Kosai",initialGMFunctions)
 	addGMFunction("-Custom",customButtons)
 	addGMFunction("-One-Offs",oneOffs)
+	addGMFunction("Ktlitan Snake", function()
+		removeGMFunction("Ktlitan Snake")
+		addGMFunction(">Ktlitan Snake<", function()
+			onGMClick(nil)
+			kosaiOneOff()
+		end)
+		onGMClick(function(x, y)
+			spawnSnakeFunc(x, y)
+			snakeCurrCallSign = snakeCurrCallSign % #snakeCallSigns + 1
+
+			onGMClick(nil)
+			kosaiOneOff()
+		end)
+
+		spawnSnakeFunc = function(x, y)
+			local queen = tsarina("Ktlitans")
+			queen:setCallSign(snakeCallSigns[snakeCurrCallSign])
+			queen:setPosition(x, y)
+			queen:orderDefendLocation(queen:getPosition())
+
+			local snake = {}
+			table.insert(snake, queen)
+
+			updateFunc = function (self, obj, delta)
+				if not obj.hasQueen then
+					return
+				end
+
+				--- follow your parent
+				if obj.parent == nil or not obj.parent:isValid() then
+					return
+				end
+
+				--- this is the most sensible AI mode to fly in. Ship will engage anything in short radar range, with leash distance of additional 1000 units.
+				-- but we will overwrite pretty much everything about it.
+				obj:orderFlyFormation(obj.parent, -500, 0)
+
+				local px, py = obj.parent:getPosition()
+				local dx, dy = vectorFromAngle(180 + obj.parent:getRotation(), 500)
+				local tgtX, tgtY = px + dx, py + dy
+				--- tgt is the exact point in formation
+
+				--- "overwrite" ship AI - rotation
+				local objX, objY = obj:getPosition()
+				local angleToTgt = angleFromVectorNorth(tgtX, tgtY, objX, objY)
+
+				local maxRot = obj:getRotationMaxSpeed()
+				local currHeading = obj:getHeading()
+
+				local deltaAngleClockwise = (angleToTgt - currHeading) % 360
+				local deltaAngleCounterclockwise = 360 - deltaAngleClockwise
+
+				if deltaAngleClockwise < deltaAngleCounterclockwise then
+					if obj:getAngularVelocity() < 0 then
+						obj:setHeading(currHeading + 4*maxRot*delta)
+					else
+						obj:setHeading(currHeading + 2*maxRot*delta)
+					end
+				else
+					if obj:getAngularVelocity() > 0 then
+						obj:setHeading(currHeading - 4*maxRot*delta)
+					else
+						obj:setHeading(currHeading - 2*maxRot*delta)
+					end
+				end
+
+				--- "overwrite" ship AI - speed
+				local objVX, objVY = obj:getVelocity()
+				local objSpeed = math.sqrt(objVX*objVX + objVY*objVY)
+
+				local parentVX, parentVY = obj.parent:getVelocity()
+				local parentSpeed = math.sqrt(parentVX*parentVX + parentVY*parentVY)
+
+				--- are the vectors pointing in the same general direction (cos theta > 0?) (calculate using dot product)
+				local cosTheta = (objVX * parentVX + objVY * parentVY) / (objSpeed * parentSpeed)
+
+				if distance(tgtX, tgtY, objX, objY) < 500 then
+					if objSpeed > parentSpeed then
+						if cosTheta > 0 then
+							obj:setAcceleration(obj.accelFwd, obj.accelRev)
+						else
+							obj:setAcceleration(obj.accelFwd, 0)
+						end
+						obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
+
+					else
+						obj:setAcceleration(obj.accelFwd, 0)
+						obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
+					end
+				else
+
+					if objSpeed > 2*parentSpeed then
+						if cosTheta > 0 then
+							obj:setAcceleration(obj.accelFwd, obj.accelRev)
+						else
+							obj:setAcceleration(obj.accelFwd, 0)
+						end
+						obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
+
+					else
+						obj:setAcceleration(obj.accelFwd, 0)
+
+						obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
+					end
+				end
+			end
+
+			local tailComposition = {
+				"Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Destroyer"
+			}
+
+			for i=1, #tailComposition do
+
+				local node = CpuShip():setFaction("Ktlitans"):setTemplate(tailComposition[i]):setCallSign(string.format("Tail %i", i))
+
+				if tailComposition[i] == "Ktlitan Destroyer" then
+					node:setWeaponStorageMax("EMP", 5):setWeaponStorage("EMP", 5):setWeaponStorage("Homing", node:getWeaponStorage("Homing") * 2)
+				end
+
+
+				node:setCallSign(string.format("%s %i", snakeCallSigns[snakeCurrCallSign], i))
+
+				node.hasQueen = true
+				node.child = nil
+				node.parent = snake[i]
+				node.parent.child = node
+
+				node.originalImpulseFwd, node.originalImpulseRev = node:getImpulseMaxSpeed()
+				node.originalRotation = node:getRotationMaxSpeed()
+				node.originalAccelFwd, node.originalAccelRev = node:getAcceleration()
+
+				node:orderFlyFormation(node.parent, -500, 0)
+
+				node:setImpulseMaxSpeed(queen:getImpulseMaxSpeed() * 1.5):
+					setRotationMaxSpeed(queen:getRotationMaxSpeed()):setAI("default"):
+					setAcceleration(queen:getAcceleration() * 2, queen:getAcceleration() * 2)
+
+				node.maxImpulseFwd, node.maxImpulseRev = node.parent:getImpulseMaxSpeed()
+				node.accelFwd, node.accelRev = node.parent:getImpulseMaxSpeed()
+
+				local px, py = node.parent:getPosition()
+				local dx, dy = vectorFromAngle(180 + node.parent:getRotation(), 1500)
+				node:setPosition(px + dx, py + dy)
+				node:setRotation(node.parent:getRotation())
+
+				update_system:addUpdate(node, "snake tail segment", {
+					update = updateFunc,
+				})
+				table.insert(snake, node)
+			end
+
+			removeFromSnakeFunc = function(obj)
+				if obj.parent ~= nil and obj.parent:isValid() then
+					if obj.child ~= nil and obj.child:isValid() then
+						obj.parent.child = obj.child
+					else
+						obj.parent.child = nil
+					end
+				end
+				if obj.child ~= nil and obj.child:isValid() then
+					if obj.parent ~= nil and obj.parent:isValid() then
+						obj.child.parent = obj.parent
+					else
+						obj.child.parent = nil
+					end
+				end
+			end
+
+			for i=1, #snake do
+				snake[i].nextStateChange = getScenarioTime() + 5
+				snake[i].state = 0
+				snake[i]:onDestroyed(function(obj, instigator)
+					print("Destroyed", obj:getCallSign(), "parent", obj.parent, "child", obj.child)
+					if snake[i] == queen then
+						print("Queen destroyed, snake formation broken")
+						local curr = snake[i].child
+						while curr ~= nil do
+							print(curr:getCallSign())
+							curr:setImpulseMaxSpeed(curr.originalImpulseFwd, curr.originalImpulseRev)
+							curr:setRotationMaxSpeed(curr.originalRotation)
+							curr:setAcceleration(curr.originalAccelFwd, curr.originalAccelRev)
+							curr:orderDefendLocation(curr:getPosition())
+							curr.hasQueen = false
+							curr = curr.child
+						end
+					end
+
+					removeFromSnakeFunc(obj)
+				end)
+				snake[i]:onTakingDamage(function(obj, instigator)
+
+					if obj:getSystemHealth("maneuver") < 0 or obj:getSystemHealth("impulse") < 0 then
+						print("Disabled", obj:getCallSign())
+						-- we are disabled; remove from snake formation
+						removeFromSnakeFunc(obj)
+						obj:orderDefendLocation(obj:getPosition())
+					end
+				end)
+
+			end
+		end
+
+	end)
+	addGMFunction("Remove Mary Celeste orbit", function()
+		update_system:removeUpdateNamed(maryCeleste, "orbit target")
+	end)
 	-- addGMFunction("HyperPortal", function()
 	-- 	removeGMFunction("HyperPortal")
 	-- 	addGMFunction(">HyperPortal<", function()
@@ -39813,6 +39700,7 @@ function kosaiOneOff()
 	-- 		-- })
 	-- 	end
 	-- end)
+
 end
 
 --	Inserted for future enhancement. Not hooked in yet.
