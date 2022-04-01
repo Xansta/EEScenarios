@@ -832,6 +832,10 @@ function setConstants()
 		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	},
 		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	},
 		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	},
+
+		-- not sure the strenghts of Ktlitan Breaker and Ktlitan Feeder... they seem too high
+		["Ktlitan Breaker"]			= { strength = 45,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	},
+		["Ktlitan Feeder"]			= { strength = 48,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	},
 	}	
 	-- this table has ended up not in alphabetical order
 	-- likewise the creation functions are no longer in alphabetical order
@@ -911,12 +915,16 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
+	addPlayerShip("Szpieg",		"Ktlitan Breaker",	createPlayerShipSzpieg	,"W")
+	addPlayerShip("Sztylet",	"Ktlitan Feeder",	createPlayerShipSztylet	,"W")
 	makePlayerShipActive("Spyder")		--J
 	makePlayerShipActive("Argonaut")	--J
 	makePlayerShipActive("Nimbus")		--B
 	makePlayerShipActive("Sting")		--W
 	makePlayerShipActive("Sparrow")		--W
 	makePlayerShipActive("Narsil")		--W
+	makePlayerShipActive("Szpieg")		--W
+	makePlayerShipActive("Sztylet")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -15555,7 +15563,8 @@ function riptideBinarySector()
 	local regionCenterX = -740031
 	local regionCenterY = 19946
 
-	local riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(regionCenterX, regionCenterY):
+	--- global variable to be accessible in oneoffs.
+	riptideAlphaStar = BlackHole():setCallSign("Riptide A*"):setPosition(regionCenterX, regionCenterY):
 		setScanningParameters(2, 3):setDescriptions("Unclassified black hole", 
 			"Mass: 15.3 M Sol\n"..
 			"---\n" ..
@@ -15576,9 +15585,10 @@ function riptideBinarySector()
 			):setScanned(true)
 	table.insert(objects, riptideBeta)
 
-	local riptideGammaOrbitPeriod = 8000
-	local riptideGammaOrbitRadius = 100000
-	local riptideGamma = Planet():setCallSign("Riptide C"):setPosition(centerX, centerY + riptideGammaOrbitRadius):
+	--- global variables to be accessible in oneoffs.
+	riptideGammaOrbitPeriod = 8000
+	riptideGammaOrbitRadius = 100000
+	riptideGamma = Planet():setCallSign("Riptide C"):setPosition(centerX, centerY + riptideGammaOrbitRadius):
 		setPlanetRadius(4000):setOrbit(riptideAlphaStar, riptideGammaOrbitPeriod):setAxialRotationTime(180):
 		setPlanetSurfaceTexture("planets/gas-1.png"):
 		setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(.2,.1,.1):
@@ -15614,7 +15624,7 @@ function riptideBinarySector()
 		)
 	table.insert(objects, spacetimeLens)
 
-	lensedStationComms = function(comms_source, comms_target) 
+	psamtikStationComms = function(comms_source, comms_target) 
 		setCommsMessage("---------------------")
 		addCommsReply("Contact",function()
 			commsSwitchToGM()
@@ -15622,11 +15632,11 @@ function riptideBinarySector()
 			addCommsReply("Back", commsStation)
 		end)
 	end
-	lensedStation = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):
+	psamtikStation = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):
 		setCallSign("Psamtik"):
 		setDescription("An Arlenian station is detected inside the anomaly."):
-		setCommsScript(""):setCommsFunction(lensedStationComms):setScanned(false)
-	update_system:addUpdate(lensedStation, "riptide-icarus wormhole rotation", {
+		setCommsScript(""):setCommsFunction(psamtikStationComms):setScanned(false)
+	update_system:addUpdate(psamtikStation, "riptide-icarus wormhole rotation", {
 		anomaly=spacetimeLens,
 		update=function(self, obj, delta)
 			if not obj:isValid() then
@@ -15636,7 +15646,7 @@ function riptideBinarySector()
 			obj:setPosition(anX + 300, anY + 300) -- stay inside the center of anomaly
 		end
 	})
-	table.insert(objects, lensedStation)
+	table.insert(objects, psamtikStation)
 
 
 	--- I hand-placed asteroids based on this point, and was too lazy to convert to relative measurements. But let's do it programatically.
@@ -15793,11 +15803,11 @@ function riptideBinarySector()
 	table.insert(objects, riptideDelta)
 
 	--Riptide Research
-    stationRiptideResearch = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Hossenfelder"):setDescription("Stellar phenomenon research"):setCommsScript(""):setCommsFunction(commsStation)
-	stationRiptideResearch:setPosition(centerX - (riptideGammaOrbitRadius * math.sqrt(3) / 2) + 1300, centerY + riptideGammaOrbitRadius / 2)
-	update_system:addOrbitTargetUpdate(stationRiptideResearch, riptideDelta, 1300, 700, 0)
-	stationRiptideResearch:setShortRangeRadarRange(8500)
-	stationRiptideResearch.comms_data = {
+    stationHossenfelder = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Hossenfelder"):setDescription("Stellar phenomenon research"):setCommsScript(""):setCommsFunction(commsStation)
+	stationHossenfelder:setPosition(centerX - (riptideGammaOrbitRadius * math.sqrt(3) / 2) + 1300, centerY + riptideGammaOrbitRadius / 2)
+	update_system:addOrbitTargetUpdate(stationHossenfelder, riptideDelta, 1300, 700, 0)
+	stationHossenfelder:setShortRangeRadarRange(8500)
+	stationHossenfelder.comms_data = {
     	friendlyness = 77,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
@@ -15833,10 +15843,10 @@ function riptideBinarySector()
 			DF3 = "WX-Lindworm",
     	},
 	}
-	stationRiptideResearch:setRestocksScanProbes(random(1,100)<87)
-	stationRiptideResearch:setRepairDocked(random(1,100)<76)
-	stationRiptideResearch:setSharesEnergyWithDocked(random(1,100)<92)
-	table.insert(objects, stationRiptideResearch)
+	stationHossenfelder:setRestocksScanProbes(random(1,100)<87)
+	stationHossenfelder:setRepairDocked(random(1,100)<76)
+	stationHossenfelder:setSharesEnergyWithDocked(random(1,100)<92)
+	table.insert(objects, stationHossenfelder)
 	
 	local gravityAcceleration = 500000
 	local slowOrbitDegPerSec = 360 / riptideGammaOrbitPeriod
@@ -15930,7 +15940,7 @@ function riptideBinarySector()
 
 
 
-	local riptideToIcarusWormHole = WormHole():setPosition(centerX, centerY - riptideGammaOrbitRadius):
+	riptideToIcarusWormHole = WormHole():setPosition(centerX, centerY - riptideGammaOrbitRadius):
 		setScanningParameters(2, 3):setDescriptions("Unexplored wormhole", 
 			"Anomaly type: Wormhole\n" ..
 			"Leads to: Icarus sector" ..
@@ -15952,7 +15962,6 @@ function riptideBinarySector()
 		end
 	})
 	table.insert(objects, riptideToIcarusWormHole)
-	
 
 	-- --- For a scenario; comment/remove if not needed
 	-- note: maryCeleste is a global variable - so we can remove orbit function in kosaiOneOff
@@ -15966,23 +15975,7 @@ function riptideBinarySector()
 			"Damage report: none"
 		):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius)
 	maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
-
-	update_system:addOrbitTargetUpdate(maryCeleste, riptideAlphaStar, 7000, 45, 0)
-
-	update_system:addUpdate(maryCeleste, "mary celesete blinking SOS callsign", {
-		update=function(self, obj, delta)
-			if not obj:isValid() then
-				return
-			end
-			blips = {1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0}
-			currBlip = math.floor(getScenarioTime() * 4) % #blips
-			if blips[currBlip] == 1 then
-				obj:setCallSign("M-ry_Cls---te")
-			else       
-				obj:setCallSign("")
-			end
-		end
-	})
+	maryCeleste:setPosition(centerX + 3000, centerY + anomalyOrbitRadius):setJumpDrive(true):orderDock(psamtikStation):setFaction("Human Navy")
 	table.insert(objects, maryCeleste)
 
 	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
@@ -21279,6 +21272,17 @@ function createPlayerShipYorik()
 	playerYorik:addReputationPoints(50)
 	return playerYorik
 end
+function createPlayerShipSzpieg()
+	p = PlayerSpaceship():setTemplate("Ktlitan Breaker"):setFaction("Human Navy"):setCallSign("Szpieg")
+	p:setWarpDrive(true)
+	p:onTakingDamage(playerShipDamage)
+end
+function createPlayerShipSztylet()
+	P = PlayerSpaceship():setTemplate("Ktlitan Feeder"):setFaction("Human Navy"):setCallSign("Sztylet")
+	p:setWarpDrive(true)
+	p:onTakingDamage(playerShipDamage)
+end
+
 --	Specialized ships spawned by a carrier
 function createPlayerShipFowl()
 	playerFowl = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Chack")
@@ -27504,9 +27508,9 @@ function tsarina(enemyFaction)
 		setWeaponStorage("EMP", 0):
 		setWeaponStorage("Homing", 0):
 		setWeaponStorage("HVLI", 100):
-		setHull(600):
-		setShields(100, 100, 100):
-		setAI("fighter"):
+		setHull(300):
+		setShields(100, 50, 50):
+		setAI("default"):  -- note it's a change from fighter AI. with slower impulse speed this works better as a "snake" for the tail to attack as well.
 		setTypeName("Ktlitan Tsarina"):
 		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable.  " ..
 			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
@@ -39420,211 +39424,22 @@ function kosaiOneOff()
 	addGMFunction("-Main From Kosai",initialGMFunctions)
 	addGMFunction("-Custom",customButtons)
 	addGMFunction("-One-Offs",oneOffs)
-	addGMFunction("Ktlitan Snake", function()
-		removeGMFunction("Ktlitan Snake")
-		addGMFunction(">Ktlitan Snake<", function()
-			onGMClick(nil)
-			kosaiOneOff()
-		end)
-		onGMClick(function(x, y)
-			spawnSnakeFunc(x, y)
-			snakeCurrCallSign = snakeCurrCallSign % #snakeCallSigns + 1
-
-			onGMClick(nil)
-			kosaiOneOff()
-		end)
-
-		spawnSnakeFunc = function(x, y)
-			local queen = tsarina("Ktlitans")
-			queen:setCallSign(snakeCallSigns[snakeCurrCallSign])
-			queen:setPosition(x, y)
-			queen:orderDefendLocation(queen:getPosition())
-
-			local snake = {}
-			table.insert(snake, queen)
-
-			updateFunc = function (self, obj, delta)
-				if not obj.hasQueen then
-					return
-				end
-
-				--- follow your parent
-				if obj.parent == nil or not obj.parent:isValid() then
-					return
-				end
-
-				--- this is the most sensible AI mode to fly in. Ship will engage anything in short radar range, with leash distance of additional 1000 units.
-				-- but we will overwrite pretty much everything about it.
-				obj:orderFlyFormation(obj.parent, -500, 0)
-
-				local px, py = obj.parent:getPosition()
-				local dx, dy = vectorFromAngle(180 + obj.parent:getRotation(), 500)
-				local tgtX, tgtY = px + dx, py + dy
-				--- tgt is the exact point in formation
-
-				--- "overwrite" ship AI - rotation
-				local objX, objY = obj:getPosition()
-				local angleToTgt = angleFromVectorNorth(tgtX, tgtY, objX, objY)
-
-				local maxRot = obj:getRotationMaxSpeed()
-				local currHeading = obj:getHeading()
-
-				local deltaAngleClockwise = (angleToTgt - currHeading) % 360
-				local deltaAngleCounterclockwise = 360 - deltaAngleClockwise
-
-				if deltaAngleClockwise < deltaAngleCounterclockwise then
-					if obj:getAngularVelocity() < 0 then
-						obj:setHeading(currHeading + 4*maxRot*delta)
-					else
-						obj:setHeading(currHeading + 2*maxRot*delta)
-					end
-				else
-					if obj:getAngularVelocity() > 0 then
-						obj:setHeading(currHeading - 4*maxRot*delta)
-					else
-						obj:setHeading(currHeading - 2*maxRot*delta)
-					end
-				end
-
-				--- "overwrite" ship AI - speed
-				local objVX, objVY = obj:getVelocity()
-				local objSpeed = math.sqrt(objVX*objVX + objVY*objVY)
-
-				local parentVX, parentVY = obj.parent:getVelocity()
-				local parentSpeed = math.sqrt(parentVX*parentVX + parentVY*parentVY)
-
-				--- are the vectors pointing in the same general direction (cos theta > 0?) (calculate using dot product)
-				local cosTheta = (objVX * parentVX + objVY * parentVY) / (objSpeed * parentSpeed)
-
-				if distance(tgtX, tgtY, objX, objY) < 500 then
-					if objSpeed > parentSpeed then
-						if cosTheta > 0 then
-							obj:setAcceleration(obj.accelFwd, obj.accelRev)
-						else
-							obj:setAcceleration(obj.accelFwd, 0)
-						end
-						obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
-
-					else
-						obj:setAcceleration(obj.accelFwd, 0)
-						obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
-					end
-				else
-
-					if objSpeed > 2*parentSpeed then
-						if cosTheta > 0 then
-							obj:setAcceleration(obj.accelFwd, obj.accelRev)
-						else
-							obj:setAcceleration(obj.accelFwd, 0)
-						end
-						obj:setImpulseMaxSpeed(math.max(50, obj:getImpulseMaxSpeed() - obj.accelFwd * delta), 0)
-
-					else
-						obj:setAcceleration(obj.accelFwd, 0)
-
-						obj:setImpulseMaxSpeed(math.min(obj.maxImpulseFwd, obj:getImpulseMaxSpeed() + obj.accelFwd * delta), 0)
-					end
-				end
-			end
-
-			local tailComposition = {
-				"Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Worker", "Ktlitan Destroyer"
-			}
-
-			for i=1, #tailComposition do
-
-				local node = CpuShip():setFaction("Ktlitans"):setTemplate(tailComposition[i]):setCallSign(string.format("Tail %i", i))
-
-				if tailComposition[i] == "Ktlitan Destroyer" then
-					node:setWeaponStorageMax("EMP", 5):setWeaponStorage("EMP", 5):setWeaponStorage("Homing", node:getWeaponStorage("Homing") * 2)
-				end
-
-
-				node:setCallSign(string.format("%s %i", snakeCallSigns[snakeCurrCallSign], i))
-
-				node.hasQueen = true
-				node.child = nil
-				node.parent = snake[i]
-				node.parent.child = node
-
-				node.originalImpulseFwd, node.originalImpulseRev = node:getImpulseMaxSpeed()
-				node.originalRotation = node:getRotationMaxSpeed()
-				node.originalAccelFwd, node.originalAccelRev = node:getAcceleration()
-
-				node:orderFlyFormation(node.parent, -500, 0)
-
-				node:setImpulseMaxSpeed(queen:getImpulseMaxSpeed() * 1.5):
-					setRotationMaxSpeed(queen:getRotationMaxSpeed()):setAI("default"):
-					setAcceleration(queen:getAcceleration() * 2, queen:getAcceleration() * 2)
-
-				node.maxImpulseFwd, node.maxImpulseRev = node.parent:getImpulseMaxSpeed()
-				node.accelFwd, node.accelRev = node.parent:getImpulseMaxSpeed()
-
-				local px, py = node.parent:getPosition()
-				local dx, dy = vectorFromAngle(180 + node.parent:getRotation(), 1500)
-				node:setPosition(px + dx, py + dy)
-				node:setRotation(node.parent:getRotation())
-
-				update_system:addUpdate(node, "snake tail segment", {
-					update = updateFunc,
-				})
-				table.insert(snake, node)
-			end
-
-			removeFromSnakeFunc = function(obj)
-				if obj.parent ~= nil and obj.parent:isValid() then
-					if obj.child ~= nil and obj.child:isValid() then
-						obj.parent.child = obj.child
-					else
-						obj.parent.child = nil
-					end
-				end
-				if obj.child ~= nil and obj.child:isValid() then
-					if obj.parent ~= nil and obj.parent:isValid() then
-						obj.child.parent = obj.parent
-					else
-						obj.child.parent = nil
-					end
-				end
-			end
-
-			for i=1, #snake do
-				snake[i].nextStateChange = getScenarioTime() + 5
-				snake[i].state = 0
-				snake[i]:onDestroyed(function(obj, instigator)
-					print("Destroyed", obj:getCallSign(), "parent", obj.parent, "child", obj.child)
-					if snake[i] == queen then
-						print("Queen destroyed, snake formation broken")
-						local curr = snake[i].child
-						while curr ~= nil do
-							print(curr:getCallSign())
-							curr:setImpulseMaxSpeed(curr.originalImpulseFwd, curr.originalImpulseRev)
-							curr:setRotationMaxSpeed(curr.originalRotation)
-							curr:setAcceleration(curr.originalAccelFwd, curr.originalAccelRev)
-							curr:orderDefendLocation(curr:getPosition())
-							curr.hasQueen = false
-							curr = curr.child
-						end
-					end
-
-					removeFromSnakeFunc(obj)
-				end)
-				snake[i]:onTakingDamage(function(obj, instigator)
-
-					if obj:getSystemHealth("maneuver") < 0 or obj:getSystemHealth("impulse") < 0 then
-						print("Disabled", obj:getCallSign())
-						-- we are disabled; remove from snake formation
-						removeFromSnakeFunc(obj)
-						obj:orderDefendLocation(obj:getPosition())
-					end
-				end)
-
-			end
+	addGMFunction("Orbit RiptBin L4,5", function()
+		local objs =  getGMSelection()
+		local raX, raY = riptideAlphaStar:getPosition()
+		for i=1, #objs do
+			local obj = objs[i]
+			local objX, objY = obj:getPosition()
+			local initialOrbitAngle = angleFromVectorNorth(objX, objY, raX, raY) - 90
+			local orbitRadius = distance(obj, riptideAlphaStar)
+			update_system:addOrbitTargetUpdate(obj, riptideAlphaStar, orbitRadius, riptideGammaOrbitPeriod, initialOrbitAngle)
 		end
-
 	end)
-	addGMFunction("Remove Mary Celeste orbit", function()
-		update_system:removeUpdateNamed(maryCeleste, "orbit target")
+	addGMFunction("Unorbit RiptBin", function()
+		local objs =  getGMSelection()
+		for i=1, #objs do
+			update_system:removeUpdateNamed(objs[i], "orbit target")
+		end
 	end)
 	-- addGMFunction("HyperPortal", function()
 	-- 	removeGMFunction("HyperPortal")
@@ -42579,6 +42394,15 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
+	if comms_target == stationHossenfelder then
+		addCommsReply("I need information on this region",function()
+			setCommsMessage(psamtikStation:getCallSign() .. " is currently in sector " .. psamtikStation:getSectorName() .. " (Lagrange point 2). It houses the Arlenian Xenobiology Institute.\n" ..
+				"Wormhole leading back to Icarus is currently in sector " .. riptideToIcarusWormHole:getSectorName() .. " (Lagrange point 3).\n" ..
+				stationHossenfelder:getCallSign() .. " (us) is currently in sector " .. stationHossenfelder:getSectorName() .. " (Lagrange point 4)\n" ..
+				"Lagrange point 5 can be found by mirroring L4 by the Riptide Alpha - Riptide Gamma axis.\n" ..
+				"Lagrange point 1 is beteen the Riptide Alpha and Riptide Gamma, but there's nothing interesting there.")
+		end)
+	end
 	if comms_target == stationLafrina then
 		addCommsReply("I need information on the Arlenian stations in the area",function()
 			setCommsMessage("Which station are you interested in?")
@@ -43475,6 +43299,15 @@ function handleUndockedState()
 			setCommsMessage(msg);
 			addCommsReply("Back", commsStation)
 		end)
+		if comms_target == stationHossenfelder then
+			addCommsReply("I need information on this region",function()
+				setCommsMessage(psamtikStation:getCallSign() .. " is currently in sector " .. psamtikStation:getSectorName() .. " (Lagrange point 2). It houses the Arlenian Xenobiology Institute.\n" ..
+					"Wormhole leading back to Icarus is currently in sector " .. riptideToIcarusWormHole:getSectorName() .. " (Lagrange point 3).\n" ..
+					stationHossenfelder:getCallSign() .. " (us) is currently in sector " .. stationHossenfelder:getSectorName() .. " (Lagrange point 4)\n" ..
+					"Lagrange point 5 can be found by mirroring L4 by the Riptide Alpha - Riptide Gamma axis.\n" ..
+					"Lagrange point 1 is beteen the Riptide Alpha and Riptide Gamma, but there's nothing interesting there.")
+			end)
+		end
 		if comms_target == stationLafrina then
 			addCommsReply("I need information on the Arlenian stations in the area",function()
 				setCommsMessage("Which station are you interested in?")
