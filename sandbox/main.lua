@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.16.2"
+	scenario_version = "5.17.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -2698,18 +2698,12 @@ function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("+Update Editor",updateEditor)
-	addGMFunction("Pulse Asteroid",pulseAsteroid)
-	if jump_corridor then
-		addGMFunction("Jump Corridor On",function()
-			jump_corridor = false
-			tweakTerrain()
-		end)
-	else
-		addGMFunction("Jump Corridor Off",function()
-			jump_corridor = true
-			tweakTerrain()
-		end)
-	end
+	addGMFunction("+Faction Relations",function()
+		addGMMessage("Select two factions. Selected faction will have an asterisk. Unselect a faction by clicking a faction with an asterisk")
+		relation_faction_1 = nil
+		relation_faction_2 = nil
+		setFactionRelations()
+	end)
 	local objectList = getGMSelection()
 	if #objectList == 1 then
 		local tempObject = objectList[1]
@@ -2794,6 +2788,8 @@ function tweakTerrain()
 					addGMMessage("Selecet a station or ship. No action taken")
 				end
 			end)
+		elseif tempType == "Asteroid" then
+			addGMFunction("Pulse Asteroid",pulseAsteroid)
 		end
 	else
 		if #objectList > 1 then
@@ -2871,6 +2867,77 @@ function tweakTerrain()
 	addGMFunction("+Probes",tweakProbes)
 	addGMFunction("+Commerce",freighterCommerce)
 	addGMFunction("+Explosion",setExplosion)
+end
+function setFactionRelations()
+	clearGMFunctions()
+	local faction_list = {"Independent","Human Navy","Kraylor","Arlenians","Exuari","Ghosts","Ktlitans","TSN","USN","CUF"}
+	for _, faction in ipairs(faction_list) do
+		local button_label = faction
+		if relation_faction_1 == faction then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			string.format("")
+			if relation_faction_1 == nil then
+				relation_faction_1 = faction
+				setFactionRelations()
+			else
+				if relation_faction_1 == faction then
+					relation_faction_1 = nil
+					setFactionRelations()
+				else
+					relation_faction_2 = faction
+					actOnFactionPair()
+				end
+			end
+		end)
+	end
+end
+function actOnFactionPair()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Pick Faction Pair",function()
+		relation_faction_1 = nil
+		relation_faction_2 = nil
+		setFactionRelations()
+	end)
+	addGMFunction(relation_faction_1,function()
+		addGMMessage("Select two factions. Selected faction will have an asterisk. Unselect a faction by clicking a faction with an asterisk")
+		relation_faction_1 = nil
+		relation_faction_2 = nil
+		setFactionRelations()
+	end)
+	addGMFunction(relation_faction_2,function()
+		addGMMessage("Select two factions. Selected faction will have an asterisk. Unselect a faction by clicking a faction with an asterisk")
+		relation_faction_1 = nil
+		relation_faction_2 = nil
+		setFactionRelations()
+	end)
+	local button_label = "Friend"
+	local va_1 = VisualAsteroid():setFaction(relation_faction_1)
+	local va_2 = VisualAsteroid():setFaction(relation_faction_2)
+	if va_1:isFriendly(va_2) then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		local faction_info = getFactionInfo(relation_faction_1)
+		local faction_info_2 = getFactionInfo(relation_faction_2)
+		faction_info:setFriendly(faction_info_2)
+		actOnFactionPair()
+	end)
+	button_label = "Enemy"
+	if va_1:isEnemy(va_2) then
+		button_label = button_label .. "*"
+	end
+	va_1:destroy()
+	va_2:destroy()
+	addGMFunction(button_label,function()
+		local faction_info = getFactionInfo(relation_faction_1)
+		local faction_info_2 = getFactionInfo(relation_faction_2)
+		faction_info:setEnemy(faction_info_2)
+		actOnFactionPair()
+	end)
 end
 function setExplosion()
 	clearGMFunctions()
@@ -35107,6 +35174,17 @@ function stationManipulation()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
+	if jump_corridor then
+		addGMFunction("Jump Corridor On",function()
+			jump_corridor = false
+			stationManipulation()
+		end)
+	else
+		addGMFunction("Jump Corridor Off",function()
+			jump_corridor = true
+			stationManipulation()
+		end)
+	end
 	addGMFunction("+Station Operations",stationOperations)
 	addGMFunction("+Station Defense",stationDefense)
 	addGMFunction("+Station Report",stationReport)
