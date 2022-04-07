@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.17.1"
+	scenario_version = "5.17.2"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -271,9 +271,11 @@ function setConstants()
 		["Ktlitan Scout"] =		{strength = 8,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
 		["WZ-Lindworm"] =		{strength = 9,	adder = false,	missiler = true,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 2500,	create = wzLindworm},
 		["Adder MK7"] =			{strength = 9,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Brush"] =				{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = brush},
 		["Adder MK8"] =			{strength = 10,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
 		["Adder MK9"] =			{strength = 11,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
 		["Nirvana R3"] =		{strength = 12,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Broom"] =				{strength = 13,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = broom},
 		["Phobos R2"] =			{strength = 13,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = phobosR2},
 		["Missile Cruiser"] =	{strength = 14,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
 		["Waddle 5"] =			{strength = 15,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = waddle5},
@@ -288,6 +290,7 @@ function setConstants()
 		["Farco 5"] =			{strength = 16,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1180,	create = farco5},
 		["Karnack"] =			{strength = 17,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Gunship"] =			{strength = 17,	adder = false,	missiler = false,	beamer = false,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Sweeper"] =			{strength = 17,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = sweeper},
 		["Phobos T4"] =			{strength = 18,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = phobosT4},
 		["Cruiser"] =			{strength = 18,	adder = true,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Nirvana R5"] =		{strength = 19,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
@@ -336,7 +339,8 @@ function setConstants()
 		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = k2breaker},
 		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = atlantisY42},
-		["Blockade Runner"] =	{strength = 65,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Blockade Runner"] =	{strength = 63,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Supervisor"] =		{strength = 68,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = supervisor},
 		["Starhammer II"] =		{strength = 70,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = stockTemplate},
 		["Enforcer"] =			{strength = 75,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 1480,	create = enforcer},
 		["Gulper"] =			{strength = 77,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 12000,	hop_angle = 0,	hop_range = 1480,	create = gulper},
@@ -707,42 +711,46 @@ function setConstants()
 						{angle = 210, dist = 2	},
 					},
 	}
-	prebuilt_leaders = {		--120			125				120		140					140			140			150				100
+	prebuilt_leaders = {		--120			125				120		140					140			140			150				100			76		73		70
 		["Cucaracha"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
-		["Dreadnought"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Dread No More"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Dreadnought"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Dread No More"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
 		["MT52 Hornet"] =		{"MU52 Hornet","Ktlitan Scout"},
 		["Heavy Drone"] =		{"MU52 Hornet","Ktlitan Scout"},
-		["Nirvana R3"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Nirvana R3"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
 		["Nirvana R5"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Nirvana R5A"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Blockade Runner"] =	{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Blockade Runner"] =	{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Supervisor"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
 		["Sentinel"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Strongarm"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Phobos T3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Phobos T4"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Phobos R2"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Farco 3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Farco 5"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Farco 8"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Farco 11"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Farco 13"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Gunship"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Adv. Gunship"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Phobos T3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Phobos T4"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Phobos R2"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 5"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 8"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 11"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 13"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Gunship"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Adv. Gunship"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
 		["Adder MK5"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Adder MK6"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Adder MK7"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 	}
 	prebuilt_leader = "Nirvana R5"	--default
-	prebuilt_followers = {		--100			30				65			60					70			70				50				75			70				60			60		60			60			60			60			60				55			60			60				80			80			80
-		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "Heavy Drone"},
-		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet"},
-		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
-		["Cucaracha"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+	prebuilt_followers = {		--100			30				65			60					60				70			70			50				75			70				60			60		60			60			60			60			60				55			60			60				80			80			80				120
+		["Brush"] =				{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
+		["Broom"] =				{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
+		["Sweeper"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},		
+		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7",				  "Heavy Drone"},
+		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet"},
+		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+		["Cucaracha"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
 	}
 	prebuilt_follower = "MT52 Hornet"	--default
 	fleet_exclusions = {
@@ -1013,6 +1021,8 @@ function setConstants()
 		["Battlestation"] =					2000,
 		["Blockade Runner"] =				400,
 		["Blade"] =							300,
+		["Broom"] =							100,
+		["Brush"] =							100,
 		["Buster"] =						100,
 		["Courier"] =						600,
 		["Cruiser"] =						200,
@@ -1148,6 +1158,8 @@ function setConstants()
 		["Storm"] =							200,
 		["Strike"] =						200,
 		["Strikeship"] = 					200,
+		["Supervisor"] =					400,
+		["Sweeper"] =						100,
 		["Tempest"] =						200,
 		["Transport1x1"] =					600,
 		["Transport1x2"] =					600,
@@ -4327,7 +4339,7 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Space Sedan")
 				space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
 				genericFreighterScienceInfo(space_sedan_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 3"),ship)
-				setScienceModel(space_sedan_db,"transport_1_3")
+				space_sedan_db:setModelDataName("transport_1_3")
 				space_sedan_db:setLongDescription("The Space Sedan was built around a surplus Personnel Jump Freighter 3. It's designed to provide relatively low cost transportation primarily for people, but there is also a limited amount of cargo space available")
 			end
 		elseif freighter_type == "Omnibus" then
@@ -4336,7 +4348,7 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Omnibus")
 				omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
 				genericFreighterScienceInfo(omnibus_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 5"),ship)
-				setScienceModel(omnibus_db,"transport_1_5")
+				omnibus_db:setModelDataName("transport_1_5")
 				omnibus_db:setLongDescription("The Omnibus was designed from the Personnel Jump Freighter 5. It's made to transport large numbers of passengers of various types along with their luggage and any associated cargo")
 			end
 		elseif freighter_type == "Service Jonque" then
@@ -4345,7 +4357,7 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Service Jonque")
 				service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
 				genericFreighterScienceInfo(service_jonque_db,queryScienceDatabase("Ships","Corvette","Equipment Jump Freighter 4"),ship)
-				setScienceModel(service_jonque_db,"transport_4_4")
+				service_jonque_db:setModelDataName("transport_4_4")
 				service_jonque_db:setLongDescription("The Service Jonque is a modified Equipment Jump Freighter 4. It's designed to carry spare parts and equipment as well as the necessary repair personnel to where it's needed to repair stations and ships")
 			end
 		elseif freighter_type == "Courier" then
@@ -4354,7 +4366,7 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Courier")
 				courier_db = queryScienceDatabase("Ships","Freighter","Courier")
 				genericFreighterScienceInfo(courier_db,queryScienceDatabase("Ships","Corvette","Personnel Freighter 1"),ship)
-				setScienceModel(courier_db,"transport_1_1")
+				courier_db:setModelDataName("transport_1_1")
 				courier_db:setLongDescription("The Courier is a souped up Personnel Freighter 1. It's made to deliver people and messages fast. Very fast")
 			end
 		elseif freighter_type == "Work Wagon" then
@@ -4363,7 +4375,7 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Work Wagon")
 				work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
 				genericFreighterScienceInfo(work_wagon_db,queryScienceDatabase("Ships","Corvette","Equipment Freighter 2"),ship)
-				setScienceModel(work_wagon_db,"transport_4_2")
+				work_wagon_db:setModelDataName("transport_4_2")
 				work_wagon_db:setLongDescription("The Work Wagon is a conversion of an Equipment Freighter 2 designed to carry equipment and parts where they are needed for repair or construction.")
 			end
 		elseif freighter_type == "Laden Lorry" then
@@ -4372,7 +4384,7 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Laden Lorry")
 				laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
 				genericFreighterScienceInfo(laden_lorry_db,queryScienceDatabase("Ships","Corvette","Goods Freighter 3"),ship)
-				setScienceModel(laden_lorry_db,"transport_2_3")
+				laden_lorry_db:setModelDataName("transport_2_3")
 				laden_lorry_db:setLongDescription("As a side contract, Conversion R Us put together the Laden Lorry from some recently acquired Goods Freighter 3 hulls. The added warp drive makes for a more versatile goods carrying vessel.")
 			end
 		elseif freighter_type == "Physics Research" then
@@ -4381,7 +4393,7 @@ function addFreighter(freighter_type,ship)
 				freighter_db:addEntry("Physics Research")
 				physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
 				genericFreighterScienceInfo(physics_research_db,queryScienceDatabase("Ships","Corvette","Garbage Freighter 3"),ship)
-				setScienceModel(physics_research_db,"transport_3_3")
+				physics_research_db:setModelDataName("transport_3_3")
 				physics_research_db:setLongDescription("Conversion R Us cleaned up and converted excess freighter hulls into Physics Research vessels. The reduced weight improved the impulse speed and maneuverability.")
 			end
 		end
@@ -16421,9 +16433,9 @@ end
 
 function spawnPlayerShip()
 	clearGMFunctions()
---	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Main",initialGMFunctions)
 --	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
+--	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump   W = Warp   B = Both   N = Neither\n and a number for the long range scan range.\n\nSwitch between active player ships and scrapped player ships by using the buttons labeled --Active Ships-- and --Scrapped Ships--")
 	end)
@@ -27606,7 +27618,217 @@ function tsarina(enemyFaction)
 
 	return ship
 end
-
+function sweeper(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Sweeper"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Sweeper"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Sweeper")
+	ship:setImpulseMaxSpeed(70)					--slower impulse (vs 80)
+	ship:setWeaponTubeCount(15)					--more (vs 1)
+	ship:setWeaponTubeDirection(0, -45)				
+	ship:setWeaponTubeDirection(1,  45)				
+	ship:setWeaponTubeDirection(2, -30)				
+	ship:setWeaponTubeDirection(3,  30)				
+	ship:setWeaponTubeDirection(4, -15)				
+	ship:setWeaponTubeDirection(5,  15)				
+	ship:setWeaponTubeDirection(6,   0)				
+	ship:setWeaponTubeDirection(7, -40)				
+	ship:setWeaponTubeDirection(8,  40)				
+	ship:setWeaponTubeDirection(9, -20)				
+	ship:setWeaponTubeDirection(10, 20)				
+	ship:setWeaponTubeDirection(11,  0)				
+	ship:setWeaponTubeDirection(12,-10)				
+	ship:setWeaponTubeDirection(13, 10)				
+	ship:setWeaponTubeDirection(14,  0)				
+	ship:setTubeSize(0,"small")
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(3,"small")
+	ship:setTubeSize(4,"small")
+	ship:setTubeSize(5,"small")
+	ship:setTubeSize(6,"small")
+	ship:setTubeSize(12,"large")	
+	ship:setTubeSize(13,"large")	
+	ship:setTubeSize(14,"large")	
+	ship:setTubeLoadTime(0, 15)
+	ship:setTubeLoadTime(1, 15)
+	ship:setTubeLoadTime(2, 16)
+	ship:setTubeLoadTime(3, 16)
+	ship:setTubeLoadTime(4, 17)
+	ship:setTubeLoadTime(5, 17)
+	ship:setTubeLoadTime(6, 18)
+	ship:setTubeLoadTime(7, 19)
+	ship:setTubeLoadTime(8, 19)
+	ship:setTubeLoadTime(9, 20)
+	ship:setTubeLoadTime(10,20)
+	ship:setTubeLoadTime(11,21)
+	ship:setTubeLoadTime(12,22)
+	ship:setTubeLoadTime(13,22)
+	ship:setTubeLoadTime(14,23)
+	ship:setWeaponStorageMax("HVLI",   45)		--more (vs 4)
+	ship:setWeaponStorage("HVLI",      45)
+	local sweeper_db = queryScienceDatabase("Ships","Starfighter","Sweeper")
+	if sweeper_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Sweeper")
+		sweeper_db = queryScienceDatabase("Ships","Starfighter","Sweeper")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			sweeper_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Sweeper applies the technology gleaned from the Maniapak, namely the inclusion of numerous HVLI",
+			{
+				{key = "7 tubes -45 to 45", value = "Small: 15-18 sec"},	--torpedo tube direction and load speed
+				{key = "5 tubes -40 to 40", value = "19-21 sec"},	--torpedo tube direction and load speed
+				{key = "3 tubes -10 to 10", value = "Large: 12-14 sec"},	--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
+		)
+	end
+	return ship
+end
+function broom(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Broom"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Broom"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Broom")
+	ship:setImpulseMaxSpeed(73)					--slower impulse (vs 80)
+	ship:setWeaponTubeCount(9)					--more (vs 1)
+	ship:setWeaponTubeDirection(0, -30)				
+	ship:setWeaponTubeDirection(1,  30)				
+	ship:setWeaponTubeDirection(2, -15)				
+	ship:setWeaponTubeDirection(3,  15)				
+	ship:setWeaponTubeDirection(4,   0)				
+	ship:setWeaponTubeDirection(5, -10)				
+	ship:setWeaponTubeDirection(6,  10)				
+	ship:setWeaponTubeDirection(7,   0)				
+	ship:setWeaponTubeDirection(8,   0)				
+	ship:setTubeSize(0,"small")
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(3,"small")
+	ship:setTubeSize(4,"small")
+	ship:setTubeSize(8,"large")
+	ship:setTubeLoadTime(0, 15)
+	ship:setTubeLoadTime(1, 15)
+	ship:setTubeLoadTime(2, 16)
+	ship:setTubeLoadTime(3, 16)
+	ship:setTubeLoadTime(4, 17)
+	ship:setTubeLoadTime(5, 18)
+	ship:setTubeLoadTime(6, 18)
+	ship:setTubeLoadTime(7, 19)
+	ship:setTubeLoadTime(8, 20)
+	ship:setWeaponStorageMax("HVLI",   27)		--more (vs 4)
+	ship:setWeaponStorage("HVLI",      27)
+	local broom_db = queryScienceDatabase("Ships","Starfighter","Broom")
+	if broom_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Broom")
+		broom_db = queryScienceDatabase("Ships","Starfighter","Broom")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			broom_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Broom applies the technology gleaned from the Maniapak, namely the inclusion of several HVLI",
+			{
+				{key = "5 tubes -30 to 30", value = "Small: 15-17 sec"},	--torpedo tube direction and load speed
+				{key = "3 tubes -10 to 10", value = "18-19 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "20 sec"},	--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
+		)
+	end
+	return ship
+end
+function brush(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Brush"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Brush"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Brush")
+	ship:setImpulseMaxSpeed(76)					--slower impulse (vs 80)
+	ship:setWeaponTubeCount(6)					--more (vs 1)
+	ship:setWeaponTubeDirection(0, -10)				
+	ship:setWeaponTubeDirection(1,  10)				
+	ship:setWeaponTubeDirection(2,   0)				
+	ship:setWeaponTubeDirection(3,  -5)				
+	ship:setWeaponTubeDirection(4,   5)				
+	ship:setWeaponTubeDirection(5,   0)				
+	ship:setTubeSize(0,"small")
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(5,"large")
+	ship:setTubeLoadTime(0, 15)
+	ship:setTubeLoadTime(1, 15)
+	ship:setTubeLoadTime(2, 16)
+	ship:setTubeLoadTime(3, 17)
+	ship:setTubeLoadTime(4, 17)
+	ship:setTubeLoadTime(5, 18)
+	ship:setWeaponStorageMax("HVLI",   24)		--more (vs 4)
+	ship:setWeaponStorage("HVLI",      24)
+	local brush_db = queryScienceDatabase("Ships","Starfighter","Brush")
+	if brush_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Brush")
+		brush_db = queryScienceDatabase("Ships","Starfighter","Brush")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			brush_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Brush applies the technology gleaned from the Maniapak, namely adapting it to HVLI",
+			{
+				{key = "3 tubes -10 to 10", value = "Small: 15-16 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -5", value = "17 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 5", value = "17 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "Large: 18 sec"},	--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
+		)
+	end
+	return ship
+end
+function supervisor(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Supervisor"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Supervisor"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Supervisor")
+	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
+	ship:setShields(200,100,100)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+	ship:setRotationMaxSpeed(30)								--faster maneuver (vs 15)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	60,	   15,	1000,		6,		 8)	--change sides (vs -15)
+	ship:setBeamWeapon(1,	60,	  -15,	1000,		6,		 8) --change sides (vs 15)
+	ship:setBeamWeapon(2,  120,	  120,	1000,		6,		 8)	--broadside to rear (vs rear), wider (vs 25)
+	ship:setBeamWeapon(3,  120,	 -120,	1000,		6,		 8)
+	local supervisor_db = queryScienceDatabase("Ships","Frigate","Supervisor")
+	if supervisor_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Supervisor")
+		supervisor_db = queryScienceDatabase("Ships","Frigate","Supervisor")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+			supervisor_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Black operations took control of an undisclosed shipyard and tweaked the Blockade Runner into the Supervisor. They strenghtened the shields and hull and realigned the beams",
+			nil,
+			nil,
+			"battleship_destroyer_3_upgraded"
+		)
+	end
+	return ship
+end
 
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
@@ -27676,7 +27898,7 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 		end
 	end
 	if model_name ~= nil then
-		setScienceModel(modified_db,model_name)
+		modified_db:setModelDataName(model_name)
 	end
 end
 --not included in random fleet spawn lists
@@ -27861,7 +28083,7 @@ function missilePod(enemyFaction)
 		missile_pod_db:setKeyValue("Class","Small")
 		missile_pod_db:setKeyValue("Size",300)
 		missile_pod_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_db,"space_station_4")
+		missile_pod_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -27903,7 +28125,7 @@ function missilePodD1(enemyFaction)
 		missile_pod_d1_db:setKeyValue("Small Tube 0","5-10 Sec")
 		missile_pod_d1_db:setKeyValue("Storage HVLI",400)
 		missile_pod_d1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_d1_db,"space_station_4")
+		missile_pod_d1_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -27931,7 +28153,7 @@ function missilePodD2(enemyFaction)
 		missile_pod_d2_db:setKeyValue("Tube 0","11-15 Sec")
 		missile_pod_d2_db:setKeyValue("Storage HVLI",400)
 		missile_pod_d2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_d2_db,"space_station_4")
+		missile_pod_d2_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -27959,7 +28181,7 @@ function missilePodD4(enemyFaction)
 		missile_pod_d4_db:setKeyValue("Large Tube 0","15-20 Sec")
 		missile_pod_d4_db:setKeyValue("Storage HVLI",400)
 		missile_pod_d4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_d4_db,"space_station_4")
+		missile_pod_d4_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -27987,7 +28209,7 @@ function missilePodT1(enemyFaction)
 		missile_pod_t1_db:setKeyValue("Small Tube 0","12-17 Sec")
 		missile_pod_t1_db:setKeyValue("Storage Homing",400)
 		missile_pod_t1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_t1_db,"space_station_4")
+		missile_pod_t1_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28015,7 +28237,7 @@ function missilePodT2(enemyFaction)
 		missile_pod_t2_db:setKeyValue("Tube 0","12-17 Sec")
 		missile_pod_t2_db:setKeyValue("Storage Homing",400)
 		missile_pod_t2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_t2_db,"space_station_4")
+		missile_pod_t2_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28046,7 +28268,7 @@ function missilePodTI2(enemyFaction)
 		missile_pod_ti2_db:setKeyValue("Small Tube 270","12-17 Sec")
 		missile_pod_ti2_db:setKeyValue("Storage Homing",400)
 		missile_pod_ti2_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_ti2_db,"space_station_4")
+		missile_pod_ti2_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28077,7 +28299,7 @@ function missilePodTI4(enemyFaction)
 		missile_pod_ti4_db:setKeyValue("Tube 270","16-22 Sec")
 		missile_pod_ti4_db:setKeyValue("Storage Homing",400)
 		missile_pod_ti4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_ti4_db,"space_station_4")
+		missile_pod_ti4_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28108,7 +28330,7 @@ function missilePodTI8(enemyFaction)
 		missile_pod_ti8_db:setKeyValue("Large Tube 270","21-27 Sec")
 		missile_pod_ti8_db:setKeyValue("Storage Homing",400)
 		missile_pod_ti8_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_ti8_db,"space_station_4")
+		missile_pod_ti8_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28145,7 +28367,7 @@ function missilePodTX4(enemyFaction)
 		missile_pod_tx4_db:setKeyValue("Small Tube 270","12-19 Sec")
 		missile_pod_tx4_db:setKeyValue("Storage Homing",400)
 		missile_pod_tx4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_tx4_db,"space_station_4")
+		missile_pod_tx4_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28182,7 +28404,7 @@ function missilePodTX8(enemyFaction)
 		missile_pod_tx8_db:setKeyValue("Tube 270","16-23 Sec")
 		missile_pod_tx8_db:setKeyValue("Storage Homing",400)
 		missile_pod_tx8_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_tx8_db,"space_station_4")
+		missile_pod_tx8_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28219,7 +28441,7 @@ function missilePodTX16(enemyFaction)
 		missile_pod_tx16_db:setKeyValue("Large Tube 270","21-28 Sec")
 		missile_pod_tx16_db:setKeyValue("Storage Homing",400)
 		missile_pod_tx16_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_tx16_db,"space_station_4")
+		missile_pod_tx16_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28248,7 +28470,7 @@ function missilePodS1(enemyFaction)
 		missile_pod_s1_db:setKeyValue("Small Tube 0","17-22 Sec")
 		missile_pod_s1_db:setKeyValue("Storage EMP",200)
 		missile_pod_s1_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_s1_db,"space_station_4")
+		missile_pod_s1_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28277,7 +28499,7 @@ function missilePodS4(enemyFaction)
 		missile_pod_s4_db:setKeyValue("Large Tube 0","45-70 Sec")
 		missile_pod_s4_db:setKeyValue("Storage EMP",200)
 		missile_pod_s4_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(missile_pod_s4_db,"space_station_4")
+		missile_pod_s4_db:setModelDataName("space_station_4")
 	end
 	return ship
 end
@@ -28385,7 +28607,7 @@ function commandBase(enemyFaction)
 		command_base_db:setKeyValue("Tube 270","10 Sec")
 		command_base_db:setKeyValue("Storage Homing",400)
 		command_base_db:setKeyValue("Allowed to Dock","Starfighter/Frigate/Corvette")
-		setScienceModel(command_base_db,"transport_4_2")
+		command_base_db:setModelDataName("transport_4_2")
 	end
 	return ship	
 end
@@ -28491,7 +28713,7 @@ function militaryOutpost(enemyFaction)
 		military_outpost_db:setKeyValue("Tube 270","10 Sec")
 		military_outpost_db:setKeyValue("Storage HVLI",400)
 		military_outpost_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(military_outpost_db,"space_station_4")
+		military_outpost_db:setModelDataName("space_station_4")
 	end
 	return ship	
 end
@@ -28567,23 +28789,9 @@ function sniperTower(enemyFaction)
 		sniper_tower_db:setKeyValue("Beam weapon 270:10","6.0 Dmg / 6.0 Sec")
 		sniper_tower_db:setKeyValue("Beam Range","6 Units")
 		sniper_tower_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
-		setScienceModel(sniper_tower_db,"space_station_4")
+		sniper_tower_db:setModelDataName("space_station_4")
 	end
 	return ship	
-end
-function setScienceModel(sci_db,model_name)
-	local ee_version = getEEVersion()
-	local year = string.sub(ee_version,1,4)
-	local year_number = tonumber(year)
-	if year_number < 2021 then
-		return
-	end
-	local month_day = string.sub(ee_version,5)
-	local month_day_number = tonumber(month_day)
-	if month_day_number == 331 or month_day_number == 316 then
-		return
-	end
-	sci_db:setModelDataName(model_name)
 end
 --unarmed ships
 function spaceSedan(enemyFaction)
