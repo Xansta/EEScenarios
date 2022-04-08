@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.17.2"
+	scenario_version = "5.18.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -207,6 +207,7 @@ function setConstants()
 	spiky_spin_ships = {}
 	impulse_boost_ships = {}
 	pdc_ships = {}
+	immobile_stations = {}
 
 	ship_template = {	--ordered by relative strength
 		-- unarmed
@@ -28027,6 +28028,7 @@ function missilePod(enemyFaction)
 	local ship=CpuShip():setFaction(enemyFaction):setTemplate("Defense platform"):orderStandGround():setTypeName("Missile Pod"):setCommsScript(""):setCommsFunction(commsStation)
 	ship:setScanState("simplescan")
 	ship:onTakingDamage(npcShipDamage)
+	table.insert(immobile_stations,ship)
 	-- no beams for missile platforms
 	ship:setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0)
 	ship:setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0)
@@ -28510,6 +28512,7 @@ function commandBase(enemyFaction)
 		ship:setShortRangeRadarRange(ship_template["Command Base"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
+	table.insert(immobile_stations,ship)
 	ship:setScanState("simplescan")
 	ship:setTypeName("Command Base")
 	ship:setRadarTrace(getFilenameCompatible("smallstation.png"))			--different radar trace
@@ -28617,6 +28620,7 @@ function militaryOutpost(enemyFaction)
 		ship:setShortRangeRadarRange(ship_template["Military Outpost"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
+	table.insert(immobile_stations,ship)
 	ship:setScanState("simplescan")
 	ship:setTypeName("Military Outpost")
 	ship:setShieldsMax(150,150,150,150)				--weaker shields (vs 120,120,120,120,120,120)
@@ -28723,6 +28727,7 @@ function sniperTower(enemyFaction)
 		ship:setShortRangeRadarRange(ship_template["Sniper Tower"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
+	table.insert(immobile_stations,ship)
 	ship:setScanState("simplescan")
 	ship:setTypeName("Sniper Tower")
 	ship:setRotationMaxSpeed(3)			--faster maneuver (vs .5)
@@ -45390,6 +45395,9 @@ function updateInner(delta)
 	if jump_train ~= nil then
 		updateJumpTrain()
 	end
+	if #immobile_stations > 0 then
+		updateImmobileStations()
+	end
 	if skeletal_commerce then
 		skeletal_commerce_timer = skeletal_commerce_timer - delta
 		if skeletal_commerce_timer < 0 then
@@ -47593,6 +47601,20 @@ function updateJumpTrain()
 		end
 	else
 		jump_train = nil
+	end
+end
+function updateImmobileStations()
+	for index, station in ipairs(immobile_stations) do
+		if station ~= nil and station:isValid() then
+			if station.immobile_x == nil then
+				station.immobile_x, station.immobile_y = station:getPosition()
+			end
+			station:setPosition(station.immobile_x,station.immobile_y)
+		else
+			immobile_stations[index] = immobile_stations[#immobile_stations]
+			immobile_stations[#immobile_stations] = nil
+			break
+		end
 	end
 end
 function updateCommerce(assets,region_station)
