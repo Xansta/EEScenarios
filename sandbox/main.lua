@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.18.0"
+	scenario_version = "5.18.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -854,6 +854,7 @@ function setConstants()
 	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,"J")
 	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,"J")
 	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,"J")
+	addPlayerShip("Beowulf",	"Nusret",		createPlayerShipHrothgar	,"J")
 	addPlayerShip("Blaire",		"Kludge",		createPlayerShipBlaire		,"B")
 --	addPlayerShip("Blazon"		,createPlayerShipBlazon
 	addPlayerShip("Bling",		"Gadfly",		createPlayerShipBling		,"J")
@@ -926,8 +927,8 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Spyder")		--J
-	makePlayerShipActive("Argonaut")	--J
+	makePlayerShipActive("Thunderbird")	--J
+	makePlayerShipActive("Beowulf")		--J
 	makePlayerShipActive("Nimbus")		--J
 	makePlayerShipActive("Sting")		--W
 	makePlayerShipActive("Sparrow")		--W
@@ -6274,24 +6275,24 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
---		elseif i == 1 then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
---			dp1Zone:setColor(0,128,0):setLabel("1")
---		elseif i == 2 then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
---		elseif i == 3 then
---			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
---			dp3Zone:setColor(0,128,0):setLabel("3")
---		else		
+		if i == 6 then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
+		elseif i == 1 then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 2 then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
+		elseif i == 3 then
+			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
+			dp3Zone:setColor(0,128,0):setLabel("3")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -6950,9 +6951,8 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
-	local pistilZone = squareZone(24834, 20416, "Pistil 8 G6")
-	pistilZone:setColor(0,128,0):setLabel("P")
-	--[[
+--	local pistilZone = squareZone(24834, 20416, "Pistil 8 G6")
+--	pistilZone:setColor(0,128,0):setLabel("P")
     stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 8"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -7005,7 +7005,6 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
-	--]]
 	--Relay-13
 	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
 	--relay13Zone:setColor(0,255,0)
@@ -19668,7 +19667,7 @@ function createPlayerShipHearken()
 	return playerHearken
 end
 function createPlayerShipHrothgar()
-	playerNusret = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Hrothgar")
+	playerNusret = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Beowulf")
 	--aka Beowulf
 	playerNusret:setTypeName("Nusret")
 	playerNusret:setHullMax(150)						--stronger hull (vs 100)
@@ -25083,8 +25082,13 @@ function playerShipDamage(self,instigator)
 					else
 						self:setShields(math.max(self:getShieldLevel(0) - beam_damage,0))
 					end
-					local tempate = self:getTypeName()
+					local template = self:getTypeName()
 					local slf_x, slf_y = self:getPosition()
+					local exp_size = shipTemplateDistance[template]
+					if exp_size == nil then
+						print("nil from shipTemplateDistance for template:",template)
+						exp_size = 400
+					end
 					ElectricExplosionEffect():setSize(shipTemplateDistance[template]):setOnRadar(true):setPosition(slf_x, slf_y)
 				end
 			end
@@ -45334,7 +45338,7 @@ function updateInner(delta)
 	end
 	for index, ship in pairs(pdc_ships) do
 		if ship ~= nil and ship:isValid() then
-			print(string.format("pdc ship: %s",ship:getCallSign()))
+--			print(string.format("pdc ship: %s",ship:getCallSign()))
 			local template_name = ship:getTypeName()
 			if template_name == nil then
 				print("template name for item in pdc ship list cannot be determined")
