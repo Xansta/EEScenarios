@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.18.2"
+	scenario_version = "5.18.3"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1026,6 +1026,7 @@ function setConstants()
 		["Broom"] =							100,
 		["Brush"] =							100,
 		["Buster"] =						100,
+		["Command Base"] =					800,		
 		["Courier"] =						600,
 		["Cruiser"] =						200,
 		["Cucaracha"] =						200,
@@ -1110,6 +1111,20 @@ function setConstants()
 		["Lite Drone"] = 					300,
 		["Loki"] =							1500,
 		["Maniapak"] =						100,
+		["Military Outpost"] =				800,
+		["Missile Pod D1"] =				800,
+		["Missile Pod D2"] =				800,
+		["Missile Pod D4"] =				800,
+		["Missile Pod T1"] =				800,
+		["Missile Pod T2"] =				800,
+		["Missile Pod TI2"] =				800,
+		["Missile Pod TI4"] =				800,
+		["Missile Pod TI8"] =				800,
+		["Missile Pod TX4"] =				800,
+		["Missile Pod TX8"] =				800,
+		["Missile Pod TX16"] =				800,
+		["Missile Pod S1"] =				800,
+		["Missile Pod S4"] =				800,
 		["Missile Cruiser"] =				200,
 		["MT52 Hornet"] =					100,
 		["MT55 Hornet"] =					100,
