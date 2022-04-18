@@ -7,7 +7,7 @@
 -- look at how onGMClick has been used and pick one of improve on gm click | improve sandbox code
 -- eris at long last
 
--- ideas: PDC (enemy and player), Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health/hack level
+-- ideas: Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health level
 
 require("utils.lua")
 require("sandbox/science_database.lua")
@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.18.3"
+	scenario_version = "5.18.4"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -929,7 +929,7 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Thunderbird")	--J
 	makePlayerShipActive("Beowulf")		--J
-	makePlayerShipActive("Nimbus")		--J
+	makePlayerShipActive("Wesson")		--J
 	makePlayerShipActive("Sting")		--W
 	makePlayerShipActive("Sparrow")		--W
 	makePlayerShipActive("Quicksilver")	--W
@@ -6291,24 +6291,24 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
-		elseif i == 1 then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
-			dp1Zone:setColor(0,128,0):setLabel("1")
-		elseif i == 2 then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
-		elseif i == 3 then
-			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
-			dp3Zone:setColor(0,128,0):setLabel("3")
-		else		
+--		if i == 6 then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+--			dp6Zone:setColor(0,128,0):setLabel("6")
+--		elseif i == 1 then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+--			dp1Zone:setColor(0,128,0):setLabel("1")
+--		elseif i == 2 then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
+--		elseif i == 3 then
+--			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
+--			dp3Zone:setColor(0,128,0):setLabel("3")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -25944,9 +25944,9 @@ function npcShipDamage(self, instigator)
 		if self:hasSystem("jumpdrive") then
 			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("jumpdrive") / 2)
 		elseif self:hasSystem("warp") then
-			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("jumpdrive") / 2)
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("warp") / 2)
 		else
-			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("jumpdrive") / 2)
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("impulse") / 2)
 		end
 		if tactical_hop_eval < hacked_hop then
 			if instigator ~= nil then
@@ -46165,33 +46165,35 @@ function updateInner(delta)
 				for _, obj in ipairs(obj_list) do
 					local obj_type = obj.typeName
 					if obj_type == "HomingMissile" or obj_type == "HVLI" or obj_type == "Nuke" or obj_type == "EMPMissile" then
-						if obj.pdc_cycle == nil then
-							local adjusted_factor = ship.pdc_factor * ship:getSystemHealth("beamweapons")
-							obj.pdc_success = (random(1,100) <= adjusted_factor)
-							obj.pdc_cycle = {}
-							local attempts = math.random(1,8)
-							local trigger_time = getScenarioTime()
-							local interval = 1/attempts
-							for i=1,attempts do
-								obj.pdc_cycle[i] = {time = trigger_time, done = false, len = interval*.75}
-								trigger_time = trigger_time + interval
-							end
-						end
-						local current_time = getScenarioTime()
-						local completed_shots = true
-						for _, shot in ipairs(obj.pdc_cycle) do
-							if not shot.done then
-								if current_time >= shot.time then
-									BeamEffect():setSource(ship,0,0,0):setTarget(obj,0,0):setBeamFireSoundPower(2):setRing(false):setDuration(shot.len)
-									shot.done = true
+						if obj:getOwner() ~= ship then
+							if obj.pdc_cycle == nil then
+								local adjusted_factor = ship.pdc_factor * ship:getSystemHealth("beamweapons")
+								obj.pdc_success = (random(1,100) <= adjusted_factor)
+								obj.pdc_cycle = {}
+								local attempts = math.random(1,8)
+								local trigger_time = getScenarioTime()
+								local interval = 1/attempts
+								for i=1,attempts do
+									obj.pdc_cycle[i] = {time = trigger_time, done = false, len = interval*.75}
+									trigger_time = trigger_time + interval
 								end
-								completed_shots = false
 							end
-						end
-						if completed_shots and obj.pdc_success then
-							local exp_x, exp_y = obj:getPosition()
-							ExplosionEffect():setPosition(exp_x,exp_y):setSize(40):setOnRadar(true)
-							obj:destroy()
+							local current_time = getScenarioTime()
+							local completed_shots = true
+							for _, shot in ipairs(obj.pdc_cycle) do
+								if not shot.done then
+									if current_time >= shot.time then
+										BeamEffect():setSource(ship,0,0,0):setTarget(obj,0,0):setBeamFireSoundPower(2):setRing(false):setDuration(shot.len)
+										shot.done = true
+									end
+									completed_shots = false
+								end
+							end
+							if completed_shots and obj.pdc_success then
+								local exp_x, exp_y = obj:getPosition()
+								ExplosionEffect():setPosition(exp_x,exp_y):setSize(40):setOnRadar(true)
+								obj:destroy()
+							end
 						end
 					end
 				end
