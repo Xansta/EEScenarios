@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.18.4"
+	scenario_version = "5.19.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -930,7 +930,7 @@ function setConstants()
 	makePlayerShipActive("Thunderbird")	--J
 	makePlayerShipActive("Beowulf")		--J
 	makePlayerShipActive("Wesson")		--J
-	makePlayerShipActive("Sting")		--W
+	makePlayerShipActive("Spike")		--W
 	makePlayerShipActive("Sparrow")		--W
 	makePlayerShipActive("Quicksilver")	--W
 	active_player_ship = true
@@ -36221,6 +36221,7 @@ function stationManipulation()
 	addGMFunction("+Station Report",stationReport)
 	addGMFunction("+Station Goods",stationGoods)
 	addGMFunction("+Station Probes",stationProbes)
+	addGMFunction("+Station Ordnance",stationOrdnance)
 end
 ---------------------------------
 --	Tweak Terrain > Minefield  --
@@ -38171,6 +38172,64 @@ function stationProbes()
 	addGMFunction("+Warp Jammer Probes",warpJammerStationProbes)
 	addGMFunction("+Sensor Boost Probes",sensorBoostStationProbes)
 end
+function stationOrdnance()
+	clearGMFunctions()
+	addGMFunction("-Main From Ordnance",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Stn Manipulation",stationManipulation)
+	local object_list = getGMSelection()
+	if object_list == nil then
+		addGMMessage("Nothing selected. Select a station. No action taken")
+		addGMFunction("+Select Station",stationOrdnance)
+	else
+		local station_count = 0
+		local selected_station = nil
+		for _, obj in ipairs(object_list) do
+			if obj.typeName == "SpaceStation" then
+				selected_station = obj
+				station_count = station_count + 1
+			end
+		end
+		if station_count < 1 then
+			addGMMessage("No station selected. Select a station. No action taken")
+			addGMFunction("+Select Station",stationOrdnance)
+		elseif station_count > 1 then
+			addGMMessage("Select only one station. Select a station. No action taken")
+			addGMFunction("+Select Station",stationOrdnance)
+		else
+			addGMFunction(string.format("+Chg Frm %s",selected_station:getCallSign()),stationOrdnance)
+			if selected_station.comms_data ~= nil then
+				if selected_station.comms_data.weapon_available ~= nil then
+					local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
+					for i, missile_type in ipairs(missile_types) do
+						local ord_avail = "N"
+						if selected_station.comms_data.weapon_available[missile_type] ~= nil then
+							if selected_station.comms_data.weapon_available[missile_type] then
+								ord_avail = "Y"
+							end
+						end
+						addGMFunction(string.format("%s %s %i",missile_type,ord_avail,math.floor(selected_station.comms_data.weapon_cost[missile_type])),function()
+							string.format("")
+							if ord_avail == "Y" then
+								selected_station.comms_data.weapon_available[missile_type] = false
+							else
+								selected_station.comms_data.weapon_available[missile_type] = true
+							end
+							stationOrdnance()
+						end)
+					end
+				else
+					addGMMessage(string.format("No initialized weapon_available list in comms_data for station %s. No action taken",selected_station:getCallSign()))
+					stationOrdnance()
+				end
+			else
+				addGMMessage(string.format("No comms_data for station %s. No action taken",selected_station:getCallSign()))
+				stationOrdnance()
+			end
+		end
+	end
+end
+
 ---------------------------------------------------------------------------
 --	Tweak Terrain > Station manipulation > Station probes > Fast probes  --
 ---------------------------------------------------------------------------
