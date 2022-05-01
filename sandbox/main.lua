@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.19.0"
+	scenario_version = "5.20.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -166,7 +166,8 @@ function setConstants()
 	universe:addAvailableRegion("Astron (U33)",function() return ghostNebulaSector() end, 460500, 320500) -- there was an alternate spawn location of 545336,292452, inital spawn location seems to not work eh I will look at it later - starry
 	universe:addAvailableRegion("Lafrina (T-8)",lafrinaSector,-237666,296975)
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
-	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
+	universe:addAvailableRegion("Bask (R56)",baskSector,958938,260657)	--spawn point adjusted to 100 units west of Magnasol while Bask is under construction
+--	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	initialSandboxDatabaseUpdate()
 	playerSpawnX = 0
@@ -930,9 +931,9 @@ function setConstants()
 	makePlayerShipActive("Thunderbird")	--J
 	makePlayerShipActive("Beowulf")		--J
 	makePlayerShipActive("Wesson")		--J
-	makePlayerShipActive("Spike")		--W
+	makePlayerShipActive("Watson")		--W
 	makePlayerShipActive("Sparrow")		--W
-	makePlayerShipActive("Quicksilver")	--W
+	makePlayerShipActive("Florentine")	--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1858,6 +1859,9 @@ function createSkeletonUniverse()
 	--Bask
 	bask_x = 1026873
 	bask_y = 250662
+--	local baskZone = squareZone(bask_x,bask_y, "Bask 2")
+--	baskZone:setColor(0,128,0):setLabel("B")
+	--[[
 	stationBask = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Bask"):setPosition(bask_x, bask_y):setCommsScript(""):setDescription("Magnasol Research and Regional Diplomatic Coordination"):setCommsFunction(commsStation)
 	stationBask:setShortRangeRadarRange(23000)
     stationBask.comms_data = {
@@ -1906,7 +1910,7 @@ function createSkeletonUniverse()
 			DF3 = "MT52 Hornet",
 			DF4 = "MU52 Hornet",
 			DF5 = "Phobos T3",
-			DF6 = "Cucaracha",
+			DF6 = "Nirvana R5",
 			DF7 = "Adder MK8",
 			DF8 = "Elara P2",
     	},
@@ -1914,6 +1918,7 @@ function createSkeletonUniverse()
 	station_names[stationBask:getCallSign()] = {stationBask:getSectorName(), stationBask}
 	stationBask.skeleton_station = true
 	table.insert(skeleton_stations,stationBask)
+	--]]
 end
 function createFleurNebula()
     Nebula():setPosition(22028, 25793):setCallSign("Fleur")
@@ -14987,8 +14992,9 @@ function createBaskStations()
 	station_names[stationButte:getCallSign()] = {stationButte:getSectorName(), stationButte}
 	table.insert(stations,stationButte)
 	--	Pillia
-	--local pilliaZone = squareZone(1031485, 265802, "Pillia")
-	--pilliaZone:setColor(51,153,255):setLabel("B")
+	local pilliaZone = squareZone(1031485, 265802, "Pillia")
+	pilliaZone:setColor(51,153,255):setLabel("P")
+	--[[
 	stationPillia = SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("Pillia"):setPosition(1031485, 265802):setDescription("Mining and Research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPillia:setShortRangeRadarRange(5500)
 	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
@@ -15040,6 +15046,7 @@ function createBaskStations()
 	if random(1,100) <= 11 then stationPillia:setSharesEnergyWithDocked(false) end
 	station_names[stationPillia:getCallSign()] = {stationPillia:getSectorName(), stationPillia}
 	table.insert(stations,stationPillia)
+	--]]
 	--	Milornden
 	--local milorndenZone = squareZone(1054941, 292713, "Milornden")
 	--milorndenZone:setColor(51,153,255):setLabel("M")
@@ -48172,30 +48179,32 @@ function updateMagnasolNebula(delta)
 end
 function updateMagnasolPatrols(delta)
 	for _, fleet in ipairs(bask_patrol_fleets) do
-		local ship_deleted = false
-		for  index, ship in ipairs(fleet.ships) do
-			if ship ~= nil then
-				if not ship:isValid() then
+		if fleet ~= nil and fleet.ships ~= nil then
+			local ship_deleted = false
+			for index, ship in ipairs(fleet.ships) do
+				if ship ~= nil then
+					if not ship:isValid() then
+						fleet.ships[index] = fleet.ships[#fleet.ships]
+						fleet.ships[#fleet.ships] = nil
+						ship_deleted = true
+						break
+					end
+				else
 					fleet.ships[index] = fleet.ships[#fleet.ships]
 					fleet.ships[#fleet.ships] = nil
 					ship_deleted = true
 					break
 				end
-			else
-				fleet.ships[index] = fleet.ships[#fleet.ships]
-				fleet.ships[#fleet.ships] = nil
-				ship_deleted = true
-				break
 			end
-		end
-		if not ship_deleted then
-			if #fleet.ships == 0 then
-				if fleet.regen == nil then
-					fleet.regen = getScenarioTime() + 30
-				else
-					if fleet.regen < getScenarioTime() then
-						fleet.ships = createBaskPatrol(fleet.name)
-						fleet.regen = nil
+			if not ship_deleted then
+				if #fleet.ships == 0 then
+					if fleet.regen == nil then
+						fleet.regen = getScenarioTime() + 30
+					else
+						if fleet.regen < getScenarioTime() then
+							fleet.ships = createBaskPatrol(fleet.name)
+							fleet.regen = nil
+						end
 					end
 				end
 			end
@@ -48222,7 +48231,10 @@ function updatePlayerMagnasolLevelCoolant(p)
 				string.format("")
 				levelCoolant(p)
 			end)
-			local level_message = string.format("To: The Engineering Staff of %s\nFrom: Station %s\nSubject: Level Coolant Notification and Warning\n\nWelcome to the Magnasol region. The technicians of station %s installed a level coolant function on your ship. Ships within 100 units of Magnasol experience additional heat generation in their systems due to the unusual nature of Magnasol. The closer %s approaches Magnasol, the more heat your systems will experience. The level coolant button takes all available coolant and spreads it out evenly among all systems. The %s technicians have taken the liberty of triggering this function on your behalf as a demonstration.\n\nThe best way to avoid the heat generation is to stay far away from Magnasol. Your shields reduce the heat generated. %s also has parasol docking to protect ships while they are docked.\n\nEnjoy your tour of the Magnasol system.",p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign(),p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign())
+			local level_message = string.format("To: The Engineering Staff of %s\nFrom: Bask Construction Crew\nSubject: Level Coolant Notification and Warning\n\nWelcome to the Magnasol region. The technicians of Bask construction crew installed a level coolant function on your ship. Ships within 100 units of Magnasol experience additional heat generation in their systems due to the unusual nature of Magnasol. The closer %s approaches Magnasol, the more heat your systems will experience. The level coolant button takes all available coolant and spreads it out evenly among all systems. The technicians have taken the liberty of triggering this function on your behalf as a demonstration.\n\nThe best way to avoid the heat generation is to stay far away from Magnasol. Your shields reduce the heat generated. Once Bask is constructed, t will have parasol docking to protect ships while they are docked.\n\nEnjoy your tour of the Magnasol system.",p:getCallSign(),p:getCallSign())
+			if stationBask ~= nil and stationBask:isValid() then
+				level_message = string.format("To: The Engineering Staff of %s\nFrom: Station %s\nSubject: Level Coolant Notification and Warning\n\nWelcome to the Magnasol region. The technicians of station %s installed a level coolant function on your ship. Ships within 100 units of Magnasol experience additional heat generation in their systems due to the unusual nature of Magnasol. The closer %s approaches Magnasol, the more heat your systems will experience. The level coolant button takes all available coolant and spreads it out evenly among all systems. The %s technicians have taken the liberty of triggering this function on your behalf as a demonstration.\n\nThe best way to avoid the heat generation is to stay far away from Magnasol. Your shields reduce the heat generated. %s also has parasol docking to protect ships while they are docked.\n\nEnjoy your tour of the Magnasol system.",p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign(),p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign())
+			end
 			p.level_coolant_message_eng = "level_coolant_message_eng"
 			p:addCustomMessage("Engineering",p.level_coolant_message_eng,level_message)
 			p.level_coolant_message_plus = "level_coolant_message_plus"
@@ -48235,7 +48247,7 @@ function updatePlayerMagnasolLevelCoolant(p)
 end
 function updatePlayerMagnasolHeat(delta,p)
 	if p:isValid() then
-		if stationBask:isValid() then
+		if stationBask ~= nil and stationBask:isValid() then
 			if p:isDocked(stationBask) then
 				return
 			end
