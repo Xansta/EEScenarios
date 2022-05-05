@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.20.0"
+	scenario_version = "5.21.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -43568,6 +43568,92 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
+	if planet_magnasol_star ~= nil and distance(planet_magnasol_star,comms_target) < 120000 then
+		addCommsReply("How can I protect my ship from Magnasol heat?",function()
+			setCommsMessage("There are several ways. Which one are you interested in?")
+			addCommsReply("Activate shields",function()
+				setCommsMessage("If your shields are active, that cuts out about half the heat that Magnasol emits")
+				addCommsReply("Back", commsStation)
+			end)
+			addCommsReply("Increase your distance from Magnasol",function()
+				setCommsMessage("The further you are away from Magnasol, the less impact it has on the heat of your systems. The closer, the hotter.")
+				addCommsReply("Back", commsStation)
+			end)
+			addCommsReply("Get coolant additive",function()
+				setCommsMessage("Each station in the area is continually coming up with different concoctions that can be mixed with coolant to make the coolant more effective against Magnasol's radiance. These concoctions vary in their effectiveness and in the duration of their effectiveness.")
+				addCommsReply("Do you have one of these coolant additives we could try?",function()
+					if comms_target.comms_data.coolant_additive == nil then
+						local duration_list = {
+							{value = 2, desc = "a couple of"},
+							{value = 5, desc = "a few"},
+							{value = 10, desc = "about ten"},
+						}
+						local duration = duration_list[math.random(1,3)]
+						comms_target.comms_data.coolant_additive = {
+							["effectiveness"] = math.random(1,3),
+							["duration"] = duration.value,
+							["desc"] = duration.desc,
+							["exchange"] = mineralGoods[math.random(1,#mineralGoods)],
+						}
+					end
+					setCommsMessage(string.format("We've got a batch of coolant additive that's level %i effective (the higher the level, the better) that'll last %s minutes. We'll provide you some in exchange for %s",comms_target.comms_data.coolant_additive.effectiveness,comms_target.comms_data.coolant_additive.desc,comms_target.comms_data.coolant_additive.exchange))
+					addCommsReply("That would be great. We'll take some",function()
+						local exchange_good = comms_target.comms_data.coolant_additive.exchange
+						local function injectCoolantAdditive(exchange_good)
+							if comms_source.goods ~= nil then
+								if comms_source.goods[exchange_good] ~= nil and comms_source.goods[exchange_good] > 0 then
+									comms_source.goods[exchange_good] = comms_source.goods[exchange_good] - 1
+									comms_source.coolant_additive = {
+										["effectiveness"] = comms_target.comms_data.coolant_additive.effectiveness,
+										["expires"] = comms_target.comms_data.coolant_additive.duration*60 + getScenarioTime(),
+									}
+									comms_source.coolant_additive_button_eng = "coolant_additive_button_eng"
+									comms_source:addCustomButton("Engineering",comms_source.coolant_additive_button_eng,"Check Additive",function()
+										string.format("")
+										comms_source.coolant_additive_msg_eng = "coolant_additive_msg_eng"
+										print("expires:",comms_source.coolant_additive.expires)
+										if comms_source.coolant_additive.expires > getScenarioTime() then
+											comms_source:addCustomMessage("Engineering",comms_source.coolant_additive_msg_eng,string.format("Additive functioning.\nEffectiveness level %s.\nExpected remaining duration: %i seconds",comms_source.coolant_additive.effectiveness,math.floor(comms_source.coolant_additive.expires - getScenarioTime())))
+										else
+											comms_source:addCustomMessage("Engineering",comms_source.coolant_additive_msg_eng,"Additive has dissipated")
+											comms_source:removeCustom(comms_source.coolant_additive_button_eng)
+										end
+									end,41)
+									comms_source.coolant_additive_button_plus = "coolant_additive_button_plus"
+									comms_source:addCustomButton("Engineering+",comms_source.coolant_additive_button_plus,"Check Additive",function()
+										string.format("")
+										comms_source.coolant_additive_msg_eng = "coolant_additive_msg_eng"
+										if comms_source.coolant_additive.expires > getScenarioTime() then
+											comms_source:addCustomMessage("Engineering+",comms_source.coolant_additive_msg_eng,string.format("Additive functioning.\nEffectiveness level %s.\nExpected remaining duration: %i seconds",comms_source.coolant_additive.effectiveness,math.floor(comms_source.coolant_additive.expires - getScenarioTime())))
+										else
+											comms_source:addCustomMessage("Engineering+",comms_source.coolant_additive_msg_eng,"Additive has dissipated")
+											comms_source:removeCustom(comms_source.coolant_additive_button_plus)
+										end
+									end,41)
+									setCommsMessage(string.format("Thanks for the %s. We've injected the coolant additive into your coolant system",exchange_good))
+								else
+									setCommsMessage(string.format("We'll need %s before we can provide the coolant additive",exchange_good))
+								end
+							else
+								setCommsMessage(string.format("We'll need %s before we can provide the coolant additive",exchange_good))
+							end
+						end
+						if comms_source.coolant_additive == nil then
+							injectCoolantAdditive(exchange_good)
+						else
+							if comms_source.coolant_additive.expires < getScenarioTime() then
+								setCommsMessage("You've already got a coolant additive. These things don't mix well. We've seen ships explode when they try to mix coolant additives. You'll have to wait until your current coolant additive dissipates")
+							else
+								injectCoolantAdditive(exchange_good)
+							end
+						end
+						addCommsReply("Back", commsStation)				
+					end)
+				end)
+				addCommsReply("Back", commsStation)				
+			end)
+		end)
+	end
 	if comms_target == stationHossenfelder then
 		addCommsReply("I need information on this region",function()
 			setCommsMessage(psamtikStation:getCallSign() .. " is currently in sector " .. psamtikStation:getSectorName() .. " (Lagrange point 2). It houses the Arlenian Xenobiology Institute.\n" ..
@@ -44370,6 +44456,41 @@ function handleUndockedState()
 			setCommsMessage(service_status)
 			addCommsReply("Back", commsStation)
 		end)
+		if planet_magnasol_star ~= nil and distance(planet_magnasol_star,comms_target) < 120000 then
+			addCommsReply("How can I protect my ship from Magnasol heat?",function()
+				setCommsMessage("There are several ways. Which one are you interested in?")
+				addCommsReply("Activate shields",function()
+					setCommsMessage("If your shields are active, that cuts out about half the heat that Magnasol emits")
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("Increase your distance from Magnasol",function()
+					setCommsMessage("The further you are away from Magnasol, the less impact it has on the heat of your systems. The closer, the hotter.")
+					addCommsReply("Back", commsStation)
+				end)
+				addCommsReply("Get coolant additive",function()
+					setCommsMessage("Each station in the area is continually coming up with different concoctions that can be mixed with coolant to make the coolant more effective against Magnasol's radiance. These concoctions vary in their effectiveness and in the duration of their effectiveness.")
+					addCommsReply("Do you have one of these coolant additives we could try?",function()
+						if comms_target.comms_data.coolant_additive == nil then
+							local duration_list = {
+								{value = 2, desc = "a couple of"},
+								{value = 5, desc = "a few"},
+								{value = 10, desc = "about ten"},
+							}
+							local duration = duration_list[math.random(1,3)]
+							comms_target.comms_data.coolant_additive = {
+								["effectiveness"] = math.random(1,3),
+								["duration"] = duration.value,
+								["desc"] = duration.desc,
+								["exchange"] = mineralGoods[math.random(1,#mineralGoods)],
+							}
+						end
+						setCommsMessage(string.format("We've got a batch of coolant additive that's level %i effective (the higher the level, the better) that'll last %s minutes. We'll provide you some in exchange for %s.",comms_target.comms_data.coolant_additive.effectiveness,comms_target.comms_data.coolant_additive.desc,comms_target.comms_data.coolant_additive.exchange))
+						addCommsReply("Back", commsStation)				
+					end)
+					addCommsReply("Back", commsStation)				
+				end)
+			end)
+		end		
 		addCommsReply("Where can I find particular goods?", function()
 			local ctd = comms_target.comms_data
 			gkMsg = "Friendly stations often have food or medicine or both. Neutral stations may trade their goods for food, medicine or luxury."
@@ -48258,7 +48379,13 @@ function updatePlayerMagnasolHeat(delta,p)
 			end		
 			local magnasol_distance = distance(planet_magnasol_star,p)
 			if magnasol_distance < 100000 then
-				local heat_impact = delta * (1 - (magnasol_distance/100000)) * .05
+				local base_heat = .05
+				if p.coolant_additive ~= nil then
+					if p.coolant_additive.expires > getScenarioTime() then
+						base_heat = base_heat - (.01 * p.coolant_additive.effectiveness)
+					end
+				end
+				local heat_impact = delta * (1 - (magnasol_distance/100000)) * base_heat
 				if p:getShieldsActive() then
 					heat_impact = heat_impact/2
 				end
