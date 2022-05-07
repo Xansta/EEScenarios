@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.21.0"
+	scenario_version = "5.21.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -713,48 +713,135 @@ function setConstants()
 						{angle = 210, dist = 2	},
 					},
 	}
-	prebuilt_leaders = {		--120			125				120		140					140			140			150				100			76		73		70
-		["Cucaracha"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
-		["Dreadnought"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Dread No More"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["MT52 Hornet"] =		{"MU52 Hornet","Ktlitan Scout"},
-		["Heavy Drone"] =		{"MU52 Hornet","Ktlitan Scout"},
-		["Nirvana R3"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Nirvana R5"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Nirvana R5A"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Blockade Runner"] =	{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Supervisor"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Sentinel"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Strongarm"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Phobos T3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Phobos T4"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Phobos R2"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 3"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 5"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 8"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 11"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 13"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Gunship"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Adv. Gunship"] =		{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Adder MK5"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Adder MK6"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Adder MK7"] =			{"MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+	prebuilt_leaders = {		--130			140		120			125				120		140					140			140			150				100			76		73		70
+		["Cucaracha"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
+		["Dreadnought"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Dread No More"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["MT52 Hornet"] =		{"Lite Drone","Gnat","MU52 Hornet","Ktlitan Scout"},
+		["Heavy Drone"] =		{"Lite Drone","Gnat","MU52 Hornet","Ktlitan Scout"},
+		["Nirvana R3"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Nirvana R5"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Nirvana R5A"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Blockade Runner"] =	{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Supervisor"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Sentinel"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Strongarm"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Phobos T3"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Phobos T4"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Phobos R2"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 3"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 5"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 8"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 11"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Farco 13"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Gunship"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Adv. Gunship"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Adder MK4"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Adder MK5"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Adder MK6"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Adder MK7"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 	}
 	prebuilt_leader = "Nirvana R5"	--default
-	prebuilt_followers = {		--100			30				65			60					60				70			70			50				75			70				60			60		60			60			60			60			60				55			60			60				80			80			80				120
+	prebuilt_followers = {		--100			30				65			60					60				70			70			50				75			70				60			60		60			60			60			60			60				55			60			60				60			80			80			80				120
 		["Brush"] =				{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
 		["Broom"] =				{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
 		["Sweeper"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},		
-		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7",				  "Heavy Drone"},
-		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet"},
-		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
-		["Cucaracha"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7",				  "Heavy Drone"},
+		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet"},
+		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+		["Cucaracha"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Gnat"] =				{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+		["Lite Drone"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
 	}
 	prebuilt_follower = "MT52 Hornet"	--default
+	prebuilt_relative = {
+		{strength = 9,	leader = "MT52 Hornet",		follower = "Gnat",				shape = "V"},	--5,	2
+		{strength = 10,	leader = "Adder MK4",		follower = "Gnat",				shape = "V"},	--6,	2
+		{strength = 11,	leader = "MT52 Hornet",		follower = "Light Drone",		shape = "V"},	--5,	3
+		{strength = 12,	leader = "Adder MK4",		follower = "Light Drone",		shape = "V4"},	--6,	3
+		{strength = 13,	leader = "MT52 Hornet",		follower = "Gnat",				shape = "V4"},	--5,	2
+		{strength = 14,	leader = "Adder MK4",		follower = "Gnat",				shape = "V4"},	--6,	2
+		{strength = 15,	leader = "MT52 Hornet",		follower = "MU52 Hornet",		shape = "V"},	--5,	5
+		{strength = 16,	leader = "Nirvana R3",		follower = "Gnat",				shape = "V"},	--12,	2
+		{strength = 17,	leader = "Phobos R2",		follower = "Gnat",				shape = "V"},	--13,	2
+		{strength = 18,	leader = "Nirvana R3",		follower = "Lite Drone",		shape = "V"},	--12,	3
+		{strength = 19,	leader = "Phobos T3",		follower = "Gnat",				shape = "V"},	--15,	2
+		{strength = 20,	leader = "Farco 3",			follower = "Gnat",				shape = "V"},	--16,	2
+		{strength = 21,	leader = "MT52 Hornet",		follower = "Ktlitan Scout",		shape = "V"},	--5,	8
+		{strength = 22,	leader = "Nirvana R3",		follower = "MT52 Hornet",		shape = "V"},	--12,	5
+		{strength = 23,	leader = "Phobos R2",		follower = "MU52 Hornet",		shape = "V"},	--13,	5
+		{strength = 24,	leader = "Nirvana R3",		follower = "Fighter",			shape = "V"},	--12,	6
+		{strength = 25,	leader = "Phobos T3",		follower = "MU52 Hornet",		shape = "V"},	--15,	5
+		{strength = 26,	leader = "Farco 3",			follower = "MU52 Hornet",		shape = "V"},	--16,	5
+		{strength = 27,	leader = "Gunship",			follower = "MU52 Hornet",		shape = "V"},	--17,	5
+		{strength = 28,	leader = "Phobos T4",		follower = "MU52 Hornet",		shape = "V"},	--18,	5
+		{strength = 29,	leader = "Phobos T3",		follower = "K2 Fighter",		shape = "V"},	--15,	7
+		{strength = 30,	leader = "Farco 3",			follower = "K2 Fighter",		shape = "V"},	--16,	7
+		{strength = 31,	leader = "Gunship",			follower = "K2 Fighter",		shape = "V"},	--17,	7
+		{strength = 32,	leader = "Nirvana R3",		follower = "MT52 Hornet",		shape = "V4"},	--12,	5
+		{strength = 33,	leader = "Phobos R2",		follower = "MT52 Hornet",		shape = "V4"},	--13,	5
+		{strength = 34,	leader = "Adv. Gunship",	follower = "K2 Fighter",		shape = "V"},	--20,	7
+		{strength = 35,	leader = "Phobos T3",		follower = "MU52 Hornet",		shape = "V4"},	--15,	5
+		{strength = 36,	leader = "Nirvana R3",		follower = "Fighter",			shape = "V4"},	--12,	6
+		{strength = 37,	leader = "Phobos R2",		follower = "Fighter",			shape = "V4"},	--13,	6
+		{strength = 38,	leader = "Phobos T4",		follower = "MU52 Hornet",		shape = "V4"},	--18,	5
+		{strength = 39,	leader = "Phobos T3",		follower = "Ktlitan Fighter",	shape = "V4"},	--15,	6
+		{strength = 40,	leader = "Sentinel",		follower = "K3 Fighter",		shape = "V"},	--24,	8
+		{strength = 41,	leader = "Farco 11",		follower = "MT52 Hornet",		shape = "V4"},	--21,	5
+		{strength = 42,	leader = "Phobos T4",		follower = "Fighter",			shape = "V4"},	--18,	6
+		{strength = 43,	leader = "Phobos T3",		follower = "K2 Fighter",		shape = "V4"},	--15,	7
+		{strength = 44,	leader = "Nirvana R3",		follower = "K3 Fighter",		shape = "V4"},	--12,	8
+		{strength = 45,	leader = "Phobos R2",		follower = "Ktlitan Scout",		shape = "V4"},	--13,	8
+		{strength = 46,	leader = "Cucaracha",		follower = "MT52 Hornet",		shape = "V"},	--36,	5
+		{strength = 47,	leader = "Gunship",			follower = "MU52 Hornet",		shape = "M6"},	--17,	5
+		{strength = 48,	leader = "Sentinel",		follower = "Fighter",			shape = "V4"},	--24,	6
+		{strength = 49,	leader = "Phobos R2",		follower = "Fighter",			shape = "M6"},	--13,	6
+		{strength = 50,	leader = "Adv. Gunship",	follower = "MU52 Hornet",		shape = "M6"},	--20,	5
+		{strength = 51,	leader = "Phobos T3",		follower = "Fighter",			shape = "M6"},	--15,	6
+		{strength = 52,	leader = "Adv. Gunship",	follower = "K3 Fighter",		shape = "V4"},	--20,	8
+		{strength = 53,	leader = "MT52 Hornet",		follower = "Ktlitan Scout",		shape = "M6"},	--5,	8
+		{strength = 54,	leader = "Nirvana R3",		follower = "K2 Fighter",		shape = "M6"},	--12,	7
+		{strength = 55,	leader = "Phobos R2",		follower = "K2 Fighter",		shape = "M6"},	--13,	7
+		{strength = 56,	leader = "Nirvana R5A",		follower = "Fighter",			shape = "M6"},	--20,	6
+		{strength = 57,	leader = "Farco 11",		follower = "Ktlitan Fighter",	shape = "M6"},	--21,	6
+		{strength = 58,	leader = "Farco 3",			follower = "K2 Fighter",		shape = "M6"},	--16,	7
+		{strength = 59,	leader = "Nirvana R5",		follower = "MU52 Hornet",		shape = "X8"},	--19,	5
+		{strength = 60,	leader = "Cucaracha",		follower = "Fighter",			shape = "V4"},	--36,	6
+		{strength = 61,	leader = "Farco 8",			follower = "K2 Fighter",		shape = "M6"},	--19,	7
+		{strength = 62,	leader = "Adv. Gunship",	follower = "K2 Fighter",		shape = "M6"},	--20,	7
+		{strength = 63,	leader = "Phobos T3",		follower = "Ktlitan Fighter",	shape = "X8"},	--15,	6
+		{strength = 64,	leader = "Sentinel",		follower = "MU52 Hornet",		shape = "X8"},	--24,	5
+		{strength = 65,	leader = "Gunship",			follower = "K3 Fighter",		shape = "M6"},	--17,	8
+		{strength = 66,	leader = "Cucaracha",		follower = "MT52 Hornet",		shape = "M6"},	--36,	5
+		{strength = 67,	leader = "Blockade Runner",	follower = "Gnat",				shape = "V"},	--63,	2
+		{strength = 68,	leader = "Cucaracha",		follower = "Ktlitan Scout",		shape = "V4"},	--36,	8
+		{strength = 69,	leader = "Blockade Runner",	follower = "Light Drone",		shape = "V"},	--63,	3
+		{strength = 70,	leader = "Adder MK4",		follower = "K3 Fighter",		shape = "X8"},	--6,	8
+		{strength = 71,	leader = "Blockade Runner",	follower = "Gnat",				shape = "V4"},	--63,	2
+		{strength = 72,	leader = "Supervisor",		follower = "Gnat",				shape = "V"},	--68,	2
+		{strength = 73,	leader = "Gunship",			follower = "K2 Fighter",		shape = "X8"},	--17,	7
+		{strength = 74,	leader = "Supervisor",		follower = "Light Drone",		shape = "V"},	--68,	3
+		{strength = 75,	leader = "Nirvana R5",		follower = "K2 Fighter",		shape = "X8"},	--19,	7
+		{strength = 76,	leader = "Supervisor",		follower = "Gnat",				shape = "V4"},	--68,	2
+		{strength = 77,	leader = "Farco 11",		follower = "K2 Fighter",		shape = "X8"},	--21,	7
+		{strength = 78,	leader = "Adder MK4",		follower = "Cucaracha",			shape = "V"},	--6,	36
+		{strength = 79,	leader = "Phobos T3",		follower = "K3 Fighter",		shape = "X8"},	--15,	8
+		{strength = 80,	leader = "Farco 3",			follower = "Ktlitan Scout",		shape = "X8"},	--16,	8
+		{strength = 81,	leader = "Gunship",			follower = "K3 Fighter",		shape = "X8"},	--17,	8
+		{strength = 82,	leader = "Phobos T4",		follower = "Ktlitan Scout",		shape = "X8"},	--18,	8
+		{strength = 83,	leader = "Farco 8",			follower = "K3 Fighter",		shape = "X8"},	--19,	8
+		{strength = 84,	leader = "Dreadnought",		follower = "Gnat",				shape = "V"},	--80,	2
+		{strength = 85,	leader = "Phobos R2",		follower = "Cucaracha",			shape = "V"},	--13,	36
+		{strength = 86,	leader = "Dreadnought",		follower = "Light Drone",		shape = "V"},	--80,	3
+		{strength = 87,	leader = "Phobos T3",		follower = "Cucaracha",			shape = "V"},	--15,	36
+		{strength = 88,	leader = "Dreadnought",		follower = "Gnat",				shape = "V4"},	--80,	2
+	}
+	prebuilt_relative_min = 9
+	prebuilt_relative_max = 74
 	fleet_exclusions = {
 		["Nuke"]	= {letter = "N", exclude = false},
 		["Warp"]	= {letter = "W", exclude = false},
