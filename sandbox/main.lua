@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.21.1"
+	scenario_version = "5.22.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -114,6 +114,7 @@ function init()
 	magnasol_nebula_diagnostic = false
 	distance_diagnostic = false
 	commerce_diagnostic = false
+	mine_probe_diagnostic = true
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
@@ -325,7 +326,7 @@ function setConstants()
 		["Strikeship"] =		{strength = 30,	adder = false,	missiler = false,	beamer = true,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Munemi"] =			{strength = 32,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = munemi},
 		["Fiend G3"] =			{strength = 33,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG3},
-		["Maniapak"] =			{strength = 34,	adder = true,	missiler = false,	beamer = false,	frigate = false, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 580,	create = maniapak},
+		["Maniapak"] =			{strength = 34,	adder = true,	missiler = false,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 580,	create = maniapak},
 		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG4},
 		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = cucaracha},
 		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG5},
@@ -338,8 +339,8 @@ function setConstants()
 		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 15,	hop_range = 2500,	create = hurricane},
 		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
 		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = stockTemplate},
-		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = k2breaker},
 		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = k2breaker},
 		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = atlantisY42},
 		["Blockade Runner"] =	{strength = 63,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Supervisor"] =		{strength = 68,	adder = false,	missiler = false,	beamer = true,	frigate = true,		chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = supervisor},
@@ -713,49 +714,52 @@ function setConstants()
 						{angle = 210, dist = 2	},
 					},
 	}
-	prebuilt_leaders = {		--130			140		120			125				120		140					140			140			150				100			76		73		70
+	prebuilt_leaders = {		--130			140		120			125				120		140					140			140			150				100			76		73		70			70			70
 		["Cucaracha"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
-		["Dreadnought"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Dread No More"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["MT52 Hornet"] =		{"Lite Drone","Gnat","MU52 Hornet","Ktlitan Scout"},
-		["Heavy Drone"] =		{"Lite Drone","Gnat","MU52 Hornet","Ktlitan Scout"},
+		["Dreadnought"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Atlantis X23"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Dread No More"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["MT52 Hornet"] =		{"Lite Drone","Gnat","MU52 Hornet",																	   "Ktlitan Scout"},
+		["Heavy Drone"] =		{"Lite Drone","Gnat","MU52 Hornet",																	   "Ktlitan Scout"},
 		["Nirvana R3"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
 		["Nirvana R5"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Nirvana R5A"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Blockade Runner"] =	{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Supervisor"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
+		["Blockade Runner"] =	{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Supervisor"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
 		["Sentinel"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Strongarm"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
-		["Phobos T3"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Phobos T4"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Phobos R2"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 3"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 5"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 8"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 11"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Farco 13"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Gunship"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Adv. Gunship"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper"},
-		["Adder MK4"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
+		["Phobos T3"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Phobos T4"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Phobos R2"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Farco 3"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Farco 5"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Farco 8"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Farco 11"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Farco 13"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Gunship"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Adv. Gunship"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Adder MK4"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha",							 "Nirvana R5","Nirvana R5A"},
 		["Adder MK5"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Adder MK6"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 		["Adder MK7"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha"},
 	}
 	prebuilt_leader = "Nirvana R5"	--default
-	prebuilt_followers = {		--100			30				65			60					60				70			70			50				75			70				60			60		60			60			60			60			60				55			60			60				60			80			80			80				120
-		["Brush"] =				{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
-		["Broom"] =				{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
-		["Sweeper"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},		
-		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7",				  "Heavy Drone"},
-		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet"},
-		["Fighter"] =			{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
-		["Cucaracha"] =			{			  "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
-		["Gnat"] =				{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
-		["Lite Drone"] =		{"Cucaracha", "Dreadnought", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+	prebuilt_followers = {		--100			30				30				65			60					60				70			70			50				75			70				60			60		60			60			60			60			60				55			60			60				60			80			80			80				120
+		["Brush"] =				{			  "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
+		["Broom"] =				{			  "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},
+		["Sweeper"] =			{			  "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship"},		
+		["MT52 Hornet"] =		{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7",				  "Heavy Drone"},
+		["MU52 Hornet"] =		{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet"},
+		["Fighter"] =			{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Fighter"] =	{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K2 Fighter"] =		{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["K3 Fighter"] =		{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Ktlitan Scout"] =		{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+		["Cucaracha"] =			{			  "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7"},
+		["Gnat"] =				{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+		["Lite Drone"] =		{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
+		["Nirvana R5"] =		{			  "Dreadnought", "Atlantis X23", 			   "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4"},
+		["Nirvana R5A"] =		{			  "Dreadnought", "Atlantis X23", 			   "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4"},
 	}
 	prebuilt_follower = "MT52 Hornet"	--default
 	prebuilt_relative = {
@@ -839,9 +843,50 @@ function setConstants()
 		{strength = 86,	leader = "Dreadnought",		follower = "Light Drone",		shape = "V"},	--80,	3
 		{strength = 87,	leader = "Phobos T3",		follower = "Cucaracha",			shape = "V"},	--15,	36
 		{strength = 88,	leader = "Dreadnought",		follower = "Gnat",				shape = "V4"},	--80,	2
+		{strength = 89,	leader = "Gunship",			follower = "Cucaracha",			shape = "V"},	--17,	36
+		{strength = 90,	leader = "Dreadnought",		follower = "MU52 Hornet",		shape = "V"},	--80,	5
+		{strength = 91,	leader = "Nirvana R5",		follower = "Cucaracha",			shape = "V"},	--19,	36
+		{strength = 92,	leader = "Supervisor",		follower = "Fighter",			shape = "V4"},	--68,	6
+		{strength = 93,	leader = "Blockade Runner",	follower = "MU52 Hornet",		shape = "M6"},	--63,	5
+		{strength = 94,	leader = "Dreadnought",		follower = "K2 Fighter",		shape = "V"},	--80,	7
+		{strength = 95,	leader = "Blockade Runner",	follower = "K3 Fighter",		shape = "V4"},	--63,	8
+		{strength = 96,	leader = "Supervisor",		follower = "K2 Fighter",		shape = "V4"},	--68,	7
+		{strength = 97,	leader = "Dread No More",	follower = "MT52 Hornet",		shape = "V"},	--87,	5
+		{strength = 98,	leader = "Supervisor",		follower = "MT52 Hornet",		shape = "M6"},	--68,	5
+		{strength = 99,	leader = "Dread No More",	follower = "Ktlitan Fighter",	shape = "V"},	--87,	6
+		{strength = 100,leader = "Supervisor",		follower = "K3 Fighter",		shape = "V4"},	--68,	8
+		{strength = 101,leader = "Dread No More",	follower = "K2 Fighter",		shape = "V"},	--87,	7
+		{strength = 102,leader = "Atlantis X23",	follower = "Broom",				shape = "V4"},	--50,	13
+		{strength = 103,leader = "Dread No More",	follower = "K3 Fighter",		shape = "V"},	--87,	8
+		{strength = 104,leader = "Dreadnought",		follower = "Fighter",			shape = "V4"},	--80,	6
+		{strength = 105,leader = "Blockade Runner",	follower = "K2 Fighter",		shape = "M6"},	--63,	7
+		{strength = 106,leader = "Dreadnought",		follower = "Broom",				shape = "V"},	--80,	13
+		{strength = 107,leader = "Strongarm",		follower = "Fighter",			shape = "V"},	--95,	6
+		{strength = 108,leader = "Dreadnought",		follower = "K2 Fighter",		shape = "V4"},	--80,	7
+		{strength = 109,leader = "Strongarm",		follower = "K2 Fighter",		shape = "V"},	--95,	7
+		{strength = 110,leader = "Atlantis X23",	follower = "Brush",				shape = "W6"},	--50,	10
+		{strength = 111,leader = "Strongarm",		follower = "Ktlitan Scout",		shape = "V"},	--95,	8
+		{strength = 112,leader = "Dreadnought",		follower = "K3 Fighter",		shape = "V4"},	--80,	8
+		{strength = 113,leader = "Dread No More",	follower = "Broom",				shape = "V"},	--87,	13
+		{strength = 114,leader = "Atlantis X23",	follower = "Ktlitan Scout",		shape = "X8"},	--50,	8
+		{strength = 115,leader = "Dread No More",	follower = "K2 Fighter",		shape = "V4"},	--87,	7
+		{strength = 116,leader = "Dreadnought",		follower = "Fighter",			shape = "M6"},	--80,	6
+		{strength = 117,leader = "Dread No More",	follower = "MT52 Hornet",		shape = "M6"},	--87,	5
+		{strength = 118,leader = "Farco 3",			follower = "Sweeper",			shape = "W6"},	--16,	17
+		{strength = 119,leader = "Dread No More",	follower = "K3 Fighter",		shape = "V4"},	--87,	8
+		{strength = 120,leader = "Dreadnought",		follower = "MT52 Hornet",		shape = "X8"},	--80,	5
+		{strength = 121,leader = "Strongarm",		follower = "Broom",				shape = "V"},	--95,	13
+		{strength = 122,leader = "Dreadnought",		follower = "K2 Fighter",		shape = "M6"},	--80,	7
+		{strength = 123,leader = "Strongarm",		follower = "K2 Fighter",		shape = "V4"},	--95,	7
+		{strength = 124,leader = "Nirvana R5A",		follower = "Broom",				shape = "X8"},	--20,	13
+		{strength = 125,leader = "Strongarm",		follower = "MU52 Hornet",		shape = "M6"},	--95,	5
+		{strength = 126,leader = "Atlantis X23",	follower = "Nirvana R5",		shape = "V4"},	--50,	19
+		{strength = 127,leader = "Strongarm",		follower = "Ktlitan Scout",		shape = "V4"},	--95,	8
+		{strength = 128,leader = "Dreadnought",		follower = "K3 Fighter",		shape = "M6"},	--80,	8
+		{strength = 129,leader = "Strongarm",		follower = "Sweeper",			shape = "V"},	--95,	17
+		{strength = 130,leader = "Atlantis X23",	follower = "Nirvana R5A",		shape = "V4"},	--50,	20
+		{strength = 131,leader = "Gunship",			follower = "Nirvana R5",		shape = "M6"},	--17,	19
 	}
-	prebuilt_relative_min = 9
-	prebuilt_relative_max = 74
 	fleet_exclusions = {
 		["Nuke"]	= {letter = "N", exclude = false},
 		["Warp"]	= {letter = "W", exclude = false},
@@ -1053,6 +1098,7 @@ function setConstants()
 	healthCheckTimer = healthCheckTimerInterval
 	rendezvousPoints = {}
 	escapePodList = {}
+	mine_labor_probe_list = {}
 	boost_probe_list = {}
 	sensor_jammer_list = {}
 	sensor_jammer_range = 60000
@@ -1640,7 +1686,8 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
+        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+		sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1700,7 +1747,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
+        mine_probes = {name = "LDSM 2.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1804,6 +1851,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
 --		sensor_boost = {value = 5000, cost = 0},
+        mine_probes = {name = "LDSM 3.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -1859,7 +1907,8 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 5000, cost = 0},
-        sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
+		sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
+        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1921,6 +1970,7 @@ function createSkeletonUniverse()
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
+        mine_probes = {name = "LDSM 1.3", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1983,6 +2033,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
+        mine_probes = {name = "LDSM 2.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -6699,6 +6750,7 @@ function createIcarusStations()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 5},
+        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -6769,6 +6821,7 @@ function createIcarusStations()
         remote_warp_jammer = {name = "Mire", cost = math.random(9,20), quantity = math.random(1,5), speed = 2000, warp_jam_range = 15000},
         sensor_boost = {value = 10000, cost = 5},
         sensor_boost_probes = {name = "Scope", cost = math.random(59,75), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
+        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -6882,6 +6935,7 @@ function createIcarusStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
+        mine_probes = {name = "LDSM 3.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -6924,6 +6978,7 @@ function createIcarusStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
+        mine_probes = {name = "LDSM 2.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -7014,7 +7069,7 @@ function createIcarusStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         tube_slow_down_repair = random(1,100)<30,
-        remote_warp_jammer = {name = "Mire", cost = math.random(9,20), quantity = math.random(1,5), speed = 2000, warp_jam_range = 15000},
+        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	warp =		{quantity = math.random(2,4),	cost = math.random(80,120)},
@@ -14738,6 +14793,7 @@ function createBaskStations()
         probe_launch_repair =	random(1,100)<30,
         scan_repair =			random(1,100)<30,
         self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 3.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	autodoc =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
@@ -14786,6 +14842,7 @@ function createBaskStations()
         probe_launch_repair =	random(1,100)<30,
         scan_repair =			random(1,100)<30,
         self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	dilithium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
@@ -14833,6 +14890,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
         },
         sensor_boost_probes = selected_sensor_probe,
+        mine_probes = {name = "LDSM 1.3", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<20,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<36,
@@ -14862,9 +14920,10 @@ function createBaskStations()
 	station_names[stationForward:getCallSign()] = {stationForward:getSectorName(), stationForward}
 	table.insert(stations,stationForward)
 	--	Lizzy
-	--local lizzyZone = squareZone(992735, 294340, "Lizzy")
-	--lizzyZone:setColor(51,153,255):setLabel("L")
-	stationLizzy = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Lizzy"):setPosition(992735, 294340):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local lizzyZone = squareZone(992735, 294340, "Lizzy 2")
+	lizzyZone:setColor(51,153,255):setLabel("L")
+	--[[
+	stationLizzy = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Lizzy 2"):setPosition(992735, 294340):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationLizzy:setShortRangeRadarRange(6500)
 	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
 	if selected_remote_warp_jammer ~= nil then
@@ -14915,6 +14974,7 @@ function createBaskStations()
 	if random(1,100) <= 12 then stationLizzy:setSharesEnergyWithDocked(false) end
 	station_names[stationLizzy:getCallSign()] = {stationLizzy:getSectorName(), stationLizzy}
 	table.insert(stations,stationLizzy)
+	--]]
 	--	Torch
 	--local torchZone = squareZone(1013452, 269943, "Torch")
 	--torchZone:setColor(51,153,255):setLabel("T")
@@ -14942,6 +15002,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<75},
         },
         fast_probes = selected_fast_probe,
+        mine_probes = {name = "LDSM 3.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<50,
         tube_slow_down_repair = random(1,100)<64,
         jump_overcharge =		random(1,100)<26,
@@ -14998,6 +15059,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         sensor_boost_probes = selected_sensor_probe,
+        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<66,
@@ -15052,6 +15114,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         remote_warp_jammer = selected_remote_warp_jammer,
+        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<66,
@@ -15161,6 +15224,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         sensor_boost_probes = selected_sensor_probe,
+        mine_probes = {name = "LDSM 1.3", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<75,
         scan_repair =			random(1,100)<50,
         tube_slow_down_repair = random(1,100)<84,
@@ -15269,6 +15333,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         fast_probes = selected_fast_probe,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<60,
         tube_slow_down_repair = random(1,100)<74,
@@ -15323,6 +15388,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
         },
         sensor_boost_probes = selected_sensor_probe,
+        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         scan_repair =			random(1,100)<60,
         tube_slow_down_repair = random(1,100)<54,
@@ -15377,6 +15443,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         remote_warp_jammer = selected_remote_warp_jammer,
+        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         scan_repair =			random(1,100)<60,
         tube_slow_down_repair = random(1,100)<74,
@@ -15542,6 +15609,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         remote_warp_jammer = selected_remote_warp_jammer,
+        mine_probes = {name = "LDSM 2.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<64,
@@ -23258,6 +23326,7 @@ function setPrebuiltFleet()
 		button_label = string.format("%s %s %s",button_label,formation_shape,prebuilt_strength)
 	end
 	addGMFunction(button_label,setPrebuiltFormationShape)
+	addGMFunction("+Curated Formation",curatedPrebuiltFormation)
 	addGMFunction("+Composition",setPrebuiltComposition)
 	if shipTemplateDistance[prebuilt_leader] == nil then
 		print("You need an entry in shipTemplateDistance for leader template:",prebuilt_leader)
@@ -23279,6 +23348,109 @@ function setPrebuiltFleet()
 				button_label = string.format(">%s<",button_label)
 			end
 			addGMFunction(button_label,spawnPrebuiltFleet)
+		end
+	end
+end
+function curatedPrebuiltFormation(match_strength)
+	clearGMFunctions()
+	addGMFunction("-Main from Curated",initialGMFunctions)
+	addGMFunction("-Fleet or Ship",spawnGMShips)
+	addGMFunction("-Fleet Spawn",spawnGMFleet)
+	addGMFunction("-Prebuilt",setPrebuiltFleet)
+	local formation_strength = math.max(math.floor(fleetStrengthByPlayerStrength * playerPower()),5)
+	if match_strength == nil then
+		match_strength = formation_strength
+	end
+	if match_strength < prebuilt_relative[1].strength then
+		addGMMessage("The weakest curated formation is stronger than the player(s)")
+		match_strength = prebuilt_relative[1].strength
+		formation_shape = prebuilt_relative[1].shape
+		prebuilt_leader = prebuilt_relative[1].leader
+		prebuilt_follower = prebuilt_relative[1].follower
+		for i=1,5 do
+			local delimiter = " "
+			if prebuilt_relative[i].strength == match_strength then
+				delimiter = "."
+			end
+			addGMFunction(string.format("%s%s%i%s%s",prebuilt_relative[i].leader,delimiter,prebuilt_relative[i].strength,delimiter,prebuilt_relative[i].follower),function()
+				string.format("")
+				formation_shape = prebuilt_relative[i].shape
+				prebuilt_leader = prebuilt_relative[i].leader
+				prebuilt_follower = prebuilt_relative[i].follower
+				curatedPrebuiltFormation(prebuilt_relative[i].strength)
+			end)
+		end
+	elseif match_strength > prebuilt_relative[#prebuilt_relative].strength then
+		addGMMessage("The strongest curated formation is weaker than the player(s)")
+		match_strength = prebuilt_relative[#prebuilt_relative].strength
+		formation_shape = prebuilt_relative[#prebuilt_relative].shape
+		prebuilt_leader = prebuilt_relative[#prebuilt_relative].leader
+		prebuilt_follower = prebuilt_relative[#prebuilt_relative].follower
+		for i=#prebuilt_relative-4,#prebuilt_relative do
+			local delimiter = " "
+			if prebuilt_relative[i].strength == match_strength then
+				delimiter = "."
+			end
+			addGMFunction(string.format("%s%s%i%s%s",prebuilt_relative[i].leader,delimiter,prebuilt_relative[i].strength,delimiter,prebuilt_relative[i].follower),function()
+				string.format("")
+				formation_shape = prebuilt_relative[i].shape
+				prebuilt_leader = prebuilt_relative[i].leader
+				prebuilt_follower = prebuilt_relative[i].follower
+				curatedPrebuiltFormation(prebuilt_relative[i].strength)
+			end)
+		end
+	else
+		if match_strength <= prebuilt_relative[2].strength then
+			for i=1,5 do
+				local delimiter = " "
+				if prebuilt_relative[i].strength == match_strength then
+					formation_shape = prebuilt_relative[i].shape
+					prebuilt_leader = prebuilt_relative[i].leader
+					prebuilt_follower = prebuilt_relative[i].follower
+					delimiter = "."					
+				end
+				addGMFunction(string.format("%s%s%i%s%s",prebuilt_relative[i].leader,delimiter,prebuilt_relative[i].strength,delimiter,prebuilt_relative[i].follower),function()
+					string.format("")
+					formation_shape = prebuilt_relative[i].shape
+					prebuilt_leader = prebuilt_relative[i].leader
+					prebuilt_follower = prebuilt_relative[i].follower
+					curatedPrebuiltFormation(prebuilt_relative[i].strength)
+				end)
+			end
+		elseif match_strength >= prebuilt_relative[#prebuilt_relative-1].strength then
+			for i=#prebuilt_relative-4,#prebuilt_relative do
+				local delimiter = " "
+				if prebuilt_relative[i].strength == match_strength then
+					formation_shape = prebuilt_relative[i].shape
+					prebuilt_leader = prebuilt_relative[i].leader
+					prebuilt_follower = prebuilt_relative[i].follower
+					delimiter = "."					
+				end
+				addGMFunction(string.format("%s%s%i%s%s",prebuilt_relative[i].leader,delimiter,prebuilt_relative[i].strength,delimiter,prebuilt_relative[i].follower),function()
+					string.format("")
+					formation_shape = prebuilt_relative[i].shape
+					prebuilt_leader = prebuilt_relative[i].leader
+					prebuilt_follower = prebuilt_relative[i].follower
+					curatedPrebuiltFormation(prebuilt_relative[i].strength)
+				end)
+			end
+		else
+			for i=match_strength-prebuilt_relative[1].strength-1,match_strength-prebuilt_relative[1].strength+3 do
+				local delimiter = " "
+				if prebuilt_relative[i].strength == match_strength then
+					formation_shape = prebuilt_relative[i].shape
+					prebuilt_leader = prebuilt_relative[i].leader
+					prebuilt_follower = prebuilt_relative[i].follower
+					delimiter = "."					
+				end
+				addGMFunction(string.format("%s%s%i%s%s",prebuilt_relative[i].leader,delimiter,prebuilt_relative[i].strength,delimiter,prebuilt_relative[i].follower),function()
+					string.format("")
+					formation_shape = prebuilt_relative[i].shape
+					prebuilt_leader = prebuilt_relative[i].leader
+					prebuilt_follower = prebuilt_relative[i].follower
+					curatedPrebuiltFormation(prebuilt_relative[i].strength)
+				end)
+			end
 		end
 	end
 end
@@ -43302,10 +43474,11 @@ function handleDockedState()
 		getCoolantFromStation("neutral")
 	end
 --	sensor_boost_probes = {name = "Scope", cost = math.random(56,82), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
-	if comms_target.comms_data.fast_probes ~= nil or comms_target.comms_data.remote_warp_jammer ~= nil or comms_target.comms_data.sensor_boost_probes ~= nil then
+	if comms_target.comms_data.fast_probes ~= nil or comms_target.comms_data.remote_warp_jammer ~= nil or comms_target.comms_data.sensor_boost_probes ~= nil or comms_target.comms_data.mine_probes ~= nil then
 		if (comms_target.comms_data.fast_probes ~= nil and comms_target.comms_data.fast_probes.quantity > 0) or 
 		   (comms_target.comms_data.remote_warp_jammer ~= nil and comms_target.comms_data.remote_warp_jammer.quantity > 0) or
-		   (comms_target.comms_data.sensor_boost_probes ~= nil and comms_target.comms_data.sensor_boost_probes.quantity > 0) then
+		   (comms_target.comms_data.sensor_boost_probes ~= nil and comms_target.comms_data.sensor_boost_probes.quantity > 0) or
+		   (comms_target.comms_data.mine_probes ~= nil and comms_target.comms_data.mine_probes.quantity > 0) then
 			addCommsReply("Get specialty probes",function()
 				local quantity_message = "We've got the following specialty probes available:"
 				if comms_target.comms_data.fast_probes ~= nil and comms_target.comms_data.fast_probes.quantity > 0 then
@@ -43329,6 +43502,13 @@ function handleDockedState()
 						quantity_message = string.format("%s\n   * 1 sensor boost probe of type %s",quantity_message,comms_target.comms_data.sensor_boost_probes.name)
 					end
 				end
+				if comms_target.comms_data.mine_probes ~= nil and comms_target.comms_data.mine_probes.quantity > 0 then
+					if comms_target.comms_data.mine_probes.quantity > 1 then
+						quantity_message = string.format("%s\n   * %i mine probes of type %s",quantity_message,comms_target.comms_data.mine_probes.quantity,comms_target.comms_data.mine_probes.name) 
+					else
+						quantity_message = string.format("%s\n   * 1 mine probe of type %s",quantity_message,comms_target.comms_data.mine_probes.name)
+					end
+				end
 				setCommsMessage(quantity_message)
 				addCommsReply("What exactly are specialty probes?",function()
 					local kit_description = "Specialty probes are kits that you use in conjunction with your normal probes."
@@ -43340,6 +43520,9 @@ function handleDockedState()
 					end
 					if comms_target.comms_data.sensor_boost_probes ~= nil and comms_target.comms_data.sensor_boost_probes.quantity > 0 then
 						kit_description = string.format("%s The %s kits are purchased individually. When attached, the probe enhances sensors by %i units if within %i units. The sensor boost gradually decreases until there is no boost at %i units distance from the probe.",kit_description,comms_target.comms_data.sensor_boost_probes.name,comms_target.comms_data.sensor_boost_probes.boost,comms_target.comms_data.sensor_boost_probes.range/2,comms_target.comms_data.sensor_boost_probes.range)
+					end
+					if comms_target.comms_data.mine_probes ~= nil and comms_target.comms_data.mine_probes.quantity > 0 then
+						kit_description = string.format("%s The %s kits are purchased individually. When attached along with a mine or mines from supply, the probe carries the mine(s) inert to the probe destination. Once it reaches its destination, it enters a 5 second preparation phase. After that, it enters a stealth mode for 5 - 15 seconds. After the stealth mode, it primes the mine(s).",kit_description,comms_target.comms_data.mine_probes.name)
 					end
 					kit_description = string.format("%s You don't actually get additional probes, rather, you enhance the probes you already have.",kit_description)
 					setCommsMessage(kit_description)
@@ -43354,10 +43537,6 @@ function handleDockedState()
 									comms_source.probe_type_list = {}
 									table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
 								end
---								print("Initial player probe type list table:")
---								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
---									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
---								end
 								local matching_index = 0
 								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
 									if probe_type_item.name == comms_target.comms_data.fast_probes.name then
@@ -43370,10 +43549,6 @@ function handleDockedState()
 								else
 									table.insert(comms_source.probe_type_list,{name = comms_target.comms_data.fast_probes.name, count = 5, speed = comms_target.comms_data.fast_probes.speed})
 								end
---								print("After update player probe type list table:")
---								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
---									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
---								end
 								setCommsMessage(string.format("5 %s type probes have been added",comms_target.comms_data.fast_probes.name))
 								comms_source.probe_type = "standard"
 								if comms_source:hasPlayerAtPosition("Relay") then
@@ -43408,10 +43583,6 @@ function handleDockedState()
 									comms_source.probe_type_list = {}
 									table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
 								end
---								print("Initial player probe type list table:")
---								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
---									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
---								end
 								local matching_index = 0
 								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
 									if probe_type_item.name == comms_target.comms_data.remote_warp_jammer.name then
@@ -43424,10 +43595,6 @@ function handleDockedState()
 								else
 									table.insert(comms_source.probe_type_list,{name = comms_target.comms_data.remote_warp_jammer.name, count = 1, speed = comms_target.comms_data.remote_warp_jammer.speed, warp_jam_range = comms_target.comms_data.remote_warp_jammer.warp_jam_range})
 								end
---								print("After update player probe type list table:")
---								for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
---									print("probe type index:",probe_type_index,"name:",probe_type_item.name,"count:",probe_type_item.count,"jam range:",probe_type_item.warp_jam_range)
---								end
 								setCommsMessage(string.format("A %s type probe has been added",comms_target.comms_data.remote_warp_jammer.name))
 								comms_source.probe_type = "standard"
 								if comms_source:hasPlayerAtPosition("Relay") then
@@ -43499,6 +43666,20 @@ function handleDockedState()
 						addCommsReply("Back", commsStation)
 					end)
 				end
+				if comms_target.comms_data.mine_probes ~= nil and comms_target.comms_data.mine_probes.quantity > 0 then
+					addCommsReply(string.format("Purchase %s type probe for %i reputation",comms_target.comms_data.mine_probes.name,comms_target.comms_data.mine_probes.cost), function()
+						if comms_source:getWeaponStorageMax("Mine") >= comms_target.comms_data.mine_probes.mines_required then
+							getMineProbe()
+						else
+							setCommsMessage(string.format("Checking your ship specifications, it looks like your maximum mine storage capacity is %i. This probe kit needs %i mines for each use. You would have to get a ship upgrade to use this probe kit. Are you sure you want it?",comms_source:getWeaponStorageMax("Mine"),comms_target.comms_data.mine_probes.mines_required))
+							addCommsReply(string.format("Yes, Purchase %s type probe for %i reputation",comms_target.comms_data.mine_probes.name,comms_target.comms_data.mine_probes.cost), function()
+								getMineProbe()
+								addCommsReply("Back", commsStation)
+							end)
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end				
 				addCommsReply("Back", commsStation)
 			end)
 		end
@@ -43904,6 +44085,49 @@ function handleDockedState()
 		end
 	end
 end	--end of handleDockedState function
+function getMineProbe()
+	if comms_target.comms_data.mine_probes.quantity > 0 then
+		if comms_source:takeReputationPoints(comms_target.comms_data.mine_probes.cost) then
+			comms_target.comms_data.mine_probes.quantity = comms_target.comms_data.mine_probes.quantity - 1
+			if comms_source.probe_type_list == nil then
+				comms_source.probe_type_list = {}
+				table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
+			end
+			local matching_index = 0
+			for probe_type_index, probe_type_item in ipairs(comms_source.probe_type_list) do
+				if probe_type_item.name == comms_target.comms_data.mine_probes.name then
+					matching_index = probe_type_index
+					break
+				end
+			end
+			if matching_index > 0 then
+				comms_source.probe_type_list[matching_index].count = comms_source.probe_type_list[matching_index].count + 1
+			else
+				table.insert(comms_source.probe_type_list,{name = comms_target.comms_data.mine_probes.name, count = 5, speed = comms_target.comms_data.mine_probes.speed, mine_fetus = comms_target.comms_data.mine_probes.mine_fetus, mines_required = comms_target.comms_data.mine_probes.mines_required})
+			end
+			setCommsMessage(string.format("A %s type probe has been added",comms_target.comms_data.mine_probes.name))
+			comms_source.probe_type = "standard"
+			if comms_source:hasPlayerAtPosition("Relay") then
+				comms_source.probe_type_button = "probe_type_button"
+				comms_source:addCustomButton("Relay",comms_source.probe_type_button,"Probes: standard",function()
+					string.format("")
+					cycleProbeType(comms_source)
+				end,10)
+			end
+			if comms_source:hasPlayerAtPosition("Operations") then
+				comms_source.probe_type_button_ops = "probe_type_button_ops"
+				comms_source:addCustomButton("Operations",comms_source.probe_type_button_ops,"Probes: standard",function()
+					string.format("")
+					cycleProbeType(comms_source)
+				end,10)
+			end
+		else
+			setCommsMessage("Insufficient reputation")
+		end
+	else
+		setCommsMessage("We ran out of those")
+	end
+end
 function getRepairCrewFromStation(relationship)
 	addCommsReply(_("trade-comms","Recruit repair crew member"),function()
 		if comms_target.comms_data.available_repair_crew == nil then
@@ -46527,6 +46751,7 @@ function updateInner(delta)
 			bask_commerce_timer = commerce_timer_interval
 		end
 	end
+	updateProbeLabor()
 	if updateDiagnostic then print("update: end of update function") end
 end
 function updatePlayerPodTelemetryButton(p)
@@ -48140,7 +48365,14 @@ function updatePlayerSpecialtyProbes(p)
 								obj.probe_speed = p.probe_type_list[matching_index].speed
 								obj:setSpeed(obj.probe_speed)
 --								print("probe speed:",obj.probe_speed)
-								p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+								if string.find(p.probe_type_list[matching_index].name,"LDSM") then
+									if p.probe_type_list[matching_index].mines_required <= p:getWeaponStorage("Mine") then
+										p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+										p:setWeaponStorage("Mine",p:getWeaponStorage("Mine") - p.probe_type_list[matching_index].mines_required)
+									end
+								else
+									p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
+								end
 								if p.probe_type_list[matching_index].warp_jam_range ~= nil then
 									obj.warp_jam_range = p.probe_type_list[matching_index].warp_jam_range
 									obj:onArrival(probeWarpJammer)
@@ -48153,10 +48385,81 @@ function updatePlayerSpecialtyProbes(p)
 									end
 									table.insert(boost_probe_list,obj)
 								end
+								if p.probe_type_list[matching_index].mine_fetus ~= nil then
+									obj.mine_fetus = p.probe_type_list[matching_index].mine_fetus
+									obj:onArrival(probeLabor)
+								end
 								cycleProbeType(p,p.probe_type_list[matching_index].name)
 							end
 						end
 					end
+				end
+			end
+		end
+	end
+end
+function probeLabor(self,x,y)
+	table.insert(mine_labor_probe_list,{
+		probe = self,
+		x = x,
+		y = y,
+		mine_fetus = self.mine_fetus,
+		stealth = getScenarioTime() + 5,
+		birth = getScenarioTime() + 5 + (5*self.mine_fetus),
+		hidden = false,
+	})
+end
+function updateProbeLabor()
+--	if mine_probe_diagnostic then 
+--		print("In update probe labor function")
+--	end
+	if #mine_labor_probe_list > 0 then
+--		if mine_probe_diagnostic then 
+--			print("mine labor probe list has items in it:",#mine_labor_probe_list)
+--		end
+		for i=1,#mine_labor_probe_list do
+			if mine_labor_probe_list[i].probe ~= nil and mine_labor_probe_list[i].probe:isValid() then
+--				if mine_probe_diagnostic then 
+--					print("probe is still present and valid. Stealth:",mine_labor_probe_list[i].stealth)
+--				end
+				if getScenarioTime() > mine_labor_probe_list[i].stealth then
+					mine_labor_probe_list[i].probe:destroy()
+					mine_labor_probe_list[i].hidden = true
+				end
+			else
+				if mine_labor_probe_list[i].hidden then
+					if getScenarioTime() > mine_labor_probe_list[i].birth then
+						if mine_labor_probe_list[i].mine_fetus == 3 then
+							local angle = random(0,360)
+							local mx, my = vectorFromAngle(angle,400)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+							mx, my = vectorFromAngle(angle + 72,400)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+							mx, my = vectorFromAngle(angle + 144,400)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+							mx, my = vectorFromAngle(angle + 216,400)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+							mx, my = vectorFromAngle(angle + 288,400)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+						elseif mine_labor_probe_list[i].mine_fetus == 2 then
+							local angle = random(0,360)
+							local mx, my = vectorFromAngle(angle,200)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+							mx, my = vectorFromAngle(angle + 120,200)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+							mx, my = vectorFromAngle(angle + 240,200)
+							Mine():setPosition(mine_labor_probe_list[i].x + mx,mine_labor_probe_list[i].y + my)
+						else	--must be 1
+							Mine():setPosition(mine_labor_probe_list[i].x,mine_labor_probe_list[i].y)
+						end
+						mine_labor_probe_list[i] = mine_labor_probe_list[#mine_labor_probe_list]
+						mine_labor_probe_list[#mine_labor_probe_list] = nil
+						break
+					end
+				else
+					mine_labor_probe_list[i] = mine_labor_probe_list[#mine_labor_probe_list]
+					mine_labor_probe_list[#mine_labor_probe_list] = nil
+					break
 				end
 			end
 		end
