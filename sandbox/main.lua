@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.22.0"
+	scenario_version = "5.22.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -923,8 +923,8 @@ function setConstants()
 		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 0,	},
 		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
-		["Destroyer IV"]		= { strength = 22,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
-		["Eldridge"]			= { strength = 20,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	},
+		["Destroyer IV"]		= { strength = 27,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Eldridge"]			= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	},
 		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 3,	power_sensor_interval = 0,	},
 		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
@@ -952,7 +952,7 @@ function setConstants()
 		["Phobos T2.2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
-		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Proto-Atlantis"]		= { strength = 42,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 5,	},
@@ -969,8 +969,8 @@ function setConstants()
 		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Torch"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
-		["Vermin"]				= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 10,	},
-		["Windmill"]			= { strength = 19,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Vermin"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 10,	},
+		["Windmill"]			= { strength = 24,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	power_sensor_interval = 0,	},
 		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 7.5,	},
@@ -1062,10 +1062,10 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Thunderbird")	--J
 	makePlayerShipActive("Beowulf")		--J
-	makePlayerShipActive("Wesson")		--J
-	makePlayerShipActive("Watson")		--W
+	makePlayerShipActive("Halberd")		--J
+	makePlayerShipActive("Falcon")		--W
 	makePlayerShipActive("Sparrow")		--W
-	makePlayerShipActive("Florentine")	--W
+	makePlayerShipActive("Rocinante")	--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -20172,10 +20172,9 @@ function createPlayerShipFalcon()
 	playerFalcon:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
 	playerFalcon:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
 	playerFalcon:setWeaponTubeExclusiveFor(2,"Mine")	--Mine only (vs any)
-	playerFalcon:setWeaponStorageMax("Homing",8)		--more homing (vs 0)
-	playerFalcon:setWeaponStorage("Homing", 8)				
-	playerFalcon:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
-	playerFalcon:setWeaponStorage("Mine", 8)				
+	playerFalcon:setWeaponStorageMax("Homing",12)		--more homing (vs 0)
+	playerFalcon:setWeaponStorage("Homing", 12)				
+	playerFalcon:setTubeLoadTime(2,20)					--slower (vs 10)
 --                 				 Arc, Dir, Range, CycleTime, Damage
 	playerFalcon:setBeamWeapon(0,  10, -90,	1200, 		6.0, 	6.0)	--broadside beams (vs forward, overlapping)	
 	playerFalcon:setBeamWeapon(1,  10,  90,	1200, 		6.0,	6.0)
@@ -20531,10 +20530,10 @@ function createPlayerShipHalberd()
 	playerHalberd.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerHalberd:setJumpDriveRange(playerHalberd.min_jump_range,playerHalberd.max_jump_range)
 	playerHalberd:setJumpDriveCharge(playerHalberd.max_jump_range)
-	playerHalberd:setHullMax(200)						--weaker hull (vs 250)
-	playerHalberd:setHull(200)							
-	playerHalberd:setShieldsMax(150,150)				--weaker shields (vs 200)
-	playerHalberd:setShields(150,150)
+	playerHalberd:setHullMax(230)						--weaker hull (vs 250)
+	playerHalberd:setHull(230)							
+	playerHalberd:setShieldsMax(170,170)				--weaker shields (vs 200)
+	playerHalberd:setShields(170,170)
 --                 				 Arc, Dir, Range, CycleTime, Dmg
 	playerHalberd:setBeamWeapon(0, 5, -10,  1500,       6.0, 8)		--narrower turreted beams
 	playerHalberd:setBeamWeapon(1, 5,  10,  1500,       6.0, 8)		--vs arc:100, dir:-20
@@ -20542,13 +20541,14 @@ function createPlayerShipHalberd()
 	playerHalberd:setBeamWeaponTurret(0, 70, -10, .25)
 	playerHalberd:setBeamWeaponTurret(1, 70,  10, .25)
 
-	playerHalberd:setWeaponTubeDirection(0,-90)			--front left facing (vs left)
-	playerHalberd:setWeaponTubeDirection(1,-60)			--front left facing (vs left)
-	playerHalberd:setWeaponTubeDirection(2, 60)			--front right facing (vs right)
-	playerHalberd:setWeaponTubeDirection(3, 90)			--front right facing (vs right)
-	playerHalberd:setWeaponTubeExclusiveFor(0,"Nuke")	--HVLI only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(1,"HVLI")	--Nuke only (vs all but Mine)
-	playerHalberd:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs all but Mine)
+	playerHalberd:setWeaponTubeDirection(0,-45)			--front left facing (vs left)
+	playerHalberd:setWeaponTubeDirection(1, 45)			--front right facing (vs left)
+	playerHalberd:setWeaponTubeDirection(2,-90)			--left facing (vs right)
+	playerHalberd:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI or Homing (vs all but Mine)
+	playerHalberd:setWeaponTubeExclusiveFor(1,"HVLI")	--HVLI or Homing (vs all but Mine)
+	playerHalberd:weaponTubeAllowMissle(0,"Homing")
+	playerHalberd:weaponTubeAllowMissle(1,"Homing")
+	playerHalberd:setWeaponTubeExclusiveFor(2,"Nuke")	--Nuke only (vs all but Mine)
 	playerHalberd:setWeaponTubeExclusiveFor(3,"EMP")	--EMP only (vs all but Mine)
 	playerHalberd:onTakingDamage(playerShipDamage)
 	playerHalberd:addReputationPoints(50)
@@ -21580,14 +21580,14 @@ function createPlayerShipRocinante()
 	playerWindmill:setTubeLoadTime(4,20)
 	playerWindmill:setWeaponTubeDirection(4,180)			--rear facing
 	playerWindmill:setWeaponTubeExclusiveFor(4,"Mine")		--mine only
-	playerWindmill:setWeaponStorageMax("Homing", 5)			--more (vs 3)
-	playerWindmill:setWeaponStorage("Homing", 5)
-	playerWindmill:setWeaponStorageMax("Mine", 3)			--more (vs 1)
-	playerWindmill:setWeaponStorage("Mine", 3)
-	playerWindmill:setWeaponStorageMax("EMP", 2)			--more (vs 0)
-	playerWindmill:setWeaponStorage("EMP", 2)
-	playerWindmill:setWeaponStorageMax("HVLI", 8)			--more (vs 5)
-	playerWindmill:setWeaponStorage("HVLI", 8)
+	playerWindmill:setWeaponStorageMax("Homing", 8)			--more (vs 3)
+	playerWindmill:setWeaponStorage("Homing", 8)
+	playerWindmill:setWeaponStorageMax("Mine", 5)			--more (vs 1)
+	playerWindmill:setWeaponStorage("Mine", 5)
+	playerWindmill:setWeaponStorageMax("EMP", 3)			--more (vs 0)
+	playerWindmill:setWeaponStorage("EMP", 3)
+	playerWindmill:setWeaponStorageMax("HVLI", 12)			--more (vs 5)
+	playerWindmill:setWeaponStorage("HVLI", 12)
 --	playerWindmill:setSystemHeatRate("reactor",		0.5)	--more (vs.05) Lingling
 --	playerWindmill:setSystemHeatRate("frontshield",	0.25)	--more (vs.05) Lingling
 	playerWindmill:setSystemCoolantRate("reactor",		3)	--more (vs 1.2) Arlenian pumps
@@ -21797,12 +21797,14 @@ function createPlayerShipSparrow()
 	playerSparrow:setBeamWeapon(0, 12,   0, 1000, 6, 4)		--3 beams (vs 2)
 	playerSparrow:setBeamWeapon(1, 40, -10,  800, 6, 6)	
 	playerSparrow:setBeamWeapon(2, 40,  10,  800, 6, 6)	
-	playerSparrow:setWeaponTubeDirection(0,180)				--tube points backwards (vs forward)
-	playerSparrow:setWeaponTubeExclusiveFor(0,"Mine")		--and only lays mines (vs HVLI)
-	playerSparrow:setWeaponStorageMax("HVLI",0)				--fewer HVLIs (vs 4)
-	playerSparrow:setWeaponStorage("HVLI",0)
-	playerSparrow:setWeaponStorageMax("Mine",4)				--more Mines (vs 0)
-	playerSparrow:setWeaponStorage("Mine",4)
+	playerSparrow:setWeaponTubeCount(2)						--more (vs 1)
+	playerSparrow:setWeaponTubeExclusiveFor(0,"HVLI")
+	playerSparrow:setTubeSize(0,"small")					--small (vs medium)
+	playerSparrow:setTubeLoadTime(1,20)						--slower (vs 10)
+	playerSparrow:setWeaponTubeDirection(1,180)
+	playerSparrow:setWeaponTubeExclusiveFor(1,"Mine")
+	playerSparrow:setWeaponStorageMax("Mine",6)				--more Mines (vs 0)
+	playerSparrow:setWeaponStorage("Mine",6)
 	playerSparrow:onTakingDamage(playerShipDamage)
 	playerSparrow:addReputationPoints(50)
 	return playerSparrow
@@ -22109,22 +22111,22 @@ function createPlayerShipThunderbird()
 	playerThunderbird:setJumpDriveCharge(playerThunderbird.max_jump_range)
 	playerThunderbird:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
 	playerThunderbird:setShields(100, 100)
-	playerThunderbird:setHullMax(100)							--weaker hull (vs 200)
-	playerThunderbird:setHull(100)
+	playerThunderbird:setHullMax(150)							--weaker hull (vs 200)
+	playerThunderbird:setHull(150)
 	playerThunderbird:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
 	playerThunderbird:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
 	playerThunderbird:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
 	playerThunderbird:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
-	playerThunderbird:setWeaponStorageMax("Homing",6)			--less (vs 12)
-	playerThunderbird:setWeaponStorage("Homing", 6)				
+	playerThunderbird:setWeaponStorageMax("Homing",8)			--less (vs 12)
+	playerThunderbird:setWeaponStorage("Homing", 8)				
 	playerThunderbird:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
 	playerThunderbird:setWeaponStorage("Nuke", 2)				
-	playerThunderbird:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
-	playerThunderbird:setWeaponStorage("EMP", 3)				
-	playerThunderbird:setWeaponStorageMax("Mine",4)				--fewer (vs 8)
-	playerThunderbird:setWeaponStorage("Mine", 4)				
-	playerThunderbird:setWeaponStorageMax("HVLI",6)				--more (vs 0)
-	playerThunderbird:setWeaponStorage("HVLI", 6)				
+	playerThunderbird:setWeaponStorageMax("EMP",4)				--fewer (vs 6)
+	playerThunderbird:setWeaponStorage("EMP", 4)				
+	playerThunderbird:setWeaponStorageMax("Mine",6)				--fewer (vs 8)
+	playerThunderbird:setWeaponStorage("Mine", 6)				
+	playerThunderbird:setWeaponStorageMax("HVLI",12)				--more (vs 0)
+	playerThunderbird:setWeaponStorage("HVLI", 12)				
 	playerThunderbird:onTakingDamage(playerShipDamage)
 	playerThunderbird:addReputationPoints(50)
 	return playerThunderbird
