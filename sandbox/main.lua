@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.22.1"
+	scenario_version = "5.22.2"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -942,7 +942,7 @@ function setConstants()
 		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	power_sensor_interval = 0,	},
 		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 0,	},
-		["Noble"]				= { strength = 33,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Noble"]				= { strength = 37,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	power_sensor_interval = 5,	},
 		["Orca"]				= { strength = 19,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	power_sensor_interval = 0,	},
 		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
@@ -973,7 +973,7 @@ function setConstants()
 		["Windmill"]			= { strength = 24,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	power_sensor_interval = 0,	},
 		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
-		["XR-Lindworm"]			= { strength = 12,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 7.5,	},
+		["XR-Lindworm"]			= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 7.5,	},
 
 		-- not sure the strenghts of Ktlitan Breaker and Ktlitan Feeder... they seem too high
 		["Ktlitan Breaker"]		= { strength = 45,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
@@ -1062,10 +1062,10 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Thunderbird")	--J
 	makePlayerShipActive("Beowulf")		--J
-	makePlayerShipActive("Halberd")		--J
+	makePlayerShipActive("Lancelot")	--J
 	makePlayerShipActive("Falcon")		--W
 	makePlayerShipActive("Sparrow")		--W
-	makePlayerShipActive("Rocinante")	--W
+	makePlayerShipActive("Hummer")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1996,8 +1996,8 @@ function createSkeletonUniverse()
 	--Bask
 	bask_x = 1026873
 	bask_y = 250662
---	local baskZone = squareZone(bask_x,bask_y, "Bask 2")
---	baskZone:setColor(0,128,0):setLabel("B")
+	local baskZone = squareZone(bask_x,bask_y, "Bask 2")
+	baskZone:setColor(0,128,0):setLabel("B")
 	--[[
 	stationBask = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Bask"):setPosition(bask_x, bask_y):setCommsScript(""):setDescription("Magnasol Research and Regional Diplomatic Coordination"):setCommsFunction(commsStation)
 	stationBask:setShortRangeRadarRange(23000)
@@ -20715,8 +20715,6 @@ function createPlayerShipHummer()
 	playerHummer:weaponTubeAllowMissle(2,"Homing")
 	playerHummer:weaponTubeAllowMissle(3,"Nuke")
 	playerHummer:weaponTubeAllowMissle(4,"Nuke")
-	playerHummer:setWeaponStorageMax("HVLI",5)	--fewer (vs 12)
-	playerHummer:setWeaponStorage("HVLI", 5)				
 	playerHummer:setWeaponStorageMax("Homing",8)--more (vs 3)
 	playerHummer:setWeaponStorage("Homing", 8)				
 	playerHummer:setWeaponStorageMax("Nuke",2)	--more Nukes (vs 0)
@@ -20950,10 +20948,6 @@ function createPlayerShipLancelot()
 	playerLancelot:weaponTubeAllowMissle(3,"Nuke")
 	playerLancelot:weaponTubeAllowMissle(3,"EMP")
 	playerLancelot:setWeaponTubeExclusiveFor(4,"Mine")		--only mine
-	playerLancelot:setWeaponStorageMax("Homing", 8)			--less (vs 12)
-	playerLancelot:setWeaponStorage("Homing", 8)				
-	playerLancelot:setWeaponStorageMax("Mine", 6)			--less (vs 8)
-	playerLancelot:setWeaponStorage("Mine", 6)				
 	playerLancelot:setWeaponStorageMax("HVLI", 8)			--more (vs 0)
 	playerLancelot:setWeaponStorage("HVLI", 8)				
 	playerLancelot:setCombatManeuver(200,200)				--less (vs 400,250)
