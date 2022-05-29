@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.22.2"
+	scenario_version = "5.22.4"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -167,8 +167,8 @@ function setConstants()
 	universe:addAvailableRegion("Astron (U33)",function() return ghostNebulaSector() end, 460500, 320500) -- there was an alternate spawn location of 545336,292452, inital spawn location seems to not work eh I will look at it later - starry
 	universe:addAvailableRegion("Lafrina (T-8)",lafrinaSector,-237666,296975)
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
-	universe:addAvailableRegion("Bask (R56)",baskSector,958938,260657)	--spawn point adjusted to 100 units west of Magnasol while Bask is under construction
---	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
+--	universe:addAvailableRegion("Bask (R56)",baskSector,958938,260657)	--spawn point adjusted to 100 units west of Magnasol while Bask is under construction
+	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	initialSandboxDatabaseUpdate()
 	playerSpawnX = 0
@@ -954,8 +954,8 @@ function setConstants()
 		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Proto-Atlantis"]		= { strength = 42,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
-		["Raven"]				= { strength = 30,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
-		["Redhook"]				= { strength = 12,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 5,	},
+		["Raven"]				= { strength = 33,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		["Redhook"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 5,	},
 		["Roc"]					= { strength = 25,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	power_sensor_interval = 0,	},
 		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
@@ -964,10 +964,10 @@ function setConstants()
 		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	},
 		["Sloop"]				= { strength = 20,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 4500, tractor = true,		mining = true,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 2,	power_sensor_interval = 0,	},
-		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 8,	},
+		["Squid"]				= { strength = 15,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 8,	},
 		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
-		["Twister"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		["Twister"]				= { strength = 32,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Torch"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Vermin"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 10,	},
 		["Windmill"]			= { strength = 24,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
@@ -1060,12 +1060,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Thunderbird")	--J
-	makePlayerShipActive("Beowulf")		--J
+	makePlayerShipActive("Barracuda")	--J
+	makePlayerShipActive("Gabble")		--J
 	makePlayerShipActive("Lancelot")	--J
 	makePlayerShipActive("Falcon")		--W
-	makePlayerShipActive("Sparrow")		--W
-	makePlayerShipActive("Hummer")		--W
+	makePlayerShipActive("Claw")		--W
+	makePlayerShipActive("Tango")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1996,9 +1996,8 @@ function createSkeletonUniverse()
 	--Bask
 	bask_x = 1026873
 	bask_y = 250662
-	local baskZone = squareZone(bask_x,bask_y, "Bask 2")
-	baskZone:setColor(0,128,0):setLabel("B")
-	--[[
+--	local baskZone = squareZone(bask_x,bask_y, "Bask 2")
+--	baskZone:setColor(0,128,0):setLabel("B")
 	stationBask = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Bask"):setPosition(bask_x, bask_y):setCommsScript(""):setDescription("Magnasol Research and Regional Diplomatic Coordination"):setCommsFunction(commsStation)
 	stationBask:setShortRangeRadarRange(23000)
     stationBask.comms_data = {
@@ -2056,7 +2055,6 @@ function createSkeletonUniverse()
 	station_names[stationBask:getCallSign()] = {stationBask:getSectorName(), stationBask}
 	stationBask.skeleton_station = true
 	table.insert(skeleton_stations,stationBask)
-	--]]
 end
 function createFleurNebula()
     Nebula():setPosition(22028, 25793):setCallSign("Fleur")
@@ -6996,9 +6994,10 @@ function createIcarusStations()
 	station_names[stationClew:getCallSign()] = {stationClew:getSectorName(), stationClew}
 	table.insert(stations,stationClew)
 	--Elysium F4m2.5 
-	--local elysiumZone = squareZone(-7504, 1384, "Elysium 5 F4.3")
-	--elysiumZone:setColor(51,153,255)
-    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 5"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
+	local elysiumZone = squareZone(-7504, 1384, "Elysium 6 F4.3")
+	elysiumZone:setColor(51,153,255):setLabel("E")
+	--[[
+    stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 6"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7046,6 +7045,7 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
+	--]]
 	--Endymion
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationEndymion.comms_data = {
@@ -7461,9 +7461,10 @@ function createIcarusStations()
 	station_names[stationMeanTime:getCallSign()] = {stationMeanTime:getSectorName(), stationMeanTime}
 	table.insert(stations,stationMeanTime)
 	--Mermaid
---	local mermaidZone = squareZone(28889, -4417, "Mermaid 7 E6")
---	mermaidZone:setColor(51,153,255):setLabel("7")
-    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 7"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+	local mermaidZone = squareZone(28889, -4417, "Mermaid 8 E6")
+	mermaidZone:setColor(51,153,255):setLabel("8")
+	--[[
+    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 8"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7512,6 +7513,7 @@ function createIcarusStations()
 	if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 	table.insert(stations,stationMermaid)
+	--]]
 	--Nilwea
 	stationNilwea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Nilwea"):setPosition(-101008, -92567):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationNilwea.comms_data = {
@@ -7625,9 +7627,10 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	--local nervaZone = squareZone(-9203, -2077, "Nerva 9 E4")
-	--nervaZone:setColor(51,153,255)
-    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 9"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
+	local nervaZone = squareZone(-9203, -2077, "Nerva 10 E4")
+	nervaZone:setColor(51,153,255):setLabel("N")
+	--[[
+    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 10"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7675,6 +7678,7 @@ function createIcarusStations()
 	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
+	--]]
 	--Pistil
 --	local pistilZone = squareZone(24834, 20416, "Pistil 8 G6")
 --	pistilZone:setColor(0,128,0):setLabel("P")
@@ -8328,9 +8332,10 @@ function createIcarusStations()
 	station_names[stationTron:getCallSign()] = {stationTron:getSectorName(), stationTron}
 	table.insert(stations,stationTron)
 	--Wookie F4m5 
---	local wookieZone = squareZone(-11280, 7425, "Wookie-ock F4")	-- -oka means 4, kin means 5, gookie means 6, De means 7, -ock means 8
---	wookieZone:setColor(51,153,255)
-    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-ock"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local wookieZone = squareZone(-11280, 7425, "Noowookie F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9
+	wookieZone:setColor(51,153,255):setLabel("W")
+	--[[
+    stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Noowookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -8375,6 +8380,7 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
+	--]]
 	return stations
 end
 function createIcarusToRiptideWormholeArea()
@@ -15142,9 +15148,8 @@ function createBaskStations()
 	station_names[stationButte:getCallSign()] = {stationButte:getSectorName(), stationButte}
 	table.insert(stations,stationButte)
 	--	Pillia
-	local pilliaZone = squareZone(1031485, 265802, "Pillia")
-	pilliaZone:setColor(51,153,255):setLabel("P")
-	--[[
+--	local pilliaZone = squareZone(1031485, 265802, "Pillia")
+--	pilliaZone:setColor(51,153,255):setLabel("P")
 	stationPillia = SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("Pillia"):setPosition(1031485, 265802):setDescription("Mining and Research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPillia:setShortRangeRadarRange(5500)
 	selected_fast_probe = fast_probe_list[math.random(1,#fast_probe_list + 1)]
@@ -15196,7 +15201,6 @@ function createBaskStations()
 	if random(1,100) <= 11 then stationPillia:setSharesEnergyWithDocked(false) end
 	station_names[stationPillia:getCallSign()] = {stationPillia:getSectorName(), stationPillia}
 	table.insert(stations,stationPillia)
-	--]]
 	--	Milornden
 	--local milorndenZone = squareZone(1054941, 292713, "Milornden")
 	--milorndenZone:setColor(51,153,255):setLabel("M")
@@ -19726,10 +19730,10 @@ function createPlayerShipBarracuda()
 	playerBarracuda:weaponTubeAllowMissle(4,"Homing")
 	playerBarracuda:weaponTubeAllowMissle(4,"EMP")
 	playerBarracuda:weaponTubeAllowMissle(4,"Nuke")
-	playerBarracuda:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerBarracuda:setWeaponStorage("Mine", 4)				
-	playerBarracuda:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
-	playerBarracuda:setWeaponStorage("EMP", 4)					
+	playerBarracuda:setWeaponStorageMax("Mine",6)				--fewer mines (vs 8)
+	playerBarracuda:setWeaponStorage("Mine", 6)				
+	playerBarracuda:setWeaponStorageMax("EMP",6)				--more EMPs (vs 0)
+	playerBarracuda:setWeaponStorage("EMP", 6)					
 	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
 	playerBarracuda:setWeaponStorage("Nuke", 4)				
 	playerBarracuda:onTakingDamage(playerShipDamage)
@@ -19853,10 +19857,10 @@ function createPlayerShipClaw()
 	playerRaven:setJumpDrive(false)						
 	playerRaven:setWarpDrive(true)						--warp drive (vs jump)
 	playerRaven:setWarpSpeed(300)
-	playerRaven:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
-	playerRaven:setShields(100, 100)
-	playerRaven:setHullMax(150)							--weaker hull (vs 200)
-	playerRaven:setHull(150)
+	playerRaven:setShieldsMax(120, 120)					--stronger shields (vs 80, 80)
+	playerRaven:setShields(120, 120)
+	playerRaven:setHullMax(160)							--weaker hull (vs 200)
+	playerRaven:setHull(160)
 --                 				 Arc, Dir, Range,   CycleTime,  Damage
 	playerRaven:setBeamWeapon(0,  10, -90,	 900, 			6,	10)	--left (vs front) shorter (vs 1000)
 	playerRaven:setBeamWeapon(1,  10,  90,	 900, 			6,	10)	--right (vs front) shorter (vs 1000)
@@ -19882,12 +19886,12 @@ function createPlayerShipClaw()
 	playerRaven:setWeaponTubeDirection(5, 180)
 	playerRaven:setTubeLoadTime(5, 10)					--slower (vs 8)
 	playerRaven:setWeaponTubeExclusiveFor(5,"Mine")
-	playerRaven:setWeaponStorageMax("Homing",4)			--less (vs 12)
-	playerRaven:setWeaponStorage("Homing",4)
+	playerRaven:setWeaponStorageMax("Homing",8)			--less (vs 12)
+	playerRaven:setWeaponStorage("Homing",8)
 	playerRaven:setWeaponStorageMax("EMP",4)			--less (vs 6)
 	playerRaven:setWeaponStorage("EMP",4)
-	playerRaven:setWeaponStorageMax("Mine",4)			--less (vs 8)
-	playerRaven:setWeaponStorage("Mine",4)
+	playerRaven:setWeaponStorageMax("Mine",6)			--less (vs 8)
+	playerRaven:setWeaponStorage("Mine",6)
 	playerRaven:onTakingDamage(playerShipDamage)
 	playerRaven:addReputationPoints(50)
 	return playerRaven
@@ -20365,8 +20369,8 @@ function createPlayerShipGabble()
 	playerGabble = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Gabble")
 	playerGabble:setTypeName("Squid")
 	playerGabble:setRepairCrewCount(5)					--more repair crew (vs 2)
-	playerGabble:setShieldsMax(100, 100)				--stronger shields (vs 70, 70)
-	playerGabble:setShields(100, 100)
+	playerGabble:setShieldsMax(120, 120)				--stronger shields (vs 70, 70)
+	playerGabble:setShields(120, 120)
 	playerGabble.max_jump_range = 20000					--shorter than typical (vs 50)
 	playerGabble.min_jump_range = 2000					--shorter than typical (vs 5)
 	playerGabble:setJumpDriveRange(playerGabble.min_jump_range,playerGabble.max_jump_range)
@@ -20383,12 +20387,10 @@ function createPlayerShipGabble()
 	playerGabble:setWeaponTubeExclusiveFor(3,"HVLI")			--HVLI only (vs Homing + HVLI)
 	playerGabble:weaponTubeDisallowMissle(1,"Mine")				--no sideways mines
 	playerGabble:weaponTubeDisallowMissle(4,"Mine")				--no sideways mines
-	playerGabble:setWeaponStorageMax("HVLI",8)					--fewer HVLI (vs 20)
-	playerGabble:setWeaponStorage("HVLI", 8)				
 	playerGabble:setWeaponStorageMax("Homing",8)				--fewer Homing (vs 12)
 	playerGabble:setWeaponStorage("Homing", 8)				
-	playerGabble:setWeaponStorageMax("Mine",4)					--fewer mines (vs 8)
-	playerGabble:setWeaponStorage("Mine", 4)				
+	playerGabble:setWeaponStorageMax("Mine",6)					--fewer mines (vs 8)
+	playerGabble:setWeaponStorage("Mine", 6)				
 	playerGabble:setWeaponStorageMax("EMP",4)					--more EMPs (vs 0)
 	playerGabble:setWeaponStorage("EMP", 4)					
 	playerGabble:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
@@ -21954,13 +21956,15 @@ function createPlayerShipTango()
 	playerTwister = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Tango")
 	playerTwister:setTypeName("Twister")
 	playerTwister:setRadarTrace(getFilenameCompatible("ktlitan_destroyer.png"))				--different radar trace
-	playerTwister:setRepairCrewCount(5)										--more repair crew (vs 2)
-	playerTwister:setRotationMaxSpeed(10)									--slower spin (vs 15)
-	playerTwister:setAcceleration(25)										--faster (vs 8)
-	playerTwister:setJumpDrive(false)										--no jump
-	playerTwister:setWarpDrive(true)										--add warp (vs jump)
+	playerTwister:setRepairCrewCount(5)		--more repair crew (vs 2)
+	playerTwister:setShieldsMax(100,120)	--stronger (vs 70,70)
+	playerTwister:setShields(100,120)
+	playerTwister:setRotationMaxSpeed(10)	--slower spin (vs 15)
+	playerTwister:setAcceleration(25)		--faster (vs 8)
+	playerTwister:setJumpDrive(false)		--no jump
+	playerTwister:setWarpDrive(true)		--add warp (vs jump)
 	playerTwister:setWarpSpeed(425)
-	playerTwister:setMaxEnergy(800)											--less maximum energy (vs 1000)
+	playerTwister:setMaxEnergy(800)			--less maximum energy (vs 1000)
 	playerTwister:setEnergy(800)							
 --                 				   Arc, Dir,   Range, CycleTime, Damage
 	playerTwister:setBeamWeapon(0,  10,   0,	1000, 		6.0, 	5.0)	--2 turreted beams (vs 4 fixed)
@@ -21992,12 +21996,12 @@ function createPlayerShipTango()
 	playerTwister:setTubeLoadTime(2, 10)
 	playerTwister:setTubeLoadTime(3, 20)
 	playerTwister:setTubeLoadTime(4, 20)
-	playerTwister:setWeaponStorageMax("HVLI",  12)		--more (vs 8)
+	playerTwister:setWeaponStorageMax("HVLI",  16)		--more (vs 8)
 	playerTwister:setWeaponStorageMax("Homing", 8)		--more (vs 4)
 	playerTwister:setWeaponStorageMax("EMP",    6)		--more (vs 2)
 	playerTwister:setWeaponStorageMax("Nuke",   4)		--more (vs 1)
 	playerTwister:setWeaponStorageMax("Mine",   4)
-	playerTwister:setWeaponStorage("HVLI",     12)
+	playerTwister:setWeaponStorage("HVLI",     16)
 	playerTwister:setWeaponStorage("Homing",    8)
 	playerTwister:setWeaponStorage("EMP",       6)
 	playerTwister:setWeaponStorage("Nuke",      4)
