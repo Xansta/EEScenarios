@@ -103,7 +103,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.22.4"
+	scenario_version = "5.22.5"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -976,8 +976,8 @@ function setConstants()
 		["XR-Lindworm"]			= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 7.5,	},
 
 		-- not sure the strenghts of Ktlitan Breaker and Ktlitan Feeder... they seem too high
-		["Ktlitan Breaker"]		= { strength = 45,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
-		["Ktlitan Feeder"]		= { strength = 48,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		["Ktlitan Breaker"]		= { strength = 25,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		["Ktlitan Feeder"]		= { strength = 28,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 	}	
 	-- this table has ended up not in alphabetical order
 	-- likewise the creation functions are no longer in alphabetical order
@@ -6902,7 +6902,7 @@ function createIcarusStations()
 	table.insert(stations,stationChitlok)
 	--Cindy's Folly
 	local cindyZone = squareZone(81075, -1304, "Cindy's Folly 4 E9")
-	cindyZone:setColor(51,153,255)
+	cindyZone:setColor(51,153,255):setLabel("C")
 	--[[
     stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 4"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 37 then homeAvail = true else homeAvail = false end
@@ -22326,14 +22326,69 @@ function createPlayerShipYorik()
 	return playerYorik
 end
 function createPlayerShipSzpieg()
-	p = PlayerSpaceship():setTemplate("Ktlitan Breaker"):setFaction("Human Navy"):setCallSign("Szpieg")
-	p:setWarpDrive(true)
-	p:onTakingDamage(playerShipDamage)
+	playerSzpieg = PlayerSpaceship():setTemplate("Ktlitan Breaker"):setFaction("Human Navy"):setCallSign("Szpieg")
+	playerSzpieg:setWarpDrive(true)
+	playerSzpieg:setCombatManeuver(200,300)
+	playerSzpieg:setShieldsMax(100, 100)				--stronger shields (vs none)
+	playerSzpieg:setShields(100, 100)
+	playerSzpieg:setMaxScanProbeCount(5)
+	playerSzpieg:setScanProbeCount(5)
+	playerSzpieg:setWeaponTubeCount(3)					--more (vs none)
+	playerSzpieg:setWeaponTubeDirection(1,180)
+	playerSzpieg:setWeaponTubeDirection(2,180)
+	playerSzpieg:setWeaponTubeExclusiveFor(2,"Mine")
+	playerSzpieg:setWeaponStorageMax("HVLI", 	6)		--more (vs none)
+	playerSzpieg:setWeaponStorageMax("Homing", 5)		--more (vs none)
+	playerSzpieg:setWeaponStorageMax("Mine",	3)		--more (vs none)
+	playerSzpieg:setWeaponStorageMax("EMP",	3)		--more (vs none)
+	playerSzpieg:setWeaponStorageMax("Nuke",	2)		--more (vs none)
+	playerSzpieg:setWeaponStorage("HVLI",		6)
+	playerSzpieg:setWeaponStorage("Homing",	5)
+	playerSzpieg:setWeaponStorage("Mine",		3)
+	playerSzpieg:setWeaponStorage("EMP",		3)
+	playerSzpieg:setWeaponStorage("Nuke",		2)
+	playerSzpieg:onTakingDamage(playerShipDamage)
+	playerSzpieg:addReputationPoints(50)
+	return playerSzpieg
 end
 function createPlayerShipSztylet()
-	P = PlayerSpaceship():setTemplate("Ktlitan Feeder"):setFaction("Human Navy"):setCallSign("Sztylet")
-	p:setWarpDrive(true)
-	p:onTakingDamage(playerShipDamage)
+	playerSztylet = PlayerSpaceship():setTemplate("Ktlitan Feeder"):setFaction("Human Navy"):setCallSign("Sztylet")
+	playerSztylet:setWarpDrive(true)
+	playerSztylet:setCombatManeuver(300,200)
+	playerSztylet:setShieldsMax(150, 50)				--stronger shields (vs none)
+	playerSztylet:setShields(150, 50)
+	playerSztylet:setMaxScanProbeCount(5)
+	playerSztylet:setScanProbeCount(5)
+	playerSztylet:setWeaponTubeCount(5)					--more (vs none)
+	playerSztylet:setWeaponTubeDirection(1,90)
+	playerSztylet:setWeaponTubeDirection(2,-90)
+	playerSztylet:setWeaponTubeDirection(3,180)
+	playerSztylet:setWeaponTubeDirection(4,180)
+	playerSztylet:setTubeSize(1,"small")
+	playerSztylet:setTubeSize(2,"small")
+	playerSztylet:setWeaponTubeExclusiveFor(0,"HVLI")
+	playerSztylet:setWeaponTubeExclusiveFor(1,"HVLI")
+	playerSztylet:setWeaponTubeExclusiveFor(2,"HVLI")
+	playerSztylet:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerSztylet:setWeaponTubeExclusiveFor(4,"Mine")
+	playerSztylet:weaponTubeAllowMissle(0,"Homing")
+	playerSztylet:weaponTubeAllowMissle(1,"Homing")
+	playerSztylet:weaponTubeAllowMissle(2,"Homing")
+	playerSztylet:weaponTubeAllowMissle(3,"Homing")
+	playerSztylet:setWeaponStorageMax("HVLI", 	6)		--more (vs none)
+	playerSztylet:setWeaponStorageMax("Homing", 6)		--more (vs none)
+	playerSztylet:setWeaponStorageMax("Mine",	3)		--more (vs none)
+	playerSztylet:setWeaponStorage("HVLI",		6)
+	playerSztylet:setWeaponStorage("Homing",	6)
+	playerSztylet:setWeaponStorage("Mine",		3)
+	playerSztylet:setTubeLoadTime(0, 10)
+	playerSztylet:setTubeLoadTime(1, 5)
+	playerSztylet:setTubeLoadTime(2, 5)
+	playerSztylet:setTubeLoadTime(3, 10)
+	playerSztylet:setTubeLoadTime(4, 20)
+	playerSztylet:onTakingDamage(playerShipDamage)
+	playerSztylet:addReputationPoints(50)
+	return playerSztylet
 end
 
 --	Specialized ships spawned by a carrier
