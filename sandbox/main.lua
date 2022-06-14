@@ -7,7 +7,9 @@
 -- look at how onGMClick has been used and pick one of improve on gm click | improve sandbox code
 -- eris at long last
 
--- ideas: Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health level
+-- ideas:	Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health level
+--			Number all custom elements (buttons, ino panel)
+--			Try not to update custom widgets every frame
 
 require("utils.lua")
 require("sandbox/science_database.lua")
@@ -103,7 +105,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.22.5"
+	scenario_version = "5.23.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1060,10 +1062,10 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Barracuda")	--J
+	makePlayerShipActive("Magnum")		--J
 	makePlayerShipActive("Gabble")		--J
 	makePlayerShipActive("Lancelot")	--J
-	makePlayerShipActive("Falcon")		--W
+	makePlayerShipActive("Thelonius")	--W
 	makePlayerShipActive("Claw")		--W
 	makePlayerShipActive("Tango")		--W
 	active_player_ship = true
@@ -1096,6 +1098,17 @@ function setConstants()
 	tradeMedicine = {}			--stations that will trade medicine for other goods
 	healthCheckTimerInterval = 10
 	healthCheckTimer = healthCheckTimerInterval
+	pretty_system = {
+		["reactor"] = "reactor",
+		["beamweapons"] = "beam weapons",
+		["missilesystem"] = "missile system",
+		["maneuver"] = "maneuver",
+		["impulse"] = "impulse engines",
+		["warp"] = "warp drive",
+		["jumpdrive"] = "jump drive",
+		["frontshield"] = "front shield",
+		["rearshield"] = "rear shield",
+	}
 	rendezvousPoints = {}
 	escapePodList = {}
 	mine_labor_probe_list = {}
@@ -6432,24 +6445,21 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
---		elseif i == 1 then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
---			dp1Zone:setColor(0,128,0):setLabel("1")
---		elseif i == 2 then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
---		elseif i == 3 then
---			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
---			dp3Zone:setColor(0,128,0):setLabel("3")
---		else		
+		if i == 4 then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
+			dp4Zone:setColor(0,128,0):setLabel("4")
+		elseif i == 1 then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 5 then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
+			dp5Zone:setColor(0,128,0):setLabel("5")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -6658,9 +6668,8 @@ function createIcarusStations()
 	station_names[stationAmaranth:getCallSign()] = {stationAmaranth:getSectorName(), stationAmaranth}
 	table.insert(stations,stationAmaranth)
 	--Aquarius F4m9
-	local aquariusZone = squareZone(-4295, 14159, "Aquarius IX F4.9")
-	aquariusZone:setColor(51,153,255):setLabel("A")
-	--[[
+--	local aquariusZone = squareZone(-4295, 14159, "Aquarius IX F4.9")
+--	aquariusZone:setColor(51,153,255):setLabel("A")
     stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius IX"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -6716,7 +6725,6 @@ function createIcarusStations()
 	if random(1,100) <= 37 then stationAquarius:setSharesEnergyWithDocked(false) end
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
-	--]]
 	--Bikolipox
 	stationBikolipox = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Bikolipox"):setPosition(76466, 294896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBikolipox.comms_data = {
@@ -6994,9 +7002,8 @@ function createIcarusStations()
 	station_names[stationClew:getCallSign()] = {stationClew:getSectorName(), stationClew}
 	table.insert(stations,stationClew)
 	--Elysium F4m2.5 
-	local elysiumZone = squareZone(-7504, 1384, "Elysium 6 F4.3")
-	elysiumZone:setColor(51,153,255):setLabel("E")
-	--[[
+--	local elysiumZone = squareZone(-7504, 1384, "Elysium 6 F4.3")
+--	elysiumZone:setColor(51,153,255):setLabel("E")
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 6"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7045,7 +7052,6 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
-	--]]
 	--Endymion
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationEndymion.comms_data = {
@@ -7461,10 +7467,10 @@ function createIcarusStations()
 	station_names[stationMeanTime:getCallSign()] = {stationMeanTime:getSectorName(), stationMeanTime}
 	table.insert(stations,stationMeanTime)
 	--Mermaid
-	local mermaidZone = squareZone(28889, -4417, "Mermaid 8 E6")
-	mermaidZone:setColor(51,153,255):setLabel("8")
+	local mermaidZone = squareZone(28889, -4417, "Mermaid 9 E6")
+	mermaidZone:setColor(51,153,255):setLabel("9")
 	--[[
-    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 8"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 9"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7627,9 +7633,8 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	local nervaZone = squareZone(-9203, -2077, "Nerva 10 E4")
-	nervaZone:setColor(51,153,255):setLabel("N")
-	--[[
+--	local nervaZone = squareZone(-9203, -2077, "Nerva 10 E4")
+--	nervaZone:setColor(51,153,255):setLabel("N")
     stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 10"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7678,7 +7683,6 @@ function createIcarusStations()
 	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
-	--]]
 	--Pistil
 --	local pistilZone = squareZone(24834, 20416, "Pistil 8 G6")
 --	pistilZone:setColor(0,128,0):setLabel("P")
@@ -8332,9 +8336,8 @@ function createIcarusStations()
 	station_names[stationTron:getCallSign()] = {stationTron:getSectorName(), stationTron}
 	table.insert(stations,stationTron)
 	--Wookie F4m5 
-	local wookieZone = squareZone(-11280, 7425, "Noowookie F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9
-	wookieZone:setColor(51,153,255):setLabel("W")
-	--[[
+--	local wookieZone = squareZone(-11280, 7425, "Noowookie F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9
+--	wookieZone:setColor(51,153,255):setLabel("W")
     stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Noowookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8380,7 +8383,6 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
-	--]]
 	return stations
 end
 function createIcarusToRiptideWormholeArea()
@@ -20970,8 +20972,8 @@ function createPlayerShipMagnum()
 	playerMagnum:setJumpDriveCharge(playerMagnum.max_jump_range)
 	playerMagnum:setHullMax(100)							--weaker hull (vs 160)
 	playerMagnum:setHull(100)
-	playerMagnum:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
-	playerMagnum:setShields(100, 100)
+	playerMagnum:setShieldsMax(120, 120)					--weaker shields (vs 160, 160)
+	playerMagnum:setShields(120, 120)
 	playerMagnum:setBeamWeapon(0, 60, -20, 1000.0, 6.0, 5)	--narrower (vs 70)
 	playerMagnum:setBeamWeapon(1, 60,  20, 1000.0, 6.0, 5)	
 	playerMagnum:setWeaponTubeCount(4)						--fewer (vs 6)
@@ -20982,8 +20984,8 @@ function createPlayerShipMagnum()
 	playerMagnum:setWeaponTubeDirection(3, 180)
 	playerMagnum:setWeaponStorageMax("EMP",2)				--fewer (vs 6)
 	playerMagnum:setWeaponStorage("EMP", 2)				
-	playerMagnum:setWeaponStorageMax("Nuke",1)				--fewer (vs 4)
-	playerMagnum:setWeaponStorage("Nuke", 1)	
+	playerMagnum:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
+	playerMagnum:setWeaponStorage("Nuke", 2)	
 	playerMagnum.turbo_torpedo_type = {"Nuke","HomingMissile"}
 	playerMagnum.turbo_torp_factor = 3
 	playerMagnum.turbo_torp_charge_interval = 90
@@ -22086,8 +22088,8 @@ function createPlayerShipThelonius()
 	playerThelonius:setWeaponStorage("Nuke", 2)				
 	playerThelonius:setWeaponStorageMax("Mine",0)			--fewer (vs 6)
 	playerThelonius:setWeaponStorage("Mine", 0)				
-	playerThelonius:setWeaponStorageMax("HVLI",10)			--fewer (vs 24)
-	playerThelonius:setWeaponStorage("HVLI", 10)		
+	playerThelonius:setWeaponStorageMax("HVLI",16)			--fewer (vs 24)
+	playerThelonius:setWeaponStorage("HVLI", 16)		
 --	playerThelonius:setSystemHeatRate("reactor",		.8)	--more (vs .05) Lingling	
 --	playerThelonius:setSystemHeatRate("beamweapons",	.8)	--more (vs .05) Lingling	
 --	playerThelonius:setSystemHeatRate("missilesystem",	.5)	--more (vs .05) Lingling	
@@ -42946,6 +42948,142 @@ function commsStation()
     end
     return true
 end
+function stationDockingServicesStatus()
+	addCommsReply("Docking services status", function()
+		setCommsMessage("Which service or services are you interested in?")
+		addCommsReply("Recharge ship energy",function()
+			if comms_target:getSharesEnergyWithDocked() then
+				setCommsMessage(string.format("Available\n%s can recharge your ship's energy stores when you dock.",comms_target:getCallSign()))
+			else
+				if comms_target.energy_fail_reason == nil then
+					reason_list = {
+						"A recent reactor failure has put us on auxiliary power, so we cannot recharge ships.",
+						"A damaged power coupling makes it too dangerous to recharge ships.",
+						"An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now.",
+					}
+					comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				setCommsMessage(string.format("Unavailable\n%s",comms_target.energy_fail_reason))
+			end
+			addCommsReply("Back", commsStation)
+		end)
+		addCommsReply("Repair ship hull",function()
+			if comms_target:getRepairDocked() then
+				setCommsMessage(string.format("Available\n%s can repair damage to your ship's hull when you dock.",comms_target:getCallSign()))
+			else
+				if comms_target.repair_fail_reason == nil then
+					reason_list = {
+						"We're out of the necessary materials and supplies for hull repair.",
+						"Hull repair automation unavailable while it is undergoing maintenance.",
+						"All hull repair technicians quarantined to quarters due to illness.",
+					}
+					comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				setCommsMessage(string.format("Unavailable\n%s",comms_target.repair_fail_reason))
+			end
+			addCommsReply("Back", commsStation)
+		end)
+		addCommsReply("Replenish ship scan probes",function()
+			if comms_target:getRestocksScanProbes() then
+				setCommsMessage(string.format("Available\n%s can replenish your ship's supply of scan probes when you dock.",comms_target:getCallSign()))
+			else
+				if comms_target.probe_fail_reason == nil then
+					local reason_list = {
+						"Cannot replenish scan probes due to fabrication unit failure.",
+						"Parts shortage prevents scan probe replenishment.",
+						"Station management has curtailed scan probe replenishment for cost cutting reasons.",
+					}
+					comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
+				end
+				setCommsMessage(string.format("Unavailable\n%s",comms_target.probe_fail_reason))
+			end
+			addCommsReply("Back", commsStation)
+		end)
+		addCommsReply("Overcharge services",function()
+			setCommsMessage("What system are you interested in over charging?")
+			addCommsReply("Jump Drive",function()
+				if comms_target.comms_data.jump_overcharge then
+					setCommsMessage(string.format("Available\n%s can overcharge your ship's jump drive if it has one when you dock.",comms_target:getCallSign()))
+				else
+					setCommsMessage(string.format("Unavailable\n%s does not offer a jump drive overcharge service.",comms_target:getCallSign()))
+				end
+				addCommsReply("Back", commsStation)
+			end)
+			addCommsReply("Shields", function()
+				if comms_target.comms_data.shield_overcharge then
+					setCommsMessage(string.format("Available\n%s can overcharge your ship's shields when you dock.",comms_target:getCallSign()))
+				else
+					setCommsMessage(string.format("Unavailable\n%s does not offer a shield overcharge service.",comms_target:getCallSign()))
+				end
+				addCommsReply("Back", commsStation)
+			end)
+			addCommsReply("Back", commsStation)
+		end)
+		addCommsReply("Secondary systems repair",function()
+			setCommsMessage("What secondary systems are you interested in getting repaired?")
+			local secondary_system = {
+				{name = "scan probe launcher", state = comms_target.comms_data.probe_launch_repair},
+				{name = "hacking system", state = comms_target.comms_data.hack_repair},
+				{name = "scanners", state = comms_target.comms_data.scan_repair},
+				{name = "combat maneuver", state = comms_target.comms_data.combat_maneuver_repair},
+				{name = "self destruct system", state = comms_target.comms_data.self_destruct_repair},
+				{name = "slowed weapon tube loaders", state = comms_target.comms_data.tube_slow_down_repair},
+			}
+			for i=1,#secondary_system do
+				addCommsReply(secondary_system[i].name,function()
+					if secondary_system[i].state then
+						setCommsMessage(string.format("Available\n%s can repair your damaged %s.",comms_target:getCallSign(),secondary_system[i].name))
+					else
+						setCommsMessage(string.format("Unavailable\n%s does not offer a %s repair service.",comms_target:getCallSign(),secondary_system[i].name))
+					end
+					addCommsReply("Back", commsStation)
+				end)
+			end
+			addCommsReply("Back", commsStation)
+		end)
+		addCommsReply("Primary systems repair",function()
+			setCommsMessage("What primary systems are you interested in getting repaired?")
+			local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+			local system_repair_list = {}
+			if comms_target.comms_data.system_repair ~= nil then
+				for _, system in ipairs(system_list) do
+					if comms_target.comms_data.system_repair[system].avail then
+						local repair_cost = 0
+						if comms_target.comms_data.system_repair[system].cost > 0 then
+							repair_cost = comms_target.comms_data.system_repair[system].cost
+						end
+						local repair_max = 0
+						if comms_target.comms_data.system_repair[system].max > 0 then
+							repair_max = comms_target.comms_data.system_repair[system].max*100
+						end
+						table.insert(system_repair_list,{name=system,state=true,repair_cost=repair_cost,repair_max=repair_max})
+					else
+						table.insert(system_repair_list,{name=system,state=false})
+					end
+				end
+			end
+			if #system_repair_list > 0 then
+				for i=1,#system_repair_list do
+					local name = system_repair_list[i].name
+					local pretty_name = pretty_system[name]
+					addCommsReply(pretty_name,function()
+						local current_max_health = math.floor(comms_source:getSystemHealthMax(system_repair_list[i].name)*100)
+						if system_repair_list[i].state then
+							setCommsMessage(string.format("Available\n%s can repair your severely damaged %s.\nReputation required:%i   Maximum repair:%i%%\nCurrent ship health max:%i%%",comms_target:getCallSign(),pretty_name,system_repair_list[i].repair_cost,math.floor(system_repair_list[i].repair_max),current_max_health))
+						else
+							setCommsMessage(string.format("Unavailable\n%s does not offer a %s repair service.\nCurrent ship health max:%i%%",comms_target:getCallSign(),pretty_name,current_max_health))
+						end
+						addCommsReply("Back", commsStation)
+					end)
+				end
+			else
+				setCommsMessage(string.format("%s does not offer repairs on any primary system",comms_target:getCallSign()))
+			end
+			addCommsReply("Back", commsStation)
+		end)
+		addCommsReply("Back", commsStation)
+	end)
+end
 function handleDockedState()
 	local ctd = comms_target.comms_data
     if comms_source:isFriendly(comms_target) then
@@ -43050,74 +43188,7 @@ function handleDockedState()
 			end)	--end player requests secondary ordnance comms reply branch
 		end	--end secondary ordnance available from station if branch
 	end	--end missles used on player ship if branch
-	addCommsReply("Docking services status", function()
-		local service_status = string.format("Station %s docking services status:",comms_target:getCallSign())
-		if comms_target:getRestocksScanProbes() then
-			service_status = string.format("%s\nReplenish scan probes.",service_status)
-		else
-			if comms_target.probe_fail_reason == nil then
-				local reason_list = {
-					"Cannot replenish scan probes due to fabrication unit failure.",
-					"Parts shortage prevents scan probe replenishment.",
-					"Station management has curtailed scan probe replenishment for cost cutting reasons.",
-				}
-				comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
-			end
-			service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
-		end
-		if comms_target:getRepairDocked() then
-			service_status = string.format("%s\nShip hull repair.",service_status)
-		else
-			if comms_target.repair_fail_reason == nil then
-				reason_list = {
-					"We're out of the necessary materials and supplies for hull repair.",
-					"Hull repair automation unavailable while it is undergoing maintenance.",
-					"All hull repair technicians quarantined to quarters due to illness.",
-				}
-				comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
-			end
-			service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
-		end
-		if comms_target:getSharesEnergyWithDocked() then
-			service_status = string.format("%s\nRecharge ship energy stores.",service_status)
-		else
-			if comms_target.energy_fail_reason == nil then
-				reason_list = {
-					"A recent reactor failure has put us on auxiliary power, so we cannot recharge ships.",
-					"A damaged power coupling makes it too dangerous to recharge ships.",
-					"An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now.",
-				}
-				comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
-			end
-			service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
-		end
-		if ctd.jump_overcharge then
-			service_status = string.format("%s\nMay overcharge jump drive",service_status)
-		end
-		if ctd.shield_overcharge then
-			service_status = string.format("%s\nMay overcharge shield",service_status)
-		end
-		if ctd.probe_launch_repair then
-			service_status = string.format("%s\nMay repair probe launch system",service_status)
-		end
-		if ctd.hack_repair then
-			service_status = string.format("%s\nMay repair hacking system",service_status)
-		end
-		if ctd.scan_repair then
-			service_status = string.format("%s\nMay repair scanners",service_status)
-		end
-		if ctd.combat_maneuver_repair then
-			service_status = string.format("%s\nMay repair combat maneuver",service_status)
-		end
-		if ctd.self_destruct_repair then
-			service_status = string.format("%s\nMay repair self destruct system",service_status)
-		end
-		if ctd.tube_slow_down_repair then
-			service_status = string.format("%s\nMay repair slowed weapon tubes",service_status)
-		end
-		setCommsMessage(service_status)
-		addCommsReply("Back", commsStation)
-	end)
+	stationDockingServicesStatus()
 	if ctd.sensor_boost ~= nil then
 		if ctd.sensor_boost.cost > 0 then
 			addCommsReply(string.format("Augment scan range with station sensors while docked (%i rep)",ctd.sensor_boost.cost),function()
@@ -43249,17 +43320,6 @@ function handleDockedState()
 		end
 	end
 	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
-	local pretty_system = {
-		["reactor"] = "reactor",
-		["beamweapons"] = "beam weapons",
-		["missilesystem"] = "missile system",
-		["maneuver"] = "maneuver",
-		["impulse"] = "impulse engines",
-		["warp"] = "warp drive",
-		["jumpdrive"] = "jump drive",
-		["frontshield"] = "front shield",
-		["rearshield"] = "rear shield",
-	}
 	local system_repair_list = {}
 	if comms_target.comms_data.system_repair ~= nil then
 		for _, system in ipairs(system_list) do
@@ -44756,72 +44816,7 @@ function handleUndockedState()
 				addCommsReply("Back", commsStation)
 			end)
 		end
-		addCommsReply("Docking services status", function()
-	 		local ctd = comms_target.comms_data
-			local service_status = string.format("Station %s docking services status:",comms_target:getCallSign())
-			if comms_target:getRestocksScanProbes() then
-				service_status = string.format("%s\nReplenish scan probes.",service_status)
-			else
-				if comms_target.probe_fail_reason == nil then
-					local reason_list = {
-						"Cannot replenish scan probes due to fabrication unit failure.",
-						"Parts shortage prevents scan probe replenishment.",
-						"Station management has curtailed scan probe replenishment for cost cutting reasons.",
-					}
-					comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
-				end
-				service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
-			end
-			if comms_target:getRepairDocked() then
-				service_status = string.format("%s\nShip hull repair.",service_status)
-			else
-				if comms_target.repair_fail_reason == nil then
-					reason_list = {
-						"We're out of the necessary materials and supplies for hull repair.",
-						"Hull repair automation unavailable whie it is undergoing maintenance.",
-						"All hull repair technicians quarantined to quarters due to illness.",
-					}
-					comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
-				end
-				service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
-			end
-			if comms_target:getSharesEnergyWithDocked() then
-				service_status = string.format("%s\nRecharge ship energy stores.",service_status)
-			else
-				if comms_target.energy_fail_reason == nil then
-					reason_list = {
-						"A recent reactor failure has put us on auxiliary power, so we cannot recharge ships.",
-						"A damaged power coupling makes it too dangerous to recharge ships.",
-						"An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now.",
-					}
-					comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
-				end
-				service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
-			end
-			if ctd.jump_overcharge then
-				service_status = string.format("%s\nMay overcharge jump drive",service_status)
-			end
-			if ctd.probe_launch_repair then
-				service_status = string.format("%s\nMay repair probe launch system",service_status)
-			end
-			if ctd.hack_repair then
-				service_status = string.format("%s\nMay repair hacking system",service_status)
-			end
-			if ctd.scan_repair then
-				service_status = string.format("%s\nMay repair scanners",service_status)
-			end
-			if ctd.combat_maneuver_repair then
-				service_status = string.format("%s\nMay repair combat maneuver",service_status)
-			end
-			if ctd.self_destruct_repair then
-				service_status = string.format("%s\nMay repair self destruct system",service_status)
-			end
-			if ctd.tube_slow_down_repair then
-				service_status = string.format("%s\nMay repair slowed weapon tubes",service_status)
-			end
-			setCommsMessage(service_status)
-			addCommsReply("Back", commsStation)
-		end)
+		stationDockingServicesStatus()
 		if planet_magnasol_star ~= nil and distance(planet_magnasol_star,comms_target) < 120000 then
 			addCommsReply("How can I protect my ship from Magnasol heat?",function()
 				setCommsMessage("There are several ways. Which one are you interested in?")
@@ -46823,7 +46818,7 @@ function updatePlayerPodTelemetryButton(p)
 				p:addCustomButton("Relay",p.pod_telemetry,"Pod Telemetry",function()
 					string.format("")	--global context for serious proton
 					showPodTelemetry(p)
-				end,11)
+				end,19)
 			end
 		end
 		if p:hasPlayerAtPosition("Operations") then
@@ -46832,7 +46827,7 @@ function updatePlayerPodTelemetryButton(p)
 				p:addCustomButton("Operations",p.pod_telemetry_ops,"Pod Telemetry",function()
 					string.format("")	--global context for serious proton
 					showPodTelemetry(p)
-				end,11)
+				end,19)
 			end
 		end
 	else
@@ -46858,12 +46853,12 @@ function updatePlayerInventoryButton(p,player_name)
 			string.format("")
 			local out = playerShipCargoInventory(p) 
 			p:addCustomMessage("Relay","inventory_message",out)
-		end,12)
+		end,23)
 		p:addCustomButton("Operations",string.format("inventory_button_ops_%s",player_name),"Inventory", function()
 			string.format("")
 			local out = playerShipCargoInventory(p) 
 			p:addCustomMessage("Operations","inventory_message",out)
-		end,12)
+		end,23)
 	end
 end
 function updatePlayerRendezvousPoints(p)
@@ -47207,17 +47202,6 @@ function updatePlayerDamageControl(p)
 		end
 	end
 	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
-	local pretty_system = {
-		["reactor"] = "Reactor",
-		["beamweapons"] = "Beam Weapons",
-		["missilesystem"] = "Missile System",
-		["maneuver"] = "Maneuver",
-		["impulse"] = "Impulse Engines",
-		["warp"] = "Warp Drive",
-		["jumpdrive"] = "Jump Drive",
-		["frontshield"] = "Front Shield",
-		["rearshield"] = "Rear Shield",
-	}
 	local docked_station = p:getDockedWith()
 	local compromised_systems = {}
 	for _, system in ipairs(system_list) do
@@ -47860,11 +47844,11 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 						end
 						if p:hasPlayerAtPosition("Weapons") then
 							p.mining_timer_info = "mining_timer_info"
-							p:addCustomInfo("Weapons",p.mining_timer_info,string.format("Mining %i",mining_seconds))
+							p:addCustomInfo("Weapons",p.mining_timer_info,string.format("Mining %i",mining_seconds),3)
 						end
 						if p:hasPlayerAtPosition("Tactical") then
 							p.mining_timer_info_tac = "mining_timer_info_tac"
-							p:addCustomInfo("Tactical",p.mining_timer_info_tac,string.format("Mining %i",mining_seconds))
+							p:addCustomInfo("Tactical",p.mining_timer_info_tac,string.format("Mining %i",mining_seconds),3)
 						end
 					end
 				else	--mining not in progress
@@ -48011,7 +47995,7 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 						p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
 						p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
 					end
-				end,10)
+				end,17)
 				p:addCustomButton("Engineering+",string.format("%s_plus",p.charge_launch),"Charge Launch Sys",function()
 					if p:getEnergyLevel() > 50 then
 						p.launch_timer = fighter_details.time
@@ -48025,7 +48009,7 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 						p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
 						p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
 					end
-				end,10)
+				end,17)
 			end
 			if fighter_details.state == "gather" then
 				p.launch_timer = p.launch_timer - delta
@@ -48039,8 +48023,8 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 					local fighter = fighter_details.create(fighter_details.template)
 					fighter:setPosition(fx,fy):setCallSign(fighter_name):setHeading(p:getHeading())
 					fighter:commandSetAutoRepair(true):setAutoCoolant(true)
-					fighter:addCustomInfo("Engineering",string.format("%s_eng",fighter_name),string.format("%s Auto-cool/repair On",fighter_name))
-					fighter:addCustomInfo("Engineering+",string.format("%s_plus",fighter_name),string.format("%s Auto-cool/repair On",fighter_name))
+					fighter:addCustomInfo("Engineering",string.format("%s_eng",fighter_name),string.format("%s Auto-cool/repair On",fighter_name),4)
+					fighter:addCustomInfo("Engineering+",string.format("%s_plus",fighter_name),string.format("%s Auto-cool/repair On",fighter_name),4)
 					carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
 					fighter.retract_time = fighter_details.time
 					fighter_details.state = "deployed"
@@ -48906,7 +48890,7 @@ function updateCarrierDeployedFighter(delta)
 									for _, console in ipairs(transfer_map) do
 										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
 									end
-								end,10)
+								end,18)
 								fighter:addCustomButton("Tactical",string.format("%s_tac",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
 									local transfer_map = {}
 									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
@@ -48923,7 +48907,7 @@ function updateCarrierDeployedFighter(delta)
 									for _, console in ipairs(transfer_map) do
 										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
 									end
-								end,10)
+								end,18)
 								fighter:addCustomButton("Single",string.format("%s_one",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
 									local transfer_map = {}
 									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
@@ -48940,7 +48924,7 @@ function updateCarrierDeployedFighter(delta)
 									for _, console in ipairs(transfer_map) do
 										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
 									end
-								end,10)
+								end,18)
 							else
 								dock_status = string.format("%s   %.1f",dock_status,fighter.retract_timer)
 								if fighter.dock_with_carrier_button ~= nil then
