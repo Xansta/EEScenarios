@@ -8,7 +8,6 @@
 -- eris at long last
 
 -- ideas:	Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health level
---			Number all custom elements (buttons, ino panel)
 --			Try not to update custom widgets every frame
 
 require("utils.lua")
@@ -105,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.23.0"
+	scenario_version = "5.24.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -117,6 +116,7 @@ function init()
 	distance_diagnostic = false
 	commerce_diagnostic = false
 	mine_probe_diagnostic = true
+	med_point_diagnostic = false
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
@@ -1110,6 +1110,7 @@ function setConstants()
 		["rearshield"] = "rear shield",
 	}
 	rendezvousPoints = {}
+	rv_sequence = 100
 	escapePodList = {}
 	mine_labor_probe_list = {}
 	boost_probe_list = {}
@@ -33023,6 +33024,7 @@ function edgeButInside()
 	podCreation(aox, aoy, sox, soy)
 end
 function podPickupProcess(self,retriever)
+	local current_rotation = self:getRotation()
 	local podCallSign = self:getCallSign()
 	local podPrepped = false
 	local pod_retrieved = false
@@ -33039,10 +33041,14 @@ function podPickupProcess(self,retriever)
 	local players = getActivePlayerShips()
 	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
-			for pb, enabled in pairs(p.podButton) do
+			local preparerIsRetriever = false
+			for pb, pb_item in pairs(p.podButton) do
 				if pb == podCallSign then
-					if not enabled then
+					if not pb_item.active then
 						podPrepped = true
+						if p == pb_item.preparer then
+							preparerIsRetriever = true
+						end
 						break
 					end
 				end
@@ -33052,22 +33058,32 @@ function podPickupProcess(self,retriever)
 			end
 			if p == retriever then
 				if podPrepped then
-					if p.pods > 0 then
-						p.pods = p.pods - 1
-						retriever:addToShipLog(string.format("Escape pod %s retrieved. %s can carry %i more. Unload escape pods at any friendly station",podCallSign,retriever:getCallSign(),p.pods),"Green")
-						if retriever:getEnergy() > 50 then
-							retriever:setEnergy(retriever:getEnergy() - 50)
+					if preparerIsRetriever then
+						if p.pods > 0 then
+							p.pods = p.pods - 1
+							retriever:addToShipLog(string.format("Escape pod %s retrieved. %s can carry %i more. Unload escape pods at any friendly station",podCallSign,retriever:getCallSign(),p.pods),"Green")
+							if retriever:getEnergy() > 50 then
+								retriever:setEnergy(retriever:getEnergy() - 50)
+							else
+								retriever:setEnergy(0)
+							end
+							pod_retrieved = true
 						else
-							retriever:setEnergy(0)
+							if p.pod_retrieval_failure_not_enough_space_message == nil then
+								p.pod_retrieval_failure_not_enough_space_message = {}
+							end
+							if p.pod_retrieval_failure_not_enough_space_message[podCallSign] == nil then
+								retriever:addToShipLog(string.format("Not enough room on %s to retrieve %s. Unload escape pods at any friendly station",retriever:getCallSign(),podCallSign),"Green")
+								p.pod_retrieval_failure_not_enough_space_message[podCallSign] = "sent"
+							end
 						end
-						pod_retrieved = true
 					else
-						if p.pod_retrieval_failure_not_enough_space_message == nil then
-							p.pod_retrieval_failure_not_enough_space_message = {}
+						if p.pod_retrieval_failure_wrong_preparer_message == nil then
+							p.pod_retrieval_failure_wrong_preparer_message = {}
 						end
-						if p.pod_retrieval_failure_not_enough_space_message[podCallSign] == nil then
-							retriever:addToShipLog(string.format("Not enough room on %s to retrieve %s. Unload escape pods at any friendly station",retriever:getCallSign(),podCallSign),"Green")
-							p.pod_retrieval_failure_not_enough_space_message[podCallSign] = "sent"
+						if p.pod_retrieval_failure_wrong_preparer_message[podCallSign] == nil then
+							p:addToShipLog(string.format("Pod retrieval failed. Transporters on %s have not been prepared for %s",p:getCallSign(),podCallSign),"Green")
+							p.pod_retrieval_failure_wrong_preparer_message[podCallSign] = "sent"
 						end
 					end
 				else
@@ -33086,6 +33102,7 @@ function podPickupProcess(self,retriever)
 		local rpx, rpy = self:getPosition()
 		if escapePodList[podCallSign] == nil then
 			local redoPod = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("ammo_box"):setDescriptions("Escape Pod",string.format("Escape Pod %s, life forms detected",podCallSign)):setCallSign(podCallSign)
+			redoPod:setRotation(current_rotation)
 			redoPod:onPickUp(podPickupProcess)
 			escapePodList[podCallSign] = redoPod
 			table.insert(rendezvousPoints,redoPod)
@@ -33371,23 +33388,33 @@ function artifactToPod()
 			if p.podButton == nil then
 				p.podButton = {}
 			end
-			p.podButton[podCallSign] = true
-			p:wrappedAddCustomButton("Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),function()
-				local players_prime = getActivePlayerShips()
-				for pidx_prime, p_prime in ipairs(players_prime) do
-					if p_prime ~= nil and p_prime:isValid() then
-						for pb, enabled in pairs(p_prime.podButton) do
-							if enabled and pb == podCallSign then
-								p_prime:wrappedRemoveCustom(pb)
-								p_prime:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p_prime.podButton[pb] = false
-							end
-						end
-					end
-				end
-			end)
+			p.podButton[podCallSign] = {active = true, sequence = rv_sequence}
+			rv_sequence = rv_sequence + 1
+			if rv_sequence >= 200 then
+				rv_sequence = 100
+			end
+			podPrepButton(p,"Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),"Transporters on %s ready for pickup of %s")
+			podPrepButton(p,"Engineering+",podCallSign,string.format("Prepare to get %s",podCallSign),"Transporters on %s ready for pickup of %s")
 		end
 	end
+end
+function podPrepButton(p,console,podCallSign,label,msg)
+	p:addCustomButton(console,string.format("%s%s",podCallSign,console),label,function()
+		local other_players = getActivePlayerShips()
+		for other_pidx, other_p in ipairs(other_players) do
+			if other_p:isValid() then
+				for pod_name, pb_item in pairs(other_p.podButton) do
+					if pb_item.active and pod_name == podCallSign then
+						other_p:removeCustom(string.format("%s%s",pod_name,"Engineering"))
+						other_p:removeCustom(string.format("%s%s",pod_name,"Engineering+"))
+						other_p:addCustomMessage(console,"pb_gone",string.format(msg,p:getCallSign(),pod_name))
+						other_p.podButton[pod_name].active = false
+						other_p.podButton[pod_name].preparer = p
+					end
+				end
+			end
+		end
+	end,p.podButton[podCallSign].sequence)
 end
 function showPodTelemetry(p)
 	local pod_count = 0
@@ -33423,21 +33450,13 @@ function podCreation(originx, originy, vectorx, vectory)
 			if p.podButton == nil then
 				p.podButton = {}
 			end
-			p.podButton[podCallSign] = true
-			p:wrappedAddCustomButton("Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),function()
-				local players_prime = getActivePlayerShips()
-				for pidx_prime, p_prime in ipairs(players_prime) do
-					if p_prime ~= nil and p_prime:isValid() then
-						for pb, enabled in pairs(p_prime.podButton) do
-							if enabled and pb == podCallSign then
-								p_prime:wrappedRemoveCustom(pb)
-								p_prime:wrappedAddCustomMessage("Engineering","pbgone",string.format("Transporters ready for pickup of %s",pb))
-								p_prime.podButton[pb] = false
-							end
-						end
-					end
-				end
-			end)
+			p.podButton[podCallSign] = {active = true, sequence = rv_sequence}
+			rv_sequence = rv_sequence + 1
+			if rv_sequence >= 200 then
+				rv_sequence = 100
+			end
+			podPrepButton(p,"Engineering",podCallSign,string.format("Prepare to get %s",podCallSign),"Transporters on %s ready for pickup of %s")
+			podPrepButton(p,"Engineering+",podCallSign,string.format("Prepare to get %s",podCallSign),"Transporters on %s ready for pickup of %s")
 		end
 	end
 end
@@ -33567,25 +33586,36 @@ function marineCreation(originx, originy, vectorx, vectory, associatedObjectName
 			if p.marinePointButton == nil then
 				p.marinePointButton = {}
 			end
-			p.marinePointButton[marineCallSign] = true
-			p:wrappedAddCustomButton("Engineering",marineCallSign,string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),function()
-				local players_prime = getActivePlayerShips()
-				for pidx_prime, p_prime in ipairs(players_prime) do
-					if p_prime ~= nil and p_prime:isValid() then
-						for mpb, enabled in pairs(p_prime.marinePointButton) do
-							if enabled and mpb == marineCallSign then
-								p_prime:wrappedRemoveCustom(mpb)
-								p_prime:wrappedAddCustomMessage("Engineering","mpbgone",string.format("Transporters ready for marines via %s",mpb))
-								p_prime.marinePointButton[mpb] = false
-							end
-						end
-					end
-				end
-			end)
+			p.marinePointButton[marineCallSign] = {active = true, sequence = rv_sequence}
+			rv_sequence = rv_sequence + 1
+			if rv_sequence >= 200 then
+				rv_sequence = 100
+			end
+			marinePointPrepButton(p,"Engineering",marineCallSign,string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),"Transporters on %s ready for marines via %s")
+			marinePointPrepButton(p,"Engineering+",marineCallSign,string.format("Prep to %s via %s",dropOrExtractAction,marineCallSign),"Transporters on %s ready for marines via %s")
 		end
 	end
 end
+function marinePointPrepButton(p,console,marineCallSign,label,msg)
+	p:addCustomButton(console,string.format("%s%s",marineCallSign,console),label,function()
+		local other_players = getActivePlayerShips()
+		for other_pidx, other_p in ipairs(other_players) do
+			if other_p:isValid() then
+				for mpb, mpb_item in pairs(other_p.marinePointButton) do
+					if mpb_item.active and mpb == marineCallSign then
+						other_p:removeCustom(string.format("%s%s",mpb,"Engineering"))
+						other_p:removeCustom(string.format("%s%s",mpb,"Engineering+"))
+						other_p:addCustomMessage(console,"mpbgone",string.format(msg,p:getCallSign(),mpb))
+						other_p.marinePointButton[mpb].active = false
+						other_p.marinePointButton[mpb].preparer = p
+					end
+				end
+			end
+		end
+	end,p.marinePointButton[marineCallSign].sequence)
+end
 function marinePointPickupProcess(self,retriever)
+	local current_rotation = self:getRotation()
 	local marineCallSign = self:getCallSign()
 	local marinePointPrepped = false
 	local successful_action = false
@@ -33602,10 +33632,14 @@ function marinePointPickupProcess(self,retriever)
 	local players = getActivePlayerShips()
 	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
-			for mpb, enabled in pairs(p.marinePointButton) do
+			local preparerIsRetriever = false
+			for mpb, mpb_item in pairs(p.marinePointButton) do
 				if mpb == marineCallSign then
-					if not enabled then
+					if not mpb_item.active then
 						marinePointPrepped = true
+						if p == mpb_item.preparer then
+							preparerIsRetriever = true
+						end
 						break
 					end
 				end
@@ -33615,31 +33649,41 @@ function marinePointPickupProcess(self,retriever)
 			end
 			if p == retriever then
 				if marinePointPrepped then
-					if self.action == "Drop" then
-						if p:getRepairCrewCount() > 0 then
-							successful_action = true
-							p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-							if self.associatedObjectName ~= nil then
-								p:addToShipLog(string.format("Marine drop action on %s successful via %s",self.associatedObjectName,marineCallSign),"Green")
+					if preparerIsRetriever then
+						if self.action == "Drop" then
+							if p:getRepairCrewCount() > 0 then
+								successful_action = true
+								p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+								if self.associatedObjectName ~= nil then
+									p:addToShipLog(string.format("Marine drop action on %s successful via %s",self.associatedObjectName,marineCallSign),"Green")
+								else
+									p:addToShipLog(string.format("Marine drop action successful via %s",marineCallSign),"Green")
+								end
 							else
-								p:addToShipLog(string.format("Marine %s action successful via %s",self.action,marineCallSign),"Green")
+								if p.marine_drop_failure_not_enough_crew_message == nil then
+									p.marine_drop_failure_not_enough_crew_message = {}
+								end
+								if p.marine_drop_failure_not_enough_crew_message[marineCallSign] == nil then
+									p:addToShipLog(string.format("Not enough marines to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",marineCallSign,p:getCallSign()),"Green")
+									p.marine_drop_failure_not_enough_crew_message[marineCallSign] = "sent"
+								end
 							end
 						else
-							if p.marine_drop_failure_not_enough_crew_message == nil then
-								p.marine_drop_failure_not_enough_crew_message = {}
-							end
-							if p.marine_drop_failure_not_enough_crew_message[marineCallSign] == nil then
-								p:addToShipLog(string.format("Not enough marines to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",marineCallSign,p:getCallSign()),"Green")
-								p.marine_drop_failure_not_enough_crew_message[marineCallSign] = "sent"
+							successful_action = true
+							p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+							if self.associatedObjectName ~= nil then
+								p:addToShipLog(string.format("Marine extract action from %s successful via %s",self.associatedObjectName,marineCallSign),"Green")
+							else
+								p:addToShipLog(string.format("Marine extract action successful via %s",marineCallSign),"Green")
 							end
 						end
 					else
-						successful_action = true
-						p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-						if self.associatedObjectName ~= nil then
-							p:addToShipLog(string.format("Marine extract action from %s successful via %s",self.associatedObjectName,marineCallSign),"Green")
-						else
-							p:addToShipLog(string.format("Marine %s action successful via %s",self.action,marineCallSign),"Green")
+						if p.marine_drop_failure_wrong_preparer_message == nil then
+							p.marine_drop_failure_wrong_preparer_message = {}
+						end
+						if p.marine_drop_failure_wrong_preparer_message[marineCallSign] == nil then
+							p:addToShipLog(string.format("Marine %s action failed. Transporters on %s have not been prepared for %s",self.action,p:getCallSign(),marineCallSign),"Green")
+							p.marine_drop_failure_wrong_preparer_message[marineCallSign] = "sent"
 						end
 					end
 				else
@@ -33683,6 +33727,7 @@ function marinePointPickupProcess(self,retriever)
 		end
 		if marinePointList[marineCallSign] == nil then
 			local redoMarinePoint = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorBuoyMKI"):setDescriptions(unscannedDescription,scannedDescription):setCallSign(marineCallSign)
+			redoMarinePoint:setRotation(current_rotation)
 			redoMarinePoint:onPickUp(marinePointPickupProcess)
 			redoMarinePoint.action = self.action
 			redoMarinePoint.associatedObjectName = self.associatedObjectName
@@ -33893,25 +33938,36 @@ function engineerCreation(originx, originy, vectorx, vectory, associatedObjectNa
 			if p.engineerPointButton == nil then
 				p.engineerPointButton = {}
 			end
-			p.engineerPointButton[engineerCallSign] = true
-			p:wrappedAddCustomButton("Engineering",engineerCallSign,string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),function()
-				local players_prime = getActivePlayerShips()
-				for pidx_prime, p_prime in ipairs(players_prime) do
-					if p_prime ~= nil and p_prime:isValid() then
-						for epb, enabled in pairs(p_prime.engineerPointButton) do
-							if enabled and epb == engineerCallSign then
-								p_prime:wrappedRemoveCustom(epb)
-								p_prime:wrappedAddCustomMessage("Engineering","epbgone",string.format("Transporters ready for engineers via %s",epb))
-								p_prime.engineerPointButton[epb] = false
-							end
-						end
-					end
-				end
-			end)
+			p.engineerPointButton[engineerCallSign] = {active = true, sequence = rv_sequence}
+			rv_sequence = rv_sequence + 1
+			if rv_sequence >= 200 then
+				rv_sequence = 100
+			end
+			engineerPointPrepButton(p,"Engineering",engineerCallSign,string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),"Transporters on %s ready for engineers via %s")
+			engineerPointPrepButton(p,"Engineering+",engineerCallSign,string.format("Prep to %s via %s",dropOrExtractAction,engineerCallSign),"Transporters on %s ready for engineers via %s")
 		end
 	end
 end
+function engineerPointPrepButton(p,console,engineerCallSign,label,msg)
+	p:addCustomButton(console,string.format("%s%s",engineerCallSign,console),label,function()
+		local other_players = getActivePlayerShips()
+		for other_pidx, other_p in ipairs(other_players) do
+			if other_p:isValid() then
+				for epb, epb_item in pairs(other_p.engineerPointButton) do
+					if epb_item.active and epb == engineerCallSign then
+						other_p:removeCustom(string.format("%s%s",epb,"Engineering"))
+						other_p:removeCustom(string.format("%s%s",epb,"Engineering+"))
+						other_p:addCustomMessage(console,"epbgone",string.format(msg,p:getCallSign(),epb))
+						other_p.engineerPointButton[epb].active = false
+						other_p.engineerPointButton[epb].preparer = p
+					end
+				end
+			end
+		end
+	end,p.engineerPointButton[engineerCallSign].sequence)
+end
 function engineerPointPickupProcess(self,retriever)
+	local current_rotation = self:getRotation()
 	local engineerCallSign = self:getCallSign()
 	local engineerPointPrepped = false
 	local successful_action = false
@@ -33928,10 +33984,14 @@ function engineerPointPickupProcess(self,retriever)
 	local players = getActivePlayerShips()
 	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
-			for epb, enabled in pairs(p.engineerPointButton) do
+			local preparerIsRetriever = false
+			for epb, epb_item in pairs(p.engineerPointButton) do
 				if epb == engineerCallSign then
-					if not enabled then
+					if not epb_item.active then
 						engineerPointPrepped = true
+						if p == epb_item.preparer then
+							preparerIsRetriever = true
+						end
 						break
 					end
 				end
@@ -33941,31 +34001,41 @@ function engineerPointPickupProcess(self,retriever)
 			end
 			if p == retriever then
 				if engineerPointPrepped then
-					if self.action == "Drop" then
-						if p:getRepairCrewCount() > 0 then
-							successful_action = true
-							p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-							if self.associatedObjectName ~= nil then
-								p:addToShipLog(string.format("Engineer drop action on %s successful via %s",self.associatedObjectName,engineerCallSign),"Green")
+					if preparerIsRetriever then
+						if self.action == "Drop" then
+							if p:getRepairCrewCount() > 0 then
+								successful_action = true
+								p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+								if self.associatedObjectName ~= nil then
+									p:addToShipLog(string.format("Engineer drop action on %s successful via %s",self.associatedObjectName,engineerCallSign),"Green")
+								else
+									p:addToShipLog(string.format("Engineer drop action successful via %s",engineerCallSign),"Green")
+								end
 							else
-								p:addToShipLog(string.format("Engineer %s action successful via %s",self.action,engineerCallSign),"Green")
+								if p.engineer_drop_failure_not_enough_crew_message == nil then
+									p.engineer_drop_failure_not_enough_crew_message = {}
+								end
+								if p.engineer_drop_failure_not_enough_crew_message[engineerCallSign] == nil then
+									p:addToShipLog(string.format("Not enough engineers to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",engineerCallSign,p:getCallSign()),"Green")
+									p.engineer_drop_failure_not_enough_crew_message[engineerCallSign] = "sent"
+								end
 							end
 						else
-							if p.engineer_drop_failure_not_enough_crew_message == nil then
-								p.engineer_drop_failure_not_enough_crew_message = {}
-							end
-							if p.engineer_drop_failure_not_enough_crew_message[engineerCallSign] == nil then
-								p:addToShipLog(string.format("Not enough engineers to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",engineerCallSign,p:getCallSign()),"Green")
-								p.engineer_drop_failure_not_enough_crew_message[engineerCallSign] = "sent"
+							successful_action = true
+							p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+							if self.associatedObjectName ~= nil then
+								p:addToShipLog(string.format("Engineer extract action from %s successful via %s",self.associatedObjectName,engineerCallSign),"Green")
+							else
+								p:addToShipLog(string.format("Engineer extract action successful via %s",engineerCallSign),"Green")
 							end
 						end
 					else
-						successful_action = true
-						p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-						if self.associatedObjectName ~= nil then
-							p:addToShipLog(string.format("Engineer extract action from %s successful via %s",self.associatedObjectName,engineerCallSign),"Green")
-						else
-							p:addToShipLog(string.format("Engineer %s action successful via %s",self.action,engineerCallSign),"Green")
+						if p.engineer_drop_failure_wrong_preparer_message == nil then
+							p.engineer_drop_failure_wrong_preparer_message = {}
+						end
+						if p.engineer_drop_failure_wrong_preparer_message[engineerCallSign] == nil then
+							p:addToShipLog(string.format("Engineer %s action failed. Transporters on %s have not been prepared for %s",self.action,p:getCallSign(),engineerCallSign),"Green")
+							p.engineer_drop_failure_wrong_preparer_message[engineerCallSign] = "sent"
 						end
 					end
 				else
@@ -34009,6 +34079,7 @@ function engineerPointPickupProcess(self,retriever)
 		end
 		if engineerPointList[engineerCallSign] == nil then
 			local redoEngineerPoint = Artifact():setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("SensorBuoyMKI"):setDescriptions(unscannedDescription,scannedDescription):setCallSign(engineerCallSign)
+			redoEngineerPoint:setRotation(current_rotation)
 			redoEngineerPoint:onPickUp(engineerPointPickupProcess)
 			redoEngineerPoint.action = self.action
 			redoEngineerPoint.associatedObjectName = self.associatedObjectName
@@ -34219,28 +34290,106 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 			if p.medicPointButton == nil then
 				p.medicPointButton = {}
 			end
-			p.medicPointButton[medicCallSign] = true
-			p:wrappedAddCustomButton("Engineering",medicCallSign,string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),function()
-				local players_prime = getActivePlayerShips()
-				for pidx, p in ipairs(players_prime) do
-					if p_prime ~= nil and p_prime:isValid() then
-						for mpb, enabled in pairs(p_prime.medicPointButton) do
-							if enabled and mpb == medicCallSign then
-								p_prime:wrappedRemoveCustom(mpb)
-								p_prime:wrappedAddCustomMessage("Engineering","mtpbgone",string.format("Transporters ready for medical team via %s",mpb))
-								p_prime.medicPointButton[mpb] = false
-							end
-						end
-					end
-				end
-			end)
+			p.medicPointButton[medicCallSign] = {active = true, sequence = rv_sequence}
+			rv_sequence = rv_sequence + 1
+			if rv_sequence >= 200 then
+				rv_sequence = 100
+			end
+			medicPointPrepButton(p,"Engineering",medicCallSign,string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),"Transporters on %s ready for medical team via %s")
+			medicPointPrepButton(p,"Engineering+",medicCallSign,string.format("Prep to %s via %s",dropOrExtractAction,medicCallSign),"Transporters on %s ready for medical team via %s")
 		end
 	end
+	if med_point_diagnostic then
+		print("Med point creation")
+		for other_pidx, other_p in ipairs(players) do
+			if other_p:isValid() then
+				print("other player:",other_p:getCallSign())
+				for mpb, mpb_item in pairs(other_p.medicPointButton) do
+					print(mpb,mpb_item.active,mpb_item.sequence)
+					if mpb_item.preparer ~= nil then
+						if mpb_item.preparer:isValid() then
+							print("preparer:",mpb_item.preparer,mpb_item.preparer:getCallSign())
+						else
+							print("preparer:",mpb_item.preparer,"(invalid)")
+						end
+					else
+						print("no preparer")
+					end
+				end
+			else
+				print("invalid other player:",other_pidx,other_p)
+			end
+		end 
+	end
+end
+function medicPointPrepButton(p,console,medicCallSign,label,msg)
+	p:addCustomButton(console,string.format("%s%s",medicCallSign,console),label,function()
+		local other_players = getActivePlayerShips()
+		for other_pidx, other_p in ipairs(other_players) do
+			if other_p:isValid() then
+				for mpb, mpb_item in pairs(other_p.medicPointButton) do
+					if mpb_item.active and mpb == medicCallSign then
+						other_p:removeCustom(string.format("%s%s",mpb,"Engineering"))
+						other_p:removeCustom(string.format("%s%s",mpb,"Engineering+"))
+						other_p:addCustomMessage(console,"mtpbgone",string.format(msg,p:getCallSign(),mpb))
+						other_p.medicPointButton[mpb].active = false
+						other_p.medicPointButton[mpb].preparer = p
+					end
+				end
+			end
+		end
+		if med_point_diagnostic then
+			print("Med point prep after click by:",p:getCallSign(),"via console:",console)
+			for other_pidx, other_p in ipairs(other_players) do
+				if other_p:isValid() then
+					print("other player:",other_p:getCallSign())
+					for mpb, mpb_item in pairs(other_p.medicPointButton) do
+						print(mpb,mpb_item.active,mpb_item.sequence)
+						if mpb_item.preparer ~= nil then
+							if mpb_item.preparer:isValid() then
+								print("preparer:",mpb_item.preparer,mpb_item.preparer:getCallSign())
+							else
+								print("preparer:",mpb_item.preparer,"(invalid)")
+							end
+						else
+							print("no preparer")
+						end
+					end
+				else
+					print("invalid other player:",other_pidx,other_p)
+				end
+			end 
+		end
+	end,p.medicPointButton[medicCallSign].sequence)
 end
 function medicPointPickupProcess(self,retriever)
+	local current_rotation = self:getRotation()
 	local medicCallSign = self:getCallSign()
 	local medicPointPrepped = false
 	local successful_action = false
+	local other_players = getActivePlayerShips()
+	if med_point_diagnostic then
+		print("Top of med point pickup by:",retriever:getCallSign())
+		for other_pidx, other_p in ipairs(other_players) do
+			if other_p:isValid() then
+				print("other player:",other_p:getCallSign())
+				for mpb, mpb_item in pairs(other_p.medicPointButton) do
+					print(mpb,mpb_item.active,mpb_item.sequence)
+					if mpb_item.preparer ~= nil then
+						if mpb_item.preparer:isValid() then
+							print("preparer:",mpb_item.preparer,mpb_item.preparer:getCallSign())
+						else
+							print("preparer:",mpb_item.preparer,"(invalid)")
+						end
+					else
+						print("no preparer")
+					end
+				end
+			else
+				print("invalid other player:",other_pidx,other_p)
+			end
+		end 
+	end
 	for mpCallSign, mp in pairs(medicPointList) do
 		if mpCallSign == medicCallSign then
 			medicPointList[medicCallSign] = nil
@@ -34254,44 +34403,59 @@ function medicPointPickupProcess(self,retriever)
 	local players = getActivePlayerShips()
 	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
-			for mpb, enabled in pairs(p.medicPointButton) do
+			local preparerIsRetriever = false
+			for mpb, mpb_item in pairs(p.medicPointButton) do
 				if mpb == medicCallSign then
-					if not enabled then
+					if not mpb_item.active then
 						medicPointPrepped = true
+						if p == mpb_item.preparer then
+							preparerIsRetriever = true
+						end
 						break
 					end
 				end
 			end
 			if medicPointPrepped then
-				p:removeCustom(medicCallSign)
+				p:removeCustom(string.format("%s%s",medicCallSign,"Engineering"))
+				p:removeCustom(string.format("%s%s",medicCallSign,"Engineering+"))
 			end
 			if p == retriever then
 				if medicPointPrepped then
-					if self.action == "Drop" then
-						if p:getRepairCrewCount() > 0 then
-							successful_action = true
-							p:setRepairCrewCount(p:getRepairCrewCount() - 1)
-							if self.associatedObjectName ~= nil then
-								p:addToShipLog(string.format("Medical team drop action on %s successful via %s",self.associatedObjectName,medicCallSign),"Green")
+					if preparerIsRetriever then
+						if self.action == "Drop" then
+							if p:getRepairCrewCount() > 0 then
+								successful_action = true
+								p:setRepairCrewCount(p:getRepairCrewCount() - 1)
+								if self.associatedObjectName ~= nil then
+									p:addToShipLog(string.format("Medical team drop action on %s successful via %s",self.associatedObjectName,medicCallSign),"Green")
+								else
+									p:addToShipLog(string.format("Medical team drop action successful via %s",medicCallSign),"Green")
+								end
 							else
-								p:addToShipLog(string.format("Medical team %s action successful via %s",self.action,medicCallSign),"Green")
+								if p.medic_drop_failure_not_enough_crew_message == nil then
+									p.medic_drop_failure_not_enough_crew_message = {}
+								end
+								if p.medic_drop_failure_not_enough_crew_message[medicCallSign] == nil then
+									p:addToShipLog(string.format("Not enough medics to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",medicCallSign,p:getCallSign()),"Green")
+									p.medic_drop_failure_not_enough_crew_message[medicCallSign] = "sent"
+								end
 							end
 						else
-							if p.medic_drop_failure_not_enough_crew_message == nil then
-								p.medic_drop_failure_not_enough_crew_message = {}
-							end
-							if p.medic_drop_failure_not_enough_crew_message[medicCallSign] == nil then
-								p:addToShipLog(string.format("Not enough medics to drop team at %s. Critical team member could not be obtained from %s repair crew personnel",medicCallSign,p:getCallSign()),"Green")
-								p.medic_drop_failure_not_enough_crew_message[medicCallSign] = "sent"
+							successful_action = true
+							p:setRepairCrewCount(p:getRepairCrewCount() + 1)
+							if self.associatedObjectName ~= nil then
+								p:addToShipLog(string.format("Medical team extract action from %s successful via %s",self.associatedObjectName,medicCallSign),"Green")
+							else
+								p:addToShipLog(string.format("Medical team extract action successful via %s",medicCallSign),"Green")
 							end
 						end
 					else
-						successful_action = true
-						p:setRepairCrewCount(p:getRepairCrewCount() + 1)
-						if self.associatedObjectName ~= nil then
-							p:addToShipLog(string.format("Medical team extract action from %s successful via %s",self.associatedObjectName,medicCallSign),"Green")
-						else
-							p:addToShipLog(string.format("Medical team %s action successful via %s",self.action,medicCallSign),"Green")
+						if p.medic_drop_failure_wrong_preparer_message == nil then
+							p.medic_drop_failure_wrong_preparer_message = {}
+						end
+						if p.medic_drop_failure_wrong_preparer_message[medicCallSign] == nil then
+							p:addToShipLog(string.format("Medical team %s action failed. Transporters on %s have not been prepared for %s",self.action,p:getCallSign(),medicCallSign),"Green")
+							p.medic_drop_failure_wrong_preparer_message[medicCallSign] = "sent"
 						end
 					end
 				else
@@ -34326,7 +34490,13 @@ function medicPointPickupProcess(self,retriever)
 			end
 		end	--player valid branch
 	end	--player loop
-	if not successful_action then
+	if successful_action then
+		for pidx, p in ipairs(players) do
+			if p ~= nil and p:isValid() then
+				p.medicPointButton[medicCallSign] = nil
+			end
+		end
+	else
 		local rpx, rpy = self:getPosition()
 		local unscannedDescription = string.format("Medical team %s Point",self.action)
 		local scannedDescription = string.format("Medical team %s Point %s, standing by for medical team transport",self.action,medicCallSign)
@@ -34335,6 +34505,7 @@ function medicPointPickupProcess(self,retriever)
 		end
 		if medicPointList[medicCallSign] == nil then
 			local redoMedicalPoint = Artifact():setModel("SensorBuoyMKI"):setRotation(self.initial_rotation):setPosition(rpx,rpy):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setDescriptions(unscannedDescription,scannedDescription):setCallSign(medicCallSign)
+			redoMedicalPoint:setRotation(current_rotation)
 			redoMedicalPoint:onPickUp(medicPointPickupProcess)
 			redoMedicalPoint.action = self.action
 			redoMedicalPoint.associatedObjectName = self.associatedObjectName
@@ -34342,6 +34513,28 @@ function medicPointPickupProcess(self,retriever)
 			medicPointList[medicCallSign] = redoMedicalPoint
 			table.insert(rendezvousPoints,redoMedicalPoint)
 		end
+	end
+	if med_point_diagnostic then
+		print("Bottom of med point pickup by:",retriever:getCallSign())
+		for other_pidx, other_p in ipairs(other_players) do
+			if other_p:isValid() then
+				print("other player:",other_p:getCallSign())
+				for mpb, mpb_item in pairs(other_p.medicPointButton) do
+					print(mpb,mpb_item.active,mpb_item.sequence)
+					if mpb_item.preparer ~= nil then
+						if mpb_item.preparer:isValid() then
+							print("preparer:",mpb_item.preparer,mpb_item.preparer:getCallSign())
+						else
+							print("preparer:",mpb_item.preparer,"(invalid)")
+						end
+					else
+						print("no preparer")
+					end
+				end
+			else
+				print("invalid other player:",other_pidx,other_p)
+			end
+		end 
 	end
 end
 -------------------------------------------------------------
