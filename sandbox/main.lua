@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.24.1"
+	scenario_version = "5.24.2"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1063,10 +1063,10 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Magnum")		--J
-	makePlayerShipActive("Gabble")		--J
+	makePlayerShipActive("Slingshot")	--J
 	makePlayerShipActive("Lancelot")	--J
 	makePlayerShipActive("Thelonius")	--W
-	makePlayerShipActive("Claw")		--W
+	makePlayerShipActive("Rip")			--W
 	makePlayerShipActive("Tango")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -14846,7 +14846,7 @@ function createTereshStations()
 	station_names[stationProteus:getCallSign()] = {stationProteus:getSectorName(), stationProteus}
 	table.insert(stations,stationProteus)
 	--	Recon 101
-	stationRecon101 = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Recon 101"):setPosition(835171, 39698):setDescription("Recon and mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationRecon101 = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Recon 101.2"):setPosition(835171, 39698):setDescription("Recon and mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationRecon101:setShortRangeRadarRange(22000)
     stationRecon101.comms_data = {
     	friendlyness = 78,
@@ -14887,6 +14887,7 @@ function createTereshStations()
     	history = "The station was originally a conglomeration of equipment used as a convenient waypoint on the way to scout for enemies. Now it's become a permanent facility and has added mining to it operational mandate.",
 	}
 	if random(1,100) <= 14 then stationRecon101:setRestocksScanProbes(false) end
+    table.insert(teresh_defense_platforms,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("RDP"):setPosition(836906, 38719):orderStandGround())
 	station_names[stationRecon101:getCallSign()] = {stationRecon101:getSectorName(), stationRecon101}
 	table.insert(stations,stationRecon101)
 	--	Solder	
@@ -21933,7 +21934,7 @@ function createPlayerShipRip()
 	playerLurker:setRotationMaxSpeed(12)				--slower spin (vs 15)
 	playerLurker:setAcceleration(18)					--slower (vs 25)
 	playerLurker:setWarpDrive(true)						--add warp (vs none)
-	playerLurker:setWarpSpeed(300)
+	playerLurker:setWarpSpeed(320)
 	playerLurker:setRepairCrewCount(2)					--more repair crew (vs 1)
 --                 				 Arc, Dir, Range, CycleTime, Damage
 	playerLurker:setBeamWeapon(0, 10, 180,	1000,		2.0, 2)		--faster, longer, (vs 6 Cyc, .9 U) 
@@ -21952,12 +21953,12 @@ function createPlayerShipRip()
 	playerLurker:setWeaponTubeExclusiveFor(2,"Homing")	--Homing, Nuke, EMP (vs only HVLI)
 	playerLurker:weaponTubeAllowMissle(2,"EMP")
 	playerLurker:weaponTubeAllowMissle(2,"Nuke")
-	playerLurker:setWeaponStorageMax("Homing",6)			--more (vs 3)
-	playerLurker:setWeaponStorage("Homing",   6)				
-	playerLurker:setWeaponStorageMax("EMP",   4)			--more (vs 0)
-	playerLurker:setWeaponStorage("EMP",      4)				
-	playerLurker:setWeaponStorageMax("Nuke",  2)			--more (vs 0)
-	playerLurker:setWeaponStorage("Nuke",     2)
+	playerLurker:setWeaponStorageMax("Homing",8)			--more (vs 3)
+	playerLurker:setWeaponStorage("Homing",   8)				
+	playerLurker:setWeaponStorageMax("EMP",   5)			--more (vs 0)
+	playerLurker:setWeaponStorage("EMP",      5)				
+	playerLurker:setWeaponStorageMax("Nuke",  3)			--more (vs 0)
+	playerLurker:setWeaponStorage("Nuke",     3)
 	playerLurker:setSystemCoolantRate("reactor",		1.1)	--less (vs 1.2)
 	playerLurker:setSystemCoolantRate("beamweapons",	1.1)	--less (vs 1.2)
 	playerLurker:setSystemCoolantRate("missilesystem",	1.7)	--more (vs 1.2)
