@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.24.2"
+	scenario_version = "5.24.3"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1635,6 +1635,9 @@ function setConstants()
 	kentar_commerce = false
 	kentar_commerce_assets = {}
 	kentar_commerce_timer = commerce_timer_interval
+	teresh_commerce = false
+	teresh_commerce_assets = {}
+	teresh_commerce_timer = commerce_timer_interval
 	lafrina_commerce = false
 	lafrina_commerce_assets = {}
 	lafrina_commerce_timer = commerce_timer_interval
@@ -3457,6 +3460,15 @@ function freighterCommerce()
 		end
 		addGMFunction(button_label,kentarFreighterCommerce)
 	end
+	if teresh_color then
+		button_label = "Teresh"
+		if teresh_commerce then
+			button_label = button_label .. " On"
+		else
+			button_label = button_label .. " Off"
+		end
+		addGMFunction(button_label,tereshFreighterCommerce)
+	end
 	if lafrina_color then
 		button_label = "Lafrina"
 		if lafrina_commerce then
@@ -3676,6 +3688,62 @@ function baskFreighterCommerce()
 		end
 		addGMMessage(bask_freighters_message)
 		bask_commerce = true
+	end
+	freighterCommerce()
+end
+function tereshFreighterCommerce()
+	if teresh_commerce then
+		removeTereshCommerce()
+	else
+		local teresh_freighters_message = "Teresh Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationTeresh)
+		regionCommerceDestination(ship,stationTeresh)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(teresh_commerce_assets,ship)
+		--Laden Lorry
+		ship = ladenLorry()
+		identifyFreighter(ship,stationTeresh)
+		regionCommerceDestination(ship,stationTeresh)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(teresh_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 75, type = "MT52 Hornet"},
+			{chance = 55, type = "MU52 Hornet"},
+			{chance = 34, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(teresh_commerce_assets,escort_ship)
+			end
+		end
+		addGMMessage(teresh_freighters_message)
+		teresh_commerce = true
 	end
 	freighterCommerce()
 end
@@ -4002,6 +4070,13 @@ function removeBaskCommerce()
 	end
 	bask_commerce_assets = {}
 	bask_commerce = false
+end
+function removeTereshCommerce()
+	for index, ship in ipairs(teresh_commerce_assets) do
+		ship:destroy()
+	end
+	teresh_commerce_assets = {}
+	teresh_commerce = false
 end
 function removeLafrinaCommerce()
 	for index, ship in ipairs(lafrina_commerce_assets) do
@@ -47484,6 +47559,13 @@ function updateInner(delta)
 		if kentar_commerce_timer < 0 then
 			updateCommerce(kentar_commerce_assets,stationKentar)
 			kentar_commerce_timer = commerce_timer_interval
+		end
+	end
+	if teresh_commerce then
+		teresh_commerce_timer = teresh_commerce_timer - delta
+		if teresh_commerce_timer < 0 then
+			updateCommerce(teresh_commerce_assets,stationTeresh)
+			teresh_commerce_timer = commerce_timer_interval
 		end
 	end
 	if lafrina_commerce then
