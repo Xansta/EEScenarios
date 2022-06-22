@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.24.3"
+	scenario_version = "5.25.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -43177,6 +43177,19 @@ function commsServiceJonque()
 	if comms_target.comms_data == nil then
 		comms_target.comms_data = {friendlyness = random(0.0, 100.0)}
 	end
+	if comms_target.comms_data.system_repair == nil then
+		comms_target.comms_data.system_repair = {
+        	["reactor"] =		{cost = math.random(11,19),	max = random(.7, .85),	avail = true},
+        	["beamweapons"] =	{cost = math.random(11,19),	max = random(.6, .85),	avail = true},
+        	["missilesystem"] =	{cost = math.random(11,19),	max = random(.6, .85),	avail = true},
+        	["maneuver"] =		{cost = math.random(11,19),	max = random(.7, .85),	avail = true},
+        	["impulse"] =		{cost = math.random(11,19),	max = random(.6, .85),	avail = true},
+        	["warp"] =			{cost = math.random(11,19),	max = random(.6, .85),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(11,19),	max = random(.6, .85),	avail = true},
+        	["frontshield"] =	{cost = math.random(11,19),	max = random(.7, .85),	avail = true},
+        	["rearshield"] =	{cost = math.random(11,19),	max = random(.7, .85),	avail = true},
+        }
+	end
 	comms_data = comms_target.comms_data
 	if comms_source:isFriendly(comms_target) then
 		return friendlyServiceJonqueComms(comms_data)
@@ -43269,6 +43282,42 @@ function neutralServiceJonqueComms(comms_data)
 end
 function commonServiceOptions()
 	addCommsReply("Service options",function()
+		local offer_primary_repair = false
+		for system, repair in pairs(comms_target.comms_data.system_repair) do
+			if comms_source:hasSystem(system) then
+				if comms_source:getSystemHealthMax(system) < repair.max then
+					offer_primary_repair = true
+				end
+			end
+		end
+		if offer_primary_repair then
+			addCommsReply("Repair primary ship system", function()
+				setCommsMessage("What system would you like repaired?")
+				for system, repair in pairs(comms_target.comms_data.system_repair) do
+					if comms_source:hasSystem(system) then
+						if comms_source:getSystemHealthMax(system) < repair.max then
+							local name = system
+							local pretty_name = pretty_system[name]
+							addCommsReply(string.format("Repair %s max health up to %.1f%% (%i Rep)",pretty_system[system],comms_target.comms_data.system_repair[system].max*100,comms_target.comms_data.system_repair[system].cost), function()
+								if comms_source:takeReputationPoints(comms_target.comms_data.system_repair[system].cost) then
+									if comms_target.player_system_repair_service == nil then
+										comms_target.player_system_repair_service = {}
+									end
+									if comms_target.player_system_repair_service[comms_source] == nil then
+										comms_target.player_system_repair_service[comms_source] = {}
+									end
+									comms_target.player_system_repair_service[comms_source][system] = true
+									setCommsMessage(string.format("We'll start working on your %s maximum health right away",pretty_system[system]))
+								else
+									setCommsMessage("Insufficient reputation")
+								end
+								addCommsReply("Back", commsServiceJonque)
+							end)
+						end
+					end
+				end
+			end)
+		end
 		local offer_repair = false
 		if not comms_source:getCanLaunchProbe() then
 			offer_repair = true
@@ -43286,7 +43335,7 @@ function commonServiceOptions()
 			offer_repair = true
 		end
 		if offer_repair then
-			addCommsReply("Repair ship system",function()
+			addCommsReply("Repair secondary ship system",function()
 				setCommsMessage(string.format("What system would you like repaired?"))
 				if not comms_source:getCanLaunchProbe() then
 					addCommsReply("Repair probe launch system",function()
@@ -43599,7 +43648,7 @@ function commonServiceOptions()
 				addCommsReply("Back", commsServiceJonque)
 			end)
 		end
-		if offer_hull_repair or offer_repair or offer_ordnance or offer_probes or offer_power then
+		if offer_hull_repair or offer_repair or offer_primary_repair or offer_ordnance or offer_probes or offer_power then
 			setCommsMessage("How can I help you get your ship in good running order?")
 		else
 			setCommsMessage("There's nothing on your ship that I can help you fix. Sorry.")
@@ -48051,7 +48100,46 @@ function updatePlayerDamageControl(p)
 end
 function updatePlayerSystemHealthRepair(delta,p)
 	local docked_station = p:getDockedWith()
+	local system_repair_list = {}
 	if docked_station == nil then
+		local nearby_objects = p:getObjectsInRange(5000)
+		for i,obj in ipairs(nearby_objects) do
+			if obj.typeName == "CpuShip" then
+				if obj:getTypeName() == "Service Jonque" then
+					if obj.comms_data == nil then
+						return
+					else
+						if obj.comms_data.system_repair == nil then
+							return
+						end
+					end
+					for system, repair in pairs(obj.comms_data.system_repair) do
+						if p:hasSystem(system) then
+							local current_system_health_max = p:getSystemHealthMax(system)
+							if  current_system_health_max < 1 then
+								if current_system_health_max < repair.max then
+									if repair.cost > 0 then
+										if obj.player_system_repair_service ~= nil then
+											if obj.player_system_repair_service[p] ~= nil then
+												if obj.player_system_repair_service[p][system] ~= nil then
+													table.insert(system_repair_list,{system=system,current_max=current_system_health_max,max=repair.max})
+												end
+											end
+										end
+									else
+										table.insert(system_repair_list,{system=system,current_max=current_system_health_max,max=repair.max})
+									end
+								end
+							end
+						end
+					end
+					if #system_repair_list > 0 then
+						selected_system = system_repair_list[math.random(1,#system_repair_list)]
+						p:setSystemHealthMax(selected_system.system,math.min((selected_system.current_max + (delta/60)),selected_system.max))
+					end
+				end
+			end
+		end
 		return
 	else
 		if docked_station:isValid() then
@@ -48067,7 +48155,7 @@ function updatePlayerSystemHealthRepair(delta,p)
 		end
 	end
 --	print("player:",p:getCallSign(),"station docked:",docked_station:getCallSign())
-	local system_repair_list = {}
+	system_repair_list = {}
 	for system, repair in pairs(docked_station.comms_data.system_repair) do
 		if repair.avail then
 			if p:hasSystem(system) then
