@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.0"
+	scenario_version = "5.25.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1062,12 +1062,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Magnum")		--J
+	makePlayerShipActive("Hearken")		--J
 	makePlayerShipActive("Slingshot")	--J
-	makePlayerShipActive("Lancelot")	--J
+	makePlayerShipActive("Bling")		--J
 	makePlayerShipActive("Thelonius")	--W
-	makePlayerShipActive("Rip")			--W
-	makePlayerShipActive("Tango")		--W
+	makePlayerShipActive("Quill")		--W
+	makePlayerShipActive("Flipper")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -6527,9 +6527,15 @@ function createIcarusColor()
 		elseif i == 1 then
 			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
 			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 2 then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
 		elseif i == 5 then
 			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 			dp5Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 6 then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -7760,9 +7766,10 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
---	local pistilZone = squareZone(24834, 20416, "Pistil 8 G6")
---	pistilZone:setColor(0,128,0):setLabel("P")
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 8"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local pistilZone = squareZone(24834, 20416, "Pistil 9 G6")
+	pistilZone:setColor(0,128,0):setLabel("P")
+	--[[
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 9"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7814,6 +7821,7 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
+	--]]
 	--Proktan
 	stationProktan = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Proktan"):setPosition(106363, 89304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationProktan:setShortRangeRadarRange(12000)
@@ -20402,8 +20410,8 @@ function createPlayerShipBling()
 	playerGadfly:setTypeName("Gadfly")
 	playerGadfly:setHullMax(100)						--stronger (vs 60)
 	playerGadfly:setHull(100)
-	playerGadfly:setShieldsMax(80,80)					--stronger shields (vs 40)
-	playerGadfly:setShields(80,80)
+	playerGadfly:setShieldsMax(90,50)					--stronger shields (vs 40)
+	playerGadfly:setShields(90,50)
 	playerGadfly:setJumpDrive(true)						--jump drive (vs none)
 	playerGadfly.max_jump_range = 15000					--shorter than typical (vs 50)
 	playerGadfly.min_jump_range = 2000					--shorter than typical (vs 5)
@@ -20425,12 +20433,12 @@ function createPlayerShipBling()
 	playerGadfly:setWeaponTubeExclusiveFor(2,"Homing")
 	playerGadfly:setWeaponStorageMax("Homing", 4)		--more (vs 0)
 	playerGadfly:setWeaponStorage("Homing", 4)				
-	playerGadfly:setWeaponStorageMax("Nuke", 1)			--more (vs 0)
-	playerGadfly:setWeaponStorage("Nuke", 1)				
-	playerGadfly:setWeaponStorageMax("EMP", 1)			--more (vs 0)
-	playerGadfly:setWeaponStorage("EMP", 1)				
-	playerGadfly:setWeaponStorageMax("HVLI", 8)			--more (vs 0)
-	playerGadfly:setWeaponStorage("HVLI", 8)				
+	playerGadfly:setWeaponStorageMax("Nuke", 2)			--more (vs 0)
+	playerGadfly:setWeaponStorage("Nuke", 2)				
+	playerGadfly:setWeaponStorageMax("EMP", 2)			--more (vs 0)
+	playerGadfly:setWeaponStorage("EMP", 2)				
+	playerGadfly:setWeaponStorageMax("HVLI", 6)			--more (vs 0)
+	playerGadfly:setWeaponStorage("HVLI", 6)				
 	playerGadfly:onTakingDamage(playerShipDamage)
 	playerGadfly:addReputationPoints(50)
 	return playerGadfly
@@ -20907,8 +20915,8 @@ function createPlayerShipFlipper()
 	playerFlipper:setWeaponStorage("Nuke",      2)				
 	playerFlipper:setWeaponStorageMax("EMP",    5)		--less (vs 10)
 	playerFlipper:setWeaponStorage("EMP",       5)				
-	playerFlipper:setWeaponStorageMax("Mine",   5)		--less (vs 12)
-	playerFlipper:setWeaponStorage("Mine",      5)				
+	playerFlipper:setWeaponStorageMax("Mine",   8)		--less (vs 12)
+	playerFlipper:setWeaponStorage("Mine",      8)				
 	playerFlipper:setWeaponStorageMax("HVLI",  16)		--more (vs 0)
 	playerFlipper:setWeaponStorage("HVLI",     16)
 	playerFlipper.smallHomingOnly = true
@@ -21182,13 +21190,15 @@ end
 function createPlayerShipHearken()
 	playerHearken = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Hearken")
 	playerHearken:setTypeName("Redhook")
-	playerHearken:setRepairCrewCount(4)						--more repair crew (vs 2)
+	playerHearken:setRepairCrewCount(5)						--more repair crew (vs 2)
 	playerHearken.max_jump_range = 30000					--shorter than typical (vs 50)
 	playerHearken.min_jump_range = 3000						--shorter than typical (vs 5)
 	playerHearken:setJumpDriveRange(playerHearken.min_jump_range,playerHearken.max_jump_range)
 	playerHearken:setJumpDriveCharge(playerHearken.max_jump_range)
-	playerHearken:setBeamWeapon(0, 10, 0, 1000.0, 4.0, 4)	--one beam (vs 0)
-	playerHearken:setBeamWeaponTurret(0, 80, 0, .5)			--slow turret 
+--                 				  Arc,Dir,	Range, CycleTime, Dmg
+	playerHearken:setBeamWeapon(0, 10,	0,	 1000,		 4.0, 4.5)	--one beam (vs 0)
+--										Arc,  Dir, Rotate speed
+	playerHearken:setBeamWeaponTurret(0, 80,	0, .5)				--slow turret 
 	playerHearken:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
 	playerHearken:setWeaponTubeDirection(6, 180)			--mine tube points straight back
 	playerHearken:setWeaponTubeExclusiveFor(0,"HVLI")
@@ -21202,8 +21212,8 @@ function createPlayerShipHearken()
 	playerHearken:weaponTubeAllowMissle(3,"Homing")
 	playerHearken:weaponTubeAllowMissle(1,"EMP")
 	playerHearken:weaponTubeAllowMissle(4,"EMP")
-	playerHearken:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerHearken:setWeaponStorage("Mine", 4)				
+	playerHearken:setWeaponStorageMax("Mine",6)				--fewer mines (vs 8)
+	playerHearken:setWeaponStorage("Mine", 6)				
 	playerHearken:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
 	playerHearken:setWeaponStorage("EMP", 4)					
 	playerHearken:setWeaponStorageMax("Nuke",0)				--fewer Nukes (vs 6)
