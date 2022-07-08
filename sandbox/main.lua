@@ -336,7 +336,11 @@ function setConstants()
 		["Ryder"] =				{strength = 41, adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	hop_angle = 90,	hop_range = 1180,	create = stockTemplate},
 		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7500,	hop_angle = 0,	hop_range = 980,	create = predator},
 		["Predator V2"] =		{strength = 43,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8500,	hop_angle = 0,	hop_range = 980,	create = predatorV2},
-		["Diva"] =				{strength = 44,	adder = false,	missiler = true,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 2500,	create = diva},
+		
+		["Diva"] =				{strength = 44,	adder = false,	missiler = true,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = true,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 2500,	create = diva},
+		["Tsarina"] =			{strength = 44,	adder = false,	missiler = true,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = true,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 2500,	create = tsarina},
+		["Brood Mother"] =		{strength = 44,	adder = false,	missiler = true,	beamer = false,	frigate = false, 	chaser = false,	fighter = false,	drone = false,	unusual = true,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 2500,	create = broodMother},
+		
 		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = stockTemplate},
 		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 15,	hop_range = 2500,	create = hurricane},
 		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
@@ -978,8 +982,13 @@ function setConstants()
 		["XR-Lindworm"]			= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 7.5,	},
 
 		-- not sure the strenghts of Ktlitan Breaker and Ktlitan Feeder... they seem too high
-		["Ktlitan Breaker"]		= { strength = 25,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
-		["Ktlitan Feeder"]		= { strength = 28,	cargo = 0,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		["Ktlitan Breaker"]		= { strength = 15,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		["Ktlitan Feeder"]		= { strength = 18,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		
+		-- TODO: decide on values here as well.
+		-- Not sure why Queen entry has to be here...
+		["Ktlitan Queen"]		= { strength = 28,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
+		["Ktlitan Brood Mother"]		= { strength = 28,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 	}	
 	-- this table has ended up not in alphabetical order
 	-- likewise the creation functions are no longer in alphabetical order
@@ -1053,6 +1062,7 @@ function setConstants()
 	addPlayerShip("Swoop",		"Roc",			createPlayerShipRoc			,"W")
 	addPlayerShip("Szpieg",		"Ktlitan Breaker",	createPlayerShipSzpieg	,"W")
 	addPlayerShip("Sztylet",	"Ktlitan Feeder",	createPlayerShipSztylet	,"W")
+	addPlayerShip("Katarzyna",	"Ktlitan Brood Mother",	createPlayerShipKatarzyna	,"W")
 	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,"W")
 	addPlayerShip("Terror",		"Phobos T2.2",	createPlayerShipTerror		,"J")
 	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,"W")
@@ -1068,6 +1078,9 @@ function setConstants()
 	makePlayerShipActive("Thelonius")	--W
 	makePlayerShipActive("Quill")		--W
 	makePlayerShipActive("Flipper")		--W
+	makePlayerShipActive("Szpieg")		--W
+	makePlayerShipActive("Sztylet")		--W
+	makePlayerShipActive("Katarzyna")		--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1182,6 +1195,8 @@ function setConstants()
 		["Dash"] =							200,
 		["Defense platform"] =				800,
 		["Diva"] =							350,
+		["Tsarina"] =						350,
+		["Brood Mother"] =					350,
 		["Dread No More"] =					400,
 		["Dreadnought"] =					400,
 		["Elara P2"] =						200,
@@ -22984,6 +22999,76 @@ function createPlayerShipSztylet()
 	playerSztylet:addReputationPoints(50)
 	return playerSztylet
 end
+function createPlayerShipKatarzyna()
+	playerKatarzyna = PlayerSpaceship():setTemplate("Ktlitan Queen"):setFaction("Human Navy"):setCallSign("Katarzyna"):
+		setBeamWeapon(0, 25, -15, 1000.0, 6.0, 8):
+		setBeamWeapon(1, 15, -45, 1500.0, 6.0, 4):
+		setBeamWeapon(3, 25, 15, 1000.0, 6.0, 8):
+		setBeamWeapon(4, 15, 45, 1500.0, 6.0, 4):
+		setBeamWeapon(5, 15, 80, 1300.0, 6.0, 4):
+		setBeamWeapon(6, 15, -80, 1300.0, 6.0, 4):
+		setBeamWeaponTurret(5, 45, 80, 3000.0, 6.0, 3):
+		setBeamWeaponTurret(6, 45, -80, 3000.0, 6.0, 3):
+		setWeaponTubeCount(6):
+		setTubeSize(0, "large"):
+		setTubeSize(1, "large"):
+		setTubeSize(2, "medium"):
+		setTubeSize(3, "medium"):
+		setTubeSize(4, "medium"):
+		setTubeSize(5, "medium"):
+		setWeaponTubeDirection(0, 80):
+		setWeaponTubeDirection(1, -80):
+		setWeaponTubeDirection(2, 100):
+		setWeaponTubeDirection(3, -100):
+		setWeaponTubeDirection(4, 190):
+		setWeaponTubeDirection(5, -190):
+		setWeaponStorage("Nuke", 8):
+		setWeaponStorage("EMP", 8):
+		setWeaponStorage("Mine", 4):
+		setWeaponStorage("Homing", 15):
+		setWeaponStorage("HVLI", 30):
+		setWeaponStorageMax("Nuke", 8):
+		setWeaponStorageMax("EMP", 8):
+		setWeaponStorageMax("Mine", 4):
+		setWeaponStorageMax("Homing", 15):
+		setWeaponStorageMax("HVLI", 30):
+		setWeaponTubeExclusiveFor(0,"EMP"):
+		weaponTubeAllowMissle(0, "Nuke"):
+		setWeaponTubeExclusiveFor(1, "EMP"):
+		weaponTubeAllowMissle(1, "Nuke"):
+		setWeaponTubeExclusiveFor(2, "HVLI"):
+		weaponTubeAllowMissle(2, "Homing"):
+		setWeaponTubeExclusiveFor(3, "HVLI"):
+		weaponTubeAllowMissle(3,"Homing"):
+		setWeaponTubeExclusiveFor(4,"Mine"):
+		setWeaponTubeExclusiveFor(5,"Mine"):
+		setTubeLoadTime(0, 10):
+		setTubeLoadTime(1, 10):
+		setTubeLoadTime(2, 10):
+		setTubeLoadTime(3, 10):
+		setTubeLoadTime(4, 20):
+		setTubeLoadTime(5, 20):
+		setHull(300):
+		setShields(100, 50, 50):
+		setWarpDrive(true):
+		setCombatManeuver(150,150):
+		setMaxScanProbeCount(4):
+		setScanProbeCount(4):
+		setImpulseMaxSpeed(40.0):
+		setRotationMaxSpeed(8):
+		setHull(318):
+		setHullMax(318):
+		setShields(95, 153):
+		setShieldsMax(95, 153):
+		setEnergy(1388):
+		setMaxEnergy(1388):
+		setTypeName("Ktlitan Brood Mother"):
+		setDescriptions("Special type of Ktlitan warship", "Ktlitan Brood Mother is a subtype of Ktlitan Queen.")
+	playerKatarzyna:addReputationPoints(50)
+	playerKatarzyna:onTakingDamage(playerShipDamage)
+	return playerKatarzyna
+end
+
 
 --	Specialized ships spawned by a carrier
 function createPlayerShipFowl()
@@ -29344,6 +29429,88 @@ function tsarina(enemyFaction)
 			"Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable. " ..
 			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
 			"Once the leading Tsarina is destroyed, the formation is broken.",
+			nil,
+			nil,
+			"sci_fi_alien_ship_8"
+		)
+	end
+
+	return ship
+end
+function broodMother(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
+		setBeamWeapon(0, 25, -15, 1000.0, 6.0, 8):
+		setBeamWeapon(1, 15, -45, 1500.0, 6.0, 4):
+		setBeamWeapon(3, 25, 15, 1000.0, 6.0, 8):
+		setBeamWeapon(4, 15, 45, 1500.0, 6.0, 4):
+		setBeamWeapon(5, 15, 80, 1300.0, 6.0, 4):
+		setBeamWeapon(6, 15, -80, 1300.0, 6.0, 4):
+		setBeamWeaponTurret(5, 45, 80, 3000.0, 6.0, 3):
+		setBeamWeaponTurret(6, 45, -80, 3000.0, 6.0, 3):
+		setWeaponTubeCount(6):
+		setTubeSize(0, "large"):
+		setTubeSize(1, "large"):
+		setTubeSize(2, "medium"):
+		setTubeSize(3, "medium"):
+		setTubeSize(4, "medium"):
+		setTubeSize(5, "medium"):
+		setWeaponTubeDirection(0, 80):
+		setWeaponTubeDirection(1, -80):
+		setWeaponTubeDirection(2, 100):
+		setWeaponTubeDirection(3, -100):
+		setWeaponTubeDirection(4, 190):
+		setWeaponTubeDirection(5, -190):
+		setWeaponStorage("Nuke", 8):
+		setWeaponStorage("EMP", 8):
+		setWeaponStorage("Mine", 4):
+		setWeaponStorage("Homing", 15):
+		setWeaponStorage("HVLI", 30):
+		setWeaponStorageMax("Nuke", 8):
+		setWeaponStorageMax("EMP", 8):
+		setWeaponStorageMax("Mine", 4):
+		setWeaponStorageMax("Homing", 15):
+		setWeaponStorageMax("HVLI", 30):
+		setWeaponTubeExclusiveFor(0,"EMP"):
+		weaponTubeAllowMissle(0, "Nuke"):
+		setWeaponTubeExclusiveFor(1, "EMP"):
+		weaponTubeAllowMissle(1, "Nuke"):
+		setWeaponTubeExclusiveFor(2, "HVLI"):
+		weaponTubeAllowMissle(2, "Homing"):
+		setWeaponTubeExclusiveFor(3, "HVLI"):
+		weaponTubeAllowMissle(3,"Homing"):
+		setWeaponTubeExclusiveFor(4,"Mine"):
+		setWeaponTubeExclusiveFor(5,"Mine"):
+		setTubeLoadTime(0, 10):
+		setTubeLoadTime(1, 10):
+		setTubeLoadTime(2, 10):
+		setTubeLoadTime(3, 10):
+		setTubeLoadTime(4, 20):
+		setTubeLoadTime(5, 20):
+		setHull(318):
+		setHullMax(318):
+		setShields(95, 153):
+		setShieldsMax(95, 153):
+		setEnergy(1388):
+		setMaxEnergy(1388):
+		setWarpDrive(true):
+		setCombatManeuver(150,150):
+		setImpulseMaxSpeed(40.0):
+		setRotationMaxSpeed(8):
+		setTypeName("Ktlitan Brood Mother"):
+		setDescriptions("Special type of Ktlitan warship", "Ktlitan Brood Mother is a subtype of Ktlitan Queen."):
+		setAI("default")
+	ship:onTakingDamage(npcShipDamage)
+
+	local broodMotherDb = queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother")
+	if broodMotherDb == nil then
+		local parentDb = queryScienceDatabase("Ships", "No class")
+		parentDb:addEntry("Ktlitan Brood Mother")
+		local broodMotherDb = queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother")
+		addShipToDatabase(
+			queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother"),
+			broodMotherDb,
+			ship,
+			"Ktlitan Brood Mother is a subtype of Ktlitan Queen.",
 			nil,
 			nil,
 			"sci_fi_alien_ship_8"
