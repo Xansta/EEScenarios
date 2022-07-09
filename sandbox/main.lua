@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.1"
+	scenario_version = "5.25.2"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -343,9 +343,11 @@ function setConstants()
 		
 		["Ktlitan Breaker"] =	{strength = 45,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = stockTemplate},
 		["Hurricane"] =			{strength = 46,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 15,	hop_range = 2500,	create = hurricane},
+		["Beast Breaker"] =		{strength = 47,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = beastBreaker},
 		["Ktlitan Feeder"] =	{strength = 48,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
 		["Atlantis X23"] =		{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = stockTemplate},
 		["Ktlitan Destroyer"] =	{strength = 50,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Foul Feeder"] =		{strength = 52,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = foulFeeder},
 		["K2 Breaker"] =		{strength = 55,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = k2breaker},
 		["Atlantis Y42"] =		{strength = 60,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = atlantisY42},
 		["Blockade Runner"] =	{strength = 63,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
@@ -1078,9 +1080,9 @@ function setConstants()
 	makePlayerShipActive("Thelonius")	--W
 	makePlayerShipActive("Quill")		--W
 	makePlayerShipActive("Flipper")		--W
-	makePlayerShipActive("Szpieg")		--W
-	makePlayerShipActive("Sztylet")		--W
-	makePlayerShipActive("Katarzyna")		--W
+--	makePlayerShipActive("Szpieg")		--W
+--	makePlayerShipActive("Sztylet")		--W
+--	makePlayerShipActive("Katarzyna")	--W
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1182,6 +1184,7 @@ function setConstants()
 		["Atlantis X23"] =					400,
 		["Atlantis Y42"] =					400,
 		["Battlestation"] =					2000,
+		["Beast Breaker"] =					300,
 		["Blockade Runner"] =				400,
 		["Blade"] =							300,
 		["Broom"] =							100,
@@ -1224,6 +1227,7 @@ function setConstants()
 		["Flavia"] =						200,
 		["Flavia Falcon"] =					200,
 		["Fortress"] =						2000,
+		["Foul Feeder"] =					300,
 		["Fuel Freighter 1"] =				600,
 		["Fuel Freighter 2"] =				600,
 		["Fuel Freighter 3"] =				600,
@@ -23003,12 +23007,12 @@ function createPlayerShipKatarzyna()
 	playerKatarzyna = PlayerSpaceship():setTemplate("Ktlitan Queen"):setFaction("Human Navy"):setCallSign("Katarzyna"):
 		setBeamWeapon(0, 25, -15, 1000.0, 6.0, 8):
 		setBeamWeapon(1, 15, -45, 1500.0, 6.0, 4):
-		setBeamWeapon(3, 25, 15, 1000.0, 6.0, 8):
-		setBeamWeapon(4, 15, 45, 1500.0, 6.0, 4):
-		setBeamWeapon(5, 15, 80, 1300.0, 6.0, 4):
-		setBeamWeapon(6, 15, -80, 1300.0, 6.0, 4):
-		setBeamWeaponTurret(5, 45, 80, 3000.0, 6.0, 3):
-		setBeamWeaponTurret(6, 45, -80, 3000.0, 6.0, 3):
+		setBeamWeapon(2, 25, 15, 1000.0, 6.0, 8):
+		setBeamWeapon(3, 15, 45, 1500.0, 6.0, 4):
+		setBeamWeapon(4, 15, 80, 1300.0, 6.0, 4):
+		setBeamWeapon(5, 15, -80, 1300.0, 6.0, 4):
+		setBeamWeaponTurret(4, 45, 80, 3000.0, 6.0, 3):
+		setBeamWeaponTurret(5, 45, -80, 3000.0, 6.0, 3):
 		setWeaponTubeCount(6):
 		setTubeSize(0, "large"):
 		setTubeSize(1, "large"):
@@ -23049,7 +23053,6 @@ function createPlayerShipKatarzyna()
 		setTubeLoadTime(4, 20):
 		setTubeLoadTime(5, 20):
 		setHull(300):
-		setShields(100, 50, 50):
 		setWarpDrive(true):
 		setCombatManeuver(150,150):
 		setMaxScanProbeCount(4):
@@ -29437,16 +29440,108 @@ function tsarina(enemyFaction)
 
 	return ship
 end
+function beastBreaker(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Beast Breaker"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Beast Breaker"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Beast Breaker")
+	ship:setShieldsMax(80,80)					--shields (vs none)
+	ship:setShields(80,80)
+	ship:setWeaponTubeCount(2)					--more (vs 1)
+	ship:setWeaponTubeDirection(1,180)
+	ship:setWeaponStorageMax("Homing",	5)		--more (vs none)
+	ship:setWeaponStorageMax("Mine",	3)		--more (vs none)
+	ship:setWeaponStorageMax("EMP",		3)		--more (vs none)
+	ship:setWeaponStorageMax("Nuke",	2)		--more (vs none)
+	ship:setWeaponStorage("Homing",		5)
+	ship:setWeaponStorage("Mine",		3)
+	ship:setWeaponStorage("EMP",		3)
+	ship:setWeaponStorage("Nuke",		2)
+	local beast_breaker_db = queryScienceDatabase("Ships","No class","Beast Breaker")
+	if beast_breaker_db == nil then
+		local breaker_db = queryScienceDatabase("Ships","No class")
+		breaker_db:addEntry("Beast Breaker")
+		beast_breaker_db = queryScienceDatabase("Ships","No Class","Beast Breaker")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No class","Ktlitan Breaker"),	--base ship database entry
+			beast_breaker_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Enhanced Breaker with shields and more missiles and an extra missile tube",
+			{
+				{key = "Tube 0", value = "13 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 180", value = "13 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil,		--jump range
+			"sci_fi_alien_ship_2"
+		)
+	end
+	return ship
+end
+function foulFeeder(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Feeder"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Foul Feeder"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Foul Feeder"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Foul Feeder")
+	ship:setShieldsMax(80,40)					--shields (vs none)
+	ship:setShields(80,40)
+	ship:setWeaponTubeCount(4)					--more (vs none)
+	ship:setWeaponTubeDirection(1,90)
+	ship:setWeaponTubeDirection(2,-90)
+	ship:setWeaponTubeDirection(3,180)
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")
+	ship:setWeaponTubeExclusiveFor(2,"HVLI")
+	ship:setWeaponTubeExclusiveFor(3,"HVLI")
+	ship:weaponTubeAllowMissle(0,"Homing")
+	ship:weaponTubeAllowMissle(1,"Homing")
+	ship:weaponTubeAllowMissle(2,"Homing")
+	ship:weaponTubeAllowMissle(3,"Homing")
+	ship:setWeaponStorageMax("HVLI", 	6)		--more (vs none)
+	ship:setWeaponStorageMax("Homing", 6)		--more (vs none)
+	ship:setWeaponStorage("HVLI",		6)
+	ship:setWeaponStorage("Homing",	6)
+	ship:setTubeLoadTime(0, 12)
+	ship:setTubeLoadTime(1, 8)
+	ship:setTubeLoadTime(2, 8)
+	ship:setTubeLoadTime(3, 12)
+	local foul_feeder_db = queryScienceDatabase("Ships","No class","Foul Feeder")
+	if foul_feeder_db == nil then
+		local feeder_db = queryScienceDatabase("Ships","No class")
+		feeder_db:addEntry("Foul Feeder")
+		foul_feeder_db = queryScienceDatabase("Ships","No Class","Foul Feeder")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No class","Ktlitan Feeder"),	--base ship database entry
+			foul_feeder_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Enhanced Feeder with shields and tubes",
+			{
+				{key = "Tube 0", value = "12 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube -90", value = "8 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube 90", value = "8 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 180", value = "12 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil,		--jump range
+			"sci_fi_alien_ship_5"
+		)
+	end
+	return ship
+end
 function broodMother(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
 		setBeamWeapon(0, 25, -15, 1000.0, 6.0, 8):
 		setBeamWeapon(1, 15, -45, 1500.0, 6.0, 4):
-		setBeamWeapon(3, 25, 15, 1000.0, 6.0, 8):
-		setBeamWeapon(4, 15, 45, 1500.0, 6.0, 4):
-		setBeamWeapon(5, 15, 80, 1300.0, 6.0, 4):
-		setBeamWeapon(6, 15, -80, 1300.0, 6.0, 4):
-		setBeamWeaponTurret(5, 45, 80, 3000.0, 6.0, 3):
-		setBeamWeaponTurret(6, 45, -80, 3000.0, 6.0, 3):
+		setBeamWeapon(2, 25, 15, 1000.0, 6.0, 8):
+		setBeamWeapon(3, 15, 45, 1500.0, 6.0, 4):
+		setBeamWeapon(4, 15, 80, 1300.0, 6.0, 4):
+		setBeamWeapon(5, 15, -80, 1300.0, 6.0, 4):
+		setBeamWeaponTurret(4, 45, 80, 3000.0, 6.0, 3):
+		setBeamWeaponTurret(5, 45, -80, 3000.0, 6.0, 3):
 		setWeaponTubeCount(6):
 		setTubeSize(0, "large"):
 		setTubeSize(1, "large"):
@@ -29516,7 +29611,6 @@ function broodMother(enemyFaction)
 			"sci_fi_alien_ship_8"
 		)
 	end
-
 	return ship
 end
 function sweeper(enemyFaction)
