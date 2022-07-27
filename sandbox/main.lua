@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.3"
+	scenario_version = "5.25.6"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1074,12 +1074,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Hearken")		--J
-	makePlayerShipActive("Slingshot")	--J
-	makePlayerShipActive("Bling")		--J
-	makePlayerShipActive("Thelonius")	--W
-	makePlayerShipActive("Quill")		--W
-	makePlayerShipActive("Flipper")		--W
+	makePlayerShipActive("Enola")		--J
+	makePlayerShipActive("Arwine")		--J
+	makePlayerShipActive("Manxman")		--J
+	makePlayerShipActive("Hummer")		--W
+	makePlayerShipActive("Spike")		--W
+	makePlayerShipActive("Swoop")		--W
 --	makePlayerShipActive("Szpieg")		--W
 --	makePlayerShipActive("Sztylet")		--W
 --	makePlayerShipActive("Katarzyna")	--W
@@ -1688,7 +1688,7 @@ function createSkeletonUniverse()
 	skeleton_stations = {}
 	station_names = {}
 	--Icarus
-	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus 2"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus 3"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationIcarus:setShortRangeRadarRange(20000)
     stationIcarus.comms_data = {
     	friendlyness = 75,
@@ -1722,7 +1722,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+--		mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
 		sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -1783,7 +1783,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        mine_probes = {name = "LDSM 2.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -1887,7 +1887,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
 --		sensor_boost = {value = 5000, cost = 0},
-        mine_probes = {name = "LDSM 3.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+--		mine_probes = {name = "LDSM 3.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -1944,7 +1944,7 @@ function createSkeletonUniverse()
         tube_slow_down_repair =	true,
         sensor_boost = {value = 5000, cost = 0},
 		sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
-        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+--        mine_probes = {name = "LDSM 1.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -2006,7 +2006,7 @@ function createSkeletonUniverse()
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
         sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
-        mine_probes = {name = "LDSM 1.3", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
+--        mine_probes = {name = "LDSM 1.3", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -2068,7 +2068,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
-        mine_probes = {name = "LDSM 2.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	food = 		{quantity = 10,		cost = 1},
@@ -6543,15 +6543,6 @@ function createIcarusColor()
 		if i == 4 then
 			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
 			dp4Zone:setColor(0,128,0):setLabel("4")
-		elseif i == 1 then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
-			dp1Zone:setColor(0,128,0):setLabel("1")
-		elseif i == 3 then
-			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
-			dp3Zone:setColor(0,128,0):setLabel("3")
-		elseif i == 2 then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
 		elseif i == 5 then
 			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 			dp5Zone:setColor(0,128,0):setLabel("5")
@@ -6772,9 +6763,8 @@ function createIcarusStations()
 	station_names[stationAmaranth:getCallSign()] = {stationAmaranth:getSectorName(), stationAmaranth}
 	table.insert(stations,stationAmaranth)
 	--Aquarius F4m9
-	local aquariusZone = squareZone(-4295, 14159, "Aquarius X F4.9")
-	aquariusZone:setColor(51,153,255):setLabel("A")
-	--[[
+--	local aquariusZone = squareZone(-4295, 14159, "Aquarius X F4.9")
+--	aquariusZone:setColor(51,153,255):setLabel("A")
     stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius X"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -6830,7 +6820,6 @@ function createIcarusStations()
 	if random(1,100) <= 37 then stationAquarius:setSharesEnergyWithDocked(false) end
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
-	--]]
 	--Bikolipox
 	stationBikolipox = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Bikolipox"):setPosition(76466, 294896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBikolipox.comms_data = {
@@ -6862,7 +6851,7 @@ function createIcarusStations()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 5},
-        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -6933,7 +6922,7 @@ function createIcarusStations()
         remote_warp_jammer = {name = "Mire", cost = math.random(9,20), quantity = math.random(1,5), speed = 2000, warp_jam_range = 15000},
         sensor_boost = {value = 10000, cost = 5},
         sensor_boost_probes = {name = "Scope", cost = math.random(59,75), quantity = math.random(1,3), speed = 1000, boost = 30, range = 50},
-        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
         goods = {	gold = 	{quantity = math.random(1,10),	cost = math.random(60,70)},	
@@ -7047,7 +7036,7 @@ function createIcarusStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
-        mine_probes = {name = "LDSM 3.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 3.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -7090,7 +7079,7 @@ function createIcarusStations()
         probe_launch_repair =	true,
         scan_repair =			true,
         fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
-        mine_probes = {name = "LDSM 2.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         tube_slow_down_repair = random(1,100)<30,
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -7108,9 +7097,8 @@ function createIcarusStations()
 	station_names[stationClew:getCallSign()] = {stationClew:getSectorName(), stationClew}
 	table.insert(stations,stationClew)
 	--Elysium F4m2.5 
-	local elysiumZone = squareZone(-7504, 1384, "Elysium 7 F4.3")
-	elysiumZone:setColor(51,153,255):setLabel("E")
-	--[[
+--	local elysiumZone = squareZone(-7504, 1384, "Elysium 7 F4.3")
+--	elysiumZone:setColor(51,153,255):setLabel("E")
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 7"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7159,7 +7147,6 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
-	--]]
 	--Endymion
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationEndymion.comms_data = {
@@ -7183,7 +7170,7 @@ function createIcarusStations()
         scan_repair =			true,
         combat_maneuver_repair=	true,
         tube_slow_down_repair = random(1,100)<30,
-        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
         goods = {	warp =		{quantity = math.random(2,4),	cost = math.random(80,120)},
@@ -7577,10 +7564,10 @@ function createIcarusStations()
 	station_names[stationMeanTime:getCallSign()] = {stationMeanTime:getSectorName(), stationMeanTime}
 	table.insert(stations,stationMeanTime)
 	--Mermaid
-	local mermaidZone = squareZone(28889, -4417, "Mermaid 9 E6")
+	local mermaidZone = squareZone(28889, -4417, "Mermaid 10 E6")
 	mermaidZone:setColor(51,153,255):setLabel("9")
 	--[[
-    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 9"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 10"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -7796,9 +7783,8 @@ function createIcarusStations()
 	table.insert(stations,stationNerva)
 	--]]
 	--Pistil
-	local pistilZone = squareZone(24834, 20416, "Pistil 9 G6")
-	pistilZone:setColor(0,128,0):setLabel("P")
-	--[[
+--	local pistilZone = squareZone(24834, 20416, "Pistil 9 G6")
+--	pistilZone:setColor(0,128,0):setLabel("P")
     stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 9"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -7851,7 +7837,6 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
-	--]]
 	--Proktan
 	stationProktan = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Proktan"):setPosition(106363, 89304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationProktan:setShortRangeRadarRange(12000)
@@ -8450,9 +8435,8 @@ function createIcarusStations()
 	station_names[stationTron:getCallSign()] = {stationTron:getSectorName(), stationTron}
 	table.insert(stations,stationTron)
 	--Wookie F4m5 
-	local wookieZone = squareZone(-11280, 7425, "Wookied F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9, Wookied means 10
-	wookieZone:setColor(51,153,255):setLabel("W")
-	--[[
+--	local wookieZone = squareZone(-11280, 7425, "Wookied F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9, Wookied means 10
+--	wookieZone:setColor(51,153,255):setLabel("W")
     stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookied"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8498,7 +8482,6 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
-	--]]
 	return stations
 end
 function createIcarusToRiptideWormholeArea()
@@ -15423,7 +15406,7 @@ function createBaskStations()
         probe_launch_repair =	random(1,100)<30,
         scan_repair =			random(1,100)<30,
         self_destruct_repair =	random(1,100)<30,
-        mine_probes = {name = "LDSM 3.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	autodoc =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
@@ -15472,7 +15455,7 @@ function createBaskStations()
         probe_launch_repair =	random(1,100)<30,
         scan_repair =			random(1,100)<30,
         self_destruct_repair =	random(1,100)<30,
-        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+--        mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
         goods = {	dilithium = {quantity = math.random(5,9),	cost = math.random(50,80)}, 
@@ -15520,7 +15503,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
         },
         sensor_boost_probes = selected_sensor_probe,
-        mine_probes = {name = "LDSM 1.3", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.3", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<20,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<36,
@@ -15632,7 +15615,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<75},
         },
         fast_probes = selected_fast_probe,
-        mine_probes = {name = "LDSM 3.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 3.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<50,
         tube_slow_down_repair = random(1,100)<64,
         jump_overcharge =		random(1,100)<26,
@@ -15689,7 +15672,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         sensor_boost_probes = selected_sensor_probe,
-        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<66,
@@ -15744,7 +15727,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         remote_warp_jammer = selected_remote_warp_jammer,
-        mine_probes = {name = "LDSM 1.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         tube_slow_down_repair = random(1,100)<34,
         jump_overcharge =		random(1,100)<66,
@@ -15852,7 +15835,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         sensor_boost_probes = selected_sensor_probe,
-        mine_probes = {name = "LDSM 1.3", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.3", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<75,
         scan_repair =			random(1,100)<50,
         tube_slow_down_repair = random(1,100)<84,
@@ -15961,7 +15944,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         fast_probes = selected_fast_probe,
-        mine_probes = {name = "LDSM 2.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<60,
         tube_slow_down_repair = random(1,100)<74,
@@ -16016,7 +15999,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
         },
         sensor_boost_probes = selected_sensor_probe,
-        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         scan_repair =			random(1,100)<60,
         tube_slow_down_repair = random(1,100)<54,
@@ -16071,7 +16054,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         remote_warp_jammer = selected_remote_warp_jammer,
-        mine_probes = {name = "LDSM 1.1", cost = math.random(25,63), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<55,
         scan_repair =			random(1,100)<60,
         tube_slow_down_repair = random(1,100)<74,
@@ -16237,7 +16220,7 @@ function createBaskStations()
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
         remote_warp_jammer = selected_remote_warp_jammer,
-        mine_probes = {name = "LDSM 2.2", cost = math.random(25,63), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         hack_repair =			random(1,100)<25,
         scan_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<64,
@@ -20291,8 +20274,8 @@ function createPlayerShipArwine()
 	playerArwine:weaponTubeAllowMissle(4,"Homing")
 	playerArwine:weaponTubeAllowMissle(4,"EMP")
 	playerArwine:weaponTubeAllowMissle(4,"Nuke")
-	playerArwine:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerArwine:setWeaponStorage("Mine", 4)				
+	playerArwine:setWeaponStorageMax("Mine",5)				--fewer mines (vs 8)
+	playerArwine:setWeaponStorage("Mine", 5)				
 	playerArwine:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
 	playerArwine:setWeaponStorage("EMP", 4)					
 	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
@@ -49556,11 +49539,13 @@ function updatePlayerSpecialtyProbes(p)
 							if obj.probe_speed == nil then
 								obj.probe_speed = p.probe_type_list[matching_index].speed
 								obj:setSpeed(obj.probe_speed)
+								local mines_for_ldsm = false
 --								print("probe speed:",obj.probe_speed)
 								if string.find(p.probe_type_list[matching_index].name,"LDSM") then
 									if p.probe_type_list[matching_index].mines_required <= p:getWeaponStorage("Mine") then
 										p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
 										p:setWeaponStorage("Mine",p:getWeaponStorage("Mine") - p.probe_type_list[matching_index].mines_required)
+										mines_for_ldsm = true
 									end
 								else
 									p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count - 1
@@ -49578,8 +49563,10 @@ function updatePlayerSpecialtyProbes(p)
 									table.insert(boost_probe_list,obj)
 								end
 								if p.probe_type_list[matching_index].mine_fetus ~= nil then
-									obj.mine_fetus = p.probe_type_list[matching_index].mine_fetus
-									obj:onArrival(probeLabor)
+									if mines_for_ldsm then
+										obj.mine_fetus = p.probe_type_list[matching_index].mine_fetus
+										obj:onArrival(probeLabor)
+									end
 								end
 								cycleProbeType(p,p.probe_type_list[matching_index].name)
 							end
