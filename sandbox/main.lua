@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.6"
+	scenario_version = "5.25.7"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1075,11 +1075,11 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
-	makePlayerShipActive("Arwine")		--J
-	makePlayerShipActive("Manxman")		--J
-	makePlayerShipActive("Hummer")		--W
+	makePlayerShipActive("Raptor")		--J
+	makePlayerShipActive("Headhunter")	--J
+	makePlayerShipActive("Farrah")		--W
 	makePlayerShipActive("Spike")		--W
-	makePlayerShipActive("Swoop")		--W
+	makePlayerShipActive("Vision")		--W
 --	makePlayerShipActive("Szpieg")		--W
 --	makePlayerShipActive("Sztylet")		--W
 --	makePlayerShipActive("Katarzyna")	--W
@@ -1722,7 +1722,7 @@ function createSkeletonUniverse()
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
         sensor_boost = {value = 10000, cost = 0},
---		mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+		mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
 		sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -6540,15 +6540,15 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 4 then
-			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
-			dp4Zone:setColor(0,128,0):setLabel("4")
-		elseif i == 5 then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
-			dp5Zone:setColor(0,128,0):setLabel("5")
-		elseif i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
+		if i == 1 then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 2 then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
+		elseif i == 3 then
+			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
+			dp3Zone:setColor(0,128,0):setLabel("3")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
