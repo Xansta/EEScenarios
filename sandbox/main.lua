@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.7"
+	scenario_version = "5.25.8"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -6549,6 +6549,12 @@ function createIcarusColor()
 		elseif i == 3 then
 			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
 			dp3Zone:setColor(0,128,0):setLabel("3")
+		elseif i == 4 then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
+			dp4Zone:setColor(0,128,0):setLabel("4")
+		elseif i == 5 then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
+			dp5Zone:setColor(0,128,0):setLabel("5")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
