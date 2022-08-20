@@ -1080,6 +1080,19 @@ function setConstants()
 	makePlayerShipActive("Farrah")		--W
 	makePlayerShipActive("Spike")		--W
 	makePlayerShipActive("Vision")		--W
+
+	makePlayerShipActive("Eagle") -- m, c: 14
+	makePlayerShipActive("Yorik") -- m, c: 12
+
+	makePlayerShipActive("Wiggy") -- m, c: 14
+
+	makePlayerShipActive("Rocinante") -- m, c: 11
+
+	-- makePlayerShipActive("Chack")		--W
+	-- makePlayerShipActive("Ignite")		--W
+	-- makePlayerShipActive("Splinter")		--W
+	-- makePlayerShipActive("Sparrow")		--W
+	-- makePlayerShipActive("Bling")		--W
 --	makePlayerShipActive("Szpieg")		--W
 --	makePlayerShipActive("Sztylet")		--W
 --	makePlayerShipActive("Katarzyna")	--W
@@ -2904,6 +2917,24 @@ function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("+Update Editor",updateEditor)
+	addGMFunction("+Asteroid contents",function()
+		clearGMFunctions()
+		addGMFunction("-Tweak Terrain",tweakTerrain)
+		addGMFunction("+Empty", function()
+			local objs = getGMSelection()
+			for i=1,#objs do
+				objs[i].trace_minerals = {}
+			end
+		end)
+		for goodId=1,#mineralGoods do
+			addGMFunction("+" .. mineralGoods[goodId], function()
+				local objs = getGMSelection()
+				for i=1,#objs do
+					table.insert(objs[i].trace_minerals, mineralGoods[goodId])
+				end
+			end)
+		end
+	end)
 	addGMFunction("+Faction Relations",function()
 		addGMMessage("Select two factions. Selected faction will have an asterisk. Unselect a faction by clicking a faction with an asterisk")
 		relation_faction_1 = nil
@@ -21860,10 +21891,10 @@ function createPlayerShipQuarter()
 	playerBarrow.min_jump_range = 4000					--shorter than typical (vs 5)
 	playerBarrow:setJumpDriveRange(playerBarrow.min_jump_range,playerBarrow.max_jump_range)
 	playerBarrow:setJumpDriveCharge(playerBarrow.max_jump_range)
-	playerBarrow.carrier_space_group = {
-		["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5},
-		["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10},
-	}
+	-- playerBarrow.carrier_space_group = {
+	-- 	["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5},
+	-- 	["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10},
+	-- }
 	playerBarrow.launch_bay = "empty"
 	playerBarrow:onTakingDamage(playerShipDamage)
 	playerBarrow:addReputationPoints(50)
@@ -42250,9 +42281,9 @@ function friendlyComms(comms_data)
 		local player_carrier = false
 		if obj.typeName == "PlayerSpaceship" then
 			local template_name = obj:getTypeName()
-			if template_name == "Benedict" or template_name == "Kiriya" or template_name == "Barrow" then
-				player_carrier = true
-			end
+			-- if template_name == "Benedict" or template_name == "Kiriya" or template_name == "Barrow" then
+			-- 	player_carrier = true
+			-- end
 		end
 		if (obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj)) or player_carrier then
 			addCommsReply("Dock at " .. obj:getCallSign(), function()
