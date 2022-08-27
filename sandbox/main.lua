@@ -16,9 +16,6 @@ require("utils_customElements.lua")
 require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 
-mineralPriceMin=70
-mineralPriceMax=100
-
 -- maps filenames that were moved after 2021.6.23 release
 function getFilenameCompatible(new_filename)
 	if getEEVersion() ==  2021623 then
@@ -107,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.8"
+	scenario_version = "5.25.9"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -251,6 +248,7 @@ function setConstants()
 		["Missile Pod S1"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 1000,	create = missilePodS1},
 		["Missile Pod S4"] =	{strength = 20,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 1000,	create = missilePodS4},
 		["Transport"] =			{strength = 1,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 1000,	create = auxiliaryCruiser},
+		["Equipment Freighter 3"] =	{strength = 1, adder = false, missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = true,		base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1000,	create = stockTemplate},
 		-- normal ships that are part of the fleet spawn process
 		["Gnat"] =				{strength = 2,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true,		drone = true,	unusual = false,	base = false,	short_range_radar = 4500,	hop_angle = 0,	hop_range = 580,	create = gnat},
 		["Lite Drone"] =		{strength = 3,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = true,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = droneLite},
@@ -725,9 +723,9 @@ function setConstants()
 						{angle = 210, dist = 2	},
 					},
 	}
-	prebuilt_leaders = {		--130			140		120			125				120		140					140			140			150				100			76		73		70			70			70
+	prebuilt_leaders = {		--130			140		120			125				120		140					140			140			150				100			76		73		70			70			70				45
 		["Cucaracha"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
-		["Dreadnought"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
+		["Dreadnought"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A","Equipment Freighter 3"},
 		["Atlantis X23"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
 		["Dread No More"] =		{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout","Cucaracha","Brush","Broom","Sweeper","Nirvana R5","Nirvana R5A"},
 		["MT52 Hornet"] =		{"Lite Drone","Gnat","MU52 Hornet",																	   "Ktlitan Scout"},
@@ -771,6 +769,7 @@ function setConstants()
 		["Lite Drone"] =		{"Cucaracha", "Dreadnought", "Atlantis X23", "Nirvana R3", "Blockade Runner", "Supervisor", "Sentinel", "Nirvana R5", "Dread No More", "Strongarm", "Nirvana R5A", "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4", "Adder MK5", "Adder MK6", "Adder MK7", "MT52 Hornet", "Heavy Drone"},
 		["Nirvana R5"] =		{			  "Dreadnought", "Atlantis X23", 			   "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4"},
 		["Nirvana R5A"] =		{			  "Dreadnought", "Atlantis X23", 			   "Blockade Runner", "Supervisor", 						  "Dread No More", 							   "Farco 3", "Farco 5", "Farco 8", "Farco 11", "Farco 13", "Phobos T3", "Phobos T4", "Phobos R2", "Gunship", "Adv. Gunship", "Adder MK4"},
+		["Equipment Freighter 3"] = {		  "Dreadnought"},
 	}
 	prebuilt_follower = "MT52 Hornet"	--default
 	prebuilt_relative = {
@@ -1078,27 +1077,11 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
-	makePlayerShipActive("Raptor")		--J
 	makePlayerShipActive("Headhunter")	--J
+	makePlayerShipActive("Yorik") 		--J mining, cargo: 12
 	makePlayerShipActive("Farrah")		--W
 	makePlayerShipActive("Spike")		--W
-	makePlayerShipActive("Vision")		--W
-
-	makePlayerShipActive("Eagle") -- m, c: 14
-	makePlayerShipActive("Yorik") -- m, c: 12
-
-	makePlayerShipActive("Wiggy") -- m, c: 14
-
-	makePlayerShipActive("Rocinante") -- m, c: 11
-
-	-- makePlayerShipActive("Chack")		--W
-	-- makePlayerShipActive("Ignite")		--W
-	-- makePlayerShipActive("Splinter")		--W
-	-- makePlayerShipActive("Sparrow")		--W
-	-- makePlayerShipActive("Bling")		--W
---	makePlayerShipActive("Szpieg")		--W
---	makePlayerShipActive("Sztylet")		--W
---	makePlayerShipActive("Katarzyna")	--W
+	makePlayerShipActive("Eagle") 		--W mining, cargo: 14
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -1127,6 +1110,8 @@ function setConstants()
 	tradeFood = {}				--stations that will trade food for other goods
 	tradeLuxury = {}			--stations that will trade luxury for other goods
 	tradeMedicine = {}			--stations that will trade medicine for other goods
+	mineralPriceMin=70
+	mineralPriceMax=100
 	healthCheckTimerInterval = 10
 	healthCheckTimer = healthCheckTimerInterval
 	pretty_system = {
