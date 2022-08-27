@@ -16,6 +16,9 @@ require("utils_customElements.lua")
 require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 
+mineralPriceMin=70
+mineralPriceMax=100
+
 -- maps filenames that were moved after 2021.6.23 release
 function getFilenameCompatible(new_filename)
 	if getEEVersion() ==  2021623 then
@@ -1080,6 +1083,19 @@ function setConstants()
 	makePlayerShipActive("Farrah")		--W
 	makePlayerShipActive("Spike")		--W
 	makePlayerShipActive("Vision")		--W
+
+	makePlayerShipActive("Eagle") -- m, c: 14
+	makePlayerShipActive("Yorik") -- m, c: 12
+
+	makePlayerShipActive("Wiggy") -- m, c: 14
+
+	makePlayerShipActive("Rocinante") -- m, c: 11
+
+	-- makePlayerShipActive("Chack")		--W
+	-- makePlayerShipActive("Ignite")		--W
+	-- makePlayerShipActive("Splinter")		--W
+	-- makePlayerShipActive("Sparrow")		--W
+	-- makePlayerShipActive("Bling")		--W
 --	makePlayerShipActive("Szpieg")		--W
 --	makePlayerShipActive("Sztylet")		--W
 --	makePlayerShipActive("Katarzyna")	--W
@@ -2904,6 +2920,66 @@ function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("+Update Editor",updateEditor)
+	addGMFunction("+Asteroid contents",function()
+		clearGMFunctions()
+		addGMFunction("-Tweak Terrain",tweakTerrain)
+		addGMFunction("Clear minerals", function()
+			local objs = getGMSelection()
+			for i=1,#objs do
+				objs[i].trace_minerals = {}
+			end
+		end)
+		addGMFunction("Add random", function()
+			local objs = getGMSelection()
+			for i=1,#objs do
+				for i=1,#mineralGoods do
+					if random(1,100) < 26 then
+						if objs[i].trace_minerals == nil then
+							objs[i].trace_minerals = {}
+						end
+						table.insert(objs[i].trace_minerals,mineralGoods[i])
+					end
+				end	
+			end
+		end)
+		for goodId=1,#mineralGoods do
+			addGMFunction("Add " .. mineralGoods[goodId], function()
+				local objs = getGMSelection()
+				for i=1,#objs do
+					if objs[i].trace_minerals == nil then
+						objs[i].trace_minerals = {}
+					end
+					table.insert(objs[i].trace_minerals, mineralGoods[goodId])
+				end
+			end)
+		end
+		addGMFunction("Show info", function()
+			local objs = getGMSelection()
+			mineralCounts = {}
+			for goodId=1,#mineralGoods do
+				mineralCounts[mineralGoods[goodId]] = 0
+			end
+			for i=1,#objs do
+				if objs[i].trace_minerals == nil then
+					objs[i].trace_minerals = {}
+				end
+				for mineralIdx=1,#objs[i].trace_minerals do
+					mineralCounts[objs[i].trace_minerals[mineralIdx]] = mineralCounts[objs[i].trace_minerals[mineralIdx]] + 1
+				end
+			end
+			avgPrice = (mineralPriceMin + mineralPriceMax) / 2.0
+
+			msg = ""
+			totalMinerals = 0
+			totalEstRep = 0
+			for goodId=1,#mineralGoods do
+				msg = msg .. mineralGoods[goodId] .. "   Num=" .. mineralCounts[mineralGoods[goodId]] .. "   Est.rep.=" .. mineralCounts[mineralGoods[goodId]]*avgPrice .. "\n"
+				totalMinerals = totalMinerals + mineralCounts[mineralGoods[goodId]]
+				totalEstRep = totalEstRep + mineralCounts[mineralGoods[goodId]]*avgPrice
+			end
+			addGMMessage("Num objs: " .. #objs .. "\nTotal num minerals: " .. totalMinerals .. "\nTotal est. rep: " .. totalEstRep ..  "\n---\n" .. msg)
+		end)
+	end)
 	addGMFunction("+Faction Relations",function()
 		addGMMessage("Select two factions. Selected faction will have an asterisk. Unselect a faction by clicking a faction with an asterisk")
 		relation_faction_1 = nil
@@ -21860,10 +21936,10 @@ function createPlayerShipQuarter()
 	playerBarrow.min_jump_range = 4000					--shorter than typical (vs 5)
 	playerBarrow:setJumpDriveRange(playerBarrow.min_jump_range,playerBarrow.max_jump_range)
 	playerBarrow:setJumpDriveCharge(playerBarrow.max_jump_range)
-	playerBarrow.carrier_space_group = {
-		["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5},
-		["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10},
-	}
+	-- playerBarrow.carrier_space_group = {
+	-- 	["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5},
+	-- 	["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10},
+	-- }
 	playerBarrow.launch_bay = "empty"
 	playerBarrow:onTakingDamage(playerShipDamage)
 	playerBarrow:addReputationPoints(50)
@@ -39439,7 +39515,7 @@ function stationBuyMinerals()
 						if selected_station.comms_data.buy == nil then
 							selected_station.comms_data.buy = {}
 						end
-						selected_station.comms_data.buy[good] = math.random(70,100)
+						selected_station.comms_data.buy[good] = math.random(mineralPriceMin,mineralPriceMax)
 						stationBuyMinerals()
 					end)
 				else
@@ -42250,9 +42326,9 @@ function friendlyComms(comms_data)
 		local player_carrier = false
 		if obj.typeName == "PlayerSpaceship" then
 			local template_name = obj:getTypeName()
-			if template_name == "Benedict" or template_name == "Kiriya" or template_name == "Barrow" then
-				player_carrier = true
-			end
+			-- if template_name == "Benedict" or template_name == "Kiriya" or template_name == "Barrow" then
+			-- 	player_carrier = true
+			-- end
 		end
 		if (obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj)) or player_carrier then
 			addCommsReply("Dock at " .. obj:getCallSign(), function()
@@ -48950,7 +49026,8 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 						p.mining_target_lock = false
 						p.mining_timer = nil
 						if p.mining_target.trace_minerals ~= nil and #p.mining_target.trace_minerals > 0 then
-							local good = p.mining_target.trace_minerals[math.random(1,#p.mining_target.trace_minerals)]
+							idx = math.random(1,#p.mining_target.trace_minerals)
+							local good = p.mining_target.trace_minerals[idx]
 							if p.goods == nil then
 								p.goods = {}
 							end
@@ -48967,6 +49044,7 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 								local mined_mineral_message_ops = "mined_mineral_message_ops"
 								p:addCustomMessage("Operations",mined_mineral_message_ops,string.format("Mining obtained %s which has been stored in the cargo hold",good))
 							end
+							table.remove(p.mining_target.trace_minerals, idx)
 						else	--no minerals in asteroid
 							if p:hasPlayerAtPosition("Science") then
 								local mined_mineral_message = "mined_mineral_message"
