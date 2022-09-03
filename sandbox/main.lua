@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.11"
+	scenario_version = "5.26.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -45340,7 +45340,9 @@ function handleDockedState()
 							if not jc_item.has_spawned then
 								jc_item.spawn_terrain()
 							end
-							origin_jc_item.despawn_terrain()
+							if origin_jc_item ~= nil then
+								origin_jc_item.despawn_terrain()
+							end
 							setCommsMessage(string.format("Transferred to %s",jc_item.station:getCallSign()))
 						end)
 					end
