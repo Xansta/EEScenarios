@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.25.10"
+	scenario_version = "5.25.11"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1016,7 +1016,7 @@ function setConstants()
 	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,"J")
 --	addPlayerShip("Espadon",	"Orca",			createPlayerShipEspadon		,"W")
 	addPlayerShip("Falcon",		"Eldridge",		createPlayerShipFalcon		,"W")
-	addPlayerShip("Farrah",		"Wombat",		createPlayerShipDevon		,"W")
+	addPlayerShip("Farrah",		"Wombat",		createPlayerShipDevon		,"W")	--set ship name in routine
 	addPlayerShip("Fist",		"Interlock",	createPlayerShipFist		,"J")
 	addPlayerShip("Flaire",		"Peacock",		createPlayerShipFlaire		,"J")
 	addPlayerShip("Flipper",	"Midian",		createPlayerShipFlipper		,"W")
@@ -1057,6 +1057,7 @@ function setConstants()
 	addPlayerShip("Rogue",		"Maverick XP",	createPlayerShipRogue		,"J")
 	addPlayerShip("Skray",		"Skray",		createplayerShipSneak		,"J")
 	addPlayerShip("Sparrow",	"Vermin",		createPlayerShipSparrow		,"W")
+	addPlayerShip("Shannon",	"Wombat",		createPlayerShipDevon		,"W")	--set ship name in routine
 	addPlayerShip("Slingshot",	"Wrocket",		createPlayerShipSlingshot	,"J")
 	addPlayerShip("Splinter",	"Fresnel",		createPlayerShipSplinter	,"J")
 	addPlayerShip("Spike",		"Surkov",		createPlayerShipStick		,"W")
@@ -1077,10 +1078,10 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
-	makePlayerShipActive("Headhunter")	--J
+	makePlayerShipActive("Raptor")		--J
 	makePlayerShipActive("Yorik") 		--J mining, cargo: 12
-	makePlayerShipActive("Farrah")		--W
-	makePlayerShipActive("Spike")		--W
+	makePlayerShipActive("Shannon")		--W
+	makePlayerShipActive("Ignite")		--W
 	makePlayerShipActive("Eagle") 		--W mining, cargo: 14
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -1316,6 +1317,7 @@ function setConstants()
 		["Phobos M3"] =						200,
 		["Phobos R2"] =						200,
 		["Phobos T3"] =						200,
+		["Phobos T4"] =						200,
 		["Physics Research"] =				600,
 		["Piranha F10"] =					200,
 		["Piranha F12"] =					200,
@@ -6601,9 +6603,15 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 4 then
-			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
-			dp4Zone:setColor(0,128,0):setLabel("4")
+		if i == 6 then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
+		elseif i == 1 then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 2 then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -7152,9 +7160,8 @@ function createIcarusStations()
 	station_names[stationClew:getCallSign()] = {stationClew:getSectorName(), stationClew}
 	table.insert(stations,stationClew)
 	--Elysium F4m2.5 
-	local elysiumZone = squareZone(-7504, 1384, "Elysium 8 F4.3")
-	elysiumZone:setColor(51,153,255):setLabel("E")
-	--[[
+--	local elysiumZone = squareZone(-7504, 1384, "Elysium 8 F4.3")
+--	elysiumZone:setColor(51,153,255):setLabel("E")
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 8"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7203,7 +7210,6 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationElysium:setSharesEnergyWithDocked(false) end
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
-	--]]
 	--Endymion
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationEndymion.comms_data = {
@@ -7480,9 +7486,8 @@ function createIcarusStations()
 	station_names[stationLoowine:getCallSign()] = {stationLoowine:getSectorName(), stationLoowine}
 	table.insert(stations,stationLoowine)
 	--Macassa
-	local macassaZone = squareZone(16335, -18034, "Macassa 12 E5")
-	macassaZone:setColor(0,128,0):setLabel("M")
-	--[[
+--	local macassaZone = squareZone(16335, -18034, "Macassa 12 E5")
+--	macassaZone:setColor(0,128,0):setLabel("M")
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 12"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMacassa:setShortRangeRadarRange(8000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -7525,7 +7530,6 @@ function createIcarusStations()
 	if random(1,100) <= 9  then stationMacassa:setSharesEnergyWithDocked(false) end
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
-	--]]
 	--Maximilian
 	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
 	--maximilianZone:setColor(51,153,255)
@@ -7787,9 +7791,8 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
-	local nervaZone = squareZone(-9203, -2077, "Nerva 11 E4")
-	nervaZone:setColor(51,153,255):setLabel("N")
-	--[[
+--	local nervaZone = squareZone(-9203, -2077, "Nerva 11 E4")
+--	nervaZone:setColor(51,153,255):setLabel("N")
     stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 11"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -7838,7 +7841,6 @@ function createIcarusStations()
 	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
-	--]]
 	--Pistil
 --	local pistilZone = squareZone(24834, 20416, "Pistil 9 G6")
 --	pistilZone:setColor(0,128,0):setLabel("P")
@@ -8492,9 +8494,8 @@ function createIcarusStations()
 	station_names[stationTron:getCallSign()] = {stationTron:getSectorName(), stationTron}
 	table.insert(stations,stationTron)
 	--Wookie F4m5 
-	local wookieZone = squareZone(-11280, 7425, "Wookie-dookie F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9, Wookied means 10, -dookie means 11
-	wookieZone:setColor(51,153,255):setLabel("W")
-	--[[
+--	local wookieZone = squareZone(-11280, 7425, "Wookie-dookie F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9, Wookied means 10, -dookie means 11
+--	wookieZone:setColor(51,153,255):setLabel("W")
     stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-dookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8540,7 +8541,6 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationWookie:setSharesEnergyWithDocked(false) end
 	station_names[stationWookie:getCallSign()] = {stationWookie:getSectorName(), stationWookie}
 	table.insert(stations,stationWookie)
-	--]]
 	return stations
 end
 function createIcarusToRiptideWormholeArea()
@@ -20687,13 +20687,13 @@ function createPlayerShipDarkstar()
 	return playerDarkstar
 end
 function createPlayerShipDevon()
-	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
+	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Shannon")
 	--aka Devon or Farrah or Shannon
 	playerWombat:setTypeName("Wombat")
-	playerWombat:setHullMax(100)							--stronger hull (vs 75)
-	playerWombat:setHull(100)
+	playerWombat:setHullMax(120)							--stronger hull (vs 75)
+	playerWombat:setHull(120)
 	playerWombat:setShieldsMax(60, 100)						--stronger shields (vs 40)
-	playerWombat:setShields(60, 100)
+	playerWombat:setShields(60, 120)
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
 	playerWombat:setWarpDrive(true)							--add warp (vs none)
 	playerWombat:setWarpSpeed(400)
