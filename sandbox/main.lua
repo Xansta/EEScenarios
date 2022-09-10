@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.26.0"
+	scenario_version = "5.26.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -4566,13 +4566,38 @@ function regionCommerceDestination(ship,region_station)
 		stationKeyhole23, stationHarriet, stationHelena, stationVilairre, stationRespite
 	}
 	local region_stations, primary_station = getRegionStations(region_station)
-	if #region_stations > 0 then
-		for index, station in ipairs(region_stations) do
-			if station ~= nil and station:isValid() then
-				if not station:isEnemy(ship) then
-					local avoid = false
-					if ship.commerce_target ~= nil then
-						if station ~= ship.commerce_target then
+	--handle jump corridor better
+	if region_stations ~= nil then
+		if #region_stations > 0 then
+			for index, station in ipairs(region_stations) do
+				if station ~= nil and station:isValid() then
+					if not station:isEnemy(ship) then
+						local avoid = false
+						if ship.commerce_target ~= nil then
+							if station ~= ship.commerce_target then
+								for _, avoid_station in pairs(avoid_commerce) do
+									if station == avoid_station then
+										avoid = true
+										break
+									end
+								end
+								if not avoid then
+									table.insert(station_pool,station)
+								end
+							end
+						elseif ship.commerce_origin ~= nil then
+							if station ~= ship.commerce_origin then
+								for _, avoid_station in pairs(avoid_commerce) do
+									if station == avoid_station then
+										avoid = true
+										break
+									end
+								end
+								if not avoid then
+									table.insert(station_pool,station)
+								end
+							end
+						else
 							for _, avoid_station in pairs(avoid_commerce) do
 								if station == avoid_station then
 									avoid = true
@@ -4582,36 +4607,18 @@ function regionCommerceDestination(ship,region_station)
 							if not avoid then
 								table.insert(station_pool,station)
 							end
-						end
-					elseif ship.commerce_origin ~= nil then
-						if station ~= ship.commerce_origin then
-							for _, avoid_station in pairs(avoid_commerce) do
-								if station == avoid_station then
-									avoid = true
-									break
-								end
-							end
-							if not avoid then
-								table.insert(station_pool,station)
-							end
-						end
-					else
-						for _, avoid_station in pairs(avoid_commerce) do
-							if station == avoid_station then
-								avoid = true
-								break
-							end
-						end
-						if not avoid then
-							table.insert(station_pool,station)
 						end
 					end
 				end
 			end
+		else
+			if commerce_diagnostic then
+				print("regional stations is empty")
+			end
 		end
 	else
 		if commerce_diagnostic then
-			print("regional stations is empty")
+			print("regional stations is nil")
 		end
 	end
 	if primary_station ~= nil then
@@ -6603,13 +6610,7 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 6 then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
-		elseif i == 1 then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
-			dp1Zone:setColor(0,128,0):setLabel("1")
-		elseif i == 2 then
+		if i == 2 then
 			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
 			dp2Zone:setColor(0,128,0):setLabel("2")
 		else		
@@ -20692,8 +20693,8 @@ function createPlayerShipDevon()
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(120)							--stronger hull (vs 75)
 	playerWombat:setHull(120)
-	playerWombat:setShieldsMax(60, 100)						--stronger shields (vs 40)
-	playerWombat:setShields(60, 120)
+	playerWombat:setShieldsMax(100, 100)						--stronger shields (vs 40)
+	playerWombat:setShields(120, 120)
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
 	playerWombat:setWarpDrive(true)							--add warp (vs none)
 	playerWombat:setWarpSpeed(400)
