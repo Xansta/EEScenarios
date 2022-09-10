@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.26.1"
+	scenario_version = "5.26.2"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -2907,66 +2907,7 @@ function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("+Update Editor",updateEditor)
-	addGMFunction("+Asteroid contents",function()
-		clearGMFunctions()
-		addGMFunction("-Tweak Terrain",tweakTerrain)
-		addGMFunction("Clear minerals", function()
-			local objs = getGMSelection()
-			for i=1,#objs do
-				objs[i].trace_minerals = {}
-			end
-		end)
-		addGMFunction("Add random", function()
-			local objs = getGMSelection()
-			for i=1,#objs do
-				for i=1,#mineralGoods do
-					if random(1,100) < 26 then
-						if objs[i].trace_minerals == nil then
-							objs[i].trace_minerals = {}
-						end
-						table.insert(objs[i].trace_minerals,mineralGoods[i])
-					end
-				end	
-			end
-		end)
-		for goodId=1,#mineralGoods do
-			addGMFunction("Add " .. mineralGoods[goodId], function()
-				local objs = getGMSelection()
-				for i=1,#objs do
-					if objs[i].trace_minerals == nil then
-						objs[i].trace_minerals = {}
-					end
-					table.insert(objs[i].trace_minerals, mineralGoods[goodId])
-				end
-			end)
-		end
-		addGMFunction("Show info", function()
-			local objs = getGMSelection()
-			mineralCounts = {}
-			for goodId=1,#mineralGoods do
-				mineralCounts[mineralGoods[goodId]] = 0
-			end
-			for i=1,#objs do
-				if objs[i].trace_minerals == nil then
-					objs[i].trace_minerals = {}
-				end
-				for mineralIdx=1,#objs[i].trace_minerals do
-					mineralCounts[objs[i].trace_minerals[mineralIdx]] = mineralCounts[objs[i].trace_minerals[mineralIdx]] + 1
-				end
-			end
-			avgPrice = (mineralPriceMin + mineralPriceMax) / 2.0
-
-			msg = ""
-			totalMinerals = 0
-			totalEstRep = 0
-			for goodId=1,#mineralGoods do
-				msg = msg .. mineralGoods[goodId] .. "   Num=" .. mineralCounts[mineralGoods[goodId]] .. "   Est.rep.=" .. mineralCounts[mineralGoods[goodId]]*avgPrice .. "\n"
-				totalMinerals = totalMinerals + mineralCounts[mineralGoods[goodId]]
-				totalEstRep = totalEstRep + mineralCounts[mineralGoods[goodId]]*avgPrice
-			end
-			addGMMessage("Num objs: " .. #objs .. "\nTotal num minerals: " .. totalMinerals .. "\nTotal est. rep: " .. totalEstRep ..  "\n---\n" .. msg)
-		end)
-	end)
+	addGMFunction("+Asteroids/Nebulae",asteroidsNebulae)
 	addGMFunction("+Faction Relations",function()
 		addGMMessage("Select two factions. Selected faction will have an asterisk. Unselect a faction by clicking a faction with an asterisk")
 		relation_faction_1 = nil
@@ -3057,8 +2998,6 @@ function tweakTerrain()
 					addGMMessage("Selecet a station or ship. No action taken")
 				end
 			end)
-		elseif tempType == "Asteroid" then
-			addGMFunction("Pulse Asteroid",pulseAsteroid)
 		end
 	else
 		if #objectList > 1 then
@@ -3136,6 +3075,79 @@ function tweakTerrain()
 	addGMFunction("+Probes",tweakProbes)
 	addGMFunction("+Commerce",freighterCommerce)
 	addGMFunction("+Explosion",setExplosion)
+end
+function asteroidsNebulae()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("+Asteroid contents",function()
+		clearGMFunctions()
+		addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+		addGMFunction("Clear minerals", function()
+			local objs = getGMSelection()
+			for i=1,#objs do
+				objs[i].trace_minerals = {}
+			end
+		end)
+		addGMFunction("Add random", function()
+			local objs = getGMSelection()
+			for i=1,#objs do
+				for i=1,#mineralGoods do
+					if random(1,100) < 26 then
+						if objs[i].trace_minerals == nil then
+							objs[i].trace_minerals = {}
+						end
+						table.insert(objs[i].trace_minerals,mineralGoods[i])
+					end
+				end	
+			end
+		end)
+		for goodId=1,#mineralGoods do
+			addGMFunction("Add " .. mineralGoods[goodId], function()
+				local objs = getGMSelection()
+				for i=1,#objs do
+					if objs[i].trace_minerals == nil then
+						objs[i].trace_minerals = {}
+					end
+					table.insert(objs[i].trace_minerals, mineralGoods[goodId])
+				end
+			end)
+		end
+		addGMFunction("Show info", function()
+			local objs = getGMSelection()
+			mineralCounts = {}
+			for goodId=1,#mineralGoods do
+				mineralCounts[mineralGoods[goodId]] = 0
+			end
+			for i=1,#objs do
+				if objs[i].trace_minerals == nil then
+					objs[i].trace_minerals = {}
+				end
+				for mineralIdx=1,#objs[i].trace_minerals do
+					mineralCounts[objs[i].trace_minerals[mineralIdx]] = mineralCounts[objs[i].trace_minerals[mineralIdx]] + 1
+				end
+			end
+			avgPrice = (mineralPriceMin + mineralPriceMax) / 2.0
+
+			msg = ""
+			totalMinerals = 0
+			totalEstRep = 0
+			for goodId=1,#mineralGoods do
+				msg = msg .. mineralGoods[goodId] .. "   Num=" .. mineralCounts[mineralGoods[goodId]] .. "   Est.rep.=" .. mineralCounts[mineralGoods[goodId]]*avgPrice .. "\n"
+				totalMinerals = totalMinerals + mineralCounts[mineralGoods[goodId]]
+				totalEstRep = totalEstRep + mineralCounts[mineralGoods[goodId]]*avgPrice
+			end
+			addGMMessage("Num objs: " .. #objs .. "\nTotal num minerals: " .. totalMinerals .. "\nTotal est. rep: " .. totalEstRep ..  "\n---\n" .. msg)
+		end)
+	end)
+	local objectList = getGMSelection()
+	if #objectList == 1 then
+		local tempObject = objectList[1]
+		local tempType = tempObject.typeName
+		if tempType == "Asteroid" then
+			addGMFunction("Pulse Asteroid",pulseAsteroid)
+		end
+	end	
 end
 function setFactionRelations()
 	clearGMFunctions()
