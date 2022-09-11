@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.26.2"
+	scenario_version = "5.26.3"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1335,6 +1335,7 @@ function setConstants()
 		["Service Jonque"] =				800,
 		["Shooter"] =						100,
 		["Sloop"] =							200,
+		["Sniper Tower"] =					800,
 		["Space Sedan"] =					600,
 		["Stalker Q5"] =					200,
 		["Stalker Q7"] =					200,
@@ -14146,21 +14147,21 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
---		if i == 1 then
---			tdp1Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp1")
---			tdp1Zone:setColor(0,128,0)
+		if i == 4 then
+			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
+			tdp4Zone:setColor(0,128,0):setLabel("4")
 --		elseif i == 2 then
 --			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
 --			tdp2Zone:setColor(0,128,0)
 --		elseif i == 3 then
 --			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
 --			tdp3Zone:setColor(0,128,0)
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(start_angle+17+j*6,8000)
 			local dm = Mine():setPosition(t_x+dpx,t_y+dpy)
