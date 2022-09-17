@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.28.0"
+	scenario_version = "5.28.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -3304,7 +3304,7 @@ function setSelectedNebula()
 					selected_nebula:setDescriptions("","")
 				else
 					selected_nebula.scannable = true
-					selected_nebula:setScanningParameters(1,1)
+					selected_nebula:setScanningParameters(math.random(1,2),math.random(1,3))
 					if selected_nebula.scanned_desc == nil then
 						selected_nebula.scanned_desc = "Potential hazard"
 					end
