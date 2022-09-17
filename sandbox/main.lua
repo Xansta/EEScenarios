@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.27.0"
+	scenario_version = "5.28.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -214,17 +214,17 @@ function setConstants()
 	anomalous_nebulae = {}
 	immobile_stations = {}
 	coolant_losses = {
-		["Lo"] = .99999,	--easy
-		["Md"] = .99995,	--normal
-		["Hi"] = .9999,		--hard
-		["Sv"] = .999,		--quixotic
+		["Lo"] = {val = .99999,	desc = "May cause low level coolant leakage"},			--easy
+		["Md"] = {val = .99995,	desc = "May cause coolant leakage"},					--normal
+		["Hi"] = {val = .9999,	desc = "May cause high rates of coolant leakage"},		--hard
+		["Sv"] = {val = .999,	desc = "May cause severe rates of coolant leakage"},	--quixotic
 	}
 	coolant_loss_name = "Md"
-	coolant_loss = coolant_losses[coolant_loss_name]
+	coolant_loss = coolant_losses[coolant_loss_name].val
 	coolant_gains = {
-		["Lo"] = .0001,		--hard
-		["Md"] = .001,		--normal
-		["Hi"] = .01,		--easy
+		["Lo"] = {val = .0001,	desc = "May gain low amounts of coolant"},		--hard
+		["Md"] = {val = .001,	desc = "May gain coolant"},						--normal
+		["Hi"] = {val = .01,	desc = "May gain high amounts of coolant"},		--easy
 	}
 	coolant_gain_name = "Md"
 	coolant_gain = coolant_gains[coolant_gain_name]
@@ -3204,7 +3204,7 @@ function setCoolantLossDegree()
 	end
 	addGMFunction(button_label,function()
 		coolant_loss_name = "Lo"
-		coolant_loss = coolant_losses[coolant_loss_name]
+		coolant_loss = coolant_losses[coolant_loss_name].val
 		setCoolantLossDegree()
 	end)
 	button_label = "Medium"
@@ -3213,7 +3213,7 @@ function setCoolantLossDegree()
 	end
 	addGMFunction(button_label,function()
 		coolant_loss_name = "Md"
-		coolant_loss = coolant_losses[coolant_loss_name]
+		coolant_loss = coolant_losses[coolant_loss_name].val
 		setCoolantLossDegree()
 	end)
 	button_label = "High"
@@ -3222,7 +3222,7 @@ function setCoolantLossDegree()
 	end
 	addGMFunction(button_label,function()
 		coolant_loss_name = "Hi"
-		coolant_loss = coolant_losses[coolant_loss_name]
+		coolant_loss = coolant_losses[coolant_loss_name].val
 		setCoolantLossDegree()
 	end)
 	button_label = "Severe"
@@ -3231,7 +3231,7 @@ function setCoolantLossDegree()
 	end
 	addGMFunction(button_label,function()
 		coolant_loss_name = "Sv"
-		coolant_loss = coolant_losses[coolant_loss_name]
+		coolant_loss = coolant_losses[coolant_loss_name].val
 		setCoolantLossDegree()
 	end)
 end
@@ -3291,7 +3291,28 @@ function setSelectedNebula()
 					break
 				end
 			end
-			local button_label = "Lose Coolant"
+			local button_label = "Can Scan"
+			if selected_nebula ~= nil then
+				if selected_nebula.scannable then
+					button_label = button_label .. "*"
+				end
+			end
+			addGMFunction(button_label,function()
+				if selected_nebula.scannable then
+					selected_nebula.scannable = false
+					selected_nebula:setScanningParameters(0,0)
+					selected_nebula:setDescriptions("","")
+				else
+					selected_nebula.scannable = true
+					selected_nebula:setScanningParameters(1,1)
+					if selected_nebula.scanned_desc == nil then
+						selected_nebula.scanned_desc = "Potential hazard"
+					end
+					selected_nebula:setDescriptions("Anomalous nebula",selected_nebula.scanned_desc)
+				end
+				setSelectedNebula()
+			end)
+			button_label = "Lose Coolant"
 			if selected_nebula ~= nil then
 				if selected_nebula.name == "-C" then
 					button_label = button_label .. "*"
@@ -3309,6 +3330,7 @@ function setSelectedNebula()
 				else
 					tempObject.name = "-C"
 					tempObject.coolant_loss = coolant_loss
+					tempObject.scanned_desc = coolant_losses[coolant_loss_name].desc
 					table.insert(anomalous_nebulae,tempObject)
 				end
 				setSelectedNebula()
@@ -3330,6 +3352,7 @@ function setSelectedNebula()
 				else
 					tempObject.name = "+C"
 					tempObject.coolant_gain = coolant_gain
+					tempObject.scanned_desc = coolant_gains[coolant_gain_name].desc
 					table.insert(anomalous_nebulae,tempObject)
 				end
 				setSelectedNebula()
