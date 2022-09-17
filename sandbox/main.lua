@@ -104,7 +104,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.26.3"
+	scenario_version = "5.27.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -211,7 +211,24 @@ function setConstants()
 	spiky_spin_ships = {}
 	impulse_boost_ships = {}
 	pdc_ships = {}
+	anomalous_nebulae = {}
 	immobile_stations = {}
+	coolant_losses = {
+		["Lo"] = .99999,	--easy
+		["Md"] = .99995,	--normal
+		["Hi"] = .9999,		--hard
+		["Sv"] = .999,		--quixotic
+	}
+	coolant_loss_name = "Md"
+	coolant_loss = coolant_losses[coolant_loss_name]
+	coolant_gains = {
+		["Lo"] = .0001,		--hard
+		["Md"] = .001,		--normal
+		["Hi"] = .01,		--easy
+	}
+	coolant_gain_name = "Md"
+	coolant_gain = coolant_gains[coolant_gain_name]
+
 
 	ship_template = {	--ordered by relative strength
 		-- unarmed
@@ -3147,8 +3164,184 @@ function asteroidsNebulae()
 		local tempType = tempObject.typeName
 		if tempType == "Asteroid" then
 			addGMFunction("Pulse Asteroid",pulseAsteroid)
+		elseif tempType == "Nebula" then
+			local selected_nebula_index = nil
+			for ani, neb in ipairs(anomalous_nebulae) do
+				if tempObject == neb.neb then
+					selected_nebula_index = ani
+					break
+				end
+			end
+			local button_label = "Tweak Neb"
+			if selected_nebula_index ~= nil then
+				button_label = string.format("%s %i%s",button_label,selected_nebula_index,anomalous_nebulae[selected_nebula_index].name)
+			end
+			addGMFunction(button_label,setSelectedNebula)
 		end
+	else
+		addGMFunction("+Select Asteroid/Nebula",asteroidsNebulae)
 	end	
+end
+function nebulaEffectDegree()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("-Nebulae",setSelectedNebula)
+	addGMFunction(string.format("+Coolant Loss %s",coolant_loss_name),setCoolantLossDegree)
+	addGMFunction(string.format("+Coolant Gain %s",coolant_gain_name),setCoolantGainDegree)
+end
+function setCoolantLossDegree()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("-Nebulae",setSelectedNebula)
+	addGMFunction("-Degree",nebulaEffectDegree)
+	local button_label = "Low"
+	if coolant_loss_name == "Lo" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		coolant_loss_name = "Lo"
+		coolant_loss = coolant_losses[coolant_loss_name]
+		setCoolantLossDegree()
+	end)
+	button_label = "Medium"
+	if coolant_loss_name == "Md" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		coolant_loss_name = "Md"
+		coolant_loss = coolant_losses[coolant_loss_name]
+		setCoolantLossDegree()
+	end)
+	button_label = "High"
+	if coolant_loss_name == "Hi" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		coolant_loss_name = "Hi"
+		coolant_loss = coolant_losses[coolant_loss_name]
+		setCoolantLossDegree()
+	end)
+	button_label = "Severe"
+	if coolant_loss_name == "Sv" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		coolant_loss_name = "Sv"
+		coolant_loss = coolant_losses[coolant_loss_name]
+		setCoolantLossDegree()
+	end)
+end
+function setCoolantGainDegree()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("-Nebulae",setSelectedNebula)
+	addGMFunction("-Degree",nebulaEffectDegree)
+	local button_label = "Low"
+	if coolant_gain_name == "Lo" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		coolant_gain_name = "Lo"
+		coolant_gain = coolant_gains[coolant_gain_name]
+		setCoolantGainDegree()
+	end)
+	button_label = "Medium"
+	if coolant_gain_name == "Md" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		coolant_gain_name = "Md"
+		coolant_gain = coolant_gains[coolant_gain_name]
+		setCoolantGainDegree()
+	end)
+	button_label = "High"
+	if coolant_gain_name == "Hi" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		coolant_gain_name = "Hi"
+		coolant_gain = coolant_gains[coolant_gain_name]
+		setCoolantGainDegree()
+	end)
+end
+function setSelectedNebula()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("+Effect Degree",nebulaEffectDegree)
+	local objectList = getGMSelection()
+	if #objectList == 1 then
+		local tempObject = objectList[1]
+		local tempType = tempObject.typeName
+		if tempType == "Nebula" then
+			local selected_nebula = nil
+			local selected_nebula_index = nil
+			print("anomalous nebula count:",#anomalous_nebulae)
+			for ani, neb in ipairs(anomalous_nebulae) do
+				if tempObject == neb then
+					selected_nebula_index = ani
+					selected_nebula = neb
+					break
+				end
+			end
+			local button_label = "Lose Coolant"
+			if selected_nebula ~= nil then
+				if selected_nebula.name == "-C" then
+					button_label = button_label .. "*"
+				end
+			end
+			addGMFunction(button_label,function()
+				print("lose coolant button. Selected nebula:",selected_nebula)
+				if selected_nebula ~= nil then
+					if selected_nebula.name == "-C" then
+						anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+						anomalous_nebulae[#anomalous_nebulae] = nil
+					else
+						selected_nebula.name = "-C"
+					end
+				else
+					tempObject.name = "-C"
+					tempObject.coolant_loss = coolant_loss
+					table.insert(anomalous_nebulae,tempObject)
+				end
+				setSelectedNebula()
+			end)
+			button_label = "Gain Coolant"
+			if selected_nebula ~= nil then
+				if selected_nebula.name == "+C" then
+					button_label = button_label .. "*"
+				end
+			end
+			addGMFunction(button_label,function()
+				if selected_nebula ~= nil then
+					if selected_nebula.name == "+C" then
+						anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+						anomalous_nebulae[#anomalous_nebulae] = nil
+					else
+						selected_nebula.name = "+C"
+					end
+				else
+					tempObject.name = "+C"
+					tempObject.coolant_gain = coolant_gain
+					table.insert(anomalous_nebulae,tempObject)
+				end
+				setSelectedNebula()
+			end)
+		else
+			addGMMessage("Select a nebula. No action taken")
+			asteroidsNebulae()
+		end
+	else
+		addGMMessage("Select a nebula. No action taken")
+		asteroidsNebulae()
+	end
 end
 function setFactionRelations()
 	clearGMFunctions()
@@ -47824,6 +48017,7 @@ function updateInner(delta)
 				catchEpjamMissile(p)
 			end
 			updatePlayerSystemHealthRepair(delta,p)
+			updatePlayerInNebula(delta,p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -49558,6 +49752,180 @@ function catchEpjamMissile(p)
 		p.epjam_recharge = nil
 	end
 end
+function updatePlayerInNebula(delta,p)
+	local inside_gain_coolant_nebula = false
+	local gain_coolant_nebulae = {}
+	local obj_list = p:getObjectsInRange(5100)
+	if #anomalous_nebulae > 0 then 
+		for i,obj in ipairs(obj_list) do
+			if obj.typeName == "Nebula" then
+				for j,neb in ipairs(anomalous_nebulae) do
+					if neb.name ~= nil and neb == obj then
+						if distance(p,neb) <= 5000 then
+							if neb.name == "-C" then
+								p:setMaxCoolant(p:getMaxCoolant()*neb.coolant_loss)
+								if p:getMaxCoolant() > 30 and random(1,100) <= 13 then
+									local engine_choice = math.random(1,3)
+									local adverse_effect = .995
+									if engine_choice == 1 then
+										p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverse_effect)
+									elseif engine_choice == 2 then
+										if p:hasWarpDrive() then
+											p:setSystemHealth("warp",p:getSystemHealth("warp")*adverse_effect)
+										end
+									else
+										if p:hasJumpDrive() then
+											p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverse_effect)
+										end
+									end
+								end
+							end
+							if neb.name == "+C" then
+								inside_gain_coolant_nebula = true
+								table.insert(gain_coolant_nebulae,neb)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	if inside_gain_coolant_nebula then
+		--to be continued
+	end
+end
+
+--three functions from Borderline Fever to be fully cannibalized later
+function coolantNebulae(delta, p)
+	local inside_gain_coolant_nebula = false
+	for i=1,#coolant_nebula do
+--		if distance_diagnostic then print("distance_diagnostic 12",p,coolant_nebula[i]) end
+		if distance(p,coolant_nebula[i]) < 5000 then
+			if coolant_nebula[i].lose then
+				p:setMaxCoolant(p:getMaxCoolant()*coolant_loss)
+				if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
+					local engine_choice = math.random(1,3)
+					if engine_choice == 1 then
+						p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
+					elseif engine_choice == 2 then
+						if p:hasWarpDrive() then
+							p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
+						end
+					else
+						if p:hasJumpDrive() then
+							p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
+						end
+					end
+				end
+			end
+			if coolant_nebula[i].gain then
+				inside_gain_coolant_nebula = true
+			end
+		end
+	end
+	if inside_gain_coolant_nebula then
+		if p.get_coolant then
+			if p.coolant_trigger then
+				updateCoolantGivenPlayer(p, delta)
+			end
+		else
+			if p:hasPlayerAtPosition("Engineering") then
+				p.get_coolant_button = "get_coolant_button"
+				p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",function() getCoolantGivenPlayer(p) end)
+				p.get_coolant = true
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				p.get_coolant_button_plus = "get_coolant_button_plus"
+				p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",function() getCoolantGivenPlayer(p) end)
+				p.get_coolant = true
+			end
+		end
+	else
+		p.get_coolant = false
+		p.coolant_trigger = false
+		p.configure_coolant_timer = nil
+		p.deploy_coolant_timer = nil
+		if p:hasPlayerAtPosition("Engineering") then
+			if p.get_coolant_button ~= nil then
+				p:removeCustom(p.get_coolant_button)
+				p.get_coolant_button = nil
+			end
+			if p.gather_coolant ~= nil then
+				p:removeCustom(p.gather_coolant)
+				p.gather_coolant = nil
+			end
+		end
+		if p:hasPlayerAtPosition("Engineering+") then
+			if p.get_coolant_button_plus ~= nil then
+				p:removeCustom(p.get_coolant_button_plus)
+				p.get_coolant_button_plus = nil
+			end
+			if p.gather_coolant_plus ~= nil then
+				p:removeCustom(p.gather_coolant_plus)
+				p.gather_coolant_plus = nil
+			end
+		end
+	end
+end
+function updateCoolantGivenPlayer(p, delta)
+	if p.configure_coolant_timer == nil then
+		p.configure_coolant_timer = delta + 5
+	end
+	p.configure_coolant_timer = p.configure_coolant_timer - delta
+	if p.configure_coolant_timer < 0 then
+		if p.deploy_coolant_timer == nil then
+			p.deploy_coolant_timer = delta + 5
+		end
+		p.deploy_coolant_timer = p.deploy_coolant_timer - delta
+		if p.deploy_coolant_timer < 0 then
+			gather_coolant_status = "Gathering Coolant"
+			p:setMaxCoolant(p:getMaxCoolant() + coolant_gain)
+			if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
+				local engine_choice = math.random(1,3)
+				if engine_choice == 1 then
+					p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
+				elseif engine_choice == 2 then
+					if p:hasWarpDrive() then
+						p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
+					end
+				else
+					if p:hasJumpDrive() then
+						p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
+					end
+				end
+			end
+		else
+			gather_coolant_status = string.format("Deploying Collectors %i",math.ceil(p.deploy_coolant_timer - delta))
+		end
+	else
+		gather_coolant_status = string.format("Configuring Collectors %i",math.ceil(p.configure_coolant_timer - delta))
+	end
+	if p:hasPlayerAtPosition("Engineering") then
+		p.gather_coolant = "gather_coolant"
+		p:addCustomInfo("Engineering",p.gather_coolant,gather_coolant_status)
+	end
+	if p:hasPlayerAtPosition("Engineering+") then
+		p.gather_coolant_plus = "gather_coolant_plus"
+		p:addCustomInfo("Engineering",p.gather_coolant_plus,gather_coolant_status)
+	end
+end
+function getCoolantGivenPlayer(p)
+	if p:hasPlayerAtPosition("Engineering") then
+		if p.get_coolant_button ~= nil then
+			p:removeCustom(p.get_coolant_button)
+			p.get_coolant_button = nil
+		end
+	end
+	if p:hasPlayerAtPosition("Engineering+") then
+		if p.get_coolant_button_plus ~= nil then
+			p:removeCustom(p.get_coolant_button_plus)
+			p.get_coolant_button_plus = nil
+		end
+	end
+	p.coolant_trigger = true
+end
+
+
 function updatePlayerPatrolProbes(p)
 	if p.patrol_probe > 5 then
 		p.patrol_probe = 5
