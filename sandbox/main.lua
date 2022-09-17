@@ -10,6 +10,46 @@
 -- ideas:	Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health level
 --			Try not to update custom widgets every frame
 
+-- addCustomButton indices
+-- Relay, Operations			Probes: standard		10
+-- Relay, Operations			Patrol Probe Off		10
+-- Weapons, Tactical			Trigger EPJAM			14
+-- Engineering, Engineering+	Pod Prep				sequence (100 - 200)
+-- Engineering, Engineering+	Check Additive			41
+-- Engineering, Engineering+	Lock on Tractor			13
+-- Engineering, Engineering+	Target blah				14
+-- Engineering, Engineering+	Other tractor target	15
+-- Science, Operations			Lock for Mining			20
+-- Science, Operations			Target Asteroid			21
+-- Science, Operations			Other mining target		22
+-- Relay, Operations			Probe type cycle		10
+-- Relay, Operations			Pod telemetry			19
+-- Relay, Operations			Inventory				23
+-- Engineering, Engineering+	Damage Report			20
+-- Engineering, Engineering+	Max Health				21
+-- Engineering, Engineering+	Boost Sensors			30
+-- Engineering, Engineering+	Sensor Boost level		31-33
+-- Engineering, Engineering+	Stop Sensor Boost		30
+-- Engineering, Engineering+	Disengage Tractor		16
+-- Weapons, Tactical			Start Mining			11
+-- Weapons, Tactical			Launch (fighter name)	12
+-- Engineering, Engineering+	Charge Launch Sys		17
+-- Engineering, Engineering+	Get Coolant				24
+-- Weapons, Tactical			Turbo Torpedo			13
+-- Engineering, Engineering+	Level Coolant			26
+-- Helm, Tactical				Dock with name			18
+
+-- addCustomInfo indices
+-- Relay, Operations			Fast Dock Expired		2
+-- Relay, Operations			Expedite timer			2
+-- Weapons, Tactical			Mining blah				3
+-- Engineering, Engineering+	Auto-cool/repair		4
+-- Relay, Operations			Launch timer			1
+-- Engineering, Engineering+	Gather coolant status	5
+-- Helm, Tactical				fighter dock banner		5
+
+
+
 require("utils.lua")
 require("sandbox/science_database.lua")
 require("utils_customElements.lua")
@@ -104,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.28.1"
+	scenario_version = "5.28.2"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -227,7 +267,7 @@ function setConstants()
 		["Hi"] = {val = .01,	desc = "May gain high amounts of coolant"},		--easy
 	}
 	coolant_gain_name = "Md"
-	coolant_gain = coolant_gains[coolant_gain_name]
+	coolant_gain = coolant_gains[coolant_gain_name].val
 
 
 	ship_template = {	--ordered by relative strength
@@ -3283,7 +3323,7 @@ function setSelectedNebula()
 		if tempType == "Nebula" then
 			local selected_nebula = nil
 			local selected_nebula_index = nil
-			print("anomalous nebula count:",#anomalous_nebulae)
+--			print("anomalous nebula count:",#anomalous_nebulae)
 			for ani, neb in ipairs(anomalous_nebulae) do
 				if tempObject == neb then
 					selected_nebula_index = ani
@@ -3319,7 +3359,7 @@ function setSelectedNebula()
 				end
 			end
 			addGMFunction(button_label,function()
-				print("lose coolant button. Selected nebula:",selected_nebula)
+--				print("lose coolant button. Selected nebula:",selected_nebula)
 				if selected_nebula ~= nil then
 					if selected_nebula.name == "-C" then
 						anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
@@ -49814,52 +49854,25 @@ function updatePlayerInNebula(delta,p)
 		end
 	end
 	if inside_gain_coolant_nebula then
-		--to be continued
-	end
-end
-
---three functions from Borderline Fever to be fully cannibalized later
-function coolantNebulae(delta, p)
-	local inside_gain_coolant_nebula = false
-	for i=1,#coolant_nebula do
---		if distance_diagnostic then print("distance_diagnostic 12",p,coolant_nebula[i]) end
-		if distance(p,coolant_nebula[i]) < 5000 then
-			if coolant_nebula[i].lose then
-				p:setMaxCoolant(p:getMaxCoolant()*coolant_loss)
-				if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
-					local engine_choice = math.random(1,3)
-					if engine_choice == 1 then
-						p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
-					elseif engine_choice == 2 then
-						if p:hasWarpDrive() then
-							p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
-						end
-					else
-						if p:hasJumpDrive() then
-							p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
-						end
-					end
-				end
-			end
-			if coolant_nebula[i].gain then
-				inside_gain_coolant_nebula = true
-			end
-		end
-	end
-	if inside_gain_coolant_nebula then
 		if p.get_coolant then
 			if p.coolant_trigger then
-				updateCoolantGivenPlayer(p, delta)
+				updateCoolantGivenPlayer(p,delta,gain_coolant_nebulae)
 			end
 		else
 			if p:hasPlayerAtPosition("Engineering") then
 				p.get_coolant_button = "get_coolant_button"
-				p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",function() getCoolantGivenPlayer(p) end)
+				p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",function() 
+					string.format("")
+					getCoolantGivenPlayer(p) 
+				end, 24)
 				p.get_coolant = true
 			end
 			if p:hasPlayerAtPosition("Engineering+") then
 				p.get_coolant_button_plus = "get_coolant_button_plus"
-				p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",function() getCoolantGivenPlayer(p) end)
+				p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",function() 
+					string.format("")
+					getCoolantGivenPlayer(p) 
+				end, 24)
 				p.get_coolant = true
 			end
 		end
@@ -49890,7 +49903,7 @@ function coolantNebulae(delta, p)
 		end
 	end
 end
-function updateCoolantGivenPlayer(p, delta)
+function updateCoolantGivenPlayer(p, delta, gain_coolant_nebulae)
 	if p.configure_coolant_timer == nil then
 		p.configure_coolant_timer = delta + 5
 	end
@@ -49901,19 +49914,31 @@ function updateCoolantGivenPlayer(p, delta)
 		end
 		p.deploy_coolant_timer = p.deploy_coolant_timer - delta
 		if p.deploy_coolant_timer < 0 then
+--			print("deploy coolan timer expired")
 			gather_coolant_status = "Gathering Coolant"
-			p:setMaxCoolant(p:getMaxCoolant() + coolant_gain)
-			if p:getMaxCoolant() > 50 and random(1,100) <= 13 then
+			local player_coolant_gain = 0
+--			print("outside gain coolan nebula loop")
+--			print("gain coolant nebula count:",#gain_coolant_nebulae)
+			for c,neb in ipairs(gain_coolant_nebulae) do
+--				print("index:",c,"nebula:",neb)
+--				print("nebula coolant gain:",neb.coolant_gain)
+				player_coolant_gain = math.max(player_coolant_gain,neb.coolant_gain)
+			end
+--			print("adjusting coolant")
+			p:setMaxCoolant(p:getMaxCoolant() + player_coolant_gain)
+--			print("checking for excessive coolant effects")
+			if p:getMaxCoolant() > 30 and random(1,100) <= 13 then
 				local engine_choice = math.random(1,3)
+				local adverse_effect = .995
 				if engine_choice == 1 then
-					p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverseEffect)
+					p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverse_effect)
 				elseif engine_choice == 2 then
 					if p:hasWarpDrive() then
-						p:setSystemHealth("warp",p:getSystemHealth("warp")*adverseEffect)
+						p:setSystemHealth("warp",p:getSystemHealth("warp")*adverse_effect)
 					end
 				else
 					if p:hasJumpDrive() then
-						p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverseEffect)
+						p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverse_effect)
 					end
 				end
 			end
@@ -49925,11 +49950,11 @@ function updateCoolantGivenPlayer(p, delta)
 	end
 	if p:hasPlayerAtPosition("Engineering") then
 		p.gather_coolant = "gather_coolant"
-		p:addCustomInfo("Engineering",p.gather_coolant,gather_coolant_status)
+		p:addCustomInfo("Engineering",p.gather_coolant,gather_coolant_status, 5)
 	end
 	if p:hasPlayerAtPosition("Engineering+") then
 		p.gather_coolant_plus = "gather_coolant_plus"
-		p:addCustomInfo("Engineering",p.gather_coolant_plus,gather_coolant_status)
+		p:addCustomInfo("Engineering",p.gather_coolant_plus,gather_coolant_status, 5)
 	end
 end
 function getCoolantGivenPlayer(p)
@@ -49947,8 +49972,6 @@ function getCoolantGivenPlayer(p)
 	end
 	p.coolant_trigger = true
 end
-
-
 function updatePlayerPatrolProbes(p)
 	if p.patrol_probe > 5 then
 		p.patrol_probe = 5
@@ -50378,17 +50401,17 @@ function updatePlayerMagnasolLevelCoolant(p)
 			p:addCustomButton("Engineering",p.level_coolant_eng,"Level Coolant",function()
 				string.format("")
 				levelCoolant(p)
-			end,11)
+			end, 26)
 			p.level_coolant_plus = "level_coolant_plus"
 			p:addCustomButton("Engineering+",p.level_coolant_plus,"Level Coolant",function()
 				string.format("")
 				levelCoolant(p)
-			end,11)
+			end, 26)
 			p.level_coolant_power = "level_coolant_power"
 			p:addCustomButton("PowerManagement",p.level_coolant_power,"Level Coolant",function()
 				string.format("")
 				levelCoolant(p)
-			end)
+			end, 26)
 			local level_message = string.format("To: The Engineering Staff of %s\nFrom: Bask Construction Crew\nSubject: Level Coolant Notification and Warning\n\nWelcome to the Magnasol region. The technicians of Bask construction crew installed a level coolant function on your ship. Ships within 100 units of Magnasol experience additional heat generation in their systems due to the unusual nature of Magnasol. The closer %s approaches Magnasol, the more heat your systems will experience. The level coolant button takes all available coolant and spreads it out evenly among all systems. The technicians have taken the liberty of triggering this function on your behalf as a demonstration.\n\nThe best way to avoid the heat generation is to stay far away from Magnasol. Your shields reduce the heat generated. Once Bask is constructed, t will have parasol docking to protect ships while they are docked.\n\nEnjoy your tour of the Magnasol system.",p:getCallSign(),p:getCallSign())
 			if stationBask ~= nil and stationBask:isValid() then
 				level_message = string.format("To: The Engineering Staff of %s\nFrom: Station %s\nSubject: Level Coolant Notification and Warning\n\nWelcome to the Magnasol region. The technicians of station %s installed a level coolant function on your ship. Ships within 100 units of Magnasol experience additional heat generation in their systems due to the unusual nature of Magnasol. The closer %s approaches Magnasol, the more heat your systems will experience. The level coolant button takes all available coolant and spreads it out evenly among all systems. The %s technicians have taken the liberty of triggering this function on your behalf as a demonstration.\n\nThe best way to avoid the heat generation is to stay far away from Magnasol. Your shields reduce the heat generated. %s also has parasol docking to protect ships while they are docked.\n\nEnjoy your tour of the Magnasol system.",p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign(),p:getCallSign(),stationBask:getCallSign(),stationBask:getCallSign())
