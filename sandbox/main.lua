@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.28.2"
+	scenario_version = "5.29.1"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -268,6 +268,21 @@ function setConstants()
 	}
 	coolant_gain_name = "Md"
 	coolant_gain = coolant_gains[coolant_gain_name].val
+	beam_range_losses = {
+		["Lo"] = {val = .8,	desc = "May slightly reduce beam range"},			
+		["Md"] = {val = .7,	desc = "May reduce beam range"},					
+		["Hi"] = {val = .6,	desc = "May significantly reduce beam range"},		
+		["Sv"] = {val = .5,	desc = "May severely reduce beam range"},			
+	}
+	beam_range_loss_name = "Md"
+	beam_range_loss = beam_range_losses[beam_range_loss_name].val
+	beam_range_gains = {
+		["Lo"] = {val = 1.1,	desc = "May slightly increase beam range"},				
+		["Md"] = {val = 1.25,	desc = "May increase beam range"},						
+		["Hi"] = {val = 1.4,	desc = "May significantly increase beam range"},		
+	}
+	beam_range_gain_name = "Md"
+	beam_range_gain = beam_range_gains[beam_range_gain_name].val
 
 
 	ship_template = {	--ordered by relative strength
@@ -3219,7 +3234,43 @@ function asteroidsNebulae()
 			addGMFunction(button_label,setSelectedNebula)
 		end
 	else
-		addGMFunction("+Select Asteroid/Nebula",asteroidsNebulae)
+		if #objectList < 1 then
+			addGMFunction("+Select Asteroid/Nebula",asteroidsNebulae)
+		else
+			local asteroids = {}
+			local nebulae = {}
+			for i,obj in ipairs(objectList) do
+				local temp_type = obj.typeName
+				if temp_type == "Asteroid" then
+					table.insert(asteroids,obj)
+				elseif temp_type == "Nebula" then
+					table.insert(nebulae,obj)
+				end
+			end
+			if #asteroids < 1 and #nebulae < 1 then
+				addGMFunction("+Select Asteroid/Nebula",asteroidsNebulae)
+			else
+				if #asteroids == 1 then
+					addGMFunction("Pulse Asteroid",pulseAsteroid)
+				end
+				if #nebulae == 1 then
+					local selected_nebula_index = nil
+					for ani, neb in ipairs(anomalous_nebulae) do
+						if tempObject == neb.neb then
+							selected_nebula_index = ani
+							break
+						end
+					end
+					local button_label = "Tweak Neb"
+					if selected_nebula_index ~= nil then
+						button_label = string.format("%s %i%s",button_label,selected_nebula_index,anomalous_nebulae[selected_nebula_index].name)
+					end
+					addGMFunction(button_label,setSelectedNebula)
+				else
+					addGMFunction("Tweak Nebulae",setSelectedNebula)
+				end
+			end
+		end
 	end	
 end
 function nebulaEffectDegree()
@@ -3230,10 +3281,91 @@ function nebulaEffectDegree()
 	addGMFunction("-Nebulae",setSelectedNebula)
 	addGMFunction(string.format("+Coolant Loss %s",coolant_loss_name),setCoolantLossDegree)
 	addGMFunction(string.format("+Coolant Gain %s",coolant_gain_name),setCoolantGainDegree)
+	addGMFunction(string.format("+Beam Range Loss %s",beam_range_loss_name),setBeamRangeLossDegree)
+	addGMFunction(string.format("+Beam Range Gain %s",beam_range_gain_name),setBeamRangeGainDegree)
+end
+function setBeamRangeGainDegree()
+	clearGMFunctions()
+	addGMFunction("-Main from +Beam Range",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("-Nebulae",setSelectedNebula)
+	addGMFunction("-Degree",nebulaEffectDegree)
+	local button_label = "Low"
+	if beam_range_gain_name == "Lo" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		beam_range_gain_name = "Lo"
+		beam_range_gain = beam_range_gains[beam_range_gain_name].val
+		setBeamRangeGainDegree()
+	end)
+	button_label = "Medium"
+	if beam_range_gain_name == "Md" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		beam_range_gain_name = "Md"
+		beam_range_gain = beam_range_gains[beam_range_gain_name].val
+		setBeamRangeGainDegree()
+	end)
+	button_label = "High"
+	if beam_range_gain_name == "Hi" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		beam_range_gain_name = "Hi"
+		beam_range_gain = beam_range_gains[beam_range_gain_name].val
+		setBeamRangeGainDegree()
+	end)
+end
+function setBeamRangeLossDegree()
+	clearGMFunctions()
+	addGMFunction("-Main from -Beam Range",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("-Nebulae",setSelectedNebula)
+	addGMFunction("-Degree",nebulaEffectDegree)
+	local button_label = "Low"
+	if beam_range_loss_name == "Lo" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		beam_range_loss_name = "Lo"
+		beam_range_loss = beam_range_losses[beam_range_loss_name].val
+		setBeamRangeLossDegree()
+	end)
+	button_label = "Medium"
+	if beam_range_loss_name == "Md" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		beam_range_loss_name = "Md"
+		beam_range_loss = beam_range_losses[beam_range_loss_name].val
+		setBeamRangeLossDegree()
+	end)
+	button_label = "High"
+	if beam_range_loss_name == "Hi" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		beam_range_loss_name = "Hi"
+		beam_range_loss = beam_range_losses[beam_range_loss_name].val
+		setBeamRangeLossDegree()
+	end)
+	button_label = "Severe"
+	if beam_range_loss_name == "Sv" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		beam_range_loss_name = "Sv"
+		beam_range_loss = beam_range_losses[beam_range_loss_name].val
+		setBeamRangeLossDegree()
+	end)
 end
 function setCoolantLossDegree()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Main from -Coolant",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
 	addGMFunction("-Nebulae",setSelectedNebula)
@@ -3288,7 +3420,7 @@ function setCoolantGainDegree()
 	end
 	addGMFunction(button_label,function()
 		coolant_gain_name = "Lo"
-		coolant_gain = coolant_gains[coolant_gain_name]
+		coolant_gain = coolant_gains[coolant_gain_name].val
 		setCoolantGainDegree()
 	end)
 	button_label = "Medium"
@@ -3297,7 +3429,7 @@ function setCoolantGainDegree()
 	end
 	addGMFunction(button_label,function()
 		coolant_gain_name = "Md"
-		coolant_gain = coolant_gains[coolant_gain_name]
+		coolant_gain = coolant_gains[coolant_gain_name].val
 		setCoolantGainDegree()
 	end)
 	button_label = "High"
@@ -3306,7 +3438,7 @@ function setCoolantGainDegree()
 	end
 	addGMFunction(button_label,function()
 		coolant_gain_name = "Hi"
-		coolant_gain = coolant_gains[coolant_gain_name]
+		coolant_gain = coolant_gains[coolant_gain_name].val
 		setCoolantGainDegree()
 	end)
 end
@@ -3321,90 +3453,341 @@ function setSelectedNebula()
 		local tempObject = objectList[1]
 		local tempType = tempObject.typeName
 		if tempType == "Nebula" then
-			local selected_nebula = nil
-			local selected_nebula_index = nil
---			print("anomalous nebula count:",#anomalous_nebulae)
-			for ani, neb in ipairs(anomalous_nebulae) do
-				if tempObject == neb then
-					selected_nebula_index = ani
-					selected_nebula = neb
-					break
-				end
-			end
-			local button_label = "Can Scan"
-			if selected_nebula ~= nil then
-				if selected_nebula.scannable then
-					button_label = button_label .. "*"
-				end
-			end
-			addGMFunction(button_label,function()
-				if selected_nebula.scannable then
-					selected_nebula.scannable = false
-					selected_nebula:setScanningParameters(0,0)
-					selected_nebula:setDescriptions("","")
-				else
-					selected_nebula.scannable = true
-					selected_nebula:setScanningParameters(math.random(1,2),math.random(1,3))
-					if selected_nebula.scanned_desc == nil then
-						selected_nebula.scanned_desc = "Potential hazard"
-					end
-					selected_nebula:setDescriptions("Anomalous nebula",selected_nebula.scanned_desc)
-				end
-				setSelectedNebula()
-			end)
-			button_label = "Lose Coolant"
-			if selected_nebula ~= nil then
-				if selected_nebula.name == "-C" then
-					button_label = button_label .. "*"
-				end
-			end
-			addGMFunction(button_label,function()
---				print("lose coolant button. Selected nebula:",selected_nebula)
-				if selected_nebula ~= nil then
-					if selected_nebula.name == "-C" then
-						anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
-						anomalous_nebulae[#anomalous_nebulae] = nil
-					else
-						selected_nebula.name = "-C"
-					end
-				else
-					tempObject.name = "-C"
-					tempObject.coolant_loss = coolant_loss
-					tempObject.scanned_desc = coolant_losses[coolant_loss_name].desc
-					table.insert(anomalous_nebulae,tempObject)
-				end
-				setSelectedNebula()
-			end)
-			button_label = "Gain Coolant"
-			if selected_nebula ~= nil then
-				if selected_nebula.name == "+C" then
-					button_label = button_label .. "*"
-				end
-			end
-			addGMFunction(button_label,function()
-				if selected_nebula ~= nil then
-					if selected_nebula.name == "+C" then
-						anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
-						anomalous_nebulae[#anomalous_nebulae] = nil
-					else
-						selected_nebula.name = "+C"
-					end
-				else
-					tempObject.name = "+C"
-					tempObject.coolant_gain = coolant_gain
-					tempObject.scanned_desc = coolant_gains[coolant_gain_name].desc
-					table.insert(anomalous_nebulae,tempObject)
-				end
-				setSelectedNebula()
-			end)
+			setSingleNebula(tempObject)
 		else
 			addGMMessage("Select a nebula. No action taken")
 			asteroidsNebulae()
 		end
 	else
-		addGMMessage("Select a nebula. No action taken")
-		asteroidsNebulae()
+		if #objectList < 1 then
+			addGMMessage("Select a nebula. No action taken")
+			asteroidsNebulae()
+		else
+			local nebulae = {}
+			for i,obj in ipairs(objectList) do
+				local temp_type = obj.typeName
+				if temp_type == "Nebula" then
+					table.insert(nebulae,obj)
+				end
+			end
+			if #nebulae < 1 then
+				addGMMessage("Select a nebula. No action taken")
+				asteroidsNebulae()
+			else
+				if #nebulae == 1 then
+					setSingleNebula(nebulae[1])
+				else
+					local can_scan_count = 0
+					for i,neb in ipairs(nebulae) do
+						if neb.scannable then
+							can_scan_count = can_scan_count + 1
+						end
+					end
+					local button_label = "Can Scan"
+					if can_scan_count == #nebulae then
+						button_label = button_label .. "*"
+					end
+					addGMFunction(button_label,function()
+						local can_scan_count = 0
+						for i,neb in ipairs(nebulae) do
+							if neb.scannable then
+								can_scan_count = can_scan_count + 1
+							end
+						end
+						if can_scan_count == #nebulae then
+							for i,neb in ipairs(nebulae) do
+								neb.scannable = false
+								neb:setScanningParameters(0,0)
+								neb:setDescriptions("","")
+							end
+						else
+							for i,neb in ipairs(nebulae) do
+								neb.scannable = true
+								neb:setScanningParameters(math.random(1,2),math.random(1,3))
+								if neb.scanned_desc == nil then
+									neb.scanned_desc = "Potential hazard"
+								end
+								neb:setDescriptions("Anomalous nebula",neb.scanned_desc)
+							end
+						end
+						setSelectedNebula()
+					end)
+					button_label = "Lose Coolant"
+					local lose_coolant_count = 0
+					for i,neb in ipairs(nebulae) do
+						if neb.name == "-C" then
+							lose_coolant_count = lose_coolant_count + 1
+						end
+					end
+					if lose_coolant_count == #nebulae then
+						button_label = button_label .. "*"
+					elseif lose_coolant_count > 0 then
+						button_label = button_label .. "#"
+					end
+					addGMFunction(button_label,function()
+						local lose_coolant_count = 0
+						for i,neb in ipairs(nebulae) do
+							if neb.name == "-C" then
+								lose_coolant_count = lose_coolant_count + 1
+							end
+						end
+						if lose_coolant_count > 0 then
+							for i,neb in ipairs(nebulae) do
+								for j=#anomalous_nebulae,1,-1 do
+									if neb == anomalous_nebulae[j] then
+										anomalous_nebulae[j] = anomalous_nebulae[#anomalous_nebulae]
+										anomalous_nebulae[#anomalous_nebulae] = nil
+									end
+								end
+							end
+						else
+							for i,neb in ipairs(nebulae) do
+								neb.name = "-C"
+								neb.coolant_loss = coolant_loss
+								neb.scanned_desc = coolant_losses[coolant_loss_name].desc
+								table.insert(anomalous_nebulae,neb)
+							end
+						end
+						setSelectedNebula()
+					end)
+					button_label = "Gain Coolant"
+					local gain_coolant_count = 0
+					for i,neb in ipairs(nebulae) do
+						if neb.name == "+C" then
+							gain_coolant_count = gain_coolant_count + 1
+						end
+					end
+					if gain_coolant_count == #nebulae then
+						button_label = button_label .. "*"
+					elseif gain_coolant_count > 0 then
+						button_label = button_label .. "#"
+					end
+					addGMFunction(button_label,function()
+						local gain_coolant_count = 0
+						for i,neb in ipairs(nebulae) do
+							if neb.name == "+C" then
+								gain_coolant_count = gain_coolant_count + 1
+							end
+						end
+						if gain_coolant_count > 0 then
+							for i,neb in ipairs(nebulae) do
+								for j=#anomalous_nebulae,1,-1 do
+									if neb == anomalous_nebulae[j] then
+										anomalous_nebulae[j] = anomalous_nebulae[#anomalous_nebulae]
+										anomalous_nebulae[#anomalous_nebulae] = nil
+									end
+								end
+							end
+						else
+							for i,neb in ipairs(nebulae) do
+								neb.name = "+C"
+								neb.coolant_gain = coolant_gain
+								neb.scanned_desc = coolant_gains[coolant_gain_name].desc
+								table.insert(anomalous_nebulae,neb)
+							end
+						end
+						setSelectedNebula()
+					end)
+					button_label = "Lose Beam Range"
+					local lose_beam_range_count = 0
+					for i,neb in ipairs(nebulae) do
+						if neb.name == "-BR" then
+							lose_beam_range_count = lose_beam_range_count + 1
+						end
+					end
+					if lose_beam_range_count == #nebulae then
+						button_label = button_label .. "*"
+					elseif lose_beam_range_count > 0 then
+						button_label = button_label .. "#"
+					end
+					addGMFunction(button_label,function()
+						local lose_beam_range_count = 0
+						for i,neb in ipairs(nebulae) do
+							if neb.name == "-BR" then
+								lose_beam_range_count = lose_beam_range_count + 1
+							end
+						end
+						if lose_beam_range_count > 0 then
+							for i,neb in ipairs(nebulae) do
+								for j=#anomalous_nebulae,1,-1 do
+									if neb == anomalous_nebulae[j] then
+										anomalous_nebulae[j] = anomalous_nebulae[#anomalous_nebulae]
+										anomalous_nebulae[#anomalous_nebulae] = nil
+									end
+								end
+							end
+						else
+							for i,neb in ipairs(nebulae) do
+								neb.name = "-BR"
+								neb.beam_range_loss = beam_range_loss
+								neb.scanned_desc = beam_range_losses[beam_range_loss_name].desc
+								table.insert(anomalous_nebulae,neb)
+							end
+						end
+						setSelectedNebula()
+					end)
+					button_label = "Gain Beam Range"
+					local gain_beam_range_count = 0
+					for i,neb in ipairs(nebulae) do
+						if neb.name == "+BR" then
+							gain_beam_range_count = gain_beam_range_count + 1
+						end
+					end
+					if gain_beam_range_count == #nebulae then
+						button_label = button_label .. "*"
+					elseif gain_beam_range_count > 0 then
+						button_label = button_label .. "#"
+					end
+					addGMFunction(button_label,function()
+						local gain_beam_range_count = 0
+						for i,neb in ipairs(nebulae) do
+							if neb.name == "+BR" then
+								gain_beam_range_count = gain_beam_range_count + 1
+							end
+						end
+						if gain_beam_range_count > 0 then
+							for i,neb in ipairs(nebulae) do
+								for j=#anomalous_nebulae,1,-1 do
+									if neb == anomalous_nebulae[j] then
+										anomalous_nebulae[j] = anomalous_nebulae[#anomalous_nebulae]
+										anomalous_nebulae[#anomalous_nebulae] = nil
+									end
+								end
+							end
+						else
+							for i,neb in ipairs(nebulae) do
+								neb.name = "+BR"
+								neb.beam_range_gain = beam_range_gain
+								neb.scanned_desc = beam_range_gains[beam_range_gain_name].desc
+								table.insert(anomalous_nebulae,neb)
+							end
+						end
+						setSelectedNebula()
+					end)
+				end
+			end
+		end
 	end
+end
+function setSingleNebula(tempObject)
+	local selected_nebula = nil
+	local selected_nebula_index = nil
+	for ani, neb in ipairs(anomalous_nebulae) do
+		if tempObject == neb then
+			selected_nebula_index = ani
+			selected_nebula = neb
+			break
+		end
+	end
+	local button_label = "Can Scan"
+	if selected_nebula ~= nil then
+		if selected_nebula.scannable then
+			button_label = button_label .. "*"
+		end
+	end
+	addGMFunction(button_label,function()
+		if selected_nebula.scannable then
+			selected_nebula.scannable = false
+			selected_nebula:setScanningParameters(0,0)
+			selected_nebula:setDescriptions("","")
+		else
+			selected_nebula.scannable = true
+			selected_nebula:setScanningParameters(math.random(1,2),math.random(1,3))
+			if selected_nebula.scanned_desc == nil then
+				selected_nebula.scanned_desc = "Potential hazard"
+			end
+			selected_nebula:setDescriptions("Anomalous nebula",selected_nebula.scanned_desc)
+		end
+		setSelectedNebula()
+	end)
+	button_label = "Lose Coolant"
+	if selected_nebula ~= nil then
+		if selected_nebula.name == "-C" then
+			button_label = button_label .. "*"
+		end
+	end
+	addGMFunction(button_label,function()
+		if selected_nebula ~= nil then
+			if selected_nebula.name == "-C" then
+				anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+				anomalous_nebulae[#anomalous_nebulae] = nil
+			else
+				selected_nebula.name = "-C"
+			end
+		else
+			tempObject.name = "-C"
+			tempObject.coolant_loss = coolant_loss
+			tempObject.scanned_desc = coolant_losses[coolant_loss_name].desc
+			table.insert(anomalous_nebulae,tempObject)
+		end
+		setSelectedNebula()
+	end)
+	button_label = "Gain Coolant"
+	if selected_nebula ~= nil then
+		if selected_nebula.name == "+C" then
+			button_label = button_label .. "*"
+		end
+	end
+	addGMFunction(button_label,function()
+		if selected_nebula ~= nil then
+			if selected_nebula.name == "+C" then
+				anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+				anomalous_nebulae[#anomalous_nebulae] = nil
+			else
+				selected_nebula.name = "+C"
+			end
+		else
+			tempObject.name = "+C"
+			tempObject.coolant_gain = coolant_gain
+			tempObject.scanned_desc = coolant_gains[coolant_gain_name].desc
+			table.insert(anomalous_nebulae,tempObject)
+		end
+		setSelectedNebula()
+	end)
+	button_label = "Lose Beam Range"
+	if selected_nebula ~= nil then
+		if selected_nebula.name == "-BR" then
+			button_label = button_label .. "*"
+		end
+	end
+	addGMFunction(button_label,function()
+		if selected_nebula ~= nil then
+			if selected_nebula.name == "-BR" then
+				anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+				anomalous_nebulae[#anomalous_nebulae] = nil
+			else
+				selected_nebula.name = "-BR"
+			end
+		else
+			tempObject.name = "-BR"
+			tempObject.beam_range_loss = beam_range_loss
+			tempObject.scanned_desc = beam_range_losses[beam_range_loss_name].desc
+			table.insert(anomalous_nebulae,tempObject)
+		end
+		setSelectedNebula()
+	end)
+	button_label = "Gain Beam Range"
+	if selected_nebula ~= nil then
+		if selected_nebula.name == "+BR" then
+			button_label = button_label .. "*"
+		end
+	end
+	addGMFunction(button_label,function()
+		if selected_nebula ~= nil then
+			if selected_nebula.name == "+BR" then
+				anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+				anomalous_nebulae[#anomalous_nebulae] = nil
+			else
+				selected_nebula.name = "+BR"
+			end
+		else
+			tempObject.name = "+BR"
+			tempObject.beam_range_gain = beam_range_gain
+			tempObject.scanned_desc = beam_range_gains[beam_range_gain_name].desc
+			table.insert(anomalous_nebulae,tempObject)
+		end
+		setSelectedNebula()
+	end)
 end
 function setFactionRelations()
 	clearGMFunctions()
@@ -49817,16 +50200,23 @@ function catchEpjamMissile(p)
 end
 function updatePlayerInNebula(delta,p)
 	local inside_gain_coolant_nebula = false
+	local inside_lose_beam_range_nebula = false
+	local inside_gain_beam_range_nebula = false
 	local gain_coolant_nebulae = {}
+	local lose_beam_range_nebulae = {}
+	local gain_beam_range_nebulae = {}
 	local obj_list = p:getObjectsInRange(5100)
 	if #anomalous_nebulae > 0 then 
 		for i,obj in ipairs(obj_list) do
 			if obj.typeName == "Nebula" then
 				for j,neb in ipairs(anomalous_nebulae) do
+--					print("check anomalous nebulae. Index:",j,"Nebula:",neb)
 					if neb.name ~= nil and neb == obj then
 						if distance(p,neb) <= 5000 then
+--							print("Player inside:",p:getCallSign(),"Anomalous nebula index:",j)
 							if neb.name == "-C" then
 								p:setMaxCoolant(p:getMaxCoolant()*neb.coolant_loss)
+								print("Lost coolant. Current:",p:getMaxCoolant())
 								if p:getMaxCoolant() > 30 and random(1,100) <= 13 then
 									local engine_choice = math.random(1,3)
 									local adverse_effect = .995
@@ -49846,6 +50236,14 @@ function updatePlayerInNebula(delta,p)
 							if neb.name == "+C" then
 								inside_gain_coolant_nebula = true
 								table.insert(gain_coolant_nebulae,neb)
+							end
+							if neb.name == "-BR" then
+								inside_lose_beam_range_nebula = true
+								table.insert(lose_beam_range_nebulae,neb)
+							end
+							if neb.name == "+BR" then
+								inside_gain_beam_range_nebula = true
+								table.insert(gain_beam_range_nebulae,neb)
 							end
 						end
 					end
@@ -49900,6 +50298,121 @@ function updatePlayerInNebula(delta,p)
 				p:removeCustom(p.gather_coolant_plus)
 				p.gather_coolant_plus = nil
 			end
+		end
+	end
+	local range_differential = 1
+	if inside_lose_beam_range_nebula and inside_gain_beam_range_nebula then
+--		print("inside lose and gain beam range nebulae")
+		if p.normal_beam_range == nil then
+			p.normal_beam_range = {}
+			for i=0,15 do
+				if p:getBeamWeaponRange(i) > 1 then
+					p.normal_beam_range[i] = p:getBeamWeaponRange(i)
+				end
+			end
+		end
+		for i,neb in ipairs(lose_beam_range_nebulae) do
+			if neb.beam_range_loss ~= nil then
+				range_differential = math.min(range_differential,neb.beam_range_loss)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+				p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i]*range_differential,cyc,dmg)
+			end
+		end
+		range_differential = 1
+		for i,neb in ipairs(gain_beam_range_nebulae) do
+			if neb.beam_range_gain ~= nil then
+				range_differential = math.max(range_differential,neb.beam_range_gain)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+				p:setBeamWeapon(i,arc,dir,rng*range_differential,cyc,dmg)
+			end
+		end
+	elseif inside_lose_beam_range_nebula then
+--		print("inside lose beam range nebula")
+		if p.normal_beam_range == nil then
+			p.normal_beam_range = {}
+			for i=0,15 do
+				if p:getBeamWeaponRange(i) > 1 then
+					p.normal_beam_range[i] = p:getBeamWeaponRange(i)
+				end
+			end
+		end
+		for i,neb in ipairs(lose_beam_range_nebulae) do
+			if neb.beam_range_loss ~= nil then
+				range_differential = math.min(range_differential,neb.beam_range_loss)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+--				print("range before adjustment:",rng,"normal range:",p.normal_beam_range[i],"differential:",range_differential)
+				p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i]*range_differential,cyc,dmg)
+--				print("range after adjustment:",p:getBeamWeaponRange(i))
+			end
+		end
+	elseif inside_gain_beam_range_nebula then
+--		print("inside gain beam range nebula")
+		if p.normal_beam_range == nil then
+--			print("save normal beam range")
+			p.normal_beam_range = {}
+			for i=0,15 do
+				if p:getBeamWeaponRange(i) > 1 then
+					p.normal_beam_range[i] = p:getBeamWeaponRange(i)
+				end
+			end
+		end
+		for i,neb in ipairs(gain_beam_range_nebulae) do
+			if neb.beam_range_gain ~= nil then
+--				print("nebula has beam range gain value. neb beam range gain:",neb.beam_range_gain)
+				range_differential = math.max(range_differential,neb.beam_range_gain)
+--				print("Calculated range differential:",range_differential)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+--				print("Index:",i,"Before: rng:",rng,"dir:",dir,"cyc:",cyc,"dmg:",dmg)
+				p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i]*range_differential,cyc,dmg)
+--				print("After: rng:",rng,"dir:",dir,"cyc:",cyc,"dmg:",dmg)
+			end
+		end
+	else
+		if p.normal_beam_range ~= nil then
+--			print("exit beam range nebulae")
+			for i=0,15 do
+				local rng = p:getBeamWeaponRange(i)
+				if rng > 1 then
+					local arc = p:getBeamWeaponArc(i)
+					local dir = p:getBeamWeaponDirection(i)
+					local cyc = p:getBeamWeaponCycleTime(i)
+					local dmg = p:getBeamWeaponDamage(i)
+					p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i],cyc,dmg)
+				end
+			end
+			p.normal_beam_range = nil
 		end
 	end
 end
