@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.29.1"
+	scenario_version = "5.30.0"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -283,6 +283,21 @@ function setConstants()
 	}
 	beam_range_gain_name = "Md"
 	beam_range_gain = beam_range_gains[beam_range_gain_name].val
+	shield_losses = {
+		["Lo"] = {val = .99999,	desc = "May cause low rates of shield charge loss"},	
+		["Md"] = {val = .99995,	desc = "May cause shield charge loss"},					
+		["Hi"] = {val = .9999,	desc = "May cause high rates of shield charge loss"},	
+		["Sv"] = {val = .999,	desc = "May cause severe rates of shield charge loss"},	
+	}
+	shield_loss_name = "Md"
+	shield_loss = shield_losses[shield_loss_name].val
+	shield_gains = {
+		["Lo"] = {val = 1.000005,	desc = "May slightly increase shield charge"},		
+		["Md"] = {val = 1.00005,	desc = "May increase shield charge"},				
+		["Hi"] = {val = 1.0005,		desc = "May significantly increase shield charge"},	
+	}
+	shield_gain_name = "Md"
+	shield_gain = shield_gains[shield_gain_name].val
 
 
 	ship_template = {	--ordered by relative strength
@@ -1152,7 +1167,7 @@ function setConstants()
 	makePlayerShipActive("Enola")		--J
 	makePlayerShipActive("Raptor")		--J
 	makePlayerShipActive("Yorik") 		--J mining, cargo: 12
-	makePlayerShipActive("Shannon")		--W
+	makePlayerShipActive("Tango")		--W
 	makePlayerShipActive("Ignite")		--W
 	makePlayerShipActive("Eagle") 		--W mining, cargo: 14
 	active_player_ship = true
@@ -1451,6 +1466,8 @@ function setConstants()
 		["Waddle 5"] =						100,
 		["Warden"] =						600,
 		["Weapons platform"] =				200,
+		["Whirlwind"] =						200,
+		["Wombat"] =						100,
 		["Work Wagon"] =					600,
 		["WX-Lindworm"] =					100,
 		["WZ-Lindworm"] =					100,
@@ -3283,6 +3300,87 @@ function nebulaEffectDegree()
 	addGMFunction(string.format("+Coolant Gain %s",coolant_gain_name),setCoolantGainDegree)
 	addGMFunction(string.format("+Beam Range Loss %s",beam_range_loss_name),setBeamRangeLossDegree)
 	addGMFunction(string.format("+Beam Range Gain %s",beam_range_gain_name),setBeamRangeGainDegree)
+	addGMFunction(string.format("+Shield Loss %s",shield_loss_name),setShieldChargeLossDegree)
+	addGMFunction(string.format("+Shield Gain %s",shield_gain_name),setShieldChargeGainDegree)	
+end
+function setShieldChargeLossDegree()
+	clearGMFunctions()
+	addGMFunction("-Main from -Shield Chg",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("-Nebulae",setSelectedNebula)
+	addGMFunction("-Degree",nebulaEffectDegree)
+	local button_label = "Low"
+	if shield_loss_name == "Lo" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		shield_loss_name = "Lo"
+		shield_loss = shield_losses[shield_loss_name].val
+		setShieldChargeLossDegree()
+	end)
+	button_label = "Medium"
+	if shield_loss_name == "Md" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		shield_loss_name = "Md"
+		shield_loss = shield_losses[shield_loss_name].val
+		setShieldChargeLossDegree()
+	end)
+	button_label = "High"
+	if shield_loss_name == "Hi" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		shield_loss_name = "Hi"
+		shield_loss = shield_losses[shield_loss_name].val
+		setShieldChargeLossDegree()
+	end)
+	button_label = "Severe"
+	if shield_loss_name == "Sv" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		shield_loss_name = "Sv"
+		shield_loss = shield_losses[shield_loss_name].val
+		setShieldChargeLossDegree()
+	end)
+end
+function setShieldChargeGainDegree()
+	clearGMFunctions()
+	addGMFunction("-Main from +Shield Chg",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("-Nebulae",setSelectedNebula)
+	addGMFunction("-Degree",nebulaEffectDegree)
+	local button_label = "Low"
+	if shield_gain_name == "Lo" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		shield_gain_name = "Lo"
+		shield_gain = shield_gains[shield_gain_name].val
+		setShieldChargeGainDegree()
+	end)
+	button_label = "Medium"
+	if shield_gain_name == "Md" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		shield_gain_name = "Md"
+		shield_gain = shield_gains[shield_gain_name].val
+		setShieldChargeGainDegree()
+	end)
+	button_label = "High"
+	if shield_gain_name == "Hi" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		shield_gain_name = "Hi"
+		shield_gain = shield_gains[shield_gain_name].val
+		setShieldChargeGainDegree()
+	end)
 end
 function setBeamRangeGainDegree()
 	clearGMFunctions()
@@ -3664,6 +3762,82 @@ function setSelectedNebula()
 						end
 						setSelectedNebula()
 					end)
+					button_label = "Lose Shield Charge"
+					local lose_shield_charge_count = 0
+					for i,neb in ipairs(nebulae) do
+						if neb.name == "-SC" then
+							lose_shield_charge_count = lose_shield_charge_count + 1
+						end
+					end
+					if lose_shield_charge_count == #nebulae then
+						button_label = button_label .. "*"
+					elseif lose_shield_charge_count > 0 then
+						button_label = button_label .. "#"
+					end
+					addGMFunction(button_label,function()
+						local lose_shield_charge_count = 0
+						for i,neb in ipairs(nebulae) do
+							if neb.name == "-SC" then
+								lose_shield_charge_count = lose_shield_charge_count + 1
+							end
+						end
+						if lose_shield_charge_count > 0 then
+							for i,neb in ipairs(nebulae) do
+								for j=#anomalous_nebulae,1,-1 do
+									if neb == anomalous_nebulae[j] then
+										anomalous_nebulae[j] = anomalous_nebulae[#anomalous_nebulae]
+										anomalous_nebulae[#anomalous_nebulae] = nil
+									end
+								end
+							end
+						else
+							for i,neb in ipairs(nebulae) do
+								neb.name = "-SC"
+								neb.shield_loss = shield_loss
+								neb.scanned_desc = shield_losses[shield_loss_name].desc
+								table.insert(anomalous_nebulae,neb)
+							end
+						end
+						setSelectedNebula()
+					end)
+					button_label = "Gain Shield Charge"
+					local gain_shield_charge_count = 0
+					for i,neb in ipairs(nebulae) do
+						if neb.name == "+SC" then
+							gain_shield_charge_count = gain_shield_charge_count + 1
+						end
+					end
+					if gain_shield_charge_count == #nebulae then
+						button_label = button_label .. "*"
+					elseif gain_shield_charge_count > 0 then
+						button_label = button_label .. "#"
+					end
+					addGMFunction(button_label,function()
+						local gain_shield_charge_count = 0
+						for i,neb in ipairs(nebulae) do
+							if neb.name == "+SC" then
+								gain_shield_charge_count = gain_shield_charge_count + 1
+							end
+						end
+						if gain_shield_charge_count > 0 then
+							for i,neb in ipairs(nebulae) do
+								for j=#anomalous_nebulae,1,-1 do
+									if neb == anomalous_nebulae[j] then
+										anomalous_nebulae[j] = anomalous_nebulae[#anomalous_nebulae]
+										anomalous_nebulae[#anomalous_nebulae] = nil
+									end
+								end
+							end
+						else
+							for i,neb in ipairs(nebulae) do
+								neb.name = "+SC"
+								neb.shield_gain = shield_gain
+								neb.scanned_desc = shield_gains[shield_gain_name].desc
+								table.insert(anomalous_nebulae,neb)
+							end
+						end
+						setSelectedNebula()
+					end)
 				end
 			end
 		end
@@ -3784,6 +3958,50 @@ function setSingleNebula(tempObject)
 			tempObject.name = "+BR"
 			tempObject.beam_range_gain = beam_range_gain
 			tempObject.scanned_desc = beam_range_gains[beam_range_gain_name].desc
+			table.insert(anomalous_nebulae,tempObject)
+		end
+		setSelectedNebula()
+	end)
+	button_label = "Lose Shield Charge"
+	if selected_nebula ~= nil then
+		if selected_nebula.name == "-SC" then
+			button_label = button_label .. "*"
+		end
+	end
+	addGMFunction(button_label,function()
+		if selected_nebula ~= nil then
+			if selected_nebula.name == "-SC" then
+				anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+				anomalous_nebulae[#anomalous_nebulae] = nil
+			else
+				selected_nebula.name = "-SC"
+			end
+		else
+			tempObject.name = "-SC"
+			tempObject.shield_loss = shield_loss
+			tempObject.scanned_desc = shield_losses[shield_loss_name].desc
+			table.insert(anomalous_nebulae,tempObject)
+		end
+		setSelectedNebula()
+	end)
+	button_label = "Gain Shield Charge"
+	if selected_nebula ~= nil then
+		if selected_nebula.name == "+SC" then
+			button_label = button_label .. "*"
+		end
+	end
+	addGMFunction(button_label,function()
+		if selected_nebula ~= nil then
+			if selected_nebula.name == "+SC" then
+				anomalous_nebulae[selected_nebula_index] = anomalous_nebulae[#anomalous_nebulae]
+				anomalous_nebulae[#anomalous_nebulae] = nil
+			else
+				selected_nebula.name = "+SC"
+			end
+		else
+			tempObject.name = "+SC"
+			tempObject.shield_gain = shield_gain
+			tempObject.scanned_desc = shield_gains[shield_gain_name].desc
 			table.insert(anomalous_nebulae,tempObject)
 		end
 		setSelectedNebula()
@@ -27614,7 +27832,11 @@ function playerShipDamage(self,instigator)
 						print("nil from shipTemplateDistance for template:",template)
 						exp_size = 400
 					end
-					ElectricExplosionEffect():setSize(shipTemplateDistance[template]):setOnRadar(true):setPosition(slf_x, slf_y)
+					local explosion_size = shipTemplateDistance[template]
+					if explosion_size == nil then
+						explosion_size = 500
+					end
+					ElectricExplosionEffect():setSize(explosion_size):setOnRadar(true):setPosition(slf_x, slf_y)
 				end
 			end
 		end
@@ -50213,10 +50435,10 @@ function updatePlayerInNebula(delta,p)
 --					print("check anomalous nebulae. Index:",j,"Nebula:",neb)
 					if neb.name ~= nil and neb == obj then
 						if distance(p,neb) <= 5000 then
---							print("Player inside:",p:getCallSign(),"Anomalous nebula index:",j)
+--							print("Player inside:",p:getCallSign(),"Anomalous nebula index:",j,"name:",neb.name)
 							if neb.name == "-C" then
 								p:setMaxCoolant(p:getMaxCoolant()*neb.coolant_loss)
-								print("Lost coolant. Current:",p:getMaxCoolant())
+--								print("Lost coolant. Current:",p:getMaxCoolant())
 								if p:getMaxCoolant() > 30 and random(1,100) <= 13 then
 									local engine_choice = math.random(1,3)
 									local adverse_effect = .995
@@ -50244,6 +50466,52 @@ function updatePlayerInNebula(delta,p)
 							if neb.name == "+BR" then
 								inside_gain_beam_range_nebula = true
 								table.insert(gain_beam_range_nebulae,neb)
+							end
+							if neb.name == "-SC" then
+--								print("shield charge loss")
+								if p:getShieldCount() > 0 then
+									local charge_loss_cap = p:getShieldMax(0)*0.1
+									local adjusted_shield = p:getShieldLevel(0)*neb.shield_loss
+--									print("cap:",charge_loss_cap,"adjusted:",adjusted_shield)
+									if adjusted_shield > charge_loss_cap then
+										if p:getShieldCount() == 1 then
+											p:setShields(adjusted_shield)
+--											print("set single shield")
+										else
+											p:setShields(adjusted_shield,p:getShieldLevel(1))
+--											print("set front shield")
+										end
+									end
+									if p:getShieldCount() > 1 then
+										charge_loss_cap = p:getShieldMax(1)*0.1
+										adjusted_shield = p:getShieldLevel(1)*neb.shield_loss
+--										print("Rear shield: cap:",charge_loss_cap,"adjusted:",adjusted_shield)
+										if adjusted_shield > charge_loss_cap then
+											p:setShields(p:getShieldLevel(0),adjusted_shield)
+--											print("set rear shield")
+										end
+									end
+								end
+							end
+							if neb.name == "+SC" then
+								if p:getShieldCount() > 0 then
+									local charge_gain_cap = p:getShieldMax(0)*1.25
+									local adjusted_shield = p:getShieldLevel(0)*neb.shield_gain
+									if adjusted_shield < charge_gain_cap then
+										if p:getShieldCount() == 1 then
+											p:setShields(adjusted_shield)
+										else
+											p:setShields(adjusted_shield,p:getShieldLevel(1))
+										end
+									end
+									if p:getShieldCount() > 1 then
+										charge_gain_cap = p:getShieldMax(1)*1.25
+										adjusted_shield = p:getShieldLevel(1)*neb.shield_gain
+										if adjusted_shield < charge_gain_cap then
+											p:setShields(p:getShieldLevel(0),adjusted_shield)
+										end
+									end
+								end
 							end
 						end
 					end
