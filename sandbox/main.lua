@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.30.0"
+	scenario_version = "5.30.2"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1166,10 +1166,10 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
 	makePlayerShipActive("Raptor")		--J
-	makePlayerShipActive("Yorik") 		--J mining, cargo: 12
+	makePlayerShipActive("Yorik") 		--J 
 	makePlayerShipActive("Tango")		--W
 	makePlayerShipActive("Ignite")		--W
-	makePlayerShipActive("Eagle") 		--W mining, cargo: 14
+	makePlayerShipActive("Sting") 		--W 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -7541,84 +7541,84 @@ end
 function createDiversityFeatures()
 	local asteroidList = {}
 	local asteroidInfo = {
-    	{72233, 293035, 117},
-    	{72743, 289807, 128},
-    	{73773, 291136, 121},
-    	{75399, 294591, 138},
-    	{75094, 291136, 119},
-    	{75093, 293291, 129},
-    	{52947, 276812, 113},
-    	{52096, 274884, 124},
-    	{54876, 277153, 150},
-    	{71146, 288885, 128},
-    	{60491, 276132, 171},
-    	{56634, 276075, 124},
-    	{51926, 271934, 115},
-    	{76619, 293118, 164},
-    	{71933, 286406, 128},
-    	{76720, 296675, 122},
-    	{73232, 288334, 313},
-    	{70949, 287587, 129},
-    	{47275, 277550, 114},
-    	{50338, 278003, 175},
-    	{50905, 274600, 114},
-    	{46413, 283460, 120},
-    	{49706, 282026, 122},
-    	{45445, 285552, 119},
-    	{49090, 277550, 125},
-    	{48920, 279138, 184},
-    	{48749, 270062, 220},
-    	{50054, 273125, 121},
-    	{50481, 284312, 126},
-    	{60709, 285203, 118},
-    	{62259, 284854, 210},
-    	{65242, 287450, 124},
-    	{47886, 286210, 130},
-    	{52070, 284544, 195},
-    	{72581, 287458, 116},
-    	{77991, 295150, 119},
-    	{59508, 282840, 120},
-    	{48041, 283924, 158},
-    	{57532, 284738, 123},
-    	{58637, 277916, 128},
-    	{59663, 278466, 122},
-    	{61753, 278686, 118},
-    	{67583, 279053, 162},
-    	{62487, 279933, 114},
-    	{65383, 276450, 116},
-    	{65603, 278136, 172},
-    	{53614, 282096, 111},
-    	{58307, 280630, 211},
-    	{54406, 282547, 127},
-    	{55594, 281180, 126},
-    	{55264, 280043, 127},
-    	{64173, 282536, 221},
-    	{62267, 281766, 227},
-    	{60323, 280080, 129},
-    	{58563, 279603, 129},
-    	{68610, 284406, 111},
-    	{69199, 285342, 325},
-    	{65053, 282096, 118},
-    	{65200, 284480, 112},
-    	{66593, 280850, 129},
-    	{66556, 284480, 179},
-    	{67290, 282756, 124},
-    	{69380, 283746, 115},
-    	{70165, 284783, 188},
-    	{69783, 280850, 129},
+    	{-47611, 239879, 117},
+    	{-49239, 239415, 128},
+    	{-47766, 242165, 121},
+    	{-50207, 241507, 138},
+    	{-45946, 237981, 119},
+    	{-42038, 238051, 129},
+    	{-45171, 240267, 113},
+    	{-43582, 240499, 124},
+    	{-42705, 232767, 150},
+    	{-45314, 233958, 128},
+    	{-46562, 233505, 171},
+    	{-46732, 235093, 124},
+    	{-48377, 233505, 115},
+    	{-44747, 230555, 164},
+    	{-43556, 230839, 128},
+    	{-46903, 226018, 122},
+    	{-45598, 229080, 313},
+    	{-43726, 227889, 129},
+    	{-37089, 235558, 114},
+    	{-37345, 236585, 175},
+    	{-35329, 236035, 114},
+    	{-38120, 240693, 120},
+    	{-36144, 238795, 122},
+    	{-34943, 241158, 119},
+    	{-35161, 232087, 125},
+    	{-35989, 234421, 184},
+    	{-37015, 233871, 220},
+    	{-40776, 233108, 121},
+    	{-39018, 232030, 126},
+    	{-41246, 238502, 118},
+    	{-40058, 237135, 210},
+    	{-40388, 235998, 124},
+    	{-33899, 234641, 130},
+    	{-30269, 232405, 195},
+    	{-30049, 234091, 116},
+    	{-29096, 240435, 119},
+    	{-30452, 240435, 120},
+    	{-30410, 243405, 158},
+    	{-30599, 238051, 123},
+    	{-29059, 236805, 128},
+    	{-33165, 235888, 122},
+    	{-33385, 237721, 118},
+    	{-31479, 238491, 162},
+    	{-33393, 240809, 114},
+    	{-22420, 244289, 116},
+    	{-22909, 245762, 172},
+    	{-23071, 243413, 111},
+    	{-24703, 243542, 211},
+    	{-24506, 244840, 127},
+    	{-20559, 249246, 126},
+    	{-20558, 247091, 127},
+    	{-21879, 247091, 221},
+    	{-23419, 248990, 227},
+    	{-18932, 252630, 129},
+    	{-17661, 251105, 129},
+    	{-20253, 250546, 111},
+    	{-19033, 249073, 325},
+    	{-25869, 236805, 118},
+    	{-28069, 235008, 112},
+    	{-28362, 238711, 129},
+    	{-26272, 239701, 179},
+    	{-27042, 240361, 124},
+    	{-23719, 242361, 115},
+    	{-25487, 240738, 188},
+    	{-26453, 241297, 129},
     }
     for i=1,#asteroidInfo do
     	local staticAsteroid = Asteroid():setPosition(asteroidInfo[i][1],asteroidInfo[i][2]):setSize(asteroidInfo[i][3])
     	table.insert(asteroidList,staticAsteroid)
     end
-	table.insert(asteroidList,Nebula():setPosition(49362, 272776))
-	table.insert(asteroidList,Nebula():setPosition(53225, 279436))
-	table.insert(asteroidList,Nebula():setPosition(48650, 285587))
-	table.insert(asteroidList,Nebula():setPosition(60190, 286299))
-	table.insert(asteroidList,Nebula():setPosition(61512, 279283))
-	table.insert(asteroidList,Nebula():setPosition(68629, 281927))
-	table.insert(asteroidList,Nebula():setPosition(72950, 290671))
-	table.insert(asteroidList,Nebula():setPosition(77322, 298957))
+	table.insert(asteroidList,Nebula():setPosition(-42427, 235391))
+	table.insert(asteroidList,Nebula():setPosition(-47002, 241542))
+	table.insert(asteroidList,Nebula():setPosition(-46290, 228731))
+	table.insert(asteroidList,Nebula():setPosition(-35462, 242254))
+	table.insert(asteroidList,Nebula():setPosition(-34140, 235238))
+	table.insert(asteroidList,Nebula():setPosition(-22702, 246626))
+	table.insert(asteroidList,Nebula():setPosition(-18330, 254912))
+	table.insert(asteroidList,Nebula():setPosition(-27023, 237882))
 	--northern batch
 	table.insert(asteroidList,Nebula():setPosition(-127029, -96430))
 	table.insert(asteroidList,Nebula():setPosition(-101552, -118937))
@@ -7755,7 +7755,7 @@ function createIcarusStations()
 	station_names[stationAquarius:getCallSign()] = {stationAquarius:getSectorName(), stationAquarius}
 	table.insert(stations,stationAquarius)
 	--Bikolipox
-	stationBikolipox = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Bikolipox"):setPosition(76466, 294896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationBikolipox = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Bikolipox"):setPosition(-19186, 250851):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBikolipox.comms_data = {
     	friendlyness = 75,
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -8279,7 +8279,7 @@ function createIcarusStations()
 	station_names[stationGatarbleax:getCallSign()] = {stationGatarbleax:getSectorName(), stationGatarbleax}
 	table.insert(stations,stationGatarbleax)
 	--Kitpik
-	stationKiptik = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Kiptik"):setPosition(66373, 277403):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKiptik = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Kiptik"):setPosition(-29279, 233358):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationKiptik.comms_data = {
     	friendlyness = 55,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
@@ -8315,7 +8315,10 @@ function createIcarusStations()
 	station_names[stationKiptik:getCallSign()] = {stationKiptik:getSectorName(), stationKiptik}
 	table.insert(stations,stationKiptik)
 	--Loowine
-	stationLoowine = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Loowine"):setPosition(54454, 281467):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local loowineZone = squareZone(-41198, 237422, "Loowine II I2")
+	loowineZone:setColor(255,128,0):setLabel("L")
+	--[[
+	stationLoowine = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Loowine II"):setPosition(-41198, 237422):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationLoowine.comms_data = {
     	friendlyness = 82,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
@@ -8356,6 +8359,7 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationLoowine:setSharesEnergyWithDocked(false) end
 	station_names[stationLoowine:getCallSign()] = {stationLoowine:getSectorName(), stationLoowine}
 	table.insert(stations,stationLoowine)
+	--]]
 	--Macassa
 --	local macassaZone = squareZone(16335, -18034, "Macassa 12 E5")
 --	macassaZone:setColor(0,128,0):setLabel("M")
@@ -8819,7 +8823,7 @@ function createIcarusStations()
 	station_names[stationProktan:getCallSign()] = {stationProktan:getSectorName(), stationProktan}
 	table.insert(stations,stationProktan)
 	--Purple People Eater
-	stationPurple = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Purple People Eater"):setPosition(51415, 273466):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+	stationPurple = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Purple People Eater"):setPosition(-44237, 229421):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     stationPurple.comms_data = {
     	friendlyness = 75,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -9194,7 +9198,10 @@ function createIcarusStations()
 	station_names[stationTilkon:getCallSign()] = {stationTilkon:getSectorName(), stationTilkon}
 	table.insert(stations,stationTilkon)
 	--Tortuga
-	stationTortuga = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Tortuga"):setPosition(46607, 285087):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local tortugaZone = squareZone(-49045, 241042, "Tortuga 2 R2")
+	tortugaZone:setColor(255,128,255):setLabel("T")
+	--[[
+	stationTortuga = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Tortuga 2"):setPosition(-49045, 241042):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationTortuga.comms_data = {
     	friendlyness = 35,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -9244,6 +9251,7 @@ function createIcarusStations()
 	if random(1,100) <= 21 then stationTortuga:setSharesEnergyWithDocked(false) end
 	station_names[stationTortuga:getCallSign()] = {stationTortuga:getSectorName(), stationTortuga}
 	table.insert(stations,stationTortuga)
+	--]]
 	--Transylvania
 	--local transylvaniaZone = squareZone(-95000, 111000, "Transylvania K0")
 	--transylvaniaZone:setColor(51,153,255)
@@ -9324,7 +9332,7 @@ function createIcarusStations()
 	station_names[stationTransylvania:getCallSign()] = {stationTransylvania:getSectorName(), stationTransylvania}
 	table.insert(stations,stationTransylvania)
 	--Tron
-	stationTron = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Tron"):setPosition(72112, 288086):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationTron = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Tron"):setPosition(-23540, 244041):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationTron.comms_data = {
     	friendlyness = 76,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -11203,8 +11211,8 @@ function createKentarStations()
 	station_names[stationPastern:getCallSign()] = {stationPastern:getSectorName(), stationPastern}
 	table.insert(stations,stationPastern)
 	--Talos
-	--local talosZone = squareZone(124505, 317170, "Talos 2 U11")
-	--talosZone:setColor(0,128,0)
+--	local talosZone = squareZone(124505, 317170, "Talos 2 U11")
+--	talosZone:setColor(0,128,0):setLabel("T")
 	stationTalos = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Talos 2"):setPosition(124505, 317170):setDescription("Mining and observation"):setCommsScript(""):setCommsFunction(commsStation)
     stationTalos:setShortRangeRadarRange(12500)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
