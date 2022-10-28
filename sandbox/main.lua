@@ -18565,19 +18565,14 @@ function riptideBinarySector()
 	table.insert(objects, riptideToIcarusWormHole)
 
 	-- --- For a scenario; comment/remove if not needed
+	-- note2: maryCeleste is currently stuck in an alternate reality, where players are Kraylor. One can reach it through Psamitk's spacetime lens.
+	-- (Mary Celeste is docked to Transylvania station)
 	-- note: maryCeleste is a global variable - so we can remove orbit function in kosaiOneOff
-	maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("M-ry_Cls---te"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
-		setScanningParameters(2, 3):setDescriptions("Unknown Arlenian Vessel", 
-			"Scan matches last known signatures of Mary Celeste with 99.9999% accuracy.\n" .. 
-			"Discrepancy: various noble gas content increased by 2ppm." ..
-			"Lifesigns: none\n" ..
-			"Life support status: OK\n" ..
-			"Reactor: OK\n" ..
-			"Damage report: none"
-		):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius)
-	maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
-	maryCeleste:setPosition(centerX + 3000, centerY + anomalyOrbitRadius):setJumpDrive(true):orderDock(psamtikStation):setFaction("Human Navy")
-	table.insert(objects, maryCeleste)
+	-- maryCeleste = CpuShip():setFaction("Arlenians"):setCallSign("Mary Celeste"):setTemplate("Equipment Freighter 2"):setCommsFunction(nil):
+	-- 	setScanningParameters(2, 3):setPosition(centerX + 2000, centerY + riptideGammaOrbitRadius)
+	-- maryCeleste:setRadarSignatureInfo(maryCeleste:getRadarSignatureGravity(), maryCeleste:getRadarSignatureElectrical(), 0)
+	-- maryCeleste:setPosition(centerX + 3000, centerY + anomalyOrbitRadius):setJumpDrive(true):orderDock(psamtikStation):setFaction("Human Navy")
+	-- table.insert(objects, maryCeleste)
 
 	nebulaRotationAndFrictionUpdater = function(self, obj, delta)
 		if not obj:isValid() then
