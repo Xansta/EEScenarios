@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.30.2"
+	scenario_version = "5.30.3"
 	ee_version = "2022.03.16"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1167,9 +1167,9 @@ function setConstants()
 	makePlayerShipActive("Enola")		--J
 	makePlayerShipActive("Raptor")		--J
 	makePlayerShipActive("Yorik") 		--J 
-	makePlayerShipActive("Tango")		--W
-	makePlayerShipActive("Ignite")		--W
-	makePlayerShipActive("Sting") 		--W 
+	makePlayerShipActive("Sparrow")		--W
+	makePlayerShipActive("Florentine")	--W
+	makePlayerShipActive("Quill") 		--W 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -10379,17 +10379,17 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
---		if i == 2 then
---			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
---			kentar_zone:setColor(0,128,0)
---		elseif i == 2 then
---			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
---			kentar_zone:setColor(0,128,0)
---		else
+		if i == 1 then
+			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
+		elseif i == 2 then
+			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
+		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
---		end
+		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -11036,14 +11036,15 @@ function createKentarStations()
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Monocle	(originally Arecibo)
-	--local MonocleZone = squareZone(389907,193834, "Monocle II O24")
-	--MonocleZone:setColor(0,128,0):setLabel("Monocle")
+	local MonocleZone = squareZone(389907,193834, "Monocle III O24")
+	MonocleZone:setColor(0,128,0):setLabel("M")
+	--[[
     stationMonocle = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(389907,193834):setDescription("Observation and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     stationMonocle:setShortRangeRadarRange(12000)
     if random(1,100) < 50 then
-    	stationMonocle:setCallSign("Monocle II")
+    	stationMonocle:setCallSign("Monocle III")
     else
-    	stationMonocle:setCallSign("Arecibo II")
+    	stationMonocle:setCallSign("Arecibo III")
     end
 	nukeAvail =		random(1,100) <= 30
 	empAvail =		random(1,100) <= 40
@@ -11098,6 +11099,7 @@ function createKentarStations()
 	stationMonocle:setSharesEnergyWithDocked(random(1,100) <= 78)
 	station_names[stationMonocle:getCallSign()] = {stationMonocle:getSectorName(), stationMonocle}
 	table.insert(stations,stationMonocle)
+	--]]
 	--Nereus
 	--local NereusZone = squareZone(174288, 321668, "Nereus C V13")
 	--NereusZone:setColor(0,128,0)
@@ -45137,9 +45139,9 @@ function handleDockedState()
 	if comms_target == stationMonocle then
 		if random(1,100) < 4 then
 			if stationMonocle:getCallSign() == "Monocle" then
-				stationMonocle:setCallSign("Arecibo II")
+				stationMonocle:setCallSign("Arecibo III")
 			else
-				stationMonocle:setCallSign("Monocle II")
+				stationMonocle:setCallSign("Monocle III")
 			end
    			stationMonocle.comms_data.history = string.format("Established in Nov2020, %s was intended to help Pastern observe asteroids in exchange for information about T'k'nol'g, suspected of biological research using human tissue illicitly obtained. The results of the research so far have yielded an addictive drug that in large enough doses not only kills the consumer but turns their body into a hyper-acidic blob that tends to eat through the hulls of ships and stations. Certain personnel on %s are tasked with watching for T'k'nol'g and reporting any additional sightings or gleaned information",stationMonocle:getCallSign(),stationMonocle:getCallSign())
 		end
