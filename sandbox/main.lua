@@ -144,8 +144,8 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.30.3"
-	ee_version = "2022.03.16"
+	scenario_version = "5.30.4"
+	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -1165,9 +1165,9 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
-	makePlayerShipActive("Raptor")		--J
+	makePlayerShipActive("Lancelot")	--J
 	makePlayerShipActive("Yorik") 		--J 
-	makePlayerShipActive("Sparrow")		--W
+	makePlayerShipActive("Osprey")		--W
 	makePlayerShipActive("Florentine")	--W
 	makePlayerShipActive("Quill") 		--W 
 	active_player_ship = true
@@ -10379,17 +10379,17 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
-		if i == 1 then
-			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
-			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
-		elseif i == 2 then
-			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
-			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
-		else
+--		if i == 1 then
+--			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+--			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
+--		elseif i == 2 then
+--			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+--			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
+--		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
-		end
+--		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -11036,9 +11036,8 @@ function createKentarStations()
 	station_names[stationLocarno:getCallSign()] = {stationLocarno:getSectorName(), stationLocarno}
 	table.insert(stations,stationLocarno)
 	--Monocle	(originally Arecibo)
-	local MonocleZone = squareZone(389907,193834, "Monocle III O24")
-	MonocleZone:setColor(0,128,0):setLabel("M")
-	--[[
+--	local MonocleZone = squareZone(389907,193834, "Monocle III O24")
+--	MonocleZone:setColor(0,128,0):setLabel("M")
     stationMonocle = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(389907,193834):setDescription("Observation and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     stationMonocle:setShortRangeRadarRange(12000)
     if random(1,100) < 50 then
@@ -11099,7 +11098,6 @@ function createKentarStations()
 	stationMonocle:setSharesEnergyWithDocked(random(1,100) <= 78)
 	station_names[stationMonocle:getCallSign()] = {stationMonocle:getSectorName(), stationMonocle}
 	table.insert(stations,stationMonocle)
-	--]]
 	--Nereus
 	--local NereusZone = squareZone(174288, 321668, "Nereus C V13")
 	--NereusZone:setColor(0,128,0)
@@ -22678,16 +22676,16 @@ function createPlayerShipOsprey()
 	playerOsprey:setWeaponTubeDirection(0,-90)				--left facing (vs none)
 	playerOsprey:setWeaponTubeDirection(1, 90)				--right facing (vs none)
 	playerOsprey:setWeaponTubeDirection(2, 180)				--rear facing
-	playerOsprey:setWeaponTubeExclusiveFor(0,"Homing")		
-	playerOsprey:setWeaponTubeExclusiveFor(1,"Homing")
-	playerOsprey:setWeaponStorageMax("EMP",2)				--more (vs 0)
-	playerOsprey:setWeaponStorage("EMP", 2)				
-	playerOsprey:setWeaponStorageMax("Nuke",2)				--more (vs 1)
-	playerOsprey:setWeaponStorage("Nuke", 2)				
-	playerOsprey:setWeaponStorageMax("Mine",2)				--more (vs 1)
-	playerOsprey:setWeaponStorage("Mine", 2)				
-	playerOsprey:setWeaponStorageMax("Homing",4)			--more (vs 3)
-	playerOsprey:setWeaponStorage("Homing", 4)				
+	playerOsprey:setWeaponTubeExclusiveFor(0,"Homing"):setTubeSize(0,"large")
+	playerOsprey:setWeaponTubeExclusiveFor(1,"Homing"):setTubeSize(1,"large")
+	playerOsprey:setWeaponStorageMax("EMP",		2)			--more (vs 0)
+	playerOsprey:setWeaponStorage("EMP",		2)				
+	playerOsprey:setWeaponStorageMax("Nuke",	2)			--more (vs 1)
+	playerOsprey:setWeaponStorage("Nuke",		2)				
+	playerOsprey:setWeaponStorageMax("Mine",	2)			--more (vs 1)
+	playerOsprey:setWeaponStorage("Mine",		2)				
+	playerOsprey:setWeaponStorageMax("Homing",	6)			--more (vs 3)
+	playerOsprey:setWeaponStorage("Homing", 	6)				
 	playerOsprey:onTakingDamage(playerShipDamage)
 	playerOsprey:addReputationPoints(50)
 	return playerOsprey
