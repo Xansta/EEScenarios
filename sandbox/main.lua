@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.30.4"
+	scenario_version = "5.31.0"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -22783,14 +22783,14 @@ function createPlayerShipQuarter()
 	playerBarrow:setTypeName("Barrow")
 	playerBarrow:setShieldsMax(100, 100)				--stronger shields (vs 70, 70)
 	playerBarrow:setShields(100, 100)
-	playerBarrow.max_jump_range = 40000					--shorter than typical (vs 50)
-	playerBarrow.min_jump_range = 4000					--shorter than typical (vs 5)
+	playerBarrow.max_jump_range = 40000					--shorter (vs 90)
+	playerBarrow.min_jump_range = 4000					--shorter (vs 5)
 	playerBarrow:setJumpDriveRange(playerBarrow.min_jump_range,playerBarrow.max_jump_range)
 	playerBarrow:setJumpDriveCharge(playerBarrow.max_jump_range)
-	-- playerBarrow.carrier_space_group = {
-	-- 	["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5},
-	-- 	["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10},
-	-- }
+	playerBarrow.carrier_space_group = {
+	 	["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5,	repair = 0, mine = 0},
+	 	["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10,	repair = 0, mine = 4},
+	}
 	playerBarrow.launch_bay = "empty"
 	playerBarrow:onTakingDamage(playerShipDamage)
 	playerBarrow:addReputationPoints(50)
@@ -24043,7 +24043,9 @@ function createPlayerShipPhargus()
 	return playerPhargus
 end
 function stockPlayer(template)
-	local ship = PlayerSpaceship():setTemplate(template):setFaction("Human Navy")
+	print("stock player template:",template)
+	local ship = PlayerSpaceship()
+	ship:setTemplate(template):setFaction("Human Navy")
 	ship:onTakingDamage(playerShipDamage)
 	return ship
 end
@@ -50034,26 +50036,35 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 	if p.launch_bay == "empty" then
 		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
 			if fighter_details.state == "aboard" then
-				p:addCustomButton("Weapons",string.format("%s_wea",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
-					p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-					p:addCustomMessage("Weapons",p.launch_start_message,p.launch_start_message)
-					for f_name, f_details in pairs(p.carrier_space_group) do
-						p:removeCustom(string.format("%s_wea",f_details.launch_button))
-						p:removeCustom(string.format("%s_tac",f_details.launch_button))
-					end
-					p.launch_bay = "loaded"
-					fighter_details.state = "charge"
-				end,12)
-				p:addCustomButton("Tactical",string.format("%s_tac",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
-					p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-					p:addCustomMessage("Tactical",p.launch_start_message,p.launch_start_message)
-					for f_name, f_details in pairs(p.carrier_space_group) do
-						p:removeCustom(string.format("%s_wea",f_details.launch_button))
-						p:removeCustom(string.format("%s_tac",f_details.launch_button))
-					end
-					p.launch_bay = "loaded"
-					fighter_details.state = "charge"
-				end,12)
+				if fighter_details.repair <= 0 then
+					p:removeCustom(string.format("%s_prep_eng",fighter_details.launch_button))
+					p:removeCustom(string.format("%s_prep_pls",fighter_details.launch_button))
+					p:addCustomButton("Weapons",string.format("%s_wea",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
+						p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+						p:addCustomMessage("Weapons",p.launch_start_message,p.launch_start_message)
+						for f_name, f_details in pairs(p.carrier_space_group) do
+							p:removeCustom(string.format("%s_wea",f_details.launch_button))
+							p:removeCustom(string.format("%s_tac",f_details.launch_button))
+						end
+						p.launch_bay = "loaded"
+						fighter_details.state = "charge"
+					end,12)
+					p:addCustomButton("Tactical",string.format("%s_tac",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
+						p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
+						p:addCustomMessage("Tactical",p.launch_start_message,p.launch_start_message)
+						for f_name, f_details in pairs(p.carrier_space_group) do
+							p:removeCustom(string.format("%s_wea",f_details.launch_button))
+							p:removeCustom(string.format("%s_tac",f_details.launch_button))
+						end
+						p.launch_bay = "loaded"
+						fighter_details.state = "charge"
+					end,12)
+				else
+					fighter_details.repair = fighter_details.repair - delta
+					local refit_time = math.floor(fighter_details.repair)
+					p:addCustomInfo("Engineering",string.format("%s_prep_eng",fighter_details.launch_button),string.format("Refit %s %s",fighter_name,refit_time),12)
+					p:addCustomInfo("Engineering+",string.format("%s_prep_pls",fighter_details.launch_button),string.format("Refit %s %s",fighter_name,refit_time),12)
+				end
 			end
 		end
 	elseif p.launch_bay == "loaded" then
@@ -50099,10 +50110,14 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 					end
 					local fx, fy = p:getPosition()
 					local fighter = fighter_details.create(fighter_details.template)
-					fighter:setPosition(fx,fy):setCallSign(fighter_name):setHeading(p:getHeading())
+--					print("player heading:",p:getHeading(),"player rotation:",p:getRotation())
+					fighter:setPosition(fx,fy):setCallSign(fighter_name):setSystemPower("maneuver",0):commandSetSystemPowerRequest("maneuver",0):commandSetSystemPowerRequest("beamweapons",0):commandSetSystemPowerRequest("missilesystem",0):commandSetSystemPowerRequest("impulse",0)
+					fighter:commandSetSystemPowerRequest("reactor",fighter:getShieldCount()*.2)
+					fighter:setWeaponStorage("Mine",fighter_details.mine)
 					fighter:commandSetAutoRepair(true):setAutoCoolant(true)
 					fighter:addCustomInfo("Engineering",string.format("%s_eng",fighter_name),string.format("%s Auto-cool/repair On",fighter_name),4)
 					fighter:addCustomInfo("Engineering+",string.format("%s_plus",fighter_name),string.format("%s Auto-cool/repair On",fighter_name),4)
+					fighter:setRotation(p:getRotation()):setHeading(p:getHeading())
 					carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
 					fighter.retract_time = fighter_details.time
 					fighter_details.state = "deployed"
@@ -51267,10 +51282,17 @@ function updateCarrierDeployedFighter(delta)
 				local fighter_heading = fighter:getHeading()
 				local carrier_heading = carrier:getHeading()
 				if distance(fighter,carrier) < 1000 then
-					fighter_heading = fighter_heading + 360
-					carrier_heading = carrier_heading + 360
 					if math.abs(fighter_heading - carrier_heading) < 10 then
 						dock_banner = true
+					elseif math.abs(fighter_heading - carrier_heading) > 350 then
+						if fighter_heading > carrier_heading then
+							carrier_heading = carrier_heading + 360
+						elseif carrier_heading > fighter_heading then
+							fighter_heading = fighter_heading + 360
+						end
+						if math.abs(fighter_heading - carrier_heading) < 10 then
+							dock_banner = true
+						end
 					end
 				end
 				if dock_banner then
@@ -51279,7 +51301,7 @@ function updateCarrierDeployedFighter(delta)
 					local fighter_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
 					vx, vy = carrier:getVelocity()
 					local carrier_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
-					local dock_status = string.format("Match B:%.1f V:%.1f",fighter_heading - carrier_heading,fighter_velocity - carrier_velocity)
+					local dock_status = string.format("Match Bear:%.1f Vel:%.1f",fighter_heading - carrier_heading,fighter_velocity - carrier_velocity)
 					if math.abs(fighter_heading - carrier_heading) < 1 then
 						if math.abs(fighter_velocity - carrier_velocity) < 1 then
 							if fighter.retract_timer == nil then
@@ -51298,8 +51320,17 @@ function updateCarrierDeployedFighter(delta)
 										end
 									end
 									fighter:transferPlayersToShip(carrier)
+									local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+									local repair_delay = 0
+									for i,system in ipairs(repair_systems) do
+										repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
+									end
+									repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
+									local mine_count = fighter:getWeaponStorage("Mine")
 									fighter:destroy()
 									carrier.carrier_space_group[fighter_name].state = "aboard"
+									carrier.carrier_space_group[fighter_name].repair = math.max(30,repair_delay)
+									carrier.carrier_space_group[fighter_name].mine = mine_count
 									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
 									carrier_deployed_fighter[fighter_name] = nil
 									for _, console in ipairs(transfer_map) do
@@ -51315,8 +51346,17 @@ function updateCarrierDeployedFighter(delta)
 										end
 									end
 									fighter:transferPlayersToShip(carrier)
+									local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+									local repair_delay = 0
+									for i,system in ipairs(repair_systems) do
+										repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
+									end
+									repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
+									local mine_count = fighter:getWeaponStorage("Mine")
 									fighter:destroy()
 									carrier.carrier_space_group[fighter_name].state = "aboard"
+									carrier.carrier_space_group[fighter_name].repair = math.max(30,repair_delay)
+									carrier.carrier_space_group[fighter_name].mine = mine_count
 									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
 									carrier_deployed_fighter[fighter_name] = nil
 									for _, console in ipairs(transfer_map) do
@@ -51332,8 +51372,16 @@ function updateCarrierDeployedFighter(delta)
 										end
 									end
 									fighter:transferPlayersToShip(carrier)
+									local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+									local repair_delay = 0
+									for i,system in ipairs(repair_systems) do
+										repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
+									end
+									repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
 									fighter:destroy()
 									carrier.carrier_space_group[fighter_name].state = "aboard"
+									carrier.carrier_space_group[fighter_name].repair = math.max(30,repair_delay)
+									carrier.carrier_space_group[fighter_name].mine = mine_count
 									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
 									carrier_deployed_fighter[fighter_name] = nil
 									for _, console in ipairs(transfer_map) do
