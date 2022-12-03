@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.31.0"
+	scenario_version = "5.32.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -2291,7 +2291,97 @@ function spawnGMShips()
 	addGMFunction("-Main From Spawn Ships",initialGMFunctions)
 	addGMFunction("+Spawn Fleet",spawnGMFleet)
 	addGMFunction("+Spawn a ship",spawnGMShip)
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		temp_carrier = object_list[1]
+		if temp_carrier.typeName == "CpuShip" then
+			addGMFunction("+Spawn Fighter Wing",setFighterWing)
+		end
+	end
 end
+function setFighterWing()
+	clearGMFunctions()
+	addGMFunction("-Main From Ftr Wing",initialGMFunctions)
+	addGMFunction("-Spawn Ships",spawnGMShips)
+	if wing_type == nil then
+		wing_type = "MT52 Hornet"
+	end
+	addGMFunction(string.format("+Type %s",wing_type),function()
+		local wing_types = {
+			"MT52 Hornet",
+			"MU52 Hornet",
+			"MV52 Hornet",
+			"MT55 Hornet",
+			"Dagger",
+			"Fighter",
+			"K3 Fighter",
+			"K2 Fighter",
+		}
+		clearGMFunctions()
+		for _,fighter in ipairs(wing_types) do
+			local button_label = fighter
+			if fighter == wing_type then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				wing_type = fighter
+				setFighterWing()
+			end)
+		end
+	end)
+	if wing_count == nil then
+		wing_count = 3
+	end
+	addGMFunction(string.format("+Count %s",wing_count),function()
+		clearGMFunctions()
+		for i=2,9 do
+			local button_label = "Wing Count " .. i
+			if i == wing_count then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label, function()
+				wing_count = i
+				setFighterWing()
+			end)
+		end
+	end)
+	if temp_carrier ~= nil and temp_carrier:isValid() then
+		addGMFunction(string.format("Spawn Wing:%s",temp_carrier:getCallSign()),function()
+			local start_angle = random(0,360)
+			local spawn_dist = nil
+			if temp_carrier ~= nil and temp_carrier:isValid() then
+				local template_name = temp_carrier:getTypeName()
+				if template_name ~= nil then
+					spawn_dist = shipTemplateDistance[template_name]
+					if spawn_dist ~= nil then
+					else
+						addGMMessage(string.format("The shipTemplateDistance table does not have an entry for %s. Defaulting to 400 distance",template_name))
+						spawn_dist = 400
+					end
+				else
+					addGMMessage(string.format("No template for %s. Defaulting to 400 distance",temp_carrier:getCallSign()))
+					spawn_dist = 400
+				end
+				local fleet_prefix = generateCallSignPrefix()
+				for i=1,wing_count do
+					local fwc_x, fwc_y = temp_carrier:getPosition()
+					local spawn_angle = start_angle + 360/wing_count*i
+					local dc_x, dc_y = vectorFromAngleNorth(spawn_angle,spawn_dist)
+					local ship = ship_template[wing_type].create(temp_carrier:getFaction(),wing_type)
+					ship:setPosition(fwc_x + dc_x, fwc_y + dc_y):setHeading(spawn_angle):orderDefendTarget(temp_carrier)
+					ship:setCallSign(generateCallSign(fleet_prefix))
+				end
+			else
+				addGMMessage("Selected carrier object is no longer valid. Select another. No action taken")
+			end
+			spawnGMShips()
+		end)
+	else
+	end
+end
+
+
+
 -------------------
 --	Order fleet  --
 -------------------
@@ -8082,6 +8172,9 @@ function createIcarusStations()
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
 	--Endymion
+	local edp1 = CpuShip():setFaction("TSN"):setTemplate("Defense platform"):setCallSign("EDP1"):setPosition(136035, 82232):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	station_names[edp1:getCallSign()] = {edp1:getSectorName(), edp1}
+	table.insert(stations,edp1)
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationEndymion.comms_data = {
     	friendlyness = 29,
@@ -8970,9 +9063,12 @@ function createIcarusStations()
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
 	--Sovinec
-	--local sovinecZone = squareZone(134167, 104690, "Sovinec Two K11")
+	--local sovinecZone = squareZone(134167, 104690, "Sovinec Three K11")
 	--sovinecZone:setColor(51,153,255)
-	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec Two"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
+	table.insert(stations,sdp1)
+	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec Three"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
