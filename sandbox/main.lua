@@ -212,6 +212,7 @@ function init()
 	commerce_diagnostic = false
 	mine_probe_diagnostic = true
 	med_point_diagnostic = false
+	mirrorUniverse = false
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
@@ -7573,6 +7574,33 @@ function changeTerrain()
 			onGMClick(nil)
 		end
 	end
+	if mirrorUniverse then
+		addGMFunction("To Non Mirror",function ()
+			convertToNonMirror()
+			changeTerrain()
+		end)
+	else
+		addGMFunction("To Mirror",function ()
+			convertToMirror()
+			changeTerrain()
+		end)
+	end
+end
+function skeletonToFaction(faction)
+	stationIcarus:setFaction(faction)
+	stationKentar:setFaction(faction)
+	stationAstron:setFaction(faction)
+	stationLafrina:setFaction(faction)
+	stationTeresh:setFaction(faction)
+	stationBask:setFaction(faction)
+end
+function convertToMirror()
+	mirrorUniverse = true
+	skeletonToFaction("Holy Terra")
+end
+function convertToNonMirror()
+	mirrorUniverse = false
+	skeletonToFaction("Human Navy")
 end
 
 
