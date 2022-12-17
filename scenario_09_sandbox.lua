@@ -38,5 +38,8 @@
 -- Special Factor[3]: Special factor three
 -- Special Factor[5]: Special factor five
 -- Special Factor[8]: Special factor eight
+-- Setting[Mirror]: Should we start in the mirror universe?
+-- Mirror[No|Default]: We are in the normal universe
+-- Mirror[Yes]: We are in the mirror universe
 
 require("sandbox/main.lua")

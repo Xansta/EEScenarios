@@ -221,6 +221,9 @@ function init()
 	runAllTests()
 end
 function applySettings()
+	if getScenarioSetting("Mirror") == "Yes" then
+		convertToMirror()
+	end
 	local start_region = getScenarioSetting("Start Region")
 	for i=1,#universe.available_regions do
 		local region=universe.available_regions[i]
