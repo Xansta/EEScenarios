@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.32.1"
+	scenario_version = "5.33"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -6065,7 +6065,7 @@ function customButtons()
 	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
 	-- though when I get round to one of the next improvements to gateway this may need to change anyway
 	addGMFunction("contact gm",function ()
-		playerFleet:wrappedAddCustomButton("Relay","gm contact","calibrate",function (player)
+		playerFleet:addCustomButton("Relay","gm contact","Contact HQ",function (player)
 			if not openGMComms(player) then
 				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
 			end
