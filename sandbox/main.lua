@@ -56,6 +56,61 @@ require("utils_customElements.lua")
 require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 
+-- extra factions
+-- mirror universe factions - brief notes my (starry) idea for each
+-- at some point that should be embedded into the game database somehow
+-- mostly it is at best weakly defined at the moment - feel free to edit til that changes
+-- setDescription would be good, but no database entries are being made anyway so it doesnt really matter
+
+-- antagonist, implied theocratic, possibly imperialistic / expansionistic
+-- mirror universe protagonist faction
+FactionInfo()
+	:setName("Cindy's Remnants")
+	:setGMColor(200,200,255)
+	:setFriendly(getFactionInfo("Human Navy"))
+	:setEnemy(getFactionInfo("Kraylor"))
+	:setEnemy(getFactionInfo("Exuari"))
+	:setEnemy(getFactionInfo("Ghosts"))
+	:setEnemy(getFactionInfo("Ktlitans"))
+	:setFriendly(getFactionInfo("TSN"))
+	:setFriendly(getFactionInfo("USN"))
+	:setFriendly(getFactionInfo("CUF"))
+
+FactionInfo()
+	:setName("Holy Terra")
+	:setGMColor(255,128,128)
+	-- this is probably hostile to too many factions
+	:setEnemy(getFactionInfo("Independent"))
+	:setEnemy(getFactionInfo("Human Navy"))
+	:setEnemy(getFactionInfo("Kraylor"))
+	:setEnemy(getFactionInfo("Arlenians"))
+	:setEnemy(getFactionInfo("Exuari"))
+	:setEnemy(getFactionInfo("Ghosts"))
+	:setEnemy(getFactionInfo("Ktlitans"))
+	:setEnemy(getFactionInfo("TSN"))
+	:setEnemy(getFactionInfo("USN"))
+	:setEnemy(getFactionInfo("CUF"))
+	-- mirror factions
+	:setEnemy(getFactionInfo("Cindy's Remnants"))
+
+-- independent equivalent, I presume below holy terra, or alternatively the civilian population?
+FactionInfo()
+	:setName("Spacer")
+	:setGMColor(192,192,192)
+	:setEnemy(getFactionInfo("Exuari"))
+	:setEnemy(getFactionInfo("Ktlitans"))
+	-- mirror factions
+	:setFriendly(getFactionInfo("Holy Terra"))
+
+-- mirror universe christmas
+FactionInfo()
+	:setName("Snow Slayers")
+	:setGMColor(0,0,255)
+	-- mirror factions
+	:setFriendly(getFactionInfo("Cindy's Remnants"))
+	:setEnemy(getFactionInfo("Holy Terra"))
+	:setEnemy(getFactionInfo("Spacer"))
+
 -- maps filenames that were moved after 2021.6.23 release
 function getFilenameCompatible(new_filename)
 	if getEEVersion() ==  2021623 then
@@ -4099,7 +4154,7 @@ function setSingleNebula(tempObject)
 end
 function setFactionRelations()
 	clearGMFunctions()
-	local faction_list = {"Independent","Human Navy","Kraylor","Arlenians","Exuari","Ghosts","Ktlitans","TSN","USN","CUF"}
+	local faction_list = {"Independent","Human Navy","Kraylor","Arlenians","Exuari","Ghosts","Ktlitans","TSN","USN","CUF","Holy Terra","Spacer","Snow Slayers","Cindy's Remnants"}
 	for _, faction in ipairs(faction_list) do
 		local button_label = faction
 		if relation_faction_1 == faction then
@@ -24940,6 +24995,38 @@ function setGMFleetFaction()
 	end
 	addGMFunction(GMSetFleetFactionCUF,function()
 		fleetSpawnFaction = "CUF"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionHolyTerra = "Holy Terra"
+	if fleetSpawnFaction == "Holy Terra" then
+		GMSetFleetFactionHolyTerra = "Holy Terra*"
+	end
+	addGMFunction(GMSetFleetFactionHolyTerra,function()
+		fleetSpawnFaction = "Holy Terra"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionSpacer = "Spacer"
+	if fleetSpawnFaction == "Spacer" then
+		GMSetFleetFactionSpacer = "Spacer*"
+	end
+	addGMFunction(GMSetFleetFactionSpacer,function()
+		fleetSpawnFaction = "Spacer"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionCindyRemnants = "Cindy's Remnants"
+	if fleetSpawnFaction == "Cindy's Remnants" then
+		GMSetFleetFactionCindyRemnants = "Cindy's Remnants*"
+	end
+	addGMFunction(GMSetFleetFactionCindyRemnants,function()
+		fleetSpawnFaction = "Cindy's Remnants"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionSnowSlayers = "Snow Slayers"
+	if fleetSpawnFaction == "Snow Slayers" then
+		GMSetFleetFactionSnowSlayers = "Snow Slayers*"
+	end
+	addGMFunction(GMSetFleetFactionSnowSlayers,function()
+		fleetSpawnFaction = "Snow Slayers"
 		spawnGMFleet()
 	end)
 end
