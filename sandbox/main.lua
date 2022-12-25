@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.32.1"
+	scenario_version = "5.33.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1429,6 +1429,7 @@ function setConstants()
 		["Stalker R5"] =					200,
 		["Stalker R7"] =					200,
 		["Starhammer II"] =					400,
+		["Starhammer III"] =				400,
 		["Starhammer V"] =					400,
 		["Storm"] =							200,
 		["Strike"] =						200,
@@ -7241,6 +7242,7 @@ function playerShip()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Tweak player",tweakPlayerShip)
 	addGMFunction("+Spawn",spawnPlayerShip)
+	addGMFunction("+Filtered Spawn",filteredPlayerShipSpawn)
 	addGMFunction("+Teleport Players",teleportPlayers)
 end
 ----------------------------------
@@ -19045,7 +19047,253 @@ function makePlayerShipActive(ship_name)
 	assert(type(playerShipInfo[ship_name]) == "table")
 	playerShipInfo[ship_name]["active"] = "active"
 end
-
+function filteredPlayerShipSpawn()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	filter_count = 0
+	if has_ftl == nil then has_ftl = "No FTL Filter" end
+	addGMFunction(has_ftl,function()
+		if has_ftl == "No FTL Filter" then
+			has_ftl = "Warp*"
+		elseif has_ftl == "Warp*" then
+			has_ftl = "Jump*"
+		elseif has_ftl == "Jump*" then
+			has_ftl = "Jump & Warp*"
+		elseif has_ftl == "Jump & Warp*" then
+			has_ftl = "No FTL Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_ftl ~= "No FTL Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_tractor == nil then has_tractor = "No Tractor Filter" end
+	addGMFunction(has_tractor,function()
+		if has_tractor == "No Tractor Filter" then
+			has_tractor = "Tractor*"
+		elseif has_tractor == "Tractor*" then
+			has_tractor = "No Tractor*"
+		elseif has_tractor == "No Tractor*" then
+			has_tractor = "No Tractor Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_tractor ~= "No Tractor Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_mining == nil then has_mining = "No Mining Filter" end
+	addGMFunction(has_mining,function()
+		if has_mining == "No Mining Filter" then
+			has_mining = "Mining*"
+		elseif has_mining == "Mining*" then
+			has_mining = "No Mining*"
+		elseif has_mining == "No Mining*" then
+			has_mining = "No Mining Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_mining ~= "No Mining Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_epjam == nil then has_epjam = "No EPJAM Filter" end
+	addGMFunction(has_epjam,function()
+		if has_epjam == "No EPJAM Filter" then
+			has_epjam = "EPJAM*"
+		elseif has_epjam == "EPJAM*" then
+			has_epjam = "M or L EPJAM*"
+		elseif has_epjam == "M or L EPJAM*" then
+			has_epjam = "L EPJAM*"
+		elseif has_epjam == "L EPJAM*" then
+			has_epjam = "No EPJAM*"
+		elseif has_epjam == "No EPJAM*" then
+			has_epjam = "No EPJAM Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_epjam ~= "No EPJAM Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_patrol_probe == nil then has_patrol_probe = "No Patrol Probe Filter" end
+	addGMFunction(has_patrol_probe,function()
+		if has_patrol_probe == "No Patrol Probe Filter" then
+			has_patrol_probe = "Patrol Probe*"
+		elseif has_patrol_probe == "Patrol Probe*" then
+			has_patrol_probe = "No Patrol Probe*"
+		elseif has_patrol_probe == "No Patrol Probe*" then
+			has_patrol_probe = "No Patrol Probe Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_patrol_probe ~= "No Patrol Probe Filter" then
+		filter_count = filter_count + 1
+	end
+	filteredPlayerShipNames = {}
+	for _,name in pairs(sorted) do
+		local already_spawned = false
+		local player_ships = getActivePlayerShips()
+		for _, ship in ipairs(player_ships) do
+			if name == ship:getCallSign() then
+				already_spawned = true
+			end
+		end
+		if not already_spawned then
+			if has_ftl ~= "No FTL Filter" then
+	--	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
+				if has_ftl == "Warp*" then
+					if playerShipInfo[name].ftl == "W" then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_ftl == "Jump*" then
+					if playerShipInfo[name].ftl == "J" then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_ftl == "Jump & Warp*" then
+					if playerShipInfo[name].ftl == "B" then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_tractor ~= "No Tractor Filter" then
+				if has_tractor == "Tractor*" then
+					if playerShipStats[playerShipInfo[name].typeName].tractor then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_tractor == "No Tractor*" then
+					if not playerShipStats[playerShipInfo[name].typeName].tractor then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_mining ~= "No Mining Filter" then
+				if has_mining == "Mining*" then
+					if playerShipStats[playerShipInfo[name].typeName].mining then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_mining == "No Mining*" then
+					if not playerShipStats[playerShipInfo[name].typeName].mining then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_epjam ~= "No EPJAM Filter" then
+				if has_epjam == "EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam > 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_epjam == "M or L EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam > 1 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_epjam == "L EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam > 2 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_epjam == "No EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam == 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_patrol_probe ~= "No Patrol Probe Filter" then
+				if has_patrol_probe == "Patrol Probe*" then
+					if playerShipStats[playerShipInfo[name].typeName].patrol_probe > 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_patrol_probe == "No Patrol Probe*" then
+					if playerShipStats[playerShipInfo[name].typeName].patrol_probe == 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+		end
+	end
+	local matching_player_ship_count = 0
+	for name,match in pairs(filteredPlayerShipNames) do
+		if filteredPlayerShipNames[name] == filter_count then
+			matching_player_ship_count = matching_player_ship_count + 1
+		end
+	end
+	addGMFunction(string.format("List %i Matches",matching_player_ship_count),filteredPlayerShipSpawnList)
+end
+function filteredPlayerShipSpawnList()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	local matching_player_ship_count = 0
+	for name,match in pairs(filteredPlayerShipNames) do
+		if filteredPlayerShipNames[name] == filter_count then
+			matching_player_ship_count = matching_player_ship_count + 1
+		end
+	end
+	if matching_player_ship_count == 0 then
+		if filter_count == 0 or matching_player_ship_count == 0 then
+			addGMMessage("No filter specified or no matching player ships found. Transferring you to the normal player ship spawn section")
+			spawnPlayerShip()
+		else
+			addGMMessage("No player ships matched your filter criteria. You need to change your selected filters and try again")
+			filteredPlayerShipSpawn()
+		end
+	else
+		for _,name in pairs(sorted) do
+			if filteredPlayerShipNames[name] ~= nil then
+				if filteredPlayerShipNames[name] == filter_count then
+					local strength = playerShipStats[playerShipInfo[name].typeName].strength
+					local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+					addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name), function()
+						playerShipInfo[name]["spawn"]()
+						playerShipInfo[name]["active"] = "inactive"
+						filteredPlayerShipSpawn()
+					end)
+				end
+			end
+		end
+	end
+end
 function spawnPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
