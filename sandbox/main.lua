@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.33.1"
+	scenario_version = "5.34.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -15110,21 +15110,21 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
-		if i == 4 then
-			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
-			tdp4Zone:setColor(0,128,0):setLabel("4")
+--		if i == 4 then
+--			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
+--			tdp4Zone:setColor(0,128,0):setLabel("4")
 --		elseif i == 2 then
 --			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
 --			tdp2Zone:setColor(0,128,0)
 --		elseif i == 3 then
 --			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
 --			tdp3Zone:setColor(0,128,0)
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(start_angle+17+j*6,8000)
 			local dm = Mine():setPosition(t_x+dpx,t_y+dpy)
@@ -19130,6 +19130,103 @@ function filteredPlayerShipSpawn()
 	if has_patrol_probe ~= "No Patrol Probe Filter" then
 		filter_count = filter_count + 1
 	end
+	if has_proximity_scan == nil then has_proximity_scan = "No ProxScan Filter" end
+	addGMFunction(has_proximity_scan,function()
+		if has_proximity_scan == "No ProxScan Filter" then
+			has_proximity_scan = "ProxScan*"
+		elseif has_proximity_scan == "ProxScan*" then
+			has_proximity_scan = "No ProxScan*"
+		elseif has_proximity_scan == "No ProxScan*" then
+			has_proximity_scan = "No ProxScan Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_proximity_scan ~= "No ProxScan Filter" then
+		filter_count = filter_count + 1
+	end
+	if relative_strength_filter == nil then 
+		relative_strength_filter = "No RelStrength Filter" 
+		relative_strength_cut = 25
+		relative_strength_min = relative_strength_cut
+		relative_strength_max = relative_strength_cut
+		relative_strength_label = "NRF"
+	end
+	if cargo_filter == nil then 
+		cargo_filter = "No Cargo Filter" 
+		cargo_cut = 6
+		cargo_min = cargo_cut
+		cargo_max = cargo_cut
+		cargo_label = "NCF"
+	end
+	if long_sensor_filter == nil then 
+		long_sensor_filter = "No Long Sensor Filter" 
+		long_sensor_cut = 30
+		long_sensor_min = long_sensor_cut
+		long_sensor_max = long_sensor_cut
+		long_sensor_label = "NSF"
+	end
+	if probe_filter == nil then 
+		probe_filter = "No Probe Filter" 
+		probe_cut = 8
+		probe_min = probe_cut
+		probe_max = probe_cut
+		probe_label = "NPF"
+	end
+	if life_pod_filter == nil then 
+		life_pod_filter = "No Life Pod Filter"
+		life_pod_cut = 3
+		life_pod_min = life_pod_cut
+		life_pod_max = life_pod_cut
+		life_pod_label = "NLF"
+	end
+	for _,name in pairs(sorted) do
+		if playerShipStats[playerShipInfo[name].typeName].strength > relative_strength_max then
+			relative_strength_max = playerShipStats[playerShipInfo[name].typeName].strength
+		end
+		if playerShipStats[playerShipInfo[name].typeName].strength < relative_strength_min then
+			relative_strength_min = playerShipStats[playerShipInfo[name].typeName].strength
+		end
+		if playerShipStats[playerShipInfo[name].typeName].cargo > cargo_max then
+			cargo_max = playerShipStats[playerShipInfo[name].typeName].cargo
+		end
+		if playerShipStats[playerShipInfo[name].typeName].cargo < cargo_min then
+			cargo_min = playerShipStats[playerShipInfo[name].typeName].cargo
+		end
+		if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) > long_sensor_max then
+			long_sensor_max = (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000)
+		end
+		if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) < long_sensor_min then
+			long_sensor_min = (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000)
+		end
+		if playerShipStats[playerShipInfo[name].typeName].probes > probe_max then
+			probe_max = playerShipStats[playerShipInfo[name].typeName].probes
+		end
+		if playerShipStats[playerShipInfo[name].typeName].probes < probe_min then
+			probe_min = playerShipStats[playerShipInfo[name].typeName].probes
+		end
+		if playerShipStats[playerShipInfo[name].typeName].pods > life_pod_max then
+			life_pod_max = playerShipStats[playerShipInfo[name].typeName].pods
+		end
+		if playerShipStats[playerShipInfo[name].typeName].pods < life_pod_min then
+			life_pod_min = playerShipStats[playerShipInfo[name].typeName].pods
+		end
+	end
+	if relative_strength_filter ~= "No RelStrength Filter" then
+		filter_count = filter_count + 1
+	end
+	if cargo_filter ~= "No Cargo Filter" then
+		filter_count = filter_count + 1
+	end
+	if long_sensor_filter ~= "No Long Sensor Filter" then
+		filter_count = filter_count + 1
+	end
+	if probe_filter ~= "No Probe Filter" then
+		filter_count = filter_count + 1
+	end
+	if life_pod_filter ~= "No Life Pod Filter" then
+		filter_count = filter_count + 1
+	end
+	addGMFunction(string.format("+%s %s %s %s %s",relative_strength_label,cargo_label,long_sensor_label,probe_label,life_pod_label),setCutFilter)
 	filteredPlayerShipNames = {}
 	for _,name in pairs(sorted) do
 		local already_spawned = false
@@ -19247,6 +19344,108 @@ function filteredPlayerShipSpawn()
 					end
 				end
 			end
+			if has_proximity_scan ~= "No ProxScan Filter" then
+				if has_proximity_scan == "ProxScan*" then
+					if playerShipStats[playerShipInfo[name].typeName].prox_scan > 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_proximity_scan == "No ProxScan*" then
+					if playerShipStats[playerShipInfo[name].typeName].prox_scan == 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if relative_strength_filter ~= "No RelStrength Filter" then
+				if relative_strength_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].strength < relative_strength_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif relative_strength_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].strength > relative_strength_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if cargo_filter ~= "No Cargo Filter" then
+				if cargo_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].cargo < cargo_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif cargo_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].cargo > cargo_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if long_sensor_filter ~= "No Long Sensor Filter" then
+				if long_sensor_filter == "Less" then
+					if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) < long_sensor_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif long_sensor_filter == "More" then
+					if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) > long_sensor_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if probe_filter ~= "No Probe Filter" then
+				if probe_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].probes < probe_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif probe_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].probes > probe_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if life_pod_filter ~= "No Life Pod Filter" then
+				if life_pod_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].pods < life_pod_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif life_pod_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].pods > life_pod_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
 		end
 	end
 	local matching_player_ship_count = 0
@@ -19256,6 +19455,341 @@ function filteredPlayerShipSpawn()
 		end
 	end
 	addGMFunction(string.format("List %i Matches",matching_player_ship_count),filteredPlayerShipSpawnList)
+end
+function setCutFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	local button_label = "+Relative Strength"
+	if relative_strength_filter == "No RelStrength Filter" then
+		button_label = "+No RelStrength Filter"
+	elseif relative_strength_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,relative_strength_cut)
+	elseif relative_strength_filter == "More" then
+		button_label = string.format("%s > %i",button_label,relative_strength_cut)
+	end
+	addGMFunction(button_label,setRelativeStrengthFilter)
+	button_label = "+Cargo Filter"
+	if cargo_filter == "No Cargo Filter" then
+		button_label = "+No Cargo Filter"
+	elseif cargo_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,cargo_cut)
+	elseif cargo_filter == "More" then
+		button_label = string.format("%s > %i",button_label,cargo_cut)
+	end
+	addGMFunction(button_label,setCargoFilter)
+	button_label = "+Long Sensor Filter"
+	if long_sensor_filter == "No Long Sensor Filter" then
+		button_label = "+No Long Sensor Filter"
+	elseif long_sensor_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,long_sensor_cut)
+	elseif long_sensor_filter == "More" then
+		button_label = string.format("%s > %i",button_label,long_sensor_cut)
+	end
+	addGMFunction(button_label,setLongSensorFilter)
+	button_label = "+Probe Filter"
+	if probe_filter == "No Probe Filter" then
+		button_label = "+No Probe Filter"
+	elseif probe_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,probe_cut)
+	elseif probe_filter == "More" then
+		button_label = string.format("%s > %i",button_label,probe_cut)
+	end
+	addGMFunction(button_label,setProbeFilter)
+	button_label = "+Life Pod Filter"
+	if life_pod_filter == "No Life Pod Filter" then
+		button_label = "+No Life Pod Filter"
+	elseif life_pod_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,life_pod_cut)
+	elseif life_pod_filter == "More" then
+		button_label = string.format("%s > %i",button_label,life_pod_cut)
+	end
+	addGMFunction(button_label,setLifePodFilter)
+end
+function setLifePodFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Life Pod",setCutFilter)
+	local button_label = "No Life Pod Filter"
+	if life_pod_filter == "No Life Pod Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "No Probe Filter"
+		life_pod_label = "NLF"
+		setLifePodFilter()
+	end)
+	button_label = string.format("Less than %i",life_pod_cut)
+	if life_pod_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "Less"
+		life_pod_label = string.format("L<%i",life_pod_cut)
+		setLifePodFilter()
+	end)
+	button_label = string.format("More than %i",life_pod_cut)
+	if life_pod_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "More"
+		life_pod_label = string.format("L>%i",life_pod_cut)
+		setLifePodFilter()
+	end)
+	if life_pod_cut > life_pod_min then
+		addGMFunction(string.format("Set cut to %i",life_pod_cut - 1),function()
+			life_pod_cut = life_pod_cut - 1
+			if life_pod_filter == "Less" then
+				life_pod_label = string.format("L<%i",life_pod_cut)
+			end
+			if life_pod_filter == "More" then
+				life_pod_label = string.format("L>%i",life_pod_cut)
+			end
+			setLifePodFilter()
+		end)
+	end
+	if life_pod_cut < life_pod_max then
+		addGMFunction(string.format("Set cut to %i",life_pod_cut + 1),function()
+			life_pod_cut = life_pod_cut + 1
+			if life_pod_filter == "Less" then
+				life_pod_label = string.format("L<%i",life_pod_cut)
+			end
+			if life_pod_filter == "More" then
+				life_pod_label = string.format("L>%i",life_pod_cut)
+			end
+			setLifePodFilter()
+		end)
+	end
+end
+function setProbeFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Probe",setCutFilter)
+	local button_label = "No Probe Filter"
+	if probe_filter == "No Probe Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "No Probe Filter"
+		probe_label = "NPF"
+		setProbeFilter()
+	end)
+	button_label = string.format("Less than %i",probe_cut)
+	if probe_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "Less"
+		probe_label = string.format("S<%i",probe_cut)
+		setProbeFilter()
+	end)
+	button_label = string.format("More than %i",probe_cut)
+	if probe_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "More"
+		probe_label = string.format("P>%i",probe_cut)
+		setProbeFilter()
+	end)
+	if probe_cut > probe_min then
+		addGMFunction(string.format("Set cut to %i",probe_cut - 1),function()
+			probe_cut = probe_cut - 1
+			if probe_filter == "Less" then
+				probe_label = string.format("P<%i",probe_cut)
+			end
+			if probe_filter == "More" then
+				probe_label = string.format("P>%i",probe_cut)
+			end
+			setProbeFilter()
+		end)
+	end
+	if probe_cut < probe_max then
+		addGMFunction(string.format("Set cut to %i",probe_cut + 1),function()
+			probe_cut = probe_cut + 1
+			if probe_filter == "Less" then
+				probe_label = string.format("P<%i",probe_cut)
+			end
+			if probe_filter == "More" then
+				probe_label = string.format("P>%i",probe_cut)
+			end
+			setProbeFilter()
+		end)
+	end
+end
+function setLongSensorFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Long Sensor",setCutFilter)
+	local button_label = "No Long Sensor Filter"
+	if long_sensor_filter == "No Long Sensor Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "No Long Sensor Filter"
+		long_sensor_label = "NSF"
+		setLongSensorFilter()
+	end)
+	button_label = string.format("Less than %i",long_sensor_cut)
+	if long_sensor_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "Less"
+		long_sensor_label = string.format("S<%i",long_sensor_cut)
+		setLongSensorFilter()
+	end)
+	button_label = string.format("More than %i",long_sensor_cut)
+	if long_sensor_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "More"
+		long_sensor_label = string.format("S>%i",long_sensor_cut)
+		setLongSensorFilter()
+	end)
+	if long_sensor_cut > long_sensor_min then
+		addGMFunction(string.format("Set cut to %i",long_sensor_cut - 1),function()
+			long_sensor_cut = long_sensor_cut - 1
+			if long_sensor_filter == "Less" then
+				long_sensor_label = string.format("S<%i",long_sensor_cut)
+			end
+			if long_sensor_filter == "More" then
+				long_sensor_label = string.format("S>%i",long_sensor_cut)
+			end
+			setLongSensorFilter()
+		end)
+	end
+	if long_sensor_cut < long_sensor_max then
+		addGMFunction(string.format("Set cut to %i",long_sensor_cut + 1),function()
+			long_sensor_cut = long_sensor_cut + 1
+			if long_sensor_filter == "Less" then
+				long_sensor_label = string.format("S<%i",long_sensor_cut)
+			end
+			if long_sensor_filter == "More" then
+				long_sensor_label = string.format("S>%i",long_sensor_cut)
+			end
+			setLongSensorFilter()
+		end)
+	end
+end
+function setCargoFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Cargo",setCutFilter)
+	local button_label = "No Cargo Filter"
+	if cargo_filter == "No Cargo Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "No Cargo Filter"
+		cargo_label = "NCF"
+		setCargoFilter()
+	end)
+	button_label = string.format("Less than %i",cargo_cut)
+	if cargo_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "Less"
+		cargo_label = string.format("C<%i",cargo_cut)
+		setCargoFilter()
+	end)
+	button_label = string.format("More than %i",cargo_cut)
+	if cargo_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "More"
+		cargo_label = string.format("C>%i",cargo_cut)
+		setCargoFilter()
+	end)
+	if cargo_cut > cargo_min then
+		addGMFunction(string.format("Set cut to %i",cargo_cut - 1),function()
+			cargo_cut = cargo_cut - 1
+			if cargo_filter == "Less" then
+				cargo_label = string.format("C<%i",cargo_cut)
+			end
+			if cargo_filter == "More" then
+				cargo_label = string.format("C>%i",cargo_cut)
+			end
+			setCargoFilter()
+		end)
+	end
+	if cargo_cut < cargo_max then
+		addGMFunction(string.format("Set cut to %i",cargo_cut + 1),function()
+			cargo_cut = cargo_cut + 1
+			if cargo_filter == "Less" then
+				cargo_label = string.format("C<%i",cargo_cut)
+			end
+			if cargo_filter == "More" then
+				cargo_label = string.format("C>%i",cargo_cut)
+			end
+			setCargoFilter()
+		end)
+	end
+end
+function setRelativeStrengthFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Relative Strength",setCutFilter)
+	local button_label = "No RelStrength Filter"
+	if relative_strength_filter == "No RelStrength Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "No RelStrength Filter"
+		relative_strength_label = "NRF"
+		setRelativeStrengthFilter()
+	end)
+	button_label = string.format("Less than %i",relative_strength_cut)
+	if relative_strength_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "Less"
+		relative_strength_label = string.format("R<%i",relative_strength_cut)
+		setRelativeStrengthFilter()
+	end)
+	button_label = string.format("More than %i",relative_strength_cut)
+	if relative_strength_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "More"
+		relative_strength_label = string.format("R>%i",relative_strength_cut)
+		setRelativeStrengthFilter()
+	end)
+	if relative_strength_cut > relative_strength_min then
+		addGMFunction(string.format("Set cut to %i",relative_strength_cut - 1),function()
+			relative_strength_cut = relative_strength_cut - 1
+			if relative_strength_filter == "Less" then
+				relative_strength_label = string.format("R<%i",relative_strength_cut)
+			end
+			if relative_strength_filter == "More" then
+				relative_strength_label = string.format("R>%i",relative_strength_cut)
+			end
+			setRelativeStrengthFilter()
+		end)
+	end
+	if relative_strength_cut < relative_strength_max then
+		addGMFunction(string.format("Set cut to %i",relative_strength_cut + 1),function()
+			relative_strength_cut = relative_strength_cut + 1
+			if relative_strength_filter == "Less" then
+				relative_strength_label = string.format("R<%i",relative_strength_cut)
+			end
+			if relative_strength_filter == "More" then
+				relative_strength_label = string.format("R>%i",relative_strength_cut)
+			end
+			setRelativeStrengthFilter()
+		end)
+	end
 end
 function filteredPlayerShipSpawnList()
 	clearGMFunctions()
