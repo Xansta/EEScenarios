@@ -144,7 +144,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.34.1"
+	scenario_version = "5.34.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1019,6 +1019,7 @@ function setConstants()
 		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 0,	},
 		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Deimos"]				= { strength = 28,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 1,	power_sensor_interval = 7.5,},
 		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Destroyer IV"]		= { strength = 27,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Eldridge"]			= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	},
@@ -1066,6 +1067,7 @@ function setConstants()
 		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Twister"]				= { strength = 32,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Torch"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Triumph"]				= { strength = 55,	cargo = 6,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Vermin"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 10,	},
 		["Windmill"]			= { strength = 24,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	power_sensor_interval = 0,	},
@@ -1086,6 +1088,7 @@ function setConstants()
 	-- this probably wants to be fixed after the upcomming merge conflict has been dealt with
 	playerShipInfo = {}
 	addPlayerShip("Ambition",	"Phobos T2",	createPlayerShipAmbition	,"J")
+	addPlayerShip("Anvil",		"Deimos",		createPlayerShipAnvil		,"W")
 	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,"J")
 	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,"J")
 	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,"J")
@@ -1098,6 +1101,7 @@ function setConstants()
 	addPlayerShip("Crux",		"Mantis",		createPlayerShipCrux		,"W")
 	addPlayerShip("Darkstar",	"Destroyer IV",	createPlayerShipDarkstar	,"J")
 	addPlayerShip("Devon",		"Wombat",		createPlayerShipDevon		,"W")
+	addPlayerShip("Dominant",	"Triumph",		createPlayerShipDominant	,"J")
 	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,"W")
 	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,"J")
 	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,"J")
@@ -22033,6 +22037,56 @@ function createPlayerShipAmbition()
 	playerAmbition:addReputationPoints(50)
 	return playerAmbition
 end
+function createPlayerShipAnvil()
+	playerAnvil = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Anvil")
+	playerAnvil:setTypeName("Deimos")
+	playerAnvil:setWarpDrive(true)						--warp drive (vs none)
+	playerAnvil:setWarpSpeed(400)
+	playerAnvil:setShieldsMax(150, 80)					--asymmetric shields (vs 100, 100)
+	playerAnvil:setShields(150, 80)
+	playerAnvil:setHullMax(160)							--weaker hull (vs 200)
+	playerAnvil:setHull(160)
+	playerAnvil:setRotationMaxSpeed(15)					--faster spin (vs 10)
+	playerAnvil:setAcceleration(30,25)					--faster (vs 20/20)
+	playerAnvil:setImpulseMaxSpeed(80,72)				--slower reverse impulse (vs 80)
+--                 				 Arc, Dir, Range,   CycleTime,  Damage
+	playerAnvil:setBeamWeapon(0,  60,  20,	1200, 		  4.5,	5.5)	--narrower (vs 90), faster (vs 8), weaker (vs 6)
+	playerAnvil:setBeamWeapon(1,  60, -20,	1200, 		  4.5,	5.5)	
+	playerAnvil:setBeamWeapon(2,  10,   0,	1500, 		    6,	2.5)
+--										Arc,  Dir, Rotate speed
+	playerAnvil:setBeamWeaponTurret(2,	160,    0,			1)	
+	playerAnvil:setWeaponTubeCount(6)					--more (vs 3)
+	playerAnvil:setWeaponTubeDirection(0,  4)			--right with more angle (vs left -1)
+	playerAnvil:setWeaponTubeDirection(1, -4)			--left with more angle (vs right 1)
+	playerAnvil:setTubeSize(0,"large")					--large (vs medium)
+	playerAnvil:setTubeSize(1,"large")					--large (vs medium)
+	playerAnvil:setWeaponTubeExclusiveFor(0,"Homing")	--homing only (vs any)
+	playerAnvil:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs any)
+	playerAnvil:setTubeLoadTime(0,20)					--slower (vs 10)
+	playerAnvil:setTubeLoadTime(1,20)					--slower (vs 10)
+	playerAnvil:setWeaponTubeDirection(2,   0)			--forward (vs rear)
+	playerAnvil:setTubeSize(2,"small")					--small (vs medium)
+	playerAnvil:setTubeLoadTime(2,8)					--faster (vs 10)
+	playerAnvil:setWeaponTubeExclusiveFor(2,"EMP")		--EMP only (vs mine)
+	playerAnvil:setWeaponTubeDirection(3,  90)			
+	playerAnvil:setWeaponTubeDirection(4, -90)
+	playerAnvil:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerAnvil:weaponTubeAllowMissle(3,"Homing")
+	playerAnvil:weaponTubeAllowMissle(3,"Nuke")
+	playerAnvil:weaponTubeAllowMissle(3,"EMP")
+	playerAnvil:setWeaponTubeExclusiveFor(4,"HVLI")
+	playerAnvil:weaponTubeAllowMissle(4,"Homing")
+	playerAnvil:weaponTubeAllowMissle(4,"Nuke")
+	playerAnvil:weaponTubeAllowMissle(4,"EMP")
+	playerAnvil:setWeaponTubeDirection(5,180)
+	playerAnvil:setWeaponTubeExclusiveFor(5,"Mine")
+	playerAnvil:setTubeLoadTime(5,15)					--slower (vs 10)
+	playerAnvil:setWeaponStorageMax("EMP", 6)			--more (vs 3)
+	playerAnvil:setWeaponStorage("EMP", 6)
+	playerAnvil:onTakingDamage(playerShipDamage)
+	playerAnvil:addReputationPoints(50)
+	return playerAnvil
+end
 function createPlayerShipArgonaut()
 	playerArgonaut = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Argonaut")
 	playerArgonaut:setTypeName("Nusret")
@@ -24548,6 +24602,39 @@ function createPlayerShipThunderbird()
 	playerThunderbird:onTakingDamage(playerShipDamage)
 	playerThunderbird:addReputationPoints(50)
 	return playerThunderbird
+end
+function createPlayerShipDominant()
+	playerTriumph = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Dominant")
+	playerTriumph:setTypeName("Triumph")
+	playerTriumph.max_jump_range = 30000					--shorter (vs 50)
+	playerTriumph.min_jump_range = 3000						--shorter (vs 5)
+	playerTriumph:setJumpDriveRange(playerTriumph.min_jump_range,playerTriumph.max_jump_range)
+	playerTriumph:setJumpDriveCharge(playerTriumph.max_jump_range)
+	playerTriumph:setHullMax(180)							--weaker hull (vs 250)
+	playerTriumph:setHull(180)
+	playerTriumph:setRotationMaxSpeed(15)					--faster spin (vs 10)
+	playerTriumph:setAcceleration(30,25)					--faster (vs 20/20)
+	playerTriumph:setImpulseMaxSpeed(90,80)					--slower reverse impulse (vs 90)
+--                 				  Arc, Dir,  Range, CycleTime, Damage
+	playerTriumph:setBeamWeapon(0, 60, -20, 1200.0,		  4.5, 6.5)	--narrower (vs 100), faster (vs 6), weaker (vs 8)
+	playerTriumph:setBeamWeapon(1, 60,  20, 1200.0,		  4.5, 6.5)
+	playerTriumph:setBeamWeapon(2, 10, -90, 1000.0,			4, 3.5)
+	playerTriumph:setBeamWeapon(3, 10,  90, 1000.0,			4, 3.5)
+--										 Arc, Dir, Rotate speed
+	playerTriumph:setBeamWeaponTurret(2, 160, -90, 1)				--slow turret
+	playerTriumph:setBeamWeaponTurret(3, 160,  90, 1)
+	playerTriumph:setWeaponTubeDirection(1,  90)					--right (vs left)
+	playerTriumph:setWeaponTubeDirection(2, -90)					--left (vs right)
+	playerTriumph:setTubeSize(0,"large")							--large (vs medium)
+	playerTriumph:setTubeSize(1,"large")							--large (vs medium)
+	playerTriumph:setWeaponTubeExclusiveFor(0,"Homing")				--homing only (vs all)
+	playerTriumph:setWeaponTubeExclusiveFor(1,"Homing")				--homing only (vs all)
+	playerTriumph:setTubeLoadTime(0, 15)							--slower (vs 8)
+	playerTriumph:setTubeLoadTime(1, 15)							--slower (vs 8)
+	playerTriumph:setTubeLoadTime(4, 12)							--slower (vs 8)
+	playerTriumph:onTakingDamage(playerShipDamage)
+	playerTriumph:addReputationPoints(50)
+	return playerTriumph
 end
 function createPlayerShipTorch()
 	playerTorch = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Ignite")
