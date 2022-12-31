@@ -199,7 +199,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.33"
+	scenario_version = "5.35"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1078,6 +1078,7 @@ function setConstants()
 		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 0,	},
 		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Deimos"]				= { strength = 28,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 1,	power_sensor_interval = 7.5,},
 		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Destroyer IV"]		= { strength = 27,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Eldridge"]			= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	},
@@ -1125,6 +1126,7 @@ function setConstants()
 		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Twister"]				= { strength = 32,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Torch"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
+		["Triumph"]				= { strength = 55,	cargo = 6,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	},
 		["Vermin"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 10,	},
 		["Windmill"]			= { strength = 24,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	},
 		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	power_sensor_interval = 0,	},
@@ -1145,6 +1147,7 @@ function setConstants()
 	-- this probably wants to be fixed after the upcomming merge conflict has been dealt with
 	playerShipInfo = {}
 	addPlayerShip("Ambition",	"Phobos T2",	createPlayerShipAmbition	,"J")
+	addPlayerShip("Anvil",		"Deimos",		createPlayerShipAnvil		,"W")
 	addPlayerShip("Argonaut",	"Nusret",		createPlayerShipArgonaut	,"J")
 	addPlayerShip("Arwine",		"Pacu",			createPlayerShipArwine		,"J")
 	addPlayerShip("Barracuda",	"Redhook",		createPlayerShipBarracuda	,"J")
@@ -1157,6 +1160,7 @@ function setConstants()
 	addPlayerShip("Crux",		"Mantis",		createPlayerShipCrux		,"W")
 	addPlayerShip("Darkstar",	"Destroyer IV",	createPlayerShipDarkstar	,"J")
 	addPlayerShip("Devon",		"Wombat",		createPlayerShipDevon		,"W")
+	addPlayerShip("Dominant",	"Triumph",		createPlayerShipDominant	,"J")
 	addPlayerShip("Eagle",		"Era",			createPlayerShipEagle		,"W")
 	addPlayerShip("Endeavor",	"Bermuda",		createPlayerShipEndeavor	,"J")
 	addPlayerShip("Enola",		"Fray",			createPlayerShipEnola		,"J")
@@ -1488,6 +1492,7 @@ function setConstants()
 		["Stalker R5"] =					200,
 		["Stalker R7"] =					200,
 		["Starhammer II"] =					400,
+		["Starhammer III"] =				400,
 		["Starhammer V"] =					400,
 		["Storm"] =							200,
 		["Strike"] =						200,
@@ -7300,6 +7305,7 @@ function playerShip()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Tweak player",tweakPlayerShip)
 	addGMFunction("+Spawn",spawnPlayerShip)
+	addGMFunction("+Filtered Spawn",filteredPlayerShipSpawn)
 	addGMFunction("+Teleport Players",teleportPlayers)
 end
 ----------------------------------
@@ -15334,21 +15340,21 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
-		if i == 4 then
-			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
-			tdp4Zone:setColor(0,128,0):setLabel("4")
+--		if i == 4 then
+--			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
+--			tdp4Zone:setColor(0,128,0):setLabel("4")
 --		elseif i == 2 then
 --			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
 --			tdp2Zone:setColor(0,128,0)
 --		elseif i == 3 then
 --			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
 --			tdp3Zone:setColor(0,128,0)
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(start_angle+17+j*6,8000)
 			local dm = Mine():setPosition(t_x+dpx,t_y+dpy)
@@ -19271,7 +19277,787 @@ function makePlayerShipActive(ship_name)
 	assert(type(playerShipInfo[ship_name]) == "table")
 	playerShipInfo[ship_name]["active"] = "active"
 end
-
+function filteredPlayerShipSpawn()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	filter_count = 0
+	if has_ftl == nil then has_ftl = "No FTL Filter" end
+	addGMFunction(has_ftl,function()
+		if has_ftl == "No FTL Filter" then
+			has_ftl = "Warp*"
+		elseif has_ftl == "Warp*" then
+			has_ftl = "Jump*"
+		elseif has_ftl == "Jump*" then
+			has_ftl = "Jump & Warp*"
+		elseif has_ftl == "Jump & Warp*" then
+			has_ftl = "No FTL Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_ftl ~= "No FTL Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_tractor == nil then has_tractor = "No Tractor Filter" end
+	addGMFunction(has_tractor,function()
+		if has_tractor == "No Tractor Filter" then
+			has_tractor = "Tractor*"
+		elseif has_tractor == "Tractor*" then
+			has_tractor = "No Tractor*"
+		elseif has_tractor == "No Tractor*" then
+			has_tractor = "No Tractor Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_tractor ~= "No Tractor Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_mining == nil then has_mining = "No Mining Filter" end
+	addGMFunction(has_mining,function()
+		if has_mining == "No Mining Filter" then
+			has_mining = "Mining*"
+		elseif has_mining == "Mining*" then
+			has_mining = "No Mining*"
+		elseif has_mining == "No Mining*" then
+			has_mining = "No Mining Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_mining ~= "No Mining Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_epjam == nil then has_epjam = "No EPJAM Filter" end
+	addGMFunction(has_epjam,function()
+		if has_epjam == "No EPJAM Filter" then
+			has_epjam = "EPJAM*"
+		elseif has_epjam == "EPJAM*" then
+			has_epjam = "M or L EPJAM*"
+		elseif has_epjam == "M or L EPJAM*" then
+			has_epjam = "L EPJAM*"
+		elseif has_epjam == "L EPJAM*" then
+			has_epjam = "No EPJAM*"
+		elseif has_epjam == "No EPJAM*" then
+			has_epjam = "No EPJAM Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_epjam ~= "No EPJAM Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_patrol_probe == nil then has_patrol_probe = "No Patrol Probe Filter" end
+	addGMFunction(has_patrol_probe,function()
+		if has_patrol_probe == "No Patrol Probe Filter" then
+			has_patrol_probe = "Patrol Probe*"
+		elseif has_patrol_probe == "Patrol Probe*" then
+			has_patrol_probe = "No Patrol Probe*"
+		elseif has_patrol_probe == "No Patrol Probe*" then
+			has_patrol_probe = "No Patrol Probe Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_patrol_probe ~= "No Patrol Probe Filter" then
+		filter_count = filter_count + 1
+	end
+	if has_proximity_scan == nil then has_proximity_scan = "No ProxScan Filter" end
+	addGMFunction(has_proximity_scan,function()
+		if has_proximity_scan == "No ProxScan Filter" then
+			has_proximity_scan = "ProxScan*"
+		elseif has_proximity_scan == "ProxScan*" then
+			has_proximity_scan = "No ProxScan*"
+		elseif has_proximity_scan == "No ProxScan*" then
+			has_proximity_scan = "No ProxScan Filter"
+		end
+		filteredPlayerShipSpawn()
+	end)
+	if has_proximity_scan ~= "No ProxScan Filter" then
+		filter_count = filter_count + 1
+	end
+	if relative_strength_filter == nil then 
+		relative_strength_filter = "No RelStrength Filter" 
+		relative_strength_cut = 25
+		relative_strength_min = relative_strength_cut
+		relative_strength_max = relative_strength_cut
+		relative_strength_label = "NRF"
+	end
+	if cargo_filter == nil then 
+		cargo_filter = "No Cargo Filter" 
+		cargo_cut = 6
+		cargo_min = cargo_cut
+		cargo_max = cargo_cut
+		cargo_label = "NCF"
+	end
+	if long_sensor_filter == nil then 
+		long_sensor_filter = "No Long Sensor Filter" 
+		long_sensor_cut = 30
+		long_sensor_min = long_sensor_cut
+		long_sensor_max = long_sensor_cut
+		long_sensor_label = "NSF"
+	end
+	if probe_filter == nil then 
+		probe_filter = "No Probe Filter" 
+		probe_cut = 8
+		probe_min = probe_cut
+		probe_max = probe_cut
+		probe_label = "NPF"
+	end
+	if life_pod_filter == nil then 
+		life_pod_filter = "No Life Pod Filter"
+		life_pod_cut = 3
+		life_pod_min = life_pod_cut
+		life_pod_max = life_pod_cut
+		life_pod_label = "NLF"
+	end
+	for _,name in pairs(sorted) do
+		if playerShipStats[playerShipInfo[name].typeName].strength > relative_strength_max then
+			relative_strength_max = playerShipStats[playerShipInfo[name].typeName].strength
+		end
+		if playerShipStats[playerShipInfo[name].typeName].strength < relative_strength_min then
+			relative_strength_min = playerShipStats[playerShipInfo[name].typeName].strength
+		end
+		if playerShipStats[playerShipInfo[name].typeName].cargo > cargo_max then
+			cargo_max = playerShipStats[playerShipInfo[name].typeName].cargo
+		end
+		if playerShipStats[playerShipInfo[name].typeName].cargo < cargo_min then
+			cargo_min = playerShipStats[playerShipInfo[name].typeName].cargo
+		end
+		if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) > long_sensor_max then
+			long_sensor_max = (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000)
+		end
+		if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) < long_sensor_min then
+			long_sensor_min = (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000)
+		end
+		if playerShipStats[playerShipInfo[name].typeName].probes > probe_max then
+			probe_max = playerShipStats[playerShipInfo[name].typeName].probes
+		end
+		if playerShipStats[playerShipInfo[name].typeName].probes < probe_min then
+			probe_min = playerShipStats[playerShipInfo[name].typeName].probes
+		end
+		if playerShipStats[playerShipInfo[name].typeName].pods > life_pod_max then
+			life_pod_max = playerShipStats[playerShipInfo[name].typeName].pods
+		end
+		if playerShipStats[playerShipInfo[name].typeName].pods < life_pod_min then
+			life_pod_min = playerShipStats[playerShipInfo[name].typeName].pods
+		end
+	end
+	if relative_strength_filter ~= "No RelStrength Filter" then
+		filter_count = filter_count + 1
+	end
+	if cargo_filter ~= "No Cargo Filter" then
+		filter_count = filter_count + 1
+	end
+	if long_sensor_filter ~= "No Long Sensor Filter" then
+		filter_count = filter_count + 1
+	end
+	if probe_filter ~= "No Probe Filter" then
+		filter_count = filter_count + 1
+	end
+	if life_pod_filter ~= "No Life Pod Filter" then
+		filter_count = filter_count + 1
+	end
+	addGMFunction(string.format("+%s %s %s %s %s",relative_strength_label,cargo_label,long_sensor_label,probe_label,life_pod_label),setCutFilter)
+	filteredPlayerShipNames = {}
+	for _,name in pairs(sorted) do
+		local already_spawned = false
+		local player_ships = getActivePlayerShips()
+		for _, ship in ipairs(player_ships) do
+			if name == ship:getCallSign() then
+				already_spawned = true
+			end
+		end
+		if not already_spawned then
+			if has_ftl ~= "No FTL Filter" then
+	--	playerShipInfo[name]={active = "inactive",spawn = func, typeName = typeName, ftl = ftl}
+				if has_ftl == "Warp*" then
+					if playerShipInfo[name].ftl == "W" then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_ftl == "Jump*" then
+					if playerShipInfo[name].ftl == "J" then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_ftl == "Jump & Warp*" then
+					if playerShipInfo[name].ftl == "B" then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_tractor ~= "No Tractor Filter" then
+				if has_tractor == "Tractor*" then
+					if playerShipStats[playerShipInfo[name].typeName].tractor then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_tractor == "No Tractor*" then
+					if not playerShipStats[playerShipInfo[name].typeName].tractor then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_mining ~= "No Mining Filter" then
+				if has_mining == "Mining*" then
+					if playerShipStats[playerShipInfo[name].typeName].mining then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_mining == "No Mining*" then
+					if not playerShipStats[playerShipInfo[name].typeName].mining then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_epjam ~= "No EPJAM Filter" then
+				if has_epjam == "EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam > 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_epjam == "M or L EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam > 1 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_epjam == "L EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam > 2 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_epjam == "No EPJAM*" then
+					if playerShipStats[playerShipInfo[name].typeName].epjam == 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_patrol_probe ~= "No Patrol Probe Filter" then
+				if has_patrol_probe == "Patrol Probe*" then
+					if playerShipStats[playerShipInfo[name].typeName].patrol_probe > 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_patrol_probe == "No Patrol Probe*" then
+					if playerShipStats[playerShipInfo[name].typeName].patrol_probe == 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if has_proximity_scan ~= "No ProxScan Filter" then
+				if has_proximity_scan == "ProxScan*" then
+					if playerShipStats[playerShipInfo[name].typeName].prox_scan > 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif has_proximity_scan == "No ProxScan*" then
+					if playerShipStats[playerShipInfo[name].typeName].prox_scan == 0 then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if relative_strength_filter ~= "No RelStrength Filter" then
+				if relative_strength_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].strength < relative_strength_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif relative_strength_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].strength > relative_strength_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if cargo_filter ~= "No Cargo Filter" then
+				if cargo_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].cargo < cargo_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif cargo_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].cargo > cargo_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if long_sensor_filter ~= "No Long Sensor Filter" then
+				if long_sensor_filter == "Less" then
+					if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) < long_sensor_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif long_sensor_filter == "More" then
+					if (playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000) > long_sensor_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if probe_filter ~= "No Probe Filter" then
+				if probe_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].probes < probe_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif probe_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].probes > probe_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+			if life_pod_filter ~= "No Life Pod Filter" then
+				if life_pod_filter == "Less" then
+					if playerShipStats[playerShipInfo[name].typeName].pods < life_pod_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				elseif life_pod_filter == "More" then
+					if playerShipStats[playerShipInfo[name].typeName].pods > life_pod_cut then
+						if filteredPlayerShipNames[name] == nil then
+							filteredPlayerShipNames[name] = 0
+						end
+						filteredPlayerShipNames[name] = filteredPlayerShipNames[name] + 1
+					end
+				end
+			end
+		end
+	end
+	local matching_player_ship_count = 0
+	for name,match in pairs(filteredPlayerShipNames) do
+		if filteredPlayerShipNames[name] == filter_count then
+			matching_player_ship_count = matching_player_ship_count + 1
+		end
+	end
+	addGMFunction(string.format("List %i Matches",matching_player_ship_count),filteredPlayerShipSpawnList)
+end
+function setCutFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	local button_label = "+Relative Strength"
+	if relative_strength_filter == "No RelStrength Filter" then
+		button_label = "+No RelStrength Filter"
+	elseif relative_strength_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,relative_strength_cut)
+	elseif relative_strength_filter == "More" then
+		button_label = string.format("%s > %i",button_label,relative_strength_cut)
+	end
+	addGMFunction(button_label,setRelativeStrengthFilter)
+	button_label = "+Cargo Filter"
+	if cargo_filter == "No Cargo Filter" then
+		button_label = "+No Cargo Filter"
+	elseif cargo_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,cargo_cut)
+	elseif cargo_filter == "More" then
+		button_label = string.format("%s > %i",button_label,cargo_cut)
+	end
+	addGMFunction(button_label,setCargoFilter)
+	button_label = "+Long Sensor Filter"
+	if long_sensor_filter == "No Long Sensor Filter" then
+		button_label = "+No Long Sensor Filter"
+	elseif long_sensor_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,long_sensor_cut)
+	elseif long_sensor_filter == "More" then
+		button_label = string.format("%s > %i",button_label,long_sensor_cut)
+	end
+	addGMFunction(button_label,setLongSensorFilter)
+	button_label = "+Probe Filter"
+	if probe_filter == "No Probe Filter" then
+		button_label = "+No Probe Filter"
+	elseif probe_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,probe_cut)
+	elseif probe_filter == "More" then
+		button_label = string.format("%s > %i",button_label,probe_cut)
+	end
+	addGMFunction(button_label,setProbeFilter)
+	button_label = "+Life Pod Filter"
+	if life_pod_filter == "No Life Pod Filter" then
+		button_label = "+No Life Pod Filter"
+	elseif life_pod_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,life_pod_cut)
+	elseif life_pod_filter == "More" then
+		button_label = string.format("%s > %i",button_label,life_pod_cut)
+	end
+	addGMFunction(button_label,setLifePodFilter)
+end
+function setLifePodFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Life Pod",setCutFilter)
+	local button_label = "No Life Pod Filter"
+	if life_pod_filter == "No Life Pod Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "No Probe Filter"
+		life_pod_label = "NLF"
+		setLifePodFilter()
+	end)
+	button_label = string.format("Less than %i",life_pod_cut)
+	if life_pod_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "Less"
+		life_pod_label = string.format("L<%i",life_pod_cut)
+		setLifePodFilter()
+	end)
+	button_label = string.format("More than %i",life_pod_cut)
+	if life_pod_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "More"
+		life_pod_label = string.format("L>%i",life_pod_cut)
+		setLifePodFilter()
+	end)
+	if life_pod_cut > life_pod_min then
+		addGMFunction(string.format("Set cut to %i",life_pod_cut - 1),function()
+			life_pod_cut = life_pod_cut - 1
+			if life_pod_filter == "Less" then
+				life_pod_label = string.format("L<%i",life_pod_cut)
+			end
+			if life_pod_filter == "More" then
+				life_pod_label = string.format("L>%i",life_pod_cut)
+			end
+			setLifePodFilter()
+		end)
+	end
+	if life_pod_cut < life_pod_max then
+		addGMFunction(string.format("Set cut to %i",life_pod_cut + 1),function()
+			life_pod_cut = life_pod_cut + 1
+			if life_pod_filter == "Less" then
+				life_pod_label = string.format("L<%i",life_pod_cut)
+			end
+			if life_pod_filter == "More" then
+				life_pod_label = string.format("L>%i",life_pod_cut)
+			end
+			setLifePodFilter()
+		end)
+	end
+end
+function setProbeFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Probe",setCutFilter)
+	local button_label = "No Probe Filter"
+	if probe_filter == "No Probe Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "No Probe Filter"
+		probe_label = "NPF"
+		setProbeFilter()
+	end)
+	button_label = string.format("Less than %i",probe_cut)
+	if probe_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "Less"
+		probe_label = string.format("S<%i",probe_cut)
+		setProbeFilter()
+	end)
+	button_label = string.format("More than %i",probe_cut)
+	if probe_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "More"
+		probe_label = string.format("P>%i",probe_cut)
+		setProbeFilter()
+	end)
+	if probe_cut > probe_min then
+		addGMFunction(string.format("Set cut to %i",probe_cut - 1),function()
+			probe_cut = probe_cut - 1
+			if probe_filter == "Less" then
+				probe_label = string.format("P<%i",probe_cut)
+			end
+			if probe_filter == "More" then
+				probe_label = string.format("P>%i",probe_cut)
+			end
+			setProbeFilter()
+		end)
+	end
+	if probe_cut < probe_max then
+		addGMFunction(string.format("Set cut to %i",probe_cut + 1),function()
+			probe_cut = probe_cut + 1
+			if probe_filter == "Less" then
+				probe_label = string.format("P<%i",probe_cut)
+			end
+			if probe_filter == "More" then
+				probe_label = string.format("P>%i",probe_cut)
+			end
+			setProbeFilter()
+		end)
+	end
+end
+function setLongSensorFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Long Sensor",setCutFilter)
+	local button_label = "No Long Sensor Filter"
+	if long_sensor_filter == "No Long Sensor Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "No Long Sensor Filter"
+		long_sensor_label = "NSF"
+		setLongSensorFilter()
+	end)
+	button_label = string.format("Less than %i",long_sensor_cut)
+	if long_sensor_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "Less"
+		long_sensor_label = string.format("S<%i",long_sensor_cut)
+		setLongSensorFilter()
+	end)
+	button_label = string.format("More than %i",long_sensor_cut)
+	if long_sensor_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "More"
+		long_sensor_label = string.format("S>%i",long_sensor_cut)
+		setLongSensorFilter()
+	end)
+	if long_sensor_cut > long_sensor_min then
+		addGMFunction(string.format("Set cut to %i",long_sensor_cut - 1),function()
+			long_sensor_cut = long_sensor_cut - 1
+			if long_sensor_filter == "Less" then
+				long_sensor_label = string.format("S<%i",long_sensor_cut)
+			end
+			if long_sensor_filter == "More" then
+				long_sensor_label = string.format("S>%i",long_sensor_cut)
+			end
+			setLongSensorFilter()
+		end)
+	end
+	if long_sensor_cut < long_sensor_max then
+		addGMFunction(string.format("Set cut to %i",long_sensor_cut + 1),function()
+			long_sensor_cut = long_sensor_cut + 1
+			if long_sensor_filter == "Less" then
+				long_sensor_label = string.format("S<%i",long_sensor_cut)
+			end
+			if long_sensor_filter == "More" then
+				long_sensor_label = string.format("S>%i",long_sensor_cut)
+			end
+			setLongSensorFilter()
+		end)
+	end
+end
+function setCargoFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Cargo",setCutFilter)
+	local button_label = "No Cargo Filter"
+	if cargo_filter == "No Cargo Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "No Cargo Filter"
+		cargo_label = "NCF"
+		setCargoFilter()
+	end)
+	button_label = string.format("Less than %i",cargo_cut)
+	if cargo_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "Less"
+		cargo_label = string.format("C<%i",cargo_cut)
+		setCargoFilter()
+	end)
+	button_label = string.format("More than %i",cargo_cut)
+	if cargo_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "More"
+		cargo_label = string.format("C>%i",cargo_cut)
+		setCargoFilter()
+	end)
+	if cargo_cut > cargo_min then
+		addGMFunction(string.format("Set cut to %i",cargo_cut - 1),function()
+			cargo_cut = cargo_cut - 1
+			if cargo_filter == "Less" then
+				cargo_label = string.format("C<%i",cargo_cut)
+			end
+			if cargo_filter == "More" then
+				cargo_label = string.format("C>%i",cargo_cut)
+			end
+			setCargoFilter()
+		end)
+	end
+	if cargo_cut < cargo_max then
+		addGMFunction(string.format("Set cut to %i",cargo_cut + 1),function()
+			cargo_cut = cargo_cut + 1
+			if cargo_filter == "Less" then
+				cargo_label = string.format("C<%i",cargo_cut)
+			end
+			if cargo_filter == "More" then
+				cargo_label = string.format("C>%i",cargo_cut)
+			end
+			setCargoFilter()
+		end)
+	end
+end
+function setRelativeStrengthFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Relative Strength",setCutFilter)
+	local button_label = "No RelStrength Filter"
+	if relative_strength_filter == "No RelStrength Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "No RelStrength Filter"
+		relative_strength_label = "NRF"
+		setRelativeStrengthFilter()
+	end)
+	button_label = string.format("Less than %i",relative_strength_cut)
+	if relative_strength_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "Less"
+		relative_strength_label = string.format("R<%i",relative_strength_cut)
+		setRelativeStrengthFilter()
+	end)
+	button_label = string.format("More than %i",relative_strength_cut)
+	if relative_strength_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "More"
+		relative_strength_label = string.format("R>%i",relative_strength_cut)
+		setRelativeStrengthFilter()
+	end)
+	if relative_strength_cut > relative_strength_min then
+		addGMFunction(string.format("Set cut to %i",relative_strength_cut - 1),function()
+			relative_strength_cut = relative_strength_cut - 1
+			if relative_strength_filter == "Less" then
+				relative_strength_label = string.format("R<%i",relative_strength_cut)
+			end
+			if relative_strength_filter == "More" then
+				relative_strength_label = string.format("R>%i",relative_strength_cut)
+			end
+			setRelativeStrengthFilter()
+		end)
+	end
+	if relative_strength_cut < relative_strength_max then
+		addGMFunction(string.format("Set cut to %i",relative_strength_cut + 1),function()
+			relative_strength_cut = relative_strength_cut + 1
+			if relative_strength_filter == "Less" then
+				relative_strength_label = string.format("R<%i",relative_strength_cut)
+			end
+			if relative_strength_filter == "More" then
+				relative_strength_label = string.format("R>%i",relative_strength_cut)
+			end
+			setRelativeStrengthFilter()
+		end)
+	end
+end
+function filteredPlayerShipSpawnList()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	local matching_player_ship_count = 0
+	for name,match in pairs(filteredPlayerShipNames) do
+		if filteredPlayerShipNames[name] == filter_count then
+			matching_player_ship_count = matching_player_ship_count + 1
+		end
+	end
+	if matching_player_ship_count == 0 then
+		if filter_count == 0 or matching_player_ship_count == 0 then
+			addGMMessage("No filter specified or no matching player ships found. Transferring you to the normal player ship spawn section")
+			spawnPlayerShip()
+		else
+			addGMMessage("No player ships matched your filter criteria. You need to change your selected filters and try again")
+			filteredPlayerShipSpawn()
+		end
+	else
+		for _,name in pairs(sorted) do
+			if filteredPlayerShipNames[name] ~= nil then
+				if filteredPlayerShipNames[name] == filter_count then
+					local strength = playerShipStats[playerShipInfo[name].typeName].strength
+					local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+					addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name), function()
+						playerShipInfo[name]["spawn"]()
+						playerShipInfo[name]["active"] = "inactive"
+						filteredPlayerShipSpawn()
+					end)
+				end
+			end
+		end
+	end
+end
 function spawnPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -21476,6 +22262,56 @@ function createPlayerShipAmbition()
 	playerAmbition:onTakingDamage(playerShipDamage)
 	playerAmbition:addReputationPoints(50)
 	return playerAmbition
+end
+function createPlayerShipAnvil()
+	playerAnvil = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Anvil")
+	playerAnvil:setTypeName("Deimos")
+	playerAnvil:setWarpDrive(true)						--warp drive (vs none)
+	playerAnvil:setWarpSpeed(400)
+	playerAnvil:setShieldsMax(150, 80)					--asymmetric shields (vs 100, 100)
+	playerAnvil:setShields(150, 80)
+	playerAnvil:setHullMax(160)							--weaker hull (vs 200)
+	playerAnvil:setHull(160)
+	playerAnvil:setRotationMaxSpeed(15)					--faster spin (vs 10)
+	playerAnvil:setAcceleration(30,25)					--faster (vs 20/20)
+	playerAnvil:setImpulseMaxSpeed(80,72)				--slower reverse impulse (vs 80)
+--                 				 Arc, Dir, Range,   CycleTime,  Damage
+	playerAnvil:setBeamWeapon(0,  60,  20,	1200, 		  4.5,	5.5)	--narrower (vs 90), faster (vs 8), weaker (vs 6)
+	playerAnvil:setBeamWeapon(1,  60, -20,	1200, 		  4.5,	5.5)	
+	playerAnvil:setBeamWeapon(2,  10,   0,	1500, 		    6,	2.5)
+--										Arc,  Dir, Rotate speed
+	playerAnvil:setBeamWeaponTurret(2,	160,    0,			1)	
+	playerAnvil:setWeaponTubeCount(6)					--more (vs 3)
+	playerAnvil:setWeaponTubeDirection(0,  4)			--right with more angle (vs left -1)
+	playerAnvil:setWeaponTubeDirection(1, -4)			--left with more angle (vs right 1)
+	playerAnvil:setTubeSize(0,"large")					--large (vs medium)
+	playerAnvil:setTubeSize(1,"large")					--large (vs medium)
+	playerAnvil:setWeaponTubeExclusiveFor(0,"Homing")	--homing only (vs any)
+	playerAnvil:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs any)
+	playerAnvil:setTubeLoadTime(0,20)					--slower (vs 10)
+	playerAnvil:setTubeLoadTime(1,20)					--slower (vs 10)
+	playerAnvil:setWeaponTubeDirection(2,   0)			--forward (vs rear)
+	playerAnvil:setTubeSize(2,"small")					--small (vs medium)
+	playerAnvil:setTubeLoadTime(2,8)					--faster (vs 10)
+	playerAnvil:setWeaponTubeExclusiveFor(2,"EMP")		--EMP only (vs mine)
+	playerAnvil:setWeaponTubeDirection(3,  90)			
+	playerAnvil:setWeaponTubeDirection(4, -90)
+	playerAnvil:setWeaponTubeExclusiveFor(3,"HVLI")
+	playerAnvil:weaponTubeAllowMissle(3,"Homing")
+	playerAnvil:weaponTubeAllowMissle(3,"Nuke")
+	playerAnvil:weaponTubeAllowMissle(3,"EMP")
+	playerAnvil:setWeaponTubeExclusiveFor(4,"HVLI")
+	playerAnvil:weaponTubeAllowMissle(4,"Homing")
+	playerAnvil:weaponTubeAllowMissle(4,"Nuke")
+	playerAnvil:weaponTubeAllowMissle(4,"EMP")
+	playerAnvil:setWeaponTubeDirection(5,180)
+	playerAnvil:setWeaponTubeExclusiveFor(5,"Mine")
+	playerAnvil:setTubeLoadTime(5,15)					--slower (vs 10)
+	playerAnvil:setWeaponStorageMax("EMP", 6)			--more (vs 3)
+	playerAnvil:setWeaponStorage("EMP", 6)
+	playerAnvil:onTakingDamage(playerShipDamage)
+	playerAnvil:addReputationPoints(50)
+	return playerAnvil
 end
 function createPlayerShipArgonaut()
 	playerArgonaut = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Argonaut")
@@ -23992,6 +24828,39 @@ function createPlayerShipThunderbird()
 	playerThunderbird:onTakingDamage(playerShipDamage)
 	playerThunderbird:addReputationPoints(50)
 	return playerThunderbird
+end
+function createPlayerShipDominant()
+	playerTriumph = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Dominant")
+	playerTriumph:setTypeName("Triumph")
+	playerTriumph.max_jump_range = 30000					--shorter (vs 50)
+	playerTriumph.min_jump_range = 3000						--shorter (vs 5)
+	playerTriumph:setJumpDriveRange(playerTriumph.min_jump_range,playerTriumph.max_jump_range)
+	playerTriumph:setJumpDriveCharge(playerTriumph.max_jump_range)
+	playerTriumph:setHullMax(180)							--weaker hull (vs 250)
+	playerTriumph:setHull(180)
+	playerTriumph:setRotationMaxSpeed(15)					--faster spin (vs 10)
+	playerTriumph:setAcceleration(30,25)					--faster (vs 20/20)
+	playerTriumph:setImpulseMaxSpeed(90,80)					--slower reverse impulse (vs 90)
+--                 				  Arc, Dir,  Range, CycleTime, Damage
+	playerTriumph:setBeamWeapon(0, 60, -20, 1200.0,		  4.5, 6.5)	--narrower (vs 100), faster (vs 6), weaker (vs 8)
+	playerTriumph:setBeamWeapon(1, 60,  20, 1200.0,		  4.5, 6.5)
+	playerTriumph:setBeamWeapon(2, 10, -90, 1000.0,			4, 3.5)
+	playerTriumph:setBeamWeapon(3, 10,  90, 1000.0,			4, 3.5)
+--										 Arc, Dir, Rotate speed
+	playerTriumph:setBeamWeaponTurret(2, 160, -90, 1)				--slow turret
+	playerTriumph:setBeamWeaponTurret(3, 160,  90, 1)
+	playerTriumph:setWeaponTubeDirection(1,  90)					--right (vs left)
+	playerTriumph:setWeaponTubeDirection(2, -90)					--left (vs right)
+	playerTriumph:setTubeSize(0,"large")							--large (vs medium)
+	playerTriumph:setTubeSize(1,"large")							--large (vs medium)
+	playerTriumph:setWeaponTubeExclusiveFor(0,"Homing")				--homing only (vs all)
+	playerTriumph:setWeaponTubeExclusiveFor(1,"Homing")				--homing only (vs all)
+	playerTriumph:setTubeLoadTime(0, 15)							--slower (vs 8)
+	playerTriumph:setTubeLoadTime(1, 15)							--slower (vs 8)
+	playerTriumph:setTubeLoadTime(4, 12)							--slower (vs 8)
+	playerTriumph:onTakingDamage(playerShipDamage)
+	playerTriumph:addReputationPoints(50)
+	return playerTriumph
 end
 function createPlayerShipTorch()
 	playerTorch = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Ignite")
