@@ -8198,7 +8198,7 @@ function createIcarusStations()
 	stationClew = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Clew"):setPosition(-130445, -97789):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		-- USN doesnt really have a mirror version
-		stationChitlok:setFaction("Spacer")
+		stationClew:setFaction("Spacer")
 	end
     stationClew.comms_data = {
     	friendlyness = 64,
@@ -8471,7 +8471,7 @@ function createIcarusStations()
 	if mirrorUniverse then
 		-- it seems a shame to not use a few stations like this
 		-- as such its being removed until / unless someone can think of a good use
-		stationChitlok:destroy()
+		stationGatarbleax:destroy()
 	end
     stationGatarbleax.comms_data = {
     	friendlyness = 82,
@@ -8518,7 +8518,7 @@ function createIcarusStations()
 	if mirrorUniverse then
 		-- it seems a shame to not use a few stations like this
 		-- as such its being removed until / unless someone can think of a good use
-		stationChitlok:destroy()
+		stationKiptik:destroy()
 	end
     stationKiptik.comms_data = {
     	friendlyness = 55,
