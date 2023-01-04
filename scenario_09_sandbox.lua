@@ -16,6 +16,7 @@
 -- Start Region[Lafrina]: Small station no defenses near primarily Arlenian occupied space
 -- Start Region[Teresh]: Large station normally with 5 defense platforms and small minefields
 -- Start Region[Bask]: Medium station no defenses. Multiple factions, intense star, Magnasol
+-- Start Region[None] : Skeleton only, mostly for development
 -- Setting[Warning]: Configures whether stations and ships in a region warn the players about enemies
 -- Warning[On|Default]: Players warned about enemies observed
 -- Warning[Off]: Players not warned about enemies observed
@@ -37,5 +38,8 @@
 -- Special Factor[3]: Special factor three
 -- Special Factor[5]: Special factor five
 -- Special Factor[8]: Special factor eight
+-- Setting[Mirror]: Should we start in the mirror universe?
+-- Mirror[No|Default]: We are in the normal universe
+-- Mirror[Yes]: We are in the mirror universe
 
 require("sandbox/main.lua")

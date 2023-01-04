@@ -56,6 +56,61 @@ require("utils_customElements.lua")
 require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 
+-- extra factions
+-- mirror universe factions - brief notes my (starry) idea for each
+-- at some point that should be embedded into the game database somehow
+-- mostly it is at best weakly defined at the moment - feel free to edit til that changes
+-- setDescription would be good, but no database entries are being made anyway so it doesnt really matter
+
+-- antagonist, implied theocratic, possibly imperialistic / expansionistic
+-- mirror universe protagonist faction
+FactionInfo()
+	:setName("Cindy's Remnants")
+	:setGMColor(200,200,255)
+	:setFriendly(getFactionInfo("Human Navy"))
+	:setEnemy(getFactionInfo("Kraylor"))
+	:setEnemy(getFactionInfo("Exuari"))
+	:setEnemy(getFactionInfo("Ghosts"))
+	:setEnemy(getFactionInfo("Ktlitans"))
+	:setFriendly(getFactionInfo("TSN"))
+	:setFriendly(getFactionInfo("USN"))
+	:setFriendly(getFactionInfo("CUF"))
+
+FactionInfo()
+	:setName("Holy Terra")
+	:setGMColor(255,128,128)
+	-- this is probably hostile to too many factions
+	:setEnemy(getFactionInfo("Independent"))
+	:setEnemy(getFactionInfo("Human Navy"))
+	:setEnemy(getFactionInfo("Kraylor"))
+	:setEnemy(getFactionInfo("Arlenians"))
+	:setEnemy(getFactionInfo("Exuari"))
+	:setEnemy(getFactionInfo("Ghosts"))
+	:setEnemy(getFactionInfo("Ktlitans"))
+	:setEnemy(getFactionInfo("TSN"))
+	:setEnemy(getFactionInfo("USN"))
+	:setEnemy(getFactionInfo("CUF"))
+	-- mirror factions
+	:setEnemy(getFactionInfo("Cindy's Remnants"))
+
+-- independent equivalent, I presume below holy terra, or alternatively the civilian population?
+FactionInfo()
+	:setName("Spacer")
+	:setGMColor(192,192,192)
+	:setEnemy(getFactionInfo("Exuari"))
+	:setEnemy(getFactionInfo("Ktlitans"))
+	-- mirror factions
+	:setFriendly(getFactionInfo("Holy Terra"))
+
+-- mirror universe christmas
+FactionInfo()
+	:setName("Snow Slayers")
+	:setGMColor(0,0,255)
+	-- mirror factions
+	:setFriendly(getFactionInfo("Cindy's Remnants"))
+	:setEnemy(getFactionInfo("Holy Terra"))
+	:setEnemy(getFactionInfo("Spacer"))
+
 -- maps filenames that were moved after 2021.6.23 release
 function getFilenameCompatible(new_filename)
 	if getEEVersion() ==  2021623 then
@@ -144,7 +199,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.34.2"
+	scenario_version = "5.35"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -157,6 +212,7 @@ function init()
 	commerce_diagnostic = false
 	mine_probe_diagnostic = true
 	med_point_diagnostic = false
+	mirrorUniverse = false
 	setConstants()
 	onNewPlayerShip(assignPlayerShipScore)
 	initialGMFunctions()
@@ -165,6 +221,9 @@ function init()
 	runAllTests()
 end
 function applySettings()
+	if getScenarioSetting("Mirror") == "Yes" then
+		convertToMirror()
+	end
 	local start_region = getScenarioSetting("Start Region")
 	for i=1,#universe.available_regions do
 		local region=universe.available_regions[i]
@@ -4104,7 +4163,7 @@ function setSingleNebula(tempObject)
 end
 function setFactionRelations()
 	clearGMFunctions()
-	local faction_list = {"Independent","Human Navy","Kraylor","Arlenians","Exuari","Ghosts","Ktlitans","TSN","USN","CUF"}
+	local faction_list = {"Independent","Human Navy","Kraylor","Arlenians","Exuari","Ghosts","Ktlitans","TSN","USN","CUF","Holy Terra","Spacer","Snow Slayers","Cindy's Remnants"}
 	for _, faction in ipairs(faction_list) do
 		local button_label = faction
 		if relation_faction_1 == faction then
@@ -6070,7 +6129,7 @@ function customButtons()
 	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
 	-- though when I get round to one of the next improvements to gateway this may need to change anyway
 	addGMFunction("contact gm",function ()
-		playerFleet:wrappedAddCustomButton("Relay","gm contact","calibrate",function (player)
+		playerFleet:addCustomButton("Relay","gm contact","Contact HQ",function (player)
 			if not openGMComms(player) then
 				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
 			end
@@ -7524,6 +7583,33 @@ function changeTerrain()
 			onGMClick(nil)
 		end
 	end
+	if mirrorUniverse then
+		addGMFunction("To Non Mirror",function ()
+			convertToNonMirror()
+			changeTerrain()
+		end)
+	else
+		addGMFunction("To Mirror",function ()
+			convertToMirror()
+			changeTerrain()
+		end)
+	end
+end
+function skeletonToFaction(faction)
+	stationIcarus:setFaction(faction)
+	stationKentar:setFaction(faction)
+	stationAstron:setFaction(faction)
+	stationLafrina:setFaction(faction)
+	stationTeresh:setFaction(faction)
+	stationBask:setFaction(faction)
+end
+function convertToMirror()
+	mirrorUniverse = true
+	skeletonToFaction("Holy Terra")
+end
+function convertToNonMirror()
+	mirrorUniverse = false
+	skeletonToFaction("Human Navy")
 end
 
 
@@ -7576,13 +7662,16 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 then
+		if i == 2 and not mirrorUniverse then
 			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
 			dp2Zone:setColor(0,128,0):setLabel("2")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
+			if mirrorUniverse then
+				dp:setFaction("Holy Terra")
+			end
 			table.insert(icarusDefensePlatforms,dp)
 		end
 		for j=1,5 do
@@ -7743,6 +7832,10 @@ function createIcarusStations()
 	local tradeLuxury = true
 	--Amaranth
 	stationAmaranth = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Amaranth"):setPosition(-77672, -141896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		-- TSN doesnt really have a mirror version
+		stationAmaranth:setFaction("Spacer")
+	end
     stationAmaranth.comms_data = {
     	friendlyness = 67,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
@@ -7796,6 +7889,10 @@ function createIcarusStations()
 --	local aquariusZone = squareZone(-4295, 14159, "Aquarius X F4.9")
 --	aquariusZone:setColor(51,153,255):setLabel("A")
     stationAquarius = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Aquarius X"):setPosition(-4295, 14159):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationAquarius:setFaction("Spacer")
+	end
+
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -7911,10 +8008,18 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationBikolipox:setSharesEnergyWithDocked(false) end
 	station_names[stationBikolipox:getCallSign()] = {stationBikolipox:getSectorName(), stationBikolipox}
 	table.insert(stations,stationBikolipox)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationBikolipox:destroy()
+	end
 	--Borlan
 	--local borlanZone = squareZone(68808, 39300, "Borlan 2 G8")
 	--borlanZone:setColor(51,153,255)
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationBorlan:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8033,6 +8138,11 @@ function createIcarusStations()
 	if random(1,100) <= 25 then stationChitlok:setSharesEnergyWithDocked(false) end
 	station_names[stationChitlok:getCallSign()] = {stationChitlok:getSectorName(), stationChitlok}
 	table.insert(stations,stationChitlok)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationChitlok:destroy()
+	end
 	--Cindy's Folly
 	local cindyZone = squareZone(81075, -1304, "Cindy's Folly 4 E9")
 	cindyZone:setColor(51,153,255):setLabel("C")
@@ -8086,6 +8196,10 @@ function createIcarusStations()
 	--]]
 	--Clew
 	stationClew = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Clew"):setPosition(-130445, -97789):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		-- USN doesnt really have a mirror version
+		stationClew:setFaction("Spacer")
+	end
     stationClew.comms_data = {
     	friendlyness = 64,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -8130,6 +8244,9 @@ function createIcarusStations()
 --	local elysiumZone = squareZone(-7504, 1384, "Elysium 8 F4.3")
 --	elysiumZone:setColor(51,153,255):setLabel("E")
     stationElysium = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Elysium 8"):setPosition(-7504, 1384):setDescription("Commerce and luxury accomodations"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationElysium:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8180,8 +8297,16 @@ function createIcarusStations()
 	--Endymion
 	local edp1 = CpuShip():setFaction("TSN"):setTemplate("Defense platform"):setCallSign("EDP1"):setPosition(136035, 82232):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
 	station_names[edp1:getCallSign()] = {edp1:getSectorName(), edp1}
+	if mirrorUniverse then
+		-- TSN doesnt really have a mirror version
+		edp1:setFaction("Spacer")
+	end
 	table.insert(stations,edp1)
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		-- TSN doesnt really have a mirror version
+		stationEndymion:setFaction("Spacer")
+	end
     stationEndymion.comms_data = {
     	friendlyness = 29,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "neutral"},
@@ -8229,6 +8354,9 @@ function createIcarusStations()
 	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
 	--finneganZone:setColor(51,153,255)
 	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan 2"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationFinnegan:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
@@ -8288,6 +8416,9 @@ function createIcarusStations()
 	--local gagarinZone = squareZone(-60000, 62193, "Gagarin I2")
 	--gagarinZone:setColor(0,128,0)
 	stationGagarin = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gagarin"):setPosition(-60000, 62193):setDescription("Mining and exploring"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationGagarin:setFaction("Holy Terra")
+	end
     stationGagarin:setShortRangeRadarRange(9000)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -8337,6 +8468,11 @@ function createIcarusStations()
 	table.insert(stations,stationGagarin)
 	--Gatarbleax
 	stationGatarbleax = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Gatarbleax"):setPosition(-36658, -122758):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationGatarbleax:destroy()
+	end
     stationGatarbleax.comms_data = {
     	friendlyness = 82,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
@@ -8379,6 +8515,11 @@ function createIcarusStations()
 	table.insert(stations,stationGatarbleax)
 	--Kitpik
 	stationKiptik = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Kiptik"):setPosition(-29279, 233358):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationKiptik:destroy()
+	end
     stationKiptik.comms_data = {
     	friendlyness = 55,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
@@ -8414,8 +8555,10 @@ function createIcarusStations()
 	station_names[stationKiptik:getCallSign()] = {stationKiptik:getSectorName(), stationKiptik}
 	table.insert(stations,stationKiptik)
 	--Loowine
-	local loowineZone = squareZone(-41198, 237422, "Loowine II I2")
-	loowineZone:setColor(255,128,0):setLabel("L")
+	if not mirrorUniverse then
+		local loowineZone = squareZone(-41198, 237422, "Loowine II I2")
+		loowineZone:setColor(255,128,0):setLabel("L")
+	end
 	--[[
 	stationLoowine = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Loowine II"):setPosition(-41198, 237422):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationLoowine.comms_data = {
@@ -8464,6 +8607,9 @@ function createIcarusStations()
 --	macassaZone:setColor(0,128,0):setLabel("M")
     stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 12"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMacassa:setShortRangeRadarRange(8000)
+	if mirrorUniverse then
+		stationMacassa:setFaction("Holy Terra")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -8508,6 +8654,9 @@ function createIcarusStations()
 	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
 	--maximilianZone:setColor(51,153,255)
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 6"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationMaximilian:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8598,60 +8747,70 @@ function createIcarusStations()
 	if random(1,100) <= 5  then stationMeanTime:setSharesEnergyWithDocked(false) end
 	station_names[stationMeanTime:getCallSign()] = {stationMeanTime:getSectorName(), stationMeanTime}
 	table.insert(stations,stationMeanTime)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationMeanTime:destroy()
+	end
 	--Mermaid
-	local mermaidZone = squareZone(28889, -4417, "Mermaid 10 E6")
-	mermaidZone:setColor(51,153,255):setLabel("9")
-	--[[
-    stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 10"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
-    if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
-    if random(1,100) <= 40 then empAvail = true else empAvail = false end
-    if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
-    if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
-    if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
-    if random(1,100) <= 17 then tradeLuxury = true else tradeLuxury = false end
-    stationMermaid.comms_data = {
-    	friendlyness = 75,
-        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
-        weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
-        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
-        system_repair = {
-        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
-        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
-        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
-        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
-        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
-        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
-        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
-        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
-        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
-        },
-        hack_repair =			true,
-        scan_repair =			true,
-        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
-        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
-        goods = {	luxury = 	{quantity = math.random(5,10),	cost = math.random(60,70)},
-        			gold = 		{quantity = 5,					cost = math.random(75,90)}	},
-        trade = {	food = true, medicine = false, luxury = tradeLuxury },
-        public_relations = true,
-        general_information = "Rest stop, refueling and convenience shopping",
-    	history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop\n\nFree drinks for the crew of the freighter Gamma Hydra",
-    	idle_defense_fleet = {
-			DF1 = "MT52 Hornet",
-			DF2 = "Ktlitan Drone",
-			DF3 = "MU52 Hornet",
-			DF4 = "Adder MK5",
-			DF5 = "Adder MK6",
-			DF6 = "Nirvana R5A",
-			DF7 = "WX-Lindworm",
-    	},
-	}
-	if random(1,100) <= 36 then stationMermaid:setRestocksScanProbes(false) end
-	if random(1,100) <= 22 then stationMermaid:setRepairDocked(false) end
-	if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
-	station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
-	table.insert(stations,stationMermaid)
-	--]]
+	-- only destroyed in non mirror universe
+	if not mirrorUniverse then
+		local mermaidZone = squareZone(28889, -4417, "Mermaid 10 E6")
+		mermaidZone:setColor(51,153,255):setLabel("9")
+	else
+		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 10"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+		if mirrorUniverse then
+			stationMermaid:setFaction("Spacer")
+		end
+		if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
+		if random(1,100) <= 40 then empAvail = true else empAvail = false end
+		if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
+		if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
+		if random(1,100) <= 80 then hvliAvail = true else hvliAvail = false end
+		if random(1,100) <= 17 then tradeLuxury = true else tradeLuxury = false end
+		stationMermaid.comms_data = {
+			friendlyness = 75,
+			weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
+			weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
+			weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+			service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+			system_repair = {
+				["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+				["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+				["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+				["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+				["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+				["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+				["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+				["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+				["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+			},
+			hack_repair =			true,
+			scan_repair =			true,
+			reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+			max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+			goods = {	luxury = 	{quantity = math.random(5,10),	cost = math.random(60,70)},
+						gold = 		{quantity = 5,					cost = math.random(75,90)}	},
+			trade = {	food = true, medicine = false, luxury = tradeLuxury },
+			public_relations = true,
+			general_information = "Rest stop, refueling and convenience shopping",
+			history = "In the tradition of taverns at crossroads on olde Earth in Kingston where the Millstone river and the Assunpink trail crossed and The Sign of the Mermaid tavern was built in the 1600s, the builders of this station speculated that this would be a good spot for space travelers to stop\n\nFree drinks for the crew of the freighter Gamma Hydra",
+			idle_defense_fleet = {
+				DF1 = "MT52 Hornet",
+				DF2 = "Ktlitan Drone",
+				DF3 = "MU52 Hornet",
+				DF4 = "Adder MK5",
+				DF5 = "Adder MK6",
+				DF6 = "Nirvana R5A",
+				DF7 = "WX-Lindworm",
+			},
+		}
+		if random(1,100) <= 36 then stationMermaid:setRestocksScanProbes(false) end
+		if random(1,100) <= 22 then stationMermaid:setRepairDocked(false) end
+		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
+		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
+		table.insert(stations,stationMermaid)
+	end
 	--Nilwea
 	stationNilwea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Nilwea"):setPosition(-101008, -92567):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationNilwea.comms_data = {
@@ -8704,10 +8863,18 @@ function createIcarusStations()
 	if random(1,100) <= 12 then stationNilwea:setSharesEnergyWithDocked(false) end
 	station_names[stationNilwea:getCallSign()] = {stationNilwea:getSectorName(), stationNilwea}
 	table.insert(stations,stationNilwea)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationNilwea:destroy()
+	end
 	--Mos Espa
 	--local mosEspaZone = squareZone(113941, -85822, "Mos Espa A10")
 	--mosEspaZone:setColor(51,153,255)
 	stationMosEspa = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(113941, -85822):setCallSign("Mos Espa"):setDescription("Resupply and Entertainment"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationMosEspa:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8768,6 +8935,9 @@ function createIcarusStations()
 --	local nervaZone = squareZone(-9203, -2077, "Nerva 11 E4")
 --	nervaZone:setColor(51,153,255):setLabel("N")
     stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 11"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationNerva:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -8820,6 +8990,9 @@ function createIcarusStations()
 --	pistilZone:setColor(0,128,0):setLabel("P")
     stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 9"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
+	if mirrorUniverse then
+		stationPistil:setFaction("Holy Terra")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -8921,6 +9094,11 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationProktan:setSharesEnergyWithDocked(false) end
 	station_names[stationProktan:getCallSign()] = {stationProktan:getSectorName(), stationProktan}
 	table.insert(stations,stationProktan)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationProktan:destroy()
+	end
 	--Purple People Eater
 	stationPurple = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Purple People Eater"):setPosition(-44237, 229421):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     stationPurple.comms_data = {
@@ -8963,11 +9141,17 @@ function createIcarusStations()
 	if random(1,100) <= 26 then stationPurple:setSharesEnergyWithDocked(false) end
 	station_names[stationPurple:getCallSign()] = {stationPurple:getSectorName(), stationPurple}
 	table.insert(stations,stationPurple)
+	if mirrorUniverse then
+		stationPurple:destroy()
+	end
 	--Relay-13
 	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
 	--relay13Zone:setColor(0,255,0)
     stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 F"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     stationRelay13:setShortRangeRadarRange(12000)
+	if mirrorUniverse then
+		stationRelay13:setFaction("Holy Terra")
+	end
     if random(1,100) <= 69 then tradeMedicine = true else tradeMedicine = false end
     stationRelay13.comms_data = {
     	friendlyness = 75,
@@ -9021,6 +9205,9 @@ function createIcarusStations()
 	--local slurryZone = squareZone(100342, 27871, "Slurry V G10")
 	--slurryZone:setColor(51,153,255)
     stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry V"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationSlurry:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -9073,8 +9260,14 @@ function createIcarusStations()
 	--sovinecZone:setColor(51,153,255)
 	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
 	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
+	if mirrorUniverse then
+		sdp1:setFaction("Spacer")
+	end
 	table.insert(stations,sdp1)
 	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec Three"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationSovinec:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -9140,6 +9333,9 @@ function createIcarusStations()
 	--speculatorZone:setColor(0,255,0)
     stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 3"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationSpeculator:setShortRangeRadarRange(13000)
+	if mirrorUniverse then
+		stationSpeculator:setFaction("Holy Terra")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -9194,6 +9390,9 @@ function createIcarusStations()
 	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3 F10")
 	--stromboliZone:setColor(51,153,255)
     stationStromboli = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Stromboli 3"):setPosition(109555, 12685):setDescription("Vacation getaway for Stromboli family"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationStromboli:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -9299,9 +9498,16 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationTilkon:setSharesEnergyWithDocked(false) end
 	station_names[stationTilkon:getCallSign()] = {stationTilkon:getSectorName(), stationTilkon}
 	table.insert(stations,stationTilkon)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationTilkon:destroy()
+	end
 	--Tortuga
-	local tortugaZone = squareZone(-49045, 241042, "Tortuga 2 R2")
-	tortugaZone:setColor(255,128,255):setLabel("T")
+	if not mirrorUniverse then
+		local tortugaZone = squareZone(-49045, 241042, "Tortuga 2 R2")
+		tortugaZone:setColor(255,128,255):setLabel("T")
+	end
 	--[[
 	stationTortuga = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Tortuga 2"):setPosition(-49045, 241042):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationTortuga.comms_data = {
@@ -9358,6 +9564,9 @@ function createIcarusStations()
 	--local transylvaniaZone = squareZone(-95000, 111000, "Transylvania K0")
 	--transylvaniaZone:setColor(51,153,255)
     stationTransylvania = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Transylvania"):setPosition(-95000, 111000):setDescription("Abandoned science station turned haven"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationTransylvania:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -9424,6 +9633,12 @@ function createIcarusStations()
 	leechB:setPosition(-93000,113000):setScannedByFaction("Human Navy",true):setCallSign("B"):setDescription("Leech satellite B")
 	leechO = leech("Independent")
 	leechO:setPosition(-97000,113000):setScannedByFaction("Human Navy",true):setCallSign("O"):setDescription("Leech satellite O")
+	if mirrorUniverse then
+		leechA:setFaction("Spacer")
+		leechAB:setFaction("Spacer")
+		leechB:setFaction("Spacer")
+		leechO:setFaction("Spacer")
+	end
 	table.insert(stations,leechA)
 	table.insert(stations,leechAB)
 	table.insert(stations,leechB)
@@ -9474,10 +9689,18 @@ function createIcarusStations()
 	if random(1,100) <= 28 then stationTron:setSharesEnergyWithDocked(false) end
 	station_names[stationTron:getCallSign()] = {stationTron:getSectorName(), stationTron}
 	table.insert(stations,stationTron)
+	if mirrorUniverse then
+		-- it seems a shame to not use a few stations like this
+		-- as such its being removed until / unless someone can think of a good use
+		stationTron:destroy()
+	end
 	--Wookie F4m5 
 --	local wookieZone = squareZone(-11280, 7425, "Wookie-dookie F4")	-- -oka means 4, kin means 5, -gookie means 6, De means 7, -ock means 8, Noo means 9, Wookied means 10, -dookie means 11
 --	wookieZone:setColor(51,153,255):setLabel("W")
     stationWookie = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Wookie-dookie"):setPosition(-11280, 7425):setDescription("Esoteric Xenolinguistic Research"):setCommsScript(""):setCommsFunction(commsStation)
+	if mirrorUniverse then
+		stationWookie:setFaction("Spacer")
+	end
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
     if random(1,100) <= 60 then homeAvail = true else homeAvail = false end
@@ -9554,6 +9777,9 @@ function createIcarusToRiptideWormholeArea()
 			setDescriptions("Wormhole stabilizer","Wormhole stabilizer. Brought here by the Exuari, captured by Human Navy.\n" ..
 				"Technology is of Arlenian origin. "):
 			setCallSign(name):setRange(2000)
+			if mirrorUniverse then
+				stab:setFaction("Holy Terra")
+			end
 		table.insert(ret, stab)
 	end
 
@@ -25809,6 +26035,38 @@ function setGMFleetFaction()
 	end
 	addGMFunction(GMSetFleetFactionCUF,function()
 		fleetSpawnFaction = "CUF"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionHolyTerra = "Holy Terra"
+	if fleetSpawnFaction == "Holy Terra" then
+		GMSetFleetFactionHolyTerra = "Holy Terra*"
+	end
+	addGMFunction(GMSetFleetFactionHolyTerra,function()
+		fleetSpawnFaction = "Holy Terra"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionSpacer = "Spacer"
+	if fleetSpawnFaction == "Spacer" then
+		GMSetFleetFactionSpacer = "Spacer*"
+	end
+	addGMFunction(GMSetFleetFactionSpacer,function()
+		fleetSpawnFaction = "Spacer"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionCindyRemnants = "Cindy's Remnants"
+	if fleetSpawnFaction == "Cindy's Remnants" then
+		GMSetFleetFactionCindyRemnants = "Cindy's Remnants*"
+	end
+	addGMFunction(GMSetFleetFactionCindyRemnants,function()
+		fleetSpawnFaction = "Cindy's Remnants"
+		spawnGMFleet()
+	end)
+	local GMSetFleetFactionSnowSlayers = "Snow Slayers"
+	if fleetSpawnFaction == "Snow Slayers" then
+		GMSetFleetFactionSnowSlayers = "Snow Slayers*"
+	end
+	addGMFunction(GMSetFleetFactionSnowSlayers,function()
+		fleetSpawnFaction = "Snow Slayers"
 		spawnGMFleet()
 	end)
 end
