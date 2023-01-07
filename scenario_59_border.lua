@@ -19570,16 +19570,16 @@ function updateInner(delta)
 	end
 	if updateDiagnostic then print("end of update loop") end	
 end
-function update(delta)
-    local status,error=pcall(updateInner,delta)
-    if not status then
-		print("script error : - ")
-		print(error)
-		if popupGMDebug == "once" or popupGMDebug == "always" then
-			if popupGMDebug == "once" then
-				popupGMDebug = "never"
-			end
-			addGMMessage("script error - \n"..error)
+function onError(error)
+	err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. traceback()
+	print(err)
+	if popupGMDebug == "once" or popupGMDebug == "always" then
+		if popupGMDebug == "once" then
+			popupGMDebug = "never"
 		end
-    end
+		addGMMessage(err)
+	end
+end
+function update(delta)
+    xpcall(updateInner,onError,delta)
 end
