@@ -1,3 +1,8 @@
+function onError(error)
+	local err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. traceback()
+	print(err)
+	addGMMessage(err)
+end
 --------------------
 -- error handling --
 --------------------
@@ -14,14 +19,7 @@ function wrapWithErrorHandling(fun)
 		return nil
 	end
 	return function(...)
-		local status,error=pcall(fun, ...)
-		if not status then
-			print("script error : - ")
-			print(error)
-			addGMMessage("script error - \n"..error)
-		else
-			return error
-		end
+		return xpcall(fun, onError, ...)
 	end
 end
 -- calls the function fun with the remaining arguments while using the common
