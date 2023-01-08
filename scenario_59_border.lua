@@ -16,98 +16,12 @@
 
 require("utils.lua")
 
--- maps filenames that were moved after 2021.6.23 release
-function getFilenameCompatible(new_filename)
-	if getEEVersion() ==  2021623 then
-		local lookup = {
-			["adv_gunship.png"] = "radar_adv_gunship.png",
-			["adv_striker.png"] = "radar_adv_striker.png",
-			["battleship.png"] = "radar_battleship.png",
-			["blockade.png"] = "radar_blockade.png",
-			["cruiser.png"] = "radar_cruiser.png",
-			["dread.png"] = "radar_dread.png",
-			["exuari_1.png"] = "radar_exuari_1.png",
-			["exuari_2.png"] = "radar_exuari_2.png",
-			["exuari_3.png"] = "radar_exuari_3.png",
-			["exuari_4.png"] = "radar_exuari_4.png",
-			["exuari_5.png"] = "radar_exuari_5.png",
-			["exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["fighter.png"] = "radar_fighter.png",
-			["ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["laser.png"] = "radar_laser.png",
-			["missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["piranha.png"] = "radar_piranha.png",
-			["striker.png"] = "radar_striker.png",
-			["hugestation.png"] = "radartrace_hugestation.png",
-			["largestation.png"] = "radartrace_largestation.png",
-			["mediumstation.png"] = "radartrace_mediumstation.png",
-			["smallstation.png"] = "radartrace_smallstation.png",
-			["transport.png"] = "radar_transport.png",
-			["tug.png"] = "radar_tug.png",
-
-			["radar/adv_gunship.png"] = "radar_adv_gunship.png",
-			["radar/adv_striker.png"] = "radar_adv_striker.png",
-			["radar/battleship.png"] = "radar_battleship.png",
-			["radar/blockade.png"] = "radar_blockade.png",
-			["radar/cruiser.png"] = "radar_cruiser.png",
-			["radar/dread.png"] = "radar_dread.png",
-			["radar/exuari_1.png"] = "radar_exuari_1.png",
-			["radar/exuari_2.png"] = "radar_exuari_2.png",
-			["radar/exuari_3.png"] = "radar_exuari_3.png",
-			["radar/exuari_4.png"] = "radar_exuari_4.png",
-			["radar/exuari_5.png"] = "radar_exuari_5.png",
-			["radar/exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["radar/exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["radar/exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["radar/exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["radar/fighter.png"] = "radar_fighter.png",
-			["radar/ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["radar/ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["radar/ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["radar/ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["radar/ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["radar/ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["radar/ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["radar/ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["radar/laser.png"] = "radar_laser.png",
-			["radar/missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["radar/piranha.png"] = "radar_piranha.png",
-			["radar/striker.png"] = "radar_striker.png",
-			["radar/hugestation.png"] = "radartrace_hugestation.png",
-			["radar/largestation.png"] = "radartrace_largestation.png",
-			["radar/mediumstation.png"] = "radartrace_mediumstation.png",
-			["radar/smallstation.png"] = "radartrace_smallstation.png",
-			["radar/transport.png"] = "radar_transport.png",
-			["radar/tug.png"] = "radar_tug.png",
-
-			["ProbeBlip.png"] = "radar/probe.png",
-		}
-		local old_filename = lookup[new_filename]
-		if old_filename == nil then
-			return new_filename
-		else
-			return old_filename
-		end
-	end
-	return new_filename
-end
-
 --------------------
 -- Initialization --
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.2.1"
+	scenario_version = "5.2.2"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	game_state = "paused"
@@ -15319,7 +15233,7 @@ function phobosR2(enemyFaction)
 			phobos_r2_db:setKeyValue("Tube 0","60 sec")
 			phobos_r2_db:setKeyValue("Storage Homing","6")
 			phobos_r2_db:setKeyValue("Storage HVLI","20")
-			phobos_r2_db:setImage("radar_cruiser.png")
+			phobos_r2_db:setImage("cruiser.png")
 			--]]
 		end
 	end
@@ -15362,7 +15276,7 @@ function hornetMV52(enemyFaction)
 			hornet_mv52_db:setKeyValue("Move speed","7.8 U/min")
 			hornet_mv52_db:setKeyValue("Turn speed","31.0 deg/sec")
 			hornet_mv52_db:setKeyValue("Beam weapon 0:30","3.0 Dmg / 4.0 sec")
-			hornet_mv52_db:setImage("radar_fighter.png")
+			hornet_mv52_db:setImage("fighter.png")
 			--]]
 		end
 	end
@@ -15398,7 +15312,7 @@ function k2fighter(enemyFaction)
 			k2_fighter_db:setKeyValue("Move speed","8.4 U/min")
 			k2_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
 			k2_fighter_db:setKeyValue("Beam weapon 0:60","6.0 Dmg / 2.5 sec")
-			k2_fighter_db:setImage("radar_ktlitan_fighter.png")
+			k2_fighter_db:setImage("ktlitan_fighter.png")
 			--]]
 		end
 	end
@@ -15434,7 +15348,7 @@ function k3fighter(enemyFaction)
 			k3_fighter_db:setKeyValue("Move speed","8.4 U/min")
 			k3_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
 			k3_fighter_db:setKeyValue("Beam weapon 0:60","9.0 Dmg / 2.5 sec")
-			k3_fighter_db:setImage("radar_ktlitan_fighter.png")
+			k3_fighter_db:setImage("ktlitan_fighter.png")
 			--]]
 		end
 	end
@@ -15482,7 +15396,7 @@ function waddle5(enemyFaction)
 			waddle_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
 			waddle_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
 			waddle_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-			waddle_5_db:setImage("radar_fighter.png")
+			waddle_5_db:setImage("fighter.png")
 			--]]
 		end
 	end
@@ -15531,7 +15445,7 @@ function jade5(enemyFaction)
 			jade_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
 			jade_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
 			jade_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-			jade_5_db:setImage("radar_fighter.png")
+			jade_5_db:setImage("fighter.png")
 			--]]
 		end
 	end
@@ -15569,7 +15483,7 @@ function droneLite(enemyFaction)
 			drone_lite_db:setKeyValue("Move speed","7.8 U/min")
 			drone_lite_db:setKeyValue("Turn speed","20 deg/sec")
 			drone_lite_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-			drone_lite_db:setImage("radar_ktlitan_drone.png")
+			drone_lite_db:setImage("ktlitan_drone.png")
 			--]]
 		end
 	end
@@ -15606,7 +15520,7 @@ function droneHeavy(enemyFaction)
 			drone_heavy_db:setKeyValue("Move speed","6.6 U/min")
 			drone_heavy_db:setKeyValue("Turn speed","10 deg/sec")
 			drone_heavy_db:setKeyValue("Beam weapon 0:40","8.0 Dmg / 4.0 sec")
-			drone_heavy_db:setImage("radar_ktlitan_drone.png")
+			drone_heavy_db:setImage("ktlitan_drone.png")
 			--]]
 		end
 	end
@@ -15650,7 +15564,7 @@ function droneJacket(enemyFaction)
 			drone_jacket_db:setKeyValue("Move speed","6.6 U/min")
 			drone_jacket_db:setKeyValue("Turn speed","10 deg/sec")
 			drone_jacket_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-			drone_jacket_db:setImage("radar_ktlitan_drone.png")
+			drone_jacket_db:setImage("ktlitan_drone.png")
 			--]]
 		end
 	end
@@ -15702,7 +15616,7 @@ function wzLindworm(enemyFaction)
 			wz_lindworm_db:setKeyValue("Storage Homing","4")
 			wz_lindworm_db:setKeyValue("Storage Nuke","2")
 			wz_lindworm_db:setKeyValue("Storage HVLI","12")
-			wz_lindworm_db:setImage("radar_fighter.png")
+			wz_lindworm_db:setImage("fighter.png")
 			--]]
 		end
 	end
@@ -15782,7 +15696,7 @@ function tempest(enemyFaction)
 			tempest_db:setKeyValue("Storage Homing","16")
 			tempest_db:setKeyValue("Storage Nuke","8")
 			tempest_db:setKeyValue("Storage HVLI","34")
-			tempest_db:setImage("radar_piranha.png")
+			tempest_db:setImage("piranha.png")
 			--]]
 		end
 	end
@@ -15797,7 +15711,7 @@ function enforcer(enemyFaction)
 		end
 	end)
 	ship:setTypeName("Enforcer")
-	ship:setRadarTrace(getFilenameCompatible("radar_ktlitan_destroyer.png"))			--different radar trace
+	ship:setRadarTrace("ktlitan_destroyer.png")					--different radar trace
 	ship:setWarpDrive(true)										--warp (vs none)
 	ship:setWarpSpeed(600)
 	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
@@ -15856,7 +15770,7 @@ function enforcer(enemyFaction)
 			enforcer_db:setKeyValue("Tube 30","20 sec")
 			enforcer_db:setKeyValue("Storage Homing","18")
 			--]]
-			enforcer_db:setImage(getFilenameCompatible("radar_ktlitan_destroyer.png"))		--override default radar image
+			enforcer_db:setImage("ktlitan_destroyer.png")		--override default radar image
 		end
 	end
 	return ship		
@@ -15902,7 +15816,7 @@ function predator(enemyFaction)
 	ship:setWeaponStorage("Homing", 32)		
 	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
 	ship:setWeaponStorage("HVLI", 0)
-	ship:setRadarTrace(getFilenameCompatible("radar_missile_cruiser.png"))				--different radar trace
+	ship:setRadarTrace("missile_cruiser.png")				--different radar trace
 	local predator_db = queryScienceDatabase("Ships","Frigate","Predator")
 	if predator_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
@@ -15949,7 +15863,7 @@ function predator(enemyFaction)
 			predator_db:setKeyValue("Tube 120","12 sec")
 			predator_db:setKeyValue("Storage Homing","32")
 			--]]
-			predator_db:setImage(getFilenameCompatible("radar_missile_cruiser.png"))		--override default radar image
+			predator_db:setImage("missile_cruiser.png")		--override default radar image
 		end
 	end
 	return ship		
@@ -16012,7 +15926,7 @@ function atlantisY42(enemyFaction)
 			atlantis_y42_db:setKeyValue(" Tube 90","10 sec")
 			atlantis_y42_db:setKeyValue("Storage Homing","4")
 			atlantis_y42_db:setKeyValue("Storage HVLI","20")
-			atlantis_y42_db:setImage("radar_dread.png")
+			atlantis_y42_db:setImage("dread.png")
 			--]]
 		end
 	end
@@ -16075,7 +15989,7 @@ function starhammerV(enemyFaction)
 			starhammer_v_db:setKeyValue("Storage Homing","16")
 			starhammer_v_db:setKeyValue("Storage EMP","2")
 			starhammer_v_db:setKeyValue("Storage HVLI","36")
-			starhammer_v_db:setImage("radar_dread.png")
+			starhammer_v_db:setImage("dread.png")
 			--]]
 		end
 	end
@@ -16146,7 +16060,7 @@ function tyr(enemyFaction)
 			tyr_db:setKeyValue("  Beam weapon -120:90","8.0 Dmg / 6.0 sec")
 			tyr_db:setKeyValue("  Beam weapon 60:90","8.0 Dmg / 6.0 sec")
 			tyr_db:setKeyValue("  Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-			tyr_db:setImage("radar_battleship.png")
+			tyr_db:setImage("battleship.png")
 			--]]
 		end
 	end
@@ -19570,16 +19484,16 @@ function updateInner(delta)
 	end
 	if updateDiagnostic then print("end of update loop") end	
 end
-function update(delta)
-    local status,error=pcall(updateInner,delta)
-    if not status then
-		print("script error : - ")
-		print(error)
-		if popupGMDebug == "once" or popupGMDebug == "always" then
-			if popupGMDebug == "once" then
-				popupGMDebug = "never"
-			end
-			addGMMessage("script error - \n"..error)
+function onError(error)
+	err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. traceback()
+	print(err)
+	if popupGMDebug == "once" or popupGMDebug == "always" then
+		if popupGMDebug == "once" then
+			popupGMDebug = "never"
 		end
-    end
+		addGMMessage(err)
+	end
+end
+function update(delta)
+    xpcall(updateInner,onError,delta)
 end
