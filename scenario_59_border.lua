@@ -16,92 +16,6 @@
 
 require("utils.lua")
 
--- maps filenames that were moved after 2021.6.23 release
-function getFilenameCompatible(new_filename)
-	if getEEVersion() ==  2021623 then
-		local lookup = {
-			["adv_gunship.png"] = "radar_adv_gunship.png",
-			["adv_striker.png"] = "radar_adv_striker.png",
-			["battleship.png"] = "radar_battleship.png",
-			["blockade.png"] = "radar_blockade.png",
-			["cruiser.png"] = "radar_cruiser.png",
-			["dread.png"] = "radar_dread.png",
-			["exuari_1.png"] = "radar_exuari_1.png",
-			["exuari_2.png"] = "radar_exuari_2.png",
-			["exuari_3.png"] = "radar_exuari_3.png",
-			["exuari_4.png"] = "radar_exuari_4.png",
-			["exuari_5.png"] = "radar_exuari_5.png",
-			["exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["fighter.png"] = "radar_fighter.png",
-			["ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["laser.png"] = "radar_laser.png",
-			["missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["piranha.png"] = "radar_piranha.png",
-			["striker.png"] = "radar_striker.png",
-			["hugestation.png"] = "radartrace_hugestation.png",
-			["largestation.png"] = "radartrace_largestation.png",
-			["mediumstation.png"] = "radartrace_mediumstation.png",
-			["smallstation.png"] = "radartrace_smallstation.png",
-			["transport.png"] = "radar_transport.png",
-			["tug.png"] = "radar_tug.png",
-
-			["radar/adv_gunship.png"] = "radar_adv_gunship.png",
-			["radar/adv_striker.png"] = "radar_adv_striker.png",
-			["radar/battleship.png"] = "radar_battleship.png",
-			["radar/blockade.png"] = "radar_blockade.png",
-			["radar/cruiser.png"] = "radar_cruiser.png",
-			["radar/dread.png"] = "radar_dread.png",
-			["radar/exuari_1.png"] = "radar_exuari_1.png",
-			["radar/exuari_2.png"] = "radar_exuari_2.png",
-			["radar/exuari_3.png"] = "radar_exuari_3.png",
-			["radar/exuari_4.png"] = "radar_exuari_4.png",
-			["radar/exuari_5.png"] = "radar_exuari_5.png",
-			["radar/exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["radar/exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["radar/exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["radar/exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["radar/fighter.png"] = "radar_fighter.png",
-			["radar/ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["radar/ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["radar/ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["radar/ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["radar/ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["radar/ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["radar/ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["radar/ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["radar/laser.png"] = "radar_laser.png",
-			["radar/missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["radar/piranha.png"] = "radar_piranha.png",
-			["radar/striker.png"] = "radar_striker.png",
-			["radar/hugestation.png"] = "radartrace_hugestation.png",
-			["radar/largestation.png"] = "radartrace_largestation.png",
-			["radar/mediumstation.png"] = "radartrace_mediumstation.png",
-			["radar/smallstation.png"] = "radartrace_smallstation.png",
-			["radar/transport.png"] = "radar_transport.png",
-			["radar/tug.png"] = "radar_tug.png",
-
-			["ProbeBlip.png"] = "radar/probe.png",
-		}
-		local old_filename = lookup[new_filename]
-		if old_filename == nil then
-			return new_filename
-		else
-			return old_filename
-		end
-	end
-	return new_filename
-end
-
 --------------------
 -- Initialization --
 --------------------
@@ -15797,7 +15711,7 @@ function enforcer(enemyFaction)
 		end
 	end)
 	ship:setTypeName("Enforcer")
-	ship:setRadarTrace(getFilenameCompatible("ktlitan_destroyer.png"))			--different radar trace
+	ship:setRadarTrace("ktlitan_destroyer.png")					--different radar trace
 	ship:setWarpDrive(true)										--warp (vs none)
 	ship:setWarpSpeed(600)
 	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
@@ -15856,7 +15770,7 @@ function enforcer(enemyFaction)
 			enforcer_db:setKeyValue("Tube 30","20 sec")
 			enforcer_db:setKeyValue("Storage Homing","18")
 			--]]
-			enforcer_db:setImage(getFilenameCompatible("ktlitan_destroyer.png"))		--override default radar image
+			enforcer_db:setImage("ktlitan_destroyer.png")		--override default radar image
 		end
 	end
 	return ship		
@@ -15902,7 +15816,7 @@ function predator(enemyFaction)
 	ship:setWeaponStorage("Homing", 32)		
 	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
 	ship:setWeaponStorage("HVLI", 0)
-	ship:setRadarTrace(getFilenameCompatible("missile_cruiser.png"))				--different radar trace
+	ship:setRadarTrace("missile_cruiser.png")				--different radar trace
 	local predator_db = queryScienceDatabase("Ships","Frigate","Predator")
 	if predator_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
@@ -15949,7 +15863,7 @@ function predator(enemyFaction)
 			predator_db:setKeyValue("Tube 120","12 sec")
 			predator_db:setKeyValue("Storage Homing","32")
 			--]]
-			predator_db:setImage(getFilenameCompatible("missile_cruiser.png"))		--override default radar image
+			predator_db:setImage("missile_cruiser.png")		--override default radar image
 		end
 	end
 	return ship		
