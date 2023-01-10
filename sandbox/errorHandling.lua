@@ -56,21 +56,15 @@ function errorHandling:_saveFunctionToSelf(originalTable,functionName,fn)
 	originalTable[functionName] = fn
 end
 
--- this almost certainly needs work, both to generalise to more function arguments
--- and the function not being in argument 1
-function errorHandling:_autoWrapArg1(originalFunction)
-	assert(type(originalFunction) == "function")
-	return function (fun)
-		assert(type(fun) == "function" or fun == nil)
-		return originalFunction(self:wrapWithErrorHandling(fun))
-	end
-end
 
-function errorHandling:_autoWrapArg2(originalFunction)
+function errorHandling:_autoWrapArgX(originalFunction, argToWrap)
 	assert(type(originalFunction) == "function")
-	return function (arg1,fun)
+	assert(type(argToWrap) == "number")
+	return function (...)
+		local args = {...}
+		args[argToWrap] = self:wrapWithErrorHandling(args[argToWrap])
 		assert(type(fun) == "function" or fun == nil)
-		return originalFunction(arg1,self:wrapWithErrorHandling(fun))
+		return originalFunction(table.unpack(args))
 	end
 end
 
@@ -78,17 +72,17 @@ function errorHandling:WormHole()
 	local create = WormHole
 	return function()
 		local worm = create()
-		worm.onTeleportation = self:_autoWrapArg2(worm.onTeleportation)
+		worm.onTeleportation = self:_autoWrapArgX(worm.onTeleportation,2)
 		return worm
 	end
 end
 
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
-	addGMFunction = self:_autoWrapArg2(addGMFunction)
+	addGMFunction = self:_autoWrapArgX(addGMFunction,2)
 
-	onNewPlayerShip = self:_autoWrapArg1(onNewPlayerShip)
-	onGMClick = self:_autoWrapArg1(onGMClick)
+	onNewPlayerShip = self:_autoWrapArgX(onNewPlayerShip,1)
+	onGMClick = self:_autoWrapArgX(onGMClick,1)
 
 	-- todo should check update exists before wrapping it
 	update = self:wrapWithErrorHandling(update)
