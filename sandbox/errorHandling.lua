@@ -85,12 +85,7 @@ end
 
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
-	local tmpAddGMFunction = addGMFunction
-	addGMFunction = function(msg, fun)
-		assert(type(msg)=="string")
-		assert(type(fun)=="function" or fun==nil)
-		return tmpAddGMFunction(msg,self:wrapWithErrorHandling(fun))
-	end
+	addGMFunction = self:_autoWrapArg2(addGMFunction)
 
 	onNewPlayerShip = self:_autoWrapArg1(onNewPlayerShip)
 	onGMClick = self:_autoWrapArg1(onGMClick)
