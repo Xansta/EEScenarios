@@ -4,7 +4,6 @@ errorHandling = {}
 
 -- TODO
 -- all these functions need error handling
---init
 --addCommsReply
 --SpaceObject:setCommsFunction
 --SpaceObject:onDestroyed
@@ -80,6 +79,7 @@ function errorHandling:_wrapAllFunctions()
 
 	-- todo should check update exists before wrapping it
 	update = self:wrapWithErrorHandling(update)
+	init = self:wrapWithErrorHandling(init)
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
