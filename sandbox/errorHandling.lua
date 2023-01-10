@@ -25,10 +25,11 @@ errorHandling = {}
 --SupplyDrop:onPickUp
 --WarpJammer:onTakingDamage
 --WarpJammer:onDestruction
---WormHole:onTeleportation
 -- note - its worth checking the gm create menu uses these functions rather than the C++ version
 -- it might be good to make some of these optional
 -- update and init might want a check before assuming they are present (and a warning if not?)
+-- check if objects have been created before wrapAllFunctions is called?
+-- prevent wrapAllFunctions being called more than once?
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
@@ -65,6 +66,23 @@ function errorHandling:_autoWrapArg1(originalFunction)
 	end
 end
 
+function errorHandling:_autoWrapArg2(originalFunction)
+	assert(type(originalFunction) == "function")
+	return function (arg1,fun)
+		assert(type(fun) == "function" or fun == nil)
+		return originalFunction(arg1,self:wrapWithErrorHandling(fun))
+	end
+end
+
+function errorHandling:WormHole()
+	local create = WormHole
+	return function()
+		local worm = create()
+		worm.onTeleportation = self:_autoWrapArg2(worm.onTeleportation)
+		return worm
+	end
+end
+
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
 	local tmpAddGMFunction = addGMFunction
@@ -80,6 +98,8 @@ function errorHandling:_wrapAllFunctions()
 	-- todo should check update exists before wrapping it
 	update = self:wrapWithErrorHandling(update)
 	init = self:wrapWithErrorHandling(init)
+
+	WormHole = self:WormHole()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
