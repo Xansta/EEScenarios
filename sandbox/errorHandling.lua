@@ -48,6 +48,7 @@ function errorHandling:wrapWithErrorHandling(fun)
 	end
 end
 
+-- returns a function which is the originalFunction, but with argToWrap being wrapWithErrorHandling
 function errorHandling:_autoWrapArgX(originalFunction, argToWrap)
 	assert(type(originalFunction) == "function")
 	assert(type(argToWrap) == "number")
