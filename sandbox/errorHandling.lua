@@ -48,7 +48,6 @@ function errorHandling:wrapWithErrorHandling(fun)
 	end
 end
 
-
 function errorHandling:_saveFunctionToSelf(originalTable,functionName,fn)
 	assert(type(originalTable) == "table")
 	assert(type(functionName) == "string")
@@ -57,26 +56,30 @@ function errorHandling:_saveFunctionToSelf(originalTable,functionName,fn)
 	originalTable[functionName] = fn
 end
 
-function errorHandling:_autoWrapFunction1(originalTable,functionName)
-	self:_saveFunctionToSelf(originalTable,functionName, function (fun)
+-- this almost certainly needs work, both to generalise to more function arguments
+-- and the function not being in argument 1
+function errorHandling:_autoWrapArg1(originalFunction)
+	assert(type(originalFunction) == "function")
+	return function (fun)
 		assert(type(fun) == "function" or fun == nil)
-		return self[functionName](self:wrapWithErrorHandling(fun))
-	end)
+		return originalFunction(self:wrapWithErrorHandling(fun))
+	end
 end
 
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
-	self:_saveFunctionToSelf(_ENV,"addGMFunction", function(msg, fun)
+	local tmpAddGMFunction = addGMFunction
+	addGMFunction = function(msg, fun)
 		assert(type(msg)=="string")
 		assert(type(fun)=="function" or fun==nil)
-		return self.addGMFunction(msg,self:wrapWithErrorHandling(fun))
-	end)
+		return tmpAddGMFunction(msg,self:wrapWithErrorHandling(fun))
+	end
 
-	self:_autoWrapFunction1(_ENV,"onNewPlayerShip")
-	self:_autoWrapFunction1(_ENV,"onGMClick")
+	onNewPlayerShip = self:_autoWrapArg1(onNewPlayerShip)
+	onGMClick = self:_autoWrapArg1(onGMClick)
 
 	-- todo should check update exists before wrapping it
-	self:_saveFunctionToSelf(_ENV,"update",self:wrapWithErrorHandling(update))
+	update = self:wrapWithErrorHandling(update)
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
