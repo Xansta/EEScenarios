@@ -2,32 +2,23 @@
 -- but this clashes with a stock lua package
 errorHandling = {}
 
---------------------
--- error handling --
---------------------
--- in several places it would be nice to get more errors reported
--- this is to assist with that
+function errorHandling:callWithErrorHandling(fun,...)
+	assert(type(fun)=="function" or fun==nil)
+	return xpcall(fun, self.onError, ...)
+end
+
 -- returns a function which wraps the fun function in error handling logic
--- the error handling logic for the sandbox is a popup and printing to the console
--- this is useful for callbacks and gm buttons (as both of those don't in the current
--- version display the red text with a line number that init code does
--- example addGMFunction("button",wrapWithErrorHandling(function () print("example") end))
-function wrapWithErrorHandling(fun)
+-- we have to handle nil due to the somewhat common idiom of for instance onGMClick(nil)
+function errorHandling:wrapWithErrorHandling(fun)
 	assert(type(fun)=="function" or fun==nil,"expected function or nil for wrapWithErrorHandling we instead got a " .. type(fun) .. " with a value of " .. tostring(fun))
 	if fun == nil then
 		return nil
 	end
 	return function(...)
-		return xpcall(fun, errorHandling.onError, ...)
+		return errorHandling:callWithErrorHandling(fun, ...)
 	end
 end
 
--- calls the function fun with the remaining arguments while using the common
--- error handling logic (see wrapWithErrorHandling)
-function callWithErrorHandling(fun,...)
-	assert(type(fun)=="function" or fun==nil)
-	return wrapWithErrorHandling(fun)(...)
-end
 
 function errorHandling:_saveFunctionToSelf(originalTable,functionName,fn)
 	assert(type(originalTable) == "table")
@@ -40,7 +31,7 @@ end
 function errorHandling:_autoWrapFunction1(originalTable,functionName)
 	self:_saveFunctionToSelf(originalTable,functionName, function (fun)
 		assert(type(fun) == "function" or fun == nil)
-		return self[functionName](wrapWithErrorHandling(fun))
+		return self[functionName](self:wrapWithErrorHandling(fun))
 	end)
 end
 
@@ -49,19 +40,19 @@ function errorHandling:_wrapAllFunctions()
 	self:_saveFunctionToSelf(_ENV,"addGMFunction", function(msg, fun)
 		assert(type(msg)=="string")
 		assert(type(fun)=="function" or fun==nil)
-		return self.addGMFunction(msg,wrapWithErrorHandling(fun))
+		return self.addGMFunction(msg,self:wrapWithErrorHandling(fun))
 	end)
 
 	self:_autoWrapFunction1(_ENV,"onNewPlayerShip")
 	self:_autoWrapFunction1(_ENV,"onGMClick")
 
 	-- todo should check update exists before wrapping it
-	self:_saveFunctionToSelf(_ENV,"update",wrapWithErrorHandling(update))
+	self:_saveFunctionToSelf(_ENV,"update",self:wrapWithErrorHandling(update))
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
 function errorHandling:wrapAllFunctions(onError)
 	assert(type(onError) == "function")
 	self.onError = onError
-	callWithErrorHandling(self._wrapAllFunctions,self,onError)
+	self:callWithErrorHandling(self._wrapAllFunctions,self,onError)
 end

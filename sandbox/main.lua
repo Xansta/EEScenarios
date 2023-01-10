@@ -25846,7 +25846,7 @@ function playerPower()
 end
 function wrapAddCustomButtons(p)
 	p.wrappedAddCustomButton = function(player,position,name,caption,callback) -- missing index for next EE version
-		customElements:addCustomButton(player,position,name,caption,wrapWithErrorHandling(callback))
+		customElements:addCustomButton(player,position,name,caption,errorHandling:wrapWithErrorHandling(callback))
 	end
 	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end
 	p.wrappedAddCustomMessageWithCallback = function(...) customElements:addCustomMessageWithCallback(...) end
