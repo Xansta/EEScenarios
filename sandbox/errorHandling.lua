@@ -48,15 +48,6 @@ function errorHandling:wrapWithErrorHandling(fun)
 	end
 end
 
-function errorHandling:_saveFunctionToSelf(originalTable,functionName,fn)
-	assert(type(originalTable) == "table")
-	assert(type(functionName) == "string")
-	assert(type(fn) == "function")
-	self[functionName] = originalTable[functionName]
-	originalTable[functionName] = fn
-end
-
-
 function errorHandling:_autoWrapArgX(originalFunction, argToWrap)
 	assert(type(originalFunction) == "function")
 	assert(type(argToWrap) == "number")
