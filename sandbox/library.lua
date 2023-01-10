@@ -2,7 +2,6 @@
 -- it is intended to be able to be included in an empty script and function correctly
 -- this is probably not yet the case especially with the update system 
 
-require("sandbox/debug.lua")
 ----------------------
 -- debug assistance --
 ----------------------

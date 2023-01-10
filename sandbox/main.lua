@@ -49,6 +49,7 @@
 -- Helm, Tactical				fighter dock banner		5
 
 require("utils.lua")
+require("sandbox/errorHandling.lua")
 require("sandbox/science_database.lua")
 require("utils_customElements.lua")
 require("sandbox/library.lua")
