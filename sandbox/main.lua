@@ -49680,8 +49680,7 @@ function probeWarpJammer(self,x,y)
 	WarpJammer():setPosition(x,y):setRange(self.warp_jam_range):setFaction(self:getFaction())
 	self:onArrival(nil)
 end
-
-function updateInner(delta)
+function update(delta)
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
 	if timer_started then
@@ -52929,6 +52928,4 @@ function updateCommerce(assets,region_station)
 		end	--of zero item check branch
 	end	--not nil commercial asset list check branch
 end
-function update(delta)
-	callWithErrorHandling(updateInner,delta)
-end
+errorHandling:wrapAllFunctions()
