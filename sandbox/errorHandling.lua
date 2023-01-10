@@ -2,11 +2,6 @@
 -- but this clashes with a stock lua package
 errorHandling = {}
 
-function errorHandling.onError(error)
-	local err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. traceback()
-	print(err)
-	addGMMessage(err)
-end
 --------------------
 -- error handling --
 --------------------
@@ -65,6 +60,8 @@ function errorHandling:_wrapAllFunctions()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
-function errorHandling:wrapAllFunctions()
-	callWithErrorHandling(self._wrapAllFunctions,self)
+function errorHandling:wrapAllFunctions(onError)
+	assert(type(onError) == "function")
+	self.onError = onError
+	callWithErrorHandling(self._wrapAllFunctions,self,onError)
 end
