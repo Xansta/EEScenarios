@@ -2,6 +2,35 @@
 -- but this clashes with a stock lua package
 errorHandling = {}
 
+-- TODO
+-- all these functions need error handling
+--init
+--addCommsReply
+--SpaceObject:setCommsFunction
+--SpaceObject:onDestroyed
+--Artifact:onCollision
+--Artifact:onPlayerCollision
+--Artifact:onPickUp
+--Artifact:onPickup
+--Mine:onDestruction
+--ScanProbe:onArrival
+--ScanProbe:onExpiration
+--ScanProbe:onDestruction
+--ShipTemplateBasedObject:onTakingDamage
+--ShipTemplateBasedObject:onDestruction
+--PlayerSpaceship:addCustomButton
+--PlayerSpaceship:addCustomMessageWithCallback
+--PlayerSpaceship:onProbeLaunch
+--PlayerSpaceship:onProbeLink
+--PlayerSpaceship:onProbeUnlink
+--SupplyDrop:onPickUp
+--WarpJammer:onTakingDamage
+--WarpJammer:onDestruction
+--WormHole:onTeleportation
+-- note - its worth checking the gm create menu uses these functions rather than the C++ version
+-- it might be good to make some of these optional
+-- update and init might want a check before assuming they are present (and a warning if not?)
+
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
 	return xpcall(fun, self.onError, ...)

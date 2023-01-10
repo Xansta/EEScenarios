@@ -1,7 +1,6 @@
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
--- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- try to merge in a for the rift devices at long last (getting closer with the update system but still a way off)
 -- look at how onGMClick has been used and pick one of improve on gm click | improve sandbox code
