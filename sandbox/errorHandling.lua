@@ -32,7 +32,9 @@ errorHandling = {}
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
-	return xpcall(fun, self.onError, ...)
+	if fun ~= nil then
+		return xpcall(fun, self.onError, ...)
+	end
 end
 
 -- returns a function which wraps the fun function in error handling logic
@@ -52,10 +54,10 @@ function errorHandling:_autoWrapArgX(originalFunction, argToWrap)
 	assert(type(originalFunction) == "function")
 	assert(type(argToWrap) == "number")
 	return function (...)
-		local args = {...}
+		local args = table.pack(...)
 		args[argToWrap] = self:wrapWithErrorHandling(args[argToWrap])
 		assert(type(fun) == "function" or fun == nil)
-		return originalFunction(table.unpack(args))
+		return originalFunction(table.unpack(args,1,args.n))
 	end
 end
 
