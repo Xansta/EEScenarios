@@ -142,7 +142,7 @@ end
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.36.1"
+	scenario_version = "5.36.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -179,16 +179,17 @@ function applySettings()
 			break
 		end
 	end
-	if getScenarioSetting("Warning") == "On" then
-		automated_station_danger_warning = true
-	else
+	if getScenarioSetting("Warning") == "Off" then
 		automated_station_danger_warning = false
-	end
-	if getScenarioSetting("Warn Ship Type") == "On" then
-		warning_includes_ship_type = true
-	else
 		warning_includes_ship_type = false
-	end
+	else
+		automated_station_danger_warning = true
+		if getScenarioSetting("Warning") == "On With Ship Type" then
+			warning_includes_ship_type = true
+		else
+			warning_includes_ship_type = false
+		end
+	end	
 	station_sensor_range = getScenarioSetting("Warn Proximity") * 1000
 	if getScenarioSetting("Jump Corridor") == "On" then
 		jump_corridor = true

@@ -18,11 +18,9 @@
 -- Start Region[Bask]: Medium station no defenses. Multiple factions, intense star, Magnasol
 -- Start Region[None] : Skeleton only, mostly for development
 -- Setting[Warning]: Configures whether stations and ships in a region warn the players about enemies
--- Warning[On|Default]: Players warned about enemies observed
+-- Warning[On With Ship Type|Default]: Players warned about enemies observed. Warning includes ship type
+-- Warning[On Without Ship Type]: Players warned about enemies observed. Warning does not include ship type
 -- Warning[Off]: Players not warned about enemies observed
--- Setting[Warn Ship Type]: Configures whether the warnings include ship types
--- Warn Ship Type[On|Default]: Enemy warnings include ship type if applicable
--- Warn Ship Type[Off]: Enemy warnings don't include ship type
 -- Setting[Warn Proximity]: Configures how close the enemies get before a warning is sent
 -- Warn Proximity[20|default]: Warning sent when enemies are within twenty units
 -- Warn Proximity[30]: Warning sent when enemies are within thirty units
