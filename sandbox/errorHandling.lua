@@ -22,7 +22,6 @@ errorHandling = {}
 --PlayerSpaceship:onProbeLaunch
 --PlayerSpaceship:onProbeLink
 --PlayerSpaceship:onProbeUnlink
---SupplyDrop:onPickUp
 -- note - its worth checking the gm create menu (or other ways) uses these functions rather than the C++ version
 -- player ship is perticullary important
 -- it might be good to make some of these optional
@@ -79,6 +78,15 @@ function errorHandling:WarpJammer()
 	end
 end
 
+function errorHandling:SupplyDrop()
+	local create = SupplyDrop
+	return function()
+		local drop = create()
+		drop.onPickUp = self:_autoWrapArgX(drop.onPickUp,2)
+		return drop
+	end
+end
+
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
 	addGMFunction = self:_autoWrapArgX(addGMFunction,2)
@@ -92,6 +100,7 @@ function errorHandling:_wrapAllFunctions()
 
 	WormHole = self:WormHole()
 	WarpJammer = self:WarpJammer()
+	SupplyDrop = self:SupplyDrop()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
