@@ -23,13 +23,13 @@ errorHandling = {}
 --PlayerSpaceship:onProbeLink
 --PlayerSpaceship:onProbeUnlink
 --SupplyDrop:onPickUp
---WarpJammer:onTakingDamage
---WarpJammer:onDestruction
--- note - its worth checking the gm create menu uses these functions rather than the C++ version
+-- note - its worth checking the gm create menu (or other ways) uses these functions rather than the C++ version
+-- player ship is perticullary important
 -- it might be good to make some of these optional
 -- update and init might want a check before assuming they are present (and a warning if not?)
 -- check if objects have been created before wrapAllFunctions is called?
 -- prevent wrapAllFunctions being called more than once?
+-- remove the sandbox wrapped functions
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
@@ -69,6 +69,16 @@ function errorHandling:WormHole()
 	end
 end
 
+function errorHandling:WarpJammer()
+	local create = WarpJammer
+	return function()
+		local jammer = create()
+		jammer.onTakingDamage = self:_autoWrapArgX(jammer.onTakingDamage,2)
+		jammer.onDestruction = self:_autoWrapArgX(jammer.onDestruction,2)
+		return jammer
+	end
+end
+
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
 	addGMFunction = self:_autoWrapArgX(addGMFunction,2)
@@ -81,6 +91,7 @@ function errorHandling:_wrapAllFunctions()
 	init = self:wrapWithErrorHandling(init)
 
 	WormHole = self:WormHole()
+	WarpJammer = self:WarpJammer()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
