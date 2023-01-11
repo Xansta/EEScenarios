@@ -1,7 +1,6 @@
 -- Starry's todo list
 -- test spliting out region, understand what is necessary and consider switching away from the table returning everything if it works
 -- mineRingShim while allowing nice things with complex defences (see research base) deserves looking at some more to see about simplifcation, at least for the common case, if there is no obvious improvement document it better at least
--- callbacks need error checking, compare wrapWithErrorHandling and callWithErrorHandling
 -- consider looking trying to improve player ship creation, with the new invaraints offered by onNewPlayerShip, at least try to suggest a way that only needs 2 editing points for new ships rather than 3
 -- try to merge in a for the rift devices at long last (getting closer with the update system but still a way off)
 -- look at how onGMClick has been used and pick one of improve on gm click | improve sandbox code
@@ -49,6 +48,7 @@
 -- Helm, Tactical				fighter dock banner		5
 
 require("utils.lua")
+require("sandbox/errorHandling.lua")
 require("sandbox/science_database.lua")
 require("utils_customElements.lua")
 require("sandbox/library.lua")
@@ -25845,7 +25845,7 @@ function playerPower()
 end
 function wrapAddCustomButtons(p)
 	p.wrappedAddCustomButton = function(player,position,name,caption,callback) -- missing index for next EE version
-		customElements:addCustomButton(player,position,name,caption,wrapWithErrorHandling(callback))
+		customElements:addCustomButton(player,position,name,caption,errorHandling:wrapWithErrorHandling(callback))
 	end
 	p.wrappedAddCustomInfo = function(...) customElements:addCustomInfo(...) end
 	p.wrappedAddCustomMessageWithCallback = function(...) customElements:addCustomMessageWithCallback(...) end
@@ -49680,8 +49680,7 @@ function probeWarpJammer(self,x,y)
 	WarpJammer():setPosition(x,y):setRange(self.warp_jam_range):setFaction(self:getFaction())
 	self:onArrival(nil)
 end
-
-function updateInner(delta)
+function update(delta)
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
 	if timer_started then
@@ -52929,6 +52928,9 @@ function updateCommerce(assets,region_station)
 		end	--of zero item check branch
 	end	--not nil commercial asset list check branch
 end
-function update(delta)
-	callWithErrorHandling(updateInner,delta)
+function onError(error)
+	local err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. traceback()
+	print(err)
+	addGMMessage(err)
 end
+errorHandling:wrapAllFunctions(onError)
