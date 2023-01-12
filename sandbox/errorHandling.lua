@@ -22,6 +22,33 @@ errorHandling = {}
 --PlayerSpaceship:onProbeLaunch
 --PlayerSpaceship:onProbeLink
 --PlayerSpaceship:onProbeUnlink
+-- TODO - mirror the class hierachy (needed for the SpaceObject callbacks)
+--SpaceObject
+--    Artifact
+--    Asteroid
+--    BeamEffect
+--    BlackHole
+--    ElectricExplosionEffect
+--    ExplosionEffect
+--    Mine
+--    MissileWeapon
+--        EMPMissile
+--        HVLI
+--        HomingMissile
+--        Nuke
+--    Nebula
+--    Planet
+--    ScanProbe
+--    ShipTemplateBasedObject
+--        SpaceShip
+--            CpuShip
+--            PlayerSpaceship
+--        SpaceStation
+--    SupplyDrop
+--    VisualAsteroid
+--    WarpJammer
+--    WormHole
+--    Zone
 -- note - its worth checking the gm create menu (or other ways) uses these functions rather than the C++ version
 -- player ship is perticullary important
 -- it might be good to make some of these optional
