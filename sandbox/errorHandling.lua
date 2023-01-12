@@ -97,7 +97,7 @@ function errorHandling:WormHole()
 	end
 end
 
-function errorHandling:WarpJammer()
+function errorHandling:_WarpJammer()
 	local create = WarpJammer
 	return function()
 		local jammer = create()
@@ -107,7 +107,7 @@ function errorHandling:WarpJammer()
 	end
 end
 
-function errorHandling:SupplyDrop()
+function errorHandling:_SupplyDrop()
 	local create = SupplyDrop
 	return function()
 		local drop = create()
@@ -128,8 +128,8 @@ function errorHandling:_wrapAllFunctions()
 	init = self:wrapWithErrorHandling(init)
 
 	WormHole = self:WormHole()
-	WarpJammer = self:WarpJammer()
-	SupplyDrop = self:SupplyDrop()
+	WarpJammer = self:_WarpJammer()
+	SupplyDrop = self:_SupplyDrop()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
