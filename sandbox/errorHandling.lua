@@ -17,11 +17,6 @@ errorHandling = {}
 --ScanProbe:onDestruction
 --ShipTemplateBasedObject:onTakingDamage
 --ShipTemplateBasedObject:onDestruction
---PlayerSpaceship:addCustomButton
---PlayerSpaceship:addCustomMessageWithCallback
---PlayerSpaceship:onProbeLaunch
---PlayerSpaceship:onProbeLink
---PlayerSpaceship:onProbeUnlink
 -- TODO - mirror the class hierachy (needed for the SpaceObject callbacks)
 --SpaceObject
 --    Artifact
@@ -116,6 +111,19 @@ function errorHandling:_SupplyDrop()
 	end
 end
 
+function errorHandling:_PlayerSpaceship()
+	local create = PlayerSpaceship
+	return function()
+		local ship = create()
+			ship.addCustomButton = self:_autoWrapArgX(ship.addCustomButton,5)
+			ship.addCustomMessageWithCallback = self:_autoWrapArgX(ship.addCustomMessageWithCallback,5)
+			ship.onProbeLaunch = self:_autoWrapArgX(ship.onProbeLaunch,2)
+			ship.onProbeLink = self:_autoWrapArgX(ship.onProbeLink,2)
+			ship.onProbeUnlink = self:_autoWrapArgX(ship.onProbeUnlink,2)
+		return ship
+	end
+end
+
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
 	addGMFunction = self:_autoWrapArgX(addGMFunction,2)
@@ -130,6 +138,7 @@ function errorHandling:_wrapAllFunctions()
 	WormHole = self:WormHole()
 	WarpJammer = self:_WarpJammer()
 	SupplyDrop = self:_SupplyDrop()
+	PlayerSpaceship = self:_PlayerSpaceship()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
