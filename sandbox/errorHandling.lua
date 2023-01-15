@@ -15,20 +15,37 @@ errorHandling = {}
 --ScanProbe:onArrival
 --ScanProbe:onExpiration
 --ScanProbe:onDestruction
---ShipTemplateBasedObject:onTakingDamage
---ShipTemplateBasedObject:onDestruction
---PlayerSpaceship:addCustomButton
---PlayerSpaceship:addCustomMessageWithCallback
---PlayerSpaceship:onProbeLaunch
---PlayerSpaceship:onProbeLink
---PlayerSpaceship:onProbeUnlink
+-- TODO - mirror the class hierachy (needed for the SpaceObject callbacks)
+-- it would be nice if walking up the class hierarchy was moved out into a library
+--SpaceObject
+--    Artifact
+--    Asteroid
+--    BeamEffect
+--    BlackHole
+--    ElectricExplosionEffect
+--    ExplosionEffect
+--    Mine
+--    MissileWeapon
+--        EMPMissile
+--        HVLI
+--        HomingMissile
+--        Nuke
+--    Nebula
+--    Planet
+--    ScanProbe
+--    ShipTemplateBasedObject
+--    SupplyDrop
+--    VisualAsteroid
+--    WarpJammer
+--    WormHole
+--    Zone
 -- note - its worth checking the gm create menu (or other ways) uses these functions rather than the C++ version
 -- player ship is perticullary important
 -- it might be good to make some of these optional
 -- update and init might want a check before assuming they are present (and a warning if not?)
 -- check if objects have been created before wrapAllFunctions is called?
 -- prevent wrapAllFunctions being called more than once?
--- remove the sandbox wrapped functions
+-- the ShipTemplateBasedObject functions seem tempermental in applying - I need to investigate this
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
@@ -70,7 +87,7 @@ function errorHandling:WormHole()
 	end
 end
 
-function errorHandling:WarpJammer()
+function errorHandling:_WarpJammer()
 	local create = WarpJammer
 	return function()
 		local jammer = create()
@@ -80,13 +97,56 @@ function errorHandling:WarpJammer()
 	end
 end
 
-function errorHandling:SupplyDrop()
+function errorHandling:_SupplyDrop()
 	local create = SupplyDrop
 	return function()
 		local drop = create()
 		drop.onPickUp = self:_autoWrapArgX(drop.onPickUp,2)
 		return drop
 	end
+end
+
+function errorHandling:_PlayerSpaceship()
+	local create = PlayerSpaceship
+	return function()
+		local ship = create()
+			self:_AddSpaceShipErrorHandling(ship)
+			ship.addCustomButton = self:_autoWrapArgX(ship.addCustomButton,5)
+			ship.addCustomMessageWithCallback = self:_autoWrapArgX(ship.addCustomMessageWithCallback,5)
+			ship.onProbeLaunch = self:_autoWrapArgX(ship.onProbeLaunch,2)
+			ship.onProbeLink = self:_autoWrapArgX(ship.onProbeLink,2)
+			ship.onProbeUnlink = self:_autoWrapArgX(ship.onProbeUnlink,2)
+		return ship
+	end
+end
+
+function errorHandling:_CpuShip()
+	local create = CpuShip
+	return function()
+		local ship = create()
+		self:_AddSpaceShipErrorHandling(ship)
+		return ship
+	end
+end
+
+function errorHandling:_SpaceStation()
+	local create = SpaceStation
+	return function()
+		local station = create()
+		self:_AddShipTemplateBasedObjectErrorHandling(station)
+		return station
+	end
+end
+
+function errorHandling:_AddShipTemplateBasedObjectErrorHandling(ship)
+	ship.onTakingDamage = self:_autoWrapArgX(ship.onTakingDamage,2)
+	ship.onDestruction = self:_autoWrapArgX(ship.onDestruction,2)
+	return ship
+end
+
+function errorHandling:_AddSpaceShipErrorHandling(ship)
+	self:_AddShipTemplateBasedObjectErrorHandling(ship)
+	return ship
 end
 
 -- the main function here - it wraps all functions with error handling code
@@ -101,8 +161,11 @@ function errorHandling:_wrapAllFunctions()
 	init = self:wrapWithErrorHandling(init)
 
 	WormHole = self:WormHole()
-	WarpJammer = self:WarpJammer()
-	SupplyDrop = self:SupplyDrop()
+	WarpJammer = self:_WarpJammer()
+	SupplyDrop = self:_SupplyDrop()
+	PlayerSpaceship = self:_PlayerSpaceship()
+	CpuShip = self:_CpuShip()
+	SpaceStation = self:_SpaceStation()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
