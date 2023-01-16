@@ -12,9 +12,6 @@ errorHandling = {}
 --Artifact:onPickUp
 --Artifact:onPickup
 --Mine:onDestruction
---ScanProbe:onArrival
---ScanProbe:onExpiration
---ScanProbe:onDestruction
 -- TODO - mirror the class hierachy (needed for the SpaceObject callbacks)
 -- it would be nice if walking up the class hierarchy was moved out into a library
 --SpaceObject
@@ -138,6 +135,17 @@ function errorHandling:_SpaceStation()
 	end
 end
 
+function errorHandling:_ScanProbe()
+	local create = ScanProbe
+	return function()
+		local probe = create()
+		probe.onArrival = self:_autoWrapArgX(probe.onArrival,2)
+		probe.onExpiration = self:_autoWrapArgX(probe.onExpiration,2)
+		probe.onDestruction = self:_autoWrapArgX(probe.onDestruction,2)
+		return probe
+	end
+end
+
 function errorHandling:_AddShipTemplateBasedObjectErrorHandling(ship)
 	ship.onTakingDamage = self:_autoWrapArgX(ship.onTakingDamage,2)
 	ship.onDestruction = self:_autoWrapArgX(ship.onDestruction,2)
@@ -166,6 +174,7 @@ function errorHandling:_wrapAllFunctions()
 	PlayerSpaceship = self:_PlayerSpaceship()
 	CpuShip = self:_CpuShip()
 	SpaceStation = self:_SpaceStation()
+	ScanProbe = self:_ScanProbe()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
