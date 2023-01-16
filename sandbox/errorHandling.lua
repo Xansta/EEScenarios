@@ -1,48 +1,35 @@
--- package name possibly should be debug
--- but this clashes with a stock lua package
+-- the package name "debug" debatably may be better than errorHandling
+-- but there is a stock lua package with that name (which isnt included in Empty Epsilon)
 errorHandling = {}
+
+-- please note - this file is likely to become either irrelevant or in need of update when the EE ECS rework is complete
+-- it would be nice if the whole walking through the class hierarchy was moved out into its own file
+-- however that walking is likely to be made obsolete semi soon with the ECS system
+
+-- note some SpaceObject are never wrapped - a good example would be missiles fired from craft
+-- in general there is a fair chance anything created inside of the EE engine will not have these functions wrapped
+-- there are a few soultions
+-- we could run each update and find unwrapped objects
+-- we could make a pull request to master for an onNewSpaceObject
+-- the latter is better in my eyes
+-- I am planning personally on waiting ECS changes have been implemented and I'm more sure on whats happening
+-- PlayerShips created via the gm screen are ***NOT*** wrapped - this would be fairly easy to fix via wrapping on onNewPlayerShip
+-- If there is a use case people want this for I will add that happily
 
 -- TODO
 -- all these functions need error handling
 --addCommsReply
---SpaceObject:setCommsFunction
---SpaceObject:onDestroyed
 --Artifact:onCollision
 --Artifact:onPlayerCollision
 --Artifact:onPickUp
 --Artifact:onPickup
 --Mine:onDestruction
--- TODO - mirror the class hierachy (needed for the SpaceObject callbacks)
--- it would be nice if walking up the class hierarchy was moved out into a library
---SpaceObject
---    Artifact
---    Asteroid
---    BeamEffect
---    BlackHole
---    ElectricExplosionEffect
---    ExplosionEffect
---    Mine
---    MissileWeapon
---        EMPMissile
---        HVLI
---        HomingMissile
---        Nuke
---    Nebula
---    Planet
---    ScanProbe
---    ShipTemplateBasedObject
---    SupplyDrop
---    VisualAsteroid
---    WarpJammer
---    WormHole
---    Zone
--- note - its worth checking the gm create menu (or other ways) uses these functions rather than the C++ version
--- player ship is perticullary important
 -- it might be good to make some of these optional
 -- update and init might want a check before assuming they are present (and a warning if not?)
 -- check if objects have been created before wrapAllFunctions is called?
 -- prevent wrapAllFunctions being called more than once?
 -- the ShipTemplateBasedObject functions seem tempermental in applying - I need to investigate this
+-- check if no comms message set?
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
@@ -80,6 +67,7 @@ function errorHandling:WormHole()
 	return function()
 		local worm = create()
 		worm.onTeleportation = self:_autoWrapArgX(worm.onTeleportation,2)
+		self:_AddSpaceObjectErrorHandling(worm)
 		return worm
 	end
 end
@@ -90,6 +78,7 @@ function errorHandling:_WarpJammer()
 		local jammer = create()
 		jammer.onTakingDamage = self:_autoWrapArgX(jammer.onTakingDamage,2)
 		jammer.onDestruction = self:_autoWrapArgX(jammer.onDestruction,2)
+		self:_AddSpaceObjectErrorHandling(jammer)
 		return jammer
 	end
 end
@@ -99,6 +88,7 @@ function errorHandling:_SupplyDrop()
 	return function()
 		local drop = create()
 		drop.onPickUp = self:_autoWrapArgX(drop.onPickUp,2)
+		self:_AddSpaceObjectErrorHandling(drop)
 		return drop
 	end
 end
@@ -142,19 +132,95 @@ function errorHandling:_ScanProbe()
 		probe.onArrival = self:_autoWrapArgX(probe.onArrival,2)
 		probe.onExpiration = self:_autoWrapArgX(probe.onExpiration,2)
 		probe.onDestruction = self:_autoWrapArgX(probe.onDestruction,2)
+		self:_AddSpaceObjectErrorHandling(probe)
 		return probe
+	end
+end
+
+function errorHandling:_EMPMissile()
+	local create = EMPMissile
+	return function()
+		local missile = create()
+		self:_AddMissileErrorHandling(missile)
+		return missile
+	end
+end
+
+function errorHandling:_HVLI()
+	local create = HVLI
+	return function()
+		local missile = create()
+		self:_AddMissileErrorHandling(missile)
+		return missile
+	end
+end
+
+function errorHandling:_HomingMissile()
+	local create = HomingMissile
+	return function()
+		local missile = create()
+		self:_AddMissileErrorHandling(missile)
+		return missile
+	end
+end
+
+function errorHandling:_Nuke()
+	local create = Nuke
+	return function()
+		local missile = create()
+		addGMMessage("test")
+		self:_AddMissileErrorHandling(missile)
+		return missile
+	end
+end
+
+function errorHandling:_Artifact()
+	local create = Artifact
+	return function()
+		local artifact = create()
+		self:_AddSpaceObjectErrorHandling(artifact)
+		return artifact
+	end
+end
+
+function errorHandling:_Mine()
+	local create = Mine
+	return function()
+		local mine = create()
+		self:_AddSpaceObjectErrorHandling(mine)
+		return mine
 	end
 end
 
 function errorHandling:_AddShipTemplateBasedObjectErrorHandling(ship)
 	ship.onTakingDamage = self:_autoWrapArgX(ship.onTakingDamage,2)
 	ship.onDestruction = self:_autoWrapArgX(ship.onDestruction,2)
+	self:_AddSpaceObjectErrorHandling(ship)
 	return ship
 end
 
 function errorHandling:_AddSpaceShipErrorHandling(ship)
 	self:_AddShipTemplateBasedObjectErrorHandling(ship)
 	return ship
+end
+
+function errorHandling:_AddMissileErrorHandling(missile)
+	self:_AddSpaceObjectErrorHandling(missile)
+	return missile
+end
+
+function errorHandling:_AddSpaceObjectErrorHandling(object)
+	object.setCommsFunction = self:_autoWrapArgX(object.setCommsFunction,2)
+	object.onDestroyed = self:_autoWrapArgX(object.onDestroyed,2)
+	return object
+end
+
+function errorHandling:_SpaceObjectWrapper(create)
+	return function()
+		local obj = create()
+		self:_AddSpaceObjectErrorHandling(obj)
+		return obj
+	end
 end
 
 -- the main function here - it wraps all functions with error handling code
@@ -175,6 +241,24 @@ function errorHandling:_wrapAllFunctions()
 	CpuShip = self:_CpuShip()
 	SpaceStation = self:_SpaceStation()
 	ScanProbe = self:_ScanProbe()
+
+	EMPMissile = self:_EMPMissile()
+	HVLI = self:_HVLI()
+	HomingMissile = self:_HomingMissile()
+	Nuke = self:_Nuke()
+	Artifact = self:_Artifact()
+	Mine = self:_Mine()
+
+	Asteroid = self:_SpaceObjectWrapper(Asteroid)
+	BeamEffect = self:_SpaceObjectWrapper(BeamEffect)
+	BlackHole = self:_SpaceObjectWrapper(BlackHole)
+	ElectricExplosionEffect = self:_SpaceObjectWrapper(ElectricExplosionEffect)
+	ExplosionEffect = self:_SpaceObjectWrapper(ExplosionEffect)
+	Nebula = self:_SpaceObjectWrapper(Nebula)
+	Planet = self:_SpaceObjectWrapper(Planet)
+	VisualAsteroid = self:_SpaceObjectWrapper(VisualAsteroid)
+	Zone = self:_SpaceObjectWrapper(Zone)
+
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
