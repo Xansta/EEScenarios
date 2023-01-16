@@ -27,7 +27,6 @@ errorHandling = {}
 -- it might be good to make some of these optional
 -- update and init might want a check before assuming they are present (and a warning if not?)
 -- check if objects have been created before wrapAllFunctions is called?
--- prevent wrapAllFunctions being called more than once?
 -- the ShipTemplateBasedObject functions seem tempermental in applying - I need to investigate this
 -- check if no comms message set?
 
@@ -225,6 +224,10 @@ end
 
 -- the main function here - it wraps all functions with error handling code
 function errorHandling:_wrapAllFunctions()
+	if self.alreadyWrapped then
+		addGMMessage("wrapAllFunctions is being called for a second time. While this should work it isnt advised, there will be a performance hit on object creation for no reason")
+	end
+	self.alreadyWrapped = true
 	addGMFunction = self:_autoWrapArgX(addGMFunction,2)
 
 	onNewPlayerShip = self:_autoWrapArgX(onNewPlayerShip,1)
