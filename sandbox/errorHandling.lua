@@ -24,9 +24,6 @@ errorHandling = {}
 --Artifact:onPickUp
 --Artifact:onPickup
 --Mine:onDestruction
--- it might be good to make some of these optional
--- update and init might want a check before assuming they are present (and a warning if not?)
--- check if objects have been created before wrapAllFunctions is called?
 -- the ShipTemplateBasedObject functions seem tempermental in applying - I need to investigate this
 -- check if no comms message set?
 
@@ -228,6 +225,11 @@ function errorHandling:_wrapAllFunctions()
 		addGMMessage("wrapAllFunctions is being called for a second time. While this should work it isnt advised, there will be a performance hit on object creation for no reason")
 	end
 	self.alreadyWrapped = true
+
+	if #getAllObjects() ~= 0 then
+		addGMMessage("some SpaceObject's where created before errorHandling:wrapAllFunctions() was called, this will result in them not having error handling in their functions, consider putting errorHandling:wrapAllFunctions outside of any functions and before the creation of any SpaceObjects")
+	end
+
 	addGMFunction = self:_autoWrapArgX(addGMFunction,2)
 
 	onNewPlayerShip = self:_autoWrapArgX(onNewPlayerShip,1)
@@ -261,7 +263,6 @@ function errorHandling:_wrapAllFunctions()
 	Planet = self:_SpaceObjectWrapper(Planet)
 	VisualAsteroid = self:_SpaceObjectWrapper(VisualAsteroid)
 	Zone = self:_SpaceObjectWrapper(Zone)
-
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
