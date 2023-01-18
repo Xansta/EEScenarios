@@ -16,13 +16,6 @@ errorHandling = {}
 -- PlayerShips created via the gm screen are ***NOT*** wrapped - this would be fairly easy to fix via wrapping on onNewPlayerShip
 -- If there is a use case people want this for I will add that happily
 
--- TODO
--- all these functions need error handling
---Artifact:onCollision
---Artifact:onPlayerCollision
---Artifact:onPickUp
---Artifact:onPickup
-
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
 	if fun ~= nil then
@@ -169,6 +162,10 @@ function errorHandling:_Artifact()
 	local create = Artifact
 	return function()
 		local artifact = create()
+		artifact.onCollision = self:_autoWrapArgX(artifact.onCollision,2)
+		artifact.onPlayerCollision = self:_autoWrapArgX(artifact.onPlayerCollision,2)
+		artifact.onPickUp = self:_autoWrapArgX(artifact.onPickUp,2)
+		artifact.onPickup = self:_autoWrapArgX(artifact.onPickup,2)
 		self:_AddSpaceObjectErrorHandling(artifact)
 		return artifact
 	end
