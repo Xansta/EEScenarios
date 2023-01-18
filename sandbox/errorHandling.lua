@@ -163,7 +163,6 @@ function errorHandling:_Nuke()
 	local create = Nuke
 	return function()
 		local missile = create()
-		addGMMessage("test")
 		self:_AddMissileErrorHandling(missile)
 		return missile
 	end
