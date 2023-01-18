@@ -227,7 +227,7 @@ function errorHandling:_wrapAllFunctions()
 	self.alreadyWrapped = true
 
 	if #getAllObjects() ~= 0 then
-		addGMMessage("some SpaceObject's where created before errorHandling:wrapAllFunctions() was called, this will result in them not having error handling in their functions, consider putting errorHandling:wrapAllFunctions outside of any functions and before the creation of any SpaceObjects")
+		addGMMessage("some SpaceObject's were created before errorHandling:wrapAllFunctions() was called, this will result in them not having error handling in their functions, consider putting errorHandling:wrapAllFunctions outside of any functions and before the creation of any SpaceObjects")
 	end
 
 	addGMFunction = self:_autoWrapArgX(addGMFunction,2)
