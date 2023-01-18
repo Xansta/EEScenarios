@@ -22,9 +22,6 @@ errorHandling = {}
 --Artifact:onPlayerCollision
 --Artifact:onPickUp
 --Artifact:onPickup
--- the ShipTemplateBasedObject functions seem tempermental in applying - I need to investigate this
--- check if no comms message set?
--- check if init is in the callstack for wrapAllFunctions
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
@@ -266,6 +263,9 @@ function errorHandling:_wrapAllFunctions()
 end
 
 -- this is a wrapper to allow us to catch errors in the error handling code
+-- I expect this to be run from a function not inside of init
+-- that way it can catch all errors, it also needs to be after init and update are defined
+-- a natural location IMO is as the last line of the main script
 function errorHandling:wrapAllFunctions(onError)
 	assert(type(onError) == "function")
 	self.onError = onError
