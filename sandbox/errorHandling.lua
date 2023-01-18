@@ -18,7 +18,6 @@ errorHandling = {}
 
 -- TODO
 -- all these functions need error handling
---addCommsReply
 --Artifact:onCollision
 --Artifact:onPlayerCollision
 --Artifact:onPickUp
@@ -26,6 +25,7 @@ errorHandling = {}
 --Mine:onDestruction
 -- the ShipTemplateBasedObject functions seem tempermental in applying - I need to investigate this
 -- check if no comms message set?
+-- check if init is in the callstack for wrapAllFunctions
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
@@ -235,7 +235,8 @@ function errorHandling:_wrapAllFunctions()
 	onNewPlayerShip = self:_autoWrapArgX(onNewPlayerShip,1)
 	onGMClick = self:_autoWrapArgX(onGMClick,1)
 
-	-- todo should check update exists before wrapping it
+	addCommsReply = self:_autoWrapArgX(addCommsReply,2)
+
 	update = self:wrapWithErrorHandling(update)
 	init = self:wrapWithErrorHandling(init)
 
