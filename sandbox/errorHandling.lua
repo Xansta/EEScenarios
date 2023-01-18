@@ -22,7 +22,6 @@ errorHandling = {}
 --Artifact:onPlayerCollision
 --Artifact:onPickUp
 --Artifact:onPickup
---Mine:onDestruction
 -- the ShipTemplateBasedObject functions seem tempermental in applying - I need to investigate this
 -- check if no comms message set?
 -- check if init is in the callstack for wrapAllFunctions
@@ -183,6 +182,7 @@ function errorHandling:_Mine()
 	local create = Mine
 	return function()
 		local mine = create()
+		mine.onDestruction = self:_autoWrapArgX(mine.onDestruction,2)
 		self:_AddSpaceObjectErrorHandling(mine)
 		return mine
 	end
