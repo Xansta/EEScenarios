@@ -54,92 +54,6 @@ require("utils_customElements.lua")
 require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 
--- maps filenames that were moved after 2021.6.23 release
-function getFilenameCompatible(new_filename)
-	if getEEVersion() ==  2021623 then
-		local lookup = {
-			["adv_gunship.png"] = "radar_adv_gunship.png",
-			["adv_striker.png"] = "radar_adv_striker.png",
-			["battleship.png"] = "radar_battleship.png",
-			["blockade.png"] = "radar_blockade.png",
-			["cruiser.png"] = "radar_cruiser.png",
-			["dread.png"] = "radar_dread.png",
-			["exuari_1.png"] = "radar_exuari_1.png",
-			["exuari_2.png"] = "radar_exuari_2.png",
-			["exuari_3.png"] = "radar_exuari_3.png",
-			["exuari_4.png"] = "radar_exuari_4.png",
-			["exuari_5.png"] = "radar_exuari_5.png",
-			["exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["fighter.png"] = "radar_fighter.png",
-			["ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["laser.png"] = "radar_laser.png",
-			["missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["piranha.png"] = "radar_piranha.png",
-			["striker.png"] = "radar_striker.png",
-			["hugestation.png"] = "radartrace_hugestation.png",
-			["largestation.png"] = "radartrace_largestation.png",
-			["mediumstation.png"] = "radartrace_mediumstation.png",
-			["smallstation.png"] = "radartrace_smallstation.png",
-			["transport.png"] = "radar_transport.png",
-			["tug.png"] = "radar_tug.png",
-
-			["radar/adv_gunship.png"] = "radar_adv_gunship.png",
-			["radar/adv_striker.png"] = "radar_adv_striker.png",
-			["radar/battleship.png"] = "radar_battleship.png",
-			["radar/blockade.png"] = "radar_blockade.png",
-			["radar/cruiser.png"] = "radar_cruiser.png",
-			["radar/dread.png"] = "radar_dread.png",
-			["radar/exuari_1.png"] = "radar_exuari_1.png",
-			["radar/exuari_2.png"] = "radar_exuari_2.png",
-			["radar/exuari_3.png"] = "radar_exuari_3.png",
-			["radar/exuari_4.png"] = "radar_exuari_4.png",
-			["radar/exuari_5.png"] = "radar_exuari_5.png",
-			["radar/exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["radar/exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["radar/exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["radar/exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["radar/fighter.png"] = "radar_fighter.png",
-			["radar/ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["radar/ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["radar/ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["radar/ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["radar/ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["radar/ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["radar/ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["radar/ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["radar/laser.png"] = "radar_laser.png",
-			["radar/missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["radar/piranha.png"] = "radar_piranha.png",
-			["radar/striker.png"] = "radar_striker.png",
-			["radar/hugestation.png"] = "radartrace_hugestation.png",
-			["radar/largestation.png"] = "radartrace_largestation.png",
-			["radar/mediumstation.png"] = "radartrace_mediumstation.png",
-			["radar/smallstation.png"] = "radartrace_smallstation.png",
-			["radar/transport.png"] = "radar_transport.png",
-			["radar/tug.png"] = "radar_tug.png",
-
-			["ProbeBlip.png"] = "radar/probe.png",
-		}
-		local old_filename = lookup[new_filename]
-		if old_filename == nil then
-			return new_filename
-		else
-			return old_filename
-		end
-	end
-	return new_filename
-end
-
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
 	scenario_version = "5.36.2"
@@ -5688,7 +5602,7 @@ function addFreighters()
 		local ship_db = queryScienceDatabase("Ships")
 		ship_db:addEntry("Freighter")
 		freighter_db = queryScienceDatabase("Ships","Freighter")
-		freighter_db:setImage(getFilenameCompatible("radar/transport.png"))
+		freighter_db:setImage("radar/transport.png")
 		freighter_db:setLongDescription("Small, medium and large scale transport ships. These are the working ships that keep commerce going in any sector. They may carry personnel, goods, cargo, equipment, garbage, fuel, research material, etc.")
 	end
 	return freighter_db
@@ -5763,7 +5677,7 @@ function addFreighter(freighter_type,ship)
 	end
 end
 function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
-	specific_freighter_db:setImage(getFilenameCompatible("radar/transport.png"))
+	specific_freighter_db:setImage("radar/transport.png")
 	specific_freighter_db:setKeyValue("Sub-class","Freighter")
 	specific_freighter_db:setKeyValue("Size",base_db:getKeyValue("Size"))
 	local shields = ship:getShieldCount()
@@ -22991,7 +22905,7 @@ end
 function createPlayerShipFlipper()
 	playerFlipper = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Flipper")
 	playerFlipper:setTypeName("Midian")
-	playerFlipper:setRadarTrace(getFilenameCompatible("cruiser.png"))	--different radar trace
+	playerFlipper:setRadarTrace("cruiser.png")	--different radar trace
 	playerFlipper:setWarpSpeed(320)
 --                  				Arc, Dir, Range, CycleTime, Dmg
 	playerFlipper:setBeamWeapon(0,   50, -20,  1000, 	     6, 4)	--beams (vs none)
@@ -24530,7 +24444,7 @@ end
 function createPlayerShipSplinter()
 	playerFresnel = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Splinter")
 	playerFresnel:setTypeName("Fresnel")
-	playerFresnel:setRadarTrace(getFilenameCompatible("ktlitan_fighter.png"))	--different radar trace
+	playerFresnel:setRadarTrace("ktlitan_fighter.png")	--different radar trace
 	playerFresnel:setMaxEnergy(500)								--more maximum energy (vs 400)
 	playerFresnel:setEnergy(500)
 	playerFresnel:setJumpDrive(true)							--jump drive (vs none)
@@ -24677,7 +24591,7 @@ end
 function createPlayerShipTango()
 	playerTwister = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Tango")
 	playerTwister:setTypeName("Twister")
-	playerTwister:setRadarTrace(getFilenameCompatible("ktlitan_destroyer.png"))				--different radar trace
+	playerTwister:setRadarTrace("ktlitan_destroyer.png")				--different radar trace
 	playerTwister:setRepairCrewCount(5)		--more repair crew (vs 2)
 	playerTwister:setShieldsMax(100,120)	--stronger (vs 70,70)
 	playerTwister:setShields(100,120)
@@ -29399,7 +29313,7 @@ function phobosR2(enemyFaction)
 		phobos_r2_db:setKeyValue("Tube 0","60 sec")
 		phobos_r2_db:setKeyValue("Storage Homing","6")
 		phobos_r2_db:setKeyValue("Storage HVLI","20")
-		phobos_r2_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+		phobos_r2_db:setImage("radar/cruiser.png")
 		--]]
 	end
 	return ship
@@ -29439,7 +29353,7 @@ function hornetMV52(enemyFaction)
 		hornet_mv52_db:setKeyValue("Move speed","7.8 U/min")
 		hornet_mv52_db:setKeyValue("Turn speed","31.0 deg/sec")
 		hornet_mv52_db:setKeyValue("Beam weapon 0:30","3.0 Dmg / 4.0 sec")
-		hornet_mv52_db:setImage(getFilenameCompatible("radar/fighter.png"))
+		hornet_mv52_db:setImage("radar/fighter.png")
 		--]]
 	end
 	return ship
@@ -29483,7 +29397,7 @@ function fiendG3(enemyFaction)
 		fiend_g3_db:setKeyValue("Beam weapon 15:50","8.0 Dmg / 6.0 sec")
 		fiend_g3_db:setKeyValue("Tube 0","8 sec")
 		fiend_g3_db:setKeyValue("Storage Homing","4")
-		fiend_g3_db:setImage(getFilenameCompatible("radar/adv_gunship.png"))
+		fiend_g3_db:setImage("radar/adv_gunship.png")
 		--]]
 	end
 	return ship
@@ -29527,7 +29441,7 @@ function fiendG4(enemyFaction)
 		fiend_g4_db:setKeyValue("Beam weapon 15:50","8.0 Dmg / 6.0 sec")
 		fiend_g4_db:setKeyValue("Tube 0","8 sec")
 		fiend_g4_db:setKeyValue("Storage Homing","4")
-		fiend_g4_db:setImage(getFilenameCompatible("radar/adv_gunship.png"))
+		fiend_g4_db:setImage("radar/adv_gunship.png")
 		--]]
 	end
 	return ship
@@ -29573,7 +29487,7 @@ function fiendG5(enemyFaction)
 		fiend_g5_db:setKeyValue("Tube 0","8 sec")
 		fiend_g5_db:setKeyValue(" Tube 0","8 sec")
 		fiend_g5_db:setKeyValue("Storage Homing","4")
-		fiend_g5_db:setImage(getFilenameCompatible("radar/adv_gunship.png"))
+		fiend_g5_db:setImage("radar/adv_gunship.png")
 		--]]
 	end
 	return ship
@@ -29619,7 +29533,7 @@ function fiendG6(enemyFaction)
 		fiend_g6_db:setKeyValue("Tube 0","8 sec")
 		fiend_g6_db:setKeyValue(" Tube 0","8 sec")
 		fiend_g6_db:setKeyValue("Storage Homing","4")
-		fiend_g6_db:setImage(getFilenameCompatible("radar/adv_gunship.png"))
+		fiend_g6_db:setImage("radar/adv_gunship.png")
 		--]]
 	end
 	return ship
@@ -29656,7 +29570,7 @@ function k2fighter(enemyFaction)
 		k2_fighter_db:setKeyValue("Move speed","8.4 U/min")
 		k2_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
 		k2_fighter_db:setKeyValue("Beam weapon 0:60","6.0 Dmg / 2.5 sec")
-		k2_fighter_db:setImage(getFilenameCompatible("radar/ktlitan_fighter.png"))
+		k2_fighter_db:setImage("radar/ktlitan_fighter.png")
 		--]]
 	end
 	return ship
@@ -29693,7 +29607,7 @@ function k3fighter(enemyFaction)
 		k3_fighter_db:setKeyValue("Move speed","8.4 U/min")
 		k3_fighter_db:setKeyValue("Turn speed","30.0 deg/sec")
 		k3_fighter_db:setKeyValue("Beam weapon 0:60","9.0 Dmg / 2.5 sec")
-		k3_fighter_db:setImage(getFilenameCompatible("radar/ktlitan_fighter.png"))
+		k3_fighter_db:setImage("radar/ktlitan_fighter.png")
 		--]]
 	end
 	return ship
@@ -29736,7 +29650,7 @@ function stalkerQ5(enemyFaction)
 		stalker_q5_db:setKeyValue("Warp Speed","42.0 U/min")
 		stalker_q5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
 		stalker_q5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
-		stalker_q5_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+		stalker_q5_db:setImage("radar/cruiser.png")
 		--]]
 	end
 	return ship
@@ -29779,7 +29693,7 @@ function stalkerR5(enemyFaction)
 		stalker_r5_db:setKeyValue("Jump Range","5 - 50 U")
 		stalker_r5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
 		stalker_r5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
-		stalker_r5_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+		stalker_r5_db:setImage("radar/cruiser.png")
 		--]]
 	end
 	return ship
@@ -29823,7 +29737,7 @@ function waddle5(enemyFaction)
 		waddle_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
 		waddle_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
 		waddle_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		waddle_5_db:setImage(getFilenameCompatible("radar/fighter.png"))
+		waddle_5_db:setImage("radar/fighter.png")
 		--]]
 	end
 	return ship
@@ -29868,7 +29782,7 @@ function jade5(enemyFaction)
 		jade_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
 		jade_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
 		jade_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		jade_5_db:setImage(getFilenameCompatible("radar/fighter.png"))
+		jade_5_db:setImage("radar/fighter.png")
 		--]]
 	end
 	return ship
@@ -29907,7 +29821,7 @@ function droneLite(enemyFaction)
 		drone_lite_db:setKeyValue("Move speed","7.8 U/min")
 		drone_lite_db:setKeyValue("Turn speed","20 deg/sec")
 		drone_lite_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-		drone_lite_db:setImage(getFilenameCompatible("radar/ktlitan_drone.png"))
+		drone_lite_db:setImage("radar/ktlitan_drone.png")
 		--]]
 	end
 	return ship
@@ -29945,7 +29859,7 @@ function droneHeavy(enemyFaction)
 		drone_heavy_db:setKeyValue("Move speed","6.6 U/min")
 		drone_heavy_db:setKeyValue("Turn speed","10 deg/sec")
 		drone_heavy_db:setKeyValue("Beam weapon 0:40","8.0 Dmg / 4.0 sec")
-		drone_heavy_db:setImage(getFilenameCompatible("radar/ktlitan_drone.png"))
+		drone_heavy_db:setImage("radar/ktlitan_drone.png")
 		--]]
 	end
 	return ship
@@ -29985,7 +29899,7 @@ function droneJacket(enemyFaction)
 		drone_jacket_db:setKeyValue("Move speed","6.6 U/min")
 		drone_jacket_db:setKeyValue("Turn speed","10 deg/sec")
 		drone_jacket_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-		drone_jacket_db:setImage(getFilenameCompatible("radar/ktlitan_drone.png"))
+		drone_jacket_db:setImage("radar/ktlitan_drone.png")
 		--]]
 	end
 	return ship
@@ -30034,7 +29948,7 @@ function elaraP2(enemyFaction)
 		elara_p2_db:setKeyValue("Tube 1","60 sec")
 		elara_p2_db:setKeyValue("Storage Homing","6")
 		elara_p2_db:setKeyValue("Storage HVLI","20")
-		elara_p2_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+		elara_p2_db:setImage("radar/cruiser.png")
 		--]]
 	end
 	return ship
@@ -30088,7 +30002,7 @@ function wzLindworm(enemyFaction)
 		wz_lindworm_db:setKeyValue("Storage Homing","4")
 		wz_lindworm_db:setKeyValue("Storage Nuke","2")
 		wz_lindworm_db:setKeyValue("Storage HVLI","12")
-		wz_lindworm_db:setImage(getFilenameCompatible("radar/fighter.png"))
+		wz_lindworm_db:setImage("radar/fighter.png")
 		--]]
 	end
 	return ship
@@ -30164,7 +30078,7 @@ function tempest(enemyFaction)
 		tempest_db:setKeyValue("Storage Homing","16")
 		tempest_db:setKeyValue("Storage Nuke","8")
 		tempest_db:setKeyValue("Storage HVLI","34")
-		tempest_db:setImage(getFilenameCompatible("radar/piranha.png"))
+		tempest_db:setImage("radar/piranha.png")
 		--]]
 	end
 	return ship
@@ -30176,7 +30090,7 @@ function enforcer(enemyFaction)
 	end
 	ship:onTakingDamage(npcShipDamage)
 	ship:setTypeName("Enforcer")
-	ship:setRadarTrace(getFilenameCompatible("ktlitan_destroyer.png"))			--different radar trace
+	ship:setRadarTrace("ktlitan_destroyer.png")			--different radar trace
 	ship:setWarpDrive(true)										--warp (vs none)
 	ship:setWarpSpeed(600)
 	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
@@ -30234,7 +30148,7 @@ function enforcer(enemyFaction)
 		enforcer_db:setKeyValue("Tube 30","20 sec")
 		enforcer_db:setKeyValue("Storage Homing","18")
 		--]]
-		enforcer_db:setImage(getFilenameCompatible("radar/ktlitan_destroyer.png"))		--override default radar image
+		enforcer_db:setImage("radar/ktlitan_destroyer.png")		--override default radar image
 	end
 	return ship		
 end
@@ -30277,7 +30191,7 @@ function predator(enemyFaction)
 	ship:setWeaponStorage("Homing", 32)		
 	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
 	ship:setWeaponStorage("HVLI", 0)
-	ship:setRadarTrace(getFilenameCompatible("missile_cruiser.png"))				--different radar trace
+	ship:setRadarTrace("missile_cruiser.png")				--different radar trace
 	local predator_db = queryScienceDatabase("Ships","Frigate","Predator")
 	if predator_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
@@ -30323,7 +30237,7 @@ function predator(enemyFaction)
 		predator_db:setKeyValue("Tube 120","12 sec")
 		predator_db:setKeyValue("Storage Homing","32")
 		--]]
-		predator_db:setImage(getFilenameCompatible("radar/missile_cruiser.png"))		--override default radar image
+		predator_db:setImage("radar/missile_cruiser.png")		--override default radar image
 	end
 	return ship		
 end
@@ -30382,7 +30296,7 @@ function atlantisY42(enemyFaction)
 		atlantis_y42_db:setKeyValue(" Tube 90","10 sec")
 		atlantis_y42_db:setKeyValue("Storage Homing","4")
 		atlantis_y42_db:setKeyValue("Storage HVLI","20")
-		atlantis_y42_db:setImage(getFilenameCompatible("radar/dread.png"))
+		atlantis_y42_db:setImage("radar/dread.png")
 		--]]
 	end
 	return ship		
@@ -30441,7 +30355,7 @@ function starhammerV(enemyFaction)
 		starhammer_v_db:setKeyValue("Storage Homing","16")
 		starhammer_v_db:setKeyValue("Storage EMP","2")
 		starhammer_v_db:setKeyValue("Storage HVLI","36")
-		starhammer_v_db:setImage(getFilenameCompatible("radar/dread.png"))
+		starhammer_v_db:setImage("radar/dread.png")
 		--]]
 	end
 	return ship		
@@ -30508,7 +30422,7 @@ function tyr(enemyFaction)
 		tyr_db:setKeyValue("  Beam weapon -120:90","8.0 Dmg / 6.0 sec")
 		tyr_db:setKeyValue("  Beam weapon 60:90","8.0 Dmg / 6.0 sec")
 		tyr_db:setKeyValue("  Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setImage(getFilenameCompatible("radar/battleship.png"))
+		tyr_db:setImage("radar/battleship.png")
 		--]]
 	end
 	return ship
@@ -31111,7 +31025,7 @@ function predatorV2(enemyFaction)
 	ship:setWeaponStorage("Homing", 32)		
 	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
 	ship:setWeaponStorage("HVLI", 0)
-	ship:setRadarTrace(getFilenameCompatible("missile_cruiser.png"))				--different radar trace
+	ship:setRadarTrace("missile_cruiser.png")				--different radar trace
 	local predator_v2_db = queryScienceDatabase("Ships","Frigate","Predator V2")
 	if predator_v2_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
@@ -31135,7 +31049,7 @@ function predatorV2(enemyFaction)
 			"5 - 35 U",		--jump range
 			"HeavyCorvetteRed"
 		)
-		predator_v2_db:setImage(getFilenameCompatible("radar/missile_cruiser.png"))		--override default radar image
+		predator_v2_db:setImage("radar/missile_cruiser.png")		--override default radar image
 	end
 	return ship		
 end
@@ -31146,7 +31060,7 @@ function enforcerV2(enemyFaction)
 	end
 	ship:onTakingDamage(npcShipDamage)
 	ship:setTypeName("Enforcer V2")
-	ship:setRadarTrace(getFilenameCompatible("ktlitan_destroyer.png"))			--different radar trace
+	ship:setRadarTrace("ktlitan_destroyer.png")			--different radar trace
 	ship:setWarpDrive(true)										--warp (vs none)
 	ship:setWarpSpeed(600)
 	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
@@ -31187,7 +31101,7 @@ function enforcerV2(enemyFaction)
 			nil,
 			"battleship_destroyer_3_upgraded"
 		)
-		enforcer_v2_db:setImage(getFilenameCompatible("radar/ktlitan_destroyer.png"))		--override default radar image
+		enforcer_v2_db:setImage("radar/ktlitan_destroyer.png")		--override default radar image
 	end
 	return ship		
 end
@@ -31382,7 +31296,7 @@ function maniapak(enemyFaction)
 	end
 	ship:onTakingDamage(npcShipDamage)
 	ship:setTypeName("Maniapak")
-	ship:setRadarTrace(getFilenameCompatible("exuari_fighter.png"))			--different radar trace
+	ship:setRadarTrace("exuari_fighter.png")			--different radar trace
 	ship:setImpulseMaxSpeed(70)					--slower impulse (vs 80)
 	ship:setWeaponTubeCount(9)					--more (vs 1)
 	ship:setWeaponTubeDirection(0,  0)				
@@ -31442,7 +31356,7 @@ function maniapak(enemyFaction)
 			nil,
 			"AdlerLongRangeScoutYellow"
 		)
-		maniapak_db:setImage(getFilenameCompatible("radar/exuari_fighter.png"))		--override default radar image
+		maniapak_db:setImage("radar/exuari_fighter.png")		--override default radar image
 	end
 	return ship		
 end
@@ -32254,7 +32168,7 @@ function missilePod(enemyFaction)
 		station_db:addEntry("Missile Pod")
 		missile_pod_db = queryScienceDatabase("Stations","Missile Pod")
 		missile_pod_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. It has offensive weapons sytems to help defend against enemy ships")
-		missile_pod_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_db:setImage("radar/smallstation.png")
 		missile_pod_db:setKeyValue("Class","Small")
 		missile_pod_db:setKeyValue("Size",300)
 		missile_pod_db:setKeyValue("Allowed to Dock","Starfighter/Frigate")
@@ -32291,7 +32205,7 @@ function missilePodD1(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod D1")
 		missile_pod_d1_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod D1")
 		missile_pod_d1_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The D1 fires small, dumb missiles to help defend against enemy ships")
-		missile_pod_d1_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_d1_db:setImage("radar/smallstation.png")
 		missile_pod_d1_db:setKeyValue("Class","Small")
 		missile_pod_d1_db:setKeyValue("Size",300)
 		missile_pod_d1_db:setKeyValue("Shield",20)
@@ -32319,7 +32233,7 @@ function missilePodD2(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod D2")
 		missile_pod_d2_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod D2")
 		missile_pod_d2_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The D2 fires medium, dumb missiles to help defend against enemy ships")
-		missile_pod_d2_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_d2_db:setImage("radar/smallstation.png")
 		missile_pod_d2_db:setKeyValue("Class","Small")
 		missile_pod_d2_db:setKeyValue("Size",300)
 		missile_pod_d2_db:setKeyValue("Shield",50)
@@ -32347,7 +32261,7 @@ function missilePodD4(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod D4")
 		missile_pod_d4_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod D4")
 		missile_pod_d4_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The D4 fires large, dumb missiles to help defend against enemy ships")
-		missile_pod_d4_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_d4_db:setImage("radar/smallstation.png")
 		missile_pod_d4_db:setKeyValue("Class","Small")
 		missile_pod_d4_db:setKeyValue("Size",300)
 		missile_pod_d4_db:setKeyValue("Shield",50)
@@ -32375,7 +32289,7 @@ function missilePodT1(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod T1")
 		missile_pod_t1_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod T1")
 		missile_pod_t1_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The T1 fires small, tracking missiles to help defend against enemy ships")
-		missile_pod_t1_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_t1_db:setImage("radar/smallstation.png")
 		missile_pod_t1_db:setKeyValue("Class","Small")
 		missile_pod_t1_db:setKeyValue("Size",300)
 		missile_pod_t1_db:setKeyValue("Shield",50)
@@ -32403,7 +32317,7 @@ function missilePodT2(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod T2")
 		missile_pod_t2_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod T2")
 		missile_pod_t2_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The T2 fires medium, tracking missiles to help defend against enemy ships")
-		missile_pod_t2_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_t2_db:setImage("radar/smallstation.png")
 		missile_pod_t2_db:setKeyValue("Class","Small")
 		missile_pod_t2_db:setKeyValue("Size",300)
 		missile_pod_t2_db:setKeyValue("Shield",50)
@@ -32433,7 +32347,7 @@ function missilePodTI2(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod TI2")
 		missile_pod_ti2_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod TI2")
 		missile_pod_ti2_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TI2 fires small, tracking missiles from two tubes to help defend against enemy ships")
-		missile_pod_ti2_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_ti2_db:setImage("radar/smallstation.png")
 		missile_pod_ti2_db:setKeyValue("Class","Small")
 		missile_pod_ti2_db:setKeyValue("Size",300)
 		missile_pod_ti2_db:setKeyValue("Shield",50)
@@ -32464,7 +32378,7 @@ function missilePodTI4(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod TI4")
 		missile_pod_ti4_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod TI4")
 		missile_pod_ti4_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TI4 fires medium, tracking missiles from two tubes to help defend against enemy ships")
-		missile_pod_ti4_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_ti4_db:setImage("radar/smallstation.png")
 		missile_pod_ti4_db:setKeyValue("Class","Small")
 		missile_pod_ti4_db:setKeyValue("Size",300)
 		missile_pod_ti4_db:setKeyValue("Shield",50)
@@ -32495,7 +32409,7 @@ function missilePodTI8(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod TI8")
 		missile_pod_ti8_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod TI8")
 		missile_pod_ti8_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TI8 fires large, tracking missiles from two tubes to help defend against enemy ships")
-		missile_pod_ti8_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_ti8_db:setImage("radar/smallstation.png")
 		missile_pod_ti8_db:setKeyValue("Class","Small")
 		missile_pod_ti8_db:setKeyValue("Size",300)
 		missile_pod_ti8_db:setKeyValue("Shield",50)
@@ -32530,7 +32444,7 @@ function missilePodTX4(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod TX4")
 		missile_pod_tx4_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod TX4")
 		missile_pod_tx4_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TX4 fires small, tracking missiles from four tubes to help defend against enemy ships")
-		missile_pod_tx4_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_tx4_db:setImage("radar/smallstation.png")
 		missile_pod_tx4_db:setKeyValue("Class","Small")
 		missile_pod_tx4_db:setKeyValue("Size",300)
 		missile_pod_tx4_db:setKeyValue("Shield",50)
@@ -32567,7 +32481,7 @@ function missilePodTX8(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod TX8")
 		missile_pod_tx8_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod TX8")
 		missile_pod_tx8_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TX8 fires medium, tracking missiles from four tubes to help defend against enemy ships")
-		missile_pod_tx8_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_tx8_db:setImage("radar/smallstation.png")
 		missile_pod_tx8_db:setKeyValue("Class","Small")
 		missile_pod_tx8_db:setKeyValue("Size",300)
 		missile_pod_tx8_db:setKeyValue("Shield",50)
@@ -32604,7 +32518,7 @@ function missilePodTX16(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod TX16")
 		missile_pod_tx16_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod TX16")
 		missile_pod_tx16_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The TX16 fires large, tracking missiles from four tubes to help defend against enemy ships")
-		missile_pod_tx16_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_tx16_db:setImage("radar/smallstation.png")
 		missile_pod_tx16_db:setKeyValue("Class","Small")
 		missile_pod_tx16_db:setKeyValue("Size",300)
 		missile_pod_tx16_db:setKeyValue("Shield",50)
@@ -32636,7 +32550,7 @@ function missilePodS1(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod S1")
 		missile_pod_s1_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod S1")
 		missile_pod_s1_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The S1 fires small, shield-damaging missiles to help defend against enemy ships")
-		missile_pod_s1_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_s1_db:setImage("radar/smallstation.png")
 		missile_pod_s1_db:setKeyValue("Class","Small")
 		missile_pod_s1_db:setKeyValue("Size",300)
 		missile_pod_s1_db:setKeyValue("Shield",50)
@@ -32665,7 +32579,7 @@ function missilePodS4(enemyFaction)
 		missile_pod_db:addEntry("Missile Pod S4")
 		missile_pod_s4_db = queryScienceDatabase("Stations","Missile Pod","Missile Pod S4")
 		missile_pod_s4_db:setLongDescription("A missile pod allows a limited selection of ship types to dock. The S4 fires large, shield-damaging missiles to help defend against enemy ships")
-		missile_pod_s4_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		missile_pod_s4_db:setImage("radar/smallstation.png")
 		missile_pod_s4_db:setKeyValue("Class","Small")
 		missile_pod_s4_db:setKeyValue("Size",300)
 		missile_pod_s4_db:setKeyValue("Shield",80)
@@ -32688,7 +32602,7 @@ function commandBase(enemyFaction)
 	table.insert(immobile_stations,ship)
 	ship:setScanState("simplescan")
 	ship:setTypeName("Command Base")
-	ship:setRadarTrace(getFilenameCompatible("smallstation.png"))			--different radar trace
+	ship:setRadarTrace("smallstation.png")			--different radar trace
 	ship:setJumpDrive(false)						--no jump drive
 	ship:setImpulseMaxSpeed(0)						--slower impulse (vs 50)
 	ship:setRotationMaxSpeed(0.5)					--slower maneuver (vs 6)
@@ -32766,7 +32680,7 @@ function commandBase(enemyFaction)
 		station_db:addEntry("Command Base")
 		command_base_db = queryScienceDatabase("Stations","Command Base")
 		command_base_db:setLongDescription("A command base allows a limited selection of ship types to dock. It has offensive weapons sytems to help defend against enemy ships")
-		command_base_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		command_base_db:setImage("radar/smallstation.png")
 		command_base_db:setKeyValue("Class","Small")
 		command_base_db:setKeyValue("Size",300)
 		command_base_db:setKeyValue("Shield",500)
@@ -32873,7 +32787,7 @@ function militaryOutpost(enemyFaction)
 		station_db:addEntry("Military Outpost")
 		military_outpost_db = queryScienceDatabase("Stations","Military Outpost")
 		military_outpost_db:setLongDescription("A military outpost allows a limited selection of ship types to dock. It has offensive weapons sytems to help defend against enemy ships")
-		military_outpost_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		military_outpost_db:setImage("radar/smallstation.png")
 		military_outpost_db:setKeyValue("Class","Small")
 		military_outpost_db:setKeyValue("Size",300)
 		military_outpost_db:setKeyValue("Shield","150/150/150/150")
@@ -32955,7 +32869,7 @@ function sniperTower(enemyFaction)
 		station_db:addEntry("Sniper Tower")
 		sniper_tower_db = queryScienceDatabase("Stations","Sniper Tower")
 		sniper_tower_db:setLongDescription("A sniper tower allows a limited selection of ship types to dock. It has offensive weapons sytems to help defend against enemy ships")
-		sniper_tower_db:setImage(getFilenameCompatible("radar/smallstation.png"))
+		sniper_tower_db:setImage("radar/smallstation.png")
 		sniper_tower_db:setKeyValue("Class","Small")
 		sniper_tower_db:setKeyValue("Size",150)
 		sniper_tower_db:setKeyValue("Shield","120/120/120/120/120/120")
@@ -43706,10 +43620,10 @@ function starryKraylor()
 		CpuShip():setFaction("Kraylor"):setTemplate("Equipment Freighter 1"):setCallSign("Q4"):setPosition(835255, -21244):orderStandGround():setTypeName("overclocker"):setImpulseMaxSpeed(100.0):setRotationMaxSpeed(20.0):setShieldsMax(150.00, 150.00, 150.00):setShields(150.00, 150.00, 150.00)
 		CpuShip():setFaction("Kraylor"):setTemplate("Equipment Freighter 1"):setCallSign("V19"):setPosition(807069, -9358):setTypeName("overclocker"):setImpulseMaxSpeed(195.8):setRotationMaxSpeed(39.2):setShieldsMax(150.00, 150.00, 150.00):setShields(150.00, 150.00, 150.00)
 		CpuShip():setFaction("Kraylor"):setTemplate("Equipment Freighter 1"):setCallSign("Z13"):setPosition(800981, -20657):orderStandGround():setTypeName("overclocker"):setImpulseMaxSpeed(200.0):setRotationMaxSpeed(40.0):setShieldsMax(150.00, 150.00, 150.00):setShields(150.00, 150.00, 150.00)
-		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("BR420"):setPosition(823836, -10754):setShortRangeRadarRange(10000):orderFlyTowards(818650, -16981):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace(getFilenameCompatible("smallstation.png"))
-		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("CV418"):setPosition(812057, 1206):setShortRangeRadarRange(10000):orderFlyTowardsBlind(814201, 14155):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace(getFilenameCompatible("smallstation.png"))
-		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("S419"):setPosition(812928, -11176):setShortRangeRadarRange(10000):orderFlyTowards(807497, -16907):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 4000, 0.8, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 4000, 0.8, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 4000, 0.8, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 4000, 0.8, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace(getFilenameCompatible("smallstation.png"))
-		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("VS421"):setPosition(824472, 1168):setShortRangeRadarRange(10000):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace(getFilenameCompatible("smallstation.png"))
+		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("BR420"):setPosition(823836, -10754):setShortRangeRadarRange(10000):orderFlyTowards(818650, -16981):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace("smallstation.png")
+		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("CV418"):setPosition(812057, 1206):setShortRangeRadarRange(10000):orderFlyTowardsBlind(814201, 14155):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace("smallstation.png")
+		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("S419"):setPosition(812928, -11176):setShortRangeRadarRange(10000):orderFlyTowards(807497, -16907):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 4000, 0.8, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 4000, 0.8, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 4000, 0.8, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 4000, 0.8, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace("smallstation.png")
+		CpuShip():setFaction("Kraylor"):setTemplate("Jump Carrier"):setCallSign("VS421"):setPosition(824472, 1168):setShortRangeRadarRange(10000):setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0):setRadarTrace("smallstation.png")
 		CpuShip():setFaction("Kraylor"):setTemplate("Ktlitan Drone"):setCallSign("I1"):setPosition(811120, -15980):orderDefendLocation(810788, -14538):setTypeName("Jacket Drone"):setImpulseMaxSpeed(220.0):setRotationMaxSpeed(20.0):setShieldsMax(20.00):setShields(20.00):setBeamWeapon(0, 40, 0, 855, 3.6, 4.0):setBeamWeaponTurret(0, 0, 0, 0)
 		CpuShip():setFaction("Kraylor"):setTemplate("Ktlitan Drone"):setCallSign("I12"):setPosition(809265, -15373):setShortRangeRadarRange(4500):orderDefendLocation(809271, -13894):setTypeName("Gnat"):setHullMax(15):setHull(15):setImpulseMaxSpeed(179.3):setRotationMaxSpeed(32.0):setBeamWeapon(0, 40, 0, 1200, 3.0, 3.0):setBeamWeaponTurret(0, 0, 0, 0)
 		CpuShip():setFaction("Kraylor"):setTemplate("Ktlitan Drone"):setCallSign("I15"):setPosition(815026, -15381):orderDefendLocation(816275, -16176):setTypeName("Jacket Drone"):setImpulseMaxSpeed(220.0):setRotationMaxSpeed(20.0):setShieldsMax(20.00):setShields(20.00):setBeamWeapon(0, 40, 0, 600, 4.0, 4.0):setBeamWeaponTurret(0, 0, 0, 0)
