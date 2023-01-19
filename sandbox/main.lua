@@ -51,6 +51,7 @@ require("utils.lua")
 require("sandbox/errorHandling.lua")
 require("sandbox/science_database.lua")
 require("utils_customElements.lua")
+require("sandbox/extraMath.lua")
 require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 
