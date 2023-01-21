@@ -2,6 +2,9 @@
 -- but there is a stock lua package with that name (which isnt included in Empty Epsilon)
 errorHandling = {}
 
+-- note - setCommsScript is not wrapped unlike setCommsFunction
+-- I am somewhat unsure if it is possible to wrap or not
+
 -- please note - this file is likely to become either irrelevant or in need of update when the EE ECS rework is complete
 -- it would be nice if the whole walking through the class hierarchy was moved out into its own file
 -- however that walking is likely to be made obsolete semi soon with the ECS system
@@ -14,7 +17,6 @@ errorHandling = {}
 -- the latter is better in my eyes
 -- I am planning personally on waiting ECS changes have been implemented and I'm more sure on whats happening
 -- PlayerShips created via the gm screen are ***NOT*** wrapped - this would be fairly easy to fix via wrapping on onNewPlayerShip
--- If there is a use case people want this for I will add that happily
 
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
@@ -198,8 +200,46 @@ function errorHandling:_AddMissileErrorHandling(missile)
 	return missile
 end
 
+-- this will call function fn
+-- if during the call of fn setCommsMessage is not called then we will call onError if myTraceback has been sent
+-- this is due to needing to call this during the setCommsFunction callback (where no setCommsMessage is sometimes useful)
+-- and within addCommsReply (where it is not useful)
+function errorHandling:_checkRelayMessageSent(fn,myTraceback)
+	return function ()
+		local _setCommsMessage = setCommsMessage
+		local _addCommsReply = addCommsReply
+		-- the reversed boolean is annoying, but I am unsure (and am not sure how to confirm)
+		-- if a local is set to nil will it be a local or a global (also does it change while its an upvalue?)
+		local messageUnset = true
+		setCommsMessage = function(msg)
+			messageUnset = nil
+			_setCommsMessage(msg)
+		end
+		addCommsReply = function (text, fn)
+			return _addCommsReply(text,self:_checkRelayMessageSent(fn,traceback()))
+		end
+		local ret = fn()
+		if messageUnset and myTraceback then
+			self.onError("A function set via addCommsReply has been called, but setCommsMessage wasn't called. This will result in relay seeing \"?\"\n Traceback of the function setting the callback is as follows \n\n" .. myTraceback .. "The onError is callback is now being called, this may present another traceback which will likely be less useful than the first one")
+		end
+		setCommsMessage = _setCommsMessage
+		addCommsReply = _addCommsReply
+		return ret
+	end
+end
+
+function errorHandling:_wrapSetCommsFunction(object, _setCommsFunction)
+	return function (object,fn)
+		return _setCommsFunction(object,self:_checkRelayMessageSent(fn,nil))
+	end
+end
+
 function errorHandling:_AddSpaceObjectErrorHandling(object)
+	-- we deal with setCommsFunction in two parts
+	-- first we are trapping errors happening inside of the call
 	object.setCommsFunction = self:_autoWrapArgX(object.setCommsFunction,2)
+	-- secondly we are ensuring that setCommsMessage is called at some point
+	object.setCommsFunction = self:_wrapSetCommsFunction(object,object.setCommsFunction)
 	object.onDestroyed = self:_autoWrapArgX(object.onDestroyed,2)
 	return object
 end
