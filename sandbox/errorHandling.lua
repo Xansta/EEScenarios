@@ -18,10 +18,23 @@ errorHandling = {}
 -- I am planning personally on waiting ECS changes have been implemented and I'm more sure on whats happening
 -- PlayerShips created via the gm screen are ***NOT*** wrapped - this would be fairly easy to fix via wrapping on onNewPlayerShip
 
+function errorHandling:onError(err, replacementTraceback)
+	if self._onError then
+		if replacementTraceback then
+			self._onError(err,replacementTraceback)
+		else
+			-- it might be nice to suppress the first few lines of the traceback (the ones inside of errorHandling)
+			self._onError(err,traceback())
+		end
+	end
+end
+
 function errorHandling:callWithErrorHandling(fun,...)
 	assert(type(fun)=="function" or fun==nil)
 	if fun ~= nil then
-		return xpcall(fun, self.onError, ...)
+		return xpcall(fun, function(...)
+				self:onError(...)
+			end, ...)
 	end
 end
 
@@ -220,7 +233,7 @@ function errorHandling:_checkRelayMessageSent(fn,myTraceback)
 		end
 		local ret = fn()
 		if messageUnset and myTraceback then
-			self.onError("A function set via addCommsReply has been called, but setCommsMessage wasn't called. This will result in relay seeing \"?\"\n Traceback of the function setting the callback is as follows \n\n" .. myTraceback .. "The onError is callback is now being called, this may present another traceback which will likely be less useful than the first one")
+			self:onError("A function set via addCommsReply has been called, but setCommsMessage wasn't called. This will result in relay seeing \"?\"\n Traceback of the function setting the callback is as follows \n\n",myTraceback)
 		end
 		setCommsMessage = _setCommsMessage
 		addCommsReply = _addCommsReply
@@ -305,6 +318,6 @@ end
 -- a natural location IMO is as the last line of the main script
 function errorHandling:wrapAllFunctions(onError)
 	assert(type(onError) == "function")
-	self.onError = onError
+	self._onError = onError
 	self:callWithErrorHandling(self._wrapAllFunctions,self,onError)
 end

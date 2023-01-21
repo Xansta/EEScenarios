@@ -52842,8 +52842,8 @@ function updateCommerce(assets,region_station)
 		end	--of zero item check branch
 	end	--not nil commercial asset list check branch
 end
-function onError(error)
-	local err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. traceback()
+function onError(error, errorTraceback)
+	local err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. errorTraceback
 	print(err)
 	addGMMessage(err)
 end
