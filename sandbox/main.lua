@@ -5995,7 +5995,7 @@ function coloredSubspaceRift (x,y,destination_x,destination_y)
 		destination_x = destination_x or 0,
 		destination_y = destination_y or 0,
 		update = function (self, obj, delta)
-			self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+			self.current_radius = extraMath.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
 			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
 			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
 			for i=#all_objs,1,-1 do
@@ -6081,7 +6081,7 @@ function gatewayRifts()
 			max_radius = 3000,
 			max_time = 120,
 			update = function (self, obj, delta)
-				self.current_radius = math.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+				self.current_radius = extraMath.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
 				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
 				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
 				for i=#all_objs,1,-1 do
@@ -6374,7 +6374,7 @@ function addChristmasArtifact(waypoints)
 						return
 					end
 					local px,py=obj:getPosition()
-					local x,y=math.CubicInterpolate2DTable(self.waypoints,self.current)
+					local x,y=extraMath.CubicInterpolate2DTable(self.waypoints,self.current)
 					if distance(px,py,x,y)>desiredDelta then
 						obj:setPosition(x,y)
 						return
@@ -23504,10 +23504,10 @@ function createPlayerShipKindling()
 		update = function (self, obj, delta)
 				-- in a small sign of mercy to players they get their best beams at 90% max heat rather than burning hotel
 				-- it would be kind of cool to give extra damage or something, but given how long ships last this probably wont be seen
-				local heat=math.clamp(obj:getSystemHeat("beamweapons"),0,0.90)
+				local heat=extraMath.clamp(obj:getSystemHeat("beamweapons"),0,0.90)
 				heat=heat/0.90 -- scale to that 0.90 = 1
-				obj:setBeamWeapon(0, math.lerp(120,15,heat), math.lerp(-90,5,heat), math.lerp(500,1250,heat), 6, 8)
-				obj:setBeamWeapon(1, math.lerp(120,15,heat), math.lerp(90,-5,heat), math.lerp(500,1250,heat), 6, 8)
+				obj:setBeamWeapon(0, extraMath.lerp(120,15,heat), extraMath.lerp(-90,5,heat), extraMath.lerp(500,1250,heat), 6, 8)
+				obj:setBeamWeapon(1, extraMath.lerp(120,15,heat), extraMath.lerp(90,-5,heat), extraMath.lerp(500,1250,heat), 6, 8)
 			end
 	}
 	update_system:addUpdate(playerKindling,"dynamic kindling beams",update_data)
@@ -24811,13 +24811,13 @@ function createPlayerShipTorch()
 	local update_data = {
 		update = function (self, obj, delta)
 			local upper_heat = 0.98
-			local heat = math.clamp(obj:getSystemHeat("beamweapons"),0,upper_heat)
+			local heat = extraMath.clamp(obj:getSystemHeat("beamweapons"),0,upper_heat)
 			heat = heat/upper_heat
 			--					Arc,  Dir, Range,		  Cycle Time, Dmg
-			obj:setBeamWeapon(0, 90,    0,  1000, math.lerp(6,3,heat),	3)
-			obj:setBeamWeapon(1, 45, -7.5,   900, math.lerp(6,2,heat),	4)
-			obj:setBeamWeapon(2, 45,  7.5,   900, math.lerp(6,2,heat),	4)
-			obj:setBeamWeapon(3, 30,    0,   700, math.lerp(6,1,heat),	5)
+			obj:setBeamWeapon(0, 90,    0,  1000, extraMath.lerp(6,3,heat),	3)
+			obj:setBeamWeapon(1, 45, -7.5,   900, extraMath.lerp(6,2,heat),	4)
+			obj:setBeamWeapon(2, 45,  7.5,   900, extraMath.lerp(6,2,heat),	4)
+			obj:setBeamWeapon(3, 30,    0,   700, extraMath.lerp(6,1,heat),	5)
 		end
 	}
 	update_system:addUpdate(playerTorch,"dynamic heating cycle beams", update_data)
@@ -42254,7 +42254,8 @@ function CubicMineObject:updateNow()
 	local last_y = nil
 	if #self.markers>=4 then
 		for t=1,#self.markers-2,delta do
-			local x,y = math.CubicInterpolate2DTable(pos_tbl,t)
+			local x,y = extraMath.CubicInterpolate2DTable(pos_tbl,t)
+			local x,y = extraMath.CubicInterpolate2DTable(pos_tbl,t)
 			if last_x == nil or distance(last_x,last_y,x,y) > min_mine_dist then
 				last_x,last_y=x,y
 				local newArtifact=nil
@@ -49402,7 +49403,7 @@ end
 -------------------------
 function runAllTests()
 	getNumberOfObjectsStringTest()
-	math.extraTests()
+	extraMath:runTests()
 	updateSystem:create():_test()
 end
 --	Probe functions

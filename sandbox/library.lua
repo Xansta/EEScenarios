@@ -1096,16 +1096,16 @@ function updateSystem:addEnergyDecayCurve(obj, total_time, curve_x, curve_y)
 		},
 		update = function (self, obj, delta)
 			self.elapsed_time = self.elapsed_time + delta
-			local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
+			local time_ratio = extraMath.clamp(0,1,self.elapsed_time / self.total_time)
 			local curve={-- bah this is bad but until the update edit is better its needed
 				{x = self.curve_x[1], y = self.curve_y[1]},
 				{x = self.curve_x[2], y = self.curve_y[2]},
 				{x = self.curve_x[3], y = self.curve_y[3]},
 				{x = self.curve_x[4], y = self.curve_y[4]}
 			}
-			local energy_drain_per_second=math.CosineInterpolateTable(curve,time_ratio)
+			local energy_drain_per_second=extraMath.CosineInterpolateTable(curve,time_ratio)
 			local new_energy=obj:getEnergy()+energy_drain_per_second*delta
-			obj:setEnergy(math.clamp(0,obj:getMaxEnergy(),new_energy))
+			obj:setEnergy(extraMath.clamp(0,obj:getMaxEnergy(),new_energy))
 		end
 	}
 	self:addUpdate(obj,"energy decay",update_data)
@@ -1145,14 +1145,14 @@ function updateSystem:addShieldDecayCurve(obj, total_time, curve_x, curve_y)
 		},
 		update = function (self, obj, delta)
 			self.elapsed_time = self.elapsed_time + delta
-			local time_ratio = math.clamp(0,1,self.elapsed_time / self.total_time)
+			local time_ratio = extraMath.clamp(0,1,self.elapsed_time / self.total_time)
 			local curve={-- bah this is bad but until the update edit is better its needed
 				{x = self.curve_x[1], y = self.curve_y[1]},
 				{x = self.curve_x[2], y = self.curve_y[2]},
 				{x = self.curve_x[3], y = self.curve_y[3]},
 				{x = self.curve_x[4], y = self.curve_y[4]}
 			}
-			local maxShieldRatio=math.CosineInterpolateTable(curve,time_ratio)
+			local maxShieldRatio=extraMath.CosineInterpolateTable(curve,time_ratio)
 			local shields = {}
 			for i=0,obj:getShieldCount()-1 do
 				table.insert(shields,math.min((obj:getShieldMax(i)*maxShieldRatio),obj:getShieldLevel(i)))
@@ -1194,7 +1194,7 @@ function updateSystem:_addGenericOverclock(obj, overboosted_time, boost_time, ov
 			assert(type(obj)=="table")
 			assert(type(delta)=="number")
 			self.time = self.time - delta
-			local scale = math.clamp(self.time/self.boost_time,0,1)
+			local scale = extraMath.clamp(self.time/self.boost_time,0,1)
 			inner_update(self, obj, scale)
 			-- if scale == 0 inner_update has already been called with 0, resulting in overclocks being turned off
 			if scale == 0 then
@@ -1243,9 +1243,9 @@ function updateSystem:addBeamBoostOverclock(obj, overboosted_time, boost_time, m
 				-- 16 seems to be the max number of beams (seen via tweak menu)
 				-- if the engine exports max number of beams it should be used rather than mirror all data
 			for index=0,16 do
-				local beam_range = math.lerp(1,self.max_range_boosted,scale)*self.mirrored_data[index+1].range
+				local beam_range = extraMath.lerp(1,self.max_range_boosted,scale)*self.mirrored_data[index+1].range
 				compatSetBeamWeaponRange(obj,index,beam_range)
-				local beam_cycle = math.lerp(1,self.max_cycle_boosted,scale)*self.mirrored_data[index+1].cycle_time
+				local beam_cycle = extraMath.lerp(1,self.max_cycle_boosted,scale)*self.mirrored_data[index+1].cycle_time
 				compatSetBeamWeaponCycleTime(obj,index,beam_cycle)
 			end
 		end
@@ -1275,8 +1275,8 @@ function updateSystem:addEngineBoostUpdate(obj, overboosted_time, boost_time, ma
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(scale)=="number")
-			obj:setImpulseMaxSpeed(math.lerp(1,self.max_impulse_boosted,scale)*self.mirrored_data.impulse)
-			obj:setRotationMaxSpeed(math.lerp(1,self.max_turn_boosted,scale)*self.mirrored_data.turn_rate)
+			obj:setImpulseMaxSpeed(extraMath.lerp(1,self.max_impulse_boosted,scale)*self.mirrored_data.impulse)
+			obj:setRotationMaxSpeed(extraMath.lerp(1,self.max_turn_boosted,scale)*self.mirrored_data.turn_rate)
 		end
 	)
 end
@@ -1309,7 +1309,7 @@ function updateSystem:addOverclockableTractor(obj, spawnFunc)
 				if orbiting:isValid() then
 					local orbiting_update=update_self:getUpdateNamed(orbiting,"orbit target")
 					if orbiting_update ~= nil then
-						orbiting_update.distance=math.lerp(0,max_dist,scale)
+						orbiting_update.distance=extraMath.lerp(0,max_dist,scale)
 					end
 				else
 					table.remove(self.orbitingObj,i)
@@ -1492,9 +1492,9 @@ function updateSystem:addArtifactCyclicalColorUpdate(obj, red_start, red1, red2,
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
 			assert(type(delta)=="number")
-			local r = math.lerp(self.red1,self.red2,((getScenarioTime()+self.red_start) % self.red_time)/self.red_time)
-			local g = math.lerp(self.green1,self.green2,((getScenarioTime()+self.green_start) % self.green_time)/self.green_time)
-			local b = math.lerp(self.blue1,self.blue2,((getScenarioTime()+self.blue_start) % self.blue_time)/self.blue_time)
+			local r = extraMath.lerp(self.red1,self.red2,((getScenarioTime()+self.red_start) % self.red_time)/self.red_time)
+			local g = extraMath.lerp(self.green1,self.green2,((getScenarioTime()+self.green_start) % self.green_time)/self.green_time)
+			local b = extraMath.lerp(self.blue1,self.blue2,((getScenarioTime()+self.blue_start) % self.blue_time)/self.blue_time)
 			obj:setRadarTraceColor(math.floor(r),math.floor(g),math.floor(b))
 		end
 	}
