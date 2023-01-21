@@ -47,7 +47,7 @@ function errorHandling:_autoWrapArgX(originalFunction, argToWrap)
 	end
 end
 
-function errorHandling:WormHole()
+function errorHandling:_WormHole()
 	local create = WormHole
 	return function()
 		local worm = create()
@@ -233,7 +233,7 @@ function errorHandling:_wrapAllFunctions()
 	update = self:wrapWithErrorHandling(update)
 	init = self:wrapWithErrorHandling(init)
 
-	WormHole = self:WormHole()
+	WormHole = self:_WormHole()
 	WarpJammer = self:_WarpJammer()
 	SupplyDrop = self:_SupplyDrop()
 	PlayerSpaceship = self:_PlayerSpaceship()
