@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.36.2"
+	scenario_version = "5.37.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1242,6 +1242,7 @@ function setConstants()
 		["Flavia Falcon"] =					200,
 		["Fortress"] =						2000,
 		["Foul Feeder"] =					300,
+		["Fray"] =							200,
 		["Fuel Freighter 1"] =				600,
 		["Fuel Freighter 2"] =				600,
 		["Fuel Freighter 3"] =				600,
@@ -1335,13 +1336,15 @@ function setConstants()
 		["Piranha F12"] =					200,
 		["Piranha F12.M"] =					200,
 		["Piranha F8"] =					200,
+		["Porcupine"] =						400,
 		["Prador"] =						2000,
 		["Predator"] =						200,
 		["Predator V2"] =					200,
 		["Racer"] =							200,
 		["Ranger"] =						100,
 		["Ranus U"] =						200,
-		["Roc"] =						200,
+		["Roc"] =							200,
+		["Rook"] =							200,
 		["Ryder"] =							2000,
 		["Sentinel"] =						600,
 		["Service Jonque"] =				800,
@@ -5708,7 +5711,198 @@ function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
 		specific_freighter_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
 	end
 end
-
+function movableTerrainOneOnClick(x,y)
+	if clean_list == nil then
+		clean_list = {}
+	end
+	table.insert(clean_list,SpaceStation():setTemplate("Large Station"):setFaction("Kraylor"):setCallSign("Toron Kogash"):setPosition(x + -2813,y +  2110))
+	table.insert(clean_list,Planet():setPosition(x + 5943,y +  -11900):setPlanetRadius(5000):setPlanetCloudRadius(5200.00):setPlanetAtmosphereColor(64,0,0):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudTexture("planets/clouds-2.png"):setPlanetCloudRadius(5500):setDistanceFromMovementPlane(-900):setAxialRotationTime(3500))
+	table.insert(clean_list,Nebula():setPosition(x + 7153,y +  20467))
+	table.insert(clean_list,Nebula():setPosition(x + 2331,y +  14700))
+	table.insert(clean_list,Nebula():setPosition(x + -14413,y +  -2364))
+	table.insert(clean_list,Nebula():setPosition(x + -11126,y +  -10943))
+	table.insert(clean_list,WarpJammer():setFaction("Kraylor"):setPosition(x + -1749,y +  3724))
+	table.insert(clean_list,WarpJammer():setFaction("Kraylor"):setPosition(x + 2064,y +  9912):setRange(12200.00))
+	table.insert(clean_list,WarpJammer():setFaction("Kraylor"):setPosition(x + 2917,y +  -2732))
+	table.insert(clean_list,WarpJammer():setFaction("Kraylor"):setPosition(x + -5152,y +  14366))
+	table.insert(clean_list,WarpJammer():setFaction("Kraylor"):setPosition(x + -10927,y +  3202):setRange(5700.00))
+	table.insert(clean_list,WarpJammer():setFaction("Kraylor"):setPosition(x + -5467,y +  -7898))
+	table.insert(clean_list,WarpJammer():setFaction("Kraylor"):setPosition(x + -12820,y +  -5054))
+	table.insert(clean_list,Mine():setPosition(x + 4281,y +  21356))
+	table.insert(clean_list,Mine():setPosition(x + 97,y +  16955))
+	table.insert(clean_list,Mine():setPosition(x + 4455,y +  15342))
+	table.insert(clean_list,Mine():setPosition(x + 6404,y +  8346))
+	table.insert(clean_list,Mine():setPosition(x + -1612,y +  10627))
+	table.insert(clean_list,Mine():setPosition(x + 8595,y +  5014))
+	table.insert(clean_list,Mine():setPosition(x + 4840,y +  135))
+	table.insert(clean_list,Mine():setPosition(x + 5328,y +  2514))
+	table.insert(clean_list,Mine():setPosition(x + 3113,y +  2840))
+	table.insert(clean_list,Mine():setPosition(x + -6352,y +  18524))
+	table.insert(clean_list,Mine():setPosition(x + -9692,y +  3719))
+	table.insert(clean_list,Mine():setPosition(x + -16567,y +  2090))
+	table.insert(clean_list,Mine():setPosition(x + -14482,y +  6228))
+	table.insert(clean_list,Mine():setPosition(x + -12560,y +  429))
+	table.insert(clean_list,Mine():setPosition(x + -10580,y +  -8365))
+	table.insert(clean_list,Mine():setPosition(x + -4696,y +  -8844))
+	table.insert(clean_list,Mine():setPosition(x + -12071,y +  -1820))
+	table.insert(clean_list,Mine():setPosition(x + 1256,y +  -4915))
+	table.insert(clean_list,commandBase("Kraylor"):setPosition(x + -8956, 7383 + y):orderStandGround())
+	table.insert(clean_list,commandBase("Kraylor"):setPosition(x + 2950, 9047 + y):orderStandGround())
+	table.insert(clean_list,commandBase("Kraylor"):setPosition(x + 3551, -1913 + y):orderStandGround())
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("V17"):setPosition(x + -4169, -6830 + y):orderStandGround():setTypeName("Missile Pod D2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("VK39"):setPosition(x + -1477, -6320 + y):orderStandGround())
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("CSS12"):setPosition(x + -5265, 3274 + y):orderStandGround())
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("C22"):setPosition(x + -8805, 4821 + y):orderStandGround():setTypeName("Missile Pod D4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("H16"):setPosition(x + -6342, 6844 + y):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("SS48"):setPosition(x + -4983, 10340 + y):orderStandGround())
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("VK40"):setPosition(x + 5325, -1451 + y):orderStandGround())
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("P15"):setPosition(x + 550, 11670 + y):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("C61"):setPosition(x + 1813, 13076 + y):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("Y60"):setPosition(x + -3047, 11098 + y):setShortRangeRadarRange(5500):orderStandGround():setTypeName("Missile Pod TX8"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("L35"):setPosition(x + -2971, 7836 + y):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("F62"):setPosition(x + 1600, 4420 + y):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("R58"):setPosition(x + 3717, 5221 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("M54"):setPosition(x + 2146, -490 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("X53"):setPosition(x + 4345, 1525 + y):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("D43"):setPosition(x + 3583, 13401 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TI2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(2):setWeaponTubeDirection(0, -90):setTubeSize(0,"small"):setWeaponTubeDirection(1, 90):setTubeSize(1,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 398):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("I32"):setPosition(x + -21, 8153 + y):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("G13"):setPosition(x + 2988, 10790 + y):setShortRangeRadarRange(8000):orderStandGround():setTypeName("Military Outpost"):setHullMax(300):setHull(300):setShieldsMax(150.00, 150.00, 150.00, 150.00):setShields(150.00, 150.00, 150.00, 150.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 396):setBeamWeapon(0, 10, 45, 3000, 2.0, 8.0):setBeamWeaponTurret(0, 80, 45, 0):setBeamWeapon(1, 10, 135, 3000, 2.0, 8.0):setBeamWeaponTurret(1, 80, 135, 0):setBeamWeapon(2, 10, 225, 3000, 2.0, 8.0):setBeamWeaponTurret(2, 80, 225, 0):setBeamWeapon(3, 10, 315, 3000, 2.0, 8.0):setBeamWeaponTurret(3, 80, 315, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("K55"):setPosition(x + 3514, -3946 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TX4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"small"):setWeaponTubeDirection(1, 270):setTubeSize(1,"small"):setTubeSize(2,"small"):setTubeSize(3,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("F42"):setPosition(x + -13635, 8153 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TI2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(2):setWeaponTubeDirection(0, -90):setTubeSize(0,"small"):setWeaponTubeDirection(1, 90):setTubeSize(1,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 398):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("W5"):setPosition(x + -10414, 167 + y):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("B25"):setPosition(x + -11384, 7776 + y):setShortRangeRadarRange(8000):orderStandGround():setTypeName("Military Outpost"):setHullMax(300):setHull(300):setShieldsMax(150.00, 150.00, 150.00, 150.00):setShields(150.00, 150.00, 150.00, 150.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 396):setBeamWeapon(0, 10, 45, 3000, 2.0, 8.0):setBeamWeaponTurret(0, 80, 45, 0):setBeamWeapon(1, 10, 135, 3000, 2.0, 8.0):setBeamWeaponTurret(1, 80, 135, 0):setBeamWeapon(2, 10, 225, 3000, 2.0, 8.0):setBeamWeaponTurret(2, 80, 225, 0):setBeamWeapon(3, 10, 315, 3000, 2.0, 8.0):setBeamWeaponTurret(3, 80, 315, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("M29"):setPosition(x + -12197, 4997 + y):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("S30"):setPosition(x + -14606, 1972 + y):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("Y45"):setPosition(x + -11749, 2326 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TI2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(2):setWeaponTubeDirection(0, -90):setTubeSize(0,"small"):setWeaponTubeDirection(1, 90):setTubeSize(1,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 398):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("T21"):setPosition(x + -6379, -8146 + y):setShortRangeRadarRange(8000):orderStandGround():setTypeName("Military Outpost"):setHullMax(300):setHull(300):setShieldsMax(150.00, 150.00, 150.00, 150.00):setShields(150.00, 150.00, 150.00, 150.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 396):setBeamWeapon(0, 10, 45, 3000, 2.0, 8.0):setBeamWeaponTurret(0, 80, 45, 0):setBeamWeapon(1, 10, 135, 3000, 2.0, 8.0):setBeamWeaponTurret(1, 80, 135, 0):setBeamWeapon(2, 10, 225, 3000, 2.0, 8.0):setBeamWeaponTurret(2, 80, 225, 0):setBeamWeapon(3, 10, 315, 3000, 2.0, 8.0):setBeamWeaponTurret(3, 80, 315, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("R47"):setPosition(x + -2467, -8692 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TI2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(2):setWeaponTubeDirection(0, -90):setTubeSize(0,"small"):setWeaponTubeDirection(1, 90):setTubeSize(1,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 398):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("O50"):setPosition(x + 241, -7702 + y):setShortRangeRadarRange(6000):orderStandGround():setTypeName("Missile Pod TI2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(2):setWeaponTubeDirection(0, -90):setTubeSize(0,"small"):setWeaponTubeDirection(1, 90):setTubeSize(1,"small"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 398):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("U39"):setPosition(x + -11524, -5610 + y):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S4"):setHullMax(70):setHull(70):setRotationMaxSpeed(5.0):setShieldsMax(80.00):setShields(80.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+	table.insert(clean_list,CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("K38"):setPosition(x + -7771, -6002 + y):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S4"):setHullMax(70):setHull(70):setRotationMaxSpeed(5.0):setShieldsMax(80.00):setShields(80.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0))
+--	bigger asteroids
+	table.insert(clean_list,Asteroid():setPosition(x + 7331, 19526 + y):setSize(random(400,850)))
+	table.insert(clean_list,Asteroid():setPosition(x + -16855, -3789 + y):setSize(random(400,1332)))
+	table.insert(clean_list,Asteroid():setPosition(x + -13642, 12989 + y):setSize(random(400,774)))
+	table.insert(clean_list,Asteroid():setPosition(x + -4845, -3346 + y):setSize(random(400,554)))
+	table.insert(clean_list,Asteroid():setPosition(x + -12148, -13071 + y):setSize(random(400,943)))
+	table.insert(clean_list,Asteroid():setPosition(x + -3347, 4314 + y):setSize(random(400,777)))
+	table.insert(clean_list,Asteroid():setPosition(x + 6967, -4828 + y):setSize(random(400,615)))
+--	smaller asteroids
+	table.insert(clean_list,Asteroid():setPosition(x + 4194, 19003 + y):setSize(random(40,111)))
+	table.insert(clean_list,Asteroid():setPosition(x + 10033, 20528 + y):setSize(random(40,118)))
+	table.insert(clean_list,Asteroid():setPosition(x + 5893, 23230 + y):setSize(random(40,112)))
+	table.insert(clean_list,Asteroid():setPosition(x + 9292, 19831 + y):setSize(random(40,120)))
+	table.insert(clean_list,Asteroid():setPosition(x + 9641, 19134 + y):setSize(random(40,114)))
+	table.insert(clean_list,Asteroid():setPosition(x + -818, 19613 + y):setSize(random(40,121)))
+	table.insert(clean_list,Asteroid():setPosition(x + 1579, 22489 + y):setSize(random(40,116)))
+	table.insert(clean_list,Asteroid():setPosition(x + -1167, 21182 + y):setSize(random(40,127)))
+	table.insert(clean_list,Asteroid():setPosition(x + 1187, 20485 + y):setSize(random(40,119)))
+	table.insert(clean_list,Asteroid():setPosition(x + 6503, 16998 + y):setSize(random(40,128)))
+	table.insert(clean_list,Asteroid():setPosition(x + -1620, 17197 + y):setSize(random(40,123)))
+	table.insert(clean_list,Asteroid():setPosition(x + 1686, 17841 + y):setSize(random(40,113)))
+	table.insert(clean_list,Asteroid():setPosition(x + 3961, 16510 + y):setSize(random(40,127)))
+	table.insert(clean_list,Asteroid():setPosition(x + 5980, 14514 + y):setSize(random(40,128)))
+	table.insert(clean_list,Asteroid():setPosition(x + -547, 14406 + y):setSize(random(40,119)))
+	table.insert(clean_list,Asteroid():setPosition(x + 1600, 15608 + y):setSize(random(40,112)))
+	table.insert(clean_list,Asteroid():setPosition(x + 10120, 11638 + y):setSize(random(40,120)))
+	table.insert(clean_list,Asteroid():setPosition(x + 8421, 11682 + y):setSize(random(40,110)))
+	table.insert(clean_list,Asteroid():setPosition(x + 8508, 12684 + y):setSize(random(40,113)))
+	table.insert(clean_list,Asteroid():setPosition(x + -2313, -4007 + y):setSize(random(40,111)))
+	table.insert(clean_list,Asteroid():setPosition(x + -1246, -837 + y):setSize(random(40,117)))
+	table.insert(clean_list,Asteroid():setPosition(x + -1674, 93 + y):setSize(random(40,114)))
+	table.insert(clean_list,Asteroid():setPosition(x + 1681, -3606 + y):setSize(random(40,118)))
+	table.insert(clean_list,Asteroid():setPosition(x + -725, 4110 + y):setSize(random(40,116)))
+	table.insert(clean_list,Asteroid():setPosition(x + -1075, 9910 + y):setSize(random(40,113)))
+	table.insert(clean_list,Asteroid():setPosition(x + 9685, 7193 + y):setSize(random(40,120)))
+	table.insert(clean_list,Asteroid():setPosition(x + -3161, -1265 + y):setSize(random(40,111)))
+	table.insert(clean_list,Asteroid():setPosition(x + -3139, -9 + y):setSize(random(40,117)))
+	table.insert(clean_list,Asteroid():setPosition(x + -521, 2901 + y):setSize(random(40,124)))
+	table.insert(clean_list,Asteroid():setPosition(x + -298, 1153 + y):setSize(random(40,115)))
+	table.insert(clean_list,Asteroid():setPosition(x + 3674, 1253 + y):setSize(random(40,116)))
+	table.insert(clean_list,Asteroid():setPosition(x + 4022, -797 + y):setSize(random(40,127)))
+	table.insert(clean_list,Asteroid():setPosition(x + 6009, -831 + y):setSize(random(40,123)))
+	table.insert(clean_list,Asteroid():setPosition(x + 5598, 1087 + y):setSize(random(40,125)))
+	table.insert(clean_list,Asteroid():setPosition(x + 6249, 3588 + y):setSize(random(40,118)))
+	table.insert(clean_list,Asteroid():setPosition(x + 4000, 4259 + y):setSize(random(40,128)))
+	table.insert(clean_list,Asteroid():setPosition(x + 2938, 6620 + y):setSize(random(40,117)))
+	table.insert(clean_list,Asteroid():setPosition(x + 651, 9038 + y):setSize(random(40,114)))
+	table.insert(clean_list,Asteroid():setPosition(x + 316, 7364 + y):setSize(random(40,129)))
+	table.insert(clean_list,Asteroid():setPosition(x + -855, 8480 + y):setSize(random(40,115)))
+	table.insert(clean_list,Asteroid():setPosition(x + -742, 11284 + y):setSize(random(40,122)))
+	table.insert(clean_list,Asteroid():setPosition(x + 853, 10442 + y):setSize(random(40,118)))
+--	medium sized asteroids
+	table.insert(clean_list,Asteroid():setPosition(x + 3491, 9954 + y):setSize(random(1,300) + 115))
+	table.insert(clean_list,Asteroid():setPosition(x + 1518, 11683 + y):setSize(random(1,300) + 113))
+	table.insert(clean_list,Asteroid():setPosition(x + 4887, 9489 + y):setSize(random(1,300) + 113))
+	table.insert(clean_list,Asteroid():setPosition(x + 4843, 7140 + y):setSize(random(1,300) + 123))
+	table.insert(clean_list,Asteroid():setPosition(x + 2120, 8462 + y):setSize(random(1,300) + 117))
+	table.insert(clean_list,Asteroid():setPosition(x + 5133, 5635 + y):setSize(random(1,300) + 113))
+	table.insert(clean_list,Asteroid():setPosition(x + 4483, -3158 + y):setSize(random(1,300) + 129))
+	table.insert(clean_list,Asteroid():setPosition(x + -4130, 17870 + y):setSize(random(1,300) + 126))
+	table.insert(clean_list,Asteroid():setPosition(x + -4086, 19831 + y):setSize(random(1,300) + 123))
+	table.insert(clean_list,Asteroid():setPosition(x + -6527, 16519 + y):setSize(random(1,300) + 114))
+	table.insert(clean_list,Asteroid():setPosition(x + -9359, 18741 + y):setSize(random(1,300) + 123))
+	table.insert(clean_list,Asteroid():setPosition(x + -8749, 15952 + y):setSize(random(1,300) + 129))
+	table.insert(clean_list,Asteroid():setPosition(x + -11667, 14878 + y):setSize(random(1,300) + 127))
+	table.insert(clean_list,Asteroid():setPosition(x + -16561, 7880 + y):setSize(random(1,300) + 113))
+	table.insert(clean_list,Asteroid():setPosition(x + -14930, 9769 + y):setSize(random(1,300) + 120))
+	table.insert(clean_list,Asteroid():setPosition(x + -11710, 9812 + y):setSize(random(1,300) + 112))
+	table.insert(clean_list,Asteroid():setPosition(x + -16869, -694 + y):setSize(random(1,300) + 115))
+	table.insert(clean_list,Asteroid():setPosition(x + -15243, -2307 + y):setSize(random(1,300) + 118))
+	table.insert(clean_list,Asteroid():setPosition(x + -14806, -164 + y):setSize(random(1,300) + 129))
+	table.insert(clean_list,Asteroid():setPosition(x + -15592, 1035 + y):setSize(random(1,300) + 114))
+	table.insert(clean_list,Asteroid():setPosition(x + -6783, -3483 + y):setSize(random(1,300) + 121))
+	table.insert(clean_list,Asteroid():setPosition(x + -8331, -3459 + y):setSize(random(1,300) + 128))
+	table.insert(clean_list,Asteroid():setPosition(x + -8350, -893 + y):setSize(random(1,300) + 126))
+	table.insert(clean_list,Asteroid():setPosition(x + -13509, -1893 + y):setSize(random(1,300) + 124))
+	table.insert(clean_list,Asteroid():setPosition(x + -10470, -1451 + y):setSize(random(1,300) + 112))
+	table.insert(clean_list,Asteroid():setPosition(x + -10422, 11444 + y):setSize(random(1,300) + 126))
+	table.insert(clean_list,Asteroid():setPosition(x + -9091, 9383 + y):setSize(random(1,300) + 129))
+	table.insert(clean_list,Asteroid():setPosition(x + -9893, 1860 + y):setSize(random(1,300) + 129))
+	table.insert(clean_list,Asteroid():setPosition(x + -11325, 948 + y):setSize(random(1,300) + 129))
+	table.insert(clean_list,Asteroid():setPosition(x + -9019, 855 + y):setSize(random(1,300) + 110))
+	table.insert(clean_list,Asteroid():setPosition(x + -10999, 5236 + y):setSize(random(1,300) + 120))
+	table.insert(clean_list,Asteroid():setPosition(x + -9535, 6200 + y):setSize(random(1,300) + 111))
+	table.insert(clean_list,Asteroid():setPosition(x + -3552, 14578 + y):setSize(random(1,300) + 117))
+	table.insert(clean_list,Asteroid():setPosition(x + -7330, 14492 + y):setSize(random(1,300) + 128))
+	table.insert(clean_list,Asteroid():setPosition(x + -6128, 9211 + y):setSize(random(1,300) + 111))
+	table.insert(clean_list,Asteroid():setPosition(x + -6214, 11444 + y):setSize(random(1,300) + 112))
+	table.insert(clean_list,Asteroid():setPosition(x + -3767, 9640 + y):setSize(random(1,300) + 113))
+	table.insert(clean_list,Asteroid():setPosition(x + -13033, 6450 + y):setSize(random(1,300) + 115))
+	table.insert(clean_list,Asteroid():setPosition(x + -13818, 5236 + y):setSize(random(1,300) + 121))
+	table.insert(clean_list,Asteroid():setPosition(x + -14961, 5129 + y):setSize(random(1,300) + 113))
+	table.insert(clean_list,Asteroid():setPosition(x + -13925, 3844 + y):setSize(random(1,300) + 125))
+	table.insert(clean_list,Asteroid():setPosition(x + -16031, 3595 + y):setSize(random(1,300) + 123))
+	table.insert(clean_list,Asteroid():setPosition(x + -12141, 4130 + y):setSize(random(1,300) + 123))
+	table.insert(clean_list,Asteroid():setPosition(x + -13234, -439 + y):setSize(random(1,300) + 128))
+	table.insert(clean_list,Asteroid():setPosition(x + -13411, 1015 + y):setSize(random(1,300) + 114))
+	table.insert(clean_list,Asteroid():setPosition(x + -11623, -694 + y):setSize(random(1,300) + 122))
+	table.insert(clean_list,Asteroid():setPosition(x + -13151, -3876 + y):setSize(random(1,300) + 115))
+	table.insert(clean_list,Asteroid():setPosition(x + -10719, -4388 + y):setSize(random(1,300) + 118))
+	table.insert(clean_list,Asteroid():setPosition(x + -10267, -3288 + y):setSize(random(1,300) + 115))
+	table.insert(clean_list,Asteroid():setPosition(x + -11937, -3033 + y):setSize(random(1,300) + 122))
+	table.insert(clean_list,Asteroid():setPosition(x + -4797, -10238 + y):setSize(random(1,300) + 130))
+	table.insert(clean_list,Asteroid():setPosition(x + -890, -9938 + y):setSize(random(1,300) + 121))
+	table.insert(clean_list,Asteroid():setPosition(x + 2683, -4837 + y):setSize(random(1,300) + 120))
+	table.insert(clean_list,Asteroid():setPosition(x + -8976, -5970 + y):setSize(random(1,300) + 111))
+	table.insert(clean_list,Asteroid():setPosition(x + -11015, -10326 + y):setSize(random(1,300) + 118))
+	table.insert(clean_list,Asteroid():setPosition(x + -8575, -12810 + y):setSize(random(1,300) + 118))
+	table.insert(clean_list,Asteroid():setPosition(x + -8967, -10849 + y):setSize(random(1,300) + 121))
+	table.insert(clean_list,Asteroid():setPosition(x + -13369, -6273 + y):setSize(random(1,300) + 111))
+	table.insert(clean_list,Asteroid():setPosition(x + -14022, -10849 + y):setSize(random(1,300) + 122))
+	table.insert(clean_list,Asteroid():setPosition(x + -12366, -8234 + y):setSize(random(1,300) + 112))
+	table.insert(clean_list,Asteroid():setPosition(x + -15766, -5619 + y):setSize(random(1,300) + 127))
+	table.insert(clean_list,Asteroid():setPosition(x + -6938, -5089 + y):setSize(random(1,300) + 118))
+	table.insert(clean_list,Asteroid():setPosition(x + -3926, -7823 + y):setSize(random(1,300) + 110))
+	table.insert(clean_list,Asteroid():setPosition(x + -3602, -9398 + y):setSize(random(1,300) + 119))
+	table.insert(clean_list,Asteroid():setPosition(x + -8652, -8055 + y):setSize(random(1,300) + 111))
+	table.insert(clean_list,Asteroid():setPosition(x + -7030, -8750 + y):setSize(random(1,300) + 129))
+	table.insert(clean_list,Asteroid():setPosition(x + -4714, -5692 + y):setSize(random(1,300) + 127))
+	table.insert(clean_list,Asteroid():setPosition(x + -2350, -6850 + y):setSize(random(1,300) + 116))
+	table.insert(clean_list,Asteroid():setPosition(x + -6474, -6850 + y):setSize(random(1,300) + 115))
+	table.insert(clean_list,Asteroid():setPosition(x + -590, -5274 + y):setSize(random(1,300) + 121))
+	table.insert(clean_list,Asteroid():setPosition(x + -358, -6340 + y):setSize(random(1,300) + 113))
+end
 function moveSelectedObjects()
 	if gm_click_mode == "move selected" then
 		gm_click_mode = nil
@@ -7207,6 +7401,49 @@ function setStartRegion()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("+Player Spawn Point",setDefaultPlayerSpawnPoint)
 	addGMFunction("+Terrain",changeTerrain)
+	addGMFunction("+Dynamic",setDynamicTerrain)
+end
+function setDynamicTerrain()
+	clearGMFunctions()
+	addGMFunction("-Main From Dynamic",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Region",setStartRegion)
+	local dynamic_sections = {
+		["One"] = movableTerrainOne,
+	}
+	if clean_list == nil then
+		if gm_click_mode == "moveable terrain" then
+			addGMFunction(">Moveable Terrain<",movableTerrainOne)
+		else
+			addGMFunction("Moveable Terrain",movableTerrainOne)
+		end
+	else
+		if gm_click_mode == "moveable terrain" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+		addGMFunction("Clean Moveable Terrain",function()
+			for i,obj in ipairs(clean_list) do
+				obj:destroy()
+			end
+			clean_list = nil
+			setDynamicTerrain()
+		end)
+	end
+end
+function movableTerrainOne()
+	if gm_click_mode == "moveable terrain" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "moveable terrain"
+		onGMClick(movableTerrainOneOnClick)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   moveable terrain\nGM click mode.",prev_mode))
+		end
+	end
+	setDynamicTerrain()
 end
 -------------------------------------
 --	Initial Set Up > Player Ships  --
