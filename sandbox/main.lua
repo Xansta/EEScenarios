@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.37.1"
+	scenario_version = "5.38.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -3072,7 +3072,7 @@ function tweakTerrain()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("+Update Editor",updateEditor)
-	addGMFunction("+Asteroids/Nebulae",asteroidsNebulae)
+	addGMFunction("+Bodies/Nebulae",asteroidsNebulae)
 	addGMFunction("+Faction Relations",function()
 		addGMMessage("Select two factions. Selected faction will have an asterisk. Unselect a faction by clicking a faction with an asterisk")
 		relation_faction_1 = nil
@@ -3245,6 +3245,10 @@ function asteroidsNebulae()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("+Planet",function()
+		selected_planet = nil
+		tweakPlanet()
+	end)
 	addGMFunction("+Asteroid contents",function()
 		clearGMFunctions()
 		addGMFunction("-Asteroids/Nebulae",asteroidsNebulae)
@@ -3364,6 +3368,367 @@ function asteroidsNebulae()
 			end
 		end
 	end	
+end
+function tweakPlanet()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	local button_label = "Change Planet"
+	if selected_planet == nil then
+		button_label = "Select Planet"
+	end
+	addGMFunction(button_label,function()
+		local object_list = getGMSelection()
+		if #object_list > 1 then
+			addGMMessage("Select only one object. No action taken.")
+			tweakPlanet()
+		elseif #object_list < 1 then
+			addGMMessage("Select a planet. No action taken.")
+			tweakPlanet()
+		else
+			if object_list[1].typeName == "Planet" then
+				selected_planet = object_list[1]
+			else
+				addGMMessage(string.format("Select a planet, not a %s. No action taken.",object_list[1].typeName))
+			end
+			tweakPlanet()
+		end
+	end)
+	if selected_planet ~= nil then
+		addGMFunction("+Surface",planetSurface)
+		addGMFunction("+Size",planetSize)
+		addGMFunction("+Plane",planetPlane)
+		addGMFunction("+Axial Rotation",planetAxialRotation)
+		addGMFunction("+Atmosphere",planetAtmosphere)
+	end
+end
+function planetAtmosphere()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	if selected_planet.atmosphere_texture == nil then
+		selected_planet.atmosphere_texture = "No"
+	end
+	addGMFunction(string.format("Atmos-texture %s",selected_planet.atmosphere_texture),function()
+		if selected_planet.atmosphere_texture == "No" then
+			selected_planet:setPlanetAtmosphereTexture("planets/atmosphere.png")
+			selected_planet.atmosphere_texture = "Yes"
+		else
+			selected_planet:setPlanetAtmosphereTexture("")
+			selected_planet.atmosphere_texture = "No"
+		end
+		planetAtmosphere()
+	end)
+	if selected_planet.atmosphere_texture == "Yes" then
+		addGMFunction("+Atmos-color",planetAtmosphereColor)
+	end
+end
+function planetAtmosphereColor()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Atmosphere",planetAtmosphere)
+	if selected_planet.atmosphere_color_red == nil then
+		selected_planet.atmosphere_color_red = 0
+		selected_planet.atmosphere_color_green = 0
+		selected_planet.atmosphere_color_blue = 0
+	end
+	addGMFunction("+Red",planetAtmosphereColorRed)
+	addGMFunction("+Green",planetAtmosphereColorGreen)
+	addGMFunction("+Blue",planetAtmosphereColorBlue)
+end
+function planetAtmosphereColorRed()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Atmosphere",planetAtmosphere)
+	addGMFunction("-Color",planetAtmosphereColor)
+	addGMFunction(string.format("^.01 from %.2f",selected_planet.atmosphere_color_red),function()
+		local new_color = selected_planet.atmosphere_color_red + .01
+		if new_color > 255 then
+			addGMMessage(string.format("Max color value: 255. Proposed value %.2f is too high. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_red = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorRed()
+	end)
+	addGMFunction(string.format("^.1 from %.2f",selected_planet.atmosphere_color_red),function()
+		local new_color = selected_planet.atmosphere_color_red + .1
+		if new_color > 255 then
+			addGMMessage(string.format("Max color value: 255. Proposed value %.2f is too high. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_red = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorRed()
+	end)
+	addGMFunction(string.format("v.1 from %.2f",selected_planet.atmosphere_color_red),function()
+		local new_color = selected_planet.atmosphere_color_red - .1
+		if new_color < 0 then
+			addGMMessage(string.format("Min color value: 0. Proposed value %.2f is too low. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_red = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorRed()
+	end)
+	addGMFunction(string.format("v.01 from %.2f",selected_planet.atmosphere_color_red),function()
+		local new_color = selected_planet.atmosphere_color_red - .01
+		if new_color < 0 then
+			addGMMessage(string.format("Min color value: 0. Proposed value %.2f is too low. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_red = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorRed()
+	end)
+end
+function planetAtmosphereColorGreen()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Atmosphere",planetAtmosphere)
+	addGMFunction("-Color",planetAtmosphereColor)
+	addGMFunction(string.format("^.01 from %.2f",selected_planet.atmosphere_color_green),function()
+		local new_color = selected_planet.atmosphere_color_green + .01
+		if new_color > 255 then
+			addGMMessage(string.format("Max color value: 255. Proposed value %.2f is too high. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_green = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorGreen()
+	end)
+	addGMFunction(string.format("^.1 from %.2f",selected_planet.atmosphere_color_green),function()
+		local new_color = selected_planet.atmosphere_color_green + .1
+		if new_color > 255 then
+			addGMMessage(string.format("Max color value: 255. Proposed value %.2f is too high. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_green = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorGreen()
+	end)
+	addGMFunction(string.format("v.1 from %.2f",selected_planet.atmosphere_color_green),function()
+		local new_color = selected_planet.atmosphere_color_green - .1
+		if new_color < 0 then
+			addGMMessage(string.format("Min color value: 0. Proposed value %.2f is too low. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_green = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorGreen()
+	end)
+	addGMFunction(string.format("v.01 from %.2f",selected_planet.atmosphere_color_green),function()
+		local new_color = selected_planet.atmosphere_color_green - .01
+		if new_color < 0 then
+			addGMMessage(string.format("Min color value: 0. Proposed value %.2f is too low. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_green = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorGreen()
+	end)
+end
+function planetAtmosphereColorBlue()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Atmosphere",planetAtmosphere)
+	addGMFunction("-Color",planetAtmosphereColor)
+	addGMFunction(string.format("^.01 from %.2f",selected_planet.atmosphere_color_blue),function()
+		local new_color = selected_planet.atmosphere_color_blue + .01
+		if new_color > 255 then
+			addGMMessage(string.format("Max color value: 255. Proposed value %.2f is too high. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_blue = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorBlue()
+	end)
+	addGMFunction(string.format("^.1 from %.2f",selected_planet.atmosphere_color_blue),function()
+		local new_color = selected_planet.atmosphere_color_blue + .1
+		if new_color > 255 then
+			addGMMessage(string.format("Max color value: 255. Proposed value %.2f is too high. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_blue = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorBlue()
+	end)
+	addGMFunction(string.format("v.1 from %.2f",selected_planet.atmosphere_color_blue),function()
+		local new_color = selected_planet.atmosphere_color_blue - .1
+		if new_color < 0 then
+			addGMMessage(string.format("Min color value: 0. Proposed value %.2f is too low. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_blue = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorBlue()
+	end)
+	addGMFunction(string.format("v.01 from %.2f",selected_planet.atmosphere_color_blue),function()
+		local new_color = selected_planet.atmosphere_color_blue - .01
+		if new_color < 0 then
+			addGMMessage(string.format("Min color value: 0. Proposed value %.2f is too low. No action taken.",new_color))
+		else
+			selected_planet.atmosphere_color_blue = new_color
+			selected_planet:setPlanetAtmosphereColor(selected_planet.atmosphere_color_red,selected_planet.atmosphere_color_green,selected_planet.atmosphere_color_blue)
+		end
+		planetAtmosphereColorBlue()
+	end)
+end
+function planetAxialRotation()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	if selected_planet.axial_rotation == nil then
+		selected_planet.axial_rotation = 0
+	end
+	addGMFunction(string.format("^10 from %s",selected_planet.axial_rotation),function()
+		selected_planet.axial_rotation = selected_planet.axial_rotation + 10
+		selected_planet:setAxialRotationTime(selected_planet.axial_rotation)
+		planetAxialRotation()
+	end)
+	addGMFunction(string.format("^100 from %s",selected_planet.axial_rotation),function()
+		selected_planet.axial_rotation = selected_planet.axial_rotation + 100
+		selected_planet:setAxialRotationTime(selected_planet.axial_rotation)
+		planetAxialRotation()
+	end)
+	addGMFunction(string.format("^500 from %s",selected_planet.axial_rotation),function()
+		selected_planet.axial_rotation = selected_planet.axial_rotation + 500
+		selected_planet:setAxialRotationTime(selected_planet.axial_rotation)
+		planetAxialRotation()
+	end)
+	addGMFunction(string.format("v500 from %s",selected_planet.axial_rotation),function()
+		selected_planet.axial_rotation = selected_planet.axial_rotation - 500
+		selected_planet:setAxialRotationTime(selected_planet.axial_rotation)
+		planetAxialRotation()
+	end)
+	addGMFunction(string.format("v100 from %s",selected_planet.axial_rotation),function()
+		selected_planet.axial_rotation = selected_planet.axial_rotation - 100
+		selected_planet:setAxialRotationTime(selected_planet.axial_rotation)
+		planetAxialRotation()
+	end)
+	addGMFunction(string.format("v10 from %s",selected_planet.axial_rotation),function()
+		selected_planet.axial_rotation = selected_planet.axial_rotation - 10
+		selected_planet:setAxialRotationTime(selected_planet.axial_rotation)
+		planetAxialRotation()
+	end)
+end
+function planetPlane()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	if selected_planet.plane == nil then
+		selected_planet.plane = 0
+	end
+	addGMFunction(string.format("^100 from %s",selected_planet.plane),function()
+		selected_planet.plane = selected_planet.plane + 100
+		selected_planet:setDistanceFromMovementPlane(selected_planet.plane)
+		planetPlane()
+	end)
+	addGMFunction(string.format("^500 from %s",selected_planet.plane),function()
+		selected_planet.plane = selected_planet.plane + 500
+		selected_planet:setDistanceFromMovementPlane(selected_planet.plane)
+		planetPlane()
+	end)
+	addGMFunction(string.format("v500 from %s",selected_planet.plane),function()
+		selected_planet.plane = selected_planet.plane - 500
+		selected_planet:setDistanceFromMovementPlane(selected_planet.plane)
+		planetPlane()
+	end)
+	addGMFunction(string.format("v100 from %s",selected_planet.plane),function()
+		selected_planet.plane = selected_planet.plane - 100
+		selected_planet:setDistanceFromMovementPlane(selected_planet.plane)
+		planetPlane()
+	end)
+end
+function planetSize()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	local current_planet_size = selected_planet:getPlanetRadius()
+	addGMFunction(string.format("^100 from %s",current_planet_size),function()
+		local new_size = selected_planet:getPlanetRadius() + 100
+		--insert sanity check here
+		selected_planet:setPlanetRadius(new_size)
+		planetSize()
+	end)
+	addGMFunction(string.format("^500 from %s",current_planet_size),function()
+		local new_size = selected_planet:getPlanetRadius() + 500
+		--insert sanity check here
+		selected_planet:setPlanetRadius(new_size)
+		planetSize()
+	end)
+	addGMFunction(string.format("v500 from %s",current_planet_size),function()
+		local new_size = selected_planet:getPlanetRadius() - 500
+		if new_size >= 100 then
+			selected_planet:setPlanetRadius(new_size)
+		else
+			addGMMessage("Please don't try to make planets smaller than 100. Those are asteroids. No action taken")
+		end
+		planetSize()
+	end)
+	addGMFunction(string.format("v100 from %s",current_planet_size),function()
+		local new_size = selected_planet:getPlanetRadius() - 100
+		if new_size >= 100 then
+			selected_planet:setPlanetRadius(new_size)
+		else
+			addGMMessage("Please don't try to make planets smaller than 100. Those are asteroids. No action taken")
+		end
+		planetSize()
+	end)
+end
+function planetSurface()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	local surfaces = {
+		{name = "planets/gas-1.png",		desc = "G1 Jupiter"},
+		{name = "planets/gas-2.png",		desc = "G2 Saturn"},
+		{name = "planets/gas-3.png",		desc = "G3 Uranus"},
+		{name = "planets/moon-1.png",		desc = "M1 Standard"},
+		{name = "planets/moon-2.png",		desc = "M2 Ganymede"},
+		{name = "planets/moon-3.png",		desc = "M3 Antique"},
+		{name = "planets/planet-1.png",		desc = "P1 Lush"},
+		{name = "planets/planet-2.png",		desc = "P2 Mercury"},
+		{name = "planets/planet-3.png",		desc = "P3 Mars"},
+		{name = "planets/planet-4.png",		desc = "P4 Dagobah"},
+		{name = "planets/planet-5.png",		desc = "P5 Venus"},
+		{name = "planets/planet-earth.png",	desc = "P Earth"},
+		{name = "planets/star-1.png",		desc = "S1 Star"},
+	}
+	for _,surface in ipairs(surfaces) do
+		local button_label = surface.desc
+		if selected_planet.surface ~= nil and selected_planet.surface == surface.name then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			selected_planet:setPlanetSurfaceTexture(surface.name)
+			selected_planet.surface = surface.name
+			planetSurface()
+		end)
+	end
 end
 function nebulaEffectDegree()
 	clearGMFunctions()
@@ -5710,6 +6075,59 @@ function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
 	if ship:hasWarpDrive() then
 		specific_freighter_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
 	end
+end
+function mtExuariHugeOnClick(x,y)
+	if exuari_huge_clean_list == nil then
+		exuari_huge_clean_list = {}
+	end
+	Planet():setPosition(x + 13091, y + -3065):setPlanetRadius(3000):setPlanetCloudRadius(5200.00)
+	SpaceStation():setTemplate("Huge Station"):setFaction("Exuari"):setCallSign("Anaston"):setPosition(x + -2444, y + 1778)
+	BlackHole():setPosition(x + -6675, y + -12499)
+	BlackHole():setPosition(x + 4331, y + -15419)
+	Nebula():setPosition(x + -6205, y + 2261)
+	Nebula():setPosition(x + -15097, y + -1790)
+	Nebula():setPosition(x + -1944, y + 10890)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("B47"):setPosition(x + -9952, y +  -87):orderStandGround():setTypeName("Missile Pod D4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("UTI177"):setPosition(x + -982, y +  -1086):orderStandGround()
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("S176"):setPosition(x + 3159, y +  4755):orderStandGround()
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("X45"):setPosition(x + -7260, y +  6863):orderStandGround():setTypeName("Missile Pod D4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("Q43"):setPosition(x + -9251, y +  4669):orderStandGround():setTypeName("Missile Pod D4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("U38"):setPosition(x + -4643, y +  4243):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("D41"):setPosition(x + -4948, y +  -328):orderStandGround():setTypeName("Missile Pod D2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Jump Carrier"):setCallSign("K28"):setPosition(x + -2810, y +  -861):setShortRangeRadarRange(10000):orderStandGround():setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0,0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("R36"):setPosition(x + -176, y +  740):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("L32"):setPosition(x + -2471, y +  5040):setShortRangeRadarRange(4500):orderStandGround():setTypeName("Missile Pod TX16"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"large"):setWeaponTubeDirection(1, 270):setTubeSize(1,"large"):setTubeSize(2,"large"):setTubeSize(3,"large"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("Z34"):setPosition(x + 113, y +  3486):setShortRangeRadarRange(4500):orderStandGround():setTypeName("Missile Pod TI8"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(2):setWeaponTubeDirection(0, -90):setTubeSize(0,"large"):setWeaponTubeDirection(1, 90):setTubeSize(1,"large"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 398):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+	CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("S30"):setPosition(x + -5121, y +  1864):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0)
+	Mine():setPosition(x + -11079, y + -1273)
+	Mine():setPosition(x + -1418, y + 14362)
+	Mine():setPosition(x + -5645, y + 12811)
+	Mine():setPosition(x + 1634, y + 11153)
+	Mine():setPosition(x + -16044, y + 1630)
+	Mine():setPosition(x + -18885, y + -1001)
+	Asteroid():setPosition(x + -14518, y + -3894):setSize(random(10,150))
+	Asteroid():setPosition(x + -4943, y + 8206):setSize(122)
+	Asteroid():setPosition(x + -5048, y + 11205):setSize(124)
+	Asteroid():setPosition(x + -16675, y + -632):setSize(115)
+	Asteroid():setPosition(x + -17570, y + -3421):setSize(122)
+	Asteroid():setPosition(x + -11782, y + 578):setSize(115)
+	Asteroid():setPosition(x + -13466, y + -1264):setSize(116)
+	Asteroid():setPosition(x + -5890, y + 3103):setSize(121)
+	Asteroid():setPosition(x + -14623, y + 1472):setSize(111)
+	Asteroid():setPosition(x + -8100, y + 5208):setSize(116)
+	Asteroid():setPosition(x + -9204, y + 1577):setSize(120)
+	Asteroid():setPosition(x + -5837, y + 420):setSize(129)
+	Asteroid():setPosition(x + -11940, y + -3210):setSize(120)
+	Asteroid():setPosition(x + -1202, y + -14229):setSize(755)
+	Asteroid():setPosition(x + -2996, y + 12521):setSize(125)
+	Asteroid():setPosition(x + -2680, y + 9259):setSize(127)
+	Asteroid():setPosition(x + -3522, y + 4260):setSize(125)
+	Asteroid():setPosition(x + 476, y + 9837):setSize(119)
+	Asteroid():setPosition(x + -523, y + 11995):setSize(116)
+	
+	Asteroid():setPosition(x + -218, y + -7228):setSize(500)
+	Asteroid():setPosition(x + 7767, y + 8915):setSize(500)
+	Asteroid():setPosition(x + -12940, y + 9259):setSize(500)
 end
 function movableTerrainOneOnClick(x,y)
 	if clean_list == nil then
