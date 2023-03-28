@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.38.1"
+	scenario_version = "5.39.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -3395,6 +3395,7 @@ function tweakPlanet()
 			tweakPlanet()
 		end
 	end)
+	addGMFunction("+Add Planet",planetAdd)
 	if selected_planet ~= nil then
 		addGMFunction("+Surface",planetSurface)
 		addGMFunction("+Size",planetSize)
@@ -3402,6 +3403,137 @@ function tweakPlanet()
 		addGMFunction("+Axial Rotation",planetAxialRotation)
 		addGMFunction("+Atmosphere",planetAtmosphere)
 	end
+end
+function planetAdd()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet from Add",tweakPlanet)
+	if add_planet_size == nil then
+		add_planet_size = 5000
+	end
+	addGMFunction(string.format("+Size %sU",add_planet_size/1000),planetAddSize)
+	if add_planet_plane == nil then
+		add_planet_plane = 0
+	end
+	addGMFunction(string.format("+Plane %sU",add_planet_plane/1000),planetAddPlane)
+	if add_planet_surface == nil then
+		planet_surfaces = {
+			{name = "planets/planet-1.png",		desc = "P1 Lush"},
+			{name = "planets/planet-2.png",		desc = "P2 Mercury"},
+			{name = "planets/planet-3.png",		desc = "P3 Mars"},
+			{name = "planets/planet-4.png",		desc = "P4 Dagobah"},
+			{name = "planets/planet-5.png",		desc = "P5 Venus"},
+			{name = "planets/planet-earth.png",	desc = "P Earth"},
+			{name = "planets/gas-1.png",		desc = "G1 Jupiter"},	
+			{name = "planets/gas-2.png",		desc = "G2 Saturn"},
+			{name = "planets/gas-3.png",		desc = "G3 Uranus"},
+			{name = "planets/moon-1.png",		desc = "M1 Standard"},
+			{name = "planets/moon-2.png",		desc = "M2 Ganymede"},
+			{name = "planets/moon-3.png",		desc = "M3 Antique"},
+			{name = "planets/star-1.png",		desc = "S1 Star"},
+		}
+		add_planet_surface = planet_surfaces[1]
+	end
+	addGMFunction(string.format("+Surface %s",add_planet_surface.desc),planetAddSurface)
+	if gm_click_mode == "add planet" then
+		addGMFunction(">Add Planet<",planetAddMode)
+	else
+		addGMFunction("Add Planet",planetAddMode)
+	end
+end
+function planetAddSurface()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Add",planetAdd)
+	for _, surface in ipairs(planet_surfaces) do
+		local button_label = surface.desc
+		if surface == add_planet_surface then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			add_planet_surface = surface
+			planetAddSurface()
+		end)
+	end
+end
+function planetAddMode()
+	if gm_click_mode == "add planet" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "add planet"
+		onGMClick(addPlanetOnClick)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   add planet\nGM click mode.",prev_mode))
+		end
+	end
+	planetAdd()
+end
+function addPlanetOnClick(x, y)
+	local planet = Planet():setPosition(x, y):setPlanetRadius(add_planet_size):setDistanceFromMovementPlane(add_planet_plane):setPlanetSurfaceTexture(add_planet_surface.name)
+	planet.plane = add_planet_plane
+end
+function planetAddSize()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Add",planetAdd)
+	addGMFunction(string.format("^1U from %sU",add_planet_size/1000),function()
+		add_planet_size = add_planet_size + 1000
+		planetAddSize()
+	end)
+	addGMFunction(string.format("^5U from %sU",add_planet_size/1000),function()
+		add_planet_size = add_planet_size + 5000
+		planetAddSize()
+	end)
+	addGMFunction(string.format("v5U from %sU",add_planet_size/1000),function()
+		if add_planet_size - 5000 < 1000 then
+			addGMMessage("Minimum size: 1U. No action taken")
+		else
+			add_planet_size = add_planet_size - 5000
+		end
+		planetAddSize()
+	end)
+	addGMFunction(string.format("v1U from %sU",add_planet_size/1000),function()
+		if add_planet_size - 1000 < 1000 then
+			addGMMessage("Minimum size: 1U. No action taken")
+		else
+			add_planet_size = add_planet_size - 1000
+		end
+		planetAddSize()
+	end)
+end
+function planetAddPlane()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Add",planetAdd)
+	addGMFunction(string.format("^1U from %sU",add_planet_plane/1000),function()
+		add_planet_plane = add_planet_plane + 1000
+		planetAddPlane()
+	end)
+	addGMFunction(string.format("^5U from %sU",add_planet_plane/1000),function()
+		add_planet_plane = add_planet_plane + 5000
+		planetAddPlane()
+	end)
+	addGMFunction(string.format("v5U from %sU",add_planet_plane/1000),function()
+		add_planet_plane = add_planet_plane - 5000
+		planetAddPlane()
+	end)
+	addGMFunction(string.format("v1U from %sU",add_planet_plane/1000),function()
+		add_planet_plane = add_planet_plane - 1000
+		planetAddPlane()
+	end)
 end
 function planetAtmosphere()
 	clearGMFunctions()
@@ -3422,8 +3554,84 @@ function planetAtmosphere()
 		end
 		planetAtmosphere()
 	end)
-	if selected_planet.atmosphere_texture == "Yes" then
-		addGMFunction("+Atmos-color",planetAtmosphereColor)
+	addGMFunction("+Atmos-color",planetAtmosphereColor)
+	addGMFunction("+Cloud Texture",planetCloudTexture)
+	addGMFunction("+Cloud Radius",planetCloudRadius)
+end
+function planetCloudRadius()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Atmosphere",planetAtmosphere)
+	if selected_planet.cloud_radius == nil then
+		selected_planet.cloud_radius = selected_planet:getPlanetRadius() + 100
+	end
+	addGMFunction(string.format("^10 from %s",selected_planet.cloud_radius),function()
+		selected_planet.cloud_radius = selected_planet.cloud_radius + 10
+		if selected_planet.cloud_radius < selected_planet:getPlanetRadius() then
+			selected_planet.cloud_radius = selected_planet:getPlanetRadius()
+		end
+		selected_planet:setPlanetCloudRadius(selected_planet.cloud_radius)
+		planetCloudRadius()
+	end)
+	addGMFunction(string.format("^100 from %s",selected_planet.cloud_radius),function()
+		selected_planet.cloud_radius = selected_planet.cloud_radius + 100
+		if selected_planet.cloud_radius < selected_planet:getPlanetRadius() then
+			selected_planet.cloud_radius = selected_planet:getPlanetRadius()
+		end
+		selected_planet:setPlanetCloudRadius(selected_planet.cloud_radius)
+		planetCloudRadius()
+	end)
+	addGMFunction(string.format("v100 from %s",selected_planet.cloud_radius),function()
+		selected_planet.cloud_radius = selected_planet.cloud_radius - 100
+		if selected_planet.cloud_radius < selected_planet:getPlanetRadius() then
+			selected_planet.cloud_radius = selected_planet:getPlanetRadius()
+		end
+		selected_planet:setPlanetCloudRadius(selected_planet.cloud_radius)
+		planetCloudRadius()
+	end)	
+	addGMFunction(string.format("v10 from %s",selected_planet.cloud_radius),function()
+		selected_planet.cloud_radius = selected_planet.cloud_radius - 10
+		if selected_planet.cloud_radius < selected_planet:getPlanetRadius() then
+			selected_planet.cloud_radius = selected_planet:getPlanetRadius()
+		end
+		selected_planet:setPlanetCloudRadius(selected_planet.cloud_radius)
+		planetCloudRadius()
+	end)	
+end
+function planetCloudTexture()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Atmosphere",planetAtmosphere)
+	if selected_planet.cloud_texture == nil then
+		selected_planet.cloud_texture = "None"
+	end
+	local cloud_textures = {
+		{name = "planets/clouds-1.png", desc = "C1 Standard"},
+		{name = "planets/clouds-2.png", desc = "C2 Light"},
+		{name = "planets/clouds-3.png", desc = "C3 Heavy"},
+		{name = "", desc = "None"},
+	}
+	for _, cloud_texture in ipairs(cloud_textures) do
+		local button_label = cloud_texture.desc
+		if selected_planet.cloud_texture == cloud_texture.name then
+			button_label = button_label .. "*"
+		elseif selected_planet.cloud_texture == "None" and cloud_texture.desc == "None" then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			selected_planet.cloud_texture = cloud_texture.name
+			selected_planet:setPlanetCloudTexture(selected_planet.cloud_texture)
+			if selected_planet.cloud_texture == "" then
+				selected_planet.cloud_texture = "None"
+			end
+			planetCloudTexture()
+		end)
 	end
 end
 function planetAtmosphereColor()
@@ -3594,7 +3802,7 @@ function planetAxialRotation()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
-	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Planet Axial Spin",tweakPlanet)
 	if selected_planet.axial_rotation == nil then
 		selected_planet.axial_rotation = 0
 	end
@@ -3634,7 +3842,7 @@ function planetPlane()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
-	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Planet from Plane",tweakPlanet)
 	if selected_planet.plane == nil then
 		selected_planet.plane = 0
 	end
@@ -3664,7 +3872,7 @@ function planetSize()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
-	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Planet from Size",tweakPlanet)
 	local current_planet_size = selected_planet:getPlanetRadius()
 	addGMFunction(string.format("^100 from %s",current_planet_size),function()
 		local new_size = selected_planet:getPlanetRadius() + 100
