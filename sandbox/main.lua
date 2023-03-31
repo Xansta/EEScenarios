@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.39.1"
+	scenario_version = "5.40.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -3402,6 +3402,314 @@ function tweakPlanet()
 		addGMFunction("+Plane",planetPlane)
 		addGMFunction("+Axial Rotation",planetAxialRotation)
 		addGMFunction("+Atmosphere",planetAtmosphere)
+		addGMFunction("+Orbiter",function()
+			selected_orbiter = nil
+			planetOrbiter()
+		end)
+	end
+end
+function planetOrbiter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet from Orbiter",tweakPlanet)
+	local button_label = "Change Orbiter"
+	if selected_orbiter == nil then
+		button_label = "Select Orbiter"
+	end
+	addGMFunction(button_label,function()
+		local object_list = getGMSelection()
+		if #object_list > 1 then
+			addGMMessage("Select only one object. No action taken.")
+			planetOrbiter()
+		elseif #object_list < 1 then
+			addGMMessage("Select a planet. No action taken.")
+			planetOrbiter()
+		else
+			if object_list[1].typeName == "Planet" then
+				selected_orbiter = object_list[1]
+			else
+				addGMMessage(string.format("Select a planet, not a %s. No action taken.",object_list[1].typeName))
+			end
+			planetOrbiter()
+		end
+	end)
+	addGMFunction("+Add Orbiter",planetOrbiterAdd)
+	if selected_orbiter ~= nil then
+		button_label = "+Time"
+		if selected_orbiter.orbit_speed ~= nil then
+			button_label = string.format("+Time %s",selected_orbiter.orbit_speed)
+		elseif orbiter_speed ~= nil then
+			button_label = string.format("+Default Time %s",orbiter_speed)
+		end
+		addGMFunction(button_label,planetOrbiterSpeed)
+		addGMFunction(string.format("+Distance %.3fU",distance(selected_orbiter,selected_planet)/1000),planetOrbiterDistance)
+		if selected_orbiter.orbit_speed == nil and orbiter_speed ~= nil then
+			addGMFunction("Start Orbiting",function()
+				selected_orbiter.orbit_speed = orbiter_speed
+				selected_orbiter:setOrbit(selected_planet,selected_orbiter.orbit_speed)
+				planetOrbiter()
+			end)
+		end
+	end
+end
+function planetOrbiterDistance()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Orbiter from Distance",planetOrbiter)
+	local orbiter_distance = distance(selected_planet,selected_orbiter)/1000
+	addGMFunction(string.format("^.1U from %.3fU",orbiter_distance),function()
+		local ox, oy = selected_orbiter:getPosition()
+		local px, py = selected_planet:getPosition()
+		local move_angle = angleFromVectorNorth(ox, oy, px, py)
+		local current_orbiter_distance = distance(ox, oy, px, py)
+		local new_x, new_y = vectorFromAngleNorth(move_angle,current_orbiter_distance + 100)
+		selected_orbiter:setPosition(px + new_x, py + new_y)
+		planetOrbiterDistance()
+	end)
+	addGMFunction(string.format("^1U from %.3fU",orbiter_distance),function()
+		local ox, oy = selected_orbiter:getPosition()
+		local px, py = selected_planet:getPosition()
+		local move_angle = angleFromVectorNorth(ox, oy, px, py)
+		local current_orbiter_distance = distance(ox, oy, px, py)
+		local new_x, new_y = vectorFromAngleNorth(move_angle,current_orbiter_distance + 1000)
+		selected_orbiter:setPosition(px + new_x, py + new_y)
+		planetOrbiterDistance()
+	end)
+	addGMFunction(string.format("v1U from %.3fU",orbiter_distance),function()
+		local ox, oy = selected_orbiter:getPosition()
+		local px, py = selected_planet:getPosition()
+		local move_angle = angleFromVectorNorth(ox, oy, px, py)
+		local current_orbiter_distance = distance(ox, oy, px, py)
+		local new_distance = current_orbiter_distance - 1000
+		local minimum_distance = selected_planet:getPlanetRadius() + selected_orbiter:getPlanetRadius()
+		if new_distance < minimum_distance then
+			addGMMessage(string.format("Proposed distance of %.3fU is smaller than the minimum distance of %.3fU. No action taken.",new_distance/1000,minimum_distance/1000))
+		else
+			local new_x, new_y = vectorFromAngleNorth(move_angle,new_distance)
+			selected_orbiter:setPosition(px + new_x, py + new_y)
+		end
+		planetOrbiterDistance()
+	end)
+	addGMFunction(string.format("v.1U from %.3fU",orbiter_distance),function()
+		local ox, oy = selected_orbiter:getPosition()
+		local px, py = selected_planet:getPosition()
+		local move_angle = angleFromVectorNorth(ox, oy, px, py)
+		local current_orbiter_distance = distance(ox, oy, px, py)
+		local new_distance = current_orbiter_distance - 100
+		local minimum_distance = selected_planet:getPlanetRadius() + selected_orbiter:getPlanetRadius()
+		if new_distance < minimum_distance then
+			addGMMessage(string.format("Proposed distance of %.3fU is smaller than the minimum distance of %.3fU. No action taken.",new_distance/1000,minimum_distance/1000))
+		else
+			local new_x, new_y = vectorFromAngleNorth(move_angle,new_distance)
+			selected_orbiter:setPosition(px + new_x, py + new_y)
+		end
+		planetOrbiterDistance()
+	end)
+end
+function planetOrbiterSpeed()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Orbiter from Time",planetOrbiter)
+	if orbiter_speed == nil then
+		orbiter_speed = 0
+	end
+	if selected_orbiter.orbit_speed == nil then
+		addGMFunction(string.format("^10 from %i",orbiter_speed),function()
+			orbiter_speed = orbiter_speed + 10
+			planetOrbiterSpeed()
+		end)
+		addGMFunction(string.format("^100 from %i",orbiter_speed),function()
+			orbiter_speed = orbiter_speed + 100
+			planetOrbiterSpeed()
+		end)
+		addGMFunction(string.format("v100 from %i",orbiter_speed),function()
+			if orbiter_speed - 100 < 0 then
+				addGMMessage("Negative orbit time not allowed. No action taken")
+			else
+				orbiter_speed = orbiter_speed - 100
+			end
+			planetOrbiterSpeed()
+		end)
+		addGMFunction(string.format("v10 from %i",orbiter_speed),function()
+			if orbiter_speed - 10 < 0 then
+				addGMMessage("Negative orbit time not allowed. No action taken")
+			else
+				orbiter_speed = orbiter_speed - 10
+			end
+			planetOrbiterSpeed()
+		end)
+	else
+		addGMFunction(string.format("^10 from %i",selected_orbiter.orbit_speed),function()
+			selected_orbiter.orbit_speed = selected_orbiter.orbit_speed + 10
+			selected_orbiter:setOrbit(selected_planet,selected_orbiter.orbit_speed)
+			planetOrbiterSpeed()
+		end)
+		addGMFunction(string.format("^100 from %i",selected_orbiter.orbit_speed),function()
+			selected_orbiter.orbit_speed = selected_orbiter.orbit_speed + 100
+			selected_orbiter:setOrbit(selected_planet,selected_orbiter.orbit_speed)
+			planetOrbiterSpeed()
+		end)
+		addGMFunction(string.format("v100 from %i",selected_orbiter.orbit_speed),function()
+			if selected_orbiter.orbit_speed - 100 < 0 then
+				addGMMessage("Negative orbit time not allowed. No action taken")
+			else
+				selected_orbiter.orbit_speed = selected_orbiter.orbit_speed - 100
+				selected_orbiter:setOrbit(selected_planet,selected_orbiter.orbit_speed)
+			end
+			planetOrbiterSpeed()
+		end)
+		addGMFunction(string.format("v10 from %i",selected_orbiter.orbit_speed),function()
+			if selected_orbiter.orbit_speed - 10 < 0 then
+				addGMMessage("Negative orbit time not allowed. No action taken")
+			else
+				selected_orbiter.orbit_speed = selected_orbiter.orbit_speed - 10
+				selected_orbiter:setOrbit(selected_planet,selected_orbiter.orbit_speed)
+			end
+			planetOrbiterSpeed()
+		end)
+	end
+end
+function planetOrbiterAdd()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Orbiter from Add",planetOrbiter)
+	if add_orbiter_size == nil then
+		add_orbiter_size = 1000
+	end
+	addGMFunction(string.format("+Size %.1fU",add_orbiter_size/1000),planetOrbiterAddSize)
+	if add_orbiter_plane == nil then
+		add_orbiter_plane = 0
+	end
+	addGMFunction(string.format("+Plane %.1fU",add_orbiter_plane/1000),planetOrbiterAddPlane)
+	if add_orbiter_surface == nil then
+		orbiter_surfaces = {
+			{name = "planets/moon-1.png",		desc = "M1 Standard"},
+			{name = "planets/moon-2.png",		desc = "M2 Ganymede"},
+			{name = "planets/moon-3.png",		desc = "M3 Antique"},
+			{name = "planets/planet-1.png",		desc = "P1 Lush"},
+			{name = "planets/planet-2.png",		desc = "P2 Mercury"},
+			{name = "planets/planet-3.png",		desc = "P3 Mars"},
+			{name = "planets/planet-4.png",		desc = "P4 Dagobah"},
+			{name = "planets/planet-5.png",		desc = "P5 Venus"},
+			{name = "planets/planet-earth.png",	desc = "P Earth"},
+			{name = "planets/gas-1.png",		desc = "G1 Jupiter"},	
+			{name = "planets/gas-2.png",		desc = "G2 Saturn"},
+			{name = "planets/gas-3.png",		desc = "G3 Uranus"},
+			{name = "planets/star-1.png",		desc = "S1 Star"},
+		}
+		add_orbiter_surface = orbiter_surfaces[1]	--default to the first one in the list
+	end
+	addGMFunction(string.format("+Surface %s",add_orbiter_surface.desc),planetOrbiterAddSurface)
+	if gm_click_mode == "add orbiter" then
+		addGMFunction(">Add Orbiter<",planetOrbiterAddMode)
+	else
+		addGMFunction("Add Orbiter",planetOrbiterAddMode)
+	end
+end
+function planetOrbiterAddMode()
+	if gm_click_mode == "add orbiter" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "add orbiter"
+		onGMClick(addPlanetOrbiterOnClick)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   add orbiter\nGM click mode.",prev_mode))
+		end
+	end
+	planetOrbiterAdd()
+end
+function addPlanetOrbiterOnClick(x, y)
+	local planet = Planet():setPosition(x, y):setPlanetRadius(add_orbiter_size):setDistanceFromMovementPlane(add_orbiter_plane):setPlanetSurfaceTexture(add_orbiter_surface.name)
+	planet.plane = add_orbiter_plane
+end
+function planetOrbiterAddSize()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Orbiter",planetOrbiter)
+	addGMFunction("-Add",planetOrbiterAdd)
+	addGMFunction(string.format("^.5U from %.1fU",add_orbiter_size/1000),function()
+		add_orbiter_size = add_orbiter_size + 500
+		planetOrbiterAddSize()
+	end)
+	addGMFunction(string.format("^5U from %.1fU",add_orbiter_size/1000),function()
+		add_orbiter_size = add_orbiter_size + 5000
+		planetOrbiterAddSize()
+	end)
+	addGMFunction(string.format("v5U from %.1fU",add_orbiter_size/1000),function()
+		if add_orbiter_size - 5000 < 500 then
+			addGMMessage("Minimum size: .5U. No action taken")
+		else
+			add_orbiter_size = add_orbiter_size - 5000
+		end
+		planetOrbiterAddSize()
+	end)
+	addGMFunction(string.format("v.5U from %.1fU",add_orbiter_size/1000),function()
+		if add_orbiter_size - 500 < 500 then
+			addGMMessage("Minimum size: .5U. No action taken")
+		else
+			add_orbiter_size = add_orbiter_size - 500
+		end
+		planetOrbiterAddSize()
+	end)
+end
+function planetOrbiterAddPlane()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Orbiter",planetOrbiter)
+	addGMFunction("-Add",planetOrbiterAdd)
+	addGMFunction(string.format("^1U from %sU",add_orbiter_plane/1000),function()
+		add_orbiter_plane = add_orbiter_plane + 1000
+		planetOrbiterAddPlane()
+	end)
+	addGMFunction(string.format("^5U from %sU",add_orbiter_plane/1000),function()
+		add_orbiter_plane = add_orbiter_plane + 5000
+		planetOrbiterAddPlane()
+	end)
+	addGMFunction(string.format("v5U from %sU",add_orbiter_plane/1000),function()
+		add_orbiter_plane = add_orbiter_plane - 5000
+		planetOrbiterAddPlane()
+	end)
+	addGMFunction(string.format("v1U from %sU",add_orbiter_plane/1000),function()
+		add_orbiter_plane = add_orbiter_plane - 1000
+		planetOrbiterAddPlane()
+	end)
+end
+function planetOrbiterAddSurface()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	addGMFunction("-Planet",tweakPlanet)
+	addGMFunction("-Orbiter",planetOrbiter)
+	addGMFunction("-Add",planetOrbiterAdd)
+	for _, surface in ipairs(orbiter_surfaces) do
+		local button_label = surface.desc
+		if surface == add_orbiter_surface then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			add_orbiter_surface = surface
+			planetOrbiterAddSurface()
+		end)
 	end
 end
 function planetAdd()
