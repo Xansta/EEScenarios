@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.40.1"
+	scenario_version = "5.40.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1091,10 +1091,10 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
 	makePlayerShipActive("Lancelot")	--J
-	makePlayerShipActive("Yorik") 		--J 
+	makePlayerShipActive("Outcast") 	--J 
 	makePlayerShipActive("Osprey")		--W
-	makePlayerShipActive("Florentine")	--W
-	makePlayerShipActive("Quill") 		--W 
+	makePlayerShipActive("Sparrow")		--W
+	makePlayerShipActive("Farrah") 		--W 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -8751,10 +8751,10 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 and not mirrorUniverse then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
-		else		
+--		if i == 2 and not mirrorUniverse then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -8762,7 +8762,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -9740,9 +9740,9 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 6 E4")
+	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 7 E4")
 	--maximilianZone:setColor(51,153,255)
-    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 6"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 7"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationMaximilian:setFaction("Spacer")
 	end
@@ -15810,9 +15810,11 @@ function createLafrinaStations()
 	station_names[stationBond:getCallSign()] = {stationBond:getSectorName(), stationBond}
 	table.insert(stations,stationBond)
 	--Borie
-	--local BorieZone = squareZone(-326622, 278067, "Borie S88")
-	--BorieZone:setColor(51,153,255):setLabel("Br")
-	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Del Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
+	local BorieZone = squareZone(-326622, 278067, "Borie S88")
+	BorieZone:setColor(51,153,255):setLabel("Br")
+	--Arlenian prefixes: Del = 2, Til = 3
+	--[[	
+	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Til Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -15863,6 +15865,7 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationBorie:setSharesEnergyWithDocked(false) end
 	station_names[stationBorie:getCallSign()] = {stationBorie:getSectorName(), stationBorie}
 	table.insert(stations,stationBorie)
+	--]]
 	--Ilorea	
 	stationIlorea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Ilorea"):setPosition(-381821, 316064):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -23427,7 +23430,7 @@ function createPlayerShipArwine()
 	--destroyed 14Dec2019
 	playerArwine = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Arwine")
 	playerArwine:setTypeName("Pacu")
-	playerArwine:setRepairCrewCount(5)						--more repair crew (vs 2)
+	playerArwine:setRepairCrewCount(6)						--more repair crew (vs 2)
 	playerArwine.max_jump_range = 25000						--shorter than typical (vs 50)
 	playerArwine.min_jump_range = 2000						--shorter than typical (vs 5)
 	playerArwine:setJumpDriveRange(playerArwine.min_jump_range,playerArwine.max_jump_range)
@@ -23435,10 +23438,10 @@ function createPlayerShipArwine()
 	playerArwine:setImpulseMaxSpeed(70)						--faster impulse max (vs 40)
 	playerArwine:setHullMax(150)							--stronger hull (vs 120)
 	playerArwine:setHull(150)
-	playerArwine:setShieldsMax(120,120)						--stronger shields (vs 70, 70)
-	playerArwine:setShields(120,120)
+	playerArwine:setShieldsMax(150,150)						--stronger shields (vs 70, 70)
+	playerArwine:setShields(150,150)
 	playerArwine:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
-	playerArwine:setBeamWeaponTurret(0, 80, 0, .2)			--slow turret
+	playerArwine:setBeamWeaponTurret(0, 80, 0, .3)			--slow turret
 	playerArwine:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
 	playerArwine:setWeaponTubeDirection(6, 180)				--mine tube points straight back
 	playerArwine:setWeaponTubeExclusiveFor(0,"HVLI")
@@ -23454,8 +23457,6 @@ function createPlayerShipArwine()
 	playerArwine:weaponTubeAllowMissle(4,"Homing")
 	playerArwine:weaponTubeAllowMissle(4,"EMP")
 	playerArwine:weaponTubeAllowMissle(4,"Nuke")
-	playerArwine:setWeaponStorageMax("Mine",5)				--fewer mines (vs 8)
-	playerArwine:setWeaponStorage("Mine", 5)				
 	playerArwine:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
 	playerArwine:setWeaponStorage("EMP", 4)					
 	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
@@ -23808,19 +23809,19 @@ function createPlayerShipDarkstar()
 	return playerDarkstar
 end
 function createPlayerShipDevon()
-	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Shannon")
+	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
 	--aka Devon or Farrah or Shannon
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(120)							--stronger hull (vs 75)
 	playerWombat:setHull(120)
-	playerWombat:setShieldsMax(100, 100)						--stronger shields (vs 40)
-	playerWombat:setShields(120, 120)
+	playerWombat:setShieldsMax(160, 120)					--stronger shields (vs 40)
+	playerWombat:setShields(160, 120)
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
 	playerWombat:setWarpDrive(true)							--add warp (vs none)
 	playerWombat:setWarpSpeed(400)
 --                 				 Arc, Dir, Range, CycleTime, Damage
-	playerWombat:setBeamWeapon(0, 10,	0, 900.0,		4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
-	playerWombat:setBeamWeapon(1, 10,	0, 900.0,		4.0, 3)	
+	playerWombat:setBeamWeapon(0, 10, -20, 900.0,		4.0, 3)		--extra beam (vs 1@ 700 6.0, 2)
+	playerWombat:setBeamWeapon(1, 10,  20, 900.0,		4.0, 3)	
 --										Arc,	Dir, Rotate speed
 	playerWombat:setBeamWeaponTurret( 0, 80,	-20, .3)
 	playerWombat:setBeamWeaponTurret( 1, 80, 	 20, .3)
@@ -24700,8 +24701,8 @@ function createPlayerShipLancelot()
 	playerLancelot:setRepairCrewCount(5)					--more repair crew (vs 3)
 	playerLancelot:setMaxEnergy(800)						--less maximum energy (vs 1000)
 	playerLancelot:setEnergy(800)							
-	playerLancelot:setShieldsMax(120, 80)					--stronger front shield (vs 80, 80)
-	playerLancelot:setShields(120, 80)
+	playerLancelot:setShieldsMax(150, 80)					--stronger front shield (vs 80, 80)
+	playerLancelot:setShields(150, 80)
 	playerLancelot.max_jump_range = 30000					--shorter than typical (vs 50)
 	playerLancelot.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerLancelot:setJumpDriveRange(playerLancelot.min_jump_range,playerLancelot.max_jump_range)
@@ -24720,8 +24721,8 @@ function createPlayerShipLancelot()
 	playerLancelot:setBeamWeaponEnergyPerFire(3,playerLancelot:getBeamWeaponEnergyPerFire(3)*3)
 	playerLancelot:setBeamWeaponHeatPerFire(3,playerLancelot:getBeamWeaponHeatPerFire(3)*3)
 	playerLancelot:setWeaponTubeCount(5)					--more (vs 3)
-	playerLancelot:setWeaponTubeDirection(0,-10)			--1st tube points more left (vs -5)
-	playerLancelot:setWeaponTubeDirection(1, 10)			--2nd tube points more right (vs 5)
+	playerLancelot:setWeaponTubeDirection(0,-3)				--1st tube points less left (vs -5)
+	playerLancelot:setWeaponTubeDirection(1, 3)				--2nd tube points less right (vs 5)
 	playerLancelot:setWeaponTubeDirection(2,-90)			--3rd tube points left (vs rear)
 	playerLancelot:setWeaponTubeDirection(3, 90)			--4th tube points right (vs none)
 	playerLancelot:setWeaponTubeDirection(4,180)			--5th tube points to the rear (vs none)
@@ -24741,7 +24742,7 @@ function createPlayerShipLancelot()
 	playerLancelot:setWeaponTubeExclusiveFor(4,"Mine")		--only mine
 	playerLancelot:setWeaponStorageMax("HVLI", 8)			--more (vs 0)
 	playerLancelot:setWeaponStorage("HVLI", 8)				
-	playerLancelot:setCombatManeuver(200,200)				--less (vs 400,250)
+	playerLancelot:setCombatManeuver(250,200)				--less (vs 400,250)
 	playerLancelot:onTakingDamage(playerShipDamage)
 	playerLancelot:addReputationPoints(50)
 	return playerLancelot
@@ -24946,15 +24947,22 @@ function createPlayerShipOutcast()
 	playerOutcast.min_jump_range = 2500					--shorter than typical (vs 5)
 	playerOutcast:setJumpDriveRange(playerOutcast.min_jump_range,playerOutcast.max_jump_range)
 	playerOutcast:setJumpDriveCharge(playerOutcast.max_jump_range)
-	playerOutcast:setShieldsMax(100,100)				--stronger (vs 70,70)
-	playerOutcast:setShields(100,100)
+	playerOutcast:setShieldsMax(120,100)				--stronger (vs 70,70)
+	playerOutcast:setShields(120,100)
 --                 				   Arc, Dir, Range, CycleTime, Damage
 	playerOutcast:setBeamWeapon(0,  10,   0,  1200,			5,	4)	--3 front, 1 rear turret (vs 4 front)
-	playerOutcast:setBeamWeapon(1,  80, -20,  1000, 		5,	4)	--shorter (vs 1400, 1200, 1000, 800)
-	playerOutcast:setBeamWeapon(2,  80,  20,  1000, 		5,	4)
-	playerOutcast:setBeamWeapon(3,  10, 180,  1000, 		5,	4)
+	playerOutcast:setBeamWeapon(1,  80, -20,  1000, 		5,	5)	--shorter (vs 1400, 1200, 1000, 800)
+	playerOutcast:setBeamWeapon(2,  80,  20,  1000, 		5,	5)	--shorter beams stronger
+	playerOutcast:setBeamWeapon(3,  10, 180,  1000, 		5,	5)
 --										   Arc, Dir, Rotate speed
 	playerOutcast:setBeamWeaponTurret(3,	90,	180,	 .4)		--slow turret
+	playerOutcast:setWeaponTubeCount(3)							--more (vs 2)
+	playerOutcast:setWeaponTubeDirection(2,180)
+	playerOutcast:setWeaponStorageMax("Mine",3)					--more (vs 0)
+	playerOutcast:setWeaponStorage("Mine",3)
+	playerOutcast:setTubeLoadTime(2,30)							--longer load time (vs 15)
+	playerOutcast:weaponTubeDisallowMissle(0,"Mine")			--no mines (vs all)
+	playerOutcast:weaponTubeDisallowMissle(1,"Mine")
 	playerOutcast:setSystemCoolantRate("reactor",		1.4)	--more (vs 1.2)
 	playerOutcast:setSystemCoolantRate("jumpdrive",		1.3)	--more (vs 1.2)
 	playerOutcast:setSystemCoolantRate("beamweapons",	0.95)	--less (vs 1.2)
@@ -25595,7 +25603,7 @@ function createPlayerShipSparrow()
 	playerSparrow:setMaxEnergy(500)							--more maximum energy (vs 400)
 	playerSparrow:setEnergy(500)							
 	playerSparrow:setWarpDrive(true)						--warp drive (vs none)
-	playerSparrow:setWarpSpeed(400)
+	playerSparrow:setWarpSpeed(900)
 	playerSparrow:setShieldsMax(100,60)						--stronger shields (vs 40)
 	playerSparrow:setShields(100,60)
 	playerSparrow:setBeamWeapon(0, 12,   0, 1000, 6, 4)		--3 beams (vs 2)
@@ -25607,6 +25615,8 @@ function createPlayerShipSparrow()
 	playerSparrow:setTubeLoadTime(1,20)						--slower (vs 10)
 	playerSparrow:setWeaponTubeDirection(1,180)
 	playerSparrow:setWeaponTubeExclusiveFor(1,"Mine")
+	playerSparrow:setWeaponStorageMax("HVLI", 10)			--more (vs 4)
+	playerSparrow:setWeaponStorage("HVLI", 10)
 	playerSparrow:setWeaponStorageMax("Mine",6)				--more Mines (vs 0)
 	playerSparrow:setWeaponStorage("Mine",6)
 	playerSparrow:onTakingDamage(playerShipDamage)
