@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.40.2"
+	scenario_version = "5.41.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1766,7 +1766,7 @@ function createSkeletonUniverse()
 	skeleton_stations = {}
 	station_names = {}
 	--Icarus
-	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus 3"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
+	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus 4"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationIcarus:setShortRangeRadarRange(20000)
     stationIcarus.comms_data = {
     	friendlyness = 75,
@@ -40880,7 +40880,7 @@ function mineField()
 	addGMFunction("-Main From Minefield",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction(string.format("+Shape: %s",mine_shape),setMineShape)
-	if mine_shape ~= "Cubic" then
+	if mine_shape ~= "Cubic" and mine_shape ~= "Blob" then
 		addGMFunction(string.format("+Width: %i",mine_width),setMineWidth)
 	end
 	if mine_shape == "Circle" then
@@ -40926,7 +40926,303 @@ function mineField()
 				CubicMineUpdateObject:cancel()
 				mineField()
 			end)
+	elseif mine_shape == "Blob" then
+		addGMFunction("+Size",mineBlobSize)
+		if gm_click_mode == "mine blob place" then
+			addGMFunction(">Place<",mineBlobPlace)
+		else
+			addGMFunction("Place",mineBlobPlace)
+		end
+		if selected_mine_blob ~= nil then
+			if gm_click_mode == "mine blob move" then
+				addGMFunction(">Move<",mineBlobMove)
+			else
+				addGMFunction("Move",mineBlobMove)
+			end
+			addGMFunction("+Blob Rotate",mindBlobRotate)
+			addGMFunction("Blob Show",mineBlobShow)
+			addGMFunction("Blob Next",mineBlobNext)
+		end
 	end
+end
+function mineBlobNext()
+	local blob_index = 0
+	for i,blob in ipairs(mine_blob_list) do
+		if blob == selected_mine_blob then
+			blob_index = i
+			break
+		end
+	end
+	if blob_index > 0 then
+		if selected_mine_blob ~= nil then
+			if selected_mine_blob.zone ~= nil then
+				selected_mine_blob.zone:destroy()
+				selected_mine_blob.zone = nil
+			end
+			selected_mine_blob.show_clock = nil
+		end
+		blob_index = blob_index + 1
+		if blob_index > #mine_blob_list then
+			blob_index = 1
+		end
+		selected_mine_blob = mine_blob_list[blob_index]
+		selected_mine_blob.show_clock = getScenarioTime()
+	else
+		if mine_blob_list[1] ~= nil then
+			selected_mine_blob = mine_blob_list[1]
+			selected_mine_blob.show_clock = getScenarioTime()
+		else
+			addGMMessage("Could not get the next mine blob. No action taken")
+		end
+	end
+end
+function mineBlobShow()
+	if selected_mine_blob ~= nil then
+		selected_mine_blob.show_clock = getScenarioTime()
+		if selected_mine_blob[1]:isValid() then
+			addGMMessage(string.format("Mine blob in sector %s",selected_mine_blob[1]:getSectorName()))
+		end
+	else
+		addGMMessage("No selected mine blob")
+	end
+end
+function mindBlobRotate()
+	clearGMFunctions()
+	addGMFunction("-Main From Minefield",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Minefield",mineField)
+	addGMFunction("Rotate 1 degree",function()
+		local bmx, bmy = selected_mine_blob[1]:getPosition()
+		for i,mine in ipairs(selected_mine_blob) do
+			if i ~= 1 then
+				local mx, my = mine:getPosition()
+				local angle = angleFromVectorNorth(mx, my, bmx, bmy)
+				local dist = distance(bmx, bmy, mx, my)
+				angle = angle + 1
+				local vx, vy = vectorFromAngleNorth(angle,dist)
+				mine:destroy()
+				selected_mine_blob[i] = Mine():setPosition(bmx + vx, bmy + vy)
+			end
+		end
+	end)
+	addGMFunction("Rotate 5 degrees",function()
+		local bmx, bmy = selected_mine_blob[1]:getPosition()
+		for i,mine in ipairs(selected_mine_blob) do
+			if i ~= 1 then
+				local mx, my = mine:getPosition()
+				local angle = angleFromVectorNorth(mx, my, bmx, bmy)
+				local dist = distance(bmx, bmy, mx, my)
+				angle = angle + 5
+				local vx, vy = vectorFromAngleNorth(angle,dist)
+				mine:destroy()
+				selected_mine_blob[i] = Mine():setPosition(bmx + vx, bmy + vy)
+			end
+		end
+	end)
+	addGMFunction("Rotate 10 degrees",function()
+		local bmx, bmy = selected_mine_blob[1]:getPosition()
+		for i,mine in ipairs(selected_mine_blob) do
+			if i ~= 1 then
+				local mx, my = mine:getPosition()
+				local angle = angleFromVectorNorth(mx, my, bmx, bmy)
+				local dist = distance(bmx, bmy, mx, my)
+				angle = angle + 10
+				local vx, vy = vectorFromAngleNorth(angle,dist)
+				mine:destroy()
+				selected_mine_blob[i] = Mine():setPosition(bmx + vx, bmy + vy)
+			end
+		end
+	end)
+	addGMFunction("Rotate 30 degrees",function()
+		local bmx, bmy = selected_mine_blob[1]:getPosition()
+		for i,mine in ipairs(selected_mine_blob) do
+			if i ~= 1 then
+				local mx, my = mine:getPosition()
+				local angle = angleFromVectorNorth(mx, my, bmx, bmy)
+				local dist = distance(bmx, bmy, mx, my)
+				angle = angle + 30
+				local vx, vy = vectorFromAngleNorth(angle,dist)
+				mine:destroy()
+				selected_mine_blob[i] = Mine():setPosition(bmx + vx, bmy + vy)
+			end
+		end
+	end)
+end
+function mineBlobMove()
+	if gm_click_mode == "mine blob move" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "mine blob move"
+		onGMClick(gmClickMineBlobMove)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   mine blob move\nGM click mode.",prev_mode))
+		end
+	end
+	mineField()
+end
+function mineBlobClean(mine_list)
+	local clean = true
+	repeat
+		for i, mine in ipairs(mine_list) do
+			if not mine:isValid() then
+				mine_list[i] = mine_list[#mine_list]
+				mine_list[#mine_list] = nil
+				clean = false
+				break
+			end
+		end
+	until(clean)
+	if #mine_list < 1 then
+		for i, blob in ipairs(mine_blob_list) do
+			if blob == mine_list then
+				mine_blob_list[i] = mine_blob_list[#mine_blob_list]
+				mine_blob_list[#mine_blob_list] = nil
+				break
+			end
+		end
+		return false
+	else
+		return true
+	end
+end
+function gmClickMineBlobMove(x, y)
+	if mineBlobClean(selected_mine_blob) then
+		local bmx, bmy = selected_mine_blob[1]:getPosition()
+		local dx = x - bmx
+		local dy = y - bmy
+		if selected_mine_blob.zone ~= nil then
+			selected_mine_blob.zone:destroy()
+		end
+		selected_mine_blob.show_clock = nil
+		for i, mine in ipairs(selected_mine_blob) do
+			cpx, cpy = mine:getPosition()
+			mine:setPosition(cpx + dx, cpy + dy)
+		end
+	else
+		selected_mine_blob = nil
+		addGMMessage("Select another mine blob. No action taken")
+	end
+end
+function mineBlobPlace()
+	if gm_click_mode == "mine blob place" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "mine blob place"
+		onGMClick(gmClickMineBlobPlace)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   mine blob place\nGM click mode.",prev_mode))
+		end
+	end
+	mineField()
+end
+function gmClickMineBlobPlace(x, y)
+	if mine_blob_radius == nil then
+		mine_blob_radius = 3000
+	end
+--	print("X:",x,"y:",y)
+	local mine_list = {}
+	table.insert(mine_list,Mine():setPosition(x,y))
+	local reached_the_edge = false
+	local mine_space = 1400
+--	print("initial reached the edge:",reached_the_edge,"initial mine space:",mine_space)
+	repeat
+		local overlay = false
+--		print("initial overlay:",overlay)
+		local nmx = nil
+		local nmy = nil
+		repeat
+			overlay = false
+			local base_mine_index = math.random(1,#mine_list)
+			local base_mine = mine_list[base_mine_index]
+			local bmx, bmy = base_mine:getPosition()
+			local angle = random(0,360)
+			nmx, nmy = vectorFromAngleNorth(angle,mine_space)
+			nmx = nmx + bmx
+			nmy = nmy + bmy
+--			print("base index:",base_mine_index,"bmx:",math.floor(bmx),"bmy:",math.floor(bmy),"angle:",math.floor(angle))
+			for i, mine in ipairs(mine_list) do
+				if i ~= base_mine_index then
+					local cmx, cmy = mine:getPosition()
+					local mine_distance = distance(cmx, cmy, nmx, nmy)
+--					print("index:",i,"distance:",math.floor(mine_distance),"mine space:",mine_space,"cmx:",math.floor(cmx),"cmy:",math.floor(cmy))
+					if mine_distance < mine_space then
+--						print("distance:",math.floor(mine_distance),"is less than mine space:",mine_space)
+						overlay = true
+						break
+					end
+--				else
+--					print("index:",i,"matches base mine index:",base_mine_index,"no comparison made")
+				end
+			end
+		until(not overlay)
+		table.insert(mine_list,Mine():setPosition(nmx,nmy))
+		if distance(x, y, nmx, nmy) > mine_blob_radius then
+			reached_the_edge = true
+		end
+	until(reached_the_edge)
+	if mine_blob_list == nil then
+		mine_blob_list = {}
+	end
+	table.insert(mine_blob_list,mine_list)
+	if selected_mine_blob ~= nil then
+		if selected_mine_blob.zone ~= nil then
+			selected_mine_blob.zone:destroy()
+			selected_mine_blob.zone = nil
+		end
+		selected_mine_blob.show_clock = nil
+	end
+	selected_mine_blob = mine_list
+	selected_mine_blob.radius = mine_blob_radius
+end
+function mineBlobSize()
+	clearGMFunctions()
+	addGMFunction("-Main From Minefield",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction(string.format("+Shape: %s",mine_shape),setMineShape)
+	addGMFunction("-Minefield",mineField)
+	if mine_blob_radius == nil then
+		mine_blob_radius = 3000
+	end
+	addGMFunction(string.format("Radius ^1/4U from %.2fU",mine_blob_radius/1000),function()
+		mine_blob_radius = mine_blob_radius + 250
+		mineBlobSize()
+	end)
+	addGMFunction(string.format("Radius ^1/2U from %.2fU",mine_blob_radius/1000),function()
+		mine_blob_radius = mine_blob_radius + 500
+		mineBlobSize()
+	end)
+	addGMFunction(string.format("Radius ^1U from %.2fU",mine_blob_radius/1000),function()
+		mine_blob_radius = mine_blob_radius + 1000
+		mineBlobSize()
+	end)
+	addGMFunction(string.format("Radius v1U from %.2fU",mine_blob_radius/1000),function()
+		if mine_blob_radius - 1000 < 1000 then
+			addGMMessage("Minimum radius is 1U. No action taken")
+		else
+			mine_blob_radius = mine_blob_radius - 1000
+		end
+		mineBlobSize()
+	end)
+	addGMFunction(string.format("Radius v1/2U from %.2fU",mine_blob_radius/1000),function()
+		if mine_blob_radius - 500 < 1000 then
+			addGMMessage("Minimum radius is 1U. No action taken")
+		else
+			mine_blob_radius = mine_blob_radius - 500
+		end
+		mineBlobSize()
+	end)
+	addGMFunction(string.format("Radius v1/4U from %.2fU",mine_blob_radius/1000),function()
+		if mine_blob_radius - 250 < 1000 then
+			addGMMessage("Minimum radius is 1U. No action taken")
+		else
+			mine_blob_radius = mine_blob_radius - 250
+		end
+		mineBlobSize()
+	end)
 end
 ------------------------------
 --	Tweak Terrain > Probes  --
@@ -43155,6 +43451,8 @@ end
 -- ARC*					*	inline
 -- LINE					*	inline
 -- CIRCLE				*	inline
+-- CUBIC INTERPRETATION	*	inline
+-- BLOB					*	inline
 function setMineShape()
 	clearGMFunctions()
 	addGMFunction("-Main From Shape",initialGMFunctions)
@@ -43203,6 +43501,18 @@ function setMineShape()
 	addGMFunction(button_label,function()
 		mine_shape = "Cubic"
 		if  gm_click_mode ~= nil and gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,11) ~= "mine Cubic" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+		setMineShape()
+	end)
+	button_label = "Blob"
+	if mine_shape == "Blob" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		mine_shape = "Blob"
+		if gm_click_mode ~= nil and gm_click_mode:sub(1,4) == "mine" and gm_click_mode:sub(1,9) ~= "mine blob" then
 			gm_click_mode = nil
 			onGMClick(nil)
 		end
@@ -51185,6 +51495,7 @@ function update(delta)
 		end
 	end
 	updateProbeLabor()
+	updateShowMineBlob()
 	if updateDiagnostic then print("update: end of update function") end
 end
 function updatePlayerPodTelemetryButton(p)
@@ -53967,6 +54278,64 @@ function updateImmobileStations()
 			immobile_stations[index] = immobile_stations[#immobile_stations]
 			immobile_stations[#immobile_stations] = nil
 			break
+		end
+	end
+end
+function updateShowMineBlob()
+	if selected_mine_blob ~= nil then
+		if selected_mine_blob.show_clock ~= nil then
+			if selected_mine_blob[1] ~= nil then
+				if selected_mine_blob[1]:isValid() then
+					local elapsed_time = getScenarioTime() - selected_mine_blob.show_clock
+					local mx, my = selected_mine_blob[1]:getPosition()
+					if elapsed_time < 1 then
+			--			print("Elapsed time < 1:",elapsed_time)
+						if selected_mine_blob.zone == nil then
+							selected_mine_blob.zone = Zone():setPoints(mx + selected_mine_blob.radius, my, mx, my + selected_mine_blob.radius, mx - selected_mine_blob.radius, my, mx, my - selected_mine_blob.radius)
+			--				print("created zone:",selected_mine_blob.zone)
+						end
+					elseif elapsed_time < 2 then
+			--			print("Elapsed time < 2:",elapsed_time)
+						if selected_mine_blob.zone ~= nil then
+			--				print("zone exists:",selected_mine_blob.zone)
+							selected_mine_blob.zone:destroy()
+			--				print("zone destroyed:",selected_mine_blob.zone)
+							selected_mine_blob.zone = nil
+						end
+					elseif elapsed_time < 3 then
+			--			print("Elapsed time < 3:",elapsed_time)
+						if selected_mine_blob.zone == nil then
+							selected_mine_blob.zone = Zone():setPoints(mx + selected_mine_blob.radius, my, mx, my + selected_mine_blob.radius, mx - selected_mine_blob.radius, my, mx, my - selected_mine_blob.radius)
+			--				print("created zone:",selected_mine_blob.zone)
+						end
+					elseif elapsed_time < 4 then
+			--			print("Elapsed time < 4:",elapsed_time)
+						if selected_mine_blob.zone ~= nil then
+			--				print("zone exists:",selected_mine_blob.zone)
+							selected_mine_blob.zone:destroy()
+			--				print("zone destroyed:",selected_mine_blob.zone)
+							selected_mine_blob.zone = nil
+						end
+					elseif elapsed_time < 5 then
+			--			print("Elapsed time < 5:",elapsed_time)
+						if selected_mine_blob.zone == nil then
+							selected_mine_blob.zone = Zone():setPoints(mx + selected_mine_blob.radius, my, mx, my + selected_mine_blob.radius, mx - selected_mine_blob.radius, my, mx, my - selected_mine_blob.radius)
+			--				print("created zone:",selected_mine_blob.zone)
+						end
+					elseif elapsed_time < 6 then
+			--			print("Elapsed time < 5:",elapsed_time)
+						if selected_mine_blob.zone ~= nil then
+			--				print("zone exists:",selected_mine_blob.zone)
+							selected_mine_blob.zone:destroy()
+			--				print("zone destroyed:",selected_mine_blob.zone)
+							selected_mine_blob.zone = nil
+							selected_mine_blob.show_clock = nil
+						end
+					end
+				else
+					print("first mine in selected blob is not valid")
+				end
+			end
 		end
 	end
 end
