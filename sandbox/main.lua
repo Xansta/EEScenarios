@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.41.1"
+	scenario_version = "5.42.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -20838,7 +20838,7 @@ function setLifePodFilter()
 		button_label = button_label .. "*"
 	end
 	addGMFunction(button_label,function()
-		life_pod_filter = "No Probe Filter"
+		life_pod_filter = "No Life Pod Filter"
 		life_pod_label = "NLF"
 		setLifePodFilter()
 	end)
@@ -20905,7 +20905,7 @@ function setProbeFilter()
 	end
 	addGMFunction(button_label,function()
 		probe_filter = "Less"
-		probe_label = string.format("S<%i",probe_cut)
+		probe_label = string.format("P<%i",probe_cut)
 		setProbeFilter()
 	end)
 	button_label = string.format("More than %i",probe_cut)
