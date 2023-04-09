@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.42.1"
+	scenario_version = "5.42.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1091,9 +1091,9 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
 	makePlayerShipActive("Lancelot")	--J
-	makePlayerShipActive("Outcast") 	--J 
+	makePlayerShipActive("Manxman") 	--J 
 	makePlayerShipActive("Osprey")		--W
-	makePlayerShipActive("Sparrow")		--W
+	makePlayerShipActive("Stick")		--W
 	makePlayerShipActive("Farrah") 		--W 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -1362,6 +1362,7 @@ function setConstants()
 		["Storm"] =							200,
 		["Strike"] =						200,
 		["Strikeship"] = 					200,
+		["Strongarm"] =						400,
 		["Supervisor"] =					400,
 		["Sweeper"] =						100,
 		["Tempest"] =						200,
@@ -15716,6 +15717,7 @@ function lafrinaSector()
 	return {destroy=removeLafrinaColor}
 end
 function createLafrinaStations()
+	lafrina_defense_platforms = {}
 	local stations = {}
 	local nukeAvail = true
 	local empAvail = true
@@ -15810,10 +15812,9 @@ function createLafrinaStations()
 	station_names[stationBond:getCallSign()] = {stationBond:getSectorName(), stationBond}
 	table.insert(stations,stationBond)
 	--Borie
-	local BorieZone = squareZone(-326622, 278067, "Borie S88")
-	BorieZone:setColor(51,153,255):setLabel("Br")
+--	local BorieZone = squareZone(-326622, 278067, "Borie S88")
+--	BorieZone:setColor(51,153,255):setLabel("Br")
 	--Arlenian prefixes: Del = 2, Til = 3
-	--[[	
 	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Til Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -15863,9 +15864,9 @@ function createLafrinaStations()
 	if random(1,100) <= 14 then stationBorie:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationBorie:setRepairDocked(false) end
 	if random(1,100) <= 12 then stationBorie:setSharesEnergyWithDocked(false) end
+	table.insert(lafrina_defense_platforms,CpuShip():setFaction("Arlenians"):setTemplate("Defense platform"):setCallSign("BDP1"):setPosition(-324585, 279012):orderStandGround())
 	station_names[stationBorie:getCallSign()] = {stationBorie:getSectorName(), stationBorie}
 	table.insert(stations,stationBorie)
-	--]]
 	--Ilorea	
 	stationIlorea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Ilorea"):setPosition(-381821, 316064):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -16414,6 +16415,13 @@ function removeLafrinaColor()
 		end
 	end
 	lafrina_stations = nil
+	
+	if lafrina_defense_platforms ~= nil then
+		for _, ld in pairs(lafrina_defense_platforms) do
+			ld:destroy()
+		end
+	end
+	lafrina_defense_platforms = nil
 end
 --	Teresh area
 function tereshSector()
@@ -24831,14 +24839,25 @@ end
 function createPlayerShipManxman()
 	playerManxman = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Manxman")
 	playerManxman:setTypeName("Nusret")
-	playerManxman.max_jump_range = 30000					--shorter than typical (vs 50)
-	playerManxman.min_jump_range = 3000						--shorter than typical (vs 5)
+	playerManxman.max_jump_range = 30000				--shorter than typical (vs 50)
+	playerManxman.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerManxman:setJumpDriveRange(playerManxman.min_jump_range,playerManxman.max_jump_range)
 	playerManxman:setJumpDriveCharge(playerManxman.max_jump_range)
-	playerManxman:setWeaponTubeDirection(0,-30)			--front left facing (vs back)
-	playerManxman:setWeaponTubeDirection(1, 30)			--front right facing (vs back)
+	playerManxman:setWeaponTubeCount(5)					--more (vs 3)
+	playerManxman:setWeaponTubeDirection(0,  0)			--front (vs back)
+	playerManxman:setWeaponTubeDirection(1,-90)			--left facing (vs back)
+	playerManxman:setWeaponTubeDirection(2, 90)			--right facing (vs back)
+	playerManxman:setWeaponTubeDirection(3,180)
+	playerManxman:setWeaponTubeDirection(4,180)
+	playerManxman:setTubeSize(0,"small")				--small (vs medium)
+	playerManxman:setTubeSize(3,"large")
 	playerManxman:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
 	playerManxman:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
+	playerManxman:setWeaponTubeExclusiveFor(2,"Homing")	--Homing only (vs Mine)
+	playerManxman:setWeaponTubeExclusiveFor(3,"Homing")
+	playerManxman:setWeaponTubeExclusiveFor(4,"Mine")
+	playerManxman:setTubeLoadTime(0,5)					--faster (vs 10)
+	playerManxman:setTubeLoadTime(3,20)					--slower (vs 10)
 	playerManxman:setWeaponStorageMax("Homing",8)		--more homing (vs 0)
 	playerManxman:setWeaponStorage("Homing", 8)				
 	playerManxman:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
@@ -25692,7 +25711,7 @@ function createPlayerShipSpyder()
 	return playerSpyder
 end
 function createPlayerShipStick()
-	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Spike")	
+	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Stick")	
 	--aka stick or spike
 	playerStick:setTypeName("Surkov")
 	playerStick:setRepairCrewCount(3)	--more repair crew (vs 2)
@@ -25702,6 +25721,12 @@ function createPlayerShipStick()
 	playerStick:setWarpSpeed(500)
 	playerStick:setShieldsMax(80,120)	--stronger (vs 70,70)
 	playerStick:setShields(80,120)
+	playerStick:setHullMax(175)			--stronger (vs 120)
+	playerStick:setHull(175)
+--                 				   Arc, Dir,   Range, Cycle,  Dmg
+	playerStick:setBeamWeapon(1,	20,   0,	1200,	6.0,	5)	--stronger (vs 4)
+	playerStick:setBeamWeapon(2,	60,   0,	1000,	6.0,	6)	--stronger (vs 4)
+	playerStick:setBeamWeapon(3,	90,   0,	 800,	6.0,	7)	--stronger (vs 4)
 	playerStick:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
 	playerStick:setWeaponTubeDirection(0, -90)
 	playerStick:weaponTubeDisallowMissle(0,"Mine")
