@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.42.2"
+	scenario_version = "5.42.3"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -339,6 +339,7 @@ function setConstants()
 		["Fiend G4"] =			{strength = 35,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG4},
 		["Cucaracha"] =			{strength = 36,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = cucaracha},
 		["Fiend G5"] =			{strength = 37,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG5},
+		["Mikado"] =			{strength = 38,	adder = false,	missiler = true,	beamer = false,	frigate = true, 	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 1180,	create = mikado},
 		["Fiend G6"] =			{strength = 39,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 6500,	hop_angle = 0,	hop_range = 980,	create = fiendG6},
 		["Ryder"] =				{strength = 41, adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 8000,	hop_angle = 90,	hop_range = 1180,	create = stockTemplate},
 		["Predator"] =			{strength = 42,	adder = false,	missiler = false,	beamer = false,	frigate = true, 	chaser = true,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 7500,	hop_angle = 0,	hop_range = 980,	create = predator},
@@ -694,7 +695,7 @@ function setConstants()
 						{angle = 90	, dist = 1	},
 						{angle = 270, dist = 1	},
 						{angle = 55	, dist = 1.7},
-						{angle = 295, dist = 1.7},
+						{angle = 305, dist = 1.7},
 					},
 		["X"] =		{
 						{angle = 60	, dist = 1	},
@@ -1293,6 +1294,7 @@ function setConstants()
 		["Lite Drone"] = 					300,
 		["Loki"] =							1500,
 		["Maniapak"] =						100,
+		["Mikado"] =						200,
 		["Military Outpost"] =				800,
 		["Missile Pod D1"] =				800,
 		["Missile Pod D2"] =				800,
@@ -3372,7 +3374,7 @@ function asteroidsNebulae()
 end
 function tweakPlanet()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
+--	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
 	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
 	local button_label = "Change Planet"
@@ -26932,26 +26934,28 @@ function spawnGMFleet()
 		end
 		addGMFunction(button_label,setPrebuiltFleet)
 	end
-	local exclusion_string = ""
-	for name, details in pairs(fleet_exclusions) do
-		if details.exclude then
-			if exclusion_string == "" then
-				exclusion_string = "-"
+	if fleet_spawn_type ~= "prebuilt" then
+		local exclusion_string = ""
+		for name, details in pairs(fleet_exclusions) do
+			if details.exclude then
+				if exclusion_string == "" then
+					exclusion_string = "-"
+				end
+				exclusion_string = exclusion_string .. details.letter
 			end
-			exclusion_string = exclusion_string .. details.letter
 		end
-	end
-	addGMFunction(string.format("+%s%s",fleetComposition,exclusion_string),function()
-		setFleetComposition(spawnGMFleet)
-	end)
-	addGMFunction(string.format("+%s",fleetChange),setFleetChange)
-	addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
-	returnFromFleetSpawnLocation = spawnGMFleet
-	addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
-	if gm_click_mode == "fleet spawn" then
-		addGMFunction(">Spawn<",parmSpawnFleet)
-	else
-		addGMFunction("Spawn",parmSpawnFleet)
+		addGMFunction(string.format("+%s%s",fleetComposition,exclusion_string),function()
+			setFleetComposition(spawnGMFleet)
+		end)
+		addGMFunction(string.format("+%s",fleetChange),setFleetChange)
+		addGMFunction(string.format("+%s",fleetOrders),setFleetOrders)
+		returnFromFleetSpawnLocation = spawnGMFleet
+		addGMFunction(string.format("+%s",fleetSpawnLocation),setFleetSpawnLocation)
+		if gm_click_mode == "fleet spawn" then
+			addGMFunction(">Spawn<",parmSpawnFleet)
+		else
+			addGMFunction("Spawn",parmSpawnFleet)
+		end
 	end
 end
 --General use functions for spawning fleets
@@ -33117,10 +33121,75 @@ function supervisor(enemyFaction)
 			supervisor_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
 			"Black operations took control of an undisclosed shipyard and tweaked the Blockade Runner into the Supervisor. They strenghtened the shields and hull and realigned the beams",
-			nil,
-			nil,
+			nil,	--torpedo tubes
+			nil,	--jump range
 			"battleship_destroyer_3_upgraded"
 		)
+	end
+	return ship
+end
+function mikado(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Mikado"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Mikado"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setShieldsMax(120,120)					--stronger (vs 30,30)
+	ship:setShields(120,120)					
+	ship:setHullMax(80)							--stronger hull (vs 50)
+	ship:setHull(80)
+	ship:setRotationMaxSpeed(15)				--faster maneuver (vs 6)
+	ship:setTypeName("Mikado")
+	ship:setRadarTrace("missile_cruiser.png")	--different radar trace
+	ship:setWeaponTubeCount(16)					--more (vs 5)
+	ship:setWeaponTubeDirection(0, -72):setTubeSize(0,  "large"):setTubeLoadTime(0, 15):setWeaponTubeExclusiveFor(0, "HVLI")
+	ship:setWeaponTubeDirection(1, -79):setTubeSize(1, "medium"):setTubeLoadTime(1, 10):setWeaponTubeExclusiveFor(1, "HVLI"):weaponTubeAllowMissle(1, "Homing")
+	ship:setWeaponTubeDirection(2, -85):setTubeSize(2,  "small"):setTubeLoadTime(2,  5):setWeaponTubeExclusiveFor(2, "HVLI"):weaponTubeAllowMissle(2,   "Nuke")
+	ship:setWeaponTubeDirection(3, -90):setTubeSize(3,  "large"):setTubeLoadTime(3, 16):setWeaponTubeExclusiveFor(3, "HVLI"):weaponTubeAllowMissle(3, "Homing")
+	ship:setWeaponTubeDirection(4, -90):setTubeSize(4, "medium"):setTubeLoadTime(4, 11):setWeaponTubeExclusiveFor(4, "HVLI"):weaponTubeAllowMissle(4, "Homing"):weaponTubeAllowMissle(4, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(5, -95):setTubeSize(5,  "small"):setTubeLoadTime(5,  6):setWeaponTubeExclusiveFor(5, "HVLI"):weaponTubeAllowMissle(5,   "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(6,-101):setTubeSize(6, "medium"):setTubeLoadTime(6, 12):setWeaponTubeExclusiveFor(6, "HVLI"):weaponTubeAllowMissle(6,   "Nuke")
+	ship:setWeaponTubeDirection(7,-108):setTubeSize(7,  "small"):setTubeLoadTime(7,  7):setWeaponTubeExclusiveFor(7, "HVLI"):weaponTubeAllowMissle(7, "Homing"):weaponTubeAllowMissle(7, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(8,  72):setTubeSize(8,  "small"):setTubeLoadTime(8,  7):setWeaponTubeExclusiveFor(8, "HVLI"):weaponTubeAllowMissle(8, "Homing"):weaponTubeAllowMissle(8, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(9,  79):setTubeSize(9, "medium"):setTubeLoadTime(9, 12):setWeaponTubeExclusiveFor(9, "HVLI"):weaponTubeAllowMissle(9,   "Nuke")
+	ship:setWeaponTubeDirection(10, 85):setTubeSize(10, "small"):setTubeLoadTime(10, 6):setWeaponTubeExclusiveFor(10,"HVLI"):weaponTubeAllowMissle(10,  "Nuke"):weaponTubeAllowMissle(10, "EMP")
+	ship:setWeaponTubeDirection(11, 90):setTubeSize(11, "large"):setTubeLoadTime(11,16):setWeaponTubeExclusiveFor(11,"HVLI"):weaponTubeAllowMissle(11,"Homing")
+	ship:setWeaponTubeDirection(12, 90):setTubeSize(12,"medium"):setTubeLoadTime(12,11):setWeaponTubeExclusiveFor(12,"HVLI"):weaponTubeAllowMissle(12,"Homing"):weaponTubeAllowMissle(12,"Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(13, 95):setTubeSize(13, "small"):setTubeLoadTime(13, 5):setWeaponTubeExclusiveFor(13,"HVLI"):weaponTubeAllowMissle(13,  "Nuke")
+	ship:setWeaponTubeDirection(14,101):setTubeSize(14,"medium"):setTubeLoadTime(14,10):setWeaponTubeExclusiveFor(14,"HVLI"):weaponTubeAllowMissle(14,"Homing")
+	ship:setWeaponTubeDirection(15,108):setTubeSize(15, "large"):setTubeLoadTime(15,15):setWeaponTubeExclusiveFor(15,"HVLI")
+	ship:setWeaponStorageMax("Homing", 32)		--more (vs 15)
+	ship:setWeaponStorage("Homing",    32)
+	ship:setWeaponStorageMax("EMP",    20)		--more (vs 0)
+	ship:setWeaponStorage("EMP",       20)
+	ship:setWeaponStorageMax("Nuke",   30)		--more (vs 0)
+	ship:setWeaponStorage("Nuke",      30)
+	ship:setWeaponStorageMax("HVLI",   48)		--more (vs 15)
+	ship:setWeaponStorage("HVLI",      48)
+	local mikado_db = queryScienceDatabase("Ships","Frigate","Mikado")
+	if mikado_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Mikado")
+		mikado_db = queryScienceDatabase("Ships","Frigate","Mikado")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
+			mikado_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Mikado is a beefed up heavy artillery cruiser bristling with missile tubes and stuffed with missiles. It may move slow, but it's nimble for a missile ship.",
+			{
+				{key = "Large tube -72 & 108", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -79 & 101", value = "10 sec"},		--torpedo tube direction and load speed
+				{key = "Small Tube -85 & 95", value = "5 sec"},	--torpedo tube direction and load speed
+				{key = "Large Tube -90 & 90", value = "16 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -90 & 90", value = "11 sec"},		--torpedo tube direction and load speed
+				{key = "Small Tube -95 & 85", value = "6 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -101 & 79", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Small Tube -108 & 72", value = "7 sec"},	--torpedo tube direction and load speed
+			},
+			nil,	--jump range
+			"HeavyCorvetteYellow"
+		)
+		mikado_db:setImage("radar/missile_cruiser.png")		--override default radar image
 	end
 	return ship
 end
