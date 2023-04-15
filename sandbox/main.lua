@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.42.3"
+	scenario_version = "5.43.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -46343,6 +46343,11 @@ function influenceEnemy(tauntable,amenable,enemy_health,rep)
 	if target_lock_by_faction[faction] ~= nil then
 		target_lock = target_lock_by_faction[faction]
 	end
+	addCommsReply("Connect to your superior",function()
+		setCommsMessage("Connecting to superior")
+		commsSwitchToGM()
+		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on enemy %s ship %s in %s.",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName()))
+	end)
 	if tauntable then
 		local taunt_option = "We will see to your destruction!"
 		local taunt_success_reply = "Your bloodline will end here!"
