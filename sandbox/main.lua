@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.43.1"
+	scenario_version = "5.43.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1093,7 +1093,7 @@ function setConstants()
 	makePlayerShipActive("Enola")		--J
 	makePlayerShipActive("Lancelot")	--J
 	makePlayerShipActive("Manxman") 	--J 
-	makePlayerShipActive("Osprey")		--W
+	makePlayerShipActive("Quicksilver")	--W
 	makePlayerShipActive("Stick")		--W
 	makePlayerShipActive("Farrah") 		--W 
 	active_player_ship = true
@@ -8754,10 +8754,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 2 and not mirrorUniverse then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
---		else		
+		if i == 1 and not mirrorUniverse then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 6 and not mirrorUniverse then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -8765,7 +8768,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -25075,11 +25078,11 @@ end
 function createPlayerShipQuick()
 	playerQuick = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Quicksilver")
 	playerQuick:setTypeName("XR-Lindworm")
-	playerQuick:setRepairCrewCount(2)			--more repair crew (vs 1)
+	playerQuick:setRepairCrewCount(3)			--more repair crew (vs 1)
 	playerQuick:setWarpDrive(true)				--warp drive (vs none)
 	playerQuick:setWarpSpeed(400)
-	playerQuick:setShieldsMax(90,30)			--stronger front, weaker rear (vs 40)
-	playerQuick:setShields(90,30)
+	playerQuick:setShieldsMax(90,40)			--stronger front (vs 40)
+	playerQuick:setShields(90,40)
 	playerQuick:setWeaponTubeExclusiveFor(0,"HVLI")
 	playerQuick:setTubeSize(0,"large")
 	playerQuick:setTubeLoadTime(0,15)
@@ -25087,10 +25090,12 @@ function createPlayerShipQuick()
 	playerQuick:weaponTubeAllowMissle(2,"Homing")
 	playerQuick:weaponTubeAllowMissle(1,"EMP")
 	playerQuick:weaponTubeAllowMissle(2,"Nuke")
-	playerQuick:setWeaponStorageMax("Nuke",2)	--more Nukes (vs 0)
-	playerQuick:setWeaponStorage("Nuke", 2)				
-	playerQuick:setWeaponStorageMax("EMP",3)	--more EMPs (vs 0)
-	playerQuick:setWeaponStorage("EMP", 3)				
+	playerQuick:setWeaponStorageMax("Homing",8)		--more homing (vs 3)
+	playerQuick:setWeaponStorage("Homing", 8)				
+	playerQuick:setWeaponStorageMax("Nuke",3)	--more Nukes (vs 0)
+	playerQuick:setWeaponStorage("Nuke", 3)				
+	playerQuick:setWeaponStorageMax("EMP",5)	--more EMPs (vs 0)
+	playerQuick:setWeaponStorage("EMP", 5)				
 	playerQuick:setSystemCoolantRate("reactor",			1.25)	--more (vs 1.2)
 	playerQuick:setSystemCoolantRate("warp",			1.3)	--more (vs 1.2)
 	playerQuick:setSystemCoolantRate("beamweapons",		1.15)	--less (vs 1.2)
@@ -46346,7 +46351,7 @@ function influenceEnemy(tauntable,amenable,enemy_health,rep)
 	addCommsReply("Connect to your superior",function()
 		setCommsMessage("Connecting to superior")
 		commsSwitchToGM()
-		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on enemy %s ship %s in %s.",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName()))
+		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on enemy %s ship %s in %s.\nFriendliness: %.2f    Tauntable: %s    Amenable: %s\nReputation offerred: %s    Enemy Health: %.2f",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),comms_data.friendlyness,tauntable,amenable,rep,enemy_health))
 	end)
 	if tauntable then
 		local taunt_option = "We will see to your destruction!"
