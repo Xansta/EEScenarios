@@ -1082,7 +1082,7 @@ function setConstants()
 	addPlayerShip("Szpieg",		"Ktlitan Breaker",	createPlayerShipSzpieg	,"W")
 	addPlayerShip("Sztylet",	"Ktlitan Feeder",	createPlayerShipSztylet	,"W")
 	addPlayerShip("Katarzyna",	"Ktlitan Brood Mother",	createPlayerShipKatarzyna	,"W")
-	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,"W")	-- Tractor
+	addPlayerShip("Tango",		"Twister",		createPlayerShipTango		,"W")
 	addPlayerShip("Terror",		"Phobos T2.2",	createPlayerShipTerror		,"J")
 	addPlayerShip("Thelonius",	"Crab",			createPlayerShipThelonius	,"W")
 	addPlayerShip("Thunderbird","Destroyer IV",	createPlayerShipThunderbird	,"J")
@@ -1097,18 +1097,6 @@ function setConstants()
 	makePlayerShipActive("Quicksilver")	--W
 	makePlayerShipActive("Stick")		--W
 	makePlayerShipActive("Farrah") 		--W 
-	-- makePlayerShipActive("Enola")		--J
-	-- makePlayerShipActive("Lancelot")	--J
-	-- makePlayerShipActive("Yorik") 		--J 
-	-- makePlayerShipActive("Osprey")		--W
-	-- makePlayerShipActive("Florentine")	--W
-	-- makePlayerShipActive("Quill") 		--W 
-
-	makePlayerShipActive("Levant") 		--W 
-	makePlayerShipActive("Wesson") 		--W 
-	makePlayerShipActive("Wiggy") 		--W 
-	makePlayerShipActive("Watson") 		--W 
-	makePlayerShipActive("Endeavor") 		--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -9316,8 +9304,8 @@ function filkRoadSector()
 		{-137439, -146394, 111},
 		{-134251, -151175, 118},
 		
-    }
-    for i=1,#asteroidCoordinates do
+	}
+	for i=1,#asteroidCoordinates do
 		local ass = nil
 		if i % 5 == 0 then
 			--- every 5th is a visual asteroid to make it more interesting
@@ -9339,10 +9327,10 @@ function filkRoadSector()
 
 		 --- overwrite static size with a more intersting value
 		local size = random_50_500()
-    	ass:setSize(size)
-    	ass.original_size = size
-    	table.insert(objects, ass)
-    end
+		ass:setSize(size)
+		ass.original_size = size
+		table.insert(objects, ass)
+	end
 
 	local nebulaCoordinates = {
 		{-343350, -405301},
@@ -9537,11 +9525,11 @@ function filkRoadSector()
 		{-240862, -146247},
 		{-309299, -151360},
 		{-322637, -145853}
-    }
-    for i=1,#nebulaCoordinates do
-    	local neb = Nebula():setPosition(nebulaCoordinates[i][1],nebulaCoordinates[i][2])
-    	table.insert(objects, neb)
-    end
+	}
+	for i=1,#nebulaCoordinates do
+		local neb = Nebula():setPosition(nebulaCoordinates[i][1],nebulaCoordinates[i][2])
+		table.insert(objects, neb)
+	end
 
 	local wormholeCoordinates = {
 		{-337119, -446393, -285081, -394401},
@@ -9557,22 +9545,22 @@ function filkRoadSector()
 		{-63495, -92114, -5569, -17483},
 		{-9623, -13494, -67497, -89579}
 	}
-    for i=1,#wormholeCoordinates do
+	for i=1,#wormholeCoordinates do
 		local worm = WormHole():setPosition(wormholeCoordinates[i][1],wormholeCoordinates[i][2]):setTargetPosition(wormholeCoordinates[i][3],wormholeCoordinates[i][4])
 		if wormholeCoordinates[i][1] < wormholeCoordinates[i][3] then
 			worm:setCallSign("to Icarus")
 		else 
 			worm:setCallSign("to Micro Solutions Inc.")
 		end
-    	table.insert(objects, worm)
-    end
+		table.insert(objects, worm)
+	end
 
 
 	wormHGenCommsFunc = function()
-        setCommsMessage(_("station-comms", "THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."))
+		setCommsMessage(_("station-comms", "THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."))
 	end
 	wormWPCommsFunc = function()
-        setCommsMessage(_("station-comms", "Beep bop I'm an automated defense system and not in talkative mood."))
+		setCommsMessage(_("station-comms", "Beep bop I'm an automated defense system and not in talkative mood."))
 	end
 
 	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 7"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-333556, -444455):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
@@ -9604,7 +9592,6 @@ function filkRoadSector()
 	table.insert(objects, WarpJammer():setFaction("Exuari"):setPosition(-279129, -406284))
 	table.insert(objects, WarpJammer():setFaction("Exuari"):setPosition(-298809, -403118))
 
-
 	-- exuari ambush site in the Great Ignis Fatuus Nebula
 	table.insert(objects, WarpJammer():setFaction("Exuari"):setPosition(-185774, -193836))
 	table.insert(objects, WarpJammer():setFaction("Exuari"):setPosition(-154462, -269991))
@@ -9618,13 +9605,11 @@ function filkRoadSector()
 	table.insert(objects, WarpJammer():setFaction("Exuari"):setPosition(-258450, -154406))
 	table.insert(objects, WarpJammer():setFaction("Exuari"):setPosition(-239121, -173734))
 	table.insert(objects, WarpJammer():setFaction("Exuari"):setPosition(-173294, -220304))
-	
 
-	-- surroundings of the planet
+	-- Twin Pits Reserve region
 	table.insert(objects, Planet():setCallSign("Micro Solutions Inc."):setDescription("THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."):setPosition(-327846, -434276):setPlanetRadius(4000):setPlanetAtmosphereColor(0.10,0.10,0.60):setDistanceFromMovementPlane(-1500.00):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudRadius(4200.00))
 	table.insert(objects, BlackHole():setPosition(-316643, -405038):setCallSign("Fox"))
 	table.insert(objects, BlackHole():setPosition(-338417, -471899):setCallSign("Glory"))
-
 	
 	microSolutionsDockingRing = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Micro Solutions Inc. Docking Ring"):setPosition(-331344, -437682):setDescription("PROPERTY OF MICRO SOLUTIONS INC."):setCommsScript(""):setCommsFunction(commsStation)
 	microSolutionsDockingRing:setShortRangeRadarRange(8500)
@@ -10398,7 +10383,6 @@ function createIcarusStations()
 	local tradeFood = true
 	local tradeMedicine = true
 	local tradeLuxury = true
-
 	--Amaranth
 	stationAmaranth = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Amaranth"):setPosition(-77672, -141896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
@@ -43876,7 +43860,7 @@ function setInlineMines()
 	end
 	addGMFunction(string.format("+Orbit: %s",outer_defense_platform_orbit),setOuterMineOrbit)
 	if outer_defense_platform_count == 0 then
-		if inline_mine_gap_count > 0 then
+		if inline_mine_gap_count > 1 then
 			addGMFunction(string.format("V Gaps from %i to %i",inline_mine_gap_count,inline_mine_gap_count - 1),function()
 				inline_mine_gap_count = inline_mine_gap_count - 1
 				setInlineMines()
@@ -43928,7 +43912,7 @@ function setInsideMines()
 		outer_mines = "Yes"
 	end
 	addGMFunction(string.format("+Orbit: %s",inside_mine_orbit),setOuterInnerMineOrbit)
-	if inside_mine_gap_count > 0 then
+	if inside_mine_gap_count > 1 then
 		addGMFunction(string.format("V Gaps from %i to %i",inside_mine_gap_count,inside_mine_gap_count - 1),function()
 			inside_mine_gap_count = inside_mine_gap_count - 1
 			setInsideMines()
@@ -47295,18 +47279,14 @@ function mineRingShim(args)
 	local min_dist=args.dist or 1000
 	local num_rows=args.num_rows or 1
 	local row_gap=args.row_gap or 500
-	local segments=args.segments -- or 1
+	local segments=args.segments or 1
 	local half_gap_size=args.gap_size or 20
 	half_gap_size=half_gap_size/2
 	local gap=args.gap or 3
 	local create_fn = args.create_fn or Mine
 	if segments == 0 then
-		-- segments=1
+		segments=1
 		half_gap_size=0
-		half_gap_size=0
-		increment=360
-	else
-		increment=(360/segments)
 	end
 	for i=1,segments do
 		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
