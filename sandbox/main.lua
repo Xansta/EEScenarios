@@ -2173,6 +2173,14 @@ function createSkeletonUniverse()
 	}
 	station_names[stationBask:getCallSign()] = {stationBask:getSectorName(), stationBask}
 	stationBask.skeleton_station = true
+
+	-- name regions
+	Zone():setColor(40, 40, 60):setLabel("Twin Pits Reserve"):setPoints(-329513, -356716, -426268, -419647, -379858, -512076, -252817, -514436, -239445, -450720, -253211, -411389)
+	Zone():setColor(50, 50, 40):setLabel("Stone Ocean Asteroid Field"):setPoints(-253211, -411389, -239445, -450720, -222616, -500787, -131760, -492920, -71190, -413471, -122714, -341495, -162832, -274631, -239135, -248672, -303638, -210914, -369715, -336775, -329513, -356716)
+	Zone():setColor(60, 50, 60):setLabel("The Great Ignis Fatuus Nebula"):setPoints(-71190, -413471, -32535, -330702, -69319, -274300, -140785, -213693, -221009, -133819, -328559, -142577, -303638, -210914, -239135, -248672, -162832, -274631, -122714, -341495)
+	Zone():setColor(40, 55, 40):setLabel("Palisade Asteroid Field"):setPoints(-221009, -133819, -140785, -213693, -69319, -274300, -32535, -330702, 5299, -300558, -22232, -227795, -100109, -171158, -184278, -79516, -268840, -77943)
+	Zone():setColor(50, 50, 100):setLabel("Filk Road"):setPoints(-334784, -450387, -279709, -393735, -237259, -315305, -182342, -240031, -121587, -170438, -64145, -96743, -4652, -17208, -5367, -12204, -12700, -11527, -71562, -89957, -130582, -162548, -190695, -234225, -245590, -309146, -289638, -387543, -338072, -442428, -340439, -448267)
+
 	table.insert(skeleton_stations,stationBask)
 end
 function createFleurNebula()
@@ -9541,9 +9549,9 @@ function filkRoadSector()
 		{-244732, -312253, -284528, -387464},
 		{-129546, -166316, -185475, -233213},
 		{-121062, -166657, -66886, -98109},
-		{-71370, -94747, -125051, -162639},
-		{-63495, -92114, -5569, -17483},
-		{-9623, -13494, -67497, -89579}
+		-- {-71370, -94747, -125051, -162639},	-- spawned in Icarus region
+		-- {-63495, -92114, -5569, -17483}		-- spawned in Icarus region
+		-- {-9623, -13494, -67497, -89579}		-- spawned in Icarus region
 	}
 	for i=1,#wormholeCoordinates do
 		local worm = WormHole():setPosition(wormholeCoordinates[i][1],wormholeCoordinates[i][2]):setTargetPosition(wormholeCoordinates[i][3],wormholeCoordinates[i][4])
@@ -9568,12 +9576,14 @@ function filkRoadSector()
 	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 5"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-185633, -237027):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 4"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-240207, -311652):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 3"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-125286, -166062):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-
+	
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-184991, -238907):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 4"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-285064, -392):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
-	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-67349, -95244):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
+
+	-- spawned in Icarus region
+	-- table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
+	-- table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
+	-- table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-67349, -95244):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 
 	-- exuari ambush site close in Twin Pits Reserve
 	table.insert(objects, Mine():setPosition(-297992, -402936))
@@ -9672,14 +9682,6 @@ function filkRoadSector()
 	table.insert(objects, createSupplyDrop({x=-41040, y=-67705}, 200, 2, 1, 0, 1, 5, 0, 2, 2, 20))
 	table.insert(objects, createSupplyDrop({x=-43081, y=-67487}, 300, 0, 0, 3, 0, 2, 0, 0, 2, 33))
 	table.insert(objects, createSupplyDrop({x=-39218, y=-67341}, 400, 0, 0, 2, 1, 5, 0, 2, 2, 15))
-
-	-- name regions
-	-- TBD: cool idea?
-	table.insert(objects, Zone():setColor(40, 40, 60):setLabel("Twin Pits Reserve"):setPoints(-329513, -356716, -426268, -419647, -379858, -512076, -252817, -514436, -239445, -450720, -253211, -411389))
-	table.insert(objects, Zone():setColor(50, 50, 40):setLabel("Stone Ocean Asteroid Field"):setPoints(-253211, -411389, -239445, -450720, -222616, -500787, -131760, -492920, -71190, -413471, -122714, -341495, -162832, -274631, -239135, -248672, -303638, -210914, -369715, -336775, -329513, -356716))
-	table.insert(objects, Zone():setColor(60, 50, 60):setLabel("The Great Ignis Fatuus Nebula"):setPoints(-71190, -413471, -32535, -330702, -69319, -274300, -140785, -213693, -221009, -133819, -328559, -142577, -303638, -210914, -239135, -248672, -162832, -274631, -122714, -341495))
-	table.insert(objects, Zone():setColor(40, 55, 40):setLabel("Palisade Asteroid Field"):setPoints(-221009, -133819, -140785, -213693, -69319, -274300, -32535, -330702, 5299, -300558, -22232, -227795, -100109, -171158, -184278, -79516, -268840, -77943))
-	table.insert(objects, Zone():setColor(50, 50, 100):setLabel("Filk Road"):setPoints(-334784, -450387, -279709, -393735, -237259, -315305, -182342, -240031, -121587, -170438, -64145, -96743, -4652, -17208, -5367, -12204, -12700, -11527, -71562, -89957, -130582, -162548, -190695, -234225, -245590, -309146, -289638, -387543, -338072, -442428, -340439, -448267))
 
 	addGMMessage("[FilkRoad] starting objects, count=" .. #objects)
 
@@ -10204,6 +10206,7 @@ function createIcarusColor()
 	finneganFeatures = createFinneganFeatures()
 	icarusStations = createIcarusStations()
 	icarusWormholeRiptideStuff = createIcarusToRiptideWormholeArea()
+	icarusFilkRoadStuff = createIcarusFilkRoadStuff()
 	regionStations = icarusStations
 	if stationIcarus ~= nil then
 		table.insert(regionStations,stationIcarus)
@@ -10239,13 +10242,13 @@ function createIcarusColor()
 end
 function removeIcarusColor()
 	icarus_color = false
-	icarusWormholeRiptideStuff = destroyEEtable(icarusWormholeRiptideStuff)
 	icarusDefensePlatforms = destroyEEtable(icarusDefensePlatforms)
 	icarusMines = destroyEEtable(icarusMines)
 	icarus_artifacts = destroyEEtable(icarus_artifacts)
 	macassaAsteroids = destroyEEtable(macassaAsteroids)
 	diversityFeatures = destroyEEtable(diversityFeatures)
 	icarusWormholeRiptideStuff = destroyEEtable(icarusWormholeRiptideStuff)
+	icarusFilkRoadStuff = destroyEEtable(icarusFilkRoadStuff)
 	aquariusAsteroids = destroyEEtable(aquariusAsteroids)
 	cindyFollyAsteroids = destroyEEtable(cindyFollyAsteroids)
 	H0_to_K2_asteroids = destroyEEtable(H0_to_K2_asteroids)
@@ -12333,6 +12336,21 @@ function createIcarusToRiptideWormholeArea()
 		table.insert(ret, stab)
 	end
 
+	return ret
+end
+function createIcarusFilkRoadStuff()
+	local ret = {}
+
+	table.insert(ret, WormHole():setPosition(-9623, -13494):setTargetPosition(-67497, -89579):setCallSign("to Micro Solutions Inc."))
+	table.insert(ret, WormHole():setPosition(-71370, -94747):setTargetPosition(-125051, -162639):setCallSign("to Micro Solutions Inc."))
+	table.insert(ret, WormHole():setPosition(-63495, -92114):setTargetPosition(-5569, -17483):setCallSign("to Icarus"))
+
+	wormHGenCommsFunc = function()
+		setCommsMessage(_("station-comms", "THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."))
+	end
+	table.insert(ret, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
+	table.insert(ret, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
+	table.insert(ret, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-67349, -95244):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 	return ret
 end
 function createIcarusArtifacts()
