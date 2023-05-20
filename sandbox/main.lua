@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "5.43.2"
+	scenario_version = "6.1.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1092,7 +1092,7 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Enola")		--J
-	makePlayerShipActive("Lancelot")	--J
+	makePlayerShipActive("Hearken")		--J
 	makePlayerShipActive("Manxman") 	--J 
 	makePlayerShipActive("Quicksilver")	--W
 	makePlayerShipActive("Stick")		--W
@@ -25877,6 +25877,10 @@ function createPlayerShipHearken()
 	playerHearken.min_jump_range = 3000						--shorter than typical (vs 5)
 	playerHearken:setJumpDriveRange(playerHearken.min_jump_range,playerHearken.max_jump_range)
 	playerHearken:setJumpDriveCharge(playerHearken.max_jump_range)
+	playerHearken:setHullMax(180)							--stronger hull (vs 120)
+	playerHearken:setHull(180)
+	playerHearken:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
+	playerHearken:setShields(100, 100)
 --                 				  Arc,Dir,	Range, CycleTime, Dmg
 	playerHearken:setBeamWeapon(0, 10,	0,	 1000,		 4.0, 4.5)	--one beam (vs 0)
 --										Arc,  Dir, Rotate speed
@@ -25894,8 +25898,6 @@ function createPlayerShipHearken()
 	playerHearken:weaponTubeAllowMissle(3,"Homing")
 	playerHearken:weaponTubeAllowMissle(1,"EMP")
 	playerHearken:weaponTubeAllowMissle(4,"EMP")
-	playerHearken:setWeaponStorageMax("Mine",6)				--fewer mines (vs 8)
-	playerHearken:setWeaponStorage("Mine", 6)				
 	playerHearken:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
 	playerHearken:setWeaponStorage("EMP", 4)					
 	playerHearken:setWeaponStorageMax("Nuke",0)				--fewer Nukes (vs 6)
