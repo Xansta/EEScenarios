@@ -57,7 +57,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.1.1"
+	scenario_version = "6.1.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1091,12 +1091,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Enola")		--J
-	makePlayerShipActive("Hearken")		--J
-	makePlayerShipActive("Manxman") 	--J 
-	makePlayerShipActive("Quicksilver")	--W
-	makePlayerShipActive("Stick")		--W
-	makePlayerShipActive("Farrah") 		--W 
+	makePlayerShipActive("Guinevere")	--J
+	makePlayerShipActive("Bling")		--J
+	makePlayerShipActive("Fist") 		--J 
+	makePlayerShipActive("Swoop")		--W
+	makePlayerShipActive("Ignite")		--W
+	makePlayerShipActive("Florentine") 	--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -10215,13 +10215,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 1 and not mirrorUniverse then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
-			dp1Zone:setColor(0,128,0):setLabel("1")
-		elseif i == 6 and not mirrorUniverse then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
-		else		
+--		if i == 1 and not mirrorUniverse then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+--			dp1Zone:setColor(0,128,0):setLabel("1")
+--		elseif i == 6 and not mirrorUniverse then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+--			dp6Zone:setColor(0,128,0):setLabel("6")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -10229,7 +10229,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -10387,7 +10387,10 @@ function createIcarusStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Amaranth
-	stationAmaranth = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Amaranth"):setPosition(-77672, -141896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local amaranthZone = squareZone(-77672, -141896, "Amaranth 2 zx1")
+	amaranthZone:setColor(0,128,0):setLabel("A")
+	--[[
+	stationAmaranth = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Amaranth 2"):setPosition(-77672, -141896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		-- TSN doesnt really have a mirror version
 		stationAmaranth:setFaction("Spacer")
@@ -10439,6 +10442,7 @@ function createIcarusStations()
 	if random(1,100) <= 37 then stationAmaranth:setSharesEnergyWithDocked(false) end
 	station_names[stationAmaranth:getCallSign()] = {stationAmaranth:getSectorName(), stationAmaranth}
 	table.insert(stations,stationAmaranth)
+	--]]
 	--Aquarius F4m9
 --	local aquariusZone = squareZone(-4295, 14159, "Aquarius X F4.9")
 --	aquariusZone:setColor(51,153,255):setLabel("A")
@@ -11365,7 +11369,10 @@ function createIcarusStations()
 		table.insert(stations,stationMermaid)
 	end
 	--Nilwea
-	stationNilwea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Nilwea"):setPosition(-101008, -92567):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
+	nilweaZone:setColor(51,153,255):setLabel("N")
+	--[[
+	stationNilwea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Nilwea Two"):setPosition(-101008, -92567):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationNilwea.comms_data = {
     	friendlyness = 93,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -11416,6 +11423,7 @@ function createIcarusStations()
 	if random(1,100) <= 12 then stationNilwea:setSharesEnergyWithDocked(false) end
 	station_names[stationNilwea:getCallSign()] = {stationNilwea:getSectorName(), stationNilwea}
 	table.insert(stations,stationNilwea)
+	--]]
 	if mirrorUniverse then
 		-- it seems a shame to not use a few stations like this
 		-- as such its being removed until / unless someone can think of a good use
@@ -25100,7 +25108,7 @@ function createPlayerShipBling()
 	playerGadfly:setJumpDriveRange(playerGadfly.min_jump_range,playerGadfly.max_jump_range)
 	playerGadfly:setJumpDriveCharge(playerGadfly.max_jump_range)
 --                  			 Arc, Dir, Range, CycleTime, Dmg
-	playerGadfly:setBeamWeapon(0, 50, 	0, 900.0, 		4.0, 8)		--wider (vs 40), shorter (vs 1), faster (vs 6)
+	playerGadfly:setBeamWeapon(0, 50, 	0, 900.0, 		4.0, 9)		--wider (vs 40), shorter (vs 1), faster (vs 6)
 	playerGadfly:setBeamWeapon(1,  0,	0,	   0,		  0, 0)		--fewer (vs 2)
 	playerGadfly:setWeaponTubeCount(3)					--more (vs 0)
 	playerGadfly:setWeaponTubeDirection(2, 180)
@@ -25613,7 +25621,7 @@ function createPlayerShipFlorentine()
 	playerSafari:setShields(100, 60)
 --                 			      Arc, Dir, Range, CycleTime, Damage
 	playerSafari:setBeamWeapon(0,  10,   0,	1200, 		6.0, 	6.0)	--1 forward, 1 turret (vs 2 rear)
-	playerSafari:setBeamWeapon(1,  40,   0,	 600, 		8.0,   12.0)	--shorter (vs 1200), 1 more damage (vs 6), 1 slower (vs 6)
+	playerSafari:setBeamWeapon(1,  40,   0,	 600, 		8.0,   12.0)	--shorter (vs 1200), more damage (vs 6), slower (vs 6)
 --										Arc,  Dir, Rotate speed
 	playerSafari:setBeamWeaponTurret(0,	 80,    0,			 .4)		--slow turret
 	playerSafari:setWeaponTubeCount(3)									--more (vs 1)
@@ -25633,8 +25641,8 @@ function createPlayerShipFlorentine()
 	playerSafari:setWeaponStorage("Nuke", 0)
 	playerSafari:setWeaponStorageMax("HVLI", 20)						--more (vs 5)
 	playerSafari:setWeaponStorage("HVLI", 20)
-	playerSafari:setWeaponStorageMax("Mine", 3)							--more (vs 1)
-	playerSafari:setWeaponStorage("Mine", 3)
+	playerSafari:setWeaponStorageMax("Mine", 4)							--more (vs 1)
+	playerSafari:setWeaponStorage("Mine", 4)
 	playerSafari:onTakingDamage(playerShipDamage)
 	playerSafari:addReputationPoints(50)
 	return playerSafari
