@@ -46,6 +46,7 @@
 -- Relay, Operations			Launch timer			1
 -- Engineering, Engineering+	Gather coolant status	5
 -- Helm, Tactical				fighter dock banner		5
+-- Helm, Tactical				jump overcharge			6
 
 require("utils.lua")
 require("sandbox/errorHandling.lua")
@@ -57,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.1.2"
+	scenario_version = "6.2.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -10387,9 +10388,8 @@ function createIcarusStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--Amaranth
-	local amaranthZone = squareZone(-77672, -141896, "Amaranth 2 zx1")
-	amaranthZone:setColor(0,128,0):setLabel("A")
-	--[[
+--	local amaranthZone = squareZone(-77672, -141896, "Amaranth 2 zx1")
+--	amaranthZone:setColor(0,128,0):setLabel("A")
 	stationAmaranth = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Amaranth 2"):setPosition(-77672, -141896):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		-- TSN doesnt really have a mirror version
@@ -10442,7 +10442,6 @@ function createIcarusStations()
 	if random(1,100) <= 37 then stationAmaranth:setSharesEnergyWithDocked(false) end
 	station_names[stationAmaranth:getCallSign()] = {stationAmaranth:getSectorName(), stationAmaranth}
 	table.insert(stations,stationAmaranth)
-	--]]
 	--Aquarius F4m9
 --	local aquariusZone = squareZone(-4295, 14159, "Aquarius X F4.9")
 --	aquariusZone:setColor(51,153,255):setLabel("A")
@@ -11311,10 +11310,10 @@ function createIcarusStations()
 	end
 	--Mermaid
 	-- only destroyed in non mirror universe
-	if not mirrorUniverse then
-		local mermaidZone = squareZone(28889, -4417, "Mermaid 10 E6")
-		mermaidZone:setColor(51,153,255):setLabel("9")
-	else
+--	if not mirrorUniverse then
+--		local mermaidZone = squareZone(28889, -4417, "Mermaid 10 E6")
+--		mermaidZone:setColor(51,153,255):setLabel("9")
+--	else
 		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 10"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
 		if mirrorUniverse then
 			stationMermaid:setFaction("Spacer")
@@ -11367,11 +11366,10 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
-	end
+--	end
 	--Nilwea
-	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
-	nilweaZone:setColor(51,153,255):setLabel("N")
-	--[[
+--	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
+--	nilweaZone:setColor(51,153,255):setLabel("N")
 	stationNilwea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Nilwea Two"):setPosition(-101008, -92567):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationNilwea.comms_data = {
     	friendlyness = 93,
@@ -11423,7 +11421,6 @@ function createIcarusStations()
 	if random(1,100) <= 12 then stationNilwea:setSharesEnergyWithDocked(false) end
 	station_names[stationNilwea:getCallSign()] = {stationNilwea:getSectorName(), stationNilwea}
 	table.insert(stations,stationNilwea)
-	--]]
 	if mirrorUniverse then
 		-- it seems a shame to not use a few stations like this
 		-- as such its being removed until / unless someone can think of a good use
@@ -49373,6 +49370,7 @@ function handleDockedState()
 	local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
 	local gm_name = gm_names[math.random(1,#gm_names)]
 	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+		setCommsMessage("Please stand by while connecting")
 		commsSwitchToGM()
 		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on %s station %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 		addCommsReply("Back", commsStation)
@@ -52681,6 +52679,9 @@ function probeWarpJammer(self,x,y)
 	WarpJammer():setPosition(x,y):setRange(self.warp_jam_range):setFaction(self:getFaction())
 	self:onArrival(nil)
 end
+------------------------
+--	Update functions  --
+------------------------
 function update(delta)
 	if updateDiagnostic then print("update: top of update function") end
 	--generic sandbox items
@@ -52940,6 +52941,7 @@ function update(delta)
 			end
 			updatePlayerSystemHealthRepair(delta,p)
 			updatePlayerInNebula(delta,p)
+			updatePlayerJumpOverchargeBanner(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -53975,6 +53977,23 @@ function updatePlayerBeamDamageSwitch(p)
 					p.beam_switch_button = nil
 					p.beam_switch_state = "energy"
 				end,27)
+			end
+		end
+	end
+end
+function updatePlayerJumpOverchargeBanner(p)
+	if p:hasJumpDrive() then
+		if p:getJumpDriveCharge() > p.max_jump_range then
+			p.jump_overcharge_banner = string.format("Jump Overcharge: %ik",math.floor(p:getJumpDriveCharge()/1000))
+			p.jump_overcharge_banner_hlm = "jump_overcharge_banner_hlm"
+			p:addCustomInfo("Helms",p.jump_overcharge_banner_hlm,p.jump_overcharge_banner,6)
+			p.jump_overcharge_banner_tac = "jump_overcharge_banner_tac"
+			p:addCustomInfo("Tactical",p.jump_overcharge_banner_tac,p.jump_overcharge_banner,6)
+		else
+			if p.jump_overcharge_banner ~= nil then
+				p:removeCustom(p.jump_overcharge_banner_hlm)
+				p:removeCustom(p.jump_overcharge_banner_tac)
+				p.jump_overcharge_banner = nil
 			end
 		end
 	end
