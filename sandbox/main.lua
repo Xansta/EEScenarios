@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.2.1"
+	scenario_version = "6.3.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1171,6 +1171,8 @@ function setConstants()
 	--1 EMP
 	supply_energy_range_min = 500
 	supply_energy_range_max = 500
+	supply_jump_charge_energy_range_min = 5000
+	supply_jump_charge_energy_range_max = 50000
 	supply_homing_range_min = 4
 	supply_homing_range_max = 4
 	supply_nuke_range_min = 1
@@ -21818,6 +21820,17 @@ function playerHelm()
 				p:setWarpSpeed(p:getWarpSpeed()-50)
 				playerHelm()
 			end)
+		else
+			addGMFunction(string.format("Jump %ik+10k=%i",math.floor(p:getJumpDriveCharge()/1000),math.floor(p:getJumpDriveCharge()/1000)+10),function()
+				string.format("")
+				p:setJumpDriveCharge(p:getJumpDriveCharge() + 10000)
+				playerHelm()
+			end)
+			addGMFunction(string.format("Jump %ik-10k=%i",math.floor(p:getJumpDriveCharge()/1000),math.floor(p:getJumpDriveCharge()/1000)-10),function()
+				string.format("")
+				p:setJumpDriveCharge(p:getJumpDriveCharge() - 10000)
+				playerHelm()
+			end)
 		end
 	else
 		addGMMessage("No player ship selected. No action taken.")
@@ -40384,7 +40397,7 @@ function setCustomSupply()
 	end
 	missile_label = string.format("+Missiles %s",missile_label)
 	addGMFunction(missile_label,setCustomMissiles)
-	addGMFunction(string.format("+Energy %i-%i",supply_energy_range_min,supply_energy_range_max),setSupplyEnergy)
+	addGMFunction(string.format("+Energy %i-%i %i-%i",supply_energy_range_min,supply_energy_range_max,math.floor(supply_jump_charge_energy_range_min/1000),math.floor(supply_jump_charge_energy_range_max/1000)),setSupplyEnergy)
 	addGMFunction(string.format("+Repair Crew %i-%i",supply_repair_crew_range_min,supply_repair_crew_range_max),setSupplyRepairCrew)
 	addGMFunction(string.format("+Coolant %i-%i",supply_coolant_range_min,supply_coolant_range_max),setSupplyCoolant)
 	addGMFunction(string.format("+Probes %i-%i",supply_probes_range_min,supply_probes_range_max),setSupplyProbes)
@@ -40486,7 +40499,7 @@ end
 -- 500+100=600		D	add100Energy
 function setSupplyEnergy()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
+--	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Drop Point",dropPoint)
 	addGMFunction("-From Energy",setCustomSupply)
 	if supply_energy_range_min > 0 then
@@ -40500,6 +40513,38 @@ function setSupplyEnergy()
 	end
 	if supply_energy_range_max < 1000 then
 		addGMFunction(string.format("Max %i+100=%i",supply_energy_range_max,supply_energy_range_max + 100),add100EnergyMax)
+	end
+	if supply_jump_charge_energy_range_min > 0 then
+		addGMFunction(string.format("Jump Min %ik-5k=%ik",supply_jump_charge_energy_range_min/1000,supply_jump_charge_energy_range_min/1000-5),function()
+			supply_jump_charge_energy_range_min = supply_jump_charge_energy_range_min - 5000
+			setSupplyEnergy()
+		end)
+	end
+	if supply_jump_charge_energy_range_min < 50000 then
+		addGMFunction(string.format("Jump Min %ik+5k=%ik",supply_jump_charge_energy_range_min/1000,supply_jump_charge_energy_range_min/1000+5),function()
+			if supply_jump_charge_energy_range_min == supply_jump_charge_energy_range_max then
+				addGMMessage(string.format("Minimum of %ik cannot exceed maximum of %ik",supply_jump_charge_energy_range_min/1000,supply_jump_charge_energy_range_max/1000))
+			else
+				supply_jump_charge_energy_range_min = supply_jump_charge_energy_range_min + 5000
+			end
+			setSupplyEnergy()
+		end)
+	end
+	if supply_jump_charge_energy_range_max > 0 then
+		addGMFunction(string.format("Jump Max %ik-5k=%ik",supply_jump_charge_energy_range_max/1000,supply_jump_charge_energy_range_max/1000-5),function()
+			if supply_jump_charge_energy_range_max == supply_jump_charge_energy_range_min then
+				addGMMessage(string.format("Maximum of %ik cannot go below minimum of %ik",supply_jump_charge_energy_range_max/1000,supply_jump_charge_energy_range_max/1000))
+			else
+				supply_jump_charge_energy_range_max = supply_jump_charge_energy_range_max - 5000
+			end
+			setSupplyEnergy()
+		end)
+	end
+	if supply_jump_charge_energy_range_max < 55000 then
+		addGMFunction(string.format("Jump Max %ik+5k=%ik",supply_jump_charge_energy_range_max/1000,supply_jump_charge_energy_range_max/1000+5),function()
+			supply_jump_charge_energy_range_max = supply_jump_charge_energy_range_max + 5000
+			setSupplyEnergy()
+		end)
 	end
 end
 function subtract100EnergyMax()
@@ -41012,6 +41057,7 @@ function createSupplyAway()
 end
 function supplyCreation(originx, originy, vectorx, vectory)
 	local supplyEnergy = math.random(supply_energy_range_min,supply_energy_range_max)
+	local supplyJumpCharge = math.random(supply_jump_charge_energy_range_min,supply_jump_charge_energy_range_max)
 	local supplyNuke = math.random(supply_nuke_range_min,supply_nuke_range_max)
 	local supplyEMP = math.random(supply_emp_range_min,supply_emp_range_max)
 	local supplyMine = math.random(supply_mine_range_min,supply_mine_range_max)
@@ -41021,9 +41067,9 @@ function supplyCreation(originx, originy, vectorx, vectory)
 	local supplyCoolant = math.random(supply_coolant_range_min,supply_coolant_range_max)
 	local supplyProbes = math.random(supply_probes_range_min,supply_probes_range_max)
 	local supplyArmor = math.random(supply_armor_range_min,supply_armor_range_max)
-	createSupplyDrop({x = originx+vectorx, y = originy+vectory},supplyEnergy,supplyHoming,supplyNuke,supplyMine,supplyEMP,supplyHVLI,supplyRepairCrew,supplyCoolant,supplyProbes,supplyArmor)
+	createSupplyDrop({x = originx+vectorx, y = originy+vectory},supplyEnergy,supplyHoming,supplyNuke,supplyMine,supplyEMP,supplyHVLI,supplyRepairCrew,supplyCoolant,supplyProbes,supplyArmor,supplyJumpCharge)
 end
-function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,coolant,probes,armour)
+function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,coolant,probes,armour,jump_charge)
 	print(location.x,location.y,energy,homing,nuke,mine,emp,hvli,repairCrew,coolant,probes,armour)
 	local customSupplyDrop = SupplyDrop():setEnergy(energy):setFaction("Human Navy"):setPosition(location.x,location.y)
 	customSupplyDrop:setWeaponStorage("Nuke",nuke)
@@ -41042,6 +41088,9 @@ function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,c
 	end
 	if armour > 0 then
 		customSupplyDrop.armor = armour
+	end
+	if jump_charge > 0 then
+		customSupplyDrop.jump_charge = jump_charge
 	end
 	local supplyLabel = ""
 	local wordy_label = ""
@@ -41084,6 +41133,10 @@ function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,c
 	if armour > 0 then
 		supplyLabel = supplyLabel .. string.format("A%i ",armour)
 		wordy_label = wordy_label .. string.format("Armor:%i ",armour)
+	end
+	if jump_charge > 0 then
+		supplyLabel = supplyLabel .. string.format("J%i ",math.floor(jump_charge/1000))
+		wordy_label = wordy_label .. string.format("Jump Charge:%ik ",math.floor(jump_charge/1000))
 	end
 	-- this really wants to be a function argument, but that will want enum support for the web interface ideally
 	-- aka this is on the list but cant be done right now
@@ -41129,6 +41182,11 @@ function supplyPickupProcess(self, player)
 	end
 	if self.armor ~= nil then
 		player:setHull(math.min(player:getHull() + self.armor,player:getHullMax()))
+	end
+	if player:hasJumpDrive() then
+		if self.jump_charge ~= nil then
+			player:setJumpDriveCharge(player:getJumpDriveCharge() + self.jump_charge)
+		end
 	end
 end
 ----------------------------------------
