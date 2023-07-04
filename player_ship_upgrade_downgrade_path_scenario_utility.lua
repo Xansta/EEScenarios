@@ -1210,7 +1210,7 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 5,
 			},	
 			["hull"] = {
-				{max = 100},															--1
+				{max = 100, downgrade = _("downgrade-comms","reduced hull max by 1/6")},															--1
 				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"),	downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--2
 				{max = 140, ["desc"] = _("upgrade-comms","increase hull max by ~17%"),	downgrade = _("downgrade-comms","reduced hull max by 1/8")},	--3
 				{max = 160, ["desc"] = _("upgrade-comms","increase hull max by ~14%"),	downgrade = _("downgrade-comms","reduced hull max by 1/9")},	--4
@@ -1499,26 +1499,31 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 30, tdr =   0, trt = 4},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 30, tdr = 180, trt = 4},
+					downgrade = _("downgrade-comms","cut arc width in half"),
 				},
 				{	--2
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr =   0, trt = 4},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr = 180, trt = 4},
-					["desc"] = _("upgrade-comms","double arc width")
+					["desc"] = _("upgrade-comms","double arc width"),
+					downgrade = _("downgrade-comms","reduce turret speed by 20%"),
 				},
 				{	--3
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr =   0, trt = 5},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr = 180, trt = 5},
-					["desc"] = _("upgrade-comms","increase turret speed by 25%")
+					["desc"] = _("upgrade-comms","increase turret speed by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--4
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 90, tdr =   0, trt = 5},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 90, tdr = 180, trt = 5},
-					["desc"] = _("upgrade-comms","increase arc width by 50%")
+					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/6"),
 				},
 				{	--5
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 6, dmg = 4, tar = 90, tdr =   0, trt = 5},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 6, dmg = 4, tar = 90, tdr = 180, trt = 5},
 					["desc"] = _("upgrade-comms","decrease cycle time by ~14%"),
+					downgrade = _("downgrade-comms","removed beams"),
 				},
 				{	--6
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 6, dmg = 4, tar = 90, tdr =   0, trt = 5},
@@ -1526,6 +1531,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1000, cyc = 6, dmg = 4, tar = 40, tdr = -90, trt = 5},
 					{idx = 3, arc = 10, dir =  90, rng = 1000, cyc = 6, dmg = 4, tar = 40, tdr =  90, trt = 5},
 					["desc"] = _("upgrade-comms","add beams"),
+					downgrade = _("downgrade-comms","reduced range by 1/3"),
 				},
 				{	--7
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 4, tar = 90, tdr =   0, trt = 5},
@@ -1533,6 +1539,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1500, cyc = 6, dmg = 4, tar = 40, tdr = -90, trt = 5},
 					{idx = 3, arc = 10, dir =  90, rng = 1500, cyc = 6, dmg = 4, tar = 40, tdr =  90, trt = 5},
 					["desc"] = _("upgrade-comms","increase range by 50%"),
+					downgrade = _("downgrade-comms","reduced arc width"),
 				},
 				{	--8
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =   0, trt = 5},
@@ -1540,6 +1547,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr = -90, trt = 5},
 					{idx = 3, arc = 10, dir =  90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =  90, trt = 5},
 					["desc"] = _("upgrade-comms","overlap arcs"),
+					downgrade = _("downgrade-comms","reduced turret speed by 1/6"),
 				},
 				{	--9
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =   0, trt = 6},
@@ -1547,6 +1555,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr = -90, trt = 6},
 					{idx = 3, arc = 10, dir =  90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =  90, trt = 6},
 					["desc"] = _("upgrade-comms","increase turret speed by 20%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--10
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 5, tar = 110, tdr =   0, trt = 6},
@@ -1562,19 +1571,19 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																		--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add mines")},								--2  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","speed up tube load speed by 25%")},			--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase mine capacity by 50%")},			--4
-				{tube = 4,	ord = 3, desc = _("upgrade-comms","speed up tube load speed by 1/3")},			--5
-				{tube = 4,	ord = 4, desc = _("upgrade-comms","increase mine capacity by 1/3")},			--6
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","speed up mine load speed by ~17%")},			--7
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase mine capacity by 25%")},			--8
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","add homing missiles")},						--9
-				{tube = 6,	ord = 7, desc = _("upgrade-comms","double homing missile capacity")},			--10
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","speed up mine loading speed by 20%")},		--11
-				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase homing missile capacity by 50%")},	--12
-				{tube = 8,	ord = 8, desc = _("upgrade-comms","medium sized homing misile tubes")},			--13
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed mines")},																		--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add mines"), downgrade = _("downgrade-comms","slowed tube load speeds")},								--2  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","speed up tube load speed by 25%"), downgrade = _("downgrade-comms","reduced mine capacity")},			--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase mine capacity by 50%"), downgrade = _("downgrade-comms","reduced tobe load speeds by 25%")},			--4
+				{tube = 4,	ord = 3, desc = _("upgrade-comms","speed up tube load speed by 1/3"), downgrade = _("downgrade-comms","reduced mine capacity by 25%")},			--5
+				{tube = 4,	ord = 4, desc = _("upgrade-comms","increase mine capacity by 1/3"), downgrade = _("downgrade-comms","reduced mine load speed")},			--6
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","speed up mine load speed by ~17%"), downgrade = _("downgrade-comms","reduced mine capacity by 20%")},			--7
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase mine capacity by 25%"), downgrade = _("downgrade-comms","removed homing missiles")},			--8
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","add homing missiles"), downgrade = _("downgrade-comms","cut homing missile capacity in half")},						--9
+				{tube = 6,	ord = 7, desc = _("upgrade-comms","double homing missile capacity"), downgrade = _("downgrade-comms","reduced mine loading speed")},			--10
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","speed up mine loading speed by 20%"), downgrade = _("downgrade-comms","reduced homing missile capacity by 1/3")},		--11
+				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase homing missile capacity by 50%"), downgrade = _("downgrade-comms","reduced homing missile tube size to small")},	--12
+				{tube = 8,	ord = 8, desc = _("upgrade-comms","medium sized homing misile tubes"), downgrade = _("downgrade-comms","reduced mine capacity by 1/6")},			--13
 				{tube = 8,	ord = 9, desc = _("upgrade-comms","increase mine capacity by 20%")},			--14
 				["start"] = 4,
 			},
@@ -1637,44 +1646,53 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 50},
+					downgrade = _("downgrade-comms","reduce shield charge capacity by 1/6"),
 				},
 				{	--2
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/7"),
 				},
 				{	--3
 					{idx = 0, max = 70},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by ~17%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 50},
 					{idx = 1, max = 50},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--5
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--6
 					{idx = 0, max = 80},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--7
 					{idx = 0, max = 100},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/3"),
 				},
 				{	--8
 					{idx = 0, max = 100},
 					{idx = 1, max = 150},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 50%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--9
 					{idx = 0, max = 100},
 					{idx = 1, max = 180},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 10%"),
 				},
 				{	--10
 					{idx = 0, max = 100},
@@ -1688,12 +1706,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},	
 			["hull"] = {
-				{max = 100},															--1
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--2
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--3
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--4
-				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~11%")},	--5
-				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%")},	--6
+				{max = 100, downgrade = _("downgrade-comms","reduced hull max by 1/6")},															--1
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--2
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--3
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 10%")},	--4
+				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~11%"), downgrade = _("downgrade-comms","reduced hull max by 1/11")},	--5
+				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%"), downgrade = _("downgrade-comms","reduced hull max by 1/12")},	--6
 				{max = 240, ["desc"] = _("upgrade-comms","increase hull max by ~9%")},	--7
 				["stock"] = {max = 200},
 				["start"] = 4,
@@ -1704,6 +1722,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	6,		accel_back = 	6,
 					turn = 			5,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max forward impulse by 1/6"),
 				},
 				{	--2
 					max_front =		60,		max_back =		50,
@@ -1711,6 +1730,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max forward impulse speed by ~20%"),
+					downgrade = _("downgrade-comms","removed combat maneuver forward boost"),
 				},
 				{	--3
 					max_front =		60,		max_back =		50,
@@ -1718,6 +1738,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			300,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver forward boost"),
+					downgrade = _("downgrade-comms","reduced max forward acceleration by 25%"),
 				},
 				{	--4
 					max_front =		60,		max_back =		50,
@@ -1725,6 +1746,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			300,	strafe =		0,
 					desc = _("upgrade-comms","increase max forward acceleration by 1/3"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--5
 					max_front =		60,		max_back =		50,
@@ -1732,6 +1754,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 3/8"),
 				},
 				{	--6
 					max_front =		60,		max_back =		50,
@@ -1739,6 +1762,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","increase maneuverability by 60%"),
+					downgrade = _("downgrade-comms","reduced max forward impulse by 1/7"),
 				},
 				{	--7
 					max_front =		70,		max_back =		50,
@@ -1746,6 +1770,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","increase max forward impulse speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver forward boost by 25%"),
 				},
 				{	--8
 					max_front =		70,		max_back =		50,
@@ -1753,6 +1778,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			400,	strafe =		200,
 					desc = _("upgrade-comms","increase combat maneuver forward boost by 1/3"),
+					downgrade = _("downgrade-comms","reduced impulse forward acceleration by 20%"),
 				},
 				{	--9
 					max_front =		70,		max_back =		50,
@@ -1760,6 +1786,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			400,	strafe =		200,
 					desc = _("upgrade-comms","increase impulse forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver strafe by 20%"),
 				},
 				{	--10
 					max_front =		70,		max_back =		50,
@@ -1767,6 +1794,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			400,	strafe =		250,
 					desc = _("upgrade-comms","increase combat maneuver strafe by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--11
 					max_front =		70,		max_back =		50,
@@ -1774,6 +1802,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			400,	strafe =		250,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver forward boost by 20%"),
 				},
 				{	--12
 					max_front =		70,		max_back =		50,
@@ -1781,6 +1810,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		250,
 					desc = _("upgrade-comms","increase combat maneuver forward boost by 25%"),
+					downgrade = _("downgrade-comms","reduced impulse forward acceleration by 1/6"),
 				},
 				{	--13
 					max_front =		70,		max_back =		50,
@@ -1788,6 +1818,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		250,
 					desc = _("upgrade-comms","increase impulse forward acceleration by 20%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver strafe by 1/6"),
 				},
 				{	--14
 					max_front =		70,		max_back =		50,
@@ -1795,6 +1826,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase combat maneuver strafe by 20%"),
+					downgrade = _("downgrade-comms","reduced max forward impulse speed by 1/11"),
 				},
 				{	--15
 					max_front =		77,		max_back =		50,
@@ -1802,6 +1834,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase max forward impulse speed by 10%"),
+					downgrade = _("downgrade-comms","reduced impulse forward acceleration by 20%"),
 				},
 				{	--16
 					max_front =		77,		max_back =		50,
@@ -1809,6 +1842,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase impulse forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced max reverse impulse by 1/6 and reverse acceleration by 25%"),
 				},
 				{	--17
 					max_front =		77,		max_back =		60,
@@ -1816,6 +1850,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase max reverse impulse by 20% and reverse acceleration by 1/3"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/11"),
 				},
 				{	--18
 					max_front =		77,		max_back =		60,
@@ -1832,42 +1867,52 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 40000, jump_short = 4000, warp = 0,
 					desc = _("upgrade-comms","add 40k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
 					jump_long = 50000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--4
 					jump_long = 60000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/7"),
 				},
 				{	--5
 					jump_long = 70000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by ~17%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/8")
 				},
 				{	--6
 					jump_long = 80000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by ~14%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/9"),
 				},
 				{	--7
 					jump_long = 90000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 12.5%"),
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--8
 					jump_long = 90000, jump_short = 5000, warp = 300,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 25%"),
 				},
 				{	--9
 					jump_long = 90000, jump_short = 5000, warp = 400,
 					desc = _("upgrade-comms","increase warp speed by 1/3"),
+					downgrade = _("downgrade-comms","rduced jump range by 10%"),
 				},
 				{	--10
 					jump_long = 100000, jump_short = 5000, warp = 400,
 					desc = _("upgrade-comms","increase jump range by ~11%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%")
 				},
 				{	--11
 					jump_long = 100000, jump_short = 5000, warp = 500,
@@ -1881,38 +1926,47 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 20000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 25000, prox_scan = 0,
-					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--3
 					short = 4000, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--4
 					short = 4500, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--5
 					short = 4500, long = 35000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--6
 					short = 4500, long = 40000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--7
 					short = 4500, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--8
 					short = 5000, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/9"),
 				},
 				{	--9
 					short = 5000, long = 45000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 10%"),
 				},
 				{	--10
 					short = 5000, long = 50000, prox_scan = 2,
@@ -1931,26 +1985,31 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 30, tdr =   0, trt = 4},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 30, tdr = 180, trt = 4},
+					downgrade = _("downgrade-comms","cut arc width in half"),
 				},
 				{	--2
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr =   0, trt = 4},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr = 180, trt = 4},
-					["desc"] = _("upgrade-comms","double arc width")
+					["desc"] = _("upgrade-comms","double arc width"),
+					downgrade = _("downgrade-comms","reduced turret speed by 20%"),
 				},
 				{	--3
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr =   0, trt = 5},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 60, tdr = 180, trt = 5},
-					["desc"] = _("upgrade-comms","increase turret speed by 25%")
+					["desc"] = _("upgrade-comms","increase turret speed by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--4
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 4, tar = 90, tdr =   0, trt = 5},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 7, dmg = 4, tar = 90, tdr = 180, trt = 5},
-					["desc"] = _("upgrade-comms","increase arc width by 50%")
+					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/6"),
 				},
 				{	--5
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 6, dmg = 4, tar = 90, tdr =   0, trt = 5},
 					{idx = 1, arc = 10, dir = 180, rng = 1000, cyc = 6, dmg = 4, tar = 90, tdr = 180, trt = 5},
 					["desc"] = _("upgrade-comms","decrease cycle time by ~14%"),
+					downgrade = _("downgrade-comms","removed beams"),
 				},
 				{	--6
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 6, dmg = 4, tar = 90, tdr =   0, trt = 5},
@@ -1958,6 +2017,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1000, cyc = 6, dmg = 4, tar = 40, tdr = -90, trt = 5},
 					{idx = 3, arc = 10, dir =  90, rng = 1000, cyc = 6, dmg = 4, tar = 40, tdr =  90, trt = 5},
 					["desc"] = _("upgrade-comms","add beams"),
+					downgrade = _("downgrade-comms","reduced range by 1/3"),
 				},
 				{	--7
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 4, tar = 90, tdr =   0, trt = 5},
@@ -1965,6 +2025,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1500, cyc = 6, dmg = 4, tar = 40, tdr = -90, trt = 5},
 					{idx = 3, arc = 10, dir =  90, rng = 1500, cyc = 6, dmg = 4, tar = 40, tdr =  90, trt = 5},
 					["desc"] = _("upgrade-comms","increase range by 50%"),
+					downgrade = _("downgrade-comms","reduced arc width"),
 				},
 				{	--8
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =   0, trt = 5},
@@ -1972,6 +2033,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr = -90, trt = 5},
 					{idx = 3, arc = 10, dir =  90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =  90, trt = 5},
 					["desc"] = _("upgrade-comms","overlap arcs"),
+					downgrade = _("downgrade-comms","reduced turret speed by 1/6"),
 				},
 				{	--9
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =   0, trt = 6},
@@ -1979,6 +2041,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 10, dir = -90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr = -90, trt = 6},
 					{idx = 3, arc = 10, dir =  90, rng = 1500, cyc = 6, dmg = 4, tar = 110, tdr =  90, trt = 6},
 					["desc"] = _("upgrade-comms","increase turret speed by 20%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--10
 					{idx = 0, arc = 10, dir =   0, rng = 1500, cyc = 6, dmg = 5, tar = 110, tdr =   0, trt = 6},
@@ -1994,19 +2057,19 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 6,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},														--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add mines")},									--2  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","speed up tube load speed by 25%")},				--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase mine capacity by 50%")},				--4
-				{tube = 4,	ord = 3, desc = _("upgrade-comms","speed up tube load speed by 1/3")},				--5
-				{tube = 4,	ord = 4, desc = _("upgrade-comms","increase mine capacity by 1/3")},				--6
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","speed up mine load speed by ~17%")},			--7
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase mine capacity by 25%")},				--8
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","add homing missiles")},							--9
-				{tube = 6,	ord = 7, desc = _("upgrade-comms","double homing missile capacity")},				--10
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","speed up mine loading speed by 20%")},			--11
-				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase homing missile capacity by 50%")},		--12
-				{tube = 8,	ord = 8, desc = _("upgrade-comms","medium sized homing misile tubes")},			--13
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed mines")},														--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add mines"), downgrade = _("downgrade-comms","slowed tube load speed by 20%")},									--2  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","speed up tube load speed by 25%"), downgrade = _("downgrade-comms","reduced mine capacity by 1/3")},				--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase mine capacity by 50%"), downgrade = _("downgrade-comms","slowed tube load speeds by 25%")},				--4
+				{tube = 4,	ord = 3, desc = _("upgrade-comms","speed up tube load speed by 1/3"), downgrade = _("downgrade-comms","reduced mine capacity by 25%")},				--5
+				{tube = 4,	ord = 4, desc = _("upgrade-comms","increase mine capacity by 1/3"), downgrade = _("downgrade-comms","reduced tube load speed")},				--6
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","speed up mine load speed by ~17%"), downgrade = _("downgrade-comms","reduced mine capacity by 20%")},			--7
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase mine capacity by 25%"), downgrade = _("downgrade-comms","removed homing missiles")},				--8
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","add homing missiles"), downgrade = _("downgrade-comms","cut homing missile capacity in half")},							--9
+				{tube = 6,	ord = 7, desc = _("upgrade-comms","double homing missile capacity"), downgrade = _("downgrade-comms","slowed mine load speed by 1/6")},				--10
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","speed up mine loading speed by 20%"), downgrade = _("downgrade-comms","reduced homing missile capacity by 1/3")},			--11
+				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase homing missile capacity by 50%"), downgrade = _("downgrade-comms","reduced medium sized homing missile tubes to small")},		--12
+				{tube = 8,	ord = 8, desc = _("upgrade-comms","medium sized homing misile tubes"), downgrade = _("downgrade-comms","reduced mine capacity by 1/6")},			--13
 				{tube = 8,	ord = 9, desc = _("upgrade-comms","increase mine capacity by 20%")},				--14
 				["start"] = 3,
 			},
@@ -2069,44 +2132,53 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 50},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--2
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/7"),
 				},
 				{	--3
 					{idx = 0, max = 70},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by ~17%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 50},
 					{idx = 1, max = 50},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--5
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--6
 					{idx = 0, max = 80},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--7
 					{idx = 0, max = 100},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/3"),
 				},
 				{	--8
 					{idx = 0, max = 100},
 					{idx = 1, max = 150},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 50%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--9
 					{idx = 0, max = 100},
 					{idx = 1, max = 180},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 10%"),
 				},
 				{	--10
 					{idx = 0, max = 100},
@@ -2120,12 +2192,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},	
 			["hull"] = {
-				{max = 100},															--1
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--2
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--3
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--4
-				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~11%")},	--5
-				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%")},	--6
+				{max = 100, downgrade = _("downgrade-comms","reduced hull max by 1/6")},															--1
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--2
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--3
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 10%")},	--4
+				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~11%"), downgrade = _("downgrade-comms","reduced hull max by 1/11")},	--5
+				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%"), downgrade = _("downgrade-comms","reduced hull max by 1/12")},	--6
 				{max = 240, ["desc"] = _("upgrade-comms","increase hull max by ~9%")},	--7
 				["stock"] = {max = 200},
 				["start"] = 3,
@@ -2136,6 +2208,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	6,		accel_back = 	6,
 					turn = 			5,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max forward impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		60,		max_back =		50,
@@ -2143,6 +2216,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max forward impulse speed by ~20%"),
+					downgrade = _("downgrade-comms","removed combat maneuver forward boost"),
 				},
 				{	--3
 					max_front =		60,		max_back =		50,
@@ -2150,6 +2224,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			300,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver forward boost"),
+					downgrade = _("downgrade-comms","reduced max forward acceleration by 25%"),
 				},
 				{	--4
 					max_front =		60,		max_back =		50,
@@ -2157,6 +2232,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			300,	strafe =		0,
 					desc = _("upgrade-comms","increase max forward acceleration by 1/3"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--5
 					max_front =		60,		max_back =		50,
@@ -2164,6 +2240,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			5,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 3/8"),
 				},
 				{	--6
 					max_front =		60,		max_back =		50,
@@ -2171,6 +2248,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","increase maneuverability by 60%"),
+					downgrade = _("downgrade-comms","reduced max forward impulse speed by 1/7"),
 				},
 				{	--7
 					max_front =		70,		max_back =		50,
@@ -2178,6 +2256,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","increase max forward impulse speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver forward boost by 25%"),
 				},
 				{	--8
 					max_front =		70,		max_back =		50,
@@ -2185,6 +2264,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			400,	strafe =		200,
 					desc = _("upgrade-comms","increase combat maneuver forward boost by 1/3"),
+					downgrade = _("downgrade-comms","reduced impulse forward acceleration by 20%"),
 				},
 				{	--9
 					max_front =		70,		max_back =		50,
@@ -2192,6 +2272,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			400,	strafe =		200,
 					desc = _("upgrade-comms","increase impulse forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver strafe by 20%"),
 				},
 				{	--10
 					max_front =		70,		max_back =		50,
@@ -2199,6 +2280,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			400,	strafe =		250,
 					desc = _("upgrade-comms","increase combat maneuver strafe by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--11
 					max_front =		70,		max_back =		50,
@@ -2206,6 +2288,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			400,	strafe =		250,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver forward boost by 20%"),
 				},
 				{	--12
 					max_front =		70,		max_back =		50,
@@ -2213,6 +2296,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		250,
 					desc = _("upgrade-comms","increase combat maneuver forward boost by 25%"),
+					downgrade = _("downgrade-comms","reduced impulse forward acceleration by 1/6"),
 				},
 				{	--13
 					max_front =		70,		max_back =		50,
@@ -2220,6 +2304,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		250,
 					desc = _("upgrade-comms","increase impulse forward acceleration by 20%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver strafe by 1/6"),
 				},
 				{	--14
 					max_front =		70,		max_back =		50,
@@ -2227,6 +2312,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase combat maneuver strafe by 20%"),
+					downgrade = _("downgrade-comms","reduced max forward impulse speed by 1/7"),
 				},
 				{	--15
 					max_front =		77,		max_back =		50,
@@ -2234,6 +2320,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase max forward impulse speed by 10%"),
+					downgrade = _("downgrade-comms","reduced impulse forward acceleration by 20%"),
 				},
 				{	--16
 					max_front =		77,		max_back =		50,
@@ -2241,6 +2328,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase impulse forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced max reverse impulse by 1/6 and reverse acceleration by 25%"),
 				},
 				{	--17
 					max_front =		77,		max_back =		60,
@@ -2248,6 +2336,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase max reverse impulse by 20% and reverse acceleration by 1/3"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/11"),
 				},
 				{	--18
 					max_front =		77,		max_back =		60,
@@ -2264,42 +2353,52 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--2
 					jump_long = 0, jump_short = 0, warp = 300,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 25%"),
 				},
 				{	--3
 					jump_long = 0, jump_short = 0, warp = 400,
 					desc = _("upgrade-comms","increase warp speed by 1/3"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--4
 					jump_long = 0, jump_short = 0, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--5
 					jump_long = 0, jump_short = 0, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/7"),
 				},
 				{	--6
 					jump_long = 0, jump_short = 0, warp = 700,
 					desc = _("upgrade-comms","increase warp speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/8"),
 				},
 				{	--7
 					jump_long = 0, jump_short = 0, warp = 800,
 					desc = _("upgrade-comms","increase warp speed by ~14%"),
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--8
 					jump_long = 20000, jump_short = 2000, warp = 800,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--9
 					jump_long = 25000, jump_short = 2500, warp = 800,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/9"),
 				},
 				{	--10
 					jump_long = 25000, jump_short = 2500, warp = 900,
 					desc = _("upgrade-comms","increase warp speed by 12.5%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--11
 					jump_long = 30000, jump_short = 3000, warp = 900,
@@ -2313,38 +2412,47 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 20000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 25000, prox_scan = 0,
-					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--3
 					short = 4000, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--4
 					short = 4500, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--5
 					short = 4500, long = 35000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--6
 					short = 4500, long = 40000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--7
 					short = 4500, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--8
 					short = 5000, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/9"),
 				},
 				{	--9
 					short = 5000, long = 45000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 10%"),
 				},
 				{	--10
 					short = 5000, long = 50000, prox_scan = 2,
@@ -2363,47 +2471,56 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 40, dir = -15, rng = 1000, cyc = 10, dmg = 5},
 					{idx = 1, arc = 40, dir =  15, rng = 1000, cyc = 10, dmg = 5},
+					downgrade = _("downgrade-comms","increased the cycle time by 1/9"),
 				},
 				{	--2
 					{idx = 0, arc = 40, dir = -15, rng = 1000, cyc = 9, dmg = 5},
 					{idx = 1, arc = 40, dir =  15, rng = 1000, cyc = 9, dmg = 5},
-					["desc"] = _("upgrade-comms","reduce cycle time by 10%")
+					["desc"] = _("upgrade-comms","reduce cycle time by 10%"),
+					downgrade = _("downgrade-comms","reduced the arc width by 1/3"),
 				},
 				{	--3
 					{idx = 0, arc = 60, dir = -15, rng = 1000, cyc = 9, dmg = 5},
 					{idx = 1, arc = 60, dir =  15, rng = 1000, cyc = 9, dmg = 5},
-					["desc"] = _("upgrade-comms","increase arc width by 50%")
+					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","reduced range by 1/11"),
 				},
 				{	--4
 					{idx = 0, arc = 60, dir = -15, rng = 1100, cyc = 9, dmg = 5},
 					{idx = 1, arc = 60, dir =  15, rng = 1100, cyc = 9, dmg = 5},
-					["desc"] = _("upgrade-comms","increase range by 10%")
+					["desc"] = _("upgrade-comms","increase range by 10%"),
+					downgrade = _("downgrade-comms","reduced damage by 1/6"),
 				},
 				{	--5
 					{idx = 0, arc = 60, dir = -15, rng = 1100, cyc = 9, dmg = 6},
 					{idx = 1, arc = 60, dir =  15, rng = 1100, cyc = 9, dmg = 6},
 					["desc"] = _("upgrade-comms","increase damage by 20%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/8"),
 				},
 				{	--6
 					{idx = 0, arc = 60, dir = -15, rng = 1100, cyc = 8, dmg = 6},
 					{idx = 1, arc = 60, dir =  15, rng = 1100, cyc = 8, dmg = 6},
 					["desc"] = _("upgrade-comms","reduce cycle time by ~11%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--7
 					{idx = 0, arc = 90, dir = -15, rng = 1100, cyc = 8, dmg = 6},
 					{idx = 1, arc = 90, dir =  15, rng = 1100, cyc = 8, dmg = 6},
 					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","reduced range by 1/12"),
 				},
 				{	--8
 					{idx = 0, arc = 90, dir = -15, rng = 1200, cyc = 8, dmg = 6},
 					{idx = 1, arc = 90, dir =  15, rng = 1200, cyc = 8, dmg = 6},
 					["desc"] = _("upgrade-comms","increase range by ~9%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--9
 					{idx = 0, arc = 90, dir = -15, rng = 1200, cyc = 8, dmg = 6},
 					{idx = 1, arc = 90, dir =  15, rng = 1200, cyc = 8, dmg = 6},
 					{idx = 2, arc = 30, dir =   0, rng = 1200, cyc = 8, dmg = 6},
 					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","reduced center beam range by 20%"),
 				},
 				{	--10
 					{idx = 0, arc = 90, dir = -15, rng = 1200, cyc = 8, dmg = 6},
@@ -2418,18 +2535,18 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																		--1
-				{tube = 2,	ord = 1, desc = _("upgrade-comms","increase tube load speed by ~17%")},			--2  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","add homing missiles")},						--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase homing missile capacity by 50%")},	--4
-				{tube = 3,	ord = 4, desc = _("upgrade-comms","increase HVLI capacity by 60%")},			--5
-				{tube = 4,	ord = 5, desc = _("upgrade-comms","add mining tube")},							--6
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","speed up forward tube load time by 20%")},	--7
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","add EMPs")},									--8
-				{tube = 7,	ord = 6, desc = _("upgrade-comms","increase tube size")},						--9
-				{tube = 8,	ord = 7, desc = _("upgrade-comms","add nukes, more EMPs")},						--10
-				{tube = 8,	ord = 8, desc = _("upgrade-comms","1/3 more homing capacity")},					--11
-				{tube = 8,	ord = 9, desc = _("upgrade-comms","more homing and HVLI missiles")},			--12
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","reduced tube load speed")},																		--1
+				{tube = 2,	ord = 1, desc = _("upgrade-comms","increase tube load speed by ~17%"), downgrade = _("downgrade-comms","removed homing missiles")},			--2  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","add homing missiles"), downgrade = _("downgrade-comms","reduced homing missile capacity by 1/3")},						--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase homing missile capacity by 50%"), downgrade = _("downgrade-comms","reduced HVLI capacity by 3/8")},	--4
+				{tube = 3,	ord = 4, desc = _("upgrade-comms","increase HVLI capacity by 60%"), downgrade = _("downgrade-comms","removed mining tube")},			--5
+				{tube = 4,	ord = 5, desc = _("upgrade-comms","add mining tube"), downgrade = _("downgrade-comms","reduced forward tube load speed by 1/6")},							--6
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","speed up forward tube load time by 20%"), downgrade = _("downgrade-comms","removed EMPs")},	--7
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","add EMPs"), downgrade = _("downgrade-comms","reduced tube size")},									--8
+				{tube = 7,	ord = 6, desc = _("upgrade-comms","increase tube size"), downgrade = _("downgrade-comms","removed nukes, reduced EMP capacity")},						--9
+				{tube = 8,	ord = 7, desc = _("upgrade-comms","add nukes, more EMPs"), downgrade = _("downgrade-comms","reduced homing missile capacity by 25%")},						--10
+				{tube = 8,	ord = 8, desc = _("upgrade-comms","1/3 more homing capacity"), downgrade = _("downgrade-comms","reduced homing and HVLI capacity")},					--11
+				{tube = 8,	ord = 9, desc = _("upgrade-comms","more homing and HVLI missiles"), downgrade = _("downgrade-comms","reduced homing, nuke, EMP and mine capacity")},			--12
 				{tube = 8,	ord = 10,desc = _("upgrade-comms","more homing, nuke, EMP and mine missiles")},	--13
 				["start"] = 4
 			},
@@ -2492,44 +2609,53 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 80},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/9"),
 				},
 				{	--2
 					{idx = 0, max = 90},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 12.5%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--3
 					{idx = 0, max = 120},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced shield recharge capacity by 25%"),
 				},
 				{	--5
 					{idx = 0, max = 80},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 20%"),
 				},
 				{	--6
 					{idx = 0, max = 100},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 1/6"),
 				},
 				{	--7
 					{idx = 0, max = 120},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--8
 					{idx = 0, max = 120},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced front shild charge capacity by 20%"),
 				},
 				{	--9
 					{idx = 0, max = 150},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--10
 					{idx = 0, max = 150},
@@ -2543,12 +2669,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 5
 			},	
 			["hull"] = {
-				{max = 100},															--1
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--2
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--3
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--4
-				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~11%")},	--5
-				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%")},	--6
+				{max = 100, downgrade = _("downgrade-comms","reduced hull max by 1/6")},															--1
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--2
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--3
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 10%")},	--4
+				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~11%"), downgrade = _("downgrade-comms","reduced hull max by 1/11")},	--5
+				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%"), downgrade = _("downgrade-comms","reduced hull max by 1/12")},	--6
 				{max = 240, ["desc"] = _("upgrade-comms","increase hull max by ~9%")},	--7
 				["stock"] = {max = 200},
 				["start"] = 4,
@@ -2559,6 +2685,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	16,		accel_back = 	14,
 					turn = 			8,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/9"),
 				},
 				{	--2
 					max_front =		70,		max_back =		60,
@@ -2566,6 +2693,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			9,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 12.5%"),
+					downgrade = _("downgrade-comms","reduced max forward impulse by 1/15"),
 				},
 				{	--3
 					max_front =		75,		max_back =		60,
@@ -2573,6 +2701,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			9,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max forward impulse by ~7%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--4
 					max_front =		75,		max_back =		60,
@@ -2580,6 +2709,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			9,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced max reverse impulse by 1/7"),
 				},
 				{	--5
 					max_front =		75,		max_back =		70,
@@ -2587,6 +2717,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			9,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","increase max reverse impulse by ~17%"),
+					downgrade = _("downgrade-comms","reduced forward impulse speed and acceleration"),
 				},
 				{	--6
 					max_front =		80,		max_back =		70,
@@ -2594,6 +2725,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			9,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","increase forward impulse speed and acceleration"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--7
 					max_front =		80,		max_back =		70,
@@ -2601,6 +2733,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			9,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 10%"),
 				},
 				{	--7
 					max_front =		80,		max_back =		70,
@@ -2608,6 +2741,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","increase maneuverability by ~11%"),
+					downgrade = _("downgrade-comms","cut combat maneuverability in half"),
 				},
 				{	--8
 					max_front =		80,		max_back =		70,
@@ -2615,6 +2749,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","double combat maneuverability"),
+					downgrade = _("downgrade-comms","reduced reverse impulse speed and acceleration"),
 				},
 				{	--9
 					max_front =		80,		max_back =		80,
@@ -2622,6 +2757,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","increase reverse impulse speed and acceleration"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--10
 					max_front =		80,		max_back =		80,
@@ -2629,6 +2765,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced reverse impulse max speed by 1/11"),
 				},
 				{	--11
 					max_front =		80,		max_back =		88,
@@ -2636,6 +2773,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","increase reverse impulse max speed by 10%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver boost by 20%"),
 				},
 				{	--12
 					max_front =		80,		max_back =		88,
@@ -2643,6 +2781,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase combat maneuver boost by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--13
 					max_front =		80,		max_back =		88,
@@ -2650,6 +2789,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase maneuverability by 20%"),
+					downgrade = _("downgrade-comms","reduced max forward impulse speed by 1/11")
 				},
 				{	--14
 					max_front =		88,		max_back =		88,
@@ -2666,38 +2806,47 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--2
 					jump_long = 0, jump_short = 0, warp = 300,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 300,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 25%"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 400,
 					desc = _("upgrade-comms","increase warp speed by 1/3"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--5
 					jump_long = 25000, jump_short = 2500, warp = 400,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--6
 					jump_long = 25000, jump_short = 2500, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--7
 					jump_long = 30000, jump_short = 3000, warp = 500,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--8
 					jump_long = 30000, jump_short = 3000, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/7"),
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 600,
 					desc = _("upgrade-comms","increase jump range by ~17%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/7"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 700,
@@ -2711,50 +2860,62 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 25%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
-					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					desc = _("upgrade-comms","increase long range sensors by 1/3"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--3
 					short = 4000, long = 20000, prox_scan = 1,
 					desc = _("upgrade-comms","add 1 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/11"),
 				},
 				{	--4
 					short = 4000, long = 22000, prox_scan = 1,
 					desc = _("upgrade-comms","increase long range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--5
 					short = 4500, long = 22000, prox_scan = 1,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 3/25"),
 				},
 				{	--6
 					short = 4500, long = 25000, prox_scan = 1,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--7
 					short = 4500, long = 30000, prox_scan = 1,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--8
 					short = 5000, long = 30000, prox_scan = 1,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","cut automated proximity scanner range by 2/3"),
 				},
 				{	--9
 					short = 5000, long = 30000, prox_scan = 3,
 					desc = _("upgrade-comms","triple automated proximity scanner range"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--10
 					short = 5000, long = 35000,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/11"),
 				},
 				{	--11
 					short = 5500, long = 35000,
 					desc = _("upgrade-comms","increase short range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--12
 					short = 5500, long = 40000,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/12"),
 				},
 				{	--13
 					short = 6000, long = 40000,
@@ -2773,34 +2934,40 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 20, dir =   0, rng = 1200, cyc = 8,  dmg = 4},
 					{idx = 1, arc = 40, dir =   0, rng = 1000, cyc = 8,  dmg = 4},
+					downgrade = _("downgrade-comms","increased cycle time by 1/7"),
 				},
 				{	--2
 					{idx = 0, arc = 20, dir =   0, rng = 1200, cyc = 7,  dmg = 4},
 					{idx = 1, arc = 40, dir =   0, rng = 1000, cyc = 7,  dmg = 4},
-					["desc"] = _("upgrade-comms","reduce cycle time by 12.5%")
+					["desc"] = _("upgrade-comms","reduce cycle time by 12.5%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--3
 					{idx = 0, arc = 20, dir =   0, rng = 1200, cyc = 7,  dmg = 4},
 					{idx = 1, arc = 60, dir =   0, rng = 1000, cyc = 7,  dmg = 4},
-					["desc"] = _("upgrade-comms","increase arc width by 50%")
+					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--4
 					{idx = 0, arc = 20, dir =   0, rng = 1200, cyc = 7,  dmg = 4},
 					{idx = 1, arc = 60, dir =   0, rng = 1000, cyc = 7,  dmg = 4},
 					{idx = 2, arc = 80, dir =   0, rng =  800, cyc = 7,  dmg = 4},
-					["desc"] = _("upgrade-comms","add beam")
+					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/6"),
 				},
 				{	--5
 					{idx = 0, arc = 20, dir =   0, rng = 1200, cyc = 6,  dmg = 4},
 					{idx = 1, arc = 60, dir =   0, rng = 1000, cyc = 6,  dmg = 4},
 					{idx = 2, arc = 80, dir =   0, rng =  800, cyc = 6,  dmg = 4},
 					["desc"] = _("upgrade-comms","reduce cycle time by ~14%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/9"),
 				},
 				{	--6
 					{idx = 0, arc = 20, dir =   0, rng = 1200, cyc = 6,  dmg = 4},
 					{idx = 1, arc = 60, dir =   0, rng = 1000, cyc = 6,  dmg = 4},
 					{idx = 2, arc = 90, dir =   0, rng =  800, cyc = 6,  dmg = 4},
 					["desc"] = _("upgrade-comms","increase arc width by 12.5%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--7
 					{idx = 0, arc =  4, dir =   0, rng = 1400, cyc = 6,  dmg = 4},
@@ -2808,6 +2975,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 60, dir =   0, rng = 1000, cyc = 6,  dmg = 4},
 					{idx = 3, arc = 90, dir =   0, rng =  800, cyc = 6,  dmg = 4},
 					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--8
 					{idx = 0, arc =  4, dir =   0, rng = 1400, cyc = 6,  dmg = 5},
@@ -2815,6 +2983,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 60, dir =   0, rng = 1000, cyc = 6,  dmg = 5},
 					{idx = 3, arc = 90, dir =   0, rng =  800, cyc = 6,  dmg = 5},
 					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","reduced range by ~8.6%"),
 				},
 				{	--9
 					{idx = 0, arc =  4, dir =   0, rng = 1500, cyc = 6,  dmg = 5},
@@ -2822,6 +2991,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 60, dir =   0, rng = 1100, cyc = 6,  dmg = 5},
 					{idx = 3, arc = 90, dir =   0, rng =  900, cyc = 6,  dmg = 5},
 					["desc"] = _("upgrade-comms","increase range by ~9.5%"),
+					downgrade = _("downgrade-comms","increased cycle time by 20%"),
 				},
 				{	--10
 					{idx = 0, arc =  4, dir =   0, rng = 1500, cyc = 5,  dmg = 5},
@@ -2839,20 +3009,20 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																	--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add homing")},							--2  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","increase tube size")},					--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase HVLI capacity by 50%")},		--4
-				{tube = 3,	ord = 4, desc = _("upgrade-comms","double homing capacity")},				--5
-				{tube = 4,	ord = 4, desc = _("upgrade-comms","speed up missile load time by 10%")},	--6
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","add nukes and EMPs")},					--7
-				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase HVLI capacity by 1/3")},		--8
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","speed up load time by ~17%")},			--9
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","add mine tube")},						--10
-				{tube = 8,	ord = 7, desc = _("upgrade-comms","20% faster broadside loading")},			--11
-				{tube = 8,	ord = 8, desc = _("upgrade-comms","more homing, mine and HVLI missiles")},	--12
-				{tube = 8,	ord = 9, desc = _("upgrade-comms","more nuke and EMP missiles")},			--13
-				{tube = 8,	ord = 10,desc = _("upgrade-comms","more homing and mine missiles")},		--14
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed homing")},																					--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add homing"), downgrade = _("downgrade-comms","reduced tube size")},											--2  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","increase tube size"), downgrade = _("downgrade-comms","reduced HVLI capacity by 1/3")},						--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase HVLI capacity by 50%"), downgrade = _("downgrade-comms","cut homing capacity in half")},			--4
+				{tube = 3,	ord = 4, desc = _("upgrade-comms","double homing capacity"), downgrade = _("downgrade-comms","slowed tube load speed")},						--5
+				{tube = 4,	ord = 4, desc = _("upgrade-comms","speed up missile load time by 10%"), downgrade = _("downgrade-comms","removed nukes and EMPs")},				--6
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","add nukes and EMPs"), downgrade = _("downgrade-comms","reduced HVLI capacity by 25%")},						--7
+				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase HVLI capacity by 1/3"), downgrade = _("downgrade-comms","slowed tube load speed")},					--8
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","speed up load time by ~17%"), downgrade = _("downgrade-comms","removed mine tube")},							--9
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","add mine tube"), downgrade = _("downgrade-comms","slowed broadside tubes' load speed by 1/6")},				--10
+				{tube = 8,	ord = 7, desc = _("upgrade-comms","20% faster broadside loading"), downgrade = _("downgrade-comms","reduced homing mine and HVLI capacity")},	--11
+				{tube = 8,	ord = 8, desc = _("upgrade-comms","more homing, mine and HVLI missiles"), downgrade = _("downgrade-comms","reduced nuke and EMP capacity")},	--12
+				{tube = 8,	ord = 9, desc = _("upgrade-comms","more nuke and EMP missiles"), downgrade = _("downgrade-comms","reduced homing and mine capacity")},			--13
+				{tube = 8,	ord = 10,desc = _("upgrade-comms","more homing and mine missiles")},																			--14
 				["start"] = 3,
 			},
 			["tube"] = {
@@ -2911,44 +3081,53 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 50},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--2
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--3
 					{idx = 0, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 50},
 					{idx = 1, max = 50},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--5
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 25%"),
 				},
 				{	--6
 					{idx = 0, max = 80},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 20%"),
 				},
 				{	--7
 					{idx = 0, max = 100},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 25%"),
 				},
 				{	--8
 					{idx = 0, max = 100},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 1/6"),
 				},
 				{	--9
 					{idx = 0, max = 120},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced rear chield charge capacity by 20%"),
 				},
 				{	--10
 					{idx = 0, max = 150},
@@ -2962,12 +3141,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 6,
 			},	
 			["hull"] = {
-				{max = 80},												--1
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},		--2
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--3
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},		--4
-				{max = 175, ["desc"] = _("upgrade-comms","increase hull max by ~17%")},	--5
-				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~14%")},	--6
+				{max = 80, downgrade = _("downgrade-comms","reduced hull max by 20%")},												--1
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},		--2
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},		--3
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},		--4
+				{max = 175, ["desc"] = _("upgrade-comms","increase hull max by ~17%"), downgrade = _("downgrade-comms","reduced hull max by 1/8")},	--5
+				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~14%"), downgrade = _("downgrade-comms","reduced hull max by 1/11")},	--6
 				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%")},		--7
 				["stock"] = {max = 120},
 				["start"] = 4,
@@ -2978,6 +3157,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	6,		accel_back = 	10,
 					turn = 			10,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max reverse impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		50,		max_back =		60,
@@ -2985,6 +3165,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max reverse impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced reverse acceleration by 1/3"),
 				},
 				{	--3
 					max_front =		50,		max_back =		60,
@@ -2992,6 +3173,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase reverse acceleration by 50%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/3"),
 				},
 				{	--4
 					max_front =		50,		max_back =		60,
@@ -2999,6 +3181,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 50%"),
+					downgrade = _("downgrade-comms","removed combat maneuver"),
 				},
 				{	--5
 					max_front =		50,		max_back =		60,
@@ -3006,6 +3189,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","add combat maneuver"),
+					downgrade = _("downgrade-comms","reduced forward impulse speed by 1/6"),
 				},
 				{	--6
 					max_front =		60,		max_back =		60,
@@ -3013,6 +3197,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","increase forward impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward impulse acceleration by 1/3"),
 				},
 				{	--7
 					max_front =		60,		max_back =		60,
@@ -3020,6 +3205,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","increase forward impulse acceleration by 50%"),
+					downgrade = _("downgrade-comms","reduced reverse impulse speed by 25%"),
 				},
 				{	--8
 					max_front =		60,		max_back =		80,
@@ -3027,6 +3213,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","increase reverse impulse speed by 1/3"),
+					downgrade = _("downgrade-comms","cut combat maneuverability in half"),
 				},
 				{	--9
 					max_front =		60,		max_back =		80,
@@ -3034,6 +3221,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","double combat maneuverability"),
+					downgrade = _("downgrade-comms","reduced reverse impulse acceleration by 1/6"),
 				},
 				{	--10
 					max_front =		60,		max_back =		80,
@@ -3041,6 +3229,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","increase reverse impulse acceleration by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 25%"),
 				},
 				{	--11
 					max_front =		60,		max_back =		80,
@@ -3048,6 +3237,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","increase forward acceleration by 1/3"),
+					downgrade = _("downgrade-comms","reduced forward impulse speed by 1/11"),
 				},
 				{	--12
 					max_front =		66,		max_back =		80,
@@ -3055,6 +3245,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			400,	strafe =		300,
 					desc = _("upgrade-comms","increase forward impulse speed by 10%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver boost by 20%"),
 				},
 				{	--13
 					max_front =		66,		max_back =		80,
@@ -3062,6 +3253,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase combat maneuver boost by 25%"),
+					downgrade = _("downgrade-comms","reduced reverse impulse speed by 1/11"),
 				},
 				{	--14
 					max_front =		66,		max_back =		88,
@@ -3069,6 +3261,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			500,	strafe =		300,
 					desc = _("upgrade-comms","increase reverse impulse speed by 10%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--15
 					max_front =		66,		max_back =		88,
@@ -3085,34 +3278,42 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--4
 					jump_long = 30000, jump_short = 3000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 25%"),
 				},
 				{	--5
 					jump_long = 40000, jump_short = 4000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 1/3"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--6
 					jump_long = 50000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--7
 					jump_long = 50000, jump_short = 5000, warp = 400,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--8
 					jump_long = 50000, jump_short = 5000, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--9
 					jump_long = 50000, jump_short = 5000, warp = 600,
@@ -3126,46 +3327,57 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/11"),
 				},
 				{	--3
 					short = 4000, long = 22000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--4
 					short = 4500, long = 22000, prox_scan = 0,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 3/25"),
 				},
 				{	--5
 					short = 4500, long = 25000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--6
 					short = 4500, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--7
 					short = 4500, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--8
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--9
 					short = 5000, long = 35000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--10
 					short = 5000, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/9"),
 				},
 				{	--11
 					short = 5000, long = 45000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 10%"),
 				},
 				{	--12
 					short = 5000, long = 50000, prox_scan = 2,
@@ -3183,36 +3395,44 @@ function playerShipUpgradeDowngradeData()
 			["beam"] = {
 				{	--1
 					{idx = 0, arc = 30, dir =   0, rng = 800, cyc = 8, dmg = 4},
+					downgrade = _("downgrade-comms","reduced range by 1/9"),
 				},
 				{	--2
 					{idx = 0, arc = 30, dir =   0, rng = 900, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","increase range by 12.5%")
+					["desc"] = _("upgrade-comms","increase range by 12.5%"),
+					downgrade = _("downgrade-comms","reduced arc by 1/3"),
 				},
 				{	--3
 					{idx = 0, arc = 45, dir =   0, rng = 900, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","increase arc by 50%")
+					["desc"] = _("upgrade-comms","increase arc by 50%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/7"),
 				},
 				{	--4
 					{idx = 0, arc = 45, dir =   0, rng = 900, cyc = 7, dmg = 4},
-					["desc"] = _("upgrade-comms","decrease cycle time by 12.5%")
+					["desc"] = _("upgrade-comms","decrease cycle time by 12.5%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--5
 					{idx = 0, arc = 45, dir =   0, rng = 900, cyc = 7, dmg = 5},
 					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","reduced range by 10%"),
 				},
 				{	--6
 					{idx = 0, arc = 45, dir =   0, rng = 1000, cyc = 7, dmg = 5},
 					["desc"] = _("upgrade-comms","increase range by ~11%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--7
 					{idx = 0, arc = 45, dir =   0, rng = 1000, cyc = 7, dmg = 5},
 					{idx = 1, arc = 30, dir =   0, rng = 1000, cyc = 7, dmg = 5},
 					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/6"),
 				},
 				{	--8
 					{idx = 0, arc = 45, dir =   0, rng = 1000, cyc = 6, dmg = 5},
 					{idx = 1, arc = 30, dir =   0, rng = 1000, cyc = 6, dmg = 5},
 					["desc"] = _("upgrade-comms","decrease cycle time by ~14%"),
+					downgrade = _("downgrade-comms","cut arc width in half"),
 				},
 				{	--9
 					{idx = 0, arc = 90, dir =   0, rng = 1000, cyc = 6, dmg = 5},
@@ -3225,21 +3445,21 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																							--1
-				{tube = 2,	ord = 1, desc = _("upgrade-comms","large tubes")},													--2  
-				{tube = 3,	ord = 1, desc = _("upgrade-comms","decrease load time by 25%")},									--3  
-				{tube = 4,	ord = 2, desc = _("upgrade-comms","add mining tube")},												--4
-				{tube = 5,	ord = 3, desc = _("upgrade-comms","add medium homing tubes and homing missiles")},					--5
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","increase homing missile capacity by 50%")},						--6
-				{tube = 6,	ord = 4, desc = _("upgrade-comms","add homing capability to large tubes")},							--7
-				{tube = 7,	ord = 4, desc = _("upgrade-comms","increase tube load speed by 20%")},								--8
-				{tube = 8,	ord = 5, desc = _("upgrade-comms","add nukes and EMPs, increase homing and HVLI capacity")},		--9
-				{tube = 8,	ord = 6, desc = _("upgrade-comms","increase EMP and mine capacity")},								--10
-				{tube = 9,	ord = 6, desc = _("upgrade-comms","add a second mine tube")},										--11
-				{tube = 10,	ord = 7, desc = _("upgrade-comms","add large tubes, increase homing capacity")},					--12
-				{tube = 11,	ord = 7, desc = _("upgrade-comms","increase tube load speed by 25%")},								--13
-				{tube = 12,	ord = 8, desc = _("upgrade-comms","add 3rd mining tube, increase mine, EMP and nuke capacity")},	--14
-				{tube = 13,	ord = 9, desc = _("upgrade-comms","increase tube load speeds, increase nuke and HVLI capacity")},	--15
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed large tubes")},																							--1
+				{tube = 2,	ord = 1, desc = _("upgrade-comms","large tubes"), downgrade = _("downgrade-comms","increased load times by 20%")},													--2  
+				{tube = 3,	ord = 1, desc = _("upgrade-comms","decrease load time by 25%"), downgrade = _("downgrade-comms","removed mining tube")},									--3  
+				{tube = 4,	ord = 2, desc = _("upgrade-comms","add mining tube"), downgrade = _("downgrade-comms","removed medium homing tube and homing missiles")},												--4
+				{tube = 5,	ord = 3, desc = _("upgrade-comms","add medium homing tubes and homing missiles"), downgrade = _("downgrade-comms","reduced homing missile capacity by 1/3")},					--5
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","increase homing missile capacity by 50%"), downgrade = _("downgrade-comms","removed homing capability from large tubes")},						--6
+				{tube = 6,	ord = 4, desc = _("upgrade-comms","add homing capability to large tubes"), downgrade = _("downgrade-comms","increased tube load speed by 1/6")},							--7
+				{tube = 7,	ord = 4, desc = _("upgrade-comms","increase tube load speed by 20%"), downgrade = _("downgrade-comms","removed nukes and EMPs, reduced homing and HVLI capacity")},								--8
+				{tube = 8,	ord = 5, desc = _("upgrade-comms","add nukes and EMPs, increase homing and HVLI capacity"), downgrade = _("downgrade-comms","reduced EMP and mine capacity")},		--9
+				{tube = 8,	ord = 6, desc = _("upgrade-comms","increase EMP and mine capacity"), downgrade = _("downgrade-comms","removed second mine tube")},								--10
+				{tube = 9,	ord = 6, desc = _("upgrade-comms","add a second mine tube"), downgrade = _("downgrade-comms","removed large tubes, reduced homing capacity")},										--11
+				{tube = 10,	ord = 7, desc = _("upgrade-comms","add large tubes, increase homing capacity"), downgrade = _("downgrade-comms","increased tube load speed by 20%")},					--12
+				{tube = 11,	ord = 7, desc = _("upgrade-comms","increase tube load speed by 25%"), downgrade = _("downgrade-comms","removed 3rd mining tube, reduced mine, EMP and nuke capacity")},								--13
+				{tube = 12,	ord = 8, desc = _("upgrade-comms","add 3rd mining tube, increase mine, EMP and nuke capacity"), downgrade = _("downgrade-comms","increased tube load speeds, reduced nuke and HVLI capacity")},	--14
+				{tube = 13,	ord = 9, desc = _("upgrade-comms","increase tube load speeds, increase nuke and HVLI capacity"), downgrade = _("downgrade-comms","reduced homing, EMP, mine and HVLI capacity")},	--15
 				{tub = 13,	ord = 10,desc = _("upgrade-comms","increase homing, EMP, mine and HVLI capacity)")},				--16
 				["start"] = 5,
 			},		
@@ -3366,39 +3586,47 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 50},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--2
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--3
 					{idx = 0, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 50},
 					{idx = 1, max = 50},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--5
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--6
 					{idx = 0, max = 80},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--7
 					{idx = 0, max = 100},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--8
 					{idx = 0, max = 120},
 					{idx = 1, max = 120},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/11"),
 				},
 				{	--9
 					{idx = 0, max = 132},
@@ -3412,12 +3640,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},	
 			["hull"] = {
-				{max = 80},																--1
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--2
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--3
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--4
-				{max = 175, ["desc"] = _("upgrade-comms","increase hull max by ~17%")},	--5
-				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~14%")},	--6
+				{max = 80, downgrade = _("downgrade-comms","reduced hull max by 20%")},																--1
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--2
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--3
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--4
+				{max = 175, ["desc"] = _("upgrade-comms","increase hull max by ~17%"), downgrade = _("downgrade-comms","reduced hull max by 1/8")},	--5
+				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~14%"), downgrade = _("downgrade-comms","reduced hull max by 1/11")},	--6
 				{max = 220, ["desc"] = _("upgrade-comms","increase hull max by 10%")},	--7
 				["stock"] = {max = 120},
 				["start"] = 4,
@@ -3428,6 +3656,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	6,		accel_back = 	6,
 					turn = 			8,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max forward impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		60,		max_back =		50,
@@ -3435,6 +3664,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max forward impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 25%"),
 				},
 				{	--3
 					max_front =		60,		max_back =		50,
@@ -3442,6 +3672,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 1/3"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--4
 					max_front =		60,		max_back =		50,
@@ -3449,6 +3680,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--5
 					max_front =		60,		max_back =		50,
@@ -3456,6 +3688,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/6"),
 				},
 				{	--6
 					max_front =		72,		max_back =		60,
@@ -3463,6 +3696,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 20%"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--7
 					max_front =		72,		max_back =		60,
@@ -3470,6 +3704,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","cut impulse acceleration in half"),
 				},
 				{	--8
 					max_front =		72,		max_back =		60,
@@ -3477,6 +3712,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","double impulse acceleration"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--9
 					max_front =		72,		max_back =		60,
@@ -3484,6 +3720,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			200,	strafe =		150,
 					desc = _("upgrade-comms","increase maneuverability by 20%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/3"),
 				},
 				{	--10
 					max_front =		72,		max_back =		60,
@@ -3500,34 +3737,42 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--4
 					jump_long = 30000, jump_short = 3000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 25%"),
 				},
 				{	--5
 					jump_long = 40000, jump_short = 4000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 1/3"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%")
 				},
 				{	--6
 					jump_long = 50000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--7
 					jump_long = 50000, jump_short = 5000, warp = 400,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--8
 					jump_long = 50000, jump_short = 5000, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--9
 					jump_long = 50000, jump_short = 5000, warp = 600,
@@ -3541,46 +3786,57 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/11"),
 				},
 				{	--3
 					short = 4000, long = 22000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--4
 					short = 4500, long = 22000, prox_scan = 0,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 3/25"),
 				},
 				{	--5
 					short = 4500, long = 25000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--6
 					short = 4500, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--7
 					short = 5000, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--8
 					short = 5000, long = 35000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--9
 					short = 5000, long = 35000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/11"),
 				},
 				{	--10
 					short = 5500, long = 35000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--11
 					short = 5500, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/12"),
 				},
 				{	--12
 					short = 6000, long = 40000, prox_scan = 2,
@@ -3598,43 +3854,52 @@ function playerShipUpgradeDowngradeData()
 			["beam"] = {
 				{	--1
 					{idx = 0, arc = 30, dir = 180, rng = 800, cyc = 8, dmg = 4},
+					downgrade = _("downgrade-comms","reduced range by 20%"),
 				},
 				{	--2
 					{idx = 0, arc = 30, dir = 180, rng = 1000, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","increase range by 25%")
+					["desc"] = _("upgrade-comms","increase range by 25%"),
+					downgrade = _("downgrade-comms","reduced arc by 25%"),
 				},
 				{	--3
 					{idx = 0, arc = 40, dir = 180, rng = 1000, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","increase arc by 1/3")
+					["desc"] = _("upgrade-comms","increase arc by 1/3"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/3"),
 				},
 				{	--4
 					{idx = 0, arc = 40, dir = 180, rng = 1000, cyc = 6, dmg = 4},
-					["desc"] = _("upgrade-comms","decrease cycle time by 25%")
+					["desc"] = _("upgrade-comms","decrease cycle time by 25%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--5
 					{idx = 0, arc = 40, dir = 180, rng = 1000, cyc = 6, dmg = 5},
 					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","reduced range by 1/6"),
 				},
 				{	--6
 					{idx = 0, arc = 40, dir = 180, rng = 1200, cyc = 6, dmg = 5},
 					["desc"] = _("upgrade-comms","increase range by 20%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--7
 					{idx = 0, arc = 40, dir = 170, rng = 1200, cyc = 6, dmg = 5},
 					{idx = 1, arc = 40, dir = 190, rng = 1200, cyc = 6, dmg = 5},
 					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","removed front beam"),
 				},
 				{	--8
 					{idx = 0, arc = 40, dir = 170, rng = 1200, cyc = 6, dmg = 5},
 					{idx = 1, arc = 40, dir = 190, rng = 1200, cyc = 6, dmg = 5},
 					{idx = 2, arc = 60, dir =   0, rng = 1200, cyc = 6, dmg = 5},
 					["desc"] = _("upgrade-comms","add front beam"),
+					downgrade = _("downgrade-comms","reduced damage by 3/8"),
 				},
 				{	--9
 					{idx = 0, arc = 40, dir = 170, rng = 1200, cyc = 6, dmg = 8},
 					{idx = 1, arc = 40, dir = 190, rng = 1200, cyc = 6, dmg = 8},
 					{idx = 2, arc = 60, dir =   0, rng = 1200, cyc = 6, dmg = 8},
 					["desc"] = _("upgrade-comms","increase damage by 60%"),
+					downgrade = _("downgrade-comms","increased cycle time by 50%"),
 				},
 				{	--10
 					{idx = 0, arc = 40, dir = 170, rng = 1200, cyc = 4, dmg = 8},
@@ -3649,20 +3914,20 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																				--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add homing")},										--2  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","speed up tube load time by 25%")},					--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase missile capacity: homing: 50%, HVLI: 25%")},--4
-				{tube = 4,	ord = 4, desc = _("upgrade-comms","add nuke")},											--5
-				{tube = 4,	ord = 5, desc = _("upgrade-comms","increase homing capacity by 2/3")},					--6
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","add medium sized homing and mine tube")},			--7
-				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase HVLI capacity by 40%")},					--8
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","add HVLI to medium sized tube")},					--9
-				{tube = 6,	ord = 7, desc = _("upgrade-comms","double nuke and mine capacity")},					--10
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","add large tube for HVLIs and mines")},				--11
-				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase homing capacity by 20%")},					--12
-				{tube = 8,	ord = 8, desc = _("upgrade-comms","reduce tube loading time by 25%")},					--13
-				{tube = 9,	ord = 9, desc = _("upgrade-comms","add EMP to medium tube and homing to large tube")},	--14
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed homing")},																				--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add homing"), downgrade = _("downgrade-comms","slowed tube load times")},										--2  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","speed up tube load time by 25%"), downgrade = _("downgrade-comms","reduced missile capacity: homing: 1/3, HVLI: 20%")},					--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase missile capacity: homing: 50%, HVLI: 25%"), downgrade = _("downgrade-comms","removed nuke")},--4
+				{tube = 4,	ord = 4, desc = _("upgrade-comms","add nuke"), downgrade = _("downgrade-comms","reduced homing capacity")},											--5
+				{tube = 4,	ord = 5, desc = _("upgrade-comms","increase homing capacity by 2/3"), downgrade = _("downgrade-comms","removed medium sized homing and mine tube")},					--6
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","add medium sized homing and mine tube"), downgrade = _("downgrade-comms","reduced HVLI capacity")},			--7
+				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase HVLI capacity by 40%"), downgrade = _("downgrade-comms","removed HVLI capbility from medium tube")},					--8
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","add HVLI to medium sized tube"), downgrade = _("downgrade-comms","cut nuke and mine capacity in half")},					--9
+				{tube = 6,	ord = 7, desc = _("upgrade-comms","double nuke and mine capacity"), downgrade = _("downgrade-comms","removed large tube for HVLIs and mines")},					--10
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","add large tube for HVLIs and mines"), downgrade = _("downgrade-comms","reduced homing capacity by 1/6")},				--11
+				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase homing capacity by 20%"), downgrade = _("downgrade-comms","increased tube load times")},					--12
+				{tube = 8,	ord = 8, desc = _("upgrade-comms","reduce tube loading time by 25%"), downgrade = _("downgrade-comms","removed EMP from medium tube and homing from large tube")},					--13
+				{tube = 9,	ord = 9, desc = _("upgrade-comms","add EMP to medium tube and homing to large tube"), downgrade = _("downgrade-comms","reduced homing, mine and HVLI capacity")},	--14
 				{tube = 9,	ord = 10,desc = _("upgrade-comms","increase homing, mine and HVLI capacity")},			--15
 				["start"] = 5,
 			},
@@ -3727,44 +3992,53 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 60},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--2
 					{idx = 0, max = 75},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--3
 					{idx = 0, max = 90},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 80},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity"),
 				},
 				{	--5
 					{idx = 0, max = 80},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--6
 					{idx = 0, max = 80},
 					{idx = 1, max = 120},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 20%"),
 				},
 				{	--7
 					{idx = 0, max = 100},
 					{idx = 1, max = 120},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--8
 					{idx = 0, max = 100},
 					{idx = 1, max = 150},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/11"),
 				},
 				{	--9
 					{idx = 0, max = 110},
 					{idx = 1, max = 165},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 10%"),
+					downgrade = _("downgrade-comms","reduced read shield charge capacity by 7/40"),
 				},
 				{	--10
 					{idx = 0, max = 110},
@@ -3778,12 +4052,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},	
 			["hull"] = {
-				{max = 80},																--1
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--2
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--3
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--4
-				{max = 165, ["desc"] = _("upgrade-comms","increase hull max by 10%")},	--5
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by ~9%")},	--6
+				{max = 80, downgrade = _("downgrade-comms","reduced hull max by 20%")},																--1
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--2
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--3
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/11")},	--4
+				{max = 165, ["desc"] = _("upgrade-comms","increase hull max by 10%"), downgrade = _("downgrade-comms","reduced hull max by 1/12")},	--5
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by ~9%"), downgrade = _("downgrade-comms","reduced hull max by 10%")},	--6
 				{max = 200, ["desc"] = _("upgrade-comms","increase hull max by ~11%")},	--7
 				["stock"] = {max = 100},
 				["start"] = 4,
@@ -3794,6 +4068,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	8,		accel_back = 	8,
 					turn = 			8,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse forward speed by 1/6"),
 				},
 				{	--2
 					max_front =		60,		max_back =		50,
@@ -3801,6 +4076,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max forward impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--3
 					max_front =		60,		max_back =		50,
@@ -3808,6 +4084,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--4
 					max_front =		60,		max_back =		50,
@@ -3815,6 +4092,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		150,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--5
 					max_front =		60,		max_back =		50,
@@ -3822,6 +4100,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		150,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 25%"),
 				},
 				{	--6
 					max_front =		80,		max_back =		50,
@@ -3829,6 +4108,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		150,
 					desc = _("upgrade-comms","increase max impulse speed by 1/3"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--7
 					max_front =		80,		max_back =		50,
@@ -3836,6 +4116,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			250,	strafe =		150,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced rear impulse max speed by 1/6"),
 				},
 				{	--8
 					max_front =		80,		max_back =		60,
@@ -3843,6 +4124,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			250,	strafe =		150,
 					desc = _("upgrade-comms","increase rear impulse max speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward impulse acceleration by 3/13"),
 				},
 				{	--9
 					max_front =		80,		max_back =		60,
@@ -3850,6 +4132,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			250,	strafe =		150,
 					desc = _("upgrade-comms","increase forward impulse acceleration by 30%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--10
 					max_front =		80,		max_back =		60,
@@ -3857,6 +4140,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			250,	strafe =		150,
 					desc = _("upgrade-comms","increase maneuverability by 20%"),
+					downgrade = _("downgrade-comms","reduced reverse impulse acceleration by 20%"),
 				},
 				{	--11
 					max_front =		80,		max_back =		60,
@@ -3873,38 +4157,47 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--2
 					jump_long = 0, jump_short = 0, warp = 350,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/8"),
 				},
 				{	--3
 					jump_long = 0, jump_short = 0, warp = 400,
 					desc = _("upgrade-comms","increase warp speed by ~14%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--4
 					jump_long = 0, jump_short = 0, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--5
 					jump_long = 0, jump_short = 0, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/13"),
 				},
 				{	--6
 					jump_long = 0, jump_short = 0, warp = 650,
 					desc = _("upgrade-comms","increase warp speed by ~8%"),
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--7
 					jump_long = 20000, jump_short = 2000, warp = 650,
 					desc = _("upgrade-comms","add 20U jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--8
 					jump_long = 25000, jump_short = 2500, warp = 650,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/14"),
 				},
 				{	--9
 					jump_long = 25000, jump_short = 2500, warp = 700,
 					desc = _("upgrade-comms","increase warp speed by ~8%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--10
 					jump_long = 30000, jump_short = 3000, warp = 700,
@@ -3918,46 +4211,57 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--3
 					short = 4000, long = 20000, prox_scan = 3,
 					desc = _("upgrade-comms","add 3 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/11"),
 				},
 				{	--4
 					short = 4000, long = 22000, prox_scan = 3,
 					desc = _("upgrade-comms","increase long range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--5
 					short = 4500, long = 22000, prox_scan = 3,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 3/25"),
 				},
 				{	--6
 					short = 4500, long = 25000, prox_scan = 3,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--7
 					short = 4500, long = 30000, prox_scan = 3,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--8
 					short = 5000, long = 30000, prox_scan = 3,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--9
 					short = 5000, long = 35000, prox_scan = 3,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/11"),
 				},
 				{	--10
 					short = 5500, long = 35000, prox_scan = 3,
 					desc = _("upgrade-comms","increase short range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--11
 					short = 5500, long = 40000, prox_scan = 3,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/12"),
 				},
 				{	--12
 					short = 6000, long = 40000, prox_scan = 3,
@@ -3976,51 +4280,61 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 10, dir =  90, rng = 1000, cyc = 8, dmg = 4, tar =  90, tdr =  90, trt = 1},
 					{idx = 1, arc = 10, dir = -90, rng = 1000, cyc = 8, dmg = 4, tar =  90, tdr = -90, trt = 1},
+					downgrade = _("downgrade-comms","reduced range by 1/6"),
 				},
 				{	--2
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 8, dmg = 4, tar =  90, tdr =  90, trt = 1},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 8, dmg = 4, tar =  90, tdr = -90, trt = 1},
-					["desc"] = _("upgrade-comms","increase range by 20%")
+					["desc"] = _("upgrade-comms","increase range by 20%"),
+					downgrade = _("downgrade-comms","reduced arc by 25%"),
 				},
 				{	--3
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 8, dmg = 4, tar = 120, tdr =  90, trt = 1},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 8, dmg = 4, tar = 120, tdr = -90, trt = 1},
-					["desc"] = _("upgrade-comms","increase arc by 1/3")
+					["desc"] = _("upgrade-comms","increase arc by 1/3"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/3"),
 				},
 				{	--4
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 6, dmg = 4, tar = 120, tdr =  90, trt = 1},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 6, dmg = 4, tar = 120, tdr = -90, trt = 1},
-					["desc"] = _("upgrade-comms","decrease cycle time by 25%")
+					["desc"] = _("upgrade-comms","decrease cycle time by 25%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--5
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 6, dmg = 5, tar = 120, tdr =  90, trt = 1},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 6, dmg = 5, tar = 120, tdr = -90, trt = 1},
 					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","cut turret speed in half"),
 				},
 				{	--6
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 6, dmg = 5, tar = 120, tdr =  90, trt = 2},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 6, dmg = 5, tar = 120, tdr = -90, trt = 2},
 					["desc"] = _("upgrade-comms","double turret speed"),
+					downgrade = _("downgrade-comms","reduced arc width by 20%"),
 				},
 				{	--7
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 6, dmg = 5, tar = 150, tdr =  90, trt = 2},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 6, dmg = 5, tar = 150, tdr = -90, trt = 2},
 					["desc"] = _("upgrade-comms","increase arc size by 25%"),
+					downgrade = _("downgrade-comms","cut turret speed in half"),
 				},
 				{	--8
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 6, dmg = 5, tar = 150, tdr =  90, trt = 4},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 6, dmg = 5, tar = 150, tdr = -90, trt = 4},
 					["desc"] = _("upgrade-comms","double turret speed"),
+					downgrade = _("downgrade-comms","reduced damage by 2/7"),
 				},
 				{	--9
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 6, dmg = 7, tar = 150, tdr =  90, trt = 4},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 6, dmg = 7, tar = 150, tdr = -90, trt = 4},
 					["desc"] = _("upgrade-comms","increase damage by 40%"),
+					downgrade = _("downgrade-comms","reduced arc width"),
 				},
 				{	--10
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 6, dmg = 7, tar = 200, tdr =  90, trt = 4},
 					{idx = 1, arc = 10, dir = -90, rng = 1200, cyc = 6, dmg = 7, tar = 200, tdr = -90, trt = 4},
 					["desc"] = _("upgrade-comms","overlap arcs"),
+					downgrade = _("downgrade-comms","increased cycle time by 20%"),
 				},
 				{	--11
 					{idx = 0, arc = 10, dir =  90, rng = 1200, cyc = 5, dmg = 7, tar = 200, tdr =  90, trt = 4},
@@ -4034,20 +4348,20 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 5,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																			--1
-				{tube = 2,	ord = 1, desc = _("upgrade-comms","decrease tube load time by 20%")},				--2  
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","increase capacity: homing: 100%, HVLI: 50%")},	--3  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","increase tube size to medium")},					--4
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase capacity: homing: 50%, HVLI: 1/3")},	--5
-				{tube = 4,	ord = 3, desc = _("upgrade-comms","speed up missile load time by 25%")},			--6
-				{tube = 4,	ord = 4, desc = _("upgrade-comms","increase capacity: homing: 1/3, HVLI: 25%")},	--7
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","speed up load time by 20%")},					--8
-				{tube = 6,	ord = 4, desc = _("upgrade-comms","increase tube size to large")},					--9
-				{tube = 7,	ord = 5, desc = _("upgrade-comms","add mine tube")},								--10
-				{tube = 7,	ord = 6, desc = _("upgrade-comms","double mine capacity")},							--11
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","increase mine capacity by 50%")},				--12
-				{tube = 8,	ord = 7, desc = _("upgrade-comms","decrease tube load speed by 25%")},				--13
-				{tube = 8,	ord = 8, desc = _("upgrade-comms","increase homing mine and HVLI capacity")},		--14
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","increased tube load time")},																			--1
+				{tube = 2,	ord = 1, desc = _("upgrade-comms","decrease tube load time by 20%"), downgrade = _("downgrade-comms","reduced capacity: homing:50%, HVLI: 1/3")},				--2  
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","increase capacity: homing: 100%, HVLI: 50%"), downgrade = _("downgrade-comms","reduced tube size to small")},	--3  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","increase tube size to medium"), downgrade = _("downgrade-comms","reduced capacity: homing: 1/3, HVLI: 25%")},					--4
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase capacity: homing: 50%, HVLI: 1/3"), downgrade = _("downgrade-comms","slowed tube load time")},	--5
+				{tube = 4,	ord = 3, desc = _("upgrade-comms","speed up missile load time by 25%"), downgrade = _("downgrade-comms","reduced capacity: homing: 25%, HVLI: 20%")},			--6
+				{tube = 4,	ord = 4, desc = _("upgrade-comms","increase capacity: homing: 1/3, HVLI: 25%"), downgrade = _("downgrade-comms","slowed tube load time")},	--7
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","speed up load time by 20%"), downgrade = _("downgrade-comms","reduced tube size from large to medium")},					--8
+				{tube = 6,	ord = 4, desc = _("upgrade-comms","increase tube size to large"), downgrade = _("downgrade-comms","removed mine tube")},					--9
+				{tube = 7,	ord = 5, desc = _("upgrade-comms","add mine tube"), downgrade = _("downgrade-comms","cut mine capacity in half")},								--10
+				{tube = 7,	ord = 6, desc = _("upgrade-comms","double mine capacity"), downgrade = _("downgrade-comms","reduced mine capacity by 1/3")},							--11
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","increase mine capacity by 50%"), downgrade = _("downgrade-comms","slowed tube load time")},				--12
+				{tube = 8,	ord = 7, desc = _("upgrade-comms","decrease tube load speed by 25%"), downgrade = _("downgrade-comms","reduced homing, mine and HVLI capacity")},				--13
+				{tube = 8,	ord = 8, desc = _("upgrade-comms","increase homing, mine and HVLI capacity")},		--14
 				["start"] = 4,
 			},
 			["tube"] = {
@@ -4104,39 +4418,47 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 60},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--2
 					{idx = 0, max = 75},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--3
 					{idx = 0, max = 90},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 80},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 20%"),
 				},
 				{	--5
 					{idx = 0, max = 80},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 20%"),
 				},
 				{	--7
 					{idx = 0, max = 100},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--8
 					{idx = 0, max = 100},
 					{idx = 1, max = 120},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/11"),
 				},
 				{	--9
 					{idx = 0, max = 110},
 					{idx = 1, max = 132},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 10%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 3/25"),
 				},
 				{	--10
 					{idx = 0, max = 110},
@@ -4150,12 +4472,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 5,
 			},	
 			["hull"] = {
-				{max = 80},																--1
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--2
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--3
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--4
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--5
-				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%")},	--6
+				{max = 80, downgrade = _("downgrade-comms","reduced hull max by 20%")},																--1
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--2
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--3
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--4
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--5
+				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%"), downgrade = _("downgrade-comms","reduced hull max by 4/25")},	--6
 				{max = 250, ["desc"] = _("upgrade-comms","increase hull max by ~19%")},	--7
 				["stock"] = {max = 120},
 				["start"] = 4,
@@ -4166,6 +4488,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	8,		accel_back = 	8,
 					turn = 			8,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		60,		max_back =		60,
@@ -4173,6 +4496,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--3
 					max_front =		60,		max_back =		60,
@@ -4180,6 +4504,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--4
 					max_front =		60,		max_back =		60,
@@ -4187,6 +4512,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--5
 					max_front =		60,		max_back =		60,
@@ -4194,6 +4520,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 25%"),
 				},
 				{	--6
 					max_front =		80,		max_back =		60,
@@ -4201,6 +4528,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 1/3"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--7
 					max_front =		80,		max_back =		60,
@@ -4208,6 +4536,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		100,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced rear impulse acceleration by 20%"),
 				},
 				{	--8
 					max_front =		80,		max_back =		60,
@@ -4215,6 +4544,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		100,
 					desc = _("upgrade-comms","increase rear impulse acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/3"),
 				},
 				{	--9
 					max_front =		80,		max_back =		60,
@@ -4222,6 +4552,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			300,	strafe =		150,
 					desc = _("upgrade-comms","increase combat maneuver by 50%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--10
 					max_front =		80,		max_back =		60,
@@ -4229,6 +4560,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			300,	strafe =		150,
 					desc = _("upgrade-comms","increase maneuverability by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 1/3"),
 				},
 				{	--11
 					max_front =		80,		max_back =		60,
@@ -4245,38 +4577,47 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 25000, jump_short = 2500, warp = 0,
 					desc = _("upgrade-comms","add 25u jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--3
 					jump_long = 30000, jump_short = 3000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 25%"),
 				},
 				{	--4
 					jump_long = 40000, jump_short = 4000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 1/3"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--5
 					jump_long = 50000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--6
 					jump_long = 60000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--7
 					jump_long = 60000, jump_short = 5000, warp = 300,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 25%"),
 				},
 				{	--8
 					jump_long = 60000, jump_short = 5000, warp = 400,
 					desc = _("upgrade-comms","increase warp speed by 1/3"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--9
 					jump_long = 60000, jump_short = 5000, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--10
 					jump_long = 60000, jump_short = 5000, warp = 600,
@@ -4290,42 +4631,52 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--3
 					short = 4000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/11"),
 				},
 				{	--4
 					short = 4000, long = 22000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--5
 					short = 4500, long = 22000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 3/25"),
 				},
 				{	--6
 					short = 4500, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--7
 					short = 4500, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--8
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","cur automated proximity scanner range in half"),
 				},
 				{	--9
 					short = 5000, long = 30000, prox_scan = 4,
 					desc = _("upgrade-comms","double automated proximity scanner range"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--10
 					short = 5000, long = 35000, prox_scan = 4,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--11
 					short = 5000, long = 40000, prox_scan = 4,
@@ -4344,41 +4695,49 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 60, dir = -15, rng = 800, cyc = 8, dmg = 6},
 					{idx = 1, arc = 60, dir =  15, rng = 800, cyc = 8, dmg = 6},
+					downgrade = _("downgrade-comms","reduced range by 20%"),
 				},
 				{	--2
 					{idx = 0, arc = 60, dir = -15, rng = 1000, cyc = 8, dmg = 6},
 					{idx = 1, arc = 60, dir =  15, rng = 1000, cyc = 8, dmg = 6},
-					["desc"] = _("upgrade-comms","increase range by 25%")
+					["desc"] = _("upgrade-comms","increase range by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 20%"),
 				},
 				{	--3
 					{idx = 0, arc = 75, dir = -15, rng = 1000, cyc = 8, dmg = 6},
 					{idx = 1, arc = 75, dir =  15, rng = 1000, cyc = 8, dmg = 6},
-					["desc"] = _("upgrade-comms","increase arc by 25%")
+					["desc"] = _("upgrade-comms","increase arc by 25%"),
+					downgrade = _("downgrade-comms","reduced damage by 25%"),
 				},
 				{	--4
 					{idx = 0, arc = 75, dir = -15, rng = 1000, cyc = 8, dmg = 8},
 					{idx = 1, arc = 75, dir =  15, rng = 1000, cyc = 8, dmg = 8},
-					["desc"] = _("upgrade-comms","increase damage by 1/3")
+					["desc"] = _("upgrade-comms","increase damage by 1/3"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 75, dir = -15, rng = 1000, cyc = 6, dmg = 8},
 					{idx = 1, arc = 75, dir =  15, rng = 1000, cyc = 6, dmg = 8},
-					["desc"] = _("upgrade-comms","decrease cycle time by 25%")
+					["desc"] = _("upgrade-comms","decrease cycle time by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/6"),
 				},
 				{	--6
 					{idx = 0, arc = 90, dir = -15, rng = 1000, cyc = 6, dmg = 8},
 					{idx = 1, arc = 90, dir =  15, rng = 1000, cyc = 6, dmg = 8},
-					["desc"] = _("upgrade-comms","increase arc by 20%")
+					["desc"] = _("upgrade-comms","increase arc by 20%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--7
 					{idx = 0, arc = 90, dir = -15, rng = 1000, cyc = 6, dmg = 10},
 					{idx = 1, arc = 90, dir =  15, rng = 1000, cyc = 6, dmg = 10},
-					["desc"] = _("upgrade-comms","increase damage by 25%")
+					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","increased cycle time by 50%"),
 				},
 				{	--8
 					{idx = 0, arc = 90, dir = -15, rng = 1000, cyc = 4, dmg = 10},
 					{idx = 1, arc = 90, dir =  15, rng = 1000, cyc = 4, dmg = 10},
-					["desc"] = _("upgrade-comms","decrease cycle time by 1/3")
+					["desc"] = _("upgrade-comms","decrease cycle time by 1/3"),
+					downgrade = _("downgrade-comms","reduced range by 1/6"),
 				},
 				{	--9
 					{idx = 0, arc = 90, dir = -15, rng = 1200, cyc = 4, dmg = 10},
@@ -4392,18 +4751,18 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 2,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																				--1
-				{tube = 1,	ord = 2, desc = _("upgrade-comms","double HVLI capacity")},								--2  
-				{tube = 2,	ord = 3, desc = _("upgrade-comms","add mining tube")},									--3  
-				{tube = 2,	ord = 4, desc = _("upgrade-comms","triple mine capacity")},								--4
-				{tube = 3,	ord = 5, desc = _("upgrade-comms","add homing missiles")},								--5
-				{tube = 4,	ord = 5, desc = _("upgrade-comms","increase tube size to medium")},						--6
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase load speed by 25%")},						--7
-				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase homing capacity by 50%")},					--8
-				{tube = 6,	ord = 7, desc = _("upgrade-comms","add nuke and EMPs")},								--9
-				{tube = 6,	ord = 8, desc = _("upgrade-comms","increase HVLI capacity by 25%")},					--10
-				{tube = 7,	ord = 8, desc = _("upgrade-comms","decrease load speed by 1/3")},						--11
-				{tube = 7,	ord = 9, desc = _("upgrade-comms","increase homing capacity by 1/3")},					--12
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","cut HVLI capacity in half")},																				--1
+				{tube = 1,	ord = 2, desc = _("upgrade-comms","double HVLI capacity"), downgrade = _("downgrade-comms","removed mining tube")},								--2  
+				{tube = 2,	ord = 3, desc = _("upgrade-comms","add mining tube"), downgrade = _("downgrade-comms","cut mine capacity by 2/3")},									--3  
+				{tube = 2,	ord = 4, desc = _("upgrade-comms","triple mine capacity"), downgrade = _("downgrade-comms","removed homing missiles")},								--4
+				{tube = 3,	ord = 5, desc = _("upgrade-comms","add homing missiles"), downgrade = _("downgrade-comms","reduced tube size to small")},								--5
+				{tube = 4,	ord = 5, desc = _("upgrade-comms","increase tube size to medium"), downgrade = _("downgrade-comms","slowed tube load speed")},						--6
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase load speed by 25%"), downgrade = _("downgrade-comms","reduced homing capacity by 1/3")},						--7
+				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase homing capacity by 50%"), downgrade = _("downgrade-comms","removed nuke and EMPs")},					--8
+				{tube = 6,	ord = 7, desc = _("upgrade-comms","add nuke and EMPs"), downgrade = _("downgrade-comms","reduced HVLI capacity by 20%")},								--9
+				{tube = 6,	ord = 8, desc = _("upgrade-comms","increase HVLI capacity by 25%"), downgrade = _("downgrade-comms","slowed tube load speed")},					--10
+				{tube = 7,	ord = 8, desc = _("upgrade-comms","decrease load speed by 1/3"), downgrade = _("downgrade-comms","reduced homing capacity by 25%")},						--11
+				{tube = 7,	ord = 9, desc = _("upgrade-comms","increase homing capacity by 1/3"), downgrade = _("downgrade-comms","reduced capacity: nuke: 50%, EMP: 50%, mine: 25%")},					--12
 				{tube = 7,	ord = 10,desc = _("upgrade-comms","increase capacity: nuke:100%, EMP:100%, mine:1/3")},	--13
 				["start"] = 6,
 			},
@@ -4464,39 +4823,47 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 60},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--2
 					{idx = 0, max = 75},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--3
 					{idx = 0, max = 90},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 80},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 20%"),
 				},
 				{	--5
 					{idx = 0, max = 100},
 					{idx = 1, max = 80},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 20%"),
 				},
 				{	--6
 					{idx = 0, max = 100},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 1/6"),
 				},
 				{	--7
 					{idx = 0, max = 120},
 					{idx = 1, max = 100},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/11"),
 				},
 				{	--8
 					{idx = 0, max = 132},
 					{idx = 1, max = 110},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 10%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 3/25"),
 				},
 				{	--9
 					{idx = 0, max = 150},
@@ -4510,12 +4877,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},	
 			["hull"] = {
-				{max = 100},															--1
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--2
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--3
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--4
-				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%")},	--5
-				{max = 250, ["desc"] = _("upgrade-comms","increase hull max by ~19%")},	--6
+				{max = 100, downgrade = _("downgrade-comms","reduced hull max by 1/6"),},															--1
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--2
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--3
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--4
+				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%"), downgrade = _("downgrade-comms","reduced hull max by 4/25")},	--5
+				{max = 250, ["desc"] = _("upgrade-comms","increase hull max by ~19%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--6
 				{max = 275, ["desc"] = _("upgrade-comms","increase hull max by 10%")},	--7
 				["stock"] = {max = 200},
 				["start"] = 3,
@@ -4526,6 +4893,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	12,		accel_back = 	12,
 					turn = 			8,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/8"),
 				},
 				{	--2
 					max_front =		80,		max_back =		80,
@@ -4533,6 +4901,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by ~14%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--3
 					max_front =		80,		max_back =		80,
@@ -4540,6 +4909,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--4
 					max_front =		80,		max_back =		80,
@@ -4547,6 +4917,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--5
 					max_front =		80,		max_back =		80,
@@ -4554,6 +4925,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			300,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/9"),
 				},
 				{	--6
 					max_front =		90,		max_back =		90,
@@ -4561,6 +4933,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			300,	strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 12.5%"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--7
 					max_front =		90,		max_back =		90,
@@ -4568,6 +4941,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced acceleration by 25%"),
 				},
 				{	--8
 					max_front =		90,		max_back =		90,
@@ -4575,6 +4949,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","increase impulse acceleration by 1/3"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/3"),
 				},
 				{	--9
 					max_front =		90,		max_back =		90,
@@ -4582,6 +4957,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			450,	strafe =		300,
 					desc = _("upgrade-comms","increase combat maneuver by 50%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--10
 					max_front =		90,		max_back =		90,
@@ -4589,6 +4965,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			450,	strafe =		300,
 					desc = _("upgrade-comms","increase maneuverability by 20%"),
+					downgrade = _("downgrade-comms","reduced forward impulse speed by 10%"),
 				},
 				{	--11
 					max_front =		100,	max_back =		90,
@@ -4605,42 +4982,52 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--4
 					jump_long = 30000, jump_short = 3000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 25%"),
 				},
 				{	--5
 					jump_long = 40000, jump_short = 4000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 1/3"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--6
 					jump_long = 50000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/11"),
 				},
 				{	--7
 					jump_long = 55000, jump_short = 5500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 10%"),
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--8
 					jump_long = 55000, jump_short = 5500, warp = 400,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--9
 					jump_long = 55000, jump_short = 5500, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/12"),
 				},
 				{	--10
 					jump_long = 60000, jump_short = 6000, warp = 500,
 					desc = _("upgrade-comms","increase jump range by ~9%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--11
 					jump_long = 60000, jump_short = 6000, warp = 600,
@@ -4654,42 +5041,52 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/11"),
 				},
 				{	--4
 					short = 4000, long = 22000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 10%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/9"),
 				},
 				{	--5
 					short = 4500, long = 22000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 3/25"),
 				},
 				{	--6
 					short = 4500, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--7
 					short = 4500, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--8
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--9
 					short = 5000, long = 35000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--10
 					short = 5000, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","cut automated proximity scanner range in half"),
 				},
 				{	--11
 					short = 5000, long = 40000, prox_scan = 4,
@@ -4707,29 +5104,34 @@ function playerShipUpgradeDowngradeData()
 			["beam"] = {
 				{	--1
 					{idx = -1},
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--2
 					{idx = 0, arc = 30, dir = 180, rng = 800, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","add beam")
+					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--3
 					{idx = 0, arc = 30, dir = 180, rng = 800, cyc = 8, dmg = 4},
 					{idx = 1, arc = 30, dir =   0, rng = 800, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","add beam")
+					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","removed beams"),
 				},
 				{	--4
 					{idx = 0, arc = 30, dir = 180, rng = 800, cyc = 8, dmg = 4},
 					{idx = 1, arc = 30, dir =   0, rng = 800, cyc = 8, dmg = 4},
 					{idx = 2, arc = 30, dir = -90, rng = 800, cyc = 8, dmg = 4},
 					{idx = 3, arc = 30, dir =  90, rng = 800, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","add beams")
+					["desc"] = _("upgrade-comms","add beams"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 45, dir = 180, rng = 800, cyc = 8, dmg = 4},
 					{idx = 1, arc = 45, dir =   0, rng = 800, cyc = 8, dmg = 4},
 					{idx = 2, arc = 45, dir = -90, rng = 800, cyc = 8, dmg = 4},
 					{idx = 3, arc = 45, dir =  90, rng = 800, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","increase arc width by 50%")
+					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","reduced range by 1/9"),
 				},
 				{	--6
 					{idx = 0, arc = 45, dir = 180, rng = 900, cyc = 8, dmg = 4},
@@ -4737,6 +5139,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 45, dir = -90, rng = 900, cyc = 8, dmg = 4},
 					{idx = 3, arc = 45, dir =  90, rng = 900, cyc = 8, dmg = 4},
 					["desc"] = _("upgrade-comms","increase range by 12.5%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/7"),
 				},
 				{	--7
 					{idx = 0, arc = 45, dir = 180, rng = 900, cyc = 7, dmg = 4},
@@ -4744,6 +5147,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 45, dir = -90, rng = 900, cyc = 7, dmg = 4},
 					{idx = 3, arc = 45, dir =  90, rng = 900, cyc = 7, dmg = 4},
 					["desc"] = _("upgrade-comms","decrease cycle time by 12.5%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--8
 					{idx = 0, arc = 45, dir = 180, rng = 900, cyc = 7, dmg = 5},
@@ -4751,6 +5155,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 45, dir = -90, rng = 900, cyc = 7, dmg = 5},
 					{idx = 3, arc = 45, dir =  90, rng = 900, cyc = 7, dmg = 5},
 					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 25%"),
 				},
 				{	--9
 					{idx = 0, arc = 60, dir = 180, rng = 900, cyc = 7, dmg = 5},
@@ -4758,6 +5163,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 2, arc = 60, dir = -90, rng = 900, cyc = 7, dmg = 5},
 					{idx = 3, arc = 60, dir =  90, rng = 900, cyc = 7, dmg = 5},
 					["desc"] = _("upgrade-comms","increase arc width by 1/3"),
+					downgrade = _("downgrade-comms","reduced range by 10%"),
 				},
 				{	--10
 					{idx = 0, arc = 60, dir = 180, rng = 1000, cyc = 7, dmg = 5},
@@ -4772,23 +5178,23 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																							--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","mining tube")},													--2  
-				{tube = 2,	ord = 3, desc = _("upgrade-comms","increase homing and HVLI capacity by 25%")},						--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","add broadside tubes")},											--4
-				{tube = 4,	ord = 3, desc = _("upgrade-comms","switch to medium sized tubes")},									--5
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","add nukes and EMPs to front tubes")},							--6
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase homing capacity by 60%")},								--7
-				{tube = 6,	ord = 5, desc = _("upgrade-comms","add more broadside tubes")},										--8
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","triple mine capacity")},											--9
-				{tube = 7,	ord = 6, desc = _("upgrade-comms","make second broadside tubes large")},							--10
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","increase homing capacity by 25%")},								--11
-				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase capacity: nuke: 100%, EMP: 50%, mine: 100%")},			--12
-				{tube = 7,	ord = 9, desc = _("upgrade-comms","increase homing capacity by 50%")},								--13
-				{tube = 8,	ord = 9, desc = _("upgrade-comms","increase front and broadside tubes' load time by 20%")},			--14
-				{tube = 9,	ord = 9, desc = _("upgrade-comms","add two more mining tubes")},									--15
-				{tube = 9,	ord = 10,desc = _("upgrade-comms","increase capacity: nuke:100%, EMP:2/3, mine:100%, HVLI:20%")},	--16
-				{tube = 10,	ord = 10,desc = _("upgrade-comms","increase load speed of medium tubes ~16%")},						--17
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed mining tube")},																							--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","mining tube"), downgrade = _("downgrade-comms","reduced homing and HVLI capacity by 20%")},													--2  
+				{tube = 2,	ord = 3, desc = _("upgrade-comms","increase homing and HVLI capacity by 25%"), downgrade = _("downgrade-comms","removed broadside tubes")},						--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","add broadside tubes"), downgrade = _("downgrade-comms","switched to small tubes from medium tubes")},											--4
+				{tube = 4,	ord = 3, desc = _("upgrade-comms","switch to medium sized tubes"), downgrade = _("downgrade-comms","removed nukes and EMPs from front tubes")},									--5
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","add nukes and EMPs to front tubes"), downgrade = _("downgrade-comms","reduced homing capacity")},							--6
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase homing capacity by 60%"), downgrade = _("downgrade-comms","removed some broadside tubes")},								--7
+				{tube = 6,	ord = 5, desc = _("upgrade-comms","add more broadside tubes"), downgrade = _("downgrade-comms","reduced mine capacity by 2/3")},										--8
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","triple mine capacity"), downgrade = _("downgrade-comms","switched second broadside tubes from medium to large")},											--9
+				{tube = 7,	ord = 6, desc = _("upgrade-comms","make second broadside tubes large"), downgrade = _("downgrade-comms","reduced homing capacity by 20%")},							--10
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","increase homing capacity by 25%"), downgrade = _("downgrade-comms","reduced capacity: nuke: 50%, EMP: 1/3, mine: 50%")},								--11
+				{tube = 7,	ord = 8, desc = _("upgrade-comms","increase capacity: nuke: 100%, EMP: 50%, mine: 100%"), downgrade = _("downgrade-comms","reduced homing capacity by 1/3")},			--12
+				{tube = 7,	ord = 9, desc = _("upgrade-comms","increase homing capacity by 50%"), downgrade = _("downgrade-comms","slowed front and broadside tubes' load times")},								--13
+				{tube = 8,	ord = 9, desc = _("upgrade-comms","reduce front and broadside tubes' load time by 20%"), downgrade = _("downgrade-comms","removed two mining tubes")},			--14
+				{tube = 9,	ord = 9, desc = _("upgrade-comms","add two more mining tubes"), downgrade = _("downgrade-comms","reduced capacity: nuke, EMP, mine, HVLI")},									--15
+				{tube = 9,	ord = 10,desc = _("upgrade-comms","increase capacity: nuke:100%, EMP:2/3, mine:100%, HVLI:20%"), downgrade = _("downgrade-comms","slowed medium tubes' load time")},	--16
+				{tube = 10,	ord = 10,desc = _("upgrade-comms","increase load speed of medium tubes ~16%"), downgrade = _("downgrade-comms","reduced capacity")},						--17
 				{tube = 10,	ord = 11,desc = _("upgrade-comms","increase capacity by ~14% on average")},							--18
 				["start"] = 5,
 			},	
@@ -4899,39 +5305,47 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 80},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--2
 					{idx = 0, max = 100},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--3
 					{idx = 0, max = 120},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 90},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","add rear shield arc"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 10%"),
 				},
 				{	--5
 					{idx = 0, max = 100},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by ~11%"),
+					downgrade = _("downgrade-comms","reduced rear chield charge capacity by 1/7"),
 				},
 				{	--6
 					{idx = 0, max = 100},
 					{idx = 1, max = 70},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by ~17%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 1/11"),
 				},
 				{	--7
 					{idx = 0, max = 110},
 					{idx = 1, max = 70},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 10%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 1/11")
 				},
 				{	--8
 					{idx = 0, max = 121},
 					{idx = 1, max = 70},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 10%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/8")
 				},
 				{	--9
 					{idx = 0, max = 121},
@@ -4945,12 +5359,12 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},	
 			["hull"] = {
-				{max = 100},															--1
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--2
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--3
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--4
-				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%")},	--5
-				{max = 250, ["desc"] = _("upgrade-comms","increase hull max by ~19%")},	--6
+				{max = 100, downgrade = _("downgrade-comms","reduced hull max by 1/6")},															--1
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--2
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--3
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--4
+				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%"), downgrade = _("downgrade-comms","reduced hull max by 4/25")},	--5
+				{max = 250, ["desc"] = _("upgrade-comms","increase hull max by ~19%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--6
 				{max = 275, ["desc"] = _("upgrade-comms","increase hull max by 10%")},	--7
 				["stock"] = {max = 200},
 				["start"] = 3,
@@ -4961,6 +5375,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	12,		accel_back = 	12,
 					turn = 			7,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		60,		max_back =		60,
@@ -4968,6 +5383,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			7,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--3
 					max_front =		60,		max_back =		60,
@@ -4975,6 +5391,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			7,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/8"),
 				},
 				{	--4
 					max_front =		60,		max_back =		60,
@@ -4982,6 +5399,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by ~14%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--5
 					max_front =		60,		max_back =		60,
@@ -4989,6 +5407,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			450,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/7"),
 				},
 				{	--6
 					max_front =		70,		max_back =		70,
@@ -4996,6 +5415,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			450,	strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by ~17%"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--7
 					max_front =		70,		max_back =		70,
@@ -5003,6 +5423,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			450,	strafe =		150,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced impulse acceleration by 25%"),
 				},
 				{	--8
 					max_front =		70,		max_back =		70,
@@ -5010,6 +5431,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			450,	strafe =		150,
 					desc = _("upgrade-comms","increase impulse acceleration by 1/3"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/6"),
 				},
 				{	--9
 					max_front =		70,		max_back =		70,
@@ -5017,6 +5439,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			540,	strafe =		180,
 					desc = _("upgrade-comms","increase combat maneuver by 20%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--10
 					max_front =		70,		max_back =		70,
@@ -5024,6 +5447,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			540,	strafe =		180,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduced forward max impulse speed by 1/8")
 				},
 				{	--11
 					max_front =		80,		max_back =		70,
@@ -5040,38 +5464,47 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--2
 					jump_long = 0, jump_short = 0, warp = 400,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--3
 					jump_long = 0, jump_short = 0, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--4
 					jump_long = 0, jump_short = 0, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/7"),
 				},
 				{	--5
 					jump_long = 0, jump_short = 0, warp = 700,
 					desc = _("upgrade-comms","increase warp speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/15")
 				},
 				{	--6
 					jump_long = 0, jump_short = 0, warp = 750,
 					desc = _("upgrade-comms","increase warp speed by ~7%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/16"),
 				},
 				{	--7
 					jump_long = 0, jump_short = 0, warp = 800,
 					desc = _("upgrade-comms","increase warp speed by ~7%"),
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--8
 					jump_long = 20000, jump_short = 2000, warp = 800,
 					desc = _("upgrade-comms","add jump drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/9"),
 				},
 				{	--9
 					jump_long = 20000, jump_short = 2000, warp = 900,
 					desc = _("upgrade-comms","increase warp speed by 12.5%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6")
 				},
 				{	--10
 					jump_long = 25000, jump_short = 2500, warp = 900,
@@ -5085,42 +5518,52 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4500, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4500, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--3
 					short = 4500, long = 20000, prox_scan = 1,
 					desc = _("upgrade-comms","add 1 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--4
 					short = 4500, long = 25000, prox_scan = 1,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 10%"),
 				},
 				{	--5
 					short = 5000, long = 25000, prox_scan = 1,
 					desc = _("upgrade-comms","increase short range sensors by ~11%"),
+					downgrade = _("downgrade-comms","cut automated proximity scanner range in half"),
 				},
 				{	--6
 					short = 5000, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","increase automated proximity scan range by 100%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--7
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced automated proximity scanner range by 1/3"),
 				},
 				{	--8
 					short = 5000, long = 30000, prox_scan = 3,
 					desc = _("upgrade-comms","increase automated proximity scan range by 50%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--9
 					short = 5000, long = 35000, prox_scan = 3,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced automated proximity scanner range by 25%"),
 				},
 				{	--10
 					short = 5000, long = 35000, prox_scan = 4,
 					desc = _("upgrade-comms","increase automated proximity scan range by 1/3"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--11
 					short = 5000, long = 40000, prox_scan = 4,
@@ -5138,54 +5581,65 @@ function playerShipUpgradeDowngradeData()
 			["beam"] = {
 				{	--1
 					{idx = 0, arc = 40, dir =   0, rng = 800, cyc = 8, dmg = 6},
+					downgrade = _("downgrade-comms","reduced range by 20%"),
 				},
 				{	--2
 					{idx = 0, arc = 40, dir =   0, rng = 1000, cyc = 8, dmg = 6},
-					["desc"] = _("upgrade-comms","increase range by 25%")
+					["desc"] = _("upgrade-comms","increase range by 25%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/7"),
 				},
 				{	--3
 					{idx = 0, arc = 40, dir =   0, rng = 1000, cyc = 7, dmg = 6},
-					["desc"] = _("upgrade-comms","reduce cycle time by 12.5%")
+					["desc"] = _("upgrade-comms","reduce cycle time by 12.5%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--4
 					{idx = 0, arc = 40, dir =   0, rng = 1000, cyc = 7, dmg = 6},
 					{idx = 1, arc = 40, dir =   0, rng =  800, cyc = 7, dmg = 6},
-					["desc"] = _("upgrade-comms","add beam")
+					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","reduced arc width of long beam by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 60, dir =   0, rng = 1000, cyc = 7, dmg = 6},
 					{idx = 1, arc = 40, dir =   0, rng =  800, cyc = 7, dmg = 6},
-					["desc"] = _("upgrade-comms","increase arc width of long beam by 50%")
+					["desc"] = _("upgrade-comms","increase arc width of long beam by 50%"),
+					downgrade = _("downgrade-comms","reduced damage by 1/7")
 				},
 				{	--6
 					{idx = 0, arc = 60, dir =   0, rng = 1000, cyc = 7, dmg = 7},
 					{idx = 1, arc = 40, dir =   0, rng =  800, cyc = 7, dmg = 7},
 					["desc"] = _("upgrade-comms","increase damage by ~17%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/6"),
 				},
 				{	--7
 					{idx = 0, arc = 60, dir =   0, rng = 1000, cyc = 6, dmg = 7},
 					{idx = 1, arc = 40, dir =   0, rng =  800, cyc = 6, dmg = 7},
 					["desc"] = _("upgrade-comms","decrease cycle time by ~14%"),
+					downgrade = _("downgrade-comms","reduced damage of short beam by 1/8"),
 				},
 				{	--8
 					{idx = 0, arc = 60, dir =   0, rng = 1000, cyc = 6, dmg = 7},
 					{idx = 1, arc = 40, dir =   0, rng =  800, cyc = 6, dmg = 8},
 					["desc"] = _("upgrade-comms","increase damage of short beam by ~14%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--9
 					{idx = 0, arc = 90, dir =   0, rng = 1000, cyc = 6, dmg = 7},
 					{idx = 1, arc = 60, dir =   0, rng =  800, cyc = 6, dmg = 8},
 					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","reduced damage by ~16%"),
 				},
 				{	--10
 					{idx = 0, arc = 90, dir =   0, rng = 1000, cyc = 6, dmg = 8},
 					{idx = 1, arc = 60, dir =   0, rng =  800, cyc = 6, dmg = 10},
 					["desc"] = _("upgrade-comms","increase damage by ~18%"),
+					downgrade = _("downgrade-comms","increased cycle time by 20%"),
 				},
 				{	--11
 					{idx = 0, arc = 90, dir =   0, rng = 1000, cyc = 5, dmg = 8},
 					{idx = 1, arc = 60, dir =   0, rng =  800, cyc = 5, dmg = 10},
 					["desc"] = _("upgrade-comms","reduce cycle time by ~17%"),
+					downgrade = _("downgrade-comms","reduced range by 1/11"),
 				},
 				{	--12
 					{idx = 0, arc = 90, dir =   0, rng = 1100, cyc = 5, dmg = 8},
@@ -5199,16 +5653,16 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																						--1
-				{tube = 2,	ord = 1, desc = _("upgrade-comms","reduce tube load speed by 1/3")},							--2  
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","double HVLI capacity")},										--3  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","make tube medium sized")},									--4
-				{tube = 4,	ord = 2, desc = _("upgrade-comms","add a small tube")},											--5
-				{tube = 5,	ord = 3, desc = _("upgrade-comms","add homing capability to small tube")},						--6
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","increase HVLI capacity by 25%")},							--7
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase homing capacity by 50%")},							--8
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","add a mining tube")},										--9
-				{tube = 6,	ord = 7, desc = _("upgrade-comms","increase capacity: homing: 1/3, mining: 100%, HVLI: 20%")},	--10
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","increased tube load speed")},																						--1
+				{tube = 2,	ord = 1, desc = _("upgrade-comms","reduce tube load speed by 1/3"), downgrade = _("downgrade-comms","cut HVLI capacity in half")},							--2  
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","double HVLI capacity"), downgrade = _("downgrade-comms","made tube small sized")},										--3  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","make tube medium sized"), downgrade = _("downgrade-comms","removed a small tube")},									--4
+				{tube = 4,	ord = 2, desc = _("upgrade-comms","add a small tube"), downgrade = _("downgrade-comms","removed homing missile capability from small tube")},											--5
+				{tube = 5,	ord = 3, desc = _("upgrade-comms","add homing capability to small tube"), downgrade = _("downgrade-comms","reduced HVLI capacity by 20%")},						--6
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","increase HVLI capacity by 25%"), downgrade = _("downgrade-comms","reduced homing capacity by 1/3")},							--7
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase homing capacity by 50%"), downgrade = _("downgrade-comms","removed mining tube")},							--8
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","add a mining tube"), downgrade = _("downgrade-comms","reduced capacity: homing: 25%, mining: 50%, HVLI: 1/6")},										--9
+				{tube = 6,	ord = 7, desc = _("upgrade-comms","increase capacity: homing: 1/3, mining: 100%, HVLI: 20%"), downgrade = _("downgrade-comms","slowed mine tube load time")},	--10
 				{tube = 7,	ord = 7, desc = _("upgrade-comms","reduce mine tube load time by 1/3")},						--11
 				["start"] = 4,
 			},
@@ -5257,33 +5711,40 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 30},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--2
 					{idx = 0, max = 40},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--3
 					{idx = 0, max = 50},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--4
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--5
 					{idx = 0, max = 40},
 					{idx = 1, max = 40},
 					["desc"] = _("upgrade-comms","add rear arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--6
 					{idx = 0, max = 50},
 					{idx = 1, max = 50},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--7
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/11"),
 				},
 				{	--8
 					{idx = 0, max = 66},
@@ -5296,11 +5757,11 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},
 			["hull"] = {
-				{max =  40},															--1
-				{max =  50, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--2
-				{max =  60, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--3
-				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3")},	--4
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--5
+				{max =  40, downgrade = _("downgrade-comms","reduced hull max by 20%")},															--1
+				{max =  50, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--2
+				{max =  60, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 25%")},	--3
+				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--4
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--5
 				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--6
 				["stock"] = {max = 60},
 				["start"] = 3,
@@ -5311,6 +5772,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	36,		accel_back = 	30,
 					turn = 			16,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 10%"),
 				},
 				{	--2
 					max_front =		100,	max_back =		100,
@@ -5318,6 +5780,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			16,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by ~11%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--3
 					max_front =		100,	max_back =		100,
@@ -5325,6 +5788,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			16,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%")
 				},
 				{	--4
 					max_front =		100,	max_back =		100,
@@ -5332,6 +5796,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			20,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--5
 					max_front =		100,	max_back =		100,
@@ -5339,6 +5804,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			20,
 					boost =			600,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/6"),
 				},
 				{	--6
 					max_front =		120,	max_back =		120,
@@ -5346,6 +5812,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			20,
 					boost =			600,	strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/7"),
 				},
 				{	--7
 					max_front =		120,	max_back =		120,
@@ -5353,6 +5820,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			20,
 					boost =			700,	strafe =		0,
 					desc = _("upgrade-comms","increase combat maneuver by ~17%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--8
 					max_front =		120,	max_back =		120,
@@ -5360,6 +5828,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			25,
 					boost =			700,	strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduced reverse impulse acceleration by 1/6")
 				},
 				{	--9
 					max_front =		120,	max_back =		120,
@@ -5376,38 +5845,47 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--2
 					jump_long = 0, jump_short = 0, warp = 400,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reboved jump drive"),
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--5
 					jump_long = 25000, jump_short = 2500, warp = 500,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--6
 					jump_long = 25000, jump_short = 2500, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--7
 					jump_long = 30000, jump_short = 3000, warp = 600,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/7"),
 				},
 				{	--8
 					jump_long = 30000, jump_short = 3000, warp = 700,
 					desc = _("upgrade-comms","increase warp speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/7"),
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 700,
 					desc = _("upgrade-comms","increase jump range by ~17%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/8"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 800,
@@ -5421,30 +5899,37 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--3
 					short = 4000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--4
 					short = 4000, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 20%"),
 				},
 				{	--5
 					short = 5000, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--6
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--7
 					short = 5000, long = 35000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","cut automated proximity scanner range in half"),
 				},
 				{	--8
 					short = 5000, long = 35000, prox_scan = 4,
@@ -5462,54 +5947,65 @@ function playerShipUpgradeDowngradeData()
 			["beam"] = {
 				{	--1
 					{idx = 0, arc = 10, dir =   0, rng =  800, cyc = 8, dmg = 5, tar =  60, tdr = 0, trt = 2},
+					downgrade = _("downgrade-comms","reduced range by 20%"),
 				},
 				{	--2
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 8, dmg = 5, tar =  60, tdr = 0, trt = 2},
-					["desc"] = _("upgrade-comms","increase range by 25%")
+					["desc"] = _("upgrade-comms","increase range by 25%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/7"),
 				},
 				{	--3
 					{idx = 0, arc = 10, dir =   0, rng = 1000, cyc = 7, dmg = 5, tar =  60, tdr = 0, trt = 2},
-					["desc"] = _("upgrade-comms","reduce cycle time by 12.5%")
+					["desc"] = _("upgrade-comms","reduce cycle time by 12.5%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--4
 					{idx = 0, arc = 10, dir =  35, rng = 1000, cyc = 7, dmg = 5, tar =  60, tdr =  35, trt = 2},
 					{idx = 1, arc = 10, dir = -35, rng = 1000, cyc = 7, dmg = 5, tar =  60, tdr = -35, trt = 2},
-					["desc"] = _("upgrade-comms","add beam")
+					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 10, dir =  35, rng = 1000, cyc = 7, dmg = 5, tar =  90, tdr =  35, trt = 2},
 					{idx = 1, arc = 10, dir = -35, rng = 1000, cyc = 7, dmg = 5, tar =  90, tdr = -35, trt = 2},
-					["desc"] = _("upgrade-comms","increase arc width by 50%")
+					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","reduced damage by 1/6"),
 				},
 				{	--6
 					{idx = 0, arc = 10, dir =  35, rng = 1000, cyc = 7, dmg = 6, tar =  90, tdr =  35, trt = 2},
 					{idx = 1, arc = 10, dir = -35, rng = 1000, cyc = 7, dmg = 6, tar =  90, tdr = -35, trt = 2},
 					["desc"] = _("upgrade-comms","increase damage by 20%"),
+					downgrade = _("downgrade-comms","cut turret speed in half"),
 				},
 				{	--7
 					{idx = 0, arc = 10, dir =  35, rng = 1000, cyc = 7, dmg = 6, tar =  90, tdr =  35, trt = 4},
 					{idx = 1, arc = 10, dir = -35, rng = 1000, cyc = 7, dmg = 6, tar =  90, tdr = -35, trt = 4},
 					["desc"] = _("upgrade-comms","double turret speed"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/6"),
 				},
 				{	--8
 					{idx = 0, arc = 10, dir =  35, rng = 1000, cyc = 6, dmg = 6, tar =  90, tdr =  35, trt = 4},
 					{idx = 1, arc = 10, dir = -35, rng = 1000, cyc = 6, dmg = 6, tar =  90, tdr = -35, trt = 4},
 					["desc"] = _("upgrade-comms","decrease cycle time by ~14%"),
+					downgrade = _("downgrade-comms","reduced range by 1/6"),
 				},
 				{	--9
 					{idx = 0, arc = 10, dir =  35, rng = 1200, cyc = 6, dmg = 6, tar =  90, tdr =  35, trt = 4},
 					{idx = 1, arc = 10, dir = -35, rng = 1200, cyc = 6, dmg = 6, tar =  90, tdr = -35, trt = 4},
 					["desc"] = _("upgrade-comms","increase range by 20%"),
+					downgrade = _("downgrade-comms","reduced turret speed by 1/3"),
 				},
 				{	--10
 					{idx = 0, arc = 10, dir =  35, rng = 1200, cyc = 6, dmg = 6, tar =  90, tdr =  35, trt = 6},
 					{idx = 1, arc = 10, dir = -35, rng = 1200, cyc = 6, dmg = 6, tar =  90, tdr = -35, trt = 6},
 					["desc"] = _("upgrade-comms","increase turret speed by 50%"),
+					downgrade = _("downgrade-comms","reduced damage by 25%"),
 				},
 				{	--11
 					{idx = 0, arc = 10, dir =  35, rng = 1200, cyc = 6, dmg = 8, tar =  90, tdr =  35, trt = 6},
 					{idx = 1, arc = 10, dir = -35, rng = 1200, cyc = 6, dmg = 8, tar =  90, tdr = -35, trt = 6},
 					["desc"] = _("upgrade-comms","increase damage by 1/3"),
+					downgrade = _("downgrade-comms","increased cycle time by 20%"),
 				},
 				{	--12
 					{idx = 0, arc = 10, dir =  35, rng = 1200, cyc = 5, dmg = 8, tar =  90, tdr =  35, trt = 6},
@@ -5523,19 +6019,19 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																					--1
-				{tube = 1,	ord = 2, desc = _("upgrade-comms","increase mine capacity by 1/3")},						--2  
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add another mining tube")},								--3  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","reduce tube load time by 25%")},							--4
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase mine capacity by 50%")},						--5
-				{tube = 4,	ord = 3, desc = _("upgrade-comms","reduce load speed by 1/3")},								--6
-				{tube = 5,	ord = 3, desc = _("upgrade-comms","add another mining tube")},								--7
-				{tube = 6,	ord = 4, desc = _("upgrade-comms","add HVLI capability to first mining tube")},				--8
-				{tube = 7,	ord = 5, desc = _("upgrade-comms","add homing capability to second mining tube")},			--9
-				{tube = 8,	ord = 6, desc = _("upgrade-comms","make first tube a large tube")},							--10
-				{tube = 8,	ord = 7, desc = _("upgrade-comms","increase HVLI capacity by 25%")},						--11
-				{tube = 9,	ord = 7, desc = _("upgrade-comms","reduce tube load speed time by 20%")},					--12
-				{tube = 9,	ord = 8, desc = _("upgrade-comms","increase capacity: homing:100%, mine:1/3, HVLI:20%")},	--13
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","reduced mine capacity by 25%")},																					--1
+				{tube = 1,	ord = 2, desc = _("upgrade-comms","increase mine capacity by 1/3"), downgrade = _("downgrade-comms","removed mining tube")},						--2  
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add another mining tube"), downgrade = _("downgrade-comms","increased load time")},								--3  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","reduce tube load time by 25%"), downgrade = _("downgrade-comms","reduced mine capacity by 1/3")},							--4
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","increase mine capacity by 50%"), downgrade = _("downgrade-comms","increased load time")},						--5
+				{tube = 4,	ord = 3, desc = _("upgrade-comms","reduce load speed by 1/3"), downgrade = _("downgrade-comms","removed a mining tube")},								--6
+				{tube = 5,	ord = 3, desc = _("upgrade-comms","add another mining tube"), downgrade = _("downgrade-comms","removed HVLIcapability from first mining tube")},								--7
+				{tube = 6,	ord = 4, desc = _("upgrade-comms","add HVLI capability to first mining tube"), downgrade = _("downgrade-comms","removed homing capability from second mining tube")},				--8
+				{tube = 7,	ord = 5, desc = _("upgrade-comms","add homing capability to second mining tube"), downgrade = _("downgrade-comms","switched first tube to medium from large")},			--9
+				{tube = 8,	ord = 6, desc = _("upgrade-comms","make first tube a large tube"), downgrade = _("downgrade-comms","reduced HVLI capacity by 20%")},							--10
+				{tube = 8,	ord = 7, desc = _("upgrade-comms","increase HVLI capacity by 25%"), downgrade = _("downgrade-comms","increased tube load time")},						--11
+				{tube = 9,	ord = 7, desc = _("upgrade-comms","reduce tube load speed time by 20%"), downgrade = _("downgrade-comms","reduced capacity: homing: 50%, mine: 25%, HVLI: 1/6")},					--12
+				{tube = 9,	ord = 8, desc = _("upgrade-comms","increase capacity: homing:100%, mine:1/3, HVLI:20%"), downgrade = _("downgrade-comms","switched second tube from larg to medium")},	--13
 				{tube = 10,	ord = 8, desc = _("upgrade-comms","make second tube a large tube")},						--14
 				["start"] = 5,
 			},
@@ -5605,34 +6101,41 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 40},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--2
 					{idx = 0, max = 50},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity"),
 				},
 				{	--3
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","removed rear arc"),
 				},
 				{	--4
 					{idx = 0, max = 50},
 					{idx = 1, max = 50},
 					["desc"] = _("upgrade-comms","add rear arc"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 1/6"),
 				},
 				{	--5
 					{idx = 0, max = 50},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--6
 					{idx = 0, max = 60},
 					{idx = 1, max = 72},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced rear shield charge capacity by 25%"),
 				},
 				{	--7
 					{idx = 0, max = 60},
 					{idx = 1, max = 96},
 					["desc"] = _("upgrade-comms","increase rear shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--8
 					{idx = 0, max = 75},
@@ -5646,11 +6149,11 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},
 			["hull"] = {
-				{max = 60},												--1
-				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3")},		--2
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},		--3
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--4
-				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},		--5
+				{max = 60, downgrade = _("downgrade-comms","reduced hull max by 25%")},												--1
+				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3"), downgrade = _("downgrade-comms","reduced hull max by 20%")},		--2
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},		--3
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},		--4
+				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},		--5
 				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--6
 				["stock"] = {max = 100},
 				["start"] = 4,
@@ -5661,6 +6164,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	12,		accel_back = 	12,
 					turn = 			8,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max forward impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		100,	max_back =		80,
@@ -5668,6 +6172,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max forward impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--3
 					max_front =		100,	max_back =		80,
@@ -5675,6 +6180,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			8,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%")
 				},
 				{	--4
 					max_front =		100,	max_back =		80,
@@ -5682,6 +6188,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--5
 					max_front =		100,	max_back =		80,
@@ -5689,6 +6196,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/11")
 				},
 				{	--6
 					max_front =		110,	max_back =		88,
@@ -5696,6 +6204,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 10%"),
+					downgrade = _("downgrade-comms","removed combat maneuver strafe"),
 				},
 				{	--7
 					max_front =		110,	max_back =		88,
@@ -5703,6 +6212,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		100,
 					desc = _("upgrade-comms","add combat maneuver strafe"),
+					downgrade = _("downgrade-comms","reduced acceleration by 25%")
 				},
 				{	--8
 					max_front =		110,	max_back =		88,
@@ -5710,6 +6220,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			200,	strafe =		100,
 					desc = _("upgrade-comms","increase impulse acceleration by 1/3"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/3"),
 				},
 				{	--9
 					max_front =		110,	max_back =		88,
@@ -5717,6 +6228,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			10,
 					boost =			300,	strafe =		200,
 					desc = _("upgrade-comms","increase combat maneuver by 50%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--10
 					max_front =		110,	max_back =		88,
@@ -5733,42 +6245,52 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--4
 					jump_long = 30000, jump_short = 3000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 25%"),
 				},
 				{	--5
 					jump_long = 40000, jump_short = 4000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 1/3"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--6
 					jump_long = 50000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/11")
 				},
 				{	--7
 					jump_long = 55000, jump_short = 5500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 10%"),
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--8
 					jump_long = 55000, jump_short = 5500, warp = 300,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 25%"),
 				},
 				{	--9
 					jump_long = 55000, jump_short = 5500, warp = 400,
 					desc = _("upgrade-comms","increase warp speed by 1/3"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/12"),
 				},
 				{	--10
 					jump_long = 60000, jump_short = 6000, warp = 400,
 					desc = _("upgrade-comms","increase jump range by ~9%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%")
 				},
 				{	--11
 					jump_long = 60000, jump_short = 6000, warp = 500,
@@ -5782,38 +6304,47 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 15000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--3
 					short = 4000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--4
 					short = 4000, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 20%"),
 				},
 				{	--5
 					short = 5000, long = 25000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--6
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 20%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--7
 					short = 5000, long = 35000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--8
 					short = 5000, long = 40000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 20%"),
 				},
 				{	--9
 					short = 5000, long = 50000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--10
 					short = 5000, long = 60000, prox_scan = 2,
@@ -5832,42 +6363,50 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 30, dir = -15, rng = 800, cyc = 8, dmg = 4},
 					{idx = 1, arc = 30, dir =  15, rng = 800, cyc = 8, dmg = 4},
+					downgrade = _("downgrade-comms","reduced range by 20%"),
 				},
 				{	--2
 					{idx = 0, arc = 30, dir = -15, rng = 1000, cyc = 8, dmg = 4},
 					{idx = 1, arc = 30, dir =  15, rng = 1000, cyc = 8, dmg = 4},
-					["desc"] = _("upgrade-comms","increase range by 25%")
+					["desc"] = _("upgrade-comms","increase range by 25%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/3"),
 				},
 				{	--3
 					{idx = 0, arc = 30, dir = -15, rng = 1000, cyc = 6, dmg = 4},
 					{idx = 1, arc = 30, dir =  15, rng = 1000, cyc = 6, dmg = 4},
-					["desc"] = _("upgrade-comms","reduce cycle time by 25%")
+					["desc"] = _("upgrade-comms","reduce cycle time by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 2/5"),
 				},
 				{	--4
 					{idx = 0, arc = 50, dir = -15, rng = 1000, cyc = 6, dmg = 4},
 					{idx = 1, arc = 50, dir =  15, rng = 1000, cyc = 6, dmg = 4},
-					["desc"] = _("upgrade-comms","increase arc width by 2/3")
+					["desc"] = _("upgrade-comms","increase arc width by 2/3"),
+					downgrade = _("downgrade-comms","reduced damage by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 50, dir = -15, rng = 1000, cyc = 6, dmg = 6},
 					{idx = 1, arc = 50, dir =  15, rng = 1000, cyc = 6, dmg = 6},
-					["desc"] = _("upgrade-comms","increase damage by 50%")
+					["desc"] = _("upgrade-comms","increase damage by 50%"),
+					downgrade = _("downgrade-comms","increased cycle time by 20%"),
 				},
 				{	--6
 					{idx = 0, arc = 50, dir = -15, rng = 1000, cyc = 5, dmg = 6},
 					{idx = 1, arc = 50, dir =  15, rng = 1000, cyc = 5, dmg = 6},
 					["desc"] = _("upgrade-comms","reduce cycle time by ~17%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/6"),
 				},
 				{	--7
 					{idx = 0, arc = 60, dir = -15, rng = 1000, cyc = 5, dmg = 6},
 					{idx = 1, arc = 60, dir =  15, rng = 1000, cyc = 5, dmg = 6},
 					["desc"] = _("upgrade-comms","increase arc width by 20%"),
+					downgrade = _("downgrade-comms","removed sniping beam"),
 				},
 				{	--8
 					{idx = 0, arc = 60, dir = -15, rng = 1000, cyc = 5, dmg = 6},
 					{idx = 1, arc = 60, dir =  15, rng = 1000, cyc = 5, dmg = 6},
 					{idx = 2, arc = 20, dir =   0, rng = 1500, cyc = 5, dmg = 5},
 					["desc"] = _("upgrade-comms","add sniping beam"),
+					downgrade = _("downgrade-comms","reduced damage by ~15%"),
 				},
 				{	--9
 					{idx = 0, arc = 60, dir = -15, rng = 1000, cyc = 5, dmg = 7},
@@ -5882,17 +6421,17 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																		--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add small HVLI broadsides")},				--2  
-				{tube = 3,	ord = 2, desc = _("upgrade-comms","reduce tube load time by 10%")},				--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","double HVLI capacity")},						--4
-				{tube = 4,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 1/3")},				--5
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","add homing capability to tubes")},			--6
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase capacity: homing:100%, HVLI:50%")},	--7
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","add a mining tube")},						--8
-				{tube = 6,	ord = 7, desc = _("upgrade-comms","double mine capacity")},						--9
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","reduce tube load speed by 25%")},			--10
-				{tube = 8,	ord = 7, desc = _("upgrade-comms","make broadside tubes medium size")},			--11
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed small HVLI broadsides")},																		--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add small HVLI broadsides"), downgrade = _("downgrade-comms","slowed tube load time")},				--2  
+				{tube = 3,	ord = 2, desc = _("upgrade-comms","reduce tube load time by 10%"), downgrade = _("downgrade-comms","cut HVLI capacity in half")},				--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","double HVLI capacity"), downgrade = _("downgrade-comms","slowed tube load time")},						--4
+				{tube = 4,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 1/3"), downgrade = _("downgrade-comms","removed homing capability from tubes")},				--5
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","add homing capability to tubes"), downgrade = _("downgrade-comms","reduced capacity: homing: 50%, HVLI: 1/3")},			--6
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase capacity: homing:100%, HVLI:50%"), downgrade = _("downgrade-comms","removed a mining tube")},	--7
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","add a mining tube"), downgrade = _("downgrade-comms","cut mine capacity in half")},						--8
+				{tube = 6,	ord = 7, desc = _("upgrade-comms","double mine capacity"), downgrade = _("downgrade-comms","slowed tube load speed")},						--9
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","reduce tube load speed by 25%"), downgrade = _("downgrade-comms","mad broadside tubes small")},			--10
+				{tube = 8,	ord = 7, desc = _("upgrade-comms","make broadside tubes medium size"), downgrade = _("downgrade-comms","reduced HVLI capacity by 25%")},			--11
 				{tube = 8,	ord = 8, desc = _("upgrade-comms","increase HVLI capacity by 1/3")},			--12
 				["start"] = 4,
 			},
@@ -5949,39 +6488,47 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 40},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--2
 					{idx = 0, max = 50},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--3
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","removed rear shield arc"),
 				},
 				{	--4
 					{idx = 0, max = 40},
 					{idx = 1, max = 40},
 					["desc"] = _("upgrade-comms","add rear arc"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 20%"),
 				},
 				{	--5
 					{idx = 0, max = 50},
 					{idx = 1, max = 40},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--6
 					{idx = 0, max = 60},
 					{idx = 1, max = 48},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 25%"),
 				},
 				{	--7
 					{idx = 0, max = 80},
 					{idx = 1, max = 48},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--8
 					{idx = 0, max = 100},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced rear chield charge capacity by 1/6"),
 				},
 				{	--9
 					{idx = 0, max = 100},
@@ -5995,11 +6542,11 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 2,
 			},
 			["hull"] = {
-				{max = 80},																--1
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--2
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--3
-				{max = 144, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--4
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--5
+				{max = 80, downgrade = _("downgrade-comms","reduced hull max by 20%")},																--1
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--2
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--3
+				{max = 144, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--4
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--5
 				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%")},	--6
 				["stock"] = {max = 120},
 				["start"] = 3,
@@ -6010,6 +6557,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	24,		accel_back = 	24,
 					turn = 			12,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 25%"),
 				},
 				{	--2
 					max_front =		60,		max_back =		60,
@@ -6017,6 +6565,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 1/3"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 20%"),
 				},
 				{	--3
 					max_front =		60,		max_back =		60,
@@ -6024,6 +6573,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--4
 					max_front =		60,		max_back =		60,
@@ -6031,6 +6581,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduce forward max impulse speed by 1/6"),
 				},
 				{	--5
 					max_front =		72,		max_back =		60,
@@ -6038,6 +6589,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward max impulse by 20%"),
+					downgrade = _("downgrade-comms","removed combat maneuver"),
 				},
 				{	--6
 					max_front =		72,		max_back =		60,
@@ -6045,6 +6597,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			200,	strafe =		100,
 					desc = _("upgrade-comms","add combat maneuver"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 25%"),
 				},
 				{	--7
 					max_front =		72,		max_back =		60,
@@ -6052,6 +6605,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			20,
 					boost =			200,	strafe =		100,
 					desc = _("upgrade-comms","increase maneuverability by 1/3"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 20%"),
 				},
 				{	--8
 					max_front =		90,		max_back =		60,
@@ -6059,6 +6613,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			20,
 					boost =			200,	strafe =		100,
 					desc = _("upgrade-comms","increase max impulse speed by 25%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/3")
 				},
 				{	--9
 					max_front =		90,		max_back =		60,
@@ -6075,26 +6630,32 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/3"),
 				},
 				{	--3
 					jump_long = 30000, jump_short = 3000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 50%"),
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--4
 					jump_long = 30000, jump_short = 3000, warp = 500,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--5
 					jump_long = 30000, jump_short = 3000, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/7"),
 				},
 				{	--6
 					jump_long = 30000, jump_short = 3000, warp = 700,
 					desc = _("upgrade-comms","increase warp speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced jump range by 25%"),
 				},
 				{	--7
 					jump_long = 40000, jump_short = 4000, warp = 700,
@@ -6108,22 +6669,27 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 20000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/3"),
 				},
 				{	--2
 					short = 4000, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 50%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--3
 					short = 4000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 20%"),
 				},
 				{	--4
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--5
 					short = 5000, long = 35000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8")
 				},
 				{	--6
 					short = 5000, long = 40000, prox_scan = 2,
@@ -6144,6 +6710,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 1, arc = 10, dir = -90, rng = 1500, cyc = 8.0, dmg = 4, tar = 60, tdr = -90, trt = 6},
 					{idx = 2, arc = 10, dir =  90, rng = 1500, cyc = 8.1, dmg = 4, tar = 60, tdr =  90, trt = 6},
 					{idx = 3, arc = 10, dir =  90, rng = 1500, cyc = 8.0, dmg = 4, tar = 60, tdr =  90, trt = 6},
+					downgrade = _("downgrade-comms","removed beams"),
 				},
 				{	--2
 					{idx = 0, arc = 10, dir = -90, rng = 1500, cyc = 8.1, dmg = 4, tar = 60, tdr = -90, trt = 6},
@@ -6154,7 +6721,8 @@ function playerShipUpgradeDowngradeData()
 					{idx = 5, arc = 10, dir = -90, rng = 1500, cyc = 8.0, dmg = 4, tar = 60, tdr = -90, trt = 6},
 					{idx = 6, arc = 10, dir =  90, rng = 1500, cyc = 8.1, dmg = 4, tar = 60, tdr =  90, trt = 6},
 					{idx = 7, arc = 10, dir =  90, rng = 1500, cyc = 8.0, dmg = 4, tar = 60, tdr =  90, trt = 6},
-					["desc"] = _("upgrade-comms","add beams")
+					["desc"] = _("upgrade-comms","add beams"),
+					downgrade = _("downgrade-comms","removed beams"),
 				},
 				{	--3
 					{idx = 0, arc = 10, dir = -90, rng = 1500, cyc = 8.1, dmg = 4, tar = 60, tdr = -90, trt = 6},
@@ -6169,7 +6737,8 @@ function playerShipUpgradeDowngradeData()
 					{idx = 9, arc = 10, dir = -90, rng = 1500, cyc = 8.0, dmg = 4, tar = 60, tdr = -90, trt = 6},
 					{idx = 10,arc = 10, dir =  90, rng = 1500, cyc = 8.1, dmg = 4, tar = 60, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 1500, cyc = 8.0, dmg = 4, tar = 60, tdr =  90, trt = 6},
-					["desc"] = _("upgrade-comms","add beams")
+					["desc"] = _("upgrade-comms","add beams"),
+					downgrade = _("downgrade-comms","reduced range by 25%"),
 				},
 				{	--4
 					{idx = 0, arc = 10, dir = -90, rng = 2000, cyc = 8.1, dmg = 4, tar = 60, tdr = -90, trt = 6},
@@ -6185,6 +6754,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 10,arc = 10, dir =  90, rng = 2000, cyc = 8.1, dmg = 4, tar = 60, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 2000, cyc = 8.0, dmg = 4, tar = 60, tdr =  90, trt = 6},
 					["desc"] = _("upgrade-comms","increase range by 1/3"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 10, dir = -90, rng = 2000, cyc = 8.1, dmg = 4, tar = 90, tdr = -90, trt = 6},
@@ -6200,6 +6770,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 10,arc = 10, dir =  90, rng = 2000, cyc = 8.1, dmg = 4, tar = 90, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 2000, cyc = 8.0, dmg = 4, tar = 90, tdr =  90, trt = 6},
 					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/3"),
 				},
 				{	--6
 					{idx = 0, arc = 10, dir = -90, rng = 2000, cyc = 6.1, dmg = 4, tar = 90, tdr = -90, trt = 6},
@@ -6214,7 +6785,8 @@ function playerShipUpgradeDowngradeData()
 					{idx = 9, arc = 10, dir = -90, rng = 2000, cyc = 6.0, dmg = 4, tar = 90, tdr = -90, trt = 6},
 					{idx = 10,arc = 10, dir =  90, rng = 2000, cyc = 6.1, dmg = 4, tar = 90, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 2000, cyc = 6.0, dmg = 4, tar = 90, tdr =  90, trt = 6},
-					["desc"] = _("upgrade-comms","decrease cycle time by 25%")
+					["desc"] = _("upgrade-comms","decrease cycle time by 25%"),
+					downgrade = _("downgrade-comms","reduced range by 20%"),
 				},
 				{	--7
 					{idx = 0, arc = 10, dir = -90, rng = 2500, cyc = 6.1, dmg = 4, tar = 90, tdr = -90, trt = 6},
@@ -6229,7 +6801,8 @@ function playerShipUpgradeDowngradeData()
 					{idx = 9, arc = 10, dir = -90, rng = 2500, cyc = 6.0, dmg = 4, tar = 90, tdr = -90, trt = 6},
 					{idx = 10,arc = 10, dir =  90, rng = 2500, cyc = 6.1, dmg = 4, tar = 90, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 2500, cyc = 6.0, dmg = 4, tar = 90, tdr =  90, trt = 6},
-					["desc"] = _("upgrade-comms","increase range by 25%")
+					["desc"] = _("upgrade-comms","increase range by 25%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--8
 					{idx = 0, arc = 10, dir = -90, rng = 2500, cyc = 6.1, dmg = 5, tar = 90, tdr = -90, trt = 6},
@@ -6245,6 +6818,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 10,arc = 10, dir =  90, rng = 2500, cyc = 6.1, dmg = 5, tar = 90, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 2500, cyc = 6.0, dmg = 5, tar = 90, tdr =  90, trt = 6},
 					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 25%"),
 				},
 				{	--9
 					{idx = 0, arc = 10, dir = -90, rng = 2500, cyc = 6.1, dmg = 5, tar = 120, tdr = -90, trt = 6},
@@ -6260,6 +6834,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 10,arc = 10, dir =  90, rng = 2500, cyc = 6.1, dmg = 5, tar = 120, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 2500, cyc = 6.0, dmg = 5, tar = 120, tdr =  90, trt = 6},
 					["desc"] = _("upgrade-comms","increase arc width by 1/3"),
+					downgrade = _("downgrade-comms","increased cycle time by 20%"),
 				},
 				{	--10
 					{idx = 0, arc = 10, dir = -90, rng = 2500, cyc = 5.1, dmg = 5, tar = 120, tdr = -90, trt = 6},
@@ -6275,6 +6850,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 10,arc = 10, dir =  90, rng = 2500, cyc = 5.1, dmg = 5, tar = 120, tdr =  90, trt = 6},
 					{idx = 11,arc = 10, dir =  90, rng = 2500, cyc = 5.0, dmg = 5, tar = 120, tdr =  90, trt = 6},
 					["desc"] = _("upgrade-comms","reduce cycle time by ~17%"),
+					downgrade = _("downgrade-comms","adjusted angles for less coverage"),
 				},
 				{	--11
 					{idx = 0, arc = 10, dir =  -80, rng = 2500, cyc = 5.1, dmg = 5, tar = 120, tdr =  -80, trt = 6},
@@ -6290,6 +6866,7 @@ function playerShipUpgradeDowngradeData()
 					{idx = 10,arc = 10, dir =   80, rng = 2500, cyc = 5.1, dmg = 5, tar = 120, tdr =   80, trt = 6},
 					{idx = 11,arc = 10, dir =  100, rng = 2500, cyc = 5.0, dmg = 5, tar = 120, tdr =  100, trt = 6},
 					["desc"] = _("upgrade-comms","adjust beam angles for more coverage"),
+					downgrade = _("downgrade-comms","reduced arc width by 20%"),
 				},
 				{	--12
 					{idx = 0, arc = 10, dir =  -80, rng = 2500, cyc = 5.1, dmg = 5, tar = 150, tdr =  -80, trt = 6},
@@ -6323,17 +6900,17 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																	--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add medium homing tubes")},				--2  
-				{tube = 2,	ord = 3, desc = _("upgrade-comms","double capacity)")},						--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 10%")},			--4
-				{tube = 3,	ord = 4, desc = _("upgrade-comms","increase capacity by 50%")},				--5
-				{tube = 4,	ord = 4, desc = _("upgrade-comms","add more tubes")},						--6
-				{tube = 5,	ord = 4, desc = _("upgrade-comms","reduce tube load time by ~17%")},		--7
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase capacity by 1/3")},				--8
-				{tube = 6,	ord = 5, desc = _("upgrade-comms","make two lower tubes large")},			--9
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","increase capacity by 25%")},				--10
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","reduce tube load times by 20%")},		--11
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed medium homing tubes")},																	--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add medium homing tubes"), downgrade = _("downgrade-comms","cut capacity in half")},				--2  
+				{tube = 2,	ord = 3, desc = _("upgrade-comms","double capacity)"), downgrade = _("downgrade-comms","slowed tube load time")},						--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 10%"), downgrade = _("downgrade-comms","reduced capacity by 1/3")},			--4
+				{tube = 3,	ord = 4, desc = _("upgrade-comms","increase capacity by 50%"), downgrade = _("downgrade-comms","removed some tubes")},				--5
+				{tube = 4,	ord = 4, desc = _("upgrade-comms","add more tubes"), downgrade = _("downgrade-comms","slowed tube load times")},						--6
+				{tube = 5,	ord = 4, desc = _("upgrade-comms","reduce tube load time by ~17%"), downgrade = _("downgrade-comms","reduced capacity by 25%")},		--7
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase capacity by 1/3"), downgrade = _("downgrade-comms","switched two lower tubes from large to medium")},				--8
+				{tube = 6,	ord = 5, desc = _("upgrade-comms","make two lower tubes large"), downgrade = _("downgrade-comms","reduced capacity by 20%")},			--9
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","increase capacity by 25%"), downgrade = _("downgrade-comms","slowed tube load times")},				--10
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","reduce tube load times by 20%"), downgrade = _("downgrade-comms","slowed medium tube load times")},		--11
 				{tube = 8,	ord = 7, desc = _("upgrade-comms","reduce medium tube load times by 25%")},	--12
 				["start"] = 2,
 			},
@@ -6395,39 +6972,47 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 400},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/3"),
 				},
 				{	--2
 					{idx = 0, max = 600},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 50%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--3
 					{idx = 0, max = 800},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","removed read arc"),
 				},
 				{	--4
 					{idx = 0, max = 600},
 					{idx = 1, max = 600},
 					["desc"] = _("upgrade-comms","add rear arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--5
 					{idx = 0, max = 800},
 					{idx = 1, max = 800},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--6
 					{idx = 0, max = 1000},
 					{idx = 1, max = 1000},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--7
 					{idx = 0, max = 1200},
 					{idx = 1, max = 1200},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--8
 					{idx = 0, max = 1500},
 					{idx = 1, max = 1500},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--9
 					{idx = 0, max = 1800},
@@ -6441,11 +7026,11 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 2,
 			},
 			["hull"] = {
-				{max = 80},																--1
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--2
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--3
-				{max = 144, ["desc"] = _("upgrade-comms","increase hull max by 20%")},	--4
-				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 25%")},	--5
+				{max = 80, downgrade = _("downgrade-comms","reduced hull max by 20%")},																--1
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--2
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},	--3
+				{max = 144, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},	--4
+				{max = 180, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/7")},	--5
 				{max = 210, ["desc"] = _("upgrade-comms","increase hull max by ~17%")},	--6
 				["stock"] = {max = 100},
 				["start"] = 3,
@@ -6456,6 +7041,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	2,		accel_back = 	2,
 					turn = 			1,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		18,		max_back =		18,
@@ -6463,6 +7049,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			1,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 1/3"),
 				},
 				{	--3
 					max_front =		18,		max_back =		18,
@@ -6470,6 +7057,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			1,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by 50%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/3"),
 				},
 				{	--4
 					max_front =		18,		max_back =		18,
@@ -6477,6 +7065,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			1.5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 50%"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 10%")
 				},
 				{	--5
 					max_front =		20,		max_back =		20,
@@ -6484,6 +7073,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			1.5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse by ~11%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 25%"),
 				},
 				{	--6
 					max_front =		20,		max_back =		20,
@@ -6491,6 +7081,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			1.5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleratione by 1/3"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 25%")
 				},
 				{	--7
 					max_front =		20,		max_back =		20,
@@ -6498,6 +7089,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			2,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 1/3"),
+					downgrade = _("downgrade-comms","reduced impulse speed by 20%"),
 				},
 				{	--8
 					max_front =		24,		max_back =		24,
@@ -6505,6 +7097,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			2,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced acceleration by 1/3"),
 				},
 				{	--9
 					max_front =		24,		max_back =		24,
@@ -6512,6 +7105,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			2,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase acceleration by 50%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--10
 					max_front =		24,		max_back =		24,
@@ -6519,6 +7113,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			2.5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduced max impulse speed by 20%"),
 				},
 				{	--11
 					max_front =		30,		max_back =		30,
@@ -6526,6 +7121,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			2.5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 25%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 1/7"),
 				},
 				{	--12
 					max_front =		30,		max_back =		30,
@@ -6533,6 +7129,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			2.5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by ~17%"),
+					downgrade = _("downgrade-comms","reduced forward impulse speed by 1/6"),
 				},
 				{	--13
 					max_front =		36,		max_back =		30,
@@ -6540,6 +7137,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			2.5,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max forward impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/6"),
 				},
 				{	--14
 					max_front =		36,		max_back =		30,
@@ -6547,6 +7145,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			3,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 20%"),
+					downgrade = _("downgrade-comms","reduced acceleration by ~1/6"),
 				},
 				{	--15
 					max_front =		36,		max_back =		30,
@@ -6563,34 +7162,42 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--4
 					jump_long = 30000, jump_short = 3000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/7"),
 				},
 				{	--5
 					jump_long = 35000, jump_short = 3500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by ~16%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/8"),
 				},
 				{	--6
 					jump_long = 40000, jump_short = 4000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by ~14%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/9"),
 				},
 				{	--7
 					jump_long = 45000, jump_short = 4500, warp = 0,
 					desc = _("upgrade-comms","increase jump range by 12.5%"),
+					downgrade = _("downgrade-comms","reduced jump range by 10%"),
 				},
 				{	--8
 					jump_long = 50000, jump_short = 5000, warp = 0,
 					desc = _("upgrade-comms","increase jump range by ~11%"),
+					downgrade = _("downgrade-comms","increased minimum jump range to 5 units"),
 				},
 				{	--9
 					jump_long = 50000, jump_short = 2000, warp = 0,
@@ -6604,46 +7211,57 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 20000, prox_scan = 0,
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/3"),
 				},
 				{	--2
 					short = 4000, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 50%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 20%"),
 				},
 				{	--3
 					short = 5000, long = 30000, prox_scan = 0,
 					desc = _("upgrade-comms","increase short range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--4
 					short = 5000, long = 35000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--5
 					short = 5000, long = 40000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~14%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/9"),
 				},
 				{	--6
 					short = 5000, long = 45000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by 12.5%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 10%"),
 				},
 				{	--7
 					short = 5000, long = 50000, prox_scan = 0,
 					desc = _("upgrade-comms","increase long range sensors by ~11%"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 1/6"),
 				},
 				{	--8
 					short = 6000, long = 50000, prox_scan = 0,
 					desc = _("upgrade-comms","increase short range sensors by 20%"),
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--9
 					short = 6000, long = 50000, prox_scan = 4,
 					desc = _("upgrade-comms","add 4 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/6"),
 				},
 				{	--10
 					short = 6000, long = 60000, prox_scan = 4,
 					desc = _("upgrade-comms","increase long range scan by 20%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/7"),
 				},
 				{	--11
 					short = 6000, long = 70000, prox_scan = 4,
 					desc = _("upgrade-comms","increase long range scan by ~17%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/8"),
 				},
 				{	--12
 					short = 6000, long = 80000, prox_scan = 4,
@@ -6662,61 +7280,72 @@ function playerShipUpgradeDowngradeData()
 				{	--1
 					{idx = 0, arc = 20, dir =   5, rng = 800, cyc = 5, dmg = 2},
 					{idx = 1, arc = 20, dir =  -5, rng = 800, cyc = 5, dmg = 2},
+					downgrade = _("downgrade-comms","reduced range by 20%"),
 				},
 				{	--2
 					{idx = 0, arc = 20, dir =   5, rng = 900, cyc = 5, dmg = 2},
 					{idx = 1, arc = 20, dir =  -5, rng = 900, cyc = 5, dmg = 2},
-					["desc"] = _("upgrade-comms","increase range by 25%")
+					["desc"] = _("upgrade-comms","increase range by 25%"),
+					downgrade = _("downgrade-comms","increased cycle time by 25%"),
 				},
 				{	--3
 					{idx = 0, arc = 20, dir =   5, rng = 900, cyc = 4, dmg = 2},
 					{idx = 1, arc = 20, dir =  -5, rng = 900, cyc = 4, dmg = 2},
-					["desc"] = _("upgrade-comms","reduce cycle time by 20%")
+					["desc"] = _("upgrade-comms","reduce cycle time by 20%"),
+					downgrade = _("downgrade-comms","reduced damage by 20%"),
 				},
 				{	--4
 					{idx = 0, arc = 20, dir =   5, rng = 900, cyc = 4, dmg = 2.5},
 					{idx = 1, arc = 20, dir =  -5, rng = 900, cyc = 4, dmg = 2.5},
-					["desc"] = _("upgrade-comms","increase damage by 25%")
+					["desc"] = _("upgrade-comms","increase damage by 25%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 30, dir =   5, rng = 900, cyc = 4, dmg = 2.5},
 					{idx = 1, arc = 30, dir =  -5, rng = 900, cyc = 4, dmg = 2.5},
-					["desc"] = _("upgrade-comms","increase arc width by 50%")
+					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","reduced damage by 1/6"),
 				},
 				{	--6
 					{idx = 0, arc = 30, dir =   5, rng = 900, cyc = 4, dmg = 3},
 					{idx = 1, arc = 30, dir =  -5, rng = 900, cyc = 4, dmg = 3},
 					["desc"] = _("upgrade-comms","increase damage by 20%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--7
 					{idx = 0, arc = 30, dir =   5, rng = 900, cyc = 4, dmg = 3},
 					{idx = 1, arc = 30, dir =  -5, rng = 900, cyc = 4, dmg = 3},
 					{idx = 2, arc = 20, dir =   0, rng = 800, cyc = 6, dmg = 6},
 					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","reduced damage of short range beam by 1/7"),
 				},
 				{	--8
 					{idx = 0, arc = 30, dir =   5, rng = 900, cyc = 4, dmg = 3},
 					{idx = 1, arc = 30, dir =  -5, rng = 900, cyc = 4, dmg = 3},
 					{idx = 2, arc = 20, dir =   0, rng = 800, cyc = 6, dmg = 7},
 					["desc"] = _("upgrade-comms","increase damage of short beam by ~17%"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/6"),
 				},
 				{	--9
 					{idx = 0, arc = 36, dir =   5, rng = 900, cyc = 4, dmg = 3},
 					{idx = 1, arc = 36, dir =  -5, rng = 900, cyc = 4, dmg = 3},
 					{idx = 2, arc = 24, dir =   0, rng = 800, cyc = 6, dmg = 7},
 					["desc"] = _("upgrade-comms","increase arc width by 20%"),
+					downgrade = _("downgrade-comms","reduced long beam damage by 25%"),
 				},
 				{	--10
 					{idx = 0, arc = 36, dir =   5, rng = 900, cyc = 4, dmg = 4},
 					{idx = 1, arc = 36, dir =  -5, rng = 900, cyc = 4, dmg = 4},
 					{idx = 2, arc = 24, dir =   0, rng = 800, cyc = 6, dmg = 7},
 					["desc"] = _("upgrade-comms","increase long beam damage by 1/3"),
+					downgrade = _("downgrade-comms","reduced long beam range by 10%"),
 				},
 				{	--11
 					{idx = 0, arc = 36, dir =   5, rng = 1000, cyc = 4, dmg = 4},
 					{idx = 1, arc = 36, dir =  -5, rng = 1000, cyc = 4, dmg = 4},
 					{idx = 2, arc = 24, dir =   0, rng = 800,  cyc = 6, dmg = 7},
 					["desc"] = _("upgrade-comms","increase long beam range by ~11%"),
+					downgrade = _("downgrade-comms","reduced short beam damage by 1/8"),
 				},
 				{	--12
 					{idx = 0, arc = 36, dir =   5, rng = 1000, cyc = 4, dmg = 4},
@@ -6731,18 +7360,18 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 4,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},																					--1
-				{tube = 2,	ord = 2, desc = _("upgrade-comms","add rear HVLI tube")},									--2  
-				{tube = 2,	ord = 3, desc = _("upgrade-comms","double HVLI capacity")},									--3  
-				{tube = 3,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 25%")},							--4
-				{tube = 4,	ord = 3, desc = _("upgrade-comms","make small tube medium sized")},							--5
-				{tube = 5,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 20%")},							--6
-				{tube = 6,	ord = 3, desc = _("upgrade-comms","add small tube")},										--7
-				{tube = 7,	ord = 4, desc = _("upgrade-comms","add homing capability to small tube")},					--8
-				{tube = 7,	ord = 5, desc = _("upgrade-comms","double capacity")},										--9
-				{tube = 8,	ord = 5, desc = _("upgrade-comms","reduce small tube load time by ~17%")},					--10
-				{tube = 8,	ord = 6, desc = _("upgrade-comms","increase homing capacity by 50%")},						--11
-				{tube = 9,	ord = 7, desc = _("upgrade-comms","add a mining tube")},									--12
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed rear HVLI tube")},																					--1
+				{tube = 2,	ord = 2, desc = _("upgrade-comms","add rear HVLI tube"), downgrade = _("downgrade-comms","cut HVLI capacity in half")},									--2  
+				{tube = 2,	ord = 3, desc = _("upgrade-comms","double HVLI capacity"), downgrade = _("downgrade-comms","slowed tube load time")},									--3  
+				{tube = 3,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 25%"), downgrade = _("downgrade-comms","switched medium tube to small")},							--4
+				{tube = 4,	ord = 3, desc = _("upgrade-comms","make small tube medium sized"), downgrade = _("downgrade-comms","slowed tube load time")},							--5
+				{tube = 5,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 20%"), downgrade = _("downgrade-comms","removed small tube")},							--6
+				{tube = 6,	ord = 3, desc = _("upgrade-comms","add small tube"), downgrade = _("downgrade-comms","removed homing capability from small tube")},										--7
+				{tube = 7,	ord = 4, desc = _("upgrade-comms","add homing capability to small tube"), downgrade = _("downgrade-comms","halved capacity")},					--8
+				{tube = 7,	ord = 5, desc = _("upgrade-comms","double capacity"), downgrade = _("downgrade-comms","slowed small tube load time")},										--9
+				{tube = 8,	ord = 5, desc = _("upgrade-comms","reduce small tube load time by ~17%"), downgrade = _("downgrade-comms","reduced homing capacity by 1/3")},					--10
+				{tube = 8,	ord = 6, desc = _("upgrade-comms","increase homing capacity by 50%"), downgrade = _("downgrade-comms","removed mining tube")},						--11
+				{tube = 9,	ord = 7, desc = _("upgrade-comms","add a mining tube"), downgrade = _("downgrade-comms","reduced capacity: homing: 25%, mine: 50%, HVLI: 1/3")},									--12
 				{tube = 9,	ord = 8, desc = _("upgrade-comms","increase capacity: homing:1/3, mine:100%, HVLI:50%")},	--13
 				["start"] = 3
 			},
@@ -6797,33 +7426,40 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 40},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 20%"),
 				},
 				{	--2
 					{idx = 0, max = 50},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--3
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--4
 					{idx = 0, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","removed rear arc"),
 				},
 				{	--5
 					{idx = 0, max = 50},
 					{idx = 1, max = 50},
 					["desc"] = _("upgrade-comms","add rear arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--6
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 20%"),
+					downgrade = _("downgrade-comms","reduced front shield charge capacity by 25%"),
 				},
 				{	--7
 					{idx = 0, max = 80},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","increase front shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 1/6"),
 				},
 				{	--8
 					{idx = 0, max = 96},
@@ -6836,11 +7472,11 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 3,
 			},
 			["hull"] = {
-				{max = 50},																	--1
-				{max =  60, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--2
-				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3")},		--3
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},		--4
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--5
+				{max = 50, downgrade = _("downgrade-comms","reduced hull max by 1/6")},																	--1
+				{max =  60, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 25%")},		--2
+				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3"), downgrade = _("downgrade-comms","reduced hull max by 20%")},		--3
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},		--4
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},		--5
 				{max = 144, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--6
 				["stock"] = {max = 70},
 				["start"] = 2,
@@ -6851,6 +7487,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	36,		accel_back = 	36,
 					turn = 			24,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/6"),
 				},
 				{	--2
 					max_front =		120,	max_back =		120,
@@ -6858,6 +7495,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			24,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by 20%"),
+					downgrade = _("downgrade-comms","reduced forward acceleration by 1/7")
 				},
 				{	--3
 					max_front =		120,	max_back =		120,
@@ -6865,6 +7503,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			24,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase forward acceleration by ~17%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--4
 					max_front =		120,	max_back =		120,
@@ -6872,6 +7511,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			30,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","removed combat maneuver boost"),
 				},
 				{	--5
 					max_front =		120,	max_back =		120,
@@ -6879,6 +7519,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			30,
 					boost =			600,		strafe =		0,
 					desc = _("upgrade-comms","add combat maneuver boost"),
+					downgrade = _("downgrade-comms","reduced forward max impulse speed by 1/11"),
 				},
 				{	--6
 					max_front =		132,	max_back =		120,
@@ -6886,6 +7527,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			30,
 					boost =			600,		strafe =		0,
 					desc = _("upgrade-comms","increase forward max impulse speed by 10%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 1/11"),
 				},
 				{	--7
 					max_front =		132,	max_back =		120,
@@ -6902,38 +7544,47 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--2
 					jump_long = 0, jump_short = 0, warp = 400,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--5
 					jump_long = 25000, jump_short = 2500, warp = 500,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--6
 					jump_long = 25000, jump_short = 2500, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--7
 					jump_long = 30000, jump_short = 3000, warp = 600,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/7"),
 				},
 				{	--8
 					jump_long = 30000, jump_short = 3000, warp = 700,
 					desc = _("upgrade-comms","increase warp speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/7"),
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 700,
 					desc = _("upgrade-comms","increase jump range by ~17%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/8"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 800,
@@ -6947,18 +7598,22 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 20000, prox_scan = 0,
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 20%"),
 				},
 				{	--3
 					short = 5000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/3"),
 				},
 				{	--4
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 50%"),
+					downgrade = _("downgrade-comms","cut automated proximity scanner range in half")
 				},
 				{	--5
 					short = 5000, long = 30000, prox_scan = 4,
@@ -6976,37 +7631,45 @@ function playerShipUpgradeDowngradeData()
 			["beam"] = {
 				{	--1
 					{idx = 0, arc = 10, dir = 180, rng =  700, cyc = 8, dmg = 2, tar =  90, tdr = 180, trt = 1},
+					downgrade = _("downgrade-comms","cut arc width in half"),
 				},
 				{	--2
 					{idx = 0, arc = 10, dir = 180, rng =  700, cyc = 8, dmg = 2, tar = 180, tdr = 180, trt = 1},
 					["desc"] = _("upgrade-comms","double arc width"),
+					downgrade = _("downgrade-comms","cut turret speed in half"),
 				},
 				{	--3
 					{idx = 0, arc = 10, dir = 180, rng =  700, cyc = 8, dmg = 2, tar = 180, tdr = 180, trt = 2},
 					["desc"] = _("upgrade-comms","double turret speed"),
+					downgrade = _("downgrade-comms","reduced arc width by 1/3"),
 				},
 				{	--4
 					{idx = 0, arc = 10, dir = 180, rng =  700, cyc = 8, dmg = 2, tar = 270, tdr = 180, trt = 2},
 					["desc"] = _("upgrade-comms","increase arc width by 50%"),
+					downgrade = _("downgrade-comms","increased cycle time by 1/3"),
 				},
 				{	--5
 					{idx = 0, arc = 10, dir = 180, rng =  700, cyc = 6, dmg = 2, tar = 270, tdr = 180, trt = 2},
 					["desc"] = _("upgrade-comms","reduce cycle time by 25%"),
+					downgrade = _("downgrade-comms","removed beam"),
 				},
 				{	--6
 					{idx = 0, arc = 10, dir =   0, rng =  700, cyc = 6, dmg = 2, tar = 270, tdr =   0, trt = 2},
 					{idx = 1, arc = 10, dir = 180, rng =  700, cyc = 6, dmg = 2, tar = 270, tdr = 180, trt = 2},
 					["desc"] = _("upgrade-comms","add beam"),
+					downgrade = _("downgrade-comms","reduced turret speed by 1/3"),
 				},
 				{	--7
 					{idx = 0, arc = 10, dir =   0, rng =  700, cyc = 6, dmg = 2, tar = 270, tdr =   0, trt = 3},
 					{idx = 1, arc = 10, dir = 180, rng =  700, cyc = 6, dmg = 2, tar = 270, tdr = 180, trt = 3},
 					["desc"] = _("upgrade-comms","increase turret speed by 50%"),
+					downgrade = _("downgrade-comms","reduced range by 1/8, increased arc width by 7/20"),
 				},
 				{	--8
 					{idx = 0, arc = 10, dir =   0, rng =  800, cyc = 6, dmg = 2, tar = 200, tdr =   0, trt = 3},
 					{idx = 1, arc = 10, dir = 180, rng =  800, cyc = 6, dmg = 2, tar = 200, tdr = 180, trt = 3},
 					["desc"] = _("upgrade-comms","increase range by ~14%, decrease arc width by ~26%"),
+					downgrade = _("downgrade-comms","reduced damage by 1/3"),
 				},
 				{	--9
 					{idx = 0, arc = 10, dir =   0, rng =  800, cyc = 6, dmg = 3, tar = 200, tdr =   0, trt = 3},
@@ -7019,22 +7682,22 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 2,
 			},
 			["missiles"] = {
-				{tube = 1,	ord = 1},														--1
-				{tube = 1,	ord = 2, desc = _("upgrade-comms","increase HVLI capacity by 25%")},				--2  
-				{tube = 2,	ord = 3, desc = _("upgrade-comms","add homing capability")},						--3  
-				{tube = 2,	ord = 4, desc = _("upgrade-comms","increase HVLI capacity by 20%")},				--4
-				{tube = 3,	ord = 5, desc = _("upgrade-comms","add two small HVLI tubes, increase HVLI capacity by 1/3")},	--5
-				{tube = 4,	ord = 5, desc = _("upgrade-comms","reduce tube load speed by ~17%")},				--6
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase HVLI capacity by 25%")},				--7
-				{tube = 5,	ord = 5, desc = _("upgrade-comms","add two more small HVLI tubes")},				--8
-				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase capacity: homing:100%, HVLI:25%")},	--9
-				{tube = 6,	ord = 6, desc = _("upgrade-comms","make central tube medium sized")},				--10
-				{tube = 7,	ord = 6, desc = _("upgrade-comms","reduce small tube load time by 20%")},			--11
-				{tube = 7,	ord = 7, desc = _("upgrade-comms","increase capacity: homing:50%, HVLI:20%")},		--12
-				{tube = 8,	ord = 7, desc = _("upgrade-comms","reduce tube load time by ~23%")},				--13
-				{tube = 8,	ord = 8, desc = _("upgrade-comms","increase HVLI capacity by ~17%")},				--14
-				{tube = 9,	ord = 8, desc = _("upgrade-comms","add two more small HVLI tubes")},				--15
-				{tube = 9,	ord = 9, desc = _("upgrade-comms","increase HVLI capacity by ~14%")},				--16
+				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","reduced HVLI capacity by 20%")},														--1
+				{tube = 1,	ord = 2, desc = _("upgrade-comms","increase HVLI capacity by 25%"), downgrade = _("downgrade-comms","removed homing capability")},				--2  
+				{tube = 2,	ord = 3, desc = _("upgrade-comms","add homing capability"), downgrade = _("downgrade-comms","reduced HVLI capacity by 1/6")},						--3  
+				{tube = 2,	ord = 4, desc = _("upgrade-comms","increase HVLI capacity by 20%"), downgrade = _("downgrade-comms","removed two small HVLI tubes, reduced HVLI capacity by 25%")},				--4
+				{tube = 3,	ord = 5, desc = _("upgrade-comms","add two small HVLI tubes, increase HVLI capacity by 1/3"), downgrade = _("downgrade-comms","slowed tube load speed")},	--5
+				{tube = 4,	ord = 5, desc = _("upgrade-comms","reduce tube load speed by ~17%"), downgrade = _("downgrade-comms","reduced HVLI capacity by 20%")},				--6
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","increase HVLI capacity by 25%"), downgrade = _("downgrade-comms","removed two small tubes")},				--7
+				{tube = 5,	ord = 5, desc = _("upgrade-comms","add two more small HVLI tubes"), downgrade = _("downgrade-comms","reduced capacity: homing:50%, HVLI: 20%")},				--8
+				{tube = 5,	ord = 6, desc = _("upgrade-comms","increase capacity: homing:100%, HVLI:25%"), downgrade = _("downgrade-comms","switched central tube from medium to small")},	--9
+				{tube = 6,	ord = 6, desc = _("upgrade-comms","make central tube medium sized"), downgrade = _("downgrade-comms","slowed small tube load time")},				--10
+				{tube = 7,	ord = 6, desc = _("upgrade-comms","reduce small tube load time by 20%"), downgrade = _("downgrade-comms","reduced capacity: homing:1/3, HVLI: 1/6")},			--11
+				{tube = 7,	ord = 7, desc = _("upgrade-comms","increase capacity: homing:50%, HVLI:20%"), downgrade = _("downgrade-comms","slowed tube load times")},		--12
+				{tube = 8,	ord = 7, desc = _("upgrade-comms","reduce tube load time by ~23%"), downgrade = _("downgrade-comms","reduced HVLI capacity")},				--13
+				{tube = 8,	ord = 8, desc = _("upgrade-comms","increase HVLI capacity by ~17%"), downgrade = _("downgrade-comms","removed two small HVLI tubes")},				--14
+				{tube = 9,	ord = 8, desc = _("upgrade-comms","add two more small HVLI tubes"), downgrade = _("downgrade-comms","reduced HVLI capacity")},				--15
+				{tube = 9,	ord = 9, desc = _("upgrade-comms","increase HVLI capacity by ~14%"), downgrade = _("downgrade-comms","reduced capacity: homing: 25%, HVLI: 20%")},				--16
 				{tube = 9,	ord = 10,desc = _("upgrade-comms","increase capacity: homing:1/3, HVLI:25%")},		--17
 				["start"] = 5,
 			},
@@ -7114,23 +7777,28 @@ function playerShipUpgradeDowngradeData()
 			["shield"] = {
 				{	--1
 					{idx = 0, max = 30},
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--2
 					{idx = 0, max = 40},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","reduced chield charge capacity by 1/3"),
 				},
 				{	--3
 					{idx = 0, max = 60},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 50%"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--4
 					{idx = 0, max = 80},
 					["desc"] = _("upgrade-comms","increase shield charge capacity by 1/3"),
+					downgrade = _("downgrade-comms","removed rear arc"),
 				},
 				{	--5
 					{idx = 0, max = 60},
 					{idx = 1, max = 60},
 					["desc"] = _("upgrade-comms","add rear arc"),
+					downgrade = _("downgrade-comms","reduced shield charge capacity by 25%"),
 				},
 				{	--6
 					{idx = 0, max = 80},
@@ -7143,11 +7811,11 @@ function playerShipUpgradeDowngradeData()
 				["start"] = 2,
 			},
 			["hull"] = {
-				{max = 50},												--1
-				{max =  60, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--2
-				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3")},		--3
-				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%")},		--4
-				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%")},		--5
+				{max = 50, downgrade = _("downgrade-comms","reduced hull max by 1/6")},												--1
+				{max =  60, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 25%")},		--2
+				{max =  80, ["desc"] = _("upgrade-comms","increase hull max by 1/3"), downgrade = _("downgrade-comms","reduced hull max by 20%")},		--3
+				{max = 100, ["desc"] = _("upgrade-comms","increase hull max by 25%"), downgrade = _("downgrade-comms","reduced hull max by 1/6")},		--4
+				{max = 120, ["desc"] = _("upgrade-comms","increase hull max by 20%"), downgrade = _("downgrade-comms","reduced hull max by 20%")},		--5
 				{max = 150, ["desc"] = _("upgrade-comms","increase hull max by 25%")},		--6
 				["stock"] = {max = 75},
 				["start"] = 3,
@@ -7158,6 +7826,7 @@ function playerShipUpgradeDowngradeData()
 					accel_front =	20,		accel_back = 	20,
 					turn = 			12,
 					boost =			0,		strafe =		0,
+					downgrade = _("downgrade-comms","reduced max impulse speed by 1/7"),
 				},
 				{	--2
 					max_front =		70,		max_back =		70,
@@ -7165,6 +7834,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max impulse speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced rear acceleration by 20%"),
 				},
 				{	--3
 					max_front =		70,		max_back =		70,
@@ -7172,6 +7842,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase rear acceleration by 25%"),
+					downgrade = _("downgrade-comms","reduced max rear impulse by 1/8"),
 				},
 				{	--4
 					max_front =		70,		max_back =		80,
@@ -7179,6 +7850,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			0,		strafe =		0,
 					desc = _("upgrade-comms","increase max rear impulse by ~15%"),
+					downgrade = _("downgrade-comms","removed combat maneuver"),
 				},
 				{	--5
 					max_front =		70,		max_back =		80,
@@ -7186,6 +7858,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			12,
 					boost =			250,	strafe =		150,
 					desc = _("upgrade-comms","add combat maneuver"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 20%"),
 				},
 				{	--6
 					max_front =		70,		max_back =		80,
@@ -7193,6 +7866,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			250,	strafe =		150,
 					desc = _("upgrade-comms","increase maneuverability by 25%"),
+					downgrade = _("downgrade-comms","reduced combat maneuver by 1/6"),
 				},
 				{	--7
 					max_front =		70,		max_back =		80,
@@ -7200,6 +7874,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			300,	strafe =		180,
 					desc = _("upgrade-comms","increase combat maneuver by 20%"),
+					downgrade = _("downgrade-comms","reduced impulse by 1/6"),
 				},
 				{	--8
 					max_front =		84,		max_back =		96,
@@ -7207,6 +7882,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			300,	strafe =		180,
 					desc = _("upgrade-comms","increase max impulse by 20%"),
+					downgrade = _("downgrade-comms","reduced acceleration by 1/6"),
 				},
 				{	--9
 					max_front =		84,		max_back =		96,
@@ -7214,6 +7890,7 @@ function playerShipUpgradeDowngradeData()
 					turn = 			15,
 					boost =			300,	strafe =		180,
 					desc = _("upgrade-comms","increase acceleration by 20%"),
+					downgrade = _("downgrade-comms","reduced maneuverability by 25%"),
 				},
 				{	--10
 					max_front =		84,		max_back =		96,
@@ -7230,38 +7907,47 @@ function playerShipUpgradeDowngradeData()
 			["ftl"] = {
 				{	--1
 					jump_long = 0, jump_short = 0, warp = 0,
+					downgrade = _("downgrade-comms","removed warp drive"),
 				},
 				{	--2
 					jump_long = 0, jump_short = 0, warp = 400,
 					desc = _("upgrade-comms","add warp drive"),
+					downgrade = _("downgrade-comms","removed jump drive"),
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
 					desc = _("upgrade-comms","add 20k jump drive"),
+					downgrade = _("downgrade-comms","removed warp speed by 20%"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 500,
 					desc = _("upgrade-comms","increase warp speed by 25%"),
+					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--5
 					jump_long = 25000, jump_short = 2500, warp = 500,
 					desc = _("upgrade-comms","increase jump range by 25%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/6"),
 				},
 				{	--6
 					jump_long = 25000, jump_short = 2500, warp = 600,
 					desc = _("upgrade-comms","increase warp speed by 20%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/6"),
 				},
 				{	--7
 					jump_long = 30000, jump_short = 3000, warp = 600,
 					desc = _("upgrade-comms","increase jump range by 20%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/7"),
 				},
 				{	--8
 					jump_long = 30000, jump_short = 3000, warp = 700,
 					desc = _("upgrade-comms","increase warp speed by ~17%"),
+					downgrade = _("downgrade-comms","reduced jump range by 1/7"),
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 700,
 					desc = _("upgrade-comms","increase jump range by ~17%"),
+					downgrade = _("downgrade-comms","reduced warp speed by 1/8"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 800,
@@ -7275,22 +7961,27 @@ function playerShipUpgradeDowngradeData()
 			["sensors"] = {
 				{	--1
 					short = 4000, long = 20000, prox_scan = 0,
+					downgrade = _("downgrade-comms","removed automated proximity scanner"),
 				},
 				{	--2
 					short = 4000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","add 2 unit automated proximity scanner"),
+					downgrade = _("downgrade-comms","reduced short range sensors by 20%"),
 				},
 				{	--3
 					short = 5000, long = 20000, prox_scan = 2,
 					desc = _("upgrade-comms","increase short range sensors by 25%"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 1/3"),
 				},
 				{	--4
 					short = 5000, long = 30000, prox_scan = 2,
 					desc = _("upgrade-comms","increase long range sensors by 50%"),
+					downgrade = _("downgrade-comms","cut automated proximity scanner range in half"),
 				},
 				{	--5
 					short = 5000, long = 30000, prox_scan = 4,
 					desc = _("upgrade-comms","double automated proximity scanner range"),
+					downgrade = _("downgrade-comms","reduced long range sensors by 25%"),
 				},
 				{	--6
 					short = 5000, long = 40000, prox_scan = 4,

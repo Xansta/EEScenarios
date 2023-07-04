@@ -28,9 +28,9 @@
 -- Pace[Impatient]: Faster than fast pacing
 -- Pace[Blitz]: Fastest pace
 -- Setting[Reputation]: Amount of reputation to start with
--- Reputation[Unknown|Default]: Zero reputation - nobody knows anything about you
+-- Reputation[Unknown]: Zero reputation - nobody knows anything about you
 -- Reputation[Nice]: 20 reputation - you've had a small positive influence on the local community
--- Reputation[Hero]: 50 reputation - you helped important people or lots of people
+-- Reputation[Hero|Default]: 50 reputation - you helped important people or lots of people
 -- Reputation[Major Hero]: 100 reputation - you're well known by nearly everyone as a force for good
 -- Reputation[Super Hero]: 200 reputation - everyone knows you and relies on you for help
 -- Setting[Upgrade]: General price of upgrades to player ships
@@ -39,12 +39,14 @@
 -- Upgrade[Expensive]: Higher priced player ship upgrades
 -- Upgrade[Luxurious]: Very high prices for player ship upgrades
 -- Upgrade[Monopolistic]: Extremely high prices for player ship upgrades
--- Setting[Unique Ship]: Choose player ship outside of standard player ship list
--- Unique Ship[None|Default]: None: just use standard player ship list on spawn screen
--- Unique Ship[Amalgam]: Based on Atlantis, 4 beams (vs 2), single broadside tube on each side for large homing missiles only, 2 mining tubes, weaker defenses and engines 
--- Unique Ship[Midian]: Based on missile cruiser, reduced tubes, missiles and base warp speed to get beam weapons and HVLI
--- Unique Ship[Raven]: Based on Cruiser, stronger shields, weaker hull, broadside beams, tweaked tubes and missiles, low powered warp drive, tweaked sensor ranges
--- Unique Ship[Squid]: Based on Piranha, stronger defenses, added a beam weapon, reduced missile load, large homing missiles, reconfigured tubes, shorter jump and sensor ranges
+-- Setting[Special Factor]: Chance of special ability being added to enemy when spawned once they start developing special abilities. The higher the number, the greater the chance
+-- Special Factor[0]: No specials
+-- Special Factor[1]: Special factor one 
+-- Special Factor[2]: Special factor two
+-- Special Factor[3|Default]: Special factor three (default)
+-- Special Factor[5]: Special factor five
+-- Special Factor[8]: Special factor eight
+-- Special Factor[13]: Special factor thirteen
 
 require("utils.lua")
 require("place_station_scenario_utility.lua")
@@ -134,19 +136,12 @@ function setVariations()
 			["Monopolistic"] = 3,
 		}
 		upgrade_price = upgrade_config[getScenarioSetting("Upgrade")]
-		local player_ship_config = {
-			["Amalgam"] =	createPlayerShipMixer,
-			["Midian"] =	createPlayerShipFlipper,
-			["Raven"] =		createPlayerShipClaw,
-			["Squid"] =		createPlayerShipInk,
-		}
-		if getScenarioSetting("Unique Ship") ~= "None" then
-			player_ship_config[getScenarioSetting("Unique Ship")]()
-		end
+		ship_enhancement_factor = getScenarioSetting("Special Factor")
 	end
 end
 function setConstants()
 	far_enough_fail = false
+	diagnostic_tud = false
 	distance_diagnostic = false
 	stationCommsDiagnostic = false
 	change_enemy_order_diagnostic = false
@@ -168,6 +163,9 @@ function setConstants()
 	healthCheckTimer = healthCheckTimerInterval
 	prefix_length = 0
 	suffix_index = 0
+	spiky_spin_ships = {}
+	impulse_boost_ships = {}
+	pdc_ships = {}
 	cpu_ships = {}
 	star_list = {
 		{radius = random(600,1400), distance = random(-2500,-1400), 
@@ -275,86 +273,97 @@ function setConstants()
 	pool_selectivity = "full"
 	template_pool_size = 5
 	ship_template = {	--ordered by relative strength
-		["Gnat"] =				{strength = 2,		create = gnat},
-		["Lite Drone"] =		{strength = 3,		create = droneLite},
-		["Jacket Drone"] =		{strength = 4,		create = droneJacket},
-		["Ktlitan Drone"] =		{strength = 4,		create = stockTemplate},
-		["Heavy Drone"] =		{strength = 5,		create = droneHeavy},
-		["MT52 Hornet"] =		{strength = 5,		create = stockTemplate},
-		["MU52 Hornet"] =		{strength = 5,		create = stockTemplate},
-		["MV52 Hornet"] =		{strength = 6,		create = hornetMV52},
-		["Adder MK3"] =			{strength = 5,		create = stockTemplate},
-		["Adder MK4"] =			{strength = 6,		create = stockTemplate},
-		["Fighter"] =			{strength = 6,		create = stockTemplate},
-		["Ktlitan Fighter"] =	{strength = 6,		create = stockTemplate},
-		["K2 Fighter"] =		{strength = 7,		create = k2fighter},
-		["Adder MK5"] =			{strength = 7,		create = stockTemplate},
-		["WX-Lindworm"] =		{strength = 7,		create = stockTemplate},
-		["K3 Fighter"] =		{strength = 8,		create = k3fighter},
-		["Adder MK6"] =			{strength = 8,		create = stockTemplate},
-		["Ktlitan Scout"] =		{strength = 8,		create = stockTemplate},
-		["WZ-Lindworm"] =		{strength = 9,		create = wzLindworm},
-		["Adder MK7"] =			{strength = 9,		create = stockTemplate},
-		["Adder MK8"] =			{strength = 10,		create = stockTemplate},
-		["Adder MK9"] =			{strength = 11,		create = stockTemplate},
-		["Nirvana R3"] =		{strength = 12,		create = stockTemplate},
-		["Phobos R2"] =			{strength = 13,		create = phobosR2},
-		["Missile Cruiser"] =	{strength = 14,		create = stockTemplate},
-		["Waddle 5"] =			{strength = 15,		create = waddle5},
-		["Jade 5"] =			{strength = 15,		create = jade5},
-		["Phobos T3"] =			{strength = 15,		create = stockTemplate},
-		["Piranha F8"] =		{strength = 15,		create = stockTemplate},
-		["Piranha F12"] =		{strength = 15,		create = stockTemplate},
-		["Piranha F12.M"] =		{strength = 16,		create = stockTemplate},
-		["Phobos M3"] =			{strength = 16,		create = stockTemplate},
-		["Farco 3"] =			{strength = 16,		create = farco3},
-		["Farco 5"] =			{strength = 16,		create = farco5},
-		["Karnack"] =			{strength = 17,		create = stockTemplate},
-		["Gunship"] =			{strength = 17,		create = stockTemplate},
-		["Phobos T4"] =			{strength = 18,		create = phobosT4},
-		["Cruiser"] =			{strength = 18,		create = stockTemplate},
-		["Nirvana R5"] =		{strength = 19,		create = stockTemplate},
-		["Farco 8"] =			{strength = 19,		create = farco8},
-		["Nirvana R5A"] =		{strength = 20,		create = stockTemplate},
-		["Adv. Gunship"] =		{strength = 20,		create = stockTemplate},
-		["Ktlitan Worker"] =	{strength = 21,		create = stockTemplate},
-		["Farco 11"] =			{strength = 21,		create = farco11},
-		["Storm"] =				{strength = 22,		create = stockTemplate},
-		["Stalker R5"] =		{strength = 22,		create = stockTemplate},
-		["Stalker Q5"] =		{strength = 22,		create = stockTemplate},
-		["Farco 13"] =			{strength = 24,		create = farco13},
-		["Ranus U"] =			{strength = 25,		create = stockTemplate},
-		["Stalker Q7"] =		{strength = 25,		create = stockTemplate},
-		["Stalker R7"] =		{strength = 25,		create = stockTemplate},
-		["Whirlwind"] =			{strength = 26,		create = whirlwind},
-		["Adv. Striker"] =		{strength = 27,		create = stockTemplate},
-		["Elara P2"] =			{strength = 28,		create = stockTemplate},
-		["Tempest"] =			{strength = 30,		create = tempest},
-		["Strikeship"] =		{strength = 30,		create = stockTemplate},
-		["Fiend G3"] =			{strength = 33,		create = stockTemplate},
-		["Maniapak"] =			{strength = 34,		create = maniapak},
-		["Fiend G4"] =			{strength = 35,		create = stockTemplate},
-		["Cucaracha"] =			{strength = 36,		create = cucaracha},
-		["Fiend G5"] =			{strength = 37,		create = stockTemplate},
-		["Fiend G6"] =			{strength = 39,		create = stockTemplate},
-		["Predator"] =			{strength = 42,		create = predator},
-		["Ktlitan Breaker"] =	{strength = 45,		create = stockTemplate},
-		["Hurricane"] =			{strength = 46,		create = hurricane},
-		["Ktlitan Feeder"] =	{strength = 48,		create = stockTemplate},
-		["Atlantis X23"] =		{strength = 50,		create = stockTemplate},
-		["K2 Breaker"] =		{strength = 55,		create = k2breaker},
-		["Ktlitan Destroyer"] =	{strength = 50,		create = stockTemplate},
-		["Atlantis Y42"] =		{strength = 60,		create = atlantisY42},
-		["Blockade Runner"] =	{strength = 65,		create = stockTemplate},
-		["Starhammer II"] =		{strength = 70,		create = stockTemplate},
-		["Enforcer"] =			{strength = 75,		create = enforcer},
-		["Dreadnought"] =		{strength = 80,		create = stockTemplate},
-		["Starhammer III"] =	{strength = 85,		create = starhammerIII},
-		["Starhammer V"] =		{strength = 90,		create = starhammerV},
-		["Battlestation"] =		{strength = 100,	create = stockTemplate},
-		["Tyr"] =				{strength = 150,	create = tyr},
-		["Odin"] =				{strength = 250,	create = stockTemplate},
-	}
+		["Gnat"] =				{strength = 2,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 4500,	hop_angle = 0,	hop_range = 580,	create = gnat},
+		["Lite Drone"] =		{strength = 3,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = droneLite},
+		["Jacket Drone"] =		{strength = 4,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = droneJacket},
+		["Ktlitan Drone"] =		{strength = 4,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Heavy Drone"] =		{strength = 5,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 580,	create = droneHeavy},
+		["Adder MK3"] =			{strength = 5,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["MT52 Hornet"] =		{strength = 5,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 680,	create = stockTemplate},
+		["MU52 Hornet"] =		{strength = 5,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 880,	create = stockTemplate},
+		["Dagger"] =			{strength = 6,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["MV52 Hornet"] =		{strength = 6,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = hornetMV52},
+		["MT55 Hornet"] =		{strength = 6,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 680,	create = hornetMT55},
+		["Adder MK4"] =			{strength = 6,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Fighter"] =			{strength = 6,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Ktlitan Fighter"] =	{strength = 6,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["FX64 Hornet"] =		{strength = 7,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = hornetFX64},
+		["Blade"] =				{strength = 7,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Gunner"] =			{strength = 7,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["K2 Fighter"] =		{strength = 7,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = k2fighter},
+		["Adder MK5"] =			{strength = 7,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["WX-Lindworm"] =		{strength = 7,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["K3 Fighter"] =		{strength = 8,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = k3fighter},
+		["Shooter"] =			{strength = 8,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Jagger"] =			{strength = 8,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Adder MK6"] =			{strength = 8,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Ktlitan Scout"] =		{strength = 8,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 7000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["WZ-Lindworm"] =		{strength = 9,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 2500,	create = wzLindworm},
+		["Adder MK7"] =			{strength = 9,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Adder MK8"] =			{strength = 10,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Adder MK9"] =			{strength = 11,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Nirvana R3"] =		{strength = 12,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Phobos R2"] =			{strength = 13,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = phobosR2},
+		["Missile Cruiser"] =	{strength = 14,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 7000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Waddle 5"] =			{strength = 15,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = waddle5},
+		["Jade 5"] =			{strength = 15,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = jade5},
+		["Phobos T3"] =			{strength = 15,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Guard"] =				{strength = 15,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Piranha F8"] =		{strength = 15,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = stockTemplate},
+		["Piranha F12"] =		{strength = 15,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = stockTemplate},
+		["Piranha F12.M"] =		{strength = 16,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = stockTemplate},
+		["Phobos M3"] =			{strength = 16,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Farco 3"] =			{strength = 16,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1480,	create = farco3},
+		["Farco 5"] =			{strength = 16,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1180,	create = farco5},
+		["Karnack"] =			{strength = 17,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Gunship"] =			{strength = 17,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Phobos T4"] =			{strength = 18,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = phobosT4},
+		["Cruiser"] =			{strength = 18,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Nirvana R5"] =		{strength = 19,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Farco 8"] =			{strength = 19,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1480,	create = farco8},
+		["Nirvana R5A"] =		{strength = 20,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Adv. Gunship"] =		{strength = 20,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 7000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Ktlitan Worker"] =	{strength = 20,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 90,	hop_range = 580,	create = stockTemplate},
+		["Farco 11"] =			{strength = 21,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 8000,	hop_angle = 0,	hop_range = 1480,	create = farco11},
+		["Storm"] =				{strength = 22,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Warden"] =			{strength = 22,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Racer"] =				{strength = 22,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Strike"] =			{strength = 23,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Dash"] =				{strength = 23,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Farco 13"] =			{strength = 24,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = farco13},
+		["Sentinel"] =			{strength = 24,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Ranus U"] =			{strength = 25,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Flash"] =				{strength = 25,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Ranger"] =			{strength = 25,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Buster"] =			{strength = 25,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 2500,	create = stockTemplate},
+		["Stalker Q7"] =		{strength = 25,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Stalker R7"] =		{strength = 25,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Whirlwind"] =			{strength = 26,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = whirlwind},
+		["Hunter"] =			{strength = 26,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Adv. Striker"] =		{strength = 27,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Tempest"] =			{strength = 30,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 90,	hop_range = 2500,	create = tempest},
+		["Strikeship"] =		{strength = 30,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Maniapak"] =			{strength = 34,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 6000,	hop_angle = 0,	hop_range = 580,	create = maniapak},
+		["Cucaracha"] =			{strength = 36,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1480,	create = cucaracha},
+		["Ryder"] =				{strength = 41, missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 8000,	hop_angle = 90,	hop_range = 1180,	create = stockTemplate},
+		["Predator"] =			{strength = 42,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 7500,	hop_angle = 0,	hop_range = 980,	create = predator},
+		["Ktlitan Breaker"] =	{strength = 45,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = stockTemplate},
+		["Hurricane"] =			{strength = 46,	missile_only = true,	missile_primary = false,	missile_secondary = false,	short_range_radar = 6000,	hop_angle = 15,	hop_range = 2500,	create = hurricane},
+		["Ktlitan Feeder"] =	{strength = 48,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
+		["Atlantis X23"] =		{strength = 50,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = stockTemplate},
+		["Ktlitan Destroyer"] =	{strength = 50,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["K2 Breaker"] =		{strength = 55,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 780,	create = k2breaker},
+		["Atlantis Y42"] =		{strength = 60,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = atlantisY42},
+		["Blockade Runner"] =	{strength = 63,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Starhammer II"] =		{strength = 70,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 10000,	hop_angle = 0,	hop_range = 1480,	create = stockTemplate},
+		["Enforcer"] =			{strength = 75,	missile_only = false,	missile_primary = true,		missile_secondary = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 1480,	create = enforcer},
+		["Dreadnought"] =		{strength = 80,	missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 9000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
+		["Starhammer III"] =	{strength = 85,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 12000,	hop_angle = 0,	hop_range = 1480,	create = starhammerIII},
+		["Starhammer V"] =		{strength = 90,	missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 15000,	hop_angle = 0,	hop_range = 1480,	create = starhammerV},
+		["Battlestation"] =		{strength = 100,missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 9000,	hop_angle = 90,	hop_range = 2480,	create = stockTemplate},
+		["Tyr"] =				{strength = 150,missile_only = false,	missile_primary = false,	missile_secondary = false,	short_range_radar = 9500,	hop_angle = 90,	hop_range = 2480,	create = tyr},
+		["Odin"] =				{strength = 250,missile_only = false,	missile_primary = false,	missile_secondary = true,	short_range_radar = 20000,	hop_angle = 0,	hop_range = 3180,	create = stockTemplate},
+	}	
 	shipTemplateDistance = {
 		["Adder MK3"] =						100,
 		["Adder MK4"] =						100,
@@ -413,6 +422,7 @@ function setConstants()
 		["Fuel Jump Freighter 3"] =			600,
 		["Fuel Jump Freighter 4"] =			800,
 		["Fuel Jump Freighter 5"] =			800,
+		["FX64 Hornet"] =					100,
 		["Garbage Freighter 1"] =			600,
 		["Garbage Freighter 2"] =			600,
 		["Garbage Freighter 3"] =			600,
@@ -788,7 +798,6 @@ function setConstants()
 	}	
 	base_upgrade_cost = 5
 	playerShipUpgradeDowngradeData()
---	print("upgrade path Atlantis:",upgrade_path["Atlantis"])
 	commonGoods = {"food","medicine","nickel","platinum","gold","dilithium","tritanium","luxury","cobalt","impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	componentGoods = {"impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	mineralGoods = {"nickel","platinum","gold","dilithium","tritanium","cobalt"}
@@ -819,7 +828,21 @@ function setConstants()
 	spawn_source_pool = {}
 	target_station_pool = {}
 	clarifyExistingScience()
-	mainLinearPlot = continuousSpawn
+	mainLinearPlot = continuousSpawn	--Note: the main plot line is divided up between
+	--	several functions. This breaks up the code as well as reducing the number of
+	--	computations required for each cycle of the update loop. The sequence:
+	--	continuousSpawn
+	--	researchSurvival
+	--	if proximity to research station has been breached:
+	--		destroyLeadEnemyResearchStation
+	--	otherwise
+	--		if the scenario time has gone past the research completion time marker:
+	--			escortResearchVessel
+	--		otherwise
+	--			researchProximityCheck
+	--	destroyLeadEnemyResearchStation, escortResearchVessel, and researchProximityCheck switch to fighterPatrol
+	--	fighterPatrol
+	--	back to continuousSpawn
 end
 function clarifyExistingScience()
 	local weapons_key = _("scienceDB","Weapons")
@@ -842,6 +865,20 @@ function mainGMButtons()
 		print(version_message)
 	end)
 	addGMFunction(_("buttonGM","+Station Reports"),stationReports)
+--[[
+	local button_label = "TUD Off -> On"
+	if diagnostic_tud then
+		button_label = "TUD On -> Off"
+	end
+	addGMFunction(button_label,function()
+		if diagnostic_tud then
+			diagnostic_tud = false
+		else
+			diagnostic_tud = true
+		end
+		mainGMButtons()
+	end)
+--]]
 end
 function mainGMButtonsDuringPause()
 	clearGMFunctions()
@@ -851,6 +888,20 @@ function mainGMButtonsDuringPause()
 		print(version_message)
 	end)
 	addGMFunction(_("buttonGM","+Station Reports"),stationReports)
+--[[
+	local button_label = "TUD Off -> On"
+	if diagnostic_tud then
+		button_label = "TUD On -> Off"
+	end
+	addGMFunction(button_label,function()
+		if diagnostic_tud then
+			diagnostic_tud = false
+		else
+			diagnostic_tud = true
+		end
+		mainGMButtons()
+	end)
+--]]
 	addGMFunction(_("buttonGM","+Difficulty"),setDifficulty)
 	addGMFunction(_("buttonGM","+Enemy Power"),setEnemyPower)
 	addGMFunction(_("buttonGM","+Reputation"),setInitialReputation)
@@ -866,6 +917,20 @@ function mainGMButtonsAfterPause()
 	addGMFunction(_("buttonGM","Mission Stations"),function()
 		addGMMessage(string.format(_("buttonGM","This is spoiler information. Consider carefully before you reveal this to the rest of the players. If you feel you have to reveal this information, I suggest you select the player ship using the widget to the right of the 'Global message' button, then click the 'Hail ship' button, identify yourself as a character in game like the regional headquarters stellar cartography technician, then type the information as if you were that character helping them out on their mission.\n\nMedical research station: %s in sector %s\nPlague station %s in %s"),station_medical_research:getCallSign(),station_medical_research:getSectorName(),station_plague:getCallSign(),station_plague:getSectorName()))
 	end)
+--[[
+	local button_label = "TUD Off -> On"
+	if diagnostic_tud then
+		button_label = "TUD On -> Off"
+	end
+	addGMFunction(button_label,function()
+		if diagnostic_tud then
+			diagnostic_tud = false
+		else
+			diagnostic_tud = true
+		end
+		mainGMButtons()
+	end)
+--]]
 	addGMFunction(_("buttonGM","+Test Non-DB Ships"),testNonDBShips)
 	if whammy > getScenarioTime() then
 		addGMFunction(string.format("Whammy %s",math.floor(whammy)),function()
@@ -938,7 +1003,7 @@ end
 function stationReports()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM","-Main"),mainGMButtons)
-	addGMFunction("+Mission Stations",missionStationReport)
+	addGMFunction(_("buttonGM","+Mission Stations"),missionStationReport)
 	if station_list ~= nil and #station_list > 0 then
 		local applicable_station_count = 0
 		for index, station in ipairs(station_list) do
@@ -1037,21 +1102,21 @@ end
 function missionStationReport()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM","-Main from Mission Stations"),mainGMButtons)
-	addGMFunction("-Station Reports",stationReports)
-	addGMFunction(string.format("HQ %s %s",station_regional_hq:getCallSign(),station_regional_hq:getSectorName()),function()
-		addGMMessage(string.format("Regional Headquarters\n%s",singleStationReport(station_regional_hq)))
+	addGMFunction(_("buttonGM","-Station Reports"),stationReports)
+	addGMFunction(string.format(_("stationReport-buttonGM","HQ %s %s"),station_regional_hq:getCallSign(),station_regional_hq:getSectorName()),function()
+		addGMMessage(string.format(_("stationReport-buttonGM","Regional Headquarters\n%s"),singleStationReport(station_regional_hq)))
 		missionStationReport()
 	end)
 	addGMFunction(string.format("ESR %s %s",enemy_spike_research_station:getCallSign(),enemy_spike_research_station:getSectorName()),function()
-		addGMMessage(string.format("Enemy Spike Research\n%s",singleStationReport(enemy_spike_research_station)))
+		addGMMessage(string.format(_("stationReport-buttonGM","Enemy Spike Research\n%s"),singleStationReport(enemy_spike_research_station)))
 		missionStationReport()
 	end)
 	addGMFunction(string.format("FSR %s %s",friendly_spike_research_station:getCallSign(),friendly_spike_research_station:getSectorName()),function()
-		addGMMessage(string.format("Friendly Spike Research\n%s",singleStationReport(friendly_spike_research_station)))
+		addGMMessage(string.format(_("stationReport-buttonGM","Friendly Spike Research\n%s"),singleStationReport(friendly_spike_research_station)))
 		missionStationReport()
 	end)
 	addGMFunction(string.format("NSR %s %s",neutral_spike_research_station:getCallSign(),neutral_spike_research_station:getSectorName()),function()
-		addGMMessage(string.format("Neutral Spike Research\n%s",singleStationReport(neutral_spike_research_station)))
+		addGMMessage(string.format(_("stationReport-buttonGM","Neutral Spike Research\n%s"),singleStationReport(neutral_spike_research_station)))
 		missionStationReport()
 	end)
 end
@@ -1327,6 +1392,16 @@ function updatePlayerSoftTemplate(p)
 				end
 				upgrade_path[tempTypeName].providers = true
 			end
+			p.upgrade_state_rel = "upgrade_state_rel"
+			p:addCustomButton("Relay",p.upgrade_state_rel,_("upgradeState-buttonRelay","Upgrade State"),function()
+				string.format("")
+				upgradeState(p,"Relay")
+			end,99)
+			p.upgrade_state_ops = "upgrade_state_ops"
+			p:addCustomButton("Operations",p.upgrade_state_ops,_("upgradeState-buttonOperations","Upgrade State"),function()
+				string.format("")
+				upgradeState(p,"Operations")
+			end,99)
 			--set values from list
 			p.maxCargo = playerShipStats[tempTypeName].cargo
 			p.cargo = p.maxCargo
@@ -1396,6 +1471,24 @@ function updatePlayerSoftTemplate(p)
 		p.normal_power_rate[system] = p:getSystemPowerRate(system)
 	end
 end
+function upgradeState(p,console)
+	local out = string.format(_("upgradeState-msgRelay","State of player ship %s along the tech upgrade path"),p:getCallSign())
+	local u_types = {
+		["beam"] = {name = _("upgradeState-msgRelay","Beam Weapons (range, damage, arc width, cycle time")},
+		["ftl"] = {name = _("upgradeState-msgRelay","Faster Than Light engine (warp, jump)")},
+		["missiles"] = {name = _("upgradeState-msgRelay","Missile Weapons (tubes, type, size, load time)")},
+		["shield"] = {name = _("upgradeState-msgRelay","Shield")},
+		["hull"] = {name = _("upgradeState-msgRelay","Hull")},
+		["impulse"] = {name = _("upgradeState-msgRelay","Impulse (speed, acceleration, maneuverability, combat maneuver)")},
+		["sensors"] = {name = _("upgradeState-msgRelay","Sensors (long range, short range, automated proximity scanner)")},
+	}
+	local temp_type = p:getTypeName()
+	for u_type_name,u_type in pairs(u_types) do
+		out = string.format("%s\n%s/%s %s",out,p.upgrade_path[u_type_name],#upgrade_path[temp_type][u_type_name],u_type.name)
+	end
+	p.upgrade_state_message = "upgrade_state_message"
+	p:addCustomMessage(console,p.upgrade_state_message,out)
+end
 function setPlayers(p)
 	if p == nil then
 		return
@@ -1425,18 +1518,24 @@ function playerDestruction(self,instigator)
 		local rank = getTripleFactorRank()
 		local duration_string = getDuration()
 		local reason = ""
+		local enemy_faction = "Exuari"
+		if instigator ~= nil then
+			if instigator:isEnemy(self) then
+				enemy_faction = instigator:getFaction()
+			end
+		end
 		if proximity_breached then
-			reason = string.format(_("msgMainscreen","The Exuari rapidly developed overwhelming weapons using our research.\nThe %s was destroyed. You lasted for %s.\nPosthumous rank: %s"),player_faction,duration_string,rank)
+			reason = string.format(_("msgMainscreen","The %s rapidly developed overwhelming weapons using our research.\nThe %s was destroyed. You lasted for %s.\nPosthumous rank: %s"),enemy_faction,player_faction,duration_string,rank)
 		else
 			if research_vessel:isValid() then
-				reason = string.format(_("msgMainscreen","The Exuari captured %s and rapidly developed overwhelming weapons with our research\nThe %s was destroyed. You lasted for %s.\nPosthumous rank: %s"),research_vessel:getCallSign(),player_faction,duration_string,rank)
+				reason = string.format(_("msgMainscreen","The %s captured %s and rapidly developed overwhelming weapons with our research\nThe %s was destroyed. You lasted for %s.\nPosthumous rank: %s"),enemy_faction,research_vessel:getCallSign(),player_faction,duration_string,rank)
 			else
-				reason = string.format(_("msgMainscreen","The Exuari destroyed the research vessel and developed better weapons\nThe %s was destroyed. You lasted for %s.\nPosthumous rank: %s"),player_faction,duration_string,rank)
+				reason = string.format(_("msgMainscreen","The %s destroyed the research vessel and developed better weapons\nThe %s was destroyed. You lasted for %s.\nPosthumous rank: %s").enemy_faction,player_faction,duration_string,rank)
 			end
 		end
 		globalMessage(reason)
 		setBanner(reason)
-		victory("Exuari")
+		victory(enemy_faction)
 	end
 end
 function playerDestroyed(self,instigator)
@@ -1567,11 +1666,11 @@ function getDuration()
 					end
 				end
 			else
-				duration_string = string.format("%s minute and %s seconds",minutes,seconds)
+				duration_string = string.format(_("msgMainscreen","%s minute and %s seconds"),minutes,seconds)
 			end
 		end
 	else
-		duration_string = string.format("%s seconds",duration_string)
+		duration_string = string.format(_("msgMainscreen","%s seconds"),duration_string)
 	end
 	return duration_string
 end
@@ -1814,6 +1913,37 @@ function constructEnvironment()
 	if station_regional_hq == nil then
 		print("problem placing regional headquarters Pop Sci Fi station")
 	end
+	if station_regional_hq.comms_data.goods == nil then
+		station_regional_hq.comms_data.goods = {
+			["food"] = {
+				quantity = 5,
+				cost = 1,
+			},
+			["medicine"] = {
+				quantity = 5,
+				cost = 5,
+			}
+		}
+	else
+		if station_regional_hq.comms_data.goods.food == nil then
+			if station_regional_hq.comms_data.trade == nil then
+				station_regional_hq.comms_data.trade = {}
+			end
+			if not station_regional_hq.comms_data.trade.food then
+				station_regional_hq.comms_data.trade.food = (random(1,100) < 80)
+			end
+		end
+		if station_regional_hq.comms_data.goods.medicine == nil then
+			if not station_regional_hq.comms_data.trade.medicine then
+				station_regional_hq.comms_data.trade.medicine = (random(1,100) < 80)
+			end
+		end
+		if station_regional_hq.comms_data.goods.luxury == nil then
+			if not station_regional_hq.comms_data.trade.luxury then
+				station_regional_hq.comms_data.trade.luxury = (random(1,100) < 80)
+			end
+		end
+	end
 	station_regional_hq_name = station_regional_hq:getCallSign()
 	station_regional_hq:onDestruction(hqDestroyed)
 	table.insert(station_list,station_regional_hq)
@@ -1935,6 +2065,26 @@ function constructEnvironment()
 			tube_slow_down_repair = math.random(2,7),
 			combat_maneuver_repair = math.random(2,7),
         }
+		if station.comms_data.goods ~= nil then
+			if station.comms_data.trade == nil then
+				station.comms_data.trade = {}
+			end
+			if station.comms_data.goods.food == nil then
+				if not station.comms_data.trade.food then
+					station.comms_data.trade.food = (random(1,100) < 50)
+				end
+			end
+			if station.comms_data.goods.medicine == nil then
+				if not station.comms_data.trade.medicine then
+					station.comms_data.trade.medicine = (random(1,100) < 50)
+				end
+			end
+			if station.comms_data.goods.luxury == nil then
+				if not station.comms_data.trade.luxury then
+					station.comms_data.trade.luxury = (random(1,100) < 50)
+				end
+			end
+		end
 	end
 	local station_service_pool = {
 		"energy","hull","restock_probes","homing","nuke","emp","mine","hvli",
@@ -2161,6 +2311,26 @@ function constructEnvironment()
 			tube_slow_down_repair = math.random(2,7),
 			combat_maneuver_repair = math.random(2,7),
         }
+		if station.comms_data.goods ~= nil then
+			if station.comms_data.trade == nil then
+				station.comms_data.trade = {}
+			end
+			if station.comms_data.goods.food == nil then
+				if not station.comms_data.trade.food then
+					station.comms_data.trade.food = (random(1,100) < 70)
+				end
+			end
+			if station.comms_data.goods.medicine == nil then
+				if not station.comms_data.trade.medicine then
+					station.comms_data.trade.medicine = (random(1,100) < 70)
+				end
+			end
+			if station.comms_data.goods.luxury == nil then
+				if not station.comms_data.trade.luxury then
+					station.comms_data.trade.luxury = (random(1,100) < 70)
+				end
+			end
+		end
 	end
 	station_service_pool = {
 		"energy","hull","restock_probes","homing","nuke","emp","mine","hvli",
@@ -2927,6 +3097,26 @@ function constructEnvironment()
 			amk8_reinforcements = math.random(150,200),
 			shield_overcharge = math.random(1,5)*5,
         }
+		if station.comms_data.goods ~= nil then
+			if station.comms_data.trade == nil then
+				station.comms_data.trade = {}
+			end
+			if station.comms_data.goods.food == nil then
+				if not station.comms_data.trade.food then
+					station.comms_data.trade.food = (random(1,100) < 60)
+				end
+			end
+			if station.comms_data.goods.medicine == nil then
+				if not station.comms_data.trade.medicine then
+					station.comms_data.trade.medicine = (random(1,100) < 60)
+				end
+			end
+			if station.comms_data.goods.luxury == nil then
+				if not station.comms_data.trade.luxury then
+					station.comms_data.trade.luxury = (random(1,100) < 60)
+				end
+			end
+		end
 	end
 	station_service_pool = {
 		"energy","hull","restock_probes","homing","nuke","emp","mine","hvli",
@@ -3881,6 +4071,214 @@ function randomTransportType()
 	end
 	return CpuShip():setTemplate(string.format("%s %s %i",transport_type[math.random(1,#transport_type)],freighter_engine,freighter_size)):setCommsScript(""):setCommsFunction(commsShip), freighter_size
 end
+--	Enhanced enemy ship functions
+function addEnhancementToScienceDatabase(enhancement_type)
+	local ships_key = _("scienceDB","Ships")
+	local enhancements_key = _("scienceDB","Enhancements")
+	local shield_drain_enhancement_type_key = _("scienceDB","Shield Drain Beam")
+	local boost_impulse_enhancement_type_key = _("scienceDB","Boost Impulse")
+	local skip_beam_enhancement_type_key = _("scienceDB","Skip Beam")
+	local shield_freq_adjuster_enhancement_type_key = _("scienceDB","Shield Frequency Adjuster")
+	local tactical_hop_enhancement_type_key = _("scienceDB","Tactical Hop")
+	local spiky_spin_enhancement_type_key = _("scienceDB","Spiky Spin")
+	local pdc_enhancement_type_key = _("scienceDB","Point Defense Cannon")
+	local enhancement_db = queryScienceDatabase(ships_key,enhancements_key)
+	if enhancement_db == nil then
+		addEnhancementDatabaseEntry()
+	end
+	enhancement_db = queryScienceDatabase(ships_key,enhancements_key)
+	if enhancement_type == shield_drain_enhancement_type_key then
+		local shield_drain_beam_db = queryScienceDatabase(ships_key,enhancements_key,shield_drain_enhancement_type_key)
+		if shield_drain_beam_db == nil then
+			enhancement_db:addEntry(shield_drain_enhancement_type_key)
+			shield_drain_beam_db = queryScienceDatabase(ships_key,enhancements_key,shield_drain_enhancement_type_key)
+			shield_drain_beam_db:setLongDescription(_("scienceDB","If a ship is equipped with Shield Drain Beam capability, their beam weapons have been enhanced to particularly negatively impact the target's shields. The damage is applied to all shield arcs and reduces the shield charge. The degree of impact depends on the shield drain factor. In addition to the normal beam damage, the draining damage is the normal beam damage multiplied by the factor applied to all shield arcs."))
+		end
+	elseif enhancement_type == boost_impulse_enhancement_type_key then
+		local boost_impulse_db = queryScienceDatabase(ships_key,enhancements_key,boost_impulse_enhancement_type_key)
+		if boost_impulse_db == nil then
+			enhancement_db:addEntry(boost_impulse_enhancement_type_key)
+			boost_impulse_db = queryScienceDatabase(ships_key,enhancements_key,boost_impulse_enhancement_type_key)
+			boost_impulse_db:setLongDescription(_("scienceDB","If a ship is equipped with Boost Impulse, it can temporarily increase its maximum impulse speed, something learned from observing CUF ships. The numeric expression indicates seconds x speed multiplier."))
+		end
+	elseif enhancement_type == skip_beam_enhancement_type_key then
+		local skip_beam_db = queryScienceDatabase(ships_key,enhancements_key,skip_beam_enhancement_type_key)
+		if skip_beam_db == nil then
+			enhancement_db:addEntry(skip_beam_enhancement_type_key)
+			skip_beam_db = queryScienceDatabase(ships_key,enhancements_key,skip_beam_enhancement_type_key)
+			skip_beam_db:setLongDescription(_("scienceDB","If a ship is equipped with a Skip Beam, it can directly damage the target ship hull regardless of the state of the shields. The beam is enhanced with intertwined jump characteristics allowing it to bypass the shields. The damage applied to the hull equates to the normal damage multiplied by the skip beam factor divided by two."))
+		end
+	elseif enhancement_type == shield_freq_adjuster_enhancement_type_key then
+		local shield_frequency_adjuster_db = queryScienceDatabase(ships_key,enhancements_key,shield_freq_adjuster_enhancement_type_key)
+		if shield_frequency_adjuster_db == nil then
+			enhancement_db:addEntry(shield_freq_adjuster_enhancement_type_key)
+			shield_frequency_adjuster_db = queryScienceDatabase(ships_key,enhancements_key,shield_freq_adjuster_enhancement_type_key)
+			shield_frequency_adjuster_db:setLongDescription(_("scienceDB","If a ship is equipped with Shield Frequency Adjusters, their shields automatically adjust to the best defensive shield frequency during combat."))
+		end
+	elseif enhancement_type == tactical_hop_enhancement_type_key then
+		local tactical_hop_db = queryScienceDatabase(ships_key,enhancements_key,tactical_hop_enhancement_type_key)
+		if tactical_hop_db == nil then
+			enhancement_db:addEntry(tactical_hop_enhancement_type_key)
+			tactical_hop_db = queryScienceDatabase(ships_key,enhancements_key,tactical_hop_enhancement_type_key)
+			tactical_hop_db:setLongDescription(_("scienceDB","If a ship is equipped with Tactical Hop, they have a rapid-acting quasi-jump drive under computer control that combat conditions can trigger. The combat computer action taken depends on the rating (the integer portion of the number given in the Science description). The likelihood of the computer taking the hop action depends on the reliability (the fractional portion of the number given in the Science description).\n\nRating actions:\n1: Hop to the other side of the target at range 4U.\n2: Hop to the other side of the target at range 4U and face weapons to target.\n3: Hop to the other side of the target at good weapons range.\n4: Hop to the other side of the target at good weapons range and face weapons to target.\n5: If hull damage at 50% or higher, hop to the other side of the target at range 5U otherwise hop to the other side of the target at good weapons range. In either case, face weapons to target."))
+		end
+	elseif enhancement_type == spiky_spin_enhancement_type_key then
+		local spiky_spin_db = queryScienceDatabase(ships_key,enhancements_key,spiky_spin_enhancement_type_key)
+		if spiky_spin_db == nil then
+			enhancement_db:addEntry(spiky_spin_enhancement_type_key)
+			spiky_spin_db = queryScienceDatabase(ships_key,enhancements_key,spiky_spin_enhancement_type_key)
+			spiky_spin_db:setLongDescription(_("scienceDB","If a ship is equipped with Spiky Spin, they can spike up the performance of their maneuvering systems temporarily under combat conditions. This allows them to spin rapidly to bring weapons to bear on a desired target. The number given in the Science description represents the likelihood that the spike will function when desired."))
+		end
+	elseif enhancement_type == pdc_enhancement_type_key then
+		local pdc_db = queryScienceDatabase(ships_key,enhancements_key,pdc_enhancement_type_key)
+		if pdc_db == nil then
+			enhancement_db:addEntry(pdc_enhancement_type_key)
+			pdc_db = queryScienceDatabase(ships_key,enhancements_key,pdc_enhancement_type_key)
+			pdc_db:setLongDescription(_("scienceDB","If a ship is equipped with a Point Defense Cannon, it can shoot down incoming missiles if the targeting computer can get a lock. The factor shown represents the percentage chance of locking on to a missile based on the targeting computer's capability."))
+		end
+	end
+end
+function setSpecialDescription(ship)
+	local special_description = ""
+	if ship.shield_drain_beam_factor ~= nil then
+		special_description = string.format(_("scienceDescription-ship","Factor %i shield draining beams."),ship.shield_drain_beam_factor)
+	end
+	if ship.boost_impulse_factor ~= nil then
+		if special_description == "" then
+			special_description = string.format(_("scienceDescription-ship","Boost Impulse %s."),ship.boost_impulse_factor)
+		else
+			special_description = string.format(_("scienceDescription-ship","%s Boost Impulse %s."),special_description,ship.boost_impulse_factor)
+		end
+	end
+	if ship.skip_beam_factor ~= nil then
+		if special_description == "" then
+			special_description = string.format(_("scienceDescription-ship","Factor %i skip beam."),ship.skip_beam_factor)
+		else
+			special_description = string.format(_("scienceDescription-ship","%s Factor %i skip beam."),special_description,ship.skip_beam_factor)
+		end
+	end
+	if ship.adjust_shield_frequency_automatically ~= nil and ship.adjust_shield_frequency_automatically then
+		if special_description == "" then
+			special_description = _("scienceDescription-ship","Automated shield frequency adjusters.")
+		else
+			special_description = string.format(_("scienceDescription-ship","%s Automated shield frequency adjusters."),special_description)
+		end
+	end
+	if ship.tactical_hop ~= nil then
+		if ship.tactical_hop_chance == nil then
+			ship.tactical_hop_chance = 25
+		end
+		if special_description == "" then
+			special_description = string.format(_("scienceDescription-ship","Tactical Hop %i.%i."),ship.tactical_hop,ship.tactical_hop_chance)
+		else
+			special_description = string.format(_("scienceDescription-ship","%s Tactical Hop %i.%i."),special_description,ship.tactical_hop,ship.tactical_hop_chance)
+		end
+	end
+	if ship.spiky_spin ~= nil then
+		if special_description == "" then
+			special_description = string.format(_("scienceDescription-ship","Spiky Spin %i."),ship.spiky_spin)
+		else
+			special_description = string.format(_("scienceDescription-ship","%s Spiky Spin %i."),special_description,ship.spiky_spin)
+		end
+	end
+	if ship.pdc_factor ~= nil then
+		if special_description == "" then
+			special_description = string.format(_("scienceDescription-ship","Factor %i%% Point Defense Cannons."),ship.pdc_factor)
+		else
+			special_description = string.format(_("scienceDescription-ship","%s Factor %i%% Point Defense Cannons."),special_description,ship.pdc_factor)
+		end
+	end
+	if special_description == "" then
+		ship:setDescriptionForScanState("notscanned"," ")
+		ship:setDescriptionForScanState("friendorfoeidentified"," ")
+		ship:setDescriptionForScanState("simplescan"," ")
+		ship:setDescriptionForScanState("fullscan"," ")
+	else	
+		ship:setDescriptionForScanState("notscanned"," ")
+		ship:setDescriptionForScanState("friendorfoeidentified"," ")
+		ship:setDescriptionForScanState("simplescan",string.format(_("scienceDescription-ship","Enhanced %s"),ship:getTypeName()))
+		ship:setDescriptionForScanState("fullscan",special_description)
+	end
+end
+function setShipEnhancement(ship)
+	local shield_drain_enhancement_type_key = _("scienceDB","Shield Drain Beam")
+	local boost_impulse_enhancement_type_key = _("scienceDB","Boost Impulse")
+	local skip_beam_enhancement_type_key = _("scienceDB","Skip Beam")
+	local shield_freq_adjuster_enhancement_type_key = _("scienceDB","Shield Frequency Adjuster")
+	local tactical_hop_enhancement_type_key = _("scienceDB","Tactical Hop")
+	local spiky_spin_enhancement_type_key = _("scienceDB","Spiky Spin")
+	local pdc_enhancement_type_key = _("scienceDB","Point Defense Cannon")
+	local template_name = ship:getTypeName()
+	local enhancements = {}
+	if ship_template ~= nil and template_name ~= nil and ship_template[template_name] ~= nil then
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			if ship:getBeamWeaponRange(0) > 1 then
+				local beam_factors = {1,2,3,5,8,13,21}
+				ship.shield_drain_beam_factor = beam_factors[math.random(1,#beam_factors)]
+				table.insert(enhancements,string.format(_("scienceDescription-ship","Shield Drain Beam. Factor:%i"),ship.shield_drain_beam_factor))
+				addEnhancementToScienceDatabase(shield_drain_enhancement_type_key)
+			end
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			if ship:getBeamWeaponRange(0) > 1 then
+				local pdc_factors = {20,30,50,75,90}
+				ship.pdc_factor = pdc_factors[math.random(1,#pdc_factors)]
+				table.insert(pdc_ships,ship)
+				table.insert(enhancements,string.format(_("scienceDescription-ship","Point Defense Cannon. Factor %i%%"),ship.pdc_factor))
+				addEnhancementToScienceDatabase(pdc_enhancement_type_key)
+			end
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			if ship:getBeamWeaponRange(0) > 1 then
+				ship.skip_beam_factor = math.random(1,5)
+				table.insert(enhancements,string.format(_("scienceDescription-ship","Skip Beam. Factor:%i"),ship.skip_beam_factor))
+				addEnhancementToScienceDatabase(skip_beam_enhancement_type_key)
+			end
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			if ship:hasSystem("frontshield") then
+				ship.adjust_shield_frequency_automatically = true
+				table.insert(enhancements,_("scienceDescription-ship","Automatic Shield Frequency Adjusters"))
+				addEnhancementToScienceDatabase(shield_freq_adjuster_enhancement_type_key)
+			end
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			ship.tactical_hop = math.random(1,5)
+			ship.tactical_hop_chance = math.random(25,50)
+			table.insert(enhancements,string.format(_("scienceDescription-ship","Tactical Hop %i.%i"),ship.tactical_hop,ship.tactical_hop_chance))
+			addEnhancementToScienceDatabase(tactical_hop_enhancement_type_key)
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			ship.spiky_spin = math.random(25,50)
+			table.insert(enhancements,string.format(_("scienceDescription-ship","Spiky Spin %i"),ship.spiky_spin))
+			addEnhancementToScienceDatabase(spiky_spin_enhancement_type_key)
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			local impulse_boost_degree_factors = {1.5,1.75,2,2.5,3}
+			local impulse_boost_time_factors = {3,5,8,13,21,34}
+			ship.boost_impulse_degree_factor = impulse_boost_degree_factors[math.random(1,#impulse_boost_degree_factors)]
+			ship.boost_impulse_time_factor = impulse_boost_time_factors[math.random(1,#impulse_boost_time_factors)]
+			ship.boost_impulse_factor = string.format("%ix%s",ship.boost_impulse_time_factor,ship.boost_impulse_degree_factor)
+			table.insert(enhancements,string.format(_("scienceDescription-ship","Boost Impulse %s"),ship.boost_impulse_factor))
+			addEnhancementToScienceDatabase(boost_impulse_enhancement_type_key)
+		end
+	end
+	if #enhancements > 0 then
+		local msg_out = string.format("Ship %s (%s) has the following special enhancement(s):",ship:getCallSign(),ship:getTypeName())
+		for _, enhancement in ipairs(enhancements) do
+			msg_out = string.format("%s\n    %s",msg_out,enhancement)
+		end
+		print(msg_out)
+	end
+end
+function addEnhancementDatabaseEntry()
+	local ships_key = _("scienceDB","Ships")
+	local enhancements_key = _("scienceDB","Enhancements")
+	local ship_db = queryScienceDatabase(ships_key)
+	ship_db:addEntry(enhancements_key)
+	local enhancement_db = queryScienceDatabase(ships_key,enhancements_key)
+	enhancement_db:setLongDescription(_("scienceDB","Ship enhancements give the ship benefits during combat over and above those things possible with typical assistance from Engineering"))
+end
 --------------------------------
 -- Station creation functions --
 --------------------------------
@@ -4109,6 +4507,38 @@ function commsStation()
     end
     return true
 end
+function testUpgradeDowngrade()
+	addCommsReply("TUD",function()
+		local p_ship_type = comms_source:getTypeName()
+		if upgrade_path[p_ship_type] == nil then
+			setCommsMessage(string.format("No upgrade path for %s",p_ship_type))
+		else
+			local tud_out = "Current upgrade state:"
+			for p_u_system, p_u_level in pairs(comms_source.upgrade_path) do
+				tud_out = string.format("%s\n  %s level:%s\n    ug:%s\n    dg:%s",tud_out,p_u_system,p_u_level,upgrade_path[p_ship_type][p_u_system][p_u_level].desc,upgrade_path[p_ship_type][p_u_system][p_u_level].downgrade)
+			end
+			setCommsMessage(tud_out)
+			for p_u_system, p_u_level in pairs(comms_source.upgrade_path) do
+				local max_sys_level = #upgrade_path[p_ship_type][p_u_system]
+				if max_sys_level > p_u_level then
+					addCommsReply(string.format("%s: %s",p_u_system,upgrade_path[p_ship_type][p_u_system][p_u_level + 1].desc),function()
+						upgradePlayerShip(comms_source,p_u_system)
+						setCommsMessage(_("upgrade-comms","Upgrade complete"))
+						addCommsReply(_("Back"), commsStation)
+					end)
+				end
+				if p_u_level > 1 then
+					addCommsReply(string.format("%s: %s",p_u_system,upgrade_path[p_ship_type][p_u_system][p_u_level - 1].downgrade),function()
+						downgradePlayerShip(comms_source,p_u_system)
+						setCommsMessage(_("upgrade-comms","Downgrade complete"))
+						addCommsReply(_("Back"), commsStation)
+					end)
+				end
+			end
+		end
+		addCommsReply(_("Back"), commsStation)
+	end)
+end
 function handleDockedState()
     if comms_source:isFriendly(comms_target) then
     	if comms_target.comms_data.friendlyness > 66 then
@@ -4126,6 +4556,9 @@ function handleDockedState()
 	end
 	oMsg = string.format(_("station-comms","%s\n\nReputation: %i"),oMsg,math.floor(comms_source:getReputationPoints()))
 	setCommsMessage(oMsg)
+	if diagnostic_tud then
+		testUpgradeDowngrade()
+	end
 	local mission_character = nil
 	local mission_type = nil
 	if comms_source.transport_mission ~= nil then
@@ -4587,8 +5020,8 @@ function handleDockedState()
 						if u_blob.max > p_upgrade_level then
 							upgrade_count = upgrade_count + 1
 							addCommsReply(string.format("%s: %s",u_type,upgrade_path[p_ship_type][u_type][p_upgrade_level + 1].desc),function()
-								local premium_upgrade_price = math.ceil(base_upgrade_cost+15+((p_upgrade_level+1)*upgrade_price))
-								local tradeoff_upgrade_price = math.ceil(base_upgrade_cost+6+((p_upgrade_level+1)*upgrade_price))
+								local premium_upgrade_price = math.ceil(base_upgrade_cost+30+((p_upgrade_level+1)*upgrade_price))
+								local tradeoff_upgrade_price = math.ceil(base_upgrade_cost+10+((p_upgrade_level+1)*upgrade_price))
 								local pitdroid_upgrade_price = math.ceil(base_upgrade_cost+((p_upgrade_level+1)*upgrade_price))
 								if comms_target.good_traded_for_upgrade == nil then
 									comms_target.good_traded_for_upgrade = {"food","medicine"}
@@ -4992,6 +5425,37 @@ function handleDockedState()
 						end)
 					end
 				end
+				addCommsReply(_("Back"), commsStation)
+			end)
+		end
+		if comms_source.shield_banner == nil or not comms_source.shield_banner then
+			if comms_target.shield_banner == nil then
+				if random(1,100) < 50 then
+					comms_target.shield_banner = true
+				else
+					comms_target.shield_banner = false
+				end
+			end
+			if comms_target.shield_banner then
+				addCommsReply(_("station-comms","Spare portable shield diagnostic"),function()
+					setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
+					addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source.shield_banner = true
+							comms_target.shield_banner = false
+							setCommsMessage(_("station-comms","Installed"))
+						else
+							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						end
+						addCommsReply(_("Back"), commsStation)
+					end)
+				end)
+			end
+		elseif comms_source.shield_banner ~= nil and comms_source.shield_banner then
+			addCommsReply("Give portable shield diagnostic to repair technicians",function()
+				setCommsMessage("Thanks. They will put it to good use.")
+				comms_source.shield_banner = false
+				comms_target.shield_banner = true
 				addCommsReply(_("Back"), commsStation)
 			end)
 		end
@@ -5578,6 +6042,9 @@ function handleUndockedState()
 		oMsg = oMsg .. _("station-comms", "\nBe aware that if enemies in the area get much closer, we will be too busy to conduct business with you.")
 	end
 	setCommsMessage(oMsg)
+	if diagnostic_tud then
+		testUpgradeDowngrade()
+	end
 	local count_repeat_loop = 0
 	repeat
 		local wj_deleted = false
@@ -6223,7 +6690,7 @@ function downgradePlayerShip(p,u_type)
 				p:setBeamWeaponTurret(b.idx,b.tar,b.tdr,b.trt)
 			end
 		end
-	elseif u_type == "missile" then
+	elseif u_type == "missiles" then
 		for i=1,p:getWeaponTubeCount() do
 			local tube_speed = p:getTubeLoadTime(i-1)
 			p:setTubeLoadTime(i+1,.000001)
@@ -7976,33 +8443,6 @@ function createRandomAsteroidAlongArc(amount, x, y, distance, startArc, endArcCl
 		end
 	end
 end
-function spawnSingleEnemy(xOrigin, yOrigin, danger, enemyFaction, enemyStrength, template_pool)
-	if enemyFaction == nil then
-		enemyFaction = "Kraylor"
-	end
-	if danger == nil then 
-		danger = 1
-	end
-	if enemyStrength == nil then
-		enemyStrength = math.max(danger * enemy_power * playerPower(),5)
-	end
-	if template_pool == nil then
-		template_pool_size = 5
-		pool_selectivity = "less/heavy"
-		template_pool = getTemplatePool(enemyStrength)
-		pool_selectivity = "full"
-	end
-	if #template_pool < 1 then
-		print("Empty Template pool: fix excludes or other criteria")
-		return
-	end
-	local selected_template = template_pool[math.random(1,#template_pool)]
-	local ship = ship_template[selected_template].create(enemyFaction,selected_template)
-	ship:setCallSign(generateCallSign(nil,enemyFaction)):orderRoaming()
-	ship:setPosition(xOrigin,yOrigin)
-	ship:setCommsScript(""):setCommsFunction(commsShip)
-	return ship
-end
 function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, enemyStrength, template_pool, shape, spawn_distance, spawn_angle, px, py)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
@@ -8036,6 +8476,17 @@ function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, enemyStrength, tem
 		if spawn_enemy_diagnostic then print("Spawn Enemies selected template:",selected_template,"template pool:",template_pool,"ship template:",ship_template,"Enemy faction:",enemyFaction) end
 		local ship = ship_template[selected_template].create(enemyFaction,selected_template)
 		ship:setCallSign(generateCallSign(nil,enemyFaction)):orderRoaming()
+		
+		if proximity_breached then
+			if enemy_spike_research_station ~= nil and enemy_spike_research_station:isValid() then
+				local enemy_research_faction = enemy_spike_research_station:getFaction()
+				if enemy_research_faction == enemyFaction then
+					ship:onTakingDamage(npcShipDamage)
+					setShipEnhancement(ship)
+					setSpecialDescription(ship)
+				end
+			end
+		end
 		enemy_position = enemy_position + 1
 		if shape == "none" or shape == "pyramid" or shape == "ambush" then
 			ship:setPosition(xOrigin,yOrigin)
@@ -8160,188 +8611,119 @@ function friendlyVesselDestroyed(self, instigator)
 	table.insert(friendlyVesselDestroyedValue,ship_template[tempShipType].strength)
 	--]]
 end
-
-----------------------------------------------------------------------------------------
---	Additional player ships with modifications from the original template parameters  --
-----------------------------------------------------------------------------------------
-function createPlayerShipMixer()
-	playerAmalgam = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Mixer")
-	playerAmalgam:setTypeName("Amalgam")
-	playerAmalgam:setRepairCrewCount(5)					--more repair crew (vs 3)
-	playerAmalgam.max_jump_range = 40000				--shorter (vs 50)
-	playerAmalgam.min_jump_range = 4000					--shorter (vs 5)
-	playerAmalgam:setJumpDriveRange(playerAmalgam.min_jump_range,playerAmalgam.max_jump_range)
-	playerAmalgam:setJumpDriveCharge(playerAmalgam.max_jump_range)
-	playerAmalgam:setImpulseMaxSpeed(80)				--slower (vs 90)
-	playerAmalgam:setRotationMaxSpeed(8)				--slower (vs 10)
-	playerAmalgam:setShieldsMax(150,150)				--weaker shields (vs 200)
-	playerAmalgam:setShields(150,150)
---								  Arc, Dir, Range, CycleTime, Dmg
-	playerAmalgam:setBeamWeapon(0, 90, -20,  1200,         6, 8)	--narrower (vs 100), shorter (vs 1500)
-	playerAmalgam:setBeamWeapon(1, 90,  20,  1200,         6, 8)	--narrower (vs 100), shorter (vs 1500)
-	playerAmalgam:setBeamWeapon(2, 10, -60,  1000,         4, 6)	--additional beam
-	playerAmalgam:setBeamWeapon(3, 10,  60,  1000,         4, 6)	--additional beam
---											Arc,  Dir, Rotate speed
-	playerAmalgam:setBeamWeaponTurret(2,	 60,  -60,			.6)
-	playerAmalgam:setBeamWeaponTurret(3,	 60,   60,			.6)
-	playerAmalgam:setWeaponTubeCount(4)					--2 fewer broadside, 1 extra mine (vs 5)
-	playerAmalgam:setWeaponTubeDirection(1, 90)			--mine tube points right (vs left)
-	playerAmalgam:setWeaponTubeDirection(2, 180)		--mine tube points back (vs right)
-	playerAmalgam:setWeaponTubeDirection(3, 180)		--mine tube points back (vs right)
-	playerAmalgam:setWeaponTubeExclusiveFor(0,"Homing")	--homing only (vs any)
-	playerAmalgam:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs any)
-	playerAmalgam:setWeaponTubeExclusiveFor(2,"Mine")	--mine only (vs any)
-	playerAmalgam:setWeaponTubeExclusiveFor(3,"Mine")	--mine only (vs any)
-	playerAmalgam:setTubeLoadTime(2,16)					--rear tube slower (vs 8)
-	playerAmalgam:setTubeLoadTime(3,16)					--rear tube slower (vs 8)
-	playerAmalgam:setTubeSize(0,"large")				--left tube large (vs normal)
-	playerAmalgam:setTubeSize(1,"large")				--right tube large (vs normal)
-	playerAmalgam:setWeaponStorageMax("Homing", 16)		--more (vs 12)
-	playerAmalgam:setWeaponStorage("Homing", 16)				
-	playerAmalgam:setWeaponStorageMax("Nuke", 0)		--less (vs 4)
-	playerAmalgam:setWeaponStorage("Nuke", 0)				
-	playerAmalgam:setWeaponStorageMax("Mine", 10)		--more (vs 8)
-	playerAmalgam:setWeaponStorage("Mine", 10)				
-	playerAmalgam:setWeaponStorageMax("EMP", 0)			--less (vs 6)
-	playerAmalgam:setWeaponStorage("EMP", 0)				
-	playerAmalgam:setWeaponStorageMax("HVLI", 0)		--less (vs 20)
-	playerAmalgam:setWeaponStorage("HVLI", 0)
-	return playerAmalgam
+function npcShipDamage(self, instigator)
+	string.format("")	--serious proton needs a global context
+	if self.adjust_shield_frequency_automatically ~= nil and self.adjust_shield_frequency_automatically then
+		if instigator ~= nil then
+			if instigator:getBeamWeaponRange(0) > 1 then
+				self:setShieldsFrequency(instigator:getBeamFrequency())
+			end
+		end
+	end
+	local tactical_hop_eval = random(1,100)
+	if self.tactical_hop ~= nil and tactical_hop_eval <= self.tactical_hop_chance then
+		local hacked_hop = self.tactical_hop_chance
+		if self:hasSystem("jumpdrive") then
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("jumpdrive") / 2)
+		elseif self:hasSystem("warp") then
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("warp") / 2)
+		else
+			hacked_hop = hacked_hop - (hacked_hop *  self:getSystemHackedLevel("impulse") / 2)
+		end
+		if tactical_hop_eval < hacked_hop then
+			if instigator ~= nil then
+				if instigator:isEnemy(self) then
+					local self_x, self_y = self:getPosition()
+					local instigator_x, instigator_y = instigator:getPosition()
+					local hop_axis = angleFromVectorNorth(instigator_x,instigator_y,self_x,self_y)
+					local hop_x = 0
+					local hop_y = 0
+					local hop_range = 4000
+					local template_name = self:getTypeName()
+					if self.tactical_hop == 1 or self.tactical_hop == 2 then
+						hop_x, hop_y = vectorFromAngleNorth(hop_axis,4000)
+						self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
+					end
+					if self.tactical_hop == 3 or self.tactical_hop == 4 then
+						if ship_template[template_name] ~= nil and ship_template[template_name].hop_range ~= nil then
+							hop_range = ship_template[template_name].hop_range
+						end
+						hop_x, hop_y = vectorFromAngleNorth(hop_axis,hop_range)
+						self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
+					end
+					if self.tactical_hop == 5 then
+						if self:getHull() < self:getHullMax()/2 then
+							hop_range = 5000
+						else
+							if ship_template[template_name] ~= nil and ship_template[template_name].hop_range ~= nil then
+								hop_range = ship_template[template_name].hop_range
+							end
+						end
+						hop_x, hop_y = vectorFromAngleNorth(hop_axis,hop_range)
+						self:setPosition(instigator_x + hop_x, instigator_y + hop_y)
+					end
+					if self.tactical_hop == 2 or self.tactical_hop == 4 or self.tactical_hop == 5 then
+						local hop_angle = (hop_axis + 180) % 360
+						if ship_template[template_name] ~= nil and ship_template[template_name].hop_angle ~= nil then
+							hop_angle = (hop_angle + ship_template[template_name].hop_angle) % 360
+						end
+						self:setHeading(hop_angle)	
+					end
+				end
+			end
+		end
+	end
+	if self.spiky_spin ~= nil and self.spiky_spin_active == nil and self.spiky_spin_cooling == nil then
+		if math.random(1,100) < self.spiky_spin then
+			self.spiky_spin_normal = self:getRotationMaxSpeed()
+			self:setRotationMaxSpeed(self.spiky_spin_normal * 3)
+			self.spiky_spin_active = getScenarioTime() + 5
+			self.spiky_spin_cooling = getScenarioTime() + 35
+			table.insert(spiky_spin_ships,self)
+		end
+	end
+	if self.boost_impulse_factor ~= nil and self.boost_impulse_active == nil and self.boost_impulse_cooling == nil then
+		local desperation = (1 - self:getHull()/self:getHullMax())*100
+		if math.random(1,100) + desperation > 50 then
+			self.boost_impulse_normal = self:getImpulseMaxSpeed()
+			self:setImpulseMaxSpeed(self:getImpulseMaxSpeed()*self.boost_impulse_degree_factor)
+			self.boost_impulse_active = getScenarioTime() + self.boost_impulse_time_factor
+			self.boost_impulse_cooling = getScenarioTime() + (self.boost_impulse_time_factor * 2)
+			table.insert(impulse_boost_ships,self)
+		end
+	end
 end
-function createPlayerShipFlipper()
-	playerFlipper = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Flipper")
-	playerFlipper:setTypeName("Midian")
-	playerFlipper:setRadarTrace("cruiser.png")	--different radar trace
-	playerFlipper:setWarpSpeed(320)
---                  				Arc, Dir, Range, CycleTime, Dmg
-	playerFlipper:setBeamWeapon(0,   50, -20,  1000, 	     6, 4)	--beams (vs none)
-	playerFlipper:setBeamWeapon(1,   50,  20,  1000, 	     6, 4)
-	playerFlipper:setBeamWeapon(2,   10, 180,  1000, 	     6, 2)
---									     Arc, Dir, Rotate speed
-	playerFlipper:setBeamWeaponTurret(2, 220, 180, .3)
-	playerFlipper:setWeaponTubeCount(5)					--fewer (vs 7)
-	playerFlipper:setWeaponTubeDirection(0,-2)			--angled (vs front)
-	playerFlipper:setWeaponTubeDirection(1, 2)			--angled (vs front)
-	playerFlipper:setWeaponTubeDirection(2,-90)			--left (vs right)
-	playerFlipper:setWeaponTubeDirection(4,180)			--rear (vs left)
-	playerFlipper:setTubeSize(0,"small")				--small vs medium
-	playerFlipper:setTubeSize(1,"small")				--small vs medium
-	playerFlipper:setWeaponTubeExclusiveFor(0,"Homing")	--homing only
-	playerFlipper:setWeaponTubeExclusiveFor(1,"Homing")	--homing only
-	playerFlipper:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerFlipper:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerFlipper:setWeaponTubeExclusiveFor(4,"Mine")
-	playerFlipper:weaponTubeAllowMissle(2,"EMP")
-	playerFlipper:weaponTubeAllowMissle(3,"EMP")
-	playerFlipper:weaponTubeAllowMissle(2,"Nuke")
-	playerFlipper:weaponTubeAllowMissle(3,"Nuke")
-	playerFlipper:setTubeLoadTime(2,12)
-	playerFlipper:setTubeLoadTime(3,12)
-	playerFlipper:setTubeLoadTime(4,15)
-	playerFlipper:setWeaponStorageMax("Homing",16)		--less (vs 30)
-	playerFlipper:setWeaponStorage("Homing",   16)				
-	playerFlipper:setWeaponStorageMax("Nuke",   2)		--less (vs 8)
-	playerFlipper:setWeaponStorage("Nuke",      2)				
-	playerFlipper:setWeaponStorageMax("EMP",    5)		--less (vs 10)
-	playerFlipper:setWeaponStorage("EMP",       5)				
-	playerFlipper:setWeaponStorageMax("Mine",   5)		--less (vs 12)
-	playerFlipper:setWeaponStorage("Mine",      5)				
-	playerFlipper:setWeaponStorageMax("HVLI",  16)		--more (vs 0)
-	playerFlipper:setWeaponStorage("HVLI",     16)
-	playerFlipper.smallHomingOnly = true
-	return playerFlipper
-end
-function createPlayerShipInk()
-	playerInk = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Ink")
-	playerInk:setTypeName("Squid")
-	playerInk:setRepairCrewCount(5)					--more repair crew (vs 2)
-	playerInk:setShieldsMax(100, 100)				--stronger shields (vs 70, 70)
-	playerInk:setShields(100, 100)
-	playerInk:setHullMax(130)						--stronger (vs 120)
-	playerInk:setHull(130)							
-	playerInk.max_jump_range = 20000				--shorter than typical (vs 50)
-	playerInk.min_jump_range = 2000					--shorter than typical (vs 5)
-	playerInk:setJumpDriveRange(playerInk.min_jump_range,playerInk.max_jump_range)
-	playerInk:setJumpDriveCharge(playerInk.max_jump_range)
---                 				 Arc, Dir, Range, CycleTime, Damage
-	playerInk:setBeamWeapon(0, 10,	0,	1000,		4,		4)		--one beam (vs 0)
---									   Arc,	  Dir, Rotate speed
-	playerInk:setBeamWeaponTurret(0,	80,		0,		1)			--slow turret 
-	playerInk:setWeaponTubeDirection(0,0)					--forward facing (vs left)
-	playerInk:setWeaponTubeDirection(3,0)					--forward facing (vs right)
-	playerInk:setTubeLoadTime(0,12)							--slower (vs 8)
-	playerInk:setTubeLoadTime(3,12)							--slower (vs 8)
-	playerInk:setWeaponTubeExclusiveFor(2,"Homing")			--homing only (vs HVLI)
-	playerInk:setWeaponTubeExclusiveFor(5,"Homing")			--homing only (vs HVLI)
-	playerInk:setTubeLoadTime(2,10)							--slower (vs 8)
-	playerInk:setTubeLoadTime(5,10)							--slower (vs 8)
-	playerInk:setTubeLoadTime(6,15)							--slower (vs 8)
-	playerInk:setTubeLoadTime(7,15)							--slower (vs 8)
-	playerInk:setWeaponTubeExclusiveFor(0,"HVLI")			--HVLI only (vs Homing + HVLI)
-	playerInk:setWeaponTubeExclusiveFor(3,"HVLI")			--HVLI only (vs Homing + HVLI)
-	playerInk:weaponTubeDisallowMissle(1,"Mine")			--no sideways mines
-	playerInk:weaponTubeDisallowMissle(4,"Mine")			--no sideways mines
-	playerInk:setWeaponStorageMax("HVLI",10)				--fewer HVLI (vs 20)
-	playerInk:setWeaponStorage("HVLI", 10)				
-	playerInk:setWeaponStorageMax("Homing",10)				--fewer Homing (vs 12)
-	playerInk:setWeaponStorage("Homing", 10)				
-	playerInk:setWeaponStorageMax("Mine",6)					--fewer mines (vs 8)
-	playerInk:setWeaponStorage("Mine", 6)				
-	playerInk:setWeaponStorageMax("EMP",4)					--more EMPs (vs 0)
-	playerInk:setWeaponStorage("EMP", 4)					
-	playerInk:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
-	playerInk:setWeaponStorage("Nuke", 4)				
-	playerInk:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
-	playerInk.normal_long_range_radar = 25000
-	return playerInk
-end
-function createPlayerShipClaw()
-	playerRaven = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Claw")
-	playerRaven:setTypeName("Raven")
-	playerRaven:setJumpDrive(false)						
-	playerRaven:setWarpDrive(true)						--warp drive (vs jump)
-	playerRaven:setWarpSpeed(300)
-	playerRaven:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
-	playerRaven:setShields(100, 100)
-	playerRaven:setHullMax(150)							--weaker hull (vs 200)
-	playerRaven:setHull(150)
---                 				 Arc, Dir, Range,   CycleTime,  Damage
-	playerRaven:setBeamWeapon(0,  10, -90,	 900, 			6,	10)	--left (vs front) shorter (vs 1000)
-	playerRaven:setBeamWeapon(1,  10,  90,	 900, 			6,	10)	--right (vs front) shorter (vs 1000)
---										Arc,  Dir, Rotate speed
-	playerRaven:setBeamWeaponTurret(0,	 90,  -90,			1)	
-	playerRaven:setBeamWeaponTurret(1,	 90,   90,			1)	
-	playerRaven:setWeaponTubeCount(6)					--more (vs 3)
-	playerRaven:setWeaponTubeDirection(0, -30)			--more angled (vs -5)
-	playerRaven:setWeaponTubeDirection(1,  30)			--more angled (vs 5)
-	playerRaven:setTubeSize(0,"small")					--small (vs medium)
-	playerRaven:setTubeSize(1,"small")					--small (vs medium)
-	playerRaven:setWeaponTubeExclusiveFor(0,"Nuke")		--Nuke only (vs all but mine)
-	playerRaven:setWeaponTubeExclusiveFor(1,"Nuke")		--Nuke only (vs all but mine)
-	playerRaven:setWeaponTubeDirection(2, -60)			
-	playerRaven:setWeaponTubeDirection(3,  60)
-	playerRaven:setTubeSize(2,"small")
-	playerRaven:setTubeSize(3,"small")
-	playerRaven:setWeaponTubeExclusiveFor(2,"EMP")
-	playerRaven:setWeaponTubeExclusiveFor(3,"EMP")
-	playerRaven:setTubeLoadTime(4, 12)					--slower (vs 8)
-	playerRaven:setTubeSize(4,"large")
-	playerRaven:setWeaponTubeExclusiveFor(4,"Homing")
-	playerRaven:setWeaponTubeDirection(5, 180)
-	playerRaven:setTubeLoadTime(5, 10)					--slower (vs 8)
-	playerRaven:setWeaponTubeExclusiveFor(5,"Mine")
-	playerRaven:setWeaponStorageMax("Homing",4)			--less (vs 12)
-	playerRaven:setWeaponStorage("Homing",4)
-	playerRaven:setWeaponStorageMax("EMP",4)			--less (vs 6)
-	playerRaven:setWeaponStorage("EMP",4)
-	playerRaven:setWeaponStorageMax("Mine",4)			--less (vs 8)
-	playerRaven:setWeaponStorage("Mine",4)
-	return playerRaven
+function availableForComms(p)
+	if not p:isCommsInactive() then
+		return false
+	end
+	if p:isCommsOpening() then
+		return false
+	end
+	if p:isCommsBeingHailed() then
+		return false
+	end
+	if p:isCommsBeingHailedByGM() then
+		return false
+	end
+	if p:isCommsChatOpen() then
+		return false
+	end
+	if p:isCommsChatOpenToGM() then
+		return false
+	end
+	if p:isCommsChatOpenToPlayer() then
+		return false
+	end
+	if p:isCommsScriptOpen() then
+		return false
+	end
+	return true
 end
 ------------------------
 --	Update functions  --
 ------------------------
---	Update loop related functions
+--	Update loop plot related functions
 function continuousSpawn(delta)
 	if #spawn_source_pool < 1 then
 		for _,station in ipairs(circle_stations) do
@@ -8648,7 +9030,311 @@ function destroyLeadEnemyResearchStation(delta)
 			end
 		end
 	end
-	if enemy_spike_research_station == nil or not enemy_spike_research_station:isValid() then
+	if enemy_spike_research_station ~= nil and enemy_spike_research_station:isValid() then
+		if enemy_spike_research_station.defensive_fleet == nil then
+			enemy_spike_research_station.defensive_fleet = {}
+		end
+		if enemy_spike_research_station.offensive_fleet == nil then
+			enemy_spike_research_station.offensive_fleet = {}
+		end
+		if enemy_spike_research_station.danger == nil then
+			enemy_spike_research_station.danger = 1
+		end
+		if #enemy_spike_research_station.offensive_fleet > 0 then
+			local clean_list = true
+			for i,ship in ipairs(enemy_spike_research_station.offensive_fleet) do
+				if not ship:isValid() then
+					enemy_spike_research_station.offensive_fleet[i] = enemy_spike_research_station.offensive_fleet[#enemy_spike_research_station.offensive_fleet]
+					enemy_spike_research_station.offensive_fleet[#enemy_spike_research_station.offensive_fleet] = nil
+					clean_list = false
+					break
+				end
+			end
+			if clean_list and #enemy_spike_research_station.offensive_fleet > 0 then
+				for i,ship in ipairs(enemy_spike_research_station.offensive_fleet) do
+					local template_name = ship:getTypeName()
+					if ship_template[template_name] ~= nil then
+						if ship_template[template_name].missile_only then
+							if ship.missile_only == nil then
+								local short_on_missiles = false
+								if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+									short_on_missiles = true
+								end
+								if short_on_missiles then
+									ship.missile_only = getScenarioTime() + 180
+								end
+							else
+								if getScenarioTime() > ship.missile_only then
+									if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+										ship:setWeaponStorage("HVLI", ship:getWeaponStorage("HVLI") + math.ceil(ship:getWeaponStorageMax("HVLI")/2))
+									end
+									if ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+										ship:setWeaponStorage("Homing", ship:getWeaponStorage("Homing") + math.ceil(ship:getWeaponStorageMax("Homing")/2))
+									end
+									if ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+										ship:setWeaponStorage("EMP", ship:getWeaponStorage("EMP") + math.ceil(ship:getWeaponStorageMax("EMP")/3))
+									end
+									if ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+										ship:setWeaponStorage("Nuke", ship:getWeaponStorage("Nuke") + math.ceil(ship:getWeaponStorageMax("Nuke")/3))
+									end
+									if ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+										ship:setWeaponStorage("Mine", ship:getWeaponStorage("Mine") + math.ceil(ship:getWeaponStorageMax("Mine")/3))
+									end
+									ship.missile_only = nil
+								end
+							end
+						elseif ship_template[template_name].missile_primary then
+							if ship.missile_primary == nil then
+								local short_on_missiles = false
+								if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+									short_on_missiles = true
+								end
+								if short_on_missiles then
+									ship.missile_primary = getScenarioTime() + 210
+								end
+							else
+								if getScenarioTime() > ship.missile_primary then
+									if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+										ship:setWeaponStorage("HVLI", ship:getWeaponStorage("HVLI") + math.ceil(ship:getWeaponStorageMax("HVLI")/2))
+									end
+									if ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+										ship:setWeaponStorage("Homing", ship:getWeaponStorage("Homing") + math.ceil(ship:getWeaponStorageMax("Homing")/2))
+									end
+									if ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+										ship:setWeaponStorage("EMP", ship:getWeaponStorage("EMP") + math.ceil(ship:getWeaponStorageMax("EMP")/3))
+									end
+									if ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+										ship:setWeaponStorage("Nuke", ship:getWeaponStorage("Nuke") + math.ceil(ship:getWeaponStorageMax("Nuke")/3))
+									end
+									if ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+										ship:setWeaponStorage("Mine", ship:getWeaponStorage("Mine") + math.ceil(ship:getWeaponStorageMax("Mine")/3))
+									end
+									ship.missile_primary = nil
+								end
+							end
+						elseif ship_template[template_name].missile_secondary then
+							if ship.missile_secondary == nil then
+								local short_on_missiles = false
+								if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+									short_on_missiles = true
+								end
+								if short_on_missiles then
+									ship.missile_secondary = getScenarioTime() + 270
+								end
+							else
+								if getScenarioTime() > ship.missile_secondary then
+									if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+										ship:setWeaponStorage("HVLI", ship:getWeaponStorage("HVLI") + math.ceil(ship:getWeaponStorageMax("HVLI")/2))
+									end
+									if ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+										ship:setWeaponStorage("Homing", ship:getWeaponStorage("Homing") + math.ceil(ship:getWeaponStorageMax("Homing")/2))
+									end
+									if ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+										ship:setWeaponStorage("EMP", ship:getWeaponStorage("EMP") + math.ceil(ship:getWeaponStorageMax("EMP")/3))
+									end
+									if ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+										ship:setWeaponStorage("Nuke", ship:getWeaponStorage("Nuke") + math.ceil(ship:getWeaponStorageMax("Nuke")/3))
+									end
+									if ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+										ship:setWeaponStorage("Mine", ship:getWeaponStorage("Mine") + math.ceil(ship:getWeaponStorageMax("Mine")/3))
+									end
+									ship.missile_secondary = nil
+								end
+							end
+						end
+					end
+				end
+			end
+		else
+			if enemy_spike_research_station.respawn_offensive_fleet == nil then
+				local sx, sy = enemy_spike_research_station:getPosition()
+				local fleet = spawnEnemies(sx,sy,enemy_spike_research_station.danger*2,enemy_spike_research_station:getFaction())
+				for i,ship in ipairs(fleet) do
+					table.insert(enemy_spike_research_station.offensive_fleet,ship)
+					if random(1,100) < 35 then
+						ship:orderRoaming()
+					else
+						ship:orderFlyTowards(center_x,center_y)
+					end
+				end
+				enemy_spike_research_station.respawn_offensive_fleet = getScenarioTime() + 150 + (300 - random(10*(3-difficulty),difficulty*100))
+			else
+				if getScenarioTime() > enemy_spike_research_station.respawn_offensive_fleet then
+					enemy_spike_research_station.respawn_offensive_fleet = nil
+					enemy_spike_research_station.danger = enemy_spike_research_station.danger + random(0,1)
+				end
+			end
+		end
+		if #enemy_spike_research_station.defensive_fleet > 0 then
+			local clean_list = true
+			for i,ship in ipairs(enemy_spike_research_station.defensive_fleet) do
+				if not ship:isValid() then
+					enemy_spike_research_station.defensive_fleet[i] = enemy_spike_research_station.defensive_fleet[#enemy_spike_research_station.defensive_fleet]
+					enemy_spike_research_station.defensive_fleet[#enemy_spike_research_station.defensive_fleet] = nil
+					clean_list = false
+					break
+				end
+			end
+			if clean_list and #enemy_spike_research_station.defensive_fleet > 0 then
+				for i,ship in ipairs(enemy_spike_research_station.defensive_fleet) do
+					local template_name = ship:getTypeName()
+					if ship_template[template_name] ~= nil then
+						if ship_template[template_name].missile_only then
+							if ship.missile_only == nil then
+								local short_on_missiles = false
+								if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+									short_on_missiles = true
+								end
+								if short_on_missiles then
+									ship.missile_only = getScenarioTime() + 150
+								end
+							else
+								if getScenarioTime() > ship.missile_only then
+									if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+										ship:setWeaponStorage("HVLI", ship:getWeaponStorage("HVLI") + math.ceil(ship:getWeaponStorageMax("HVLI")/2))
+									end
+									if ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+										ship:setWeaponStorage("Homing", ship:getWeaponStorage("Homing") + math.ceil(ship:getWeaponStorageMax("Homing")/2))
+									end
+									if ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+										ship:setWeaponStorage("EMP", ship:getWeaponStorage("EMP") + math.ceil(ship:getWeaponStorageMax("EMP")/3))
+									end
+									if ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+										ship:setWeaponStorage("Nuke", ship:getWeaponStorage("Nuke") + math.ceil(ship:getWeaponStorageMax("Nuke")/3))
+									end
+									if ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+										ship:setWeaponStorage("Mine", ship:getWeaponStorage("Mine") + math.ceil(ship:getWeaponStorageMax("Mine")/3))
+									end
+									ship.missile_only = nil
+								end
+							end
+						elseif ship_template[template_name].missile_primary then
+							if ship.missile_primary == nil then
+								local short_on_missiles = false
+								if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+									short_on_missiles = true
+								end
+								if short_on_missiles then
+									ship.missile_primary = getScenarioTime() + 180
+								end
+							else
+								if getScenarioTime() > ship.missile_primary then
+									if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+										ship:setWeaponStorage("HVLI", ship:getWeaponStorage("HVLI") + math.ceil(ship:getWeaponStorageMax("HVLI")/2))
+									end
+									if ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+										ship:setWeaponStorage("Homing", ship:getWeaponStorage("Homing") + math.ceil(ship:getWeaponStorageMax("Homing")/2))
+									end
+									if ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+										ship:setWeaponStorage("EMP", ship:getWeaponStorage("EMP") + math.ceil(ship:getWeaponStorageMax("EMP")/3))
+									end
+									if ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+										ship:setWeaponStorage("Nuke", ship:getWeaponStorage("Nuke") + math.ceil(ship:getWeaponStorageMax("Nuke")/3))
+									end
+									if ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+										ship:setWeaponStorage("Mine", ship:getWeaponStorage("Mine") + math.ceil(ship:getWeaponStorageMax("Mine")/3))
+									end
+									ship.missile_primary = nil
+								end
+							end
+						elseif ship_template[template_name].missile_secondary then
+							if ship.missile_secondary == nil then
+								local short_on_missiles = false
+								if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+									short_on_missiles = true
+								elseif ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+									short_on_missiles = true
+								end
+								if short_on_missiles then
+									ship.missile_secondary = getScenarioTime() + 240
+								end
+							else
+								if getScenarioTime() > ship.missile_secondary then
+									if ship:getWeaponStorage("HVLI") < ship:getWeaponStorageMax("HVLI") then
+										ship:setWeaponStorage("HVLI", ship:getWeaponStorage("HVLI") + math.ceil(ship:getWeaponStorageMax("HVLI")/2))
+									end
+									if ship:getWeaponStorage("Homing") < ship:getWeaponStorageMax("Homing") then
+										ship:setWeaponStorage("Homing", ship:getWeaponStorage("Homing") + math.ceil(ship:getWeaponStorageMax("Homing")/2))
+									end
+									if ship:getWeaponStorage("EMP") < ship:getWeaponStorageMax("EMP") then
+										ship:setWeaponStorage("EMP", ship:getWeaponStorage("EMP") + math.ceil(ship:getWeaponStorageMax("EMP")/3))
+									end
+									if ship:getWeaponStorage("Nuke") < ship:getWeaponStorageMax("Nuke") then
+										ship:setWeaponStorage("Nuke", ship:getWeaponStorage("Nuke") + math.ceil(ship:getWeaponStorageMax("Nuke")/3))
+									end
+									if ship:getWeaponStorage("Mine") < ship:getWeaponStorageMax("Mine") then
+										ship:setWeaponStorage("Mine", ship:getWeaponStorage("Mine") + math.ceil(ship:getWeaponStorageMax("Mine")/3))
+									end
+									ship.missile_secondary = nil
+								end
+							end
+						end
+					end
+				end		
+			end
+		else
+			if enemy_spike_research_station.respawn_defensive_fleet == nil then
+				local sx, sy = enemy_spike_research_station:getPosition()
+				local fleet = spawnEnemies(sx,sy,enemy_spike_research_station.danger,enemy_spike_research_station:getFaction())
+				for i,ship in ipairs(fleet) do
+					table.insert(enemy_spike_research_station.defensive_fleet,ship)
+					ship:orderDefendTarget(enemy_spike_research_station)
+				end
+				enemy_spike_research_station.respawn_defensive_fleet = getScenarioTime() + 50 + (300 - random(10*(3-difficulty),difficulty*100))
+			else
+				if getScenarioTime() > enemy_spike_research_station.respawn_defensive_fleet then
+					enemy_spike_research_station.respawn_defensive_fleet = nil
+					enemy_spike_research_station.danger = enemy_spike_research_station.danger + random(0,1)
+				end
+			end
+		end
+	else
 		reason = string.format(_("msgMainscreen","%s has been destroyed. The weapons research race has been won.\n...or at least held to a stalemate"),enemy_spike_research_station_name)
 		globalMessage(reason)
 		setBanner(reason)
@@ -8681,6 +9367,85 @@ function escortResearchVessel(delta)
 		end
 	end
 	if research_vessel_created then
+		if thwart_fleet == nil then
+			thwart_fleet = {}
+			if enemy_spike_station:isValid() then
+				enemy_spike_station.danger = 1
+			end
+		end
+		local rx, ry = research_vessel:getPosition()
+		if #thwart_fleet > 0 then
+			local clean_list = true
+			for i,ship in ipairs(thwart_fleet) do
+				if not ship:isValid() then
+					thwart_fleet[i] = thwart_fleet[#thwart_fleet]
+					thwart_fleet[#thwart_fleet] = nil
+					clean_list = false
+					break
+				end
+			end
+			if clean_list then 
+				if #thwart_fleet > 0 then
+					for i,ship in ipairs(thwart_fleet) do
+						ship:orderFlyTowards(rx,ry)
+						local template_name = ship:getTypeName()
+						if ship_template[template_name] ~= nil then
+							if ship_template[template_name].missile_only or ship_template[template_name].missile_primary or ship_template[template_name].missile_secondary then
+								if ship.missile_replenish_timer == nil then
+									local short_on_missiles = false
+									for i,missile_type in ipairs(missile_types) do
+										if ship:getWeaponStorage(missile_type) < ship:getWeaponStorageMax(missile_type) then
+											short_on_missiles = true
+											break
+										end
+									end
+									if short_on_missiles then
+										local missile_replenish_timers = {
+											["only"] = 180,
+											["primary"] = 210,
+											["secondary"] = 270,
+										}
+										if ship_template[template_name].missile_only then
+											ship.missile_replenish_timer = getScenarioTime() + missile_replenish_timers.only
+										elseif ship_template[template_name].missile_primary then
+											ship.missile_replenish_timer = getScenarioTime() + missile_replenish_timers.primary
+										else
+											ship.missile_replenish_timer = getScenarioTime() + missile_replenish_timers.secondary
+										end
+									end
+								else
+									if getScenarioTime() > ship.missile_replenish_timer then
+										local missile_replenish = {
+											["HVLI"] = 2,	--half
+											["Homing"] = 2,	--half
+											["EMP"] = 3,	--third
+											["Nuke"] = 3,	--third
+											["Mine"] = 3,	--third
+										}
+										for missile_type,replenish in pairs(missile_replenish) do
+											if ship:getWeaponStorage(missile_type) < ship:getWeaponStorageMax(missile_type) then
+												ship:setWeaponStorage(missile_type, ship:getWeaponStorage(missile_type) + math.ceil(ship:getWeaponStorageMax(missile_type)/replenish))
+											end
+										end
+										ship.missile_replenish_timer = nil
+									end
+								end 
+							end
+						end
+					end
+				end
+			end
+		else
+			if enemy_spike_station:isValid() then
+				local sx, sy = enemy_spike_station:getPosition()
+				local fleet = spawnEnemies(sx,sy,enemy_spike_station.danger,enemy_spike_station:getFaction())
+				for i,ship in ipairs(fleet) do
+					ship:orderFlyTowards(rx,ry)
+					table.insert(thwart_fleet,ship)
+				end
+				enemy_spike_station.danger = enemy_spike_station.danger + random(0,1)
+			end
+		end
 		if research_vessel ~= nil and research_vessel:isValid() then
 			if friendly_spike_research_station ~= nil and friendly_spike_research_station:isValid() then
 				if research_vessel:isDocked(friendly_spike_research_station) then
@@ -8731,116 +9496,21 @@ function fighterPatrol(delta)
 	end
 	mainLinearPlot = continuousSpawn
 end
-function availableForComms(p)
-	if not p:isCommsInactive() then
-		return false
-	end
-	if p:isCommsOpening() then
-		return false
-	end
-	if p:isCommsBeingHailed() then
-		return false
-	end
-	if p:isCommsBeingHailedByGM() then
-		return false
-	end
-	if p:isCommsChatOpen() then
-		return false
-	end
-	if p:isCommsChatOpenToGM() then
-		return false
-	end
-	if p:isCommsChatOpenToPlayer() then
-		return false
-	end
-	if p:isCommsScriptOpen() then
-		return false
-	end
-	return true
-end
-function moonCollisionCheck()
-	if moon_barrier == nil then
-		return
-	end
-	local moon_x, moon_y = moon_barrier:getPosition()
-	collision_list = moon_barrier:getObjectsInRange(moon_barrier.moon_radius + 600)
-	local obj_dist = 0
-	local ship_distance = 0
-	local obj_type_name = ""
-	for _, obj in ipairs(collision_list) do
-		if obj:isValid() then
-			obj_dist = distance(obj,moon_barrier)
-			if obj.typeName == "CpuShip" then
-				obj_type_name = obj:getTypeName()
-				if obj_type_name ~= nil then
-					ship_distance = shipTemplateDistance[obj:getTypeName()]
-					if ship_distance == nil then
-						ship_distance = 400
-						print("Table ship template distance did not have an entry for",obj:getTypeName())
-					end
-				else
-					ship_distance = 400
-				end
---				print("CPU ship object distance:",obj_dist,"ship distance:",ship_distance,"moon radius:",moon_barrier.moon_radius)
-				if obj_dist <= moon_barrier.moon_radius + ship_distance + 200 then
-					obj:takeDamage(100,"kinetic",moon_x,moon_y)
-				end
-			elseif obj.typeName == "PlayerSpaceship" then
-				obj_type_name = obj:getTypeName()
-				if obj_type_name ~= nil then
-					ship_distance = playerShipStats[obj:getTypeName()].distance
-					if ship_distance == nil then
-						ship_distance = 400
-						print("Player ship stats did not have a distance entry for",obj:getTypeName())
-					end
-				else
-					ship_distance = 400
-				end
---				print("Player ship object distance:",obj_dist,"ship distance:",ship_distance,"moon radius:",moon_barrier.moon_radius)
-				if obj_dist <= moon_barrier.moon_radius + ship_distance + 200 then
-					obj:takeDamage(100,"kinetic",moon_x,moon_y)
-				end
-			end
-		end
-	end
-end
-function updatePlayerProximityScan(p)
-	local obj_list = p:getObjectsInRange(p.prox_scan*1000)
-	if obj_list ~= nil and #obj_list > 0 then
-		for _, obj in ipairs(obj_list) do
-			if obj:isValid() and obj.typeName == "CpuShip" and not obj:isFullyScannedBy(p) then
-				obj:setScanState("simplescan")
-			end
-		end
-	end
-end
-function updatePlayerTubeSizeBanner(p)
-	if p.tube_size ~= nil then
-		local tube_size_banner = string.format(_("tabWeapons","%s tubes: %s"),p:getCallSign(),p.tube_size)
-		if #p.tube_size == 1 then
-			tube_size_banner = string.format(_("tabWeapons","%s tube: %s"),p:getCallSign(),p.tube_size)
-		end
-		p.tube_sizes_wea = "tube_sizes_wea"
-		p:addCustomInfo("Weapons",p.tube_sizes_wea,tube_size_banner,1)
-		p.tube_sizes_tac = "tube_sizes_tac"
-		p:addCustomInfo("Tactical",p.tube_sizes_tac,tube_size_banner,1)
-	end
-end
-function updatePlayerIDBanner(p)
-	p.name_tag_hlm = "name_tag_hlm"
-	p:addCustomInfo("Helms",p.name_tag_hlm,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),3)
-	p.name_tag_tac = "name_tag_tac"
-	p:addCustomInfo("Tactical",p.name_tag_tac,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),3)
-end
 function redirectWham()
 	if lead_wham ~= nil and #lead_wham > 0 then
+--		print("lead wham list exists and has something in it")
 		for i, ship in ipairs(lead_wham) do
 			if ship:isValid() then
-				if string.find("Defend",ship:getOrder()) then
+--				print("valid lead wham ship index:",i,"ship:",ship:getCallSign())
+--				if string.find("Defend",ship:getOrder()) then
+				if ship:getOrder() == "Defend Location" then
+					print("lead wham orders changed to roaming")
 					ship:orderRoaming()
 					lead_wham[i] = lead_wham[#lead_wham]
 					lead_wham[#lead_wham] = nil
 					break
+				else
+					print("Lead wham order:",ship:getOrder(),"does not contain 'Defend'")
 				end
 			else
 				lead_wham[i] = lead_wham[#lead_wham]
@@ -8889,6 +9559,19 @@ function whammyTime(p)
 			ship:setPosition(poa_x + form_x, poa_y + form_y):setHeading(attack_angle):orderFlyFormation(lead_ship,form_prime_x,form_prime_y):setCallSign(generateCallSign(fleet_prefix))
 			table.insert(lead_ship.formation_ships,ship)
 		end
+		local spear_tip = {
+			{angle = 8,		dist = 3000},
+			{angle = 24,	dist = 3200},
+			{angle = 352,	dist = 3000},
+			{angle = 336,	dist = 3200},
+		}
+		for _, form in ipairs(spear_tip) do
+			local ship = ship_template["FX64 Hornet"].create("Exuari","FX64 Hornet")
+			local form_x, form_y = vectorFromAngleNorth(attack_angle + form.angle,form.dist)
+			local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist)
+			ship:setPosition(poa_x + form_x, poa_y + form_y):setHeading(attack_angle):orderFlyFormation(lead_ship,form_prime_x,form_prime_y):setCallSign(generateCallSign(fleet_prefix))
+			table.insert(lead_ship.formation_ships,ship)
+		end
 		local rear_formation = {
 			{angle = 120,	dist = 2500},
 			{angle = 240,	dist = 2500},
@@ -8905,6 +9588,115 @@ function whammyTime(p)
 		return true
 	else
 		return false
+	end
+end
+--	Update loop related functions
+function moonCollisionCheck()
+	if moon_barrier == nil then
+		return
+	end
+	local moon_x, moon_y = moon_barrier:getPosition()
+	collision_list = moon_barrier:getObjectsInRange(moon_barrier.moon_radius + 600)
+	local obj_dist = 0
+	local ship_distance = 0
+	local obj_type_name = ""
+	for _, obj in ipairs(collision_list) do
+		if obj:isValid() then
+			obj_dist = distance(obj,moon_barrier)
+			if obj.typeName == "CpuShip" then
+				obj_type_name = obj:getTypeName()
+				if obj_type_name ~= nil then
+					ship_distance = shipTemplateDistance[obj:getTypeName()]
+					if ship_distance == nil then
+						ship_distance = 400
+						print("Table ship template distance did not have an entry for",obj:getTypeName())
+					end
+				else
+					ship_distance = 400
+				end
+				print("CPU ship object distance:",obj_dist,"ship distance:",ship_distance,"moon radius:",moon_barrier.moon_radius)
+				if obj_dist <= (moon_barrier.moon_radius + ship_distance + 200) then
+					obj:takeDamage(100,"kinetic",moon_x,moon_y)
+				end
+			elseif obj.typeName == "PlayerSpaceship" then
+				obj_type_name = obj:getTypeName()
+				if obj_type_name ~= nil then
+					ship_distance = playerShipStats[obj:getTypeName()].distance
+					if ship_distance == nil then
+						ship_distance = 400
+						print("Player ship stats did not have a distance entry for",obj:getTypeName())
+					end
+				else
+					ship_distance = 400
+				end
+				print("Player ship object distance:",obj_dist,"ship distance:",ship_distance,"moon radius:",moon_barrier.moon_radius)
+				if obj_dist <= moon_barrier.moon_radius + ship_distance + 200 then
+					obj:takeDamage(100,"kinetic",moon_x,moon_y)
+				end
+			end
+		end
+	end
+end
+function updatePlayerProximityScan(p)
+	local obj_list = p:getObjectsInRange(p.prox_scan*1000)
+	if obj_list ~= nil and #obj_list > 0 then
+		for _, obj in ipairs(obj_list) do
+			if obj:isValid() and obj.typeName == "CpuShip" and not obj:isFullyScannedBy(p) then
+				obj:setScanState("simplescan")
+			end
+		end
+	end
+end
+function updatePlayerTubeSizeBanner(p)
+	if p.tube_size ~= nil then
+		local tube_size_banner = string.format(_("tabWeapons","%s tubes: %s"),p:getCallSign(),p.tube_size)
+		if #p.tube_size == 1 then
+			tube_size_banner = string.format(_("tabWeapons","%s tube: %s"),p:getCallSign(),p.tube_size)
+		end
+		p.tube_sizes_wea = "tube_sizes_wea"
+		p:addCustomInfo("Weapons",p.tube_sizes_wea,tube_size_banner,1)
+		p.tube_sizes_tac = "tube_sizes_tac"
+		p:addCustomInfo("Tactical",p.tube_sizes_tac,tube_size_banner,1)
+	end
+end
+function updatePlayerIDBanner(p)
+	p.name_tag_hlm = "name_tag_hlm"
+	p:addCustomInfo("Helms",p.name_tag_hlm,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),3)
+	p.name_tag_tac = "name_tag_tac"
+	p:addCustomInfo("Tactical",p.name_tag_tac,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),3)
+end
+function updatePlayerShieldBanner(p)
+	if p.shield_banner then
+		local shield_status = ""
+		if p:getShieldCount() > 1 then
+			shield_status = string.format("F:%.1f/%i R:%.1f/%i",p:getShieldLevel(0),p:getShieldMax(0),p:getShieldLevel(1),p:getShieldMax(1))
+		elseif p:getShieldCount() == 1 then
+			shield_status = string.format("Shield:%.1f/%i",p:getShieldLevel(0),p:getShieldMax(0))
+		end
+		if shield_status ~= "" then
+			p.shield_banner_eng = "shield_banner_eng"
+			p:addCustomInfo("Engineering",p.shield_banner_eng,shield_status,4)
+			p.shield_banner_epl = "shield_banner_epl"
+			p:addCustomInfo("Engineering+",p.shield_banner_epl,shield_status,4)
+		else
+			if p.shield_banner_eng ~= nil then
+				p:removeCustom(p.shield_banner_eng)
+				p.shield_banner_eng = nil
+			end
+			if p.shield_banner_epl ~= nil then
+				p:removeCustom(p.shield_banner_epl)
+				p.shield_banner_epl = nil
+			end
+		end
+	else
+		if p.shield_banner_eng ~= nil then
+			p:removeCustom(p.shield_banner_eng)
+			p.shield_banner_eng = nil
+		end
+		if p.shield_banner_epl ~= nil then
+			p:removeCustom(p.shield_banner_epl)
+			p.shield_banner_epl = nil
+		end		
 	end
 end
 --		Mortal repair crew functions. Includes coolant loss as option to losing repair crew
@@ -9247,6 +10039,7 @@ function updateInner(delta)
 		updatePlayerLongRangeSensors(p)
 		updatePlayerTubeSizeBanner(p)
 		updatePlayerIDBanner(p)
+		updatePlayerShieldBanner(p)
 		if s_time > whammy then
 			if whammyTime(p) then
 				whammy_count = whammy_count + 1
@@ -9274,6 +10067,87 @@ function updateInner(delta)
 				p.briefing_2_sent = "done"
 				p:addToShipLog(_("shipLog","Intelligence operatives tell us they monitored Exuari communication traffic pertinent to the research station and the surrounding area. The Exuari monitor our traffic, too. They know about the research generally and that you specifically are tasked to protect it, so they have some kind of big attack planned. Intelligence is still trying to figure out when. Best estimate they have is 'between 15 minutes and 2 hours.' That's intelligence for you. Keep a sharp eye out."),"Magenta")
 			end
+		end
+	end
+	for index, ship in ipairs(spiky_spin_ships) do
+		local current_clock = getScenarioTime()
+		if current_clock > ship.spiky_spin_active then
+			if ship:getRotationMaxSpeed() ~= ship.spiky_spin_normal then
+				ship:setRotationMaxSpeed(ship.spiky_spin_normal)
+			end
+		end
+		if current_clock > ship.spiky_spin_cooling then
+			ship.spiky_spin_active = nil
+			ship.spiky_spin_cooling = nil
+			table.remove(spiky_spin_ships,index)
+			break
+		end
+	end
+	for index, ship in pairs(impulse_boost_ships) do
+		local current_clock = getScenarioTime()
+		if current_clock > ship.boost_impulse_active then
+			if ship:getImpulseMaxSpeed() ~= ship.boost_impulse_normal then
+				ship:setImpulseMaxSpeed(ship.boost_impulse_normal)
+			end
+		end
+		if current_clock > ship.boost_impulse_cooling then
+			ship.boost_impulse_active = nil
+			ship.boosk_impulse_cooling = nil
+			table.remove(impulse_boost_ships,index)
+			break
+		end
+	end
+	for index, ship in pairs(pdc_ships) do
+		if ship ~= nil and ship:isValid() then
+--			print(string.format("pdc ship: %s",ship:getCallSign()))
+			local template_name = ship:getTypeName()
+			if template_name == nil then
+				print("template name for item in pdc ship list cannot be determined")
+			end
+			local base_distance = shipTemplateDistance[template_name]
+			if base_distance == nil then
+				print(string.format("Cannot determine the ship size based on the template name. Check the shipTemplateDistance table for template %s",template_name))
+			else
+				local obj_list = ship:getObjectsInRange(base_distance + 500)
+				for _, obj in ipairs(obj_list) do
+					local obj_type = obj.typeName
+					if obj_type == "HomingMissile" or obj_type == "HVLI" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+						if obj:getOwner() ~= ship then
+							if obj.pdc_cycle == nil then
+								local adjusted_factor = ship.pdc_factor * ship:getSystemHealth("beamweapons")
+								obj.pdc_success = (random(1,100) <= adjusted_factor)
+								obj.pdc_cycle = {}
+								local attempts = math.random(1,8)
+								local trigger_time = getScenarioTime()
+								local interval = 1/attempts
+								for i=1,attempts do
+									obj.pdc_cycle[i] = {time = trigger_time, done = false, len = interval*.75}
+									trigger_time = trigger_time + interval
+								end
+							end
+							local current_time = getScenarioTime()
+							local completed_shots = true
+							for _, shot in ipairs(obj.pdc_cycle) do
+								if not shot.done then
+									if current_time >= shot.time then
+										BeamEffect():setSource(ship,0,0,0):setTarget(obj,0,0):setBeamFireSoundPower(2):setRing(false):setDuration(shot.len)
+										shot.done = true
+									end
+									completed_shots = false
+								end
+							end
+							if completed_shots and obj.pdc_success then
+								local exp_x, exp_y = obj:getPosition()
+								ExplosionEffect():setPosition(exp_x,exp_y):setSize(40):setOnRadar(true)
+								obj:destroy()
+							end
+						end
+					end
+				end
+			end
+		else
+			table.remove(pdc_ships,index)
+			break
 		end
 	end
 	if whammy_count >= active_player_count then
