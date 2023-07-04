@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.3.1"
+	scenario_version = "6.4.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -49218,6 +49218,7 @@ function commsStation()
 		["Medium Station"]	= 3,
 		["Large Station"]	= 4,
 		["Huge Station"]	= 5,
+		["Military Outpost"] = 2,
     }
     local temp_type = comms_target:getTypeName()
     local panic_range = 5000
