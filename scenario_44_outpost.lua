@@ -2,6 +2,7 @@
 -- Description: Far from home, an isolated outpost tries to survive a hostile environment. This scenario starts off simply enough, but the challenges are significant. It's not recommended for those players that want to reach victory nearly every game or feel claustrophobic starting in a starship with limited capabilities.
 --- 
 --- Designed to run with one or more player ships with different terrain each time. Player ships start off with more limited capabilities than usual, but can easily be upgraded beyond the normal player ship capabilities.
+--- Rank awarded at the end of the mission from lowest to highest: Cadet, Acting Ensign, Ensign, Lieutenant, Commander, Captain, Admiral
 ---
 --- Duration: About an hour if you play to the first major attack. If you survive the first major attack and wish to attempt a victory, it could take five hours or more. Know your real life time constraints before you start.
 ---
@@ -54,7 +55,7 @@ require("place_station_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "0.0.1"
+	scenario_version = "1.0.9"
 	print(string.format("     -----     Scenario: Outpost     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	spawn_enemy_diagnostic = false
@@ -1098,7 +1099,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
@@ -1541,7 +1542,7 @@ function setConstants()
 				},
 				{	--8
 					jump_long = 20000, jump_short = 2000, warp = 800,
-					desc = _("upgrade-comms","add jump drive drive"),
+					desc = _("upgrade-comms","add jump drive"),
 				},
 				{	--9
 					jump_long = 25000, jump_short = 2500, warp = 800,
@@ -2008,7 +2009,7 @@ function setConstants()
 				},
 				{	--8
 					jump_long = 20000, jump_short = 2000, warp = 800,
-					desc = _("upgrade-comms","add jump drive drive"),
+					desc = _("upgrade-comms","add jump drive"),
 				},
 				{	--9
 					jump_long = 25000, jump_short = 2500, warp = 800,
@@ -2850,7 +2851,7 @@ function setConstants()
 				},
 				{	--4
 					jump_long = 0, jump_short = 0, warp = 500,
-					desc = _("upgrade-comms","increase jwarp speed by 25%"),
+					desc = _("upgrade-comms","increase warp speed by 25%"),
 				},
 				{	--5
 					jump_long = 0, jump_short = 0, warp = 600,
@@ -2866,7 +2867,7 @@ function setConstants()
 				},
 				{	--8
 					jump_long = 20000, jump_short = 2000, warp = 800,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--9
 					jump_long = 25000, jump_short = 2500, warp = 800,
@@ -3241,7 +3242,7 @@ function setConstants()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 300,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 400,
@@ -3265,7 +3266,7 @@ function setConstants()
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 600,
-					desc = _("upgrade-comms","increase jump range by ~17%%"),
+					desc = _("upgrade-comms","increase jump range by ~17%"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 700,
@@ -3649,7 +3650,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
@@ -3798,7 +3799,7 @@ function setConstants()
 				{tube = 11,	ord = 7, desc = _("upgrade-comms","increase tube load speed by 25%")},								--13
 				{tube = 12,	ord = 8, desc = _("upgrade-comms","add 3rd mining tube, increase mine, EMP and nuke capacity")},	--14
 				{tube = 13,	ord = 9, desc = _("upgrade-comms","increase tube load speeds, increase nuke and HVLI capacity")},	--15
-				{tub = 13,	ord = 10,desc = _("upgrade-comms","increase homing, EMP, mine and HVLI capacity)")},				--16
+				{tube = 13,	ord = 10,desc = _("upgrade-comms","increase homing, EMP, mine and HVLI capacity")},					--16
 			},		
 			["tube"] = {
 				{	--1
@@ -4057,7 +4058,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
@@ -4443,7 +4444,7 @@ function setConstants()
 				},
 				{	--7
 					jump_long = 20000, jump_short = 2000, warp = 650,
-					desc = _("upgrade-comms","add 20U jump drive drive"),
+					desc = _("upgrade-comms","add 20U jump drive"),
 				},
 				{	--8
 					jump_long = 25000, jump_short = 2500, warp = 650,
@@ -5141,7 +5142,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
@@ -5593,7 +5594,7 @@ function setConstants()
 				},
 				{	--8
 					jump_long = 20000, jump_short = 2000, warp = 800,
-					desc = _("upgrade-comms","add jump drive drive"),
+					desc = _("upgrade-comms","add jump drive"),
 				},
 				{	--9
 					jump_long = 20000, jump_short = 2000, warp = 900,
@@ -5902,7 +5903,7 @@ function setConstants()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 500,
@@ -5926,7 +5927,7 @@ function setConstants()
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 700,
-					desc = _("upgrade-comms","increase jump range by ~17%%"),
+					desc = _("upgrade-comms","increase jump range by ~17%"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 800,
@@ -6048,7 +6049,7 @@ function setConstants()
 				{tube = 5,	ord = 3, desc = _("upgrade-comms","add another mining tube")},								--7
 				{tube = 6,	ord = 4, desc = _("upgrade-comms","add HVLI capability to first mining tube")},				--8
 				{tube = 7,	ord = 5, desc = _("upgrade-comms","add homing capability to second mining tube")},			--9
-				{tube = 8,	ord = 6, desc = _("upgrade-comms","make first tube a lerge tube")},							--10
+				{tube = 8,	ord = 6, desc = _("upgrade-comms","make first tube a large tube")},							--10
 				{tube = 8,	ord = 7, desc = _("upgrade-comms","increase HVLI capacity by 25%")},						--11
 				{tube = 9,	ord = 7, desc = _("upgrade-comms","reduce tube load speed time by 20%")},					--12
 				{tube = 9,	ord = 8, desc = _("upgrade-comms","increase capacity: homing:100%, mine:1/3, HVLI:20%")},	--13
@@ -6248,7 +6249,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
@@ -6583,7 +6584,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 30000, jump_short = 3000, warp = 0,
@@ -6827,7 +6828,7 @@ function setConstants()
 			["missiles"] = {
 				{tube = 1,	ord = 1},																	--1
 				{tube = 2,	ord = 2, desc = _("upgrade-comms","add medium homing tubes")},				--2  
-				{tube = 2,	ord = 3, desc = _("upgrade-comms","double capacity)")},						--3  
+				{tube = 2,	ord = 3, desc = _("upgrade-comms","double capacity")},						--3  
 				{tube = 3,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 10%")},			--4
 				{tube = 3,	ord = 4, desc = _("upgrade-comms","increase capacity by 50%")},				--5
 				{tube = 4,	ord = 4, desc = _("upgrade-comms","add more tubes")},						--6
@@ -7064,7 +7065,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
@@ -7206,7 +7207,7 @@ function setConstants()
 					{idx = 0, arc = 36, dir =   5, rng = 900, cyc = 4, dmg = 4},
 					{idx = 1, arc = 36, dir =  -5, rng = 900, cyc = 4, dmg = 4},
 					{idx = 2, arc = 24, dir =   0, rng = 800, cyc = 6, dmg = 7},
-					["desc"] = _("upgrade-comms","increase long beam damage by 1/3%"),
+					["desc"] = _("upgrade-comms","increase long beam damage by 1/3"),
 				},
 				{	--11
 					{idx = 0, arc = 36, dir =   5, rng = 1000, cyc = 4, dmg = 4},
@@ -7400,7 +7401,7 @@ function setConstants()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 500,
@@ -7424,7 +7425,7 @@ function setConstants()
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 700,
-					desc = _("upgrade-comms","increase jump range by ~17%%"),
+					desc = _("upgrade-comms","increase jump range by ~17%"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 800,
@@ -7721,7 +7722,7 @@ function setConstants()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--4
 					jump_long = 20000, jump_short = 2000, warp = 500,
@@ -7745,7 +7746,7 @@ function setConstants()
 				},
 				{	--9
 					jump_long = 35000, jump_short = 3500, warp = 700,
-					desc = _("upgrade-comms","increase jump range by ~17%%"),
+					desc = _("upgrade-comms","increase jump range by ~17%"),
 				},
 				{	--10
 					jump_long = 35000, jump_short = 3500, warp = 800,
@@ -8043,7 +8044,7 @@ function setConstants()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
@@ -8289,7 +8290,7 @@ function setConstants()
 				},
 				{	--3
 					{idx = 0, max = 120},
-					["desc"] = _("upgrade-comms","increase shield charge capacity by 25"),
+					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
 				},
 				{	--4
 					{idx = 0, max = 90},
@@ -8369,7 +8370,7 @@ function setConstants()
 					accel_front =	15,		accel_back = 	15,
 					turn = 			8,
 					boost =			450,	strafe =		150,
-					desc = _("upgrade-comms","increase add combat maneuver by 50%"),
+					desc = _("upgrade-comms","increase combat maneuver by 50%"),
 				},
 				{	--6
 					max_front =		75,		max_back =		75,
@@ -8425,7 +8426,7 @@ function setConstants()
 				},
 				{	--6
 					jump_long = 20000, jump_short = 2000, warp = 900,
-					desc = _("upgrade-comms","add jump drive drive"),
+					desc = _("upgrade-comms","add jump drive"),
 				},
 				["stock"] = {
 					{jump_long = 0, jump_short = 0, warp = 800},
@@ -8607,7 +8608,7 @@ function setConstants()
 				},
 				{	--3
 					{idx = 0, max = 120},
-					["desc"] = _("upgrade-comms","increase shield charge capacity by 25"),
+					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
 				},
 				{	--4
 					{idx = 0, max = 80},
@@ -8741,7 +8742,7 @@ function setConstants()
 				},
 				{	--5
 					jump_long = 20000, jump_short = 2000, warp = 360,
-					desc = _("upgrade-comms","add jump drive drive"),
+					desc = _("upgrade-comms","add jump drive"),
 				},
 				{	--6
 					jump_long = 20000, jump_short = 2000, warp = 450,
@@ -8915,7 +8916,7 @@ function setConstants()
 				},
 				{	--3
 					{idx = 0, max = 120},
-					["desc"] = _("upgrade-comms","increase shield charge capacity by 25"),
+					["desc"] = _("upgrade-comms","increase shield charge capacity by 25%"),
 				},
 				{	--4
 					{idx = 0, max = 80},
@@ -9097,7 +9098,16 @@ function setConstants()
 	possible_victory_time = 600	--final: 600
 	saboteur_idea_time = 1200	--final: 1200
 	target_station_pool = {}
+	clarifyExistingScience()
 	mainLinearPlot = continuousSpawn
+end
+function clarifyExistingScience()
+	local weapons_key = _("scienceDB","Weapons")
+	local weapons_db = queryScienceDatabase(weapons_key)
+	if weapons_db == nil then
+		weapons_db = ScienceDatabase():setName(weapons_key)
+	end
+	weapons_db:setLongDescription(_("scienceDB","This database only covers the basic versions of the missiles used throughout the galaxy.\n\nIt has been reported that some battleships started using larger variations of those missiles. Small fighters and even frigates should not have too much trouble dodging them, but space captains of bigger ships should be wary of their doubled damage potential.\n\nSmaller variations of these missiles have become common in the galaxy, too. Fighter pilots praise their speed and maneuverability, because it gives them an edge against small and fast-moving targets. They only deal half the damage of their basic counterparts, but what good is a missile if it does not hit its target?\n\nSome ships in your fleet have been equipped with these different sized weapons tubes. In some cases, the weapons officer might see a banner on the weapons console describing these tubes using the following shorthand:\n    S = Small\n    M = Medium (the normal sized missile tube)\n    L = Large\nThese letters describe the tube sizes in order from top to bottom."))
 end
 -- Game Master functions --
 function setGMButtons()
@@ -9107,7 +9117,7 @@ end
 function mainGMButtons()
 	clearGMFunctions()
 	addGMFunction(string.format(_("buttonGM","Version %s"),scenario_version),function()
-		local version_message = string.format(_("buttonGM","Scenario version %s\n LUA version %s"),scenario_version,_VERSION)
+		local version_message = string.format(_("msgGM","Scenario version %s\n LUA version %s"),scenario_version,_VERSION)
 		addGMMessage(version_message)
 		print(version_message)
 	end)
@@ -9116,7 +9126,7 @@ end
 function mainGMButtonsDuringPause()
 	clearGMFunctions()
 	addGMFunction(string.format(_("buttonGM","Version %s"),scenario_version),function()
-		local version_message = string.format(_("buttonGM","Scenario version %s\n LUA version %s"),scenario_version,_VERSION)
+		local version_message = string.format(_("msgGM","Scenario version %s\n LUA version %s"),scenario_version,_VERSION)
 		addGMMessage(version_message)
 		print(version_message)
 	end)
@@ -9128,17 +9138,17 @@ end
 function mainGMButtonsAfterPause()
 	clearGMFunctions()
 	addGMFunction(string.format(_("buttonGM","Version %s"),scenario_version),function()
-		local version_message = string.format(_("buttonGM","Scenario version %s\n LUA version %s"),scenario_version,_VERSION)
+		local version_message = string.format(_("msgGM","Scenario version %s\n LUA version %s"),scenario_version,_VERSION)
 		addGMMessage(version_message)
 		print(version_message)
 	end)
 	addGMFunction(_("buttonGM","+Station Reports"),stationReports)
 	addGMFunction(_("buttonGM","Mission Stations"),function()
-		addGMMessage(string.format(_("buttonGM","This is spoiler information. Consider carefully before you reveal this to the rest of the players. If you feel you have to reveal this information, I suggest you select the player ship using the widget to the right of the 'Global message' button, then click the 'Hail ship' button, identify yourself as a character in game like the regional headquarters stellar cartography technician, then type the information as if you were that character helping them out on their mission.\n\nMedical research station: %s in sector %s\nPlague station %s in %s"),station_medical_research:getCallSign(),station_medical_research:getSectorName(),station_plague:getCallSign(),station_plague:getSectorName()))
+		addGMMessage(string.format(_("msgGM","This is spoiler information. Consider carefully before you reveal this to the rest of the players. If you feel you have to reveal this information, I suggest you select the player ship using the widget to the right of the 'Global message' button, then click the 'Hail ship' button, identify yourself as a character in game like the regional headquarters stellar cartography technician, then type the information as if you were that character helping them out on their mission.\n\nMedical research station: %s in sector %s\nPlague station %s in %s"),station_medical_research:getCallSign(),station_medical_research:getSectorName(),station_plague:getCallSign(),station_plague:getSectorName()))
 	end)
 	addGMFunction(_("buttonGM","+Test Non-DB Ships"),testNonDBShips)
 	if whammy > getScenarioTime() then
-		addGMFunction(string.format("Whammy %s",math.floor(whammy)),function()
+		addGMFunction(string.format(_("buttonGM", "Whammy %s"),math.floor(whammy)),function()
 			whammy = getScenarioTime()
 			mainGMButtonsAfterPause()
 		end)
@@ -9155,9 +9165,9 @@ function setEnemyPower()
 		{val = 5,	desc = _("buttonGM","Quixotic")},
 	}
 	for index, power in ipairs(powers) do
-		local button_label = string.format("%s %.1f",power.desc,power.val)
+		local button_label = string.format(_("buttonGM","%s %.1f"),power.desc,power.val)
 		if power.val == enemy_power then
-			button_label = button_label .. "*"
+			button_label = button_label .. _("buttonGM","*")
 		end
 		addGMFunction(button_label,function()
 			enemy_power = power.val
@@ -9174,9 +9184,9 @@ function setDifficulty()
 		{val = 2,	desc = _("buttonGM","Hard")},
 	}
 	for index, diff in ipairs(difficulties) do
-		local button_label = string.format("%s %.1f",diff.desc,diff.val)
+		local button_label = string.format(_("buttonGM","%s %.1f"),diff.desc,diff.val)
 		if diff.val == difficulty then
-			button_label = button_label .. "*"
+			button_label = button_label .. _("buttonGM","*")
 		end
 		addGMFunction(button_label,function()
 			difficulty = diff.val
@@ -9195,9 +9205,9 @@ function setInitialReputation()
 		{name = _("buttonGM","Super Hero"),		value = 200},
 	}
 	for index, rep in ipairs(reputation_values) do
-		local button_label = string.format("%s %i",rep.name,rep.value)
+		local button_label = string.format(_("buttonGM", "%s %i"),rep.name,rep.value)
 		if reputation_start_amount == rep.value then
-			button_label = button_label .. "*"
+			button_label = button_label .. _("buttonGM", "*")
 		end
 		addGMFunction(button_label, function()
 			reputation_start_amount = rep.value
@@ -9215,10 +9225,10 @@ function stationReports()
 				local tpa = Artifact():setFaction(player_faction)
 				if station:isFriendly(tpa) or not station:isEnemy(tpa) then
 					applicable_station_count = applicable_station_count + 1
-					addGMFunction(string.format(_("stationReport-buttonGM","%s %s"),station:getCallSign(),station:getSectorName()),function()
-						local out = string.format(_("stationReport-buttonGM","%s %s  %s  %s  Friendliness:%s"),station:getSectorName(),station:getCallSign(),station:getTypeName(),station:getFaction(),station.comms_data.friendlyness)
-						out = string.format(_("stationReport-buttonGM","%s\nShares Energy: %s,  Repairs Hull: %s,  Restocks Scan Probes: %s"),out,station:getSharesEnergyWithDocked(),station:getRepairDocked(),station:getRestocksScanProbes())
-						out = string.format(_("stationReport-buttonGM","%s\nFix Probes: %s,  Fix Hack: %s,  Fix Scan: %s,  Fix Combat Maneuver: %s,  Fix Destruct: %s, Fix Slow Tube: %s"),out,station.comms_data.probe_launch_repair,station.comms_data.hack_repair,station.comms_data.scan_repair,station.comms_data.combat_maneuver_repair,station.comms_data.self_destruct_repair,station.comms_data.self_destruct_repair,station.comms_data.tube_slow_down_repair)
+					addGMFunction(string.format(_("stationReport-msgGM","%s %s"),station:getCallSign(),station:getSectorName()),function()
+						local out = string.format(_("stationReport-msgGM","%s %s  %s  %s  Friendliness:%s"),station:getSectorName(),station:getCallSign(),station:getTypeName(),station:getFaction(),station.comms_data.friendlyness)
+						out = string.format(_("stationReport-msgGM","%s\nShares Energy: %s,  Repairs Hull: %s,  Restocks Scan Probes: %s"),out,station:getSharesEnergyWithDocked(),station:getRepairDocked(),station:getRestocksScanProbes())
+						out = string.format(_("stationReport-msgGM","%s\nFix Probes: %s,  Fix Hack: %s,  Fix Scan: %s,  Fix Combat Maneuver: %s,  Fix Destruct: %s, Fix Slow Tube: %s"),out,station.comms_data.probe_launch_repair,station.comms_data.hack_repair,station.comms_data.scan_repair,station.comms_data.combat_maneuver_repair,station.comms_data.self_destruct_repair,station.comms_data.self_destruct_repair,station.comms_data.tube_slow_down_repair)
 						if station.comms_data.weapon_cost == nil then
 							station.comms_data.weapon_cost = {
 								Homing = math.random(1,4),
@@ -9244,43 +9254,43 @@ function stationReports()
 								station.comms_data.weapon_cost.EMP = math.random(7,13)
 							end
 						end
-						out = string.format(_("stationReport-buttonGM","%s\nHoming: %s %s,   Nuke: %s %s,   Mine: %s %s,   EMP: %s %s,   HVLI: %s %s"),out,station.comms_data.weapon_available.Homing,station.comms_data.weapon_cost.Homing,station.comms_data.weapon_available.Nuke,station.comms_data.weapon_cost.Nuke,station.comms_data.weapon_available.Mine,station.comms_data.weapon_cost.Mine,station.comms_data.weapon_available.EMP,station.comms_data.weapon_cost.EMP,station.comms_data.weapon_available.HVLI,station.comms_data.weapon_cost.HVLI)
---							out = string.format("%s\n      Cost multipliers and Max Refill:   Friend: %.1f %.1f,   Neutral: %.1f %.1f",out,station.comms_data.reputation_cost_multipliers.friend,station.comms_data.max_weapon_refill_amount.friend,station.comms_data.reputation_cost_multipliers.neutral,station.comms_data.max_weapon_refill_amount.neutral)
-						out = string.format(_("stationReport-buttonGM","%s\nServices and their costs and availability:"),out)
+						out = string.format(_("stationReport-msgGM","%s\nHoming: %s %s,   Nuke: %s %s,   Mine: %s %s,   EMP: %s %s,   HVLI: %s %s"),out,station.comms_data.weapon_available.Homing,station.comms_data.weapon_cost.Homing,station.comms_data.weapon_available.Nuke,station.comms_data.weapon_cost.Nuke,station.comms_data.weapon_available.Mine,station.comms_data.weapon_cost.Mine,station.comms_data.weapon_available.EMP,station.comms_data.weapon_cost.EMP,station.comms_data.weapon_available.HVLI,station.comms_data.weapon_cost.HVLI)
+--							out = string.format(_("stationReport-msgGM", "%s\n      Cost multipliers and Max Refill:   Friend: %.1f %.1f,   Neutral: %.1f %.1f"),out,station.comms_data.reputation_cost_multipliers.friend,station.comms_data.max_weapon_refill_amount.friend,station.comms_data.reputation_cost_multipliers.neutral,station.comms_data.max_weapon_refill_amount.neutral)
+						out = string.format(_("stationReport-msgGM","%s\nServices and their costs and availability:"),out)
 						for service, cost in pairs(station.comms_data.service_cost) do
---							out = string.format("%s\n      %s: %s",out,service,cost)
-							out = string.format("%s\n      %s: %s %s",out,service,cost,station.comms_data.service_available[service])
+--							out = string.format(_("stationReport-msgGM", "%s\n      %s: %s"),out,service,cost)
+							out = string.format(_("stationReport-msgGM", "%s\n      %s: %s %s"),out,service,cost,station.comms_data.service_available[service])
 						end
 						if station.comms_data.jump_overcharge then
-							out = string.format(_("stationReport-buttonGM","%s\n      jump overcharge: 10"),out)
+							out = string.format(_("stationReport-msgGM", "%s\n      jump overcharge: 10"),out)
 						end
 						if station.comms_data.upgrade_path ~= nil then
-							out = string.format(_("stationReport-buttonGM","%s\nUpgrade paths for player ship types and their max level:"),out)
+							out = string.format(_("stationReport-msgGM", "%s\nUpgrade paths for player ship types and their max level:"),out)
 							for ship_type, upgrade in pairs(station.comms_data.upgrade_path) do
-								out = string.format(_("stationReport-buttonGM","%s\n      Ship template type: %s"),out,ship_type)
+								out = string.format(_("stationReport-msgGM", "%s\n      Ship template type: %s"),out,ship_type)
 								for upgrade_type, max_level in pairs(upgrade) do
-									out = string.format("%s\n            %s: %s",out,upgrade_type,max_level)
+									out = string.format(_("stationReport-msgGM", "%s\n            %s: %s"),out,upgrade_type,max_level)
 								end
 							end
 						end
 						if station.comms_data.goods ~= nil or station.comms_data.trade ~= nil or station.comms_data.buy ~= nil then
-							out = string.format(_("stationReport-buttonGM","%s\nGoods:"),out)
+							out = string.format(_("stationReport-msgGM","%s\nGoods:"),out)
 							if station.comms_data.goods ~= nil then
-								out = string.format(_("stationReport-buttonGM","%s\n    Sell:"),out)
+								out = string.format(_("stationReport-msgGM","%s\n    Sell:"),out)
 								for good, good_detail in pairs(station.comms_data.goods) do
-									out = string.format(_("stationReport-buttonGM","%s\n        %s: Cost:%s   Quantity:%s"),out,good,good_detail.cost,good_detail.quantity)
+									out = string.format(_("stationReport-msgGM","%s\n        %s: Cost:%s   Quantity:%s"),out,good,good_detail.cost,good_detail.quantity)
 								end
 							end
 							if station.comms_data.trade ~= nil then
-								out = string.format(_("stationReport-buttonGM","%s\n    Trade:"),out)
+								out = string.format(_("stationReport-msgGM","%s\n    Trade:"),out)
 								for good, trade in pairs(station.comms_data.trade) do
-									out = string.format("%s\n        %s: %s",out,good,trade)
+									out = string.format(_("stationReport-msgGM", "%s\n        %s: %s"),out,good,trade)
 								end
 							end
 							if station.comms_data.buy ~= nil then
-								out = string.format(_("stationReport-buttonGM","%s\n    Buy:"),out)
+								out = string.format(_("stationReport-msgGM","%s\n    Buy:"),out)
 								for good, amount in pairs(station.comms_data.buy) do
-									out = string.format("%s\n        %s: %s",out,good,amount)
+									out = string.format(_("stationReport-msgGM","%s\n        %s: %s"),out,good,amount)
 								end
 							end
 						end
@@ -9292,11 +9302,11 @@ function stationReports()
 			end
 		end
 		if applicable_station_count == 0 then
-			addGMMessage(_("stationReport-buttonGM","No applicable stations. Reports useless. No action taken"))
+			addGMMessage(_("stationReport-msgGM","No applicable stations. Reports useless. No action taken"))
 			mainGMButtons()
 		end
 	else
-		addGMMessage(_("stationReport-buttonGM","No applicable stations. Reports useless. No action taken"))
+		addGMMessage(_("stationReport-msgGM","No applicable stations. Reports useless. No action taken"))
 		mainGMButtons()
 	end
 end
@@ -9542,7 +9552,7 @@ function updatePlayerSoftTemplate(p)
 			end
 			p.score_settings_source = tempTypeName
 		else
-			addGMMessage(string.format("Player ship %s's template type (%s) could not be found in table PlayerShipStats",p:getCallSign(),tempTypeName))
+			addGMMessage(string.format(_("stationReport-msgGM","Player ship %s's template type (%s) could not be found in table PlayerShipStats"),p:getCallSign(),tempTypeName))
 		end
 	end
 	p.maxRepairCrew = p:getRepairCrewCount()
@@ -11312,9 +11322,9 @@ function sensorJammerPickupProcess(self,retriever)
 	if not self:isScannedBy(retriever) then
 		retriever:setCanScan(false)
 		retriever.scanner_dead = "scanner_dead"
-		retriever:addCustomMessage("Science",retriever.scanner_dead,_("msgScience","The unscanned artifact we just picked up has fried our scanners"))
+		retriever:addCustomMessage("Science",retriever.scanner_dead,_("damage-msgScience","The unscanned artifact we just picked up has fried our scanners"))
 		retriever.scanner_dead_ops = "scanner_dead_ops"
-		retriever:addCustomMessage("Operations",retriever.scanner_dead_ops,_("msgOperations","The unscanned artifact we just picked up has fried our scanners"))
+		retriever:addCustomMessage("Operations",retriever.scanner_dead_ops,_("damage-msgOperations","The unscanned artifact we just picked up has fried our scanners"))
 	end
 	may_explain_sensor_jammer = true
 end
@@ -11527,7 +11537,7 @@ function handleDockedState()
     if comms_target:areEnemiesInRange(20000) then
 		oMsg = oMsg .. _("station-comms","\nForgive us if we seem a little distracted. We are carefully monitoring the enemies nearby.")
 	end
-	oMsg = string.format(_("station-comms","%s\n\nReputation: %i"),oMsg,math.floor(comms_source:getReputationPoints()))
+	oMsg = string.format(_("station-comms", "%s\n\nReputation: %i"),oMsg,math.floor(comms_source:getReputationPoints()))
 	setCommsMessage(oMsg)
 	local mission_character = nil
 	local mission_type = nil
@@ -11536,7 +11546,7 @@ function handleDockedState()
 			if comms_source.transport_mission.destination == comms_target then
 				addCommsReply(string.format(_("station-comms","Deliver %s to %s"),comms_source.transport_mission.character,comms_target:getCallSign()),function()
 					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+						setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 						return
 					end
 					setCommsMessage(string.format(_("station-comms","%s disembarks at %s and thanks you"),comms_source.transport_mission.character,comms_target:getCallSign()))
@@ -11718,7 +11728,7 @@ function handleDockedState()
 --				setCommsMessage(string.format("%s wishes to be transported to %s station %s in sector %s. Your reputation would go up by %s if you agree to transport %s.",comms_target.transport_mission.character,comms_target.transport_mission.destination:getFaction().comms_target.transport_mission.destination_name,comms_target.transport_mission.destination:getSectorName(),comms_target.transport_mission.reward,comms_target.transport_mission.character))
 				addCommsReply(string.format(_("station-comms","Agree to transport %s to %s station %s"),comms_target.transport_mission.character,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name),function()
 					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+						setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 						return
 					end
 					comms_source.transport_mission = comms_target.transport_mission
@@ -11746,7 +11756,7 @@ function handleDockedState()
 				if comms_source.cargo_mission.destination == comms_target then
 					addCommsReply(string.format(_("station-comms","Deliver cargo to %s on %s"),comms_source.cargo_mission.character,comms_target:getCallSign()),function()
 						if not comms_source:isDocked(comms_target) then 
-							setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+							setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 							return
 						end
 						setCommsMessage(string.format(_("station-comms","%s thanks you for retrieving the cargo"),comms_source.cargo_mission.character))
@@ -11765,7 +11775,7 @@ function handleDockedState()
 				if comms_source.cargo_mission.origin == comms_target then
 					addCommsReply(string.format(_("station-comms","Pick up cargo for %s"),comms_source.cargo_mission.character),function()
 						if not comms_source:isDocked(comms_target) then 
-							setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+							setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 							return
 						end
 						setCommsMessage(string.format(_("station-comms","The cargo for %s has been loaded on %s"),comms_source.cargo_mission.character,comms_source:getCallSign()))
@@ -11952,7 +11962,7 @@ function handleDockedState()
 				setCommsMessage(out)
 				addCommsReply(string.format(_("station-comms","Agree to retrieve cargo for %s"),comms_target.cargo_mission.character),function()
 					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+						setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 						return
 					end
 					comms_source.cargo_mission = comms_target.cargo_mission
@@ -11985,9 +11995,9 @@ function handleDockedState()
 						local p_upgrade_level = comms_source.upgrade_path[u_type]
 						if u_max > p_upgrade_level then
 							upgrade_count = upgrade_count + 1
-							addCommsReply(string.format("%s: %s (%s)",u_type,upgrade_path[p_ship_type][u_type][p_upgrade_level + 1].desc,math.ceil(base_upgrade_cost+((p_upgrade_level+1)*upgrade_price))),function()
+							addCommsReply(string.format(_("upgrade-comms","%s: %s (%s)"),u_type,upgrade_path[p_ship_type][u_type][p_upgrade_level + 1].desc,math.ceil(base_upgrade_cost+((p_upgrade_level+1)*upgrade_price))),function()
 								if not comms_source:isDocked(comms_target) then 
-									setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+									setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 									return
 								end
 								if comms_source:takeReputationPoints(math.ceil(base_upgrade_cost+((p_upgrade_level+1)*upgrade_price))) then
@@ -12091,64 +12101,64 @@ function handleDockedState()
 				end)	--end player requests secondary ordnance comms reply branch
 			end	--end secondary ordnance available from station if branch
 		end	--end missles used on player ship if branch
-		addCommsReply(_("dockingServicesStatus-comms", "Docking services status"), function()
-			local service_status = string.format(_("dockingServicesStatus-comms", "Station %s docking services status:"),comms_target:getCallSign())
+		addCommsReply(_("stationServices-comms", "Docking services status"), function()
+			local service_status = string.format(_("stationServices-comms", "Station %s docking services status:"),comms_target:getCallSign())
 			if comms_target:getRestocksScanProbes() then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nReplenish scan probes."),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nReplenish scan probes."),service_status)
 			else
 				if comms_target.probe_fail_reason == nil then
 					local reason_list = {
-						_("dockingServicesStatus-comms", "Cannot replenish scan probes due to fabrication unit failure."),
-						_("dockingServicesStatus-comms", "Parts shortage prevents scan probe replenishment."),
-						_("dockingServicesStatus-comms", "Station management has curtailed scan probe replenishment for cost cutting reasons."),
+						_("stationServices-comms", "Cannot replenish scan probes due to fabrication unit failure."),
+						_("stationServices-comms", "Parts shortage prevents scan probe replenishment."),
+						_("stationServices-comms", "Station management has curtailed scan probe replenishment for cost cutting reasons."),
 					}
 					comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
 				end
-				service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
+				service_status = string.format(_("stationServices-comms", "%s\n%s"),service_status,comms_target.probe_fail_reason)
 			end
 			if comms_target:getRepairDocked() then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nShip hull repair."),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nShip hull repair."),service_status)
 			else
 				if comms_target.repair_fail_reason == nil then
 					reason_list = {
-						_("dockingServicesStatus-comms", "We're out of the necessary materials and supplies for hull repair."),
-						_("dockingServicesStatus-comms", "Hull repair automation unavailable while it is undergoing maintenance."),
-						_("dockingServicesStatus-comms", "All hull repair technicians quarantined to quarters due to illness."),
+						_("stationServices-comms", "We're out of the necessary materials and supplies for hull repair."),
+						_("stationServices-comms", "Hull repair automation unavailable while it is undergoing maintenance."),
+						_("stationServices-comms", "All hull repair technicians quarantined to quarters due to illness."),
 					}
 					comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
 				end
-				service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
+				service_status = string.format(_("stationServices-comms", "%s\n%s"),service_status,comms_target.repair_fail_reason)
 			end
 			if comms_target:getSharesEnergyWithDocked() then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nRecharge ship energy stores."),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nRecharge ship energy stores."),service_status)
 			else
 				if comms_target.energy_fail_reason == nil then
 					reason_list = {
-						_("dockingServicesStatus-comms", "A recent reactor failure has put us on auxiliary power, so we cannot recharge ships."),
-						_("dockingServicesStatus-comms", "A damaged power coupling makes it too dangerous to recharge ships."),
-						_("dockingServicesStatus-comms", "An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now."),
+						_("stationServices-comms", "A recent reactor failure has put us on auxiliary power, so we cannot recharge ships."),
+						_("stationServices-comms", "A damaged power coupling makes it too dangerous to recharge ships."),
+						_("stationServices-comms", "An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now."),
 					}
 					comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
 				end
-				service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
+				service_status = string.format(_("stationServices-comms", "%s\n%s"),service_status,comms_target.energy_fail_reason)
 			end
 			if comms_target.comms_data.jump_overcharge then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay overcharge jump drive"),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nMay overcharge jump drive"),service_status)
 			end
 			if comms_target.comms_data.probe_launch_repair then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair probe launch system"),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nMay repair probe launch system"),service_status)
 			end
 			if comms_target.comms_data.hack_repair then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair hacking system"),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nMay repair hacking system"),service_status)
 			end
 			if comms_target.comms_data.scan_repair then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair scanners"),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nMay repair scanners"),service_status)
 			end
 			if comms_target.comms_data.combat_maneuver_repair then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair combat maneuver"),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nMay repair combat maneuver"),service_status)
 			end
 			if comms_target.comms_data.self_destruct_repair then
-				service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair self destruct system"),service_status)
+				service_status = string.format(_("stationServices-comms", "%s\nMay repair self destruct system"),service_status)
 			end
 			setCommsMessage(service_status)
 			addCommsReply(_("Back"), commsStation)
@@ -12160,14 +12170,14 @@ function handleDockedState()
 					max_charge = 50000
 				end
 				if comms_source:getJumpDriveCharge() >= max_charge then
-					addCommsReply(_("dockingServicesStatus-comms", "Overcharge Jump Drive (10 Rep)"),function()
+					addCommsReply(_("stationServices-comms", "Overcharge Jump Drive (10 Rep)"),function()
 						if not comms_source:isDocked(comms_target) then 
-							setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+							setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 							return
 						end
 						if comms_source:takeReputationPoints(10) then
 							comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
-							setCommsMessage(string.format(_("dockingServicesStatus-comms", "Your jump drive has been overcharged to %ik"),math.floor(comms_source:getJumpDriveCharge()/1000)))
+							setCommsMessage(string.format(_("stationServices-comms", "Your jump drive has been overcharged to %ik"),math.floor(comms_source:getJumpDriveCharge()/1000)))
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 						end
@@ -12193,18 +12203,18 @@ function handleDockedState()
 			offer_repair = true
 		end
 		if offer_repair then
-			addCommsReply(_("dockingServicesStatus-comms", "Repair ship system"),function()
-				setCommsMessage(string.format(_("dockingServicesStatus-comms","What system would you like repaired?\n\nReputation: %i"),math.floor(comms_source:getReputationPoints())))
+			addCommsReply(_("stationServices-comms", "Repair ship system"),function()
+				setCommsMessage(string.format(_("stationServices-comms","What system would you like repaired?\n\nReputation: %i"),math.floor(comms_source:getReputationPoints())))
 				if comms_target.comms_data.probe_launch_repair then
 					if not comms_source:getCanLaunchProbe() then
-						addCommsReply(string.format(_("dockingServicesStatus-comms","Repair probe launch system (%s Rep)"),comms_target.comms_data.service_cost.probe_launch_repair),function()
+						addCommsReply(string.format(_("stationServices-comms","Repair probe launch system (%s Rep)"),comms_target.comms_data.service_cost.probe_launch_repair),function()
 							if not comms_source:isDocked(comms_target) then 
-								setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+								setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 								return
 							end
 							if comms_source:takeReputationPoints(comms_target.comms_data.service_cost.probe_launch_repair) then
 								comms_source:setCanLaunchProbe(true)
-								setCommsMessage(_("dockingServicesStatus-comms", "Your probe launch system has been repaired"))
+								setCommsMessage(_("stationServices-comms", "Your probe launch system has been repaired"))
 							else
 								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 							end
@@ -12214,14 +12224,14 @@ function handleDockedState()
 				end
 				if comms_target.comms_data.hack_repair then
 					if not comms_source:getCanHack() then
-						addCommsReply(string.format(_("dockingServicesStatus-comms","Repair hacking system (%s Rep)"),comms_target.comms_data.service_cost.hack_repair),function()
+						addCommsReply(string.format(_("stationServices-comms","Repair hacking system (%s Rep)"),comms_target.comms_data.service_cost.hack_repair),function()
 							if not comms_source:isDocked(comms_target) then 
-								setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+								setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 								return
 							end
 							if comms_source:takeReputationPoints(comms_target.comms_data.service_cost.hack_repair) then
 								comms_source:setCanHack(true)
-								setCommsMessage(_("dockingServicesStatus-comms", "Your hack system has been repaired"))
+								setCommsMessage(_("stationServices-comms", "Your hack system has been repaired"))
 							else
 								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 							end
@@ -12231,14 +12241,14 @@ function handleDockedState()
 				end
 				if comms_target.comms_data.scan_repair then
 					if not comms_source:getCanScan() then
-						addCommsReply(string.format(_("dockingServicesStatus-comms","Repair scanning system (%s Rep)"),comms_target.comms_data.service_cost.scan_repair),function()
+						addCommsReply(string.format(_("stationServices-comms","Repair scanning system (%s Rep)"),comms_target.comms_data.service_cost.scan_repair),function()
 							if not comms_source:isDocked(comms_target) then 
-								setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+								setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 								return
 							end
 							if comms_source:takeReputationPoints(comms_target.comms_data.service_cost.scan_repair) then
 								comms_source:setCanScan(true)
-								setCommsMessage(_("dockingServicesStatus-comms", "Your scanners have been repaired"))
+								setCommsMessage(_("stationServices-comms", "Your scanners have been repaired"))
 							else
 								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 							end
@@ -12249,14 +12259,14 @@ function handleDockedState()
 				if comms_target.comms_data.combat_maneuver_repair then
 					if not comms_source:getCanCombatManeuver() then
 						if comms_source.combat_maneuver_capable then
-							addCommsReply(string.format(_("dockingServicesStatus-comms","Repair combat maneuver (%s Rep)"),comms_target.comms_data.service_cost.combat_maneuver_repair),function()
+							addCommsReply(string.format(_("stationServices-comms","Repair combat maneuver (%s Rep)"),comms_target.comms_data.service_cost.combat_maneuver_repair),function()
 								if not comms_source:isDocked(comms_target) then 
-									setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+									setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 									return
 								end
 								if comms_source:takeReputationPoints(comms_target.comms_data.service_cost.combat_maneuver_repair) then
 									comms_source:setCanCombatManeuver(true)
-									setCommsMessage(_("dockingServicesStatus-comms", "Your combat maneuver has been repaired"))
+									setCommsMessage(_("stationServices-comms", "Your combat maneuver has been repaired"))
 								else
 									setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 								end
@@ -12267,14 +12277,14 @@ function handleDockedState()
 				end
 				if comms_target.comms_data.self_destruct_repair then
 					if not comms_source:getCanSelfDestruct() then
-						addCommsReply(string.format(_("dockingServicesStatus-comms","Repair self destruct system (%s Rep)"),comms_target.comms_data.service_cost.self_destruct_repair),function()
+						addCommsReply(string.format(_("stationServices-comms","Repair self destruct system (%s Rep)"),comms_target.comms_data.service_cost.self_destruct_repair),function()
 							if not comms_source:isDocked(comms_target) then 
-								setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+								setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 								return
 							end
 							if comms_source:takeReputationPoints(comms_target.comms_data.service_cost.self_destruct_repair) then
 								comms_source:setCanSelfDestruct(true)
-								setCommsMessage(_("dockingServicesStatus-comms", "Your self destruct system has been repaired"))
+								setCommsMessage(_("stationServices-comms", "Your self destruct system has been repaired"))
 							else
 								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 							end
@@ -12289,7 +12299,7 @@ function handleDockedState()
 	addCommsReply(_("station-comms","I need information"),function()
 		setCommsMessage(_("station-comms","What do you need to know?"))
 		addCommsReply(_("station-comms","What's with all the warp jammers?"),function()
-			setCommsMessage("When factions in various stations in the area started attacking each other, there was a particularly nasty tactic employed where warp or jump ships would ambush a station. Stations could not maintain defensive patrols indefinitely due to the expense. Putting in a warp jammer gives the station a chance to scramble their defense fleet when an enemy approaches. Of course, it slows friendly traffic, commercial or military, too. So, most warp jammers are controlled by nearby factions to allow them to enable or disable them upon request to facilitate the flow of ships. You can't connect to the warp jammer while docked because you're clearly not yet ready to traverse the controlled area. Destroying a warp jammer may have undesired indirect consequences, but there's no official rule against it.")
+			setCommsMessage(_("station-comms","When factions in various stations in the area started attacking each other, there was a particularly nasty tactic employed where warp or jump ships would ambush a station. Stations could not maintain defensive patrols indefinitely due to the expense. Putting in a warp jammer gives the station a chance to scramble their defense fleet when an enemy approaches. Of course, it slows friendly traffic, commercial or military, too. So, most warp jammers are controlled by nearby factions to allow them to enable or disable them upon request to facilitate the flow of ships. You can't connect to the warp jammer while docked because you're clearly not yet ready to traverse the controlled area. Destroying a warp jammer may have undesired indirect consequences, but there's no official rule against it."))
 			addCommsReply(_("Back"), commsStation)
 		end)
 		local has_gossip = random(1,100) < (100 - (30 * (difficulty - .5)))
@@ -12422,7 +12432,7 @@ function handleDockedState()
 				for good, goodData in pairs(comms_target.comms_data.goods) do
 					addCommsReply(string.format(_("trade-comms", "Buy one %s for %i reputation"),good,goodData["cost"]), function()
 						if not comms_source:isDocked(comms_target) then 
-							setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+							setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 							return
 						end
 						local goodTransactionMessage = string.format(_("trade-comms", "Type: %s, Quantity: %i, Rep: %i"),good,goodData["quantity"],goodData["cost"])
@@ -12457,7 +12467,7 @@ function handleDockedState()
 						if comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
 							addCommsReply(string.format(_("trade-comms", "Sell one %s for %i reputation"),good,price), function()
 								if not comms_source:isDocked(comms_target) then 
-									setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+									setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 									return
 								end
 								local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Reputation price: %i"),good,price)
@@ -12466,7 +12476,7 @@ function handleDockedState()
 								goodTransactionMessage = goodTransactionMessage .. _("trade-comms", "\nOne sold")
 								comms_source.cargo = comms_source.cargo + 1
 								setCommsMessage(goodTransactionMessage)
-								addCommsReply("Back", commsStation)
+								addCommsReply(_("Back"), commsStation)
 							end)
 						end
 					end
@@ -12478,7 +12488,7 @@ function handleDockedState()
 								for good, goodData in pairs(comms_target.comms_data.goods) do
 									addCommsReply(string.format(_("trade-comms", "Trade food for %s"),good), function()
 										if not comms_source:isDocked(comms_target) then 
-											setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+											setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 											return
 										end
 										local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Quantity: %i"),good,goodData["quantity"])
@@ -12511,7 +12521,7 @@ function handleDockedState()
 								for good, goodData in pairs(comms_target.comms_data.goods) do
 									addCommsReply(string.format(_("trade-comms", "Trade medicine for %s"),good), function()
 										if not comms_source:isDocked(comms_target) then 
-											setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+											setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 											return
 										end
 										local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Quantity: %i"),good,goodData["quantity"])
@@ -12544,7 +12554,7 @@ function handleDockedState()
 								for good, goodData in pairs(comms_target.comms_data.goods) do
 									addCommsReply(string.format(_("trade-comms", "Trade luxury for %s"),good), function()
 										if not comms_source:isDocked(comms_target) then 
-											setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+											setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 											return
 										end
 										local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Quantity: %i"),good,goodData["quantity"])
@@ -12625,7 +12635,7 @@ function getRepairCrewFromStation(relationship)
 					setCommsMessage(_("trade-comms","We have a repair crew candidate for you to consider"))
 					addCommsReply(string.format(_("trade-comms", "Recruit repair crew member for %i reputation"),hire_cost), function()
 						if not comms_source:isDocked(comms_target) then 
-							setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+							setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 							return
 						end
 						if not comms_source:takeReputationPoints(hire_cost) then
@@ -12720,7 +12730,7 @@ function getCoolantFromStation(relationship)
 						setCommsMessage(_("trade-comms","We've got some coolant available for you"))
 						addCommsReply(string.format(_("trade-comms", "Purchase coolant for %i reputation"),coolantCost), function()
 							if not comms_source:isDocked(comms_target) then 
-								setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+								setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 								return
 							end
 							if not comms_source:takeReputationPoints(coolantCost) then
@@ -12921,7 +12931,7 @@ function isAllowedTo(state)
 end
 function handleWeaponRestock(weapon)
     if not comms_source:isDocked(comms_target) then 
-		setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+		setCommsMessage(_("station-comms", "You need to stay docked for that action."))
 		return
 	end
     if not isAllowedTo(comms_data.weapons[weapon]) then
@@ -13198,101 +13208,101 @@ function handleUndockedState()
 				setCommsMessage(ordnanceListMsg)
 				addCommsReply(_("Back"), commsStation)
 			end)
-			addCommsReply(_("dockingServicesStatus-comms", "Docking services status"), function()
-				setCommsMessage(_("dockingServicesStatus-comms","Which docking service category do you want a status for?\n    Primary services:\n        Charge battery, repair hull, replenish probes\n    Secondary systems repair:\n        Scanners, hacking, probe launch, combat maneuver, self destruct\n    Upgrade ship systems:\n        Beam, missile, shield, hull, impulse, ftl, sensors"))
-				addCommsReply(_("dockingServicesStatus-comms","Primary services"),function()
-					local service_status = string.format(_("dockingServicesStatus-comms", "Station %s primary docking services status:"),comms_target:getCallSign())
+			addCommsReply(_("stationServices-comms", "Docking services status"), function()
+				setCommsMessage(_("stationServices-comms","Which docking service category do you want a status for?\n    Primary services:\n        Charge battery, repair hull, replenish probes\n    Secondary systems repair:\n        Scanners, hacking, probe launch, combat maneuver, self destruct\n    Upgrade ship systems:\n        Beam, missile, shield, hull, impulse, ftl, sensors"))
+				addCommsReply(_("stationServices-comms","Primary services"),function()
+					local service_status = string.format(_("stationServices-comms", "Station %s primary docking services status:"),comms_target:getCallSign())
 					if comms_target:getRestocksScanProbes() then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nReplenish scan probes."),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nReplenish scan probes."),service_status)
 					else
 						if comms_target.probe_fail_reason == nil then
 							local reason_list = {
-								_("dockingServicesStatus-comms", "Cannot replenish scan probes due to fabrication unit failure."),
-								_("dockingServicesStatus-comms", "Parts shortage prevents scan probe replenishment."),
-								_("dockingServicesStatus-comms", "Station management has curtailed scan probe replenishment for cost cutting reasons."),
+								_("stationServices-comms", "Cannot replenish scan probes due to fabrication unit failure."),
+								_("stationServices-comms", "Parts shortage prevents scan probe replenishment."),
+								_("stationServices-comms", "Station management has curtailed scan probe replenishment for cost cutting reasons."),
 							}
 							comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
 						end
-						service_status = string.format("%s\n%s",service_status,comms_target.probe_fail_reason)
+						service_status = string.format(_("stationServices-comms", "%s\n%s"),service_status,comms_target.probe_fail_reason)
 					end
 					if comms_target:getRepairDocked() then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nShip hull repair."),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nShip hull repair."),service_status)
 					else
 						if comms_target.repair_fail_reason == nil then
 							reason_list = {
-								_("dockingServicesStatus-comms", "We're out of the necessary materials and supplies for hull repair."),
-								_("dockingServicesStatus-comms", "Hull repair automation unavailable whie it is undergoing maintenance."),
-								_("dockingServicesStatus-comms", "All hull repair technicians quarantined to quarters due to illness."),
+								_("stationServices-comms", "We're out of the necessary materials and supplies for hull repair."),
+								_("stationServices-comms", "Hull repair automation unavailable whie it is undergoing maintenance."),
+								_("stationServices-comms", "All hull repair technicians quarantined to quarters due to illness."),
 							}
 							comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
 						end
-						service_status = string.format("%s\n%s",service_status,comms_target.repair_fail_reason)
+						service_status = string.format(_("stationServices-comms", "%s\n%s"),service_status,comms_target.repair_fail_reason)
 					end
 					if comms_target:getSharesEnergyWithDocked() then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nRecharge ship energy stores."),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nRecharge ship energy stores."),service_status)
 					else
 						if comms_target.energy_fail_reason == nil then
 							reason_list = {
-								_("dockingServicesStatus-comms", "A recent reactor failure has put us on auxiliary power, so we cannot recharge ships."),
-								_("dockingServicesStatus-comms", "A damaged power coupling makes it too dangerous to recharge ships."),
-								_("dockingServicesStatus-comms", "An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now."),
+								_("stationServices-comms", "A recent reactor failure has put us on auxiliary power, so we cannot recharge ships."),
+								_("stationServices-comms", "A damaged power coupling makes it too dangerous to recharge ships."),
+								_("stationServices-comms", "An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now."),
 							}
 							comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
 						end
-						service_status = string.format("%s\n%s",service_status,comms_target.energy_fail_reason)
+						service_status = string.format(_("stationServices-comms", "%s\n%s"),service_status,comms_target.energy_fail_reason)
 					end
 					setCommsMessage(service_status)
 					addCommsReply(_("Back"), commsStation)
 				end)
-				addCommsReply(_("dockingServicesStatus-comms","Secondary systems repair"),function()
-					local service_status = string.format(_("dockingServicesStatus-comms", "Station %s docking repair services status:"),comms_target:getCallSign())
+				addCommsReply(_("stationServices-comms","Secondary systems repair"),function()
+					local service_status = string.format(_("stationServices-comms", "Station %s docking repair services status:"),comms_target:getCallSign())
 					if comms_target.comms_data.jump_overcharge then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay overcharge jump drive"),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nMay overcharge jump drive"),service_status)
 					end
 					if comms_target.comms_data.probe_launch_repair then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair probe launch system"),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nMay repair probe launch system"),service_status)
 					end
 					if comms_target.comms_data.hack_repair then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair hacking system"),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nMay repair hacking system"),service_status)
 					end
 					if comms_target.comms_data.scan_repair then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair scanners"),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nMay repair scanners"),service_status)
 					end
 					if comms_target.comms_data.combat_maneuver_repair then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair combat maneuver"),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nMay repair combat maneuver"),service_status)
 					end
 					if comms_target.comms_data.self_destruct_repair then
-						service_status = string.format(_("dockingServicesStatus-comms", "%s\nMay repair self destruct system"),service_status)
+						service_status = string.format(_("stationServices-comms", "%s\nMay repair self destruct system"),service_status)
 					end
 					setCommsMessage(service_status)
 					addCommsReply(_("Back"), commsStation)
 				end)
-				addCommsReply(_("dockingServicesStatus-comms","Upgrade ship systems"),function()
-					local service_status = string.format(_("dockingServicesStatus-comms", "Station %s docking upgrade services:"),comms_target:getCallSign())
+				addCommsReply(_("upgrade-comms","Upgrade ship systems"),function()
+					local service_status = string.format(_("upgrade-comms", "Station %s docking upgrade services:"),comms_target:getCallSign())
 					if comms_target.comms_data.upgrade_path ~= nil then
 						local p_ship_type = comms_source:getTypeName()
 						if comms_target.comms_data.upgrade_path[p_ship_type] ~= nil then
 							local upgrade_count = 0
-							local out = _(_("dockingServicesStatus-comms","We can provide the following upgrades:\n    system: description (reputation cost)"))
+							local out = _(_("upgrade-comms","We can provide the following upgrades:\n    system: description (reputation cost)"))
 							for u_type, u_max in pairs(comms_target.comms_data.upgrade_path[p_ship_type]) do
 								local p_upgrade_level = comms_source.upgrade_path[u_type]
 								if u_max > p_upgrade_level then
 									upgrade_count = upgrade_count + 1
-									out = string.format("%s\n        %s: %s (%s)",out,u_type,upgrade_path[p_ship_type][u_type][p_upgrade_level + 1].desc,math.ceil(base_upgrade_cost+((p_upgrade_level+1)*upgrade_price)))
+									out = string.format(_("upgrade-comms", "%s\n        %s: %s (%s)"),out,u_type,upgrade_path[p_ship_type][u_type][p_upgrade_level + 1].desc,math.ceil(base_upgrade_cost+((p_upgrade_level+1)*upgrade_price)))
 								end
 							end
 							if upgrade_count > 0 then
 								setCommsMessage(out)
 							else
-								setCommsMessage(_("dockingServicesStatus-comms","No more ship upgrades available for your ship"))
+								setCommsMessage(_("upgrade-comms","No more ship upgrades available for your ship"))
 							end
 						else
-							setCommsMessage(_("dockingServicesStatus-comms","No ship upgrades available for your ship"))
+							setCommsMessage(_("upgrade-comms","No ship upgrades available for your ship"))
 						end
 					else
-						setCommsMessage(_("dockingServicesStatus-comms","No ship upgrades available"))
+						setCommsMessage(_("upgrade-comms","No ship upgrades available"))
 					end
-					addCommsReply("Explain ship upgrade categories",explainShipUpgrades)
+					addCommsReply(_("upgrade-comms","Explain ship upgrade categories"),explainShipUpgrades)
 					addCommsReply(_("Back"), commsStation)
 				end)
 				addCommsReply(_("Back"), commsStation)
@@ -13326,7 +13336,7 @@ function handleUndockedState()
 				addCommsReply(_("trade-comms", "What goods do you have available for sale or trade?"), function()
 					local goodsAvailableMsg = string.format(_("trade-comms", "Station %s:\nGoods or components available: quantity, cost in reputation"),comms_target:getCallSign())
 					for good, goodData in pairs(comms_target.comms_data.goods) do
-						goodsAvailableMsg = goodsAvailableMsg .. string.format("\n   %14s: %2i, %3i",good,goodData["quantity"],goodData["cost"])
+						goodsAvailableMsg = goodsAvailableMsg .. string.format(_("trade-comms", "\n   %14s: %2i, %3i"),good,goodData["quantity"],goodData["cost"])
 					end
 					setCommsMessage(goodsAvailableMsg)
 					addCommsReply(_("Back"), commsStation)
@@ -13392,16 +13402,16 @@ function handleUndockedState()
 		if (comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "") or
 			(comms_target.comms_data.history ~= nil and comms_target.comms_data.history ~= "") or
 			(comms_source:isFriendly(comms_target) and comms_target.comms_data.gossip ~= nil and comms_target.comms_data.gossip ~= "" and has_gossip) then
-			addCommsReply(_("stationGeneralInfo-comms","Tell me more about your station"), function()
-				setCommsMessage(_("stationGeneralInfo-comms","What would you like to know?"))
+			addCommsReply(_("station-comms", "Tell me more about your station"), function()
+				setCommsMessage(_("station-comms", "What would you like to know?"))
 				if comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "" then
-					addCommsReply(_("stationGeneralInfo-comms","General information"), function()
+					addCommsReply(_("stationGeneralInfo-comms", "General information"), function()
 						setCommsMessage(comms_target.comms_data.general)
 						addCommsReply(_("Back"), commsStation)
 					end)
 				end
 				if comms_target.comms_data.history ~= nil and comms_target.comms_data.history ~= "" then
-					addCommsReply(_("stationGeneralInfo-comms","Station history"), function()
+					addCommsReply(_("stationStory-comms", "Station history"), function()
 						setCommsMessage(comms_target.comms_data.history)
 						addCommsReply(_("Back"), commsStation)
 					end)
@@ -13409,7 +13419,7 @@ function handleUndockedState()
 				if comms_source:isFriendly(comms_target) then
 					if comms_target.comms_data.gossip ~= nil and comms_target.comms_data.gossip ~= "" then
 						if has_gossip then
-							addCommsReply(_("stationGeneralInfo-comms","Gossip"), function()
+							addCommsReply(_("gossip-comms", "Gossip"), function()
 								setCommsMessage(comms_target.comms_data.gossip)
 								addCommsReply(_("Back"), commsStation)
 							end)
@@ -13420,22 +13430,22 @@ function handleUndockedState()
 		end	--end public relations if branch
 		if comms_target.comms_data.character ~= nil then
 			if random(1,100) < (70 - (20 * difficulty)) then
-				addCommsReply(string.format(_("stationGeneralInfo-comms","Tell me about %s"),comms_target.comms_data.character), function()
+				addCommsReply(string.format(_("characterInfo-comms",  "Tell me about %s"),comms_target.comms_data.character), function()
 					if comms_target.comms_data.characterDescription ~= nil then
 						setCommsMessage(comms_target.comms_data.characterDescription)
 					else
 						if comms_target.comms_data.characterDeadEnd == nil then
 							local deadEndChoice = math.random(1,5)
 							if deadEndChoice == 1 then
-								comms_target.comms_data.characterDeadEnd = string.format(_("stationGeneralInfo-comms","Never heard of %s"),comms_target.comms_data.character)
+								comms_target.comms_data.characterDeadEnd = string.format(_("characterInfo-comms", "Never heard of %s"),comms_target.comms_data.character)
 							elseif deadEndChoice == 2 then
-								comms_target.comms_data.characterDeadEnd = string.format(_("stationGeneralInfo-comms","%s died last week. The funeral was yesterday"),comms_target.comms_data.character)
+								comms_target.comms_data.characterDeadEnd = string.format(_("characterInfo-comms", "%s died last week. The funeral was yesterday"),comms_target.comms_data.character)
 							elseif deadEndChoice == 3 then
-								comms_target.comms_data.characterDeadEnd = string.format(_("stationGeneralInfo-comms","%s? Who's %s? There's nobody here named %s"),comms_target.comms_data.character,comms_target.comms_data.character,comms_target.comms_data.character)
+								comms_target.comms_data.characterDeadEnd = string.format(_("characterInfo-comms", "%s? Who's %s? There's nobody here named %s"),comms_target.comms_data.character,comms_target.comms_data.character,comms_target.comms_data.character)
 							elseif deadEndChoice == 4 then
-								comms_target.comms_data.characterDeadEnd = string.format(_("stationGeneralInfo-comms","We don't talk about %s. They are gone and good riddance"),comms_target.comms_data.character)
+								comms_target.comms_data.characterDeadEnd = string.format(_("characterInfo-comms", "We don't talk about %s. They are gone and good riddance"),comms_target.comms_data.character)
 							else
-								comms_target.comms_data.characterDeadEnd = string.format(_("stationGeneralInfo-comms","I think %s moved away"),comms_target.comms_data.character)
+								comms_target.comms_data.characterDeadEnd = string.format(_("characterInfo-comms", "I think %s moved away"),comms_target.comms_data.character)
 							end
 						end
 						setCommsMessage(comms_target.comms_data.characterDeadEnd)
@@ -13444,14 +13454,14 @@ function handleUndockedState()
 				end)
 			end
 		end
-		addCommsReply(_("situationReport-comms","Report status"), function()
-			msg = _("situationReport-comms","Hull: ") .. math.floor(comms_target:getHull() / comms_target:getHullMax() * 100) .. "%\n"
+		addCommsReply(_("stationAssist-comms","Report status"), function()
+			msg = string.format(_("stationAssist-comms", "Hull: %d%%\n"), math.floor(comms_target:getHull() / comms_target:getHullMax() * 100))
 			local shields = comms_target:getShieldCount()
 			if shields == 1 then
-				msg = msg .. _("situationReport-comms","Shield: ") .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+				msg = msg .. string.format(_("stationAssist-comms", "Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
 			else
 				for n=0,shields-1 do
-					msg = msg .. _("situationReport-comms","Shield ") .. n .. ": " .. math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100) .. "%\n"
+					msg = msg .. string.format(_("stationAssist-comms", "Shield %s: %d%%\n"), n, math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
 				end
 			end			
 			setCommsMessage(msg);
@@ -13465,7 +13475,7 @@ function handleUndockedState()
             else
                 setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"));
                 for n=1,comms_source:getWaypointCount() do
-                    addCommsReply("WP" .. n, function()
+                    addCommsReply(string.format(_("stationAssist-comms", "WP %d"),n), function()
 						if comms_source:takeReputationPoints(getServiceCost("supplydrop")) then
 							local position_x, position_y = comms_target:getPosition()
 							local target_x, target_y = comms_source:getWaypoint(n)
@@ -13491,7 +13501,7 @@ function handleUndockedState()
             else
                 setCommsMessage(_("stationAssist-comms", "To which waypoint should we dispatch the reinforcements?"));
                 for n=1,comms_source:getWaypointCount() do
-                    addCommsReply("WP" .. n, function()
+                    addCommsReply(string.format(_("stationAssist-comms", "WP %d"),n), function()
 						if comms_source:takeReputationPoints(getServiceCost("reinforcements")) then
 							ship = CpuShip():setPosition(comms_target:getPosition()):setTemplate("Adder MK5"):setCallSign(generateCallSign(nil,"Human Navy")):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
 							ship:setFactionId(comms_target:getFactionId())
@@ -13557,7 +13567,7 @@ function handleUndockedState()
     			out = out .. _("stationAssist-comms","\n\nNote: if you want to use a waypoint, you will have to back out and set one and come back.")
     		else
     			for n=1,comms_source:getWaypointCount() do
-    				addCommsReply(string.format(_("stationAssist-comms","Rendezvous at waypoint %i"),n),function()
+    				addCommsReply(string.format(_("stationAssist-comms","Rendezvous at waypoint %d"),n),function()
     					if comms_source:takeReputationPoints(getServiceCost("servicejonque")) then
     						ship = serviceJonque(comms_target:getFaction()):setPosition(comms_target:getPosition()):setCallSign(generateCallSign(nil,comms_target:getFaction())):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
 							ship.comms_data = {
@@ -13595,7 +13605,7 @@ function handleUndockedState()
 									neutral = math.max(comms_target.comms_data.reputation_cost_multipliers.friend,comms_target.comms_data.reputation_cost_multipliers.neutral/2)
 								},
 							}
-    						setCommsMessage(string.format(_("stationAssist-comms","We have dispatched %s to rendezvous at waypoint %i"),ship:getCallSign(),n))
+    						setCommsMessage(string.format(_("stationAssist-comms","We have dispatched %s to rendezvous at waypoint %d"),ship:getCallSign(),n))
     					else
 							setCommsMessage(_("needRep-comms", "Not enough reputation!"));
     					end
@@ -13727,41 +13737,41 @@ function upgradePlayerShip(p,u_type)
 	p.shipScore = p.shipScore + 1
 end
 function explainShipUpgrades()
-	setCommsMessage(_("dockingServicesStatus-comms","Which ship system upgrade category are you wondering about?"))
+	setCommsMessage(_("upgrade-comms","Which ship system upgrade category are you wondering about?"))
 	--upgrade_path explained
-	addCommsReply(_("dockingServicesStatus-comms","beam"),function()
-		setCommsMessage(_("dockingServicesStatus-comms","Beam upgrades refer to the beam weapons systems. They might include additional beam mounts, longer range, faster recharge or cycle times, increased damage, wider beam firing arcs or faster beam turret rotation speed."))
-		addCommsReply(_("dockingServicesStatus-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
+	addCommsReply(_("upgrade-comms","beam"),function()
+		setCommsMessage(_("upgrade-comms","Beam upgrades refer to the beam weapons systems. They might include additional beam mounts, longer range, faster recharge or cycle times, increased damage, wider beam firing arcs or faster beam turret rotation speed."))
+		addCommsReply(_("upgrade-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
 		addCommsReply(_("Back"), commsStation)
 	end)
-	addCommsReply(_("dockingServicesStatus-comms","missiles"),function()
-		setCommsMessage(_("dockingServicesStatus-comms","Missile upgrades refer to aspects of the missile weapons systems. They might include additional tubes, faster tube load times, increased tube size, additional missile types or additional missile storage capacity."))
-		addCommsReply(_("dockingServicesStatus-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
+	addCommsReply(_("upgrade-comms","missiles"),function()
+		setCommsMessage(_("upgrade-comms","Missile upgrades refer to aspects of the missile weapons systems. They might include additional tubes, faster tube load times, increased tube size, additional missile types or additional missile storage capacity."))
+		addCommsReply(_("upgrade-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
 		addCommsReply(_("Back"), commsStation)
 	end)
-	addCommsReply(_("dockingServicesStatus-comms","shield"),function()
-		setCommsMessage(_("dockingServicesStatus-comms","Shield upgrades refer to the protective energy shields around your ship. They might include increased charge capacity (overall strength) for the front, rear or both shield arcs or the addition of a shield arc."))
-		addCommsReply(_("dockingServicesStatus-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
+	addCommsReply(_("upgrade-comms","shield"),function()
+		setCommsMessage(_("upgrade-comms","Shield upgrades refer to the protective energy shields around your ship. They might include increased charge capacity (overall strength) for the front, rear or both shield arcs or the addition of a shield arc."))
+		addCommsReply(_("upgrade-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
 		addCommsReply(_("Back"), commsStation)
 	end)
-	addCommsReply(_("dockingServicesStatus-comms","hull"),function()
-		setCommsMessage(_("dockingServicesStatus-comms","Hull upgrades refer to strengthening the ship hull to withstand more damage in the form of armor plating or structural bolstering."))
-		addCommsReply(_("dockingServicesStatus-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
+	addCommsReply(_("upgrade-comms","hull"),function()
+		setCommsMessage(_("upgrade-comms","Hull upgrades refer to strengthening the ship hull to withstand more damage in the form of armor plating or structural bolstering."))
+		addCommsReply(_("upgrade-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
 		addCommsReply(_("Back"), commsStation)
 	end)
-	addCommsReply(_("dockingServicesStatus-comms","impulse"),function()
-		setCommsMessage(_("dockingServicesStatus-comms","Impulse upgrades refer to changes related to the impulse engines. They might include improving the top speed or acceleration (forward, reverse or both), maneuvering speed or combat maneuver (boost, which is moving forward, or strafe, which is sideways motion or both)."))
-		addCommsReply(_("dockingServicesStatus-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
+	addCommsReply(_("upgrade-comms","impulse"),function()
+		setCommsMessage(_("upgrade-comms","Impulse upgrades refer to changes related to the impulse engines. They might include improving the top speed or acceleration (forward, reverse or both), maneuvering speed or combat maneuver (boost, which is moving forward, or strafe, which is sideways motion or both)."))
+		addCommsReply(_("upgrade-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
 		addCommsReply(_("Back"), commsStation)
 	end)
-	addCommsReply(_("dockingServicesStatus-comms","ftl"),function()
-		setCommsMessage(_("dockingServicesStatus-comms","FTL (short for faster than light) upgrades refer to warp drive or jump drive enhancements. They might include the addition of an ftl drive, a change in the range of the jump drive or an increase in the top speed of the warp drive"))
-		addCommsReply(_("dockingServicesStatus-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
+	addCommsReply(_("upgrade-comms","ftl"),function()
+		setCommsMessage(_("upgrade-comms","FTL (short for faster than light) upgrades refer to warp drive or jump drive enhancements. They might include the addition of an ftl drive, a change in the range of the jump drive or an increase in the top speed of the warp drive"))
+		addCommsReply(_("upgrade-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
 		addCommsReply(_("Back"), commsStation)
 	end)
-	addCommsReply(_("dockingServicesStatus-comms","sensors"),function()
-		setCommsMessage(_("dockingServicesStatus-comms","Sensor upgrades refer to the ship's ability to detect other objects. They might include increased long range sensors, increased short range sensors, automated proximity scanners for ships or improved range for automated proximity scanners."))
-		addCommsReply(_("dockingServicesStatus-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
+	addCommsReply(_("upgrade-comms","sensors"),function()
+		setCommsMessage(_("upgrade-comms","Sensor upgrades refer to the ship's ability to detect other objects. They might include increased long range sensors, increased short range sensors, automated proximity scanners for ships or improved range for automated proximity scanners."))
+		addCommsReply(_("upgrade-comms","Back to ship upgrade category explanation list"), explainShipUpgrades)
 		addCommsReply(_("Back"), commsStation)
 	end)
 	addCommsReply(_("Back"), commsStation)
@@ -13882,7 +13892,7 @@ function saboteurOption()
 							end)
 							addCommsReply(_("Back"), commsStation)
 						end)
-						addCommsReply("No, we're having enough trouble as it is",function()
+						addCommsReply(_("orders-comms","No, we're having enough trouble as it is"),function()
 							setCommsMessage(_("orders-comms","Suit yourself"))
 							addCommsReply(_("Back"), commsStation)
 						end)
@@ -14216,22 +14226,22 @@ function friendlyComms(comms_data)
 		end)
 	end
 	addCommsReply(_("shipAssist-comms", "Report status"), function()
-		msg = _("shipAssist-comms","Hull: ") .. math.floor(comms_target:getHull() / comms_target:getHullMax() * 100) .. "%\n"
+		msg = string.format(_("shipAssist-comms", "Hull: %d%%\n"), math.floor(comms_target:getHull() / comms_target:getHullMax() * 100))
 		local shields = comms_target:getShieldCount()
 		if shields == 1 then
-			msg = msg .. _("shipAssist-comms","Shield: ") .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+			msg = msg .. string.format(_("shipAssist-comms", "Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
 		elseif shields == 2 then
-			msg = msg .. _("shipAssist-comms","Front Shield: ") .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
-			msg = msg .. _("shipAssist-comms","Rear Shield: ") .. math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100) .. "%\n"
+			msg = msg .. string.format(_("shipAssist-comms", "Front Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
+			msg = msg .. string.format(_("shipAssist-comms", "Rear Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100))
 		else
 			for n=0,shields-1 do
-				msg = msg .. _("shipAssist-comms","Shield ") .. n .. ": " .. math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100) .. "%\n"
+				msg = msg .. string.format(_("shipAssist-comms", "Shield %s: %d%%\n"), n, math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
 			end
 		end
 		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 		for i, missile_type in ipairs(missile_types) do
 			if comms_target:getWeaponStorageMax(missile_type) > 0 then
-					msg = msg .. missile_type .. _("shipAssist-comms"," Missiles: ") .. math.floor(comms_target:getWeaponStorage(missile_type)) .. "/" .. math.floor(comms_target:getWeaponStorageMax(missile_type)) .. "\n"
+					msg = msg .. string.format(_("shipAssist-comms", "%s Missiles: %d/%d\n"), missile_type, math.floor(comms_target:getWeaponStorage(missile_type)), math.floor(comms_target:getWeaponStorageMax(missile_type)))
 			end
 		end
 		setCommsMessage(msg);
@@ -14265,7 +14275,7 @@ function friendlyComms(comms_data)
 								comms_source.goods[good] = comms_source.goods[good] - 1
 								comms_source.cargo = comms_source.cargo + 1
 								setCommsMessage(string.format(_("trade-comms", "One %s jettisoned"),good))
-								addCommsReply("Back", commsShip)
+								addCommsReply(_("Back"), commsShip)
 							end)
 						end
 					end
@@ -14399,7 +14409,7 @@ function friendlyComms(comms_data)
 				for good, goodData in pairs(comms_data.goods) do
 					if goodData.quantity > 0 then
 						if goodCount > 0 then
-							cargoMsg = cargoMsg .. ", " .. good
+							cargoMsg = cargoMsg .. _("trade-comms",", ") .. good
 						else
 							cargoMsg = cargoMsg .. good
 						end
@@ -14881,7 +14891,7 @@ function checkContinuum(delta)
 						resetContinuum(p)
 					end
 				else
-					local timer_display = string.format(_("tabRelay","Disruption %i"),math.floor(p.continuum_timer))
+					local timer_display = string.format(_("-tabRelay&Operations", "Disruption %i"),math.floor(p.continuum_timer))
 					if p:hasPlayerAtPosition("Relay") then
 						p.continuum_timer_display = "continuum_timer_display"
 						p:addCustomInfo("Relay",p.continuum_timer_display,timer_display,1)
@@ -14920,7 +14930,7 @@ function neutralComms(comms_data)
 			for good, goodData in pairs(comms_data.goods) do
 				if goodData.quantity > 0 then
 					if goodCount > 0 then
-						cargoMsg = cargoMsg .. ", " .. good
+						cargoMsg = cargoMsg .. _("trade-comms",", ") .. good
 					else
 						cargoMsg = cargoMsg .. good
 					end
@@ -15101,43 +15111,43 @@ function commsServiceJonque()
 end
 function friendlyServiceJonqueComms(comms_data)
 	if comms_data.friendlyness < 20 then
-		setCommsMessage(_("ship-comms","What do you want?"))
+		setCommsMessage(_("shipAssist-comms","What do you want?"))
 	else
-		setCommsMessage(_("ship-comms","Sir, how can we assist?"))
+		setCommsMessage(_("shipAssist-comms","Sir, how can we assist?"))
 	end
-	addCommsReply(_("ship-comms","Defend a waypoint"), function()
+	addCommsReply(_("shipAssist-comms","Defend a waypoint"), function()
 		if comms_source:getWaypointCount() == 0 then
-			setCommsMessage(_("ship-comms","No waypoints set. Please set a waypoint first."))
+			setCommsMessage(_("shipAssist-comms","No waypoints set. Please set a waypoint first."))
 		else
-			setCommsMessage(_("ship-comms","Which waypoint should we defend?"))
+			setCommsMessage(_("shipAssist-comms","Which waypoint should we defend?"))
 			for n=1,comms_source:getWaypointCount() do
-				addCommsReply(string.format(_("ship-comms","Defend WP %i"),n), function()
+				addCommsReply(string.format(_("shipAssist-comms","Defend WP %d"),n), function()
 					comms_target:orderDefendLocation(comms_source:getWaypoint(n))
-					setCommsMessage(string.format(_("ship-comms","We are heading to assist at WP %i."),n))
+					setCommsMessage(string.format(_("shipAssist-comms","We are heading to assist at WP %i."),n))
 					addCommsReply(_("Back"), commsServiceJonque)
 				end)
 			end
 		end
-		addCommsReply("Back", commsServiceJonque)
+		addCommsReply(_("Back"), commsServiceJonque)
 	end)
 	if comms_data.friendlyness > 0.2 then
-		addCommsReply(_("ship-comms","Assist me"), function()
-			setCommsMessage(_("ship-comms","Heading toward you to assist."))
+		addCommsReply(_("shipAssist-comms","Assist me"), function()
+			setCommsMessage(_("shipAssist-comms","Heading toward you to assist."))
 			comms_target:orderDefendTarget(comms_source)
 			addCommsReply(_("Back"), commsServiceJonque)
 		end)
 	end
-	addCommsReply(_("ship-comms","Report status"), function()
-		msg = _("ship-comms","Hull: ") .. math.floor(comms_target:getHull() / comms_target:getHullMax() * 100) .. "%\n"
+	addCommsReply(_("shipAssist-comms","Report status"), function()
+		msg = string.format(_("shipAssist-comms", "Hull: %d%%\n"), math.floor(comms_target:getHull() / comms_target:getHullMax() * 100))
 		local shields = comms_target:getShieldCount()
 		if shields == 1 then
-			msg = msg .. _("ship-comms","Shield: ") .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+			msg = msg .. string.format(_("shipAssist-comms", "Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
 		elseif shields == 2 then
-			msg = msg .. _("ship-comms","Front Shield: ") .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
-			msg = msg .. _("ship-comms","Rear Shield: ") .. math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100) .. "%\n"
+			msg = msg .. string.format(_("shipAssist-comms", "Front Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
+			msg = msg .. string.format(_("shipAssist-comms", "Rear Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100))
 		else
 			for n=0,shields-1 do
-				msg = msg .. _("ship-comms","Shield ") .. n .. ": " .. math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100) .. "%\n"
+				msg = msg .. string.format(_("shipAssist-comms", "Shield %s: %d%%\n"), n, math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
 			end
 		end
 		setCommsMessage(msg);
@@ -15145,8 +15155,8 @@ function friendlyServiceJonqueComms(comms_data)
 	end)
 	for index, obj in ipairs(comms_target:getObjectsInRange(5000)) do
 		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
-			addCommsReply(string.format(_("ship-comms","Dock at %s"),obj:getCallSign()), function()
-				setCommsMessage(string.format(_("ship-comms","Docking at %s."),obj:getCallSign()))
+			addCommsReply(string.format(_("shipAssist-comms","Dock at %s"),obj:getCallSign()), function()
+				setCommsMessage(string.format(_("shipAssist-comms","Docking at %s."),obj:getCallSign()))
 				comms_target:orderDock(obj)
 				addCommsReply(_("Back"), commsServiceJonque)
 			end)
@@ -15158,21 +15168,21 @@ function friendlyServiceJonqueComms(comms_data)
 end
 function neutralServiceJonqueComms(comms_data)
 	if comms_data.friendlyness < 20 then
-		setCommsMessage(_("ship-comms","What do you want?"))
+		setCommsMessage(_("shipAssist-comms","What do you want?"))
 	else
-		setCommsMessage(_("ship-comms","Sir, how can we assist?"))
+		setCommsMessage(_("shipAssist-comms","Sir, how can we assist?"))
 	end
-	addCommsReply(_("ship-comms","How are you doing?"), function()
-		msg = _("ship-comms","Hull: ") .. math.floor(comms_target:getHull() / comms_target:getHullMax() * 100) .. "%\n"
+	addCommsReply(_("shipAssist-comms","How are you doing?"), function()
+		msg = string.format(_("shipAssist-comms", "Hull: %d%%\n"), math.floor(comms_target:getHull() / comms_target:getHullMax() * 100))
 		local shields = comms_target:getShieldCount()
 		if shields == 1 then
-			msg = msg .. _("ship-comms","Shield: ") .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
+			msg = msg .. string.format(_("shipAssist-comms", "Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
 		elseif shields == 2 then
-			msg = msg .. _("ship-comms","Front Shield: ") .. math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100) .. "%\n"
-			msg = msg .. _("ship-comms","Rear Shield: ") .. math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100) .. "%\n"
+			msg = msg .. string.format(_("shipAssist-comms", "Front Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
+			msg = msg .. string.format(_("shipAssist-comms", "Rear Shield: %d%%\n"), math.floor(comms_target:getShieldLevel(1) / comms_target:getShieldMax(1) * 100))
 		else
 			for n=0,shields-1 do
-				msg = msg .. _("ship-comms","Shield ") .. n .. ": " .. math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100) .. "%\n"
+				msg = msg .. string.format(_("shipAssist-comms", "Shield %s: %d%%\n"), n, math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
 			end
 		end
 		setCommsMessage(msg);
@@ -15181,7 +15191,7 @@ function neutralServiceJonqueComms(comms_data)
 	commonServiceOptions()
 end
 function commonServiceOptions()
-	addCommsReply(_("ship-comms","Service options"),function()
+	addCommsReply(_("shipServices-comms", "Service options"),function()
 		local offer_repair = false
 		if not comms_source:getCanLaunchProbe() then
 			offer_repair = true
@@ -15199,59 +15209,59 @@ function commonServiceOptions()
 			offer_repair = true
 		end
 		if offer_repair then
-			addCommsReply(_("ship-comms","Repair ship system"),function()
-				setCommsMessage(_("ship-comms","What system would you like repaired?"))
+			addCommsReply(_("shipServices-comms","Repair ship system"),function()
+				setCommsMessage(_("shipServices-comms","What system would you like repaired?"))
 				if not comms_source:getCanLaunchProbe() then
-					addCommsReply(_("ship-comms","Repair probe launch system"),function()
+					addCommsReply(_("shipServices-comms","Repair probe launch system"),function()
 						if distance(comms_source,comms_target) < 5000 then
 							comms_source:setCanLaunchProbe(true)
-							setCommsMessage(_("ship-comms","Your probe launch system has been repaired"))
+							setCommsMessage(_("shipServices-comms","Your probe launch system has been repaired"))
 						else
-							setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+							setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 						end
 						addCommsReply(_("Back"), commsServiceJonque)
 					end)
 				end
 				if not comms_source:getCanHack() then
-					addCommsReply(_("ship-comms","Repair hacking system"),function()
+					addCommsReply(_("shipServices-comms","Repair hacking system"),function()
 						if distance(comms_source,comms_target) < 5000 then
 							comms_source:setCanHack(true)
-							setCommsMessage(_("ship-comms","Your hack system has been repaired"))
+							setCommsMessage(_("shipServices-comms","Your hack system has been repaired"))
 						else
-							setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+							setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 						end
 						addCommsReply(_("Back"), commsServiceJonque)
 					end)
 				end
 				if not comms_source:getCanScan() then
-					addCommsReply(_("ship-comms","Repair scanning system"),function()
+					addCommsReply(_("shipServices-comms","Repair scanning system"),function()
 						if distance(comms_source,comms_target) < 5000 then
 							comms_source:setCanScan(true)
-							setCommsMessage(_("ship-comms","Your scanners have been repaired"))
+							setCommsMessage(_("shipServices-comms","Your scanners have been repaired"))
 						else
-							setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+							setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 						end
 						addCommsReply(_("Back"), commsServiceJonque)
 					end)
 				end
 				if not comms_source:getCanCombatManeuver() then
-					addCommsReply(_("ship-comms","Repair combat maneuver"),function()
+					addCommsReply(_("shipServices-comms","Repair combat maneuver"),function()
 						if distance(comms_source,comms_target) < 5000 then
 							comms_source:setCanCombatManeuver(true)
-							setCommsMessage(_("ship-comms","Your combat maneuver has been repaired"))
+							setCommsMessage(_("shipServices-comms","Your combat maneuver has been repaired"))
 						else
-							setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+							setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 						end
 						addCommsReply(_("Back"), commsServiceJonque)
 					end)
 				end
 				if not comms_source:getCanSelfDestruct() then
-					addCommsReply(_("ship-comms","Repair self destruct system"),function()
+					addCommsReply(_("shipServices-comms","Repair self destruct system"),function()
 						if distance(comms_source,comms_target) < 5000 then
 							comms_source:setCanSelfDestruct(true)
-							setCommsMessage(_("ship-comms","Your self destruct system has been repaired"))
+							setCommsMessage(_("shipServices-comms","Your self destruct system has been repaired"))
 						else
-							setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+							setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 						end
 						addCommsReply(_("Back"), commsServiceJonque)
 					end)
@@ -15271,42 +15281,42 @@ function commonServiceOptions()
 			elseif full_repair > 50 then
 				premium = 60
 			end
-			addCommsReply(string.format(_("ship-comms","Full hull repair (%i reputation)"),math.floor(full_repair + premium)),function()
+			addCommsReply(string.format(_("shipServices-comms","Full hull repair (%i reputation)"),math.floor(full_repair + premium)),function()
 				if distance(comms_source,comms_target) < 5000 then
 					if comms_source:takeReputationPoints(math.floor(full_repair + premium)) then
 						comms_source:setHull(comms_source:getHullMax())
-						setCommsMessage(_("ship-comms","All fixed up and ready to go"))
+						setCommsMessage(_("shipServices-comms","All fixed up and ready to go"))
 					else
 						setCommsMessage(_("needRep-comms","Insufficient reputation"))
 					end
 				else
-					setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+					setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 				end
 				addCommsReply(_("Back"), commsServiceJonque)
 			end)
-			addCommsReply(string.format(_("ship-comms","Add %i%% to hull (%i reputation)"),math.floor(full_repair/2/comms_source:getHullMax()*100),math.floor(full_repair/2 + premium/2)),function()
+			addCommsReply(string.format(_("shipServices-comms","Add %i%% to hull (%i reputation)"),math.floor(full_repair/2/comms_source:getHullMax()*100),math.floor(full_repair/2 + premium/2)),function()
 				if distance(comms_source,comms_target) < 5000 then
 					if comms_source:takeReputationPoints(math.floor(full_repair/2 + premium/2)) then
 						comms_source:setHull(comms_source:getHull() + (full_repair/2))
-						setCommsMessage(_("ship-comms","Repairs completed as requested"))
+						setCommsMessage(_("shipServices-comms","Repairs completed as requested"))
 					else
 						setCommsMessage(_("needRep-comms","Insufficient reputation"))
 					end
 				else
-					setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+					setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 				end
 				addCommsReply(_("Back"), commsServiceJonque)
 			end)
-			addCommsReply(string.format(_("ship-comms","Add %i%% to hull (%i reputation)"),math.floor(full_repair/3/comms_source:getHullMax()*100),math.floor(full_repair/3)),function()
+			addCommsReply(string.format(_("shipServices-comms","Add %i%% to hull (%i reputation)"),math.floor(full_repair/3/comms_source:getHullMax()*100),math.floor(full_repair/3)),function()
 				if distance(comms_source,comms_target) < 5000 then
 					if comms_source:takeReputationPoints(math.floor(full_repair/3)) then
 						comms_source:setHull(comms_source:getHull() + (full_repair/3))
-						setCommsMessage(_("ship-comms","Repairs completed as requested"))
+						setCommsMessage(_("shipServices-comms","Repairs completed as requested"))
 					else
 						setCommsMessage(_("needRep-comms","Insufficient reputation"))
 					end
 				else
-					setCommsMessage(_("ship-comms","You need to stay close if you want me to fix your ship"))
+					setCommsMessage(_("shipServices-comms","You need to stay close if you want me to fix your ship"))
 				end
 				addCommsReply(_("Back"), commsServiceJonque)
 			end)
@@ -15339,32 +15349,32 @@ function commonServiceOptions()
 			end
 		end
 		if offer_ordnance then
-			addCommsReply(_("ship-comms","Restock ordnance"),function()
+			addCommsReply(_("ammo-comms","Restock ordnance"),function()
 				for missile_type, ord in pairs(player_missile_types) do
 					if ord.current < ord.max and comms_target.comms_data.weapon_inventory[missile_type] > 0 then
 						comms_data = comms_target.comms_data
-						setCommsMessage(_("ship-comms","What kind of ordnance?"))
-						addCommsReply(string.format(_("ship-comms","%s (%i reputation each)"),missile_type,getWeaponCost(missile_type)),function()
+						setCommsMessage(_("ammo-comms","What kind of ordnance?"))
+						addCommsReply(string.format(_("ammo-comms","%s (%i reputation each)"),missile_type,getWeaponCost(missile_type)),function()
 							if distance(comms_source,comms_target) < 5000 then
 								if comms_target.comms_data.weapon_inventory[missile_type] >= ord.need then
 									if comms_source:takeReputationPoints(getWeaponCost(missile_type)*ord.need) then
 										comms_source:setWeaponStorage(missile_type,ord.max)
 										comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - ord.need
-										setCommsMessage(string.format(_("ship-comms","Restocked your %s type ordnance"),missile_type))
+										setCommsMessage(string.format(_("ammo-comms","Restocked your %s type ordnance"),missile_type))
 									else
 										if comms_source:getReputationPoints() > getWeaponCost(missile_type) then
 											setCommsMessage(string.format(_("needRep-comms","You don't have enough reputation to fully replenish your %s type ordnance. You need %i and you only have %i. How would you like to proceed?"),missile_type,getWeaponCost(missile_type)*ord.need,math.floor(comms_source:getReputationPoints())))
-											addCommsReply(string.format(_("ship-comms","Get one (%i reputation)"),getWeaponCost(missile_type)), function()
+											addCommsReply(string.format(_("ammo-comms","Get one (%i reputation)"),getWeaponCost(missile_type)), function()
 												if distance(comms_source,comms_target) < 5000 then
 													if comms_source:takeReputationPoints(getWeaponCost(missile_type)) then
 														comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + 1)
 														comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - 1
-														setCommsMessage(string.format("One %s provided",missile_type))
+														setCommsMessage(string.format(_("ammo-comms", "One %s provided"),missile_type))
 													else
 														setCommsMessage(_("needRep-comms","Insufficient reputation"))
 													end
 												else
-													setCommsMessage(_("ship-comms","You need to stay close if you want me to restock your ordnance"))
+													setCommsMessage(_("ammo-comms","You need to stay close if you want me to restock your ordnance"))
 												end
 												addCommsReply(_("Back"), commsServiceJonque)
 											end)
@@ -15375,17 +15385,17 @@ function commonServiceOptions()
 													max_afford = max_afford + getWeaponCost(missile_type)
 													missile_count = missile_count + 1
 												until(max_afford + getWeaponCost(missile_type) > comms_source:getReputationPoints())
-												addCommsReply(string.format(_("ship-comms","Get %i (%i reputation)"),missile_count,max_afford),function()
+												addCommsReply(string.format(_("ammo-comms","Get %i (%i reputation)"),missile_count,max_afford),function()
 													if distance(comms_source,comms_target) < 5000 then
 														if comms_source:takeReputationPoints(getWeaponCost(missile_type)*missile_count) then
 															comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + missile_count)
 															comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - missile_count
-															setCommsMessage(string.format(_("ship-comms","%i %ss provided"),missile_count,missile_type))
+															setCommsMessage(string.format(_("ammo-comms","%i %ss provided"),missile_count,missile_type))
 														else
 															setCommsMessage(_("needRep-comms","Insufficient reputation"))
 														end
 													else
-														setCommsMessage(_("ship-comms","You need to stay close if you want me to restock your ordnance"))
+														setCommsMessage(_("ammo-comms","You need to stay close if you want me to restock your ordnance"))
 													end
 													addCommsReply(_("Back"), commsServiceJonque)
 												end)
@@ -15395,29 +15405,29 @@ function commonServiceOptions()
 										end
 									end
 								else
-									setCommsMessage(string.format(_("ship-comms","I don't have enough %s type ordnance to fully restock you. How would you like to proceed?"),missile_type))
-									addCommsReply(_("ship-comms","We'll take all you've got"),function()
+									setCommsMessage(string.format(_("ammo-comms","I don't have enough %s type ordnance to fully restock you. How would you like to proceed?"),missile_type))
+									addCommsReply(_("ammo-comms","We'll take all you've got"),function()
 										if comms_source:takeReputationPoints(getWeaponCost(missile_type)*comms_target.comms_data.weapon_inventory[missile_type]) then
 											comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + comms_target.comms_data.weapon_inventory[missile_type])
 											if comms_target.comms_data.weapon_inventory[missile_type] > 1 then
-												setCommsMessage(string.format(_("ship-comms","%i %ss provided"),missile_count,missile_type))
+												setCommsMessage(string.format(_("ammo-comms","%i %ss provided"),missile_count,missile_type))
 											else
-												setCommsMessage(string.format(_("ship-comms","One %s provided"),missile_type))
+												setCommsMessage(string.format(_("ammo-comms","One %s provided"),missile_type))
 											end
 											comms_target.comms_data.weapon_inventory[missile_type] = 0
 										else
 											setCommsMessage(string.format(_("needRep-comms","You don't have enough reputation to get all of our %s type ordnance. You need %i and you only have %i. How would you like to proceed?"),missile_type,getWeaponCost(missile_type)*comms_target.comms_data.weapon_inventory[missile_type],math.floor(comms_source:getReputationPoints())))
-											addCommsReply(string.format(_("ship-comms","Get one (%i reputation)"),getWeaponCost(missile_type)), function()
+											addCommsReply(string.format(_("ammo-comms","Get one (%i reputation)"),getWeaponCost(missile_type)), function()
 												if distance(comms_source,comms_target) < 5000 then
 													if comms_source:takeReputationPoints(getWeaponCost(missile_type)) then
 														comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + 1)
 														comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - 1
-														setCommsMessage(string.format(_("ship-comms","One %s provided"),missile_type))
+														setCommsMessage(string.format(_("ammo-comms","One %s provided"),missile_type))
 													else
 														setCommsMessage(_("needRep-comms","Insufficient reputation"))
 													end
 												else
-													setCommsMessage(_("ship-comms","You need to stay close if you want me to restock your ordnance"))
+													setCommsMessage(_("ammo-comms","You need to stay close if you want me to restock your ordnance"))
 												end
 												addCommsReply(_("Back"), commsServiceJonque)
 											end)
@@ -15428,40 +15438,40 @@ function commonServiceOptions()
 													max_afford = max_afford + getWeaponCost(missile_type)
 													missile_count = missile_count + 1
 												until(max_afford + getWeaponCost(missile_type) > comms_source:getReputationPoints())
-												addCommsReply(string.format(_("ship-comms","Get %i (%i reputation)"),missile_count,max_afford),function()
+												addCommsReply(string.format(_("ammo-comms","Get %i (%i reputation)"),missile_count,max_afford),function()
 													if distance(comms_source,comms_target) < 5000 then
 														if comms_source:takeReputationPoints(getWeaponCost(missile_type)*missile_count) then
 															comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + missile_count)
 															comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] + missile_count
-															setCommsMessage(string.format(_("ship-comms","%i %ss provided"),missile_count,missile_type))
+															setCommsMessage(string.format(_("ammo-comms","%i %ss provided"),missile_count,missile_type))
 														else
 															setCommsMessage(_("needRep-comms","Insufficient reputation"))
 														end
 													else
-														setCommsMessage(_("ship-comms","You need to stay close if you want me to restock your ordnance"))
+														setCommsMessage(_("ammo-comms","You need to stay close if you want me to restock your ordnance"))
 													end
 													addCommsReply(_("Back"), commsServiceJonque)
 												end)
 											end
 										end
 									end)
-									addCommsReply(string.format(_("ship-comms","Get one (%i reputation)"),getWeaponCost(missile_type)), function()
+									addCommsReply(string.format(_("ammo-comms","Get one (%i reputation)"),getWeaponCost(missile_type)), function()
 										if distance(comms_source,comms_target) < 5000 then
 											if comms_source:takeReputationPoints(getWeaponCost(missile_type)) then
 												comms_source:setWeaponStorage(missile_type,comms_source:getWeaponStorage(missile_type) + 1)
 												comms_target.comms_data.weapon_inventory[missile_type] = comms_target.comms_data.weapon_inventory[missile_type] - 1
-												setCommsMessage(string.format(_("ship-comms","One %s provided"),missile_type))
+												setCommsMessage(string.format(_("ammo-comms","One %s provided"),missile_type))
 											else
 												setCommsMessage(_("needRep-comms","Insufficient reputation"))
 											end
 										else
-											setCommsMessage(_("ship-comms","You need to stay close if you want me to restock your ordnance"))
+											setCommsMessage(_("ammo-comms","You need to stay close if you want me to restock your ordnance"))
 										end
 										addCommsReply(_("Back"), commsServiceJonque)
 									end)
 								end
 							else
-								setCommsMessage(_("ship-comms","You need to stay close if you want me to restock your ordnance"))
+								setCommsMessage(_("ammo-comms","You need to stay close if you want me to restock your ordnance"))
 							end
 							addCommsReply(_("Back"), commsServiceJonque)
 						end)
@@ -15475,16 +15485,16 @@ function commonServiceOptions()
 			offer_probes = true
 		end
 		if offer_probes then
-			addCommsReply(_("ship-comms","Restock scan probes (5 reputation)"),function()
+			addCommsReply(_("shipServices-comms","Restock scan probes (5 reputation)"),function()
 				if distance(comms_source,comms_target) < 5000 then
 					if comms_source:takeReputationPoints(5) then
 						comms_source:setScanProbeCount(comms_source:getMaxScanProbeCount())
-						setCommsMessage(_("ship-comms","I replenished your probes for you."))
+						setCommsMessage(_("shipServices-comms","I replenished your probes for you."))
 					else
 						setCommsMessage(_("needRep-comms","Insufficient reputation"))
 					end
 				else
-					setCommsMessage(_("ship-comms","You need to stay close if you want me to restock your probes"))
+					setCommsMessage(_("shipServices-comms","You need to stay close if you want me to restock your probes"))
 				end
 				addCommsReply(_("Back"), commsServiceJonque)
 			end)
@@ -15495,27 +15505,27 @@ function commonServiceOptions()
 		end
 		if offer_power then
 			local power_charge = math.floor((comms_source:getEnergyLevelMax() - comms_source:getEnergyLevel())/3)
-			addCommsReply(string.format(_("ship-comms","Quick charge the main batteries (%i reputation)"),power_charge),function()
+			addCommsReply(string.format(_("shipServices-comms","Quick charge the main batteries (%i reputation)"),power_charge),function()
 				if distance(comms_source,comms_target) < 5000 then
 					if comms_source:takeReputationPoints(power_charge) then
 						comms_source:setEnergyLevel(comms_source:getEnergyLevelMax())
 						comms_source:commandSetSystemPowerRequest("reactor",1)
 						comms_source:setSystemPower("reactor",1)
 						comms_source:setSystemHeat("reactor",2)
-						setCommsMessage(_("ship-comms","Your batteries have been charged"))
+						setCommsMessage(_("shipServices-comms","Your batteries have been charged"))
 					else
 						setCommsMessage(_("needRep-comms","Insufficient reputation"))
 					end
 				else
-					setCommsMessage(_("ship-comms","You need to stay close if you want your batteries charged quickly"))
+					setCommsMessage(_("shipServices-comms","You need to stay close if you want your batteries charged quickly"))
 				end
 				addCommsReply(_("Back"), commsServiceJonque)
 			end)
 		end
 		if offer_hull_repair or offer_repair or offer_ordnance or offer_probes or offer_power then
-			setCommsMessage(_("ship-comms","How can I help you get your ship in good running order?"))
+			setCommsMessage(_("shipServices-comms","How can I help you get your ship in good running order?"))
 		else
-			setCommsMessage(_("ship-comms","There's nothing on your ship that I can help you fix. Sorry."))
+			setCommsMessage(_("shipServices-comms","There's nothing on your ship that I can help you fix. Sorry."))
 		end
 	end)
 end
@@ -15696,7 +15706,7 @@ function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, enemyStrength, tem
 		template_pool = getTemplatePool(enemyStrength)
 	end
 	if #template_pool < 1 then
-		addGMMessage("Empty Template pool: fix excludes or other criteria")
+		addGMMessage(_("msgGM","Empty Template pool: fix excludes or other criteria"))
 		return enemyList, original_enemy_strength
 	end
 	while enemyStrength > 0 do
@@ -16797,20 +16807,27 @@ function farco3(enemyFaction)
 --				   Index,  Arc,	Dir,	Range, Cycle,	Damage
 	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
 	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
-	local farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local farco_key = _("scienceDB","Farco 3")
+	local phobos_key = _("scienceDB","Phobos T3")
+	local farco_3_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
 	if farco_3_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Farco 3")
-			farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
+			frigate_db:addEntry(farco_key)
+			farco_3_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
+			local tube_key = _("scienceDB","Tube -1")
+			local tube2_key = _("scienceDB","Tube 1")
+			local load_val = _("scienceDB","60 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,phobos_key),	--base ship database entry
 				farco_3_db,		--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 3, the beams are longer and faster and the shields are slightly stronger."),
 				{
-					{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -16831,20 +16848,27 @@ function farco5(enemyFaction)
 	ship:setShields(60, 40)	
 	ship:setTubeLoadTime(0,30)				--faster (vs 60)
 	ship:setTubeLoadTime(0,30)				
-	local farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local farco_key = _("scienceDB","Farco 5")
+	local phobos_key = _("scienceDB","Phobos T3")
+	local farco_5_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
 	if farco_5_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Farco 5")
-			farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
+			frigate_db:addEntry(farco_key)
+			farco_5_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
+			local tube_key = _("scienceDB","Tube -1")
+			local tube2_key = _("scienceDB","Tube 1")
+			local load_val = _("scienceDB","30 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,phobos_key),	--base ship database entry
 				farco_5_db,		--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 5, the tubes load faster and the shields are slightly stronger."),
 				{
-					{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -16868,20 +16892,27 @@ function farco8(enemyFaction)
 	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
 	ship:setTubeLoadTime(0,30)				--faster (vs 60)
 	ship:setTubeLoadTime(0,30)				
-	local farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local farco_key = _("scienceDB","Farco 8")
+	local phobos_key = _("scienceDB","Phobos T3")
+	local farco_8_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
 	if farco_8_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Farco 8")
-			farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
+			frigate_db:addEntry(farco_key)
+			farco_8_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
+			local tube_key = _("scienceDB","Tube -1")
+			local tube2_key = _("scienceDB","Tube 1")
+			local load_val = _("scienceDB","30 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,phobos_key),	--base ship database entry
 				farco_8_db,		--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 8, the beams are longer and faster, the tubes load faster and the shields are stronger."),
 				{
-					{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -16905,20 +16936,27 @@ function farco11(enemyFaction)
 	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
 	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
 	ship:setBeamWeapon(2,	20,	  0,	 1800,	5.0,	4.0)	--additional sniping beam
-	local farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local farco_key = _("scienceDB","Farco 11")
+	local phobos_key = _("scienceDB","Phobos T3")
+	local farco_11_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
 	if farco_11_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Farco 11")
-			farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
+			frigate_db:addEntry(farco_key)
+			farco_11_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
+			local tube_key = _("scienceDB","Tube -1")
+			local tube2_key = _("scienceDB","Tube 1")
+			local load_val = _("scienceDB","60 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,phobos_key),	--base ship database entry
 				farco_11_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 11, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam and the shields are stronger."),
 				{
-					{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -16948,20 +16986,27 @@ function farco13(enemyFaction)
 	ship:setWeaponStorage("Homing", 16)		
 	ship:setWeaponStorageMax("HVLI",30)							--more (vs 20)
 	ship:setWeaponStorage("HVLI", 30)
-	local farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local farco_key = _("scienceDB","Farco 13")
+	local phobos_key = _("scienceDB","Phobos T3")
+	local farco_13_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
 	if farco_13_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Farco 13")
-			farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
+			frigate_db:addEntry(farco_key)
+			farco_13_db = queryScienceDatabase(ships_key,frigate_key,farco_key)
+			local tube_key = _("scienceDB","Tube -1")
+			local tube2_key = _("scienceDB","Tube 1")
+			local load_val = _("scienceDB","30 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,phobos_key),	--base ship database entry
 				farco_13_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 13, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam, the tubes load faster, there are more missiles and the shields are stronger."),
 				{
-					{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -16992,27 +17037,41 @@ function whirlwind(enemyFaction)
 	ship:setWeaponStorage("Homing", 36)		
 	ship:setWeaponStorageMax("HVLI",36)							--more (vs 15)
 	ship:setWeaponStorage("HVLI", 36)
-	local whirlwind_db = queryScienceDatabase("Ships","Frigate","Whirlwind")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local whirlwind_key = _("scienceDB","Whirlwind")
+	local storm_key = _("scienceDB","Storm")
+	local whirlwind_db = queryScienceDatabase(ships_key,frigate_key,whirlwind_key)
 	if whirlwind_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Whirlwind")
-			whirlwind_db = queryScienceDatabase("Ships","Frigate","Whirlwind")
+			frigate_db:addEntry(whirlwind_key)
+			whirlwind_db = queryScienceDatabase(ships_key,frigate_key,whirlwind_key)
+			local tube_key = _("scienceDB","Tube -90")
+			local tube2_key = _("scienceDB","Tube -92")
+			local tube3_key = _("scienceDB","Tube -88")
+			local tube4_key = _("scienceDB","Tube  90")
+			local tube5_key = _("scienceDB","Tube  92")
+			local tube6_key = _("scienceDB","Tube  88")
+			local tube7_key = _("scienceDB","Tube   0")
+			local tube8_key = _("scienceDB","Tube   2")
+			local tube9_key = _("scienceDB","Tube  -2")
+			local load_val = _("scienceDB","15 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,storm_key),	--base ship database entry
 				whirlwind_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Whirlwind, another heavy artillery cruiser, takes the Storm and adds tubes and missiles. It's as if the Storm swallowed a Pirahna and grew gills. Expect to see missiles, lots of missiles"),
 				{
-					{key = "Tube -90", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -92", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -88", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube  90", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube  92", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube  88", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube   0", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube   2", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube  -2", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube3_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube4_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube5_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube6_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube7_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube8_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube9_key, value = load_val},	--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -17033,19 +17092,25 @@ function phobosR2(enemyFaction)
 	ship:setWeaponTubeDirection(0,0)	
 	ship:setImpulseMaxSpeed(55)			--slower impulse (vs 60)
 	ship:setRotationMaxSpeed(15)		--faster maneuver (vs 10)
-	local phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local phobos_r2_key = _("scienceDB","Phobos R2")
+	local phobos_key = _("scienceDB","Phobos T3")
+	local phobos_r2_db = queryScienceDatabase(ships_key,frigate_key,phobos_r2_key)
 	if phobos_r2_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Phobos R2")
-			phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
+			frigate_db:addEntry(phobos_r2_key)
+			phobos_r2_db = queryScienceDatabase(ships_key,frigate_key,phobos_r2_key)
+			local tube_key = _("scienceDB","Tube 0")
+			local load_val = _("scienceDB","60 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,phobos_key),	--base ship database entry
 				phobos_r2_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube"),
 				{
-					{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
 				},
 				nil
 			)
@@ -17065,14 +17130,18 @@ function hornetMV52(enemyFaction)
 	ship:setBeamWeapon(0, 30, 0, 1000.0, 4.0, 3.0)	--longer and stronger beam (vs 700 & 3)
 	ship:setRotationMaxSpeed(31)					--faster maneuver (vs 30)
 	ship:setImpulseMaxSpeed(130)					--faster impulse (vs 120)
-	local hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+	local ships_key = _("scienceDB","Ships")
+	local starfighter_key = _("scienceDB","Starfighter")
+	local mv52_hornet_key = _("scienceDB","MV52 Hornet")
+	local hornet_key = _("scienceDB","MT52 Hornet")
+	local hornet_mv52_db = queryScienceDatabase(ships_key,starfighter_key,mv52_hornet_key)
 	if hornet_mv52_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		local starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
 		if starfighter_db ~= nil then	--added for translation issues
-			starfighter_db:addEntry("MV52 Hornet")
-			hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+			starfighter_db:addEntry(mv52_hornet_key)
+			hornet_mv52_db = queryScienceDatabase(ships_key,starfighter_key,mv52_hornet_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+				queryScienceDatabase(ships_key,starfighter_key,hornet_key),	--base ship database entry
 				hornet_mv52_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52"),
@@ -17084,19 +17153,23 @@ function hornetMV52(enemyFaction)
 	return ship
 end
 function k2fighter(enemyFaction)
+	local k2_key = _("scienceDB","K2 Fighter")
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter")
-	ship:setTypeName("K2 Fighter")
+	ship:setTypeName(k2_key)
 	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 6)	--beams cycle faster (vs 4.0)
 	ship:setHullMax(65)								--weaker hull (vs 70)
 	ship:setHull(65)
-	local k2_fighter_db = queryScienceDatabase("Ships","No Class","K2 Fighter")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local ktlitan_key = _("scienceDB","Ktlitan Fighter")
+	local k2_fighter_db = queryScienceDatabase(ships_key,no_class_key,k2_key)
 	if k2_fighter_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("K2 Fighter")
-			k2_fighter_db = queryScienceDatabase("Ships","No Class","K2 Fighter")
+			no_class_db:addEntry(k2_key)
+			k2_fighter_db = queryScienceDatabase(ships_key,no_class_key,k2_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
 				k2_fighter_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that cycle faster, but the hull is a bit weaker."),
@@ -17113,14 +17186,18 @@ function k3fighter(enemyFaction)
 	ship:setBeamWeapon(0, 60, 0, 1200.0, 2.5, 9)	--beams cycle faster and damage more (vs 4.0 & 6)
 	ship:setHullMax(60)								--weaker hull (vs 70)
 	ship:setHull(60)
-	local k3_fighter_db = queryScienceDatabase("Ships","No Class","K3 Fighter")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local k3_key = _("scienceDB","K3 Fighter")
+	local ktlitan_key = _("scienceDB","Ktlitan Fighter")
+	local k3_fighter_db = queryScienceDatabase(ships_key,no_class_key,k3_key)
 	if k3_fighter_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("K3 Fighter")
-			k3_fighter_db = queryScienceDatabase("Ships","No Class","K3 Fighter")
+			no_class_db:addEntry(k3_key)
+			k3_fighter_db = queryScienceDatabase(ships_key,no_class_key,k3_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","Ktlitan Fighter"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
 				k3_fighter_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","Enterprising designers published this design specification based on salvaged Ktlitan Fighters. Comparatively, it's got beams that are stronger and that cycle faster, but the hull is weaker."),
@@ -17143,19 +17220,25 @@ function waddle5(enemyFaction)
 	ship:setWarpDrive(true)
 --				   Index,  Arc,	  Dir, Range, Cycle,	Damage
 	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	local waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+	local ships_key = _("scienceDB","Ships")
+	local starfighter_key = _("scienceDB","Starfighter")
+	local waddle5_key = _("scienceDB","Waddle 5")
+	local adder_key = _("scienceDB","Adder MK5")
+	local waddle_5_db = queryScienceDatabase(ships_key,starfighter_key,waddle5_key)
 	if waddle_5_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		local starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
 		if starfighter_db ~= nil then	--added for translation issues
-			starfighter_db:addEntry("Waddle 5")
-			waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+			starfighter_db:addEntry(waddle5_key)
+			waddle_5_db = queryScienceDatabase(ships_key,starfighter_key,waddle5_key)
+			local tube_key = _("scienceDB","Small tube 0")
+			local load_val = _("scienceDB","15 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+				queryScienceDatabase(ships_key,starfighter_key,adder_key),	--base ship database entry
 				waddle_5_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5"),
 				{
-					{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -17176,19 +17259,25 @@ function jade5(enemyFaction)
 	ship:setJumpDriveRange(5000,35000)
 --				   Index,  Arc,	  Dir, Range, Cycle,	Damage
 	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	local jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+	local ships_key = _("scienceDB","Ships")
+	local starfighter_key = _("scienceDB","Starfighter")
+	local jade5_key = _("scienceDB","Jade 5")
+	local adder_key = _("scienceDB","Adder MK5")
+	local jade_5_db = queryScienceDatabase(ships_key,starfighter_key,jade5_key)
 	if jade_5_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		local starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
 		if starfighter_db ~= nil then	--added for translation issues
-			starfighter_db:addEntry("Jade 5")
-			jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+			starfighter_db:addEntry(jade5_key)
+			jade_5_db = queryScienceDatabase(ships_key,starfighter_key,jade5_key)
+			local tube_key = _("scienceDB","Small tube 0")
+			local load_val = _("scienceDB","15 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+				queryScienceDatabase(ships_key,starfighter_key,adder_key),	--base ship database entry
 				jade_5_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5"),
 				{
-					{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
 				},
 				"5 - 35 U"		--jump range
 			)
@@ -17204,14 +17293,18 @@ function droneLite(enemyFaction)
 	ship:setImpulseMaxSpeed(130)		--faster impulse (vs 120)
 	ship:setRotationMaxSpeed(20)		--faster maneuver (vs 10)
 	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
-	local drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local lite_drone_key = _("scienceDB","Lite Drone")
+	local ktlitan_key = _("scienceDB","Ktlitan Drone")
+	local drone_lite_db = queryScienceDatabase(ships_key,no_class_key,lite_drone_key)
 	if drone_lite_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("Lite Drone")
-			drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
+			no_class_db:addEntry(lite_drone_key)
+			drone_lite_db = queryScienceDatabase(ships_key,no_class_key,lite_drone_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
 				drone_lite_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed"),
@@ -17229,14 +17322,18 @@ function droneHeavy(enemyFaction)
 	ship:setHull(40)
 	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
 	ship:setBeamWeapon(0,40,0,600,4,8)	--stronger (vs 6) beam
-	local drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local heavy_drone_key = _("scienceDB","Heavy Drone")
+	local ktlitan_key = _("scienceDB","Ktlitan Drone")
+	local drone_heavy_db = queryScienceDatabase(ships_key,no_class_key,heavy_drone_key)
 	if drone_heavy_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("Heavy Drone")
-			drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
+			no_class_db:addEntry(heavy_drone_key)
+			drone_heavy_db = queryScienceDatabase(ships_key,no_class_key,heavy_drone_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
 				drone_heavy_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower"),
@@ -17260,14 +17357,18 @@ function droneJacket(enemyFaction)
 	ship:setShields(20)
 	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
 	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
-	local drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local jacket_drone_key = _("scienceDB","Jacket Drone")
+	local ktlitan_key = _("scienceDB","Ktlitan Drone")
+	local drone_jacket_db = queryScienceDatabase(ships_key,no_class_key,jacket_drone_key)
 	if drone_jacket_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("Jacket Drone")
-			drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
+			no_class_db:addEntry(jacket_drone_key)
+			drone_jacket_db = queryScienceDatabase(ships_key,no_class_key,jacket_drone_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
 				drone_jacket_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield"),
@@ -17290,21 +17391,29 @@ function wzLindworm(enemyFaction)
 	ship:setRotationMaxSpeed(12)			--slower maneuver (vs 15)
 	ship:setHullMax(45)						--weaker hull (vs 50)
 	ship:setHull(45)
-	local wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
+	local ships_key = _("scienceDB","Ships")
+	local starfighter_key = _("scienceDB","Starfighter")
+	local wzlindworm_key = _("scienceDB","WZ-Lindworm")
+	local worm_key = _("scienceDB","WX-Lindworm")
+	local wz_lindworm_db = queryScienceDatabase(ships_key,starfighter_key,wzlindworm_key)
 	if wz_lindworm_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		local starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
 		if starfighter_db ~= nil then	--added for translation issues
-			starfighter_db:addEntry("WZ-Lindworm")
-			wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
+			starfighter_db:addEntry(wzlindworm_key)
+			wz_lindworm_db = queryScienceDatabase(ships_key,starfighter_key,wzlindworm_key)
+			local tube_key = _("scienceDB","Small tube 0")
+			local tube2_key = _("scienceDB","Small tube 1")
+			local tube3_key = _("scienceDB","Small tube -1")
+			local load_val = _("scienceDB","15 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Starfighter","WX-Lindworm"),	--base ship database entry
+				queryScienceDatabase(ships_key,starfighter_key,worm_key),	--base ship database entry
 				wz_lindworm_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop."),
 				{
-					{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube3_key, value = load_val},	--torpedo tube direction and load speed
 				},
 				nil
 			)
@@ -17338,28 +17447,43 @@ function tempest(enemyFaction)
 	ship:setWeaponStorage("Nuke", 8)				
 	ship:setWeaponStorageMax("HVLI",34)				--more (vs 20)
 	ship:setWeaponStorage("HVLI", 34)
-	local tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local tempest_key = _("scienceDB","Tempest")
+	local pirahna_key = _("scienceDB","Piranha F12")
+	local tempest_db = queryScienceDatabase(ships_key,frigate_key,tempest_key)
 	if tempest_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Tempest")
-			tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
+			frigate_db:addEntry(tempest_key)
+			tempest_db = queryScienceDatabase(ships_key,frigate_key,tempest_key)
+			local tube_key = _("scienceDB","Large tube -88")
+			local tube2_key = _("scienceDB","Tube -89")
+			local tube3_key = _("scienceDB","Large tube -90")
+			local tube4_key = _("scienceDB","Large tube 88")
+			local tube5_key = _("scienceDB","Tube 89")
+			local tube6_key = _("scienceDB","Large tube 90")
+			local tube7_key = _("scienceDB","Tube -91")
+			local tube8_key = _("scienceDB","Tube -92")
+			local tube9_key = _("scienceDB","Tube 91")
+			local tube10_key = _("scienceDB","Tube 92")
+			local load_val = _("scienceDB","15 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Piranha F12"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,pirahna_key),	--base ship database entry
 				tempest_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!"),
 				{
-					{key = "Large tube -88", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -89", value = "15 sec"},		--torpedo tube direction and load speed
-					{key = "Large tube -90", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Large tube 88", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 89", value = "15 sec"},		--torpedo tube direction and load speed
-					{key = "Large tube 90", value = "15 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -91", value = "15 sec"},		--torpedo tube direction and load speed
-					{key = "Tube -92", value = "15 sec"},		--torpedo tube direction and load speed
-					{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
-					{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube3_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube4_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube5_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube6_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube7_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube8_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube9_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube10_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil
 			)
@@ -17399,21 +17523,30 @@ function enforcer(enemyFaction)
 	ship:setTubeLoadTime(2,12)			
 	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
 	ship:setWeaponStorage("Homing", 18)
-	local enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local enforcer_key = _("scienceDB","Enforcer")
+	local blockade_runner_key = _("scienceDB","Blockade Runner")
+	local enforcer_db = queryScienceDatabase(ships_key,frigate_key,enforcer_key)
 	if enforcer_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Enforcer")
-			enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
+			frigate_db:addEntry(enforcer_key)
+			enforcer_db = queryScienceDatabase(ships_key,frigate_key,enforcer_key)
+			local tube_key = _("scienceDB","Large tube 0")
+			local tube2_key = _("scienceDB","Tube -15")
+			local tube3_key = _("scienceDB","Tube 15")
+			local load_val = _("scienceDB","18 sec")
+			local load2_val = _("scienceDB","12 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,blockade_runner_key),	--base ship database entry
 				enforcer_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams."),
 				{
-					{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
-					{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load2_val},		--torpedo tube direction and load speed
+					{key = tube3_key, value = load2_val},		--torpedo tube direction and load speed
 				},
 				nil
 			)
@@ -17464,26 +17597,39 @@ function predator(enemyFaction)
 	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
 	ship:setWeaponStorage("HVLI", 0)
 	ship:setRadarTrace("missile_cruiser.png")				--different radar trace
-	local predator_db = queryScienceDatabase("Ships","Frigate","Predator")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local predator_key = _("scienceDB","Predator")
+	local pirahna_key = _("scienceDB","Piranha F8")
+	local predator_db = queryScienceDatabase(ships_key,frigate_key,predator_key)
 	if predator_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Predator")
-			predator_db = queryScienceDatabase("Ships","Frigate","Predator")
+			frigate_db:addEntry(predator_key)
+			predator_db = queryScienceDatabase(ships_key,frigate_key,predator_key)
+			local tube_key = _("scienceDB","Large tube -60")
+			local tube2_key = _("scienceDB","Tube -90")
+			local tube3_key = _("scienceDB","Large tube -90")
+			local tube4_key = _("scienceDB","Large tube 60")
+			local tube5_key = _("scienceDB","Tube 90")
+			local tube6_key = _("scienceDB","Large tube 90")
+			local tube7_key = _("scienceDB","Tube -120")
+			local tube8_key = _("scienceDB","Tube 120")
+			local load_val = _("scienceDB","12 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Piranha F8"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,pirahna_key),	--base ship database entry
 				predator_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Predator is a significantly improved Piranha F8. Stronger shields and hull, faster impulse and turning speeds, a jump drive, beam weapons, eight missile tubes pointing in six directions and a large number of homing missiles to shoot."),
 				{
-					{key = "Large tube -60", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -90", value = "12 sec"},		--torpedo tube direction and load speed
-					{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Large tube 60", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 90", value = "12 sec"},		--torpedo tube direction and load speed
-					{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -120", value = "12 sec"},		--torpedo tube direction and load speed
-					{key = "Tube 120", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube3_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube4_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube5_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube6_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube7_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube8_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				"5 - 35 U"		--jump range
 			)
@@ -17511,22 +17657,31 @@ function atlantisY42(enemyFaction)
 	ship:setBeamWeapon(3,	80,	  170,	1500,		6,		 8)	--extra (vs 3 beams)
 	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
 	ship:setWeaponStorage("Homing", 16)
-	local atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
+	local ships_key = _("scienceDB","Ships")
+	local corvette_key = _("scienceDB","Corvette")
+	local y42_key = _("scienceDB","Atlantis Y42")
+	local atlantis_key = _("scienceDB","Atlantis X23")
+	local atlantis_y42_db = queryScienceDatabase(ships_key,corvette_key,y42_key)
 	if atlantis_y42_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		local corvette_db = queryScienceDatabase(ships_key,corvette_key)
 		if corvette_db ~= nil then	--added for translation issues
-			corvette_db:addEntry("Atlantis Y42")
-			atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
+			corvette_db:addEntry(y42_key)
+			atlantis_y42_db = queryScienceDatabase(ships_key,corvette_key,y42_key)
+			local tube_key = _("scienceDB","Tube -90")
+			local tube2_key = _("scienceDB"," Tube -90")
+			local tube3_key = _("scienceDB","Tube 90")
+			local tube4_key = _("scienceDB"," Tube 90")
+			local load_val = _("scienceDB","10 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
+				queryScienceDatabase(ships_key,corvette_key,atlantis_key),	--base ship database entry
 				atlantis_y42_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock"),
 				{
-					{key = "Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
-					{key = " Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
-					{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube3_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube4_key, value = load_val},	--torpedo tube direction and load speed
 				},
 				"5 - 50 U"		--jump range
 			)
@@ -17553,20 +17708,27 @@ function starhammerV(enemyFaction)
 	ship:setWeaponStorage("Homing", 16)		
 	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
 	ship:setWeaponStorage("HVLI", 36)
-	local starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
+	local ships_key = _("scienceDB","Ships")
+	local corvette_key = _("scienceDB","Corvette")
+	local starhammerV_key = _("scienceDB","Starhammer V")
+	local starhammer2_key = _("scienceDB","Starhammer II")
+	local starhammer_v_db = queryScienceDatabase(ships_key,corvette_key,starhammerV_key)
 	if starhammer_v_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		local corvette_db = queryScienceDatabase(ships_key,corvette_key)
 		if corvette_db ~= nil then	--added for translation issues
-			corvette_db:addEntry("Starhammer V")
-			starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
+			corvette_db:addEntry(starhammerV_key)
+			starhammer_v_db = queryScienceDatabase(ships_key,corvette_key,starhammerV_key)
+			local tube_key = _("scienceDB","Tube 0")
+			local tube2_key = _("scienceDB"," Tube 0")
+			local load_val = _("scienceDB","10 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
+				queryScienceDatabase(ships_key,corvette_key,starhammer2_key),	--base ship database entry
 				starhammer_v_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with."),
 				{
-					{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-					{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},	--torpedo tube direction and load speed
 				},
 				"5 - 50 U"		--jump range
 			)
@@ -17602,14 +17764,18 @@ function tyr(enemyFaction)
 	ship:setBeamWeapon(9,	90,	 -120,	2500,		6,		 8)
 	ship:setBeamWeapon(10,	90,	   60,	2500,		6,		 8)
 	ship:setBeamWeapon(11,	90,	  120,	2500,		6,		 8)
-	local tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
+	local ships_key = _("scienceDB","Ships")
+	local dreadnought_key = _("scienceDB","Dreadnought")
+	local tyr_key = _("scienceDB","Tyr")
+	local battlestation_key = _("scienceDB","Battlestation")
+	local tyr_db = queryScienceDatabase(ships_key,dreadnought_key,tyr_key)
 	if tyr_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Dreadnought")
+		local corvette_db = queryScienceDatabase(ships_key,dreadnought_key)
 		if corvette_db ~= nil then	--added for translation issues
-			corvette_db:addEntry("Tyr")
-			tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
+			corvette_db:addEntry(tyr_key)
+			tyr_db = queryScienceDatabase(ships_key,dreadnought_key,tyr_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
+				queryScienceDatabase(ships_key,dreadnought_key,battlestation_key),	--base ship database entry
 				tyr_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Tyr is the shipyard's answer to admiral Konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could"),
@@ -17629,14 +17795,18 @@ function gnat(enemyFaction)
 	ship:setRotationMaxSpeed(25)		--faster maneuver (vs 10)
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
 	ship:setBeamWeapon(0,   40,		0,	 600,		4,		 3)	--weaker (vs 6) beam
-	local gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local gnat_key = _("scienceDB","Gnat")
+	local ktlitan_key = _("scienceDB","Ktlitan Drone")
+	local gnat_db = queryScienceDatabase(ships_key,no_class_key,gnat_key)
 	if gnat_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("Gnat")
-			gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
+			no_class_db:addEntry(gnat_key)
+			gnat_db = queryScienceDatabase(ships_key,no_class_key,gnat_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","Gnat"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
 				gnat_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster"),
@@ -17664,14 +17834,18 @@ function cucaracha(enemyFaction)
 	ship:setAcceleration(30)						--faster acceleration (vs 15)
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
 	ship:setBeamWeapon(0,	60,	    0,	1500,		6,		10)	--extra rear facing beam
-	local cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local cucaracha_key = _("scienceDB","Cucaracha")
+	local tug_key = _("scienceDB","Tug")
+	local cucaracha_db = queryScienceDatabase(ships_key,no_class_key,cucaracha_key)
 	if cucaracha_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("Cucaracha")
-			cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+			no_class_db:addEntry(cucaracha_key)
+			cucaracha_db = queryScienceDatabase(ships_key,no_class_key,cucaracha_key)
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","Cucaracha"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,tug_key),	--base ship database entry
 				cucaracha_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash"),
@@ -17726,32 +17900,58 @@ function maniapak(enemyFaction)
 	ship:setWeaponStorage("Nuke",      27)
 	ship:setWeaponStorageMax("HVLI",   36)		--more (vs 4)
 	ship:setWeaponStorage("HVLI",      36)
-	local maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
+	local ships_key = _("scienceDB","Ships")
+	local starfighter_key = _("scienceDB","Starfighter")
+	local maniapak_key = _("scienceDB","Maniapak")
+	local adder_key = _("scienceDB","Adder MK5")
+	local maniapak_db = queryScienceDatabase(ships_key,starfighter_key,maniapak_key)
 	if maniapak_db == nil then
-		local fighter_db = queryScienceDatabase("Ships","Starfighter")
-		fighter_db:addEntry("Maniapak")
-		maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			maniapak_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			_("scienceDB","The Maniapak is an extreme modification of an Adder MK5 and a Blade. A maniacal designer was tasked with packing as many missiles as possible in this tiny starfighter frame. This record has yet to be beaten. Unfortunately, this ship is often a danger to friends as well as foes."),
-			{
-				{key = "Small Tube 0", value = "15 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small Tube -10", value = "16 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small Tube 10", value = "17 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 0", value = "18 Sec"},
-				{key = "Tube -12", value = "19 sec"},
-				{key = "Tube 12", value = "20 sec"},
-				{key = "Large Tube 0", value = "21 sec"},
-				{key = "Large Tube -15", value = "22 sec"},
-				{key = "Large Tube 15", value = "23 sec"},
-				{key = "Missile Storage", value = "H:27 E:18 N:27 L:36"},
-			},
-			nil,
-			"AdlerLongRangeScoutYellow"
-		)
-		maniapak_db:setImage("radar/exuari_fighter.png")		--override default radar image
+		local fighter_db = queryScienceDatabase(ships_key,starfighter_key)
+		if fighter_db ~= nil then
+			fighter_db:addEntry(maniapak_key)
+			maniapak_db = queryScienceDatabase(ships_key,starfighter_key,maniapak_key)
+			local tube_key = _("scienceDB","Small tube 0")
+			local tube2_key = _("scienceDB","Small tube -10")
+			local tube3_key = _("scienceDB","Small tube 10")
+			local tube4_key = _("scienceDB","Tube 0")
+			local tube5_key = _("scienceDB","Tube -12")
+			local tube6_key = _("scienceDB","Tube 12")
+			local tube7_key = _("scienceDB","Large tube 0")
+			local tube8_key = _("scienceDB","Large tube -15")
+			local tube9_key = _("scienceDB","Large tube 15")
+			local load_val = _("scienceDB","15 sec")
+			local load2_val = _("scienceDB","16 sec")
+			local load3_val = _("scienceDB","17 sec")
+			local load4_val = _("scienceDB","18 sec")
+			local load5_val = _("scienceDB","19 sec")
+			local load6_val = _("scienceDB","20 sec")
+			local load7_val = _("scienceDB","21 sec")
+			local load8_val = _("scienceDB","22 sec")
+			local load9_val = _("scienceDB","23 sec")
+			local storage_key = _("scienceDB","Missile Storage")
+			local storage_val = _("scienceDB","H:27 E:18 N:27 L:36")
+			addShipToDatabase(
+				queryScienceDatabase(ships_key,starfighter_key,adder_key),	--base ship database entry
+				maniapak_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				_("scienceDB","The Maniapak is an extreme modification of an Adder MK5 and a Blade. A maniacal designer was tasked with packing as many missiles as possible in this tiny starfighter frame. This record has yet to be beaten. Unfortunately, this ship is often a danger to friends as well as foes."),
+				{
+					{key = tube_key, value = load_val},		--torpedo tube size, direction and load speed
+					{key = tube2_key, value = load2_val},		--torpedo tube size, direction and load speed
+					{key = tube3_key, value = load3_val},		--torpedo tube size, direction and load speed
+					{key = tube4_key, value = load4_val},
+					{key = tube5_key, value = load5_val},
+					{key = tube6_key, value = load6_val},
+					{key = tube7_key, value = load7_val},
+					{key = tube8_key, value = load8_val},
+					{key = tube9_key, value = load9_val},
+					{key = storage_key, value = storage_val},
+				},
+				nil,
+				"AdlerLongRangeScoutYellow"
+			)
+			maniapak_db:setImage("radar/exuari_fighter.png")		--override default radar image
+		end
 	end
 	return ship		
 end
@@ -17771,20 +17971,27 @@ function starhammerIII(enemyFaction)
 	ship:setWeaponStorage("Homing", 16)		
 	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
 	ship:setWeaponStorage("HVLI", 36)
-	local starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+	local ships_key = _("scienceDB","Ships")
+	local corvette_key = _("scienceDB","Corvette")
+	local starhammer3_key = _("scienceDB","Starhammer III")
+	local starhammer2_key = _("scienceDB","Starhammer II")
+	local starhammer_iii_db = queryScienceDatabase(ships_key,corvette_key,starhammer3_key)
 	if starhammer_iii_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		local corvette_db = queryScienceDatabase(ships_key,corvette_key)
 		if corvette_db ~= nil then	--added for translation issues
-			corvette_db:addEntry("Starhammer III")
-			starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+			corvette_db:addEntry(starhammer3_key)
+			starhammer_iii_db = queryScienceDatabase(ships_key,corvette_key,starhammer3_key)
+			local tube_key = _("scienceDB","Large tube 0")
+			local tube2_key = _("scienceDB","Tube 0")
+			local load_val = _("scienceDB","10 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Corvette","Starhammer III"),	--base ship database entry
+				queryScienceDatabase(ships_key,corvette_key,starhammer2_key),	--base ship database entry
 				starhammer_iii_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire"),
 				{
-					{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},			--torpedo tube direction and load speed
 				},
 				"5 - 50 U"		--jump range
 			)
@@ -17812,21 +18019,29 @@ function k2breaker(enemyFaction)
 	ship:setWeaponStorage("Homing", 16)
 	ship:setWeaponStorageMax("HVLI",8)				--more (vs 5)
 	ship:setWeaponStorage("HVLI", 8)
-	local k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local k2_key = _("scienceDB","K2 Breaker")
+	local ktlitan_key = _("scienceDB","Ktlitan Breaker")
+	local k2_breaker_db = queryScienceDatabase(ships_key,no_class_key,k2_key)
 	if k2_breaker_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
 		if no_class_db ~= nil then	--added for translation issues
-			no_class_db:addEntry("K2 Breaker")
-			k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+			no_class_db:addEntry(k2_key)
+			k2_breaker_db = queryScienceDatabase(ships_key,no_class_key,k2_key)
+			local tube_key = _("scienceDB","Large tube 0")
+			local tube2_key = _("scienceDB","Tube -30")
+			local tube3_key = _("scienceDB","Tube 30")
+			local load_val = _("scienceDB","13 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","No Class","K2 Breaker"),	--base ship database entry
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
 				k2_breaker_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships"),
 				{
-					{key = "Large tube 0", value = "13 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
-					{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube3_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil
 			)
@@ -17862,26 +18077,39 @@ function hurricane(enemyFaction)
 	ship:setWeaponTubeDirection(7, 30)
 	ship:setWeaponStorageMax("Homing",24)			--more (vs 5)
 	ship:setWeaponStorage("Homing", 24)
-	local hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local hurricane_key = _("scienceDB","Hurricane")
+	local pirahna_key = _("scienceDB","Piranha F8")
+	local hurricane_db = queryScienceDatabase(ships_key,frigate_key,hurricane_key)
 	if hurricane_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Hurricane")
-			hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+			frigate_db:addEntry(hurricane_key)
+			hurricane_db = queryScienceDatabase(ships_key,frigate_key,hurricane_key)
+			local tube_key = _("scienceDB","Large tube 0")
+			local tube2_key = _("scienceDB","Tube 0")
+			local tube3_key = _("scienceDB","Large tube 90")
+			local tube4_key = _("scienceDB","Large tube -90")
+			local tube5_key = _("scienceDB","Small tube -15")
+			local tube6_key = _("scienceDB","Small tube 15")
+			local tube7_key = _("scienceDB","Tube -30")
+			local tube8_key = _("scienceDB","Tube 30")
+			local load_val = _("scienceDB","12 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Hurricane"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,pirahna_key),	--base ship database entry
 				hurricane_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot"),
 				{
-					{key = "Large tube 0", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 0", value = "12 sec"},			--torpedo tube direction and load speed
-					{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Small tube -15", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Small tube 15", value = "12 sec"},	--torpedo tube direction and load speed
-					{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
-					{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},			--torpedo tube direction and load speed
+					{key = tube3_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube4_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube5_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube6_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube7_key, value = load_val},		--torpedo tube direction and load speed
+					{key = tube8_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				"5 - 40 U"		--jump range
 			)
@@ -17904,20 +18132,27 @@ function phobosT4(enemyFaction)
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
 	ship:setBeamWeapon(0,	90,	  -15,	1500,		6,		6)	--longer (vs 1200), faster (vs 8)
 	ship:setBeamWeapon(1,	90,	   15,	1500,		6,		6)	
-	local phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local t4_key = _("scienceDB","Phobos T4")
+	local phobos_key = _("scienceDB","Phobos T3")
+	local phobos_t4_db = queryScienceDatabase(ships_key,frigate_key,t4_key)
 	if phobos_t4_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
 		if frigate_db ~= nil then	--added for translation issues
-			frigate_db:addEntry("Phobos T4")
-			phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
+			frigate_db:addEntry(t4_key)
+			phobos_t4_db = queryScienceDatabase(ships_key,frigate_key,t4_key)
+			local tube_key = _("scienceDB","Tube -1")
+			local tube2_key = _("scienceDB","Tube 1")
+			local load_val = _("scienceDB","60 sec")
 			addShipToDatabase(
-				queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+				queryScienceDatabase(ships_key,frigate_key,phobos_key),	--base ship database entry
 				phobos_t4_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The Phobos T4 makes some simple improvements on the Phobos T3: faster maneuver, stronger front shields, though weaker rear shields and longer and faster beam weapons"),
 				{
-					{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
-					{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+					{key = tube2_key, value = load_val},		--torpedo tube direction and load speed
 				},
 				nil		--jump range
 			)
@@ -17930,14 +18165,16 @@ function serviceJonque(enemyFaction)
 	if enemyFaction ~= nil then
 		ship:setFaction(enemyFaction)
 	end
-	ship:setTypeName("Service Jonque"):setCommsScript(""):setCommsFunction(commsServiceJonque)
-	addFreighter("Service Jonque",ship)	--update science database if applicable
+	local jonque_key = _("scienceDB","Service Jonque")
+	ship:setTypeName(jonque_key):setCommsScript(""):setCommsFunction(commsServiceJonque)
+	addFreighter(jonque_key,ship)	--update science database if applicable
 	return ship
 end
 
 function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
+	local freighter_key = _("scienceDB","Freighter")
 	specific_freighter_db:setImage("radar/transport.png")
-	specific_freighter_db:setKeyValue("Sub-class","Freighter")
+	specific_freighter_db:setKeyValue("Sub-class",freighter_key)
 	specific_freighter_db:setKeyValue("Size",base_db:getKeyValue("Size"))
 	local shields = ship:getShieldCount()
 	if shields > 0 then
@@ -17967,91 +18204,115 @@ function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
 	end
 end
 function addFreighters()
-	local freighter_db = queryScienceDatabase("Ships","Freighter")
+	local ships_key = _("scienceDB","Ships")
+	local freighter_key = _("scienceDB","Freighter")
+	local freighter_db = queryScienceDatabase(ships_key,freighter_key)
 	if freighter_db == nil then
-		local ship_db = queryScienceDatabase("Ships")
-		ship_db:addEntry("Freighter")
-		freighter_db = queryScienceDatabase("Ships","Freighter")
+		local ship_db = queryScienceDatabase(ships_key)
+		ship_db:addEntry(freighter_key)
+		freighter_db = queryScienceDatabase(ships_key,freighter_key)
 		freighter_db:setImage("radar/transport.png")
 		freighter_db:setLongDescription(_("scienceDB","Small, medium and large scale transport ships. These are the working ships that keep commerce going in any sector. They may carry personnel, goods, cargo, equipment, garbage, fuel, research material, etc."))
 	end
 	return freighter_db
 end
 function addFreighter(freighter_type,ship)
+	local ships_key = _("scienceDB","Ships")
+	local freighter_key = _("scienceDB","Freighter")
+	local corvette_key = _("scienceDB","Corvette")
+	local sedan_key = _("scienceDB","Space Sedan")
+	local omnibus_key = _("scienceDB","Omnibus")
+	local jonque_key = _("scienceDB","Service Jonque")
+	local courier_key = _("scienceDB","Courier")
+	local wagon_key = _("scienceDB","Work Wagon")
+	local lorry_key = _("scienceDB","Laden Lorry")
+	local physics_key = _("scienceDB","Physics Research")
 	local freighter_db = addFreighters()
 	if freighter_type ~= nil then
-		if freighter_type == "Space Sedan" then
-			local space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
+		if freighter_type == sedan_key then
+			local space_sedan_db = queryScienceDatabase(ships_key,freighter_key,sedan_key)
 			if space_sedan_db == nil then
-				freighter_db:addEntry("Space Sedan")
-				space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
-				genericFreighterScienceInfo(space_sedan_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 3"),ship)
+				local pjf3_key = _("scienceDB","Personnel Jump Freighter 3")
+				freighter_db:addEntry(sedan_key)
+				space_sedan_db = queryScienceDatabase(ships_key,freighter_key,sedan_key)
+				genericFreighterScienceInfo(space_sedan_db,queryScienceDatabase(ships_key,corvette_key,pjf3_key),ship)
 				space_sedan_db:setModelDataName("transport_1_3")
-				space_sedan_db:setLongDescription("The Space Sedan was built around a surplus Personnel Jump Freighter 3. It's designed to provide relatively low cost transportation primarily for people, but there is also a limited amount of cargo space available")
+				space_sedan_db:setLongDescription(_("scienceDB","The Space Sedan was built around a surplus Personnel Jump Freighter 3. It's designed to provide relatively low cost transportation primarily for people, but there is also a limited amount of cargo space available"))
 			end
-		elseif freighter_type == "Omnibus" then
-			local omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
+		elseif freighter_type == omnibus_key then
+			local omnibus_db = queryScienceDatabase(ships_key,freighter_key,omnibus_key)
 			if omnibus_db == nil then
-				freighter_db:addEntry("Omnibus")
-				omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
-				genericFreighterScienceInfo(omnibus_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 5"),ship)
+				local pjf5_key = _("scienceDB","Personnel Jump Freighter 5")
+				freighter_db:addEntry(omnibus_key)
+				omnibus_db = queryScienceDatabase(ships_key,freighter_key,omnibus_key)
+				genericFreighterScienceInfo(omnibus_db,queryScienceDatabase(ships_key,corvette_key,pjf5_key),ship)
 				omnibus_db:setModelDataName("transport_1_5")
-				omnibus_db:setLongDescription("The Omnibus was designed from the Personnel Jump Freighter 5. It's made to transport large numbers of passengers of various types along with their luggage and any associated cargo")
+				omnibus_db:setLongDescription(_("scienceDB","The Omnibus was designed from the Personnel Jump Freighter 5. It's made to transport large numbers of passengers of various types along with their luggage and any associated cargo"))
 			end
-		elseif freighter_type == "Service Jonque" then
-			local service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
+		elseif freighter_type == jonque_key then
+			local service_jonque_db = queryScienceDatabase(ships_key,freighter_key,jonque_key)
 			if service_jonque_db == nil then
-				freighter_db:addEntry("Service Jonque")
-				service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
-				genericFreighterScienceInfo(service_jonque_db,queryScienceDatabase("Ships","Corvette","Equipment Jump Freighter 4"),ship)
+				local ejf4_key = _("scienceDB","Equipment Jump Freighter 4")
+				freighter_db:addEntry(jonque_key)
+				service_jonque_db = queryScienceDatabase(ships_key,freighter_key,jonque_key)
+				genericFreighterScienceInfo(service_jonque_db,queryScienceDatabase(ships_key,corvette_key,"Equipment Jump Freighter 4"),ship)
 				service_jonque_db:setModelDataName("transport_4_4")
 				service_jonque_db:setLongDescription(_("scienceDB","The Service Jonque is a modified Equipment Jump Freighter 4. It's designed to carry spare parts and equipment as well as the necessary repair personnel to where it's needed to repair stations and ships"))
 			end
-		elseif freighter_type == "Courier" then
-			local courier_db = queryScienceDatabase("Ships","Freighter","Courier")
+		elseif freighter_type == courier_key then
+			local courier_db = queryScienceDatabase(ships_key,freighter_key,courier_key)
 			if courier_db == nil then
-				freighter_db:addEntry("Courier")
-				courier_db = queryScienceDatabase("Ships","Freighter","Courier")
-				genericFreighterScienceInfo(courier_db,queryScienceDatabase("Ships","Corvette","Personnel Freighter 1"),ship)
+				local pf1_key = _("scienceDB","Personnel Freighter 1")
+				freighter_db:addEntry(courier_key)
+				courier_db = queryScienceDatabase(ships_key,freighter_key,courier_key)
+				genericFreighterScienceInfo(courier_db,queryScienceDatabase(ships_key,corvette_key,pf1_key),ship)
 				courier_db:setModelDataName("transport_1_1")
-				courier_db:setLongDescription("The Courier is a souped up Personnel Freighter 1. It's made to deliver people and messages fast. Very fast")
+				courier_db:setLongDescription(_("scienceDB","The Courier is a souped up Personnel Freighter 1. It's made to deliver people and messages fast. Very fast"))
 			end
-		elseif freighter_type == "Work Wagon" then
-			local work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
+		elseif freighter_type == wagon_key then
+			local work_wagon_db = queryScienceDatabase(ships_key,freighter_key,wagon_key)
 			if work_wagon_db == nil then
-				freighter_db:addEntry("Work Wagon")
-				work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
-				genericFreighterScienceInfo(work_wagon_db,queryScienceDatabase("Ships","Corvette","Equipment Freighter 2"),ship)
+				local ef2_key = _("scienceDB","Equipment Freighter 2")
+				freighter_db:addEntry(wagon_key)
+				work_wagon_db = queryScienceDatabase(ships_key,freighter_key,wagon_key)
+				genericFreighterScienceInfo(work_wagon_db,queryScienceDatabase(ships_key,corvette_key,ef2_key),ship)
 				work_wagon_db:setModelDataName("transport_4_2")
-				work_wagon_db:setLongDescription("The Work Wagon is a conversion of an Equipment Freighter 2 designed to carry equipment and parts where they are needed for repair or construction.")
+				work_wagon_db:setLongDescription(_("scienceDB","The Work Wagon is a conversion of an Equipment Freighter 2 designed to carry equipment and parts where they are needed for repair or construction."))
 			end
-		elseif freighter_type == "Laden Lorry" then
-			local laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
+		elseif freighter_type == lorry_key then
+			local laden_lorry_db = queryScienceDatabase(ships_key,freighter_key,lorry_key)
 			if laden_lorry_db == nil then
-				freighter_db:addEntry("Laden Lorry")
-				laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
-				genericFreighterScienceInfo(laden_lorry_db,queryScienceDatabase("Ships","Corvette","Goods Freighter 3"),ship)
+				local gf3_key = _("scienceDB","Goods Freighter 3")
+				freighter_db:addEntry(lorry_key)
+				laden_lorry_db = queryScienceDatabase(ships_key,freighter_key,lorry_key)
+				genericFreighterScienceInfo(laden_lorry_db,queryScienceDatabase(ships_key,corvette_key,gf3_key),ship)
 				laden_lorry_db:setModelDataName("transport_2_3")
-				laden_lorry_db:setLongDescription("As a side contract, Conversion R Us put together the Laden Lorry from some recently acquired Goods Freighter 3 hulls. The added warp drive makes for a more versatile goods carrying vessel.")
+				laden_lorry_db:setLongDescription(_("scienceDB","As a side contract, Conversion R Us put together the Laden Lorry from some recently acquired Goods Freighter 3 hulls. The added warp drive makes for a more versatile goods carrying vessel."))
 			end
-		elseif freighter_type == "Physics Research" then
-			local physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
+		elseif freighter_type == physics_key then
+			local physics_research_db = queryScienceDatabase(ships_key,freighter_key,physics_key)
 			if physics_research_db == nil then
-				freighter_db:addEntry("Physics Research")
-				physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
-				genericFreighterScienceInfo(physics_research_db,queryScienceDatabase("Ships","Corvette","Garbage Freighter 3"),ship)
+				local garf3_key = _("scienceDB","Garbage Freighter 3")
+				freighter_db:addEntry(physics_key)
+				physics_research_db = queryScienceDatabase(ships_key,freighter_key,physics_key)
+				genericFreighterScienceInfo(physics_research_db,queryScienceDatabase(ships_key,corvette_key,garf3_key),ship)
 				physics_research_db:setModelDataName("transport_3_3")
-				physics_research_db:setLongDescription("Conversion R Us cleaned up and converted excess freighter hulls into Physics Research vessels. The reduced weight improved the impulse speed and maneuverability.")
+				physics_research_db:setLongDescription(_("scienceDB","Conversion R Us cleaned up and converted excess freighter hulls into Physics Research vessels. The reduced weight improved the impulse speed and maneuverability."))
 			end
 		end
 	end
 end
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
-	modified_db:setImage(base_db:getImage())
-	modified_db:setKeyValue("Class",base_db:getKeyValue("Class"))
-	modified_db:setKeyValue("Sub-class",base_db:getKeyValue("Sub-class"))
-	modified_db:setKeyValue("Size",base_db:getKeyValue("Size"))
+	if base_db ~= nil then
+		modified_db:setImage(base_db:getImage())
+		local class_key = _("scienceDB","Class")
+		local subclass_key = _("scienceDB","Sub-class")
+		local size_key = _("scienceDB","Size")
+		modified_db:setKeyValue(class_key,base_db:getKeyValue(class_key))
+		modified_db:setKeyValue(subclass_key,base_db:getKeyValue(subclass_key))
+		modified_db:setKeyValue(size_key,base_db:getKeyValue(size_key))
+	end
 	local shields = ship:getShieldCount()
 	if shields > 0 then
 		local shield_string = ""
@@ -18062,25 +18323,37 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 				shield_string = string.format("%s/%i",shield_string,math.floor(ship:getShieldMax(i-1)))
 			end
 		end
-		modified_db:setKeyValue("Shield",shield_string)
+		local shield_key = _("scienceDB","Shield")
+		modified_db:setKeyValue(shield_key,shield_string)
 	end
-	modified_db:setKeyValue("Hull",string.format("%i",math.floor(ship:getHullMax())))
-	modified_db:setKeyValue("Move speed",string.format("%.1f u/min",ship:getImpulseMaxSpeed()*60/1000))
-	modified_db:setKeyValue("Turn speed",string.format("%.1f deg/sec",ship:getRotationMaxSpeed()))
+	local hull_key = _("scienceDB","Hull")
+	local move_speed_key = _("scienceDB","Move speed")
+	local reverse_move_speed_key = _("scienceDB","Reverse move speed")
+	local turn_speed_key = _("scienceDB","Turn speed")
+	local impulse_forward, impulse_reverse = ship:getImpulseMaxSpeed()
+	modified_db:setKeyValue(hull_key,string.format("%i",math.floor(ship:getHullMax())))
+	modified_db:setKeyValue(move_speed_key,string.format(_("scienceDB","%.1f u/min"),impulse_forward*60/1000))
+	modified_db:setKeyValue(reverse_move_speed_key,string.format(_("scienceDB","%.1f u/min"),impulse_reverse*60/1000))
+	modified_db:setKeyValue(turn_speed_key,string.format(_("scienceDB","%.1f deg/sec"),ship:getRotationMaxSpeed()))
 	if ship:hasJumpDrive() then
+		local jump_range_key = _("scienceDB","Jump range")
 		if jump_range == nil then
-			local base_jump_range = base_db:getKeyValue("Jump range")
+			local base_jump_range = nil
+			if base_db ~= nil then
+				base_jump_range = base_db:getKeyValue(jump_range_key)
+			end
 			if base_jump_range ~= nil and base_jump_range ~= "" then
-				modified_db:setKeyValue("Jump range",base_jump_range)
+				modified_db:setKeyValue(jump_range_key,base_jump_range)
 			else
-				modified_db:setKeyValue("Jump range","5 - 50 u")
+				modified_db:setKeyValue(jump_range_key,"5 - 50 u")
 			end
 		else
-			modified_db:setKeyValue("Jump range",jump_range)
+			modified_db:setKeyValue(jump_range_key,jump_range)
 		end
 	end
 	if ship:hasWarpDrive() then
-		modified_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
+		local ward_speed_key = _("scienceDB", "Warp Speed")
+		modified_db:setKeyValue(ward_speed_key,string.format(_("scienceDB", "%.1f u/min"),ship:getWarpSpeed()*60/1000))
 	end
 	local key = ""
 	if ship:getBeamWeaponRange(0) > 0 then
@@ -18091,11 +18364,11 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 			if beam_direction > 315 and beam_direction < 360 then
 				beam_direction = beam_direction - 360
 			end
-			key = string.format("Beam weapon %i:%i",ship:getBeamWeaponDirection(bi),ship:getBeamWeaponArc(bi))
+			key = string.format(_("scienceDB", "Beam weapon %i:%i"),ship:getBeamWeaponDirection(bi),ship:getBeamWeaponArc(bi))
 			while(modified_db:getKeyValue(key) ~= "") do
 				key = " " .. key
 			end
-			modified_db:setKeyValue(key,string.format("%.1f Dmg / %.1f sec",ship:getBeamWeaponDamage(bi),ship:getBeamWeaponCycleTime(bi)))
+			modified_db:setKeyValue(key,string.format(_("scienceDB", "%.1f Dmg / %.1f sec"),ship:getBeamWeaponDamage(bi),ship:getBeamWeaponCycleTime(bi)))
 			bi = bi + 1
 			count_repeat_loop = count_repeat_loop + 1
 		until(ship:getBeamWeaponRange(bi) < 1 or count_repeat_loop > max_repeat_loop)
@@ -18114,7 +18387,7 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 		for index, missile_type in ipairs(missile_types) do
 			local max_storage = ship:getWeaponStorageMax(missile_type)
 			if max_storage > 0 then
-				modified_db:setKeyValue(string.format("Storage %s",missile_type),string.format("%i",max_storage))
+				modified_db:setKeyValue(string.format(_("scienceDB", "Storage %s"),missile_type),string.format("%i",max_storage))
 			end
 		end
 	end
@@ -18636,9 +18909,9 @@ function updatePlayerProximityScan(p)
 end
 function updatePlayerTubeSizeBanner(p)
 	if p.tube_size ~= nil then
-		local tube_size_banner = string.format(_("tabWeapons","%s tubes: %s"),p:getCallSign(),p.tube_size)
+		local tube_size_banner = string.format(_("-tabWeapons&Tactical", "%s tubes: %s"),p:getCallSign(),p.tube_size)
 		if #p.tube_size == 1 then
-			tube_size_banner = string.format(_("tabWeapons","%s tube: %s"),p:getCallSign(),p.tube_size)
+			tube_size_banner = string.format(_("-tabWeapons&Tactical", "%s tube: %s"),p:getCallSign(),p.tube_size)
 		end
 		p.tube_sizes_wea = "tube_sizes_wea"
 		p:addCustomInfo("Weapons",p.tube_sizes_wea,tube_size_banner,1)
@@ -18781,11 +19054,11 @@ function healthCheck(delta)
 						p:setRepairCrewCount(1)
 						if p:hasPlayerAtPosition("Engineering") then
 							local repairCrewRecovery = "repairCrewRecovery"
-							p:addCustomMessage("Engineering",repairCrewRecovery,_("msgEngineer","Medical team has revived one of your repair crew"))
+							p:addCustomMessage("Engineering",repairCrewRecovery,_("repairCrew-msgEngineer", "Medical team has revived one of your repair crew"))
 						end
 						if p:hasPlayerAtPosition("Engineering+") then
 							local repairCrewRecoveryPlus = "repairCrewRecoveryPlus"
-							p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,_("msgEngineer+","Medical team has revived one of your repair crew"))
+							p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,_("repairCrew-msgEngineer+", "Medical team has revived one of your repair crew"))
 						end
 						resetPreviousSystemHealth(p)
 					end
@@ -18803,10 +19076,10 @@ function healthCheck(delta)
 							local noticable_reclaimed_coolant = math.floor(reclaimed_coolant)
 							if noticable_reclaimed_coolant > 0 then
 								if p:hasPlayerAtPosition("Engineering") then
-									p:addCustomMessage("Engineering","coolant_recovery",_("msgEngineer","Automated systems have recovered some coolant"))
+									p:addCustomMessage("Engineering","coolant_recovery",_("coolant-msgEngineer", "Automated systems have recovered some coolant"))
 								end
 								if p:hasPlayerAtPosition("Engineering+") then
-									p:addCustomMessage("Engineering+","coolant_recovery_plus",_("msgEngineer+","Automated systems have recovered some coolant"))
+									p:addCustomMessage("Engineering+","coolant_recovery_plus",_("coolant-msgEngineer+", "Automated systems have recovered some coolant"))
 								end
 							end
 							resetPreviousSystemHealth(p)
@@ -18846,11 +19119,11 @@ function crewFate(p, fatalityChance)
 			p:setRepairCrewCount(p:getRepairCrewCount() - 1)
 			if p:hasPlayerAtPosition("Engineering") then
 				local repairCrewFatality = "repairCrewFatality"
-				p:addCustomMessage("Engineering",repairCrewFatality,_("msgEngineer","One of your repair crew has perished"))
+				p:addCustomMessage("Engineering",repairCrewFatality,_("repairCrew-msgEngineer", "One of your repair crew has perished"))
 			end
 			if p:hasPlayerAtPosition("Engineering+") then
 				local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("msgEngineer+","One of your repair crew has perished"))
+				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+", "One of your repair crew has perished"))
 			end
 		else
 			local consequence = 0
@@ -18881,11 +19154,11 @@ function crewFate(p, fatalityChance)
 				p:setRepairCrewCount(p:getRepairCrewCount() - 1)
 				if p:hasPlayerAtPosition("Engineering") then
 					local repairCrewFatality = "repairCrewFatality"
-					p:addCustomMessage("Engineering",repairCrewFatality,_("msgEngineer","One of your repair crew has perished"))
+					p:addCustomMessage("Engineering",repairCrewFatality,_("repairCrew-msgEngineer", "One of your repair crew has perished"))
 				end
 				if p:hasPlayerAtPosition("Engineering+") then
 					local repairCrewFatalityPlus = "repairCrewFatalityPlus"
-					p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("msgEngineer+","One of your repair crew has perished"))
+					p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+", "One of your repair crew has perished"))
 				end
 			elseif consequence == 2 then
 				local current_coolant = p:getMaxCoolant()
@@ -18902,53 +19175,53 @@ function crewFate(p, fatalityChance)
 				p.reclaimable_coolant = math.min(20,p.reclaimable_coolant + lost_coolant*random(.8,1))
 				if p:hasPlayerAtPosition("Engineering") then
 					local coolantLoss = "coolantLoss"
-					p:addCustomMessage("Engineering",coolantLoss,_("msgEngineer","Damage has caused a loss of coolant"))
+					p:addCustomMessage("Engineering",coolantLoss,_("coolant-msgEngineer", "Damage has caused a loss of coolant"))
 				end
 				if p:hasPlayerAtPosition("Engineering+") then
 					local coolantLossPlus = "coolantLossPlus"
-					p:addCustomMessage("Engineering+",coolantLossPlus,_("msgEngineer+","Damage has caused a loss of coolant"))
+					p:addCustomMessage("Engineering+",coolantLossPlus,_("coolant-msgEngineer+", "Damage has caused a loss of coolant"))
 				end
 			else
 				local named_consequence = consequence_list[consequence-2]
 				if named_consequence == "probe" then
 					p:setCanLaunchProbe(false)
 					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","probe_launch_damage_message",_("msgEngineer","The probe launch system has been damaged"))
+						p:addCustomMessage("Engineering","probe_launch_damage_message",_("damage-msgEngineer","The probe launch system has been damaged"))
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","probe_launch_damage_message_plus",_("msgEngineer+","The probe launch system has been damaged"))
+						p:addCustomMessage("Engineering+","probe_launch_damage_message_plus",_("damage-msgEngineer+","The probe launch system has been damaged"))
 					end
 				elseif named_consequence == "hack" then
 					p:setCanHack(false)
 					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","hack_damage_message",_("msgEngineer","The hacking system has been damaged"))
+						p:addCustomMessage("Engineering","hack_damage_message",_("damage-msgEngineer","The hacking system has been damaged"))
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","hack_damage_message_plus",_("msgEngineer+","The hacking system has been damaged"))
+						p:addCustomMessage("Engineering+","hack_damage_message_plus",_("damage-msgEngineer+","The hacking system has been damaged"))
 					end
 				elseif named_consequence == "scan" then
 					p:setCanScan(false)
 					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","scan_damage_message",_("msgEngineer","The scanners have been damaged"))
+						p:addCustomMessage("Engineering","scan_damage_message",_("damage-msgEngineer","The scanners have been damaged"))
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","scan_damage_message_plus",_("msgEngineer+","The scanners have been damaged"))
+						p:addCustomMessage("Engineering+","scan_damage_message_plus",_("damage-msgEngineer+","The scanners have been damaged"))
 					end
 				elseif named_consequence == "combat_maneuver" then
 					p:setCanCombatManeuver(false)
 					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","combat_maneuver_damage_message",_("msgEngineer","Combat maneuver has been damaged"))
+						p:addCustomMessage("Engineering","combat_maneuver_damage_message",_("damage-msgEngineer","Combat maneuver has been damaged"))
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus",_("msgEngineer+","Combat maneuver has been damaged"))
+						p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus",_("damage-msgEngineer+","Combat maneuver has been damaged"))
 					end
 				elseif named_consequence == "self_destruct" then
 					p:setCanSelfDestruct(false)
 					if p:hasPlayerAtPosition("Engineering") then
-						p:addCustomMessage("Engineering","self_destruct_damage_message",_("msgEngineer","Self destruct system has been damaged"))
+						p:addCustomMessage("Engineering","self_destruct_damage_message",_("damage-msgEngineer","Self destruct system has been damaged"))
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
-						p:addCustomMessage("Engineering+","self_destruct_damage_message_plus",_("msgEngineer+","Self destruct system has been damaged"))
+						p:addCustomMessage("Engineering+","self_destruct_damage_message_plus",_("damage-msgEngineer+","Self destruct system has been damaged"))
 					end
 				end
 			end	--coolant loss branch
@@ -18973,14 +19246,14 @@ function cargoInventory(delta)
 				if p:hasPlayerAtPosition("Relay") then
 					if p.inventoryButton == nil then
 						local tbi = "inventory" .. p:getCallSign()
-						p:addCustomButton("Relay",tbi,_("tabRelay","Inventory"),function() playerShipCargoInventory(p) end,2)
+						p:addCustomButton("Relay",tbi,_("inventory-buttonRelay", "Inventory"),function() playerShipCargoInventory(p) end,2)
 						p.inventoryButton = true
 					end
 				end
 				if p:hasPlayerAtPosition("Operations") then
 					if p.inventoryButton == nil then
 						local tbi = "inventoryOp" .. p:getCallSign()
-						p:addCustomButton("Operations",tbi,_("tabRelay","Inventory"),function() playerShipCargoInventory(p) end,2)
+						p:addCustomButton("Operations",tbi,_("inventory-buttonOperations", "Inventory"),function() playerShipCargoInventory(p) end,2)
 						p.inventoryButton = true
 					end
 				end
@@ -19122,7 +19395,7 @@ function update(delta)
 			if popupGMDebug == "once" then
 				popupGMDebug = "never"
 			end
-			addGMMessage("script error - \n"..error)
+			addGMMessage(_("stationReport-msgGM", "script error - \n")..error)
 		end
     end
 end
