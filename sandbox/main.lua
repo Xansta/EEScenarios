@@ -9583,6 +9583,59 @@ function filkRoadSector()
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-184991, -238907):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 4"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-285064, -392):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 
+
+	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-329691, -442387):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
+	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
+	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
+
+
+
+	westPoint = CpuShip():setTemplate("Defense platform"):setTypeName("Military Outpost"):setFaction("Human Navy"):setCallSign("West Point Military Outpost"):setPosition(-392998, -419877):setDescription("Ex-Exuari Military Outpost. Surrendered to Icarus Patrol on 01July2023."):setCommsScript(""):setCommsFunction(commsStation)
+	westPoint:setScannedByFaction("Human Navy",true):setShortRangeRadarRange(8000):orderRoaming():setHullMax(358):setHull(358):setRotationMaxSpeed(0.6):setShieldsMax(186.75, 186.75, 186.75, 186.75):setShields(186.75, 186.75, 186.75, 186.75):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("HVLI", 349):setWeaponStorage("HVLI", 324):setBeamWeapon(0, 8, 45, 2485, 1.7, 6.1):setBeamWeaponTurret(0, 80, 45, 0):setBeamWeapon(1, 8, 135, 2485, 1.7, 6.1):setBeamWeaponTurret(1, 80, 135, 0):setBeamWeapon(2, 8, 225, 2485, 1.7, 6.1):setBeamWeaponTurret(2, 80, 225, 0):setBeamWeapon(3, 8, 315, 2485, 1.7, 6.1):setBeamWeaponTurret(3, 80, 315, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0)
+	westPoint.comms_data = {
+		friendlyness = 77,
+		weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+		weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
+		weapon_available = 	{Homing = true,		HVLI = true,			Mine = true,			Nuke = true,				EMP = true},
+		service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+		system_repair = {
+			["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+			["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+			["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+			["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<30},
+			["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+			["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+			["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+			["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+			["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+		},
+		hack_repair =			random(1,100)<80,
+		scan_repair =			random(1,100)<80,
+		tube_slow_down_repair = random(1,100)<80,
+		sensor_boost = {value = 10000, cost = 20},
+		reputation_cost_multipliers = {friend = 1.0, neutral = 3.0},
+		max_weapon_refill_amount = {friend = 1.0, neutral = 1.0 },
+		goods = {	nickel = 	{quantity = math.random(1,10),	cost = math.random(60,70)},
+					dilithium =	{quantity = math.random(6,12),	cost = math.random(75,95)},
+				},
+		trade = {	food = true, medicine = random(1,100)<=13, luxury = false },
+		public_relations = true,
+		general_information = "A military outpost.",
+		history = "Originally constructed by Exuari as a base of operations, it was captured by Icarus Patrol on 01 July 2023.",
+		idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "WX-Lindworm",
+		},
+	}
+	westPoint:setRestocksScanProbes(random(1,100)<87)
+	westPoint:setRepairDocked(random(1,100)<76)
+	westPoint:setSharesEnergyWithDocked(random(1,100)<92)
+	table.insert(objects, westPoint)
+
+
+
+
 	-- spawned in Icarus region
 	-- table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
 	-- table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
@@ -9670,21 +9723,21 @@ function filkRoadSector()
 	-- wrecks of player ships
 	-- TBD: cool idea? we could put some interesting treasure on them as well.
 	table.insert(objects, CpuShip():setFaction("Independent"):setTemplate("Atlantis"):setTypeName("Triumph"):setPosition(-293975, -401175):setCallSign("Dominant's mangled remains"):setDescription("Resting place of Human Navy ship 'Endeavor', lost to Exuari by Icarus Patrol on 06May2023, despite overwhelming firepower."):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-294421, y=-401343}, 500, 1, 1, 1, 3, 5, 0, 1, 1, 30))
-	table.insert(objects, createSupplyDrop({x=-294265, y=-401604}, 600, 3, 2, 1, 2, 8, 0, 1, 1, 10))
+	table.insert(objects, createSupplyDrop({x=-294421, y=-401343}, 500, 1, 1, 1, 3, 5, 0, 1, 1, 30, 1))
+	table.insert(objects, createSupplyDrop({x=-294265, y=-401604}, 600, 3, 2, 1, 2, 8, 0, 1, 1, 10, 1))
 
 	table.insert(objects, CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Queen"):setTypeName("Ktlitan Brood Mother"):setPosition(-193130, -270975):setCallSign("Brood Mother corpse"):setDescription("Decaying body of a Ktlitan Brood Mother, slain by Icarus Patrol on 06May2023"):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-193040, y=-270157}, 500, 5, 1, 1, 1, 5, 0, 1, 2, 10))
-	table.insert(objects, createSupplyDrop({x=-193562, y=-270295}, 600, 3, 2, 3, 2, 8, 0, 1, 3, 40))
+	table.insert(objects, createSupplyDrop({x=-193040, y=-270157}, 500, 5, 1, 1, 1, 5, 0, 1, 2, 10, 1))
+	table.insert(objects, createSupplyDrop({x=-193562, y=-270295}, 600, 3, 2, 3, 2, 8, 0, 1, 3, 40, 1))
 
 	table.insert(objects, CpuShip():setFaction("Independent"):setTemplate("Atlantis"):setTypeName("Bermuda"):setPosition(-171549, -215552):setCallSign("Endeavor's resting place"):setDescription("What remains of Human Navy ship 'Endeavor', lost to Exuari by Icarus Patrol on 06May2023, due to general incompetence."):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-171617, y=-215971}, 200, 2, 1, 0, 1, 5, 0, 1, 2, 30))
-	table.insert(objects, createSupplyDrop({x=-171195, y=-215707}, 300, 3, 2, 3, 2, 8, 0, 1, 3, 40))
+	table.insert(objects, createSupplyDrop({x=-171617, y=-215971}, 200, 2, 1, 0, 1, 5, 0, 1, 2, 30, 1))
+	table.insert(objects, createSupplyDrop({x=-171195, y=-215707}, 300, 3, 2, 3, 2, 8, 0, 1, 3, 40, 1))
 
 	table.insert(objects, CpuShip():setFaction("Independent"):setTemplate("Hathcock"):setTypeName("Chavez"):setPosition(-42114, -67989):setCallSign("Wesson's wreckage"):setDescription("Remains of Human Navy ship 'Wesson', lost to Exuari by Icarus Patrol on 06May2023. She was a good ship, the crew - not so much."):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-41040, y=-67705}, 200, 2, 1, 0, 1, 5, 0, 2, 2, 20))
-	table.insert(objects, createSupplyDrop({x=-43081, y=-67487}, 300, 0, 0, 3, 0, 2, 0, 0, 2, 33))
-	table.insert(objects, createSupplyDrop({x=-39218, y=-67341}, 400, 0, 0, 2, 1, 5, 0, 2, 2, 15))
+	table.insert(objects, createSupplyDrop({x=-41040, y=-67705}, 200, 2, 1, 0, 1, 5, 0, 2, 2, 20, 1))
+	table.insert(objects, createSupplyDrop({x=-43081, y=-67487}, 300, 0, 0, 3, 0, 2, 0, 0, 2, 33, 1))
+	table.insert(objects, createSupplyDrop({x=-39218, y=-67341}, 400, 0, 0, 2, 1, 5, 0, 2, 2, 15, 1))
 
 	addGMMessage("[FilkRoad] starting objects, count=" .. #objects)
 
@@ -41089,8 +41142,10 @@ function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,c
 	if armour > 0 then
 		customSupplyDrop.armor = armour
 	end
-	if jump_charge > 0 then
-		customSupplyDrop.jump_charge = jump_charge
+	if jump_charge ~= nil then
+		if jump_charge > 0 then
+			customSupplyDrop.jump_charge = jump_charge
+		end
 	end
 	local supplyLabel = ""
 	local wordy_label = ""
