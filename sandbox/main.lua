@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.4.2"
+	scenario_version = "6.5.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -38073,7 +38073,29 @@ function attachAnythingToNPS()
 					local attach_target_x, attach_target_y = cpu_ship_list[3].ship:getPosition()
 					local relative_attach_x = pod_x - attach_target_x
 					local relative_attach_y = pod_y - attach_target_y
-					update_system:addAttachedUpdate(obj,cpu_ship_list[3],relative_attach_x,relative_attach_y)
+					update_system:addAttachedUpdate(obj,cpu_ship_list[3].ship,relative_attach_x,relative_attach_y)
+				end
+			end)
+		end
+		if #cpu_ship_list >= 4 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[4].ship:getCallSign()), function()
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[4].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[4].ship,relative_attach_x,relative_attach_y)
+				end
+			end)
+		end
+		if #cpu_ship_list >= 5 then
+			addGMFunction(string.format("Attach to %s",cpu_ship_list[5].ship:getCallSign()), function()
+				for _,obj in ipairs(object_list) do -- we need to rename these
+					local pod_x, pod_y = obj:getPosition()
+					local attach_target_x, attach_target_y = cpu_ship_list[5].ship:getPosition()
+					local relative_attach_x = pod_x - attach_target_x
+					local relative_attach_y = pod_y - attach_target_y
+					update_system:addAttachedUpdate(obj,cpu_ship_list[5].ship,relative_attach_x,relative_attach_y)
 				end
 			end)
 		end

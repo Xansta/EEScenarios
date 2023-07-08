@@ -1544,9 +1544,13 @@ function updateSystem:addAttachedUpdate(obj, attach_target, relative_attach_x, r
 		update = function (self,obj)
 			assert(type(self)=="table")
 			assert(type(obj)=="table")
-			if self.attach_target ~= nil and self.attach_target:isValid() then
-				local attach_x, attach_y = self.attach_target:getPosition()
-				obj:setPosition(attach_x+self.relative_attach_x,attach_y+self.relative_attach_y)
+			if self.attach_target ~= nil then
+				if self.attach_target:isValid() then
+					local attach_x, attach_y = self.attach_target:getPosition()
+					obj:setPosition(attach_x+self.relative_attach_x,attach_y+self.relative_attach_y)
+				else
+					update_system:removeUpdateNamed(obj,"attached")
+				end
 			else
 				update_system:removeUpdateNamed(obj,"attached")
 			end
