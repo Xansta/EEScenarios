@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.4.1"
+	scenario_version = "6.4.2"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -9566,7 +9566,6 @@ function filkRoadSector()
 		table.insert(objects, worm)
 	end
 
-
 	wormHGenCommsFunc = function()
 		setCommsMessage(_("station-comms", "THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."))
 	end
@@ -9583,15 +9582,14 @@ function filkRoadSector()
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-184991, -238907):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 4"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-285064, -392):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 
-
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-329691, -442387):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 
 
-
-	westPoint = CpuShip():setTemplate("Defense platform"):setTypeName("Military Outpost"):setFaction("Human Navy"):setCallSign("West Point Military Outpost"):setPosition(-392998, -419877):setDescription("Ex-Exuari Military Outpost. Surrendered to Icarus Patrol on 01July2023."):setCommsScript(""):setCommsFunction(commsStation)
-	westPoint:setScannedByFaction("Human Navy",true):setShortRangeRadarRange(8000):orderRoaming():setHullMax(358):setHull(358):setRotationMaxSpeed(0.6):setShieldsMax(186.75, 186.75, 186.75, 186.75):setShields(186.75, 186.75, 186.75, 186.75):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("HVLI", 349):setWeaponStorage("HVLI", 324):setBeamWeapon(0, 8, 45, 2485, 1.7, 6.1):setBeamWeaponTurret(0, 80, 45, 0):setBeamWeapon(1, 8, 135, 2485, 1.7, 6.1):setBeamWeaponTurret(1, 80, 135, 0):setBeamWeapon(2, 8, 225, 2485, 1.7, 6.1):setBeamWeaponTurret(2, 80, 225, 0):setBeamWeapon(3, 8, 315, 2485, 1.7, 6.1):setBeamWeaponTurret(3, 80, 315, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0)
+	westpoint = militaryOutpost("Human Navy")
+	westpoint:setCallSign("West Point"):setPosition(-392998, -419877):setDescription("Ex-Exuari Military Outpost. Surrendered to Icarus Patrol on 01July2023.")
+	westpoint:setScannedByFaction("Human Navy",true):orderRoaming()
 	westPoint.comms_data = {
 		friendlyness = 77,
 		weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -9632,9 +9630,6 @@ function filkRoadSector()
 	westPoint:setRepairDocked(random(1,100)<76)
 	westPoint:setSharesEnergyWithDocked(random(1,100)<92)
 	table.insert(objects, westPoint)
-
-
-
 
 	-- spawned in Icarus region
 	-- table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
@@ -49277,7 +49272,7 @@ function commsStation()
     }
     local temp_type = comms_target:getTypeName()
     local panic_range = 5000
-    if temp_type == nil then
+    if temp_type == nil or range_divisor[temp_type] == nil then
     	print("template name nil for:",comms_target:getCallSign(),"defaulting panic range to 5000")
     else
 	    panic_range = comms_target:getShortRangeRadarRange()/range_divisor[temp_type]	
