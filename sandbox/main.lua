@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.5.2"
+	scenario_version = "6.5.3"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1092,12 +1092,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Guinevere")	--J
-	makePlayerShipActive("Bling")		--J
+	makePlayerShipActive("George")		--J
+	makePlayerShipActive("Slingshot")	--J
 	makePlayerShipActive("Fist") 		--J 
-	makePlayerShipActive("Swoop")		--W
-	makePlayerShipActive("Ignite")		--W
-	makePlayerShipActive("Florentine") 	--W 
+	makePlayerShipActive("Rip")			--W
+	makePlayerShipActive("Jarvis")		--W
+	makePlayerShipActive("Farrah") 		--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -17973,21 +17973,24 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
---		if i == 4 then
---			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
---			tdp4Zone:setColor(0,128,0):setLabel("4")
---		elseif i == 2 then
---			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
---			tdp2Zone:setColor(0,128,0)
---		elseif i == 3 then
---			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
---			tdp3Zone:setColor(0,128,0)
---		else		
+		if i == 4 then
+			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
+			tdp4Zone:setColor(0,128,0):setLabel("4")
+		elseif i == 2 then
+			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
+			tdp2Zone:setColor(0,128,0):setLabel("2")
+		elseif i == 3 then
+			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
+			tdp3Zone:setColor(0,128,0):setLabel("3")
+		elseif i == 5 then
+			tdp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
+			tdp5Zone:setColor(0,128,0):setLabel("5")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(start_angle+17+j*6,8000)
 			local dm = Mine():setPosition(t_x+dpx,t_y+dpy)
@@ -18210,6 +18213,11 @@ function createTereshAsteroids()
 end
 function createTereshNebulae()
 	local nebula_list = {}
+	--	Kraylor dragged black hole and nebula close to Teresh 8Jul2023
+	table.insert(nebula_list,BlackHole():setPosition(799760, 104967))
+    table.insert(nebula_list,Nebula():setPosition(789277, 103983))
+    table.insert(nebula_list,Nebula():setPosition(792520, 112381))
+    table.insert(nebula_list,Nebula():setPosition(801334, 115541))
 	--	Northwest
     table.insert(nebula_list,Nebula():setPosition(707214, 27941))
     table.insert(nebula_list,Nebula():setPosition(704379, 42874))
@@ -18451,7 +18459,10 @@ function createTereshStations()
 	station_names[stationDelectobev:getCallSign()] = {stationDelectobev:getSectorName(), stationDelectobev}
 	table.insert(stations,stationDelectobev)
 	--	Dristan
-    stationDristan = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Dristan"):setPosition(723186, 65027):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local dristanZone = squareZone(723186, 65027, "Dristan 2 I41")
+	dristanZone:setColor(51,153,255):setLabel("D")
+	--[[
+    stationDristan = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Dristan 2"):setPosition(723186, 65027):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationDristan.comms_data = {
     	friendlyness = 57,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -18494,6 +18505,7 @@ function createTereshStations()
 	if random(1,100) <= 12 then stationDristan:setSharesEnergyWithDocked(false) end
 	station_names[stationDristan:getCallSign()] = {stationDristan:getSectorName(), stationDristan}
 	table.insert(stations,stationDristan)
+	--]]
 	--	Fractured Shaft
 	stationFracturedShaft = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Fractured Shaft"):setPosition(888612, -1885):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationFracturedShaft.comms_data = {
@@ -25364,8 +25376,8 @@ function createPlayerShipDevon()
 	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
 	--aka Devon or Farrah or Shannon
 	playerWombat:setTypeName("Wombat")
-	playerWombat:setHullMax(120)							--stronger hull (vs 75)
-	playerWombat:setHull(120)
+	playerWombat:setHullMax(140)							--stronger hull (vs 75)
+	playerWombat:setHull(140)
 	playerWombat:setShieldsMax(160, 120)					--stronger shields (vs 40)
 	playerWombat:setShields(160, 120)
 	playerWombat:setRepairCrewCount(4)						--more repair crew (vs 1)
@@ -26782,8 +26794,8 @@ end
 function createPlayerShipRip()
 	playerLurker = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rip")
 	playerLurker:setTypeName("Lurker")
-	playerLurker:setHullMax(100)						--stronger hull (vs 75)
-	playerLurker:setHull(100)
+	playerLurker:setHullMax(120)						--stronger hull (vs 75)
+	playerLurker:setHull(120)
 	playerLurker:setShieldsMax(100)						--stronger shield (vs 40)
 	playerLurker:setShields(100)
 	playerLurker:setRotationMaxSpeed(12)				--slower spin (vs 15)
