@@ -13,7 +13,7 @@
 require("utils.lua")
 
 function init()
-	scenario_version = "0.2.0"
+	scenario_version = "0.3.0"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -849,7 +849,7 @@ function missionStateDefend0r()
 		end
 	end
 	if Defend0r:isValid() then
-		if Schildgenerator == 2 and Serenity:getSystemHeat("FrontShield") > 0.9 and Serenity:getSystemHeat("RearShield") > 0.9 and distance(Serenity, Ghost_Station) < 4000 then
+		if Schildgenerator == 2 and Serenity:getSystemHeat("FrontShield") > 0.9 and Serenity:getSystemHeat("RearShield") > 0.9 and distance(Serenity, Ghost_Station) < 10000 then
 			Defend0r:sendCommsMessage(Serenity, _("-incCall", [[Well done! Now set the shield frequency to 720... Fast, we need to hurry!]]))
 			instructions = string.format(_("msgRelay","Destroy Ghost Station. Defend %s. Set shield frequency to 720"),defend0r_name)
 			Schildgenerator = 3
