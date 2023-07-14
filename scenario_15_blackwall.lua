@@ -1,7 +1,7 @@
 -- Name: The Black Wall
 -- Description: Fight the Ghosts behind the wall
 ---
---- [Requires beam/shield frequencies]
+--- One player ship which is spawned by the scenario. Requires beam/shield frequencies
 ---
 --- Author: Dyrian, Daid, Xansta, Muerte
 -- Type: Mission
@@ -13,6 +13,42 @@
 require("utils.lua")
 
 function init()
+	scenario_version = "0.0.1"
+	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
+	print(_VERSION)
+	constructEnvironment()
+    -- Create the main ship for the players.
+	Serenity=PlayerSpaceship():setFaction("Human Navy"):setTemplate("Player Cruiser"):setPosition(-30000,18500):setCallSign(_("callsign-ship","Serenity"))
+	allowNewPlayerShips(false)
+	local reputation_config = {
+		["Unknown"] = 		0,
+		["Nice"] = 			20,
+		["Hero"] = 			50,
+	}
+	Serenity:setReputationPoints(reputation_config[getScenarioSetting("Reputation")])
+	Reperaturwerft=SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setPosition(-30000,17000):setCallSign(_("callsign-station","Repair Station"))
+	Heimatbasis=SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(3000, 3000):setCallSign(_("callsign-station","Home Station"))
+	Wurmlochbasis=SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setPosition(-53000,-25000):setCallSign(_("callsign-station","Wormhole Station"))
+	Defend0r=CpuShip():setFaction("Human Navy"):setPosition(4000,6000):setCallSign("Defend0r II"):orderDefendTarget(Heimatbasis)
+	setShipToDreadnoughtII(Defend0r)
+
+-- savegamethings
+	Save_1=Asteroid():setPosition(-37500,12500)
+	Save_2=Asteroid():setPosition(-30000,7500)
+	Save_3=Asteroid():setPosition(-22500,12500)
+	
+	mytime = 0.0
+	Wurmlochmodifikation=0
+	Wurmlochrange=0
+	
+	ghost_station_spawned = false
+	battles_stations_destroyed = false
+	retreat_delay = false
+	defend0r_destroyed_message_sent = false
+	mission_state="Reperatur"
+end
+function constructEnvironment()
+	--	black holes, asteroids, nebulae, wormholes
 	-- Spawne Wurmloch von D1 in das Zentrum des Nebelfeldes
 	Wurmloch=WormHole():setPosition(-68123, -38987):setTargetPosition(33417, -61974)
 	
@@ -235,36 +271,6 @@ function init()
 		VisualAsteroid():setPosition((random(-7000,7000)-66800),(random(-7000,7000)-14000))
 		VisualAsteroid():setPosition((random(-7000,7000)-64800),(random(-7000,7000)-21100))
     end
-
-    -- Create the main ship for the players.
-	Serenity=PlayerSpaceship():setFaction("Human Navy"):setTemplate("Player Cruiser"):setPosition(-30000,18500):setCallSign("Serenity")
-	allowNewPlayerShips(false)
-	local reputation_config = {
-		["Unknown"] = 		0,
-		["Nice"] = 			20,
-		["Hero"] = 			50,
-	}
-	Serenity:setReputationPoints(reputation_config[getScenarioSetting("Reputation")])
-	Reperaturwerft=SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setPosition(-30000,17000):setCallSign("Repair Station")
-	Heimatbasis=SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(3000, 3000):setCallSign("Home Station")
-	Wurmlochbasis=SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setPosition(-53000,-25000):setCallSign("Wormhole Station")
-	Defend0r=CpuShip():setFaction("Human Navy"):setPosition(4000,6000):setCallSign("Defend0r II"):orderDefendTarget(Heimatbasis)
-	setShipToDreadnoughtII(Defend0r)
-
--- savegamethings
-	Save_1=Asteroid():setPosition(-37500,12500)
-	Save_2=Asteroid():setPosition(-30000,7500)
-	Save_3=Asteroid():setPosition(-22500,12500)
-	
-	mytime = 0.0
-	Wurmlochmodifikation=0
-	Wurmlochrange=0
-	
-	ghost_station_spawned = false
-	battles_stations_destroyed = false
-	retreat_delay = false
-	defend0r_destroyed_message_sent = false
-	mission_state="Reperatur"
 end
 function savegamefunction()
 	if distance(Serenity, Save_1) < 1000 then
@@ -278,7 +284,7 @@ function savegamefunction()
 	end
 	if distance(Serenity, Save_2) < 1000 then
 		globalMessage(_("msgMainscreen", "End fight"))
-		Mauerbasis=SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Wall Base"):setPosition(48837, -55467)
+		Mauerbasis=SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign(_("callsign-station","Wall Base")):setPosition(48837, -55467)
 		mission_state="Boom2"
 		Test_Drohne:destroy()
 		Ghost_spawn=5
@@ -389,15 +395,15 @@ function update(delta)
   			Wurmlochrange=1
   		end
   		if distance(Serenity, Wurmloch) < 1500 and Wurmlochrange ==1 then
-  			victory("Ghosts")
   			globalMessage(_("msgMainscreen", "Your ship is lost in the wormhole!"))
-  			Serenity:destroy()
+--			Serenity:destroy()
+  			victory("Ghosts")
   		end
 	end
 	if mission_state=="Reperatur" then
 		Reperaturwerft:sendCommsMessage(Serenity, _("orders-incCall", "Finally, the maintenance and repairs are complete!\nPay attention to your ship! Don't overstress your Reactor.\nBefore you receive new orders, you should do a field exercise.\nMove to Sector G3 and eliminate the hostile Drone.\nMay the stars guide you."))
 		instructions = _("msgRelay","Eliminate drone in G3")
-		Test_Drohne=setShipToCruiserDrone(CpuShip()):setFaction("Kraylor"):setPosition(-30000, 47000):setCallSign("Test Drone"):orderAttack(Serenity)
+		Test_Drohne=setShipToCruiserDrone(CpuShip()):setFaction("Kraylor"):setPosition(-30000, 47000):setCallSign(_("callsign-ship","Test Drone")):orderAttack(Serenity)
 		mission_state="Testlauf"
 	end
 	if mission_state=="Testlauf" then
@@ -421,9 +427,9 @@ function update(delta)
 			Wurmlochbasis:sendCommsMessage(Serenity, _("incCall", "Welcome here at the Wormhole Station!\nThanks for the deep-telemetry-telescope, the cargo has just been unloaded.\nHave a good stopover here.\nMay the stars. .. krrrrtzzzrtzrrrrzrrrrtz\nkkrrrrrtrrrrzzzzr have krrrrtz Interferenkrrrrzrce\nWormholekrr krrzzzzrzrz activated   krrrrzzzrzzzrzrzrzrzrz !!\nkrrzzz Ships krzzzrzzzrzz attack krzzzzzezrzz through Wormkrzzzrzrzzhole krrzzrzz!!!\nemergencykrzzzzzrzzprotocol Omega krzzrzzzzzrzz three initiatedkkrrkrtttkrkkrkkkzzzzkkrkkkzz\nOn krzzrzzrzzrzrz battlekrzzrzzzzzzrzzrzrzrzzrzstation !!!\nkrzzzzzzrzz\nkrzzzrzztz\n..."))
 			instructions = "krrrrtzzzrzzzrzrzrzrzrz"
 			-- Spawne Gegner vor dem Wurmloch, die quasi aus dem Wurmloch herausgesprungen sind ..
-			Ghost_Snake=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setPosition(-65123, -33987):setCallSign("Ghost Snake"):orderAttack(Serenity)
-			Ghost_Wolf=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setPosition(-64123, -34987):setCallSign("Ghost Wolf"):orderAttack(Serenity)
-			Ghost_Rat=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setPosition(-65123, -34987):setCallSign("Ghost Rat"):orderAttack(Serenity)
+			Ghost_Snake=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setPosition(-65123, -33987):setCallSign(_("callsign-ship","Ghost Snake")):orderAttack(Serenity)
+			Ghost_Wolf=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setPosition(-64123, -34987):setCallSign(_("callsign-ship","Ghost Wolf")):orderAttack(Serenity)
+			Ghost_Rat=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setPosition(-65123, -34987):setCallSign(_("callsign-ship","Ghost Rat")):orderAttack(Serenity)
 			mission_state="Wurmlochverteidigung"
 		end
 	end
@@ -453,26 +459,26 @@ function update(delta)
 	end
 	if mission_state=="Gestrandet" then
 		if Ghost_spawn==1 and distance(Serenity,Wurmlochtarget) < 5000 then
-			Ghost_Fly=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Fly"):setPosition(46382, -66891):orderAttack(Serenity)
-			Ghost_Horse=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Horse"):setPosition(43800, -58599):orderAttack(Serenity)
-			Ghost_Donkey=CpuShip():setTemplate("Fighter"):setFaction("Ghosts"):setCallSign("Ghost Donkey"):setPosition(36137, -46657):orderAttack(Serenity)
+			Ghost_Fly=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Fly")):setPosition(46382, -66891):orderAttack(Serenity)
+			Ghost_Horse=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Horse")):setPosition(43800, -58599):orderAttack(Serenity)
+			Ghost_Donkey=CpuShip():setTemplate("Fighter"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Donkey")):setPosition(36137, -46657):orderAttack(Serenity)
 			-- eventuell noch ne Abfrage machen ob man die Schilde anhatte, dann halt nur weniger dmg bekommen
 			globalMessage(_("msgMainscreen", "Massive damage to all systems!"))
 			Wurmlochbasis:sendCommsMessage(Serenity,_("incCall", "Massive damage to all systems! Jump drive fault!\nGet yourself ready for battle!. We have located other power signatures in the nebula!"))
 			instructions = _("msgRelay","Scout attack source. Watch for enemy ambush")
 			Serenity:setJumpDrive(false)
-			Serenity:setSystemHealth("Impulse", -1)
-			Serenity:setSystemHealth("Maneuver", -0.6)
-			Serenity:setSystemHealth("Reactor", -0.1)
-			Serenity:setSystemHealth("RearShield", 0.5)
-			Serenity:setSystemHealth("FrontShield", 0.8)
-			Serenity:setSystemHealth("BeamWeapons", 0.9)
-			Serenity:setSystemHeat("Impulse", 1)
-			Serenity:setSystemHeat("Maneuver", 0.9)
-			Serenity:setSystemHeat("Reactor", 0.8)
-			Serenity:setSystemHeat("MissileSystem", 1)
-			Serenity:setSystemHeat("RearShield", 0.5)
-			Serenity:setSystemHeat("FrontShield", 0.4)
+			Serenity:setSystemHealth("Impulse", random(-1,-.8))
+			Serenity:setSystemHealth("Maneuver", random(-.5,-.7))
+			Serenity:setSystemHealth("Reactor", random(-.2,-.05))
+			Serenity:setSystemHealth("RearShield", random(.4,.6))
+			Serenity:setSystemHealth("FrontShield", random(.7,.9))
+			Serenity:setSystemHealth("BeamWeapons", random(.8,.95))
+			Serenity:setSystemHeat("Impulse", random(.8,1))
+			Serenity:setSystemHeat("Maneuver", random(.8,.95))
+			Serenity:setSystemHeat("Reactor", random(.7,.9))
+			Serenity:setSystemHeat("MissileSystem", random(.8,1))
+			Serenity:setSystemHeat("RearShield", random(.4,.6))
+			Serenity:setSystemHeat("FrontShield", random(.3,.5))
 			Ghost_spawn=2
 		end
 		if Ghost_spawn==2 and not Ghost_Fly:isValid() and not Ghost_Horse:isValid() and not Ghost_Donkey:isValid() then --and not Ghost_Sheep:isValid() then
@@ -482,7 +488,7 @@ function update(delta)
 	if mission_state=="Überlebt" then
 		Heimatbasis:sendCommsMessage(Serenity, _("orders-incCall", "You are still alive! Good job Serenity!\nThe attacks of the Ghosts seems to come from behind the black wall. We dont know anything about the black wall and the things that lay behind it. We need to find a way to get behind the wall.\nWe constructed a small station near the wall. It provides a base and a research post for the black wall. Our scientists need probes from the wall. Scout the wall and find the probes placed near the wall.\nNew orders, Serenity: 'Gather two Probes from the black wall and get them to the 'Wall base'. Beware of the Ghosts. They might still be out in the Nebula\nMay the stars guide you."))
 		instructions = _("msgRelay","Locate black wall probes and return them to Wall Base. Watch for Ghosts")
-		Mauerbasis=SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Wall base"):setPosition(48837, -55467)
+		Mauerbasis=SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign(_("callsign-station","Wall base")):setPosition(48837, -55467)
 		Defend0r:orderDefendTarget(Mauerbasis)
 		Probe_1=SupplyDrop():setFaction("Human Navy"):setPosition(51744, -75433):setCommsFunction(commsBlackWallProbe):setDescriptions(_("scienceDescription-wallProbe","Black wall scan probe"),_("scienceDescription-wallProbe","Black wall scan probe: scan data stored in probe memory")):setScanningParameters(1,1)
         Probe_2=SupplyDrop():setFaction("Human Navy"):setPosition(37100, -85410):setCommsFunction(commsBlackWallProbe):setDescriptions(_("scienceDescription-wallProbe","Black wall scan probe"),_("scienceDescription-wallProbe","Black wall scan probe: scan data stored in probe memory")):setScanningParameters(1,1)
@@ -494,8 +500,8 @@ function update(delta)
 			if Ghost_spawn==3 then
 				Mauerbasis:sendCommsMessage(Serenity, _("orders-incCall", "Well done, we need one more Probe..."))
 				instructions = _("msgRelay","Locate remaining black wall probe. Return probes to Wall Base. Watch for Ghosts")
-				setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Bat"):setPosition(32300, -76400):orderAttack(Serenity)
-				setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Lamb"):setPosition(32400, -75800):orderAttack(Serenity)
+				setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Bat")):setPosition(32300, -76400):orderAttack(Serenity)
+				setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Lamb")):setPosition(32400, -75800):orderAttack(Serenity)
 				Ghost_spawn=4
 			end
 		end
@@ -548,31 +554,31 @@ function update(delta)
 		Mauerbasis:sendCommsMessage(Serenity, _("-incCall", "It worked! A big part of the wall collapsed. Now we can get an impression of the Ghost Station out in the Nebula.\nOur subspace deep scanner managed to isolate some strong energy signatures in sectors ZZ8 or ZZ9. It seems like the Ghost Attack base is out there.\nYour goal is to destroy the Ghost Station. We sent the Defend0r and some more forces to assist.\nYour order is: 'Destroy the Ghost Station'\nMay the stars guide you."))
 		instructions = _("msgRelay","Find and destroy Ghost Station near ZZ8 or ZZ9")
 
-		Ghost_Station=SpaceStation():setTemplate("Large Station"):setFaction("Ghosts"):setCallSign("Ghost Station"):setPosition(80040,-125444)
-		BattleStation_Links=setShipToWeaponsPlatformII(CpuShip()):setFaction("Ghosts"):setCallSign("BattleStation Links"):setPosition(74370,-124100):orderRoaming()
-		BattleStation_Rechts=setShipToWeaponsPlatformII(CpuShip()):setFaction("Ghosts"):setCallSign("BattleStation Rechts"):setPosition(82560,-119700):orderRoaming()
+		Ghost_Station=SpaceStation():setTemplate("Large Station"):setFaction("Ghosts"):setCallSign(_("callsign-station","Ghost Station")):setPosition(80040,-125444)
+		BattleStation_Links=setShipToWeaponsPlatformII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","BattleStation Links")):setPosition(74370,-124100):orderRoaming()
+		BattleStation_Rechts=setShipToWeaponsPlatformII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","BattleStation Rechts")):setPosition(82560,-119700):orderRoaming()
 	
-		Ghost_Shark=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Shark"):setPosition(78747, -129559):orderDefendTarget(Ghost_Station)
-		Ghost_Croco=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Croco"):setPosition(83593, -127820):orderDefendTarget(Ghost_Station)
-		Ghost_Lion=CpuShip():setTemplate("Cruiser"):setFaction("Ghosts"):setCallSign("Ghost Lion"):setPosition(69580, -119856):orderDefendLocation(69580, -119856)
-		Ghost_Ele=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Ele"):setPosition(73000,-115500):orderDefendLocation(73000,-115500)
-		Ghost_Ant=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Ant"):setPosition(83546, -114698):orderDefendLocation(83546, -114698)
-		Ghost_Ape=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Ape"):setPosition(77100,-113700):orderDefendLocation(77100,-113700)
+		Ghost_Shark=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Shark")):setPosition(78747, -129559):orderDefendTarget(Ghost_Station)
+		Ghost_Croco=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Croco")):setPosition(83593, -127820):orderDefendTarget(Ghost_Station)
+		Ghost_Lion=CpuShip():setTemplate("Cruiser"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Lion")):setPosition(69580, -119856):orderDefendLocation(69580, -119856)
+		Ghost_Ele=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Ele")):setPosition(73000,-115500):orderDefendLocation(73000,-115500)
+		Ghost_Ant=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Ant")):setPosition(83546, -114698):orderDefendLocation(83546, -114698)
+		Ghost_Ape=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Ape")):setPosition(77100,-113700):orderDefendLocation(77100,-113700)
 	
-		Ghost_Bee=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Bee"):setPosition(58246, -98445):orderDefendLocation(58246, -98445)
-		Ghost_Cat=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Cat"):setPosition(64631, -92350):orderDefendLocation(64631, -92350)
-		Ghost_Dog=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign("Ghost Dog"):setPosition(71139, -88665):orderDefendLocation(71139, -88665)
+		Ghost_Bee=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Bee")):setPosition(58246, -98445):orderDefendLocation(58246, -98445)
+		Ghost_Cat=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Cat")):setPosition(64631, -92350):orderDefendLocation(64631, -92350)
+		Ghost_Dog=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Dog")):setPosition(71139, -88665):orderDefendLocation(71139, -88665)
 	
 		Defend0r:orderFlyFormation(Serenity, -500, 2500)
 		local defend_numbers = {}
 		for i=11,99 do
 			table.insert(defend_numbers,i)
 		end
-		setShipToFighterII(CpuShip()):setFaction("Human Navy"):setCallSign(string.format("Defend %s",tableRemoveRandom(defend_numbers))):setPosition(47646, -57097):orderFlyFormation(Defend0r, -750, 1000):setScanState("simplescan")
-		CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format("Defend %s",tableRemoveRandom(defend_numbers))):setPosition(48348, -56731):orderFlyFormation(Serenity, -750, 1000):setScanState("simplescan")
-		CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format("Defend %s",tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, -750, -1000):setScanState("simplescan")
-		setShipToFighterII(CpuShip()):setFaction("Human Navy"):setCallSign(string.format("Defend %s",tableRemoveRandom(defend_numbers))):setPosition(47356, -56151):orderFlyFormation(Defend0r, -750, -1000):setScanState("simplescan")
-		CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format("Defend %s",tableRemoveRandom(defend_numbers))):setPosition(48119, -55754):orderFlyFormation(Serenity, -1000, -2000):setScanState("simplescan")
+		setShipToFighterII(CpuShip()):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47646, -57097):orderFlyFormation(Defend0r, -750, 1000):setScanState("simplescan")
+		CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(48348, -56731):orderFlyFormation(Serenity, -750, 1000):setScanState("simplescan")
+		CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, -750, -1000):setScanState("simplescan")
+		setShipToFighterII(CpuShip()):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47356, -56151):orderFlyFormation(Defend0r, -750, -1000):setScanState("simplescan")
+		CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(48119, -55754):orderFlyFormation(Serenity, -1000, -2000):setScanState("simplescan")
 		ghost_station_spawned = true
 		mission_state="Endkampf"
 	end
