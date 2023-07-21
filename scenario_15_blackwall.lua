@@ -13,7 +13,7 @@
 require("utils.lua")
 
 function init()
-	scenario_version = "0.4.0"
+	scenario_version = "0.5.0"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -344,12 +344,11 @@ function commsShipFriendly(comms_source, comms_target)
             else
                 setCommsMessage(_("commsShipAssist", "Which waypoint should we defend?"))
                 for n = 1, comms_source:getWaypointCount() do
-                    addCommsReply(
-                        string.format(_("commsShipAssist", "Defend %s"), formatWaypoint(n)),
+                    addCommsReply(string.format(_("commsShipAssist","Defend WP %d"),n),
                         function(comms_source, comms_target)
                             x, y = comms_source:getWaypoint(n)
                             comms_target:orderDefendLocation(x, y)
-                            setCommsMessage(string.format(_("commsShipAssist", "We are heading to assist at %s."), formatWaypoint(n)))
+                            setCommsMessage(string.format(_("commsShipAssist","We are heading to assist at WP %d"),n))
                             addCommsReply(_("button", "Back"), commsShip)
                         end
                     )
