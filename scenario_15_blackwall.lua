@@ -13,7 +13,7 @@
 require("utils.lua")
 
 function init()
-	scenario_version = "0.3.0"
+	scenario_version = "0.4.0"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -340,7 +340,7 @@ function commsShipFriendly(comms_source, comms_target)
         function(comms_source, comms_target)
             if comms_source:getWaypointCount() == 0 then
                 setCommsMessage(_("commsShipAssist", "No waypoints set. Please set a waypoint first."))
-                addCommsReply(_("button", "Back"), commsShipMainMenu)
+                addCommsReply(_("button", "Back"), commsShip)
             else
                 setCommsMessage(_("commsShipAssist", "Which waypoint should we defend?"))
                 for n = 1, comms_source:getWaypointCount() do
@@ -350,7 +350,7 @@ function commsShipFriendly(comms_source, comms_target)
                             x, y = comms_source:getWaypoint(n)
                             comms_target:orderDefendLocation(x, y)
                             setCommsMessage(string.format(_("commsShipAssist", "We are heading to assist at %s."), formatWaypoint(n)))
-                            addCommsReply(_("button", "Back"), commsShipMainMenu)
+                            addCommsReply(_("button", "Back"), commsShip)
                         end
                     )
                 end
@@ -363,7 +363,7 @@ function commsShipFriendly(comms_source, comms_target)
             function(comms_source, comms_target)
                 setCommsMessage(_("commsShipAssist", "Heading toward you to assist."))
                 comms_target:orderDefendTarget(comms_source)
-                addCommsReply(_("button", "Back"), commsShipMainMenu)
+                addCommsReply(_("button", "Back"), commsShip)
             end
         )
     end
@@ -371,7 +371,7 @@ function commsShipFriendly(comms_source, comms_target)
         _("commsShipAssist", "Report status"),
         function(comms_source, comms_target)
             setCommsMessage(getStatusReport(comms_target))
-            addCommsReply(_("button", "Back"), commsShipMainMenu)
+            addCommsReply(_("button", "Back"), commsShip)
         end
     )
     local dock_obj = nil
@@ -382,7 +382,7 @@ function commsShipFriendly(comms_source, comms_target)
                 function(comms_source, comms_target)
                     setCommsMessage(string.format(_("commsShipAssist", "Docking at %s."), obj:getCallSign()))
                     comms_target:orderDock(obj)
-                    addCommsReply(_("button", "Back"), commsShipMainMenu)
+                    addCommsReply(_("button", "Back"), commsShip)
                 end
             )
         end
@@ -396,7 +396,7 @@ function commsShipFriendly(comms_source, comms_target)
 			addCommsReply(string.format(_("commsShipAssist","Dock at %s"),comms_source:getCallSign()), function()
 				setCommsMessage(string.format(_("commsShipAssist","Docking at %s"),comms_source:getCallSign()))
 				comms_target:orderDock(comms_source)
-				addCommsReply(_("button", "Back"), commsShipMainMenu)
+				addCommsReply(_("button", "Back"), commsShip)
 			end)
 		end
 	end
