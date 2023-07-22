@@ -83,6 +83,50 @@ function atlantisY42(enemyFaction)
 	end
 	return ship		
 end
+function cruiserdrone(enemyFaction)
+	--courtesy of Black Wall scenario
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Cruiser")
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	local cruiserdrone_key = _("scienceDB","Cruiser Drone")
+	ship:setTypeName(cruiserdrone_key)
+	ship:setHullMax(80):setHull(80)					--	stronger (vs 70)
+	ship:setShieldsMax(60, 60):setShields(60, 60)	--	stronger (vs 40,40)
+	ship:setImpulseMaxSpeed(70)						--	faster (vs 60)
+	ship:setRotationMaxSpeed(15)					--	faster spin (vs 6)
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local cruiser_key = _("scienceDB","Cruiser")
+	local cruiserdrone_db = queryScienceDatabase(ships_key,frigate_key,cruiserdrone_key)
+	if cruiserdrone_db == nil then
+		local ships_db = queryScienceDatabase(ships_key)
+		if ships_db == nil then
+			ships_db = ScienceDatabase():setName(ships_key)
+			ships_db = queryScienceDatabase(ships_key)
+		end
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
+		if frigate_db == nil then
+			frigate_db = ships_db:addEntry(frigate_key)
+			frigate_db = queryScienceDatabase(ships_key,frigate_key)
+		end
+		frigate_db:addEntry(cruiserdrone_key)
+		cruiserdrone_db = queryScienceDatabase(ships_key,frigate_key,cruiserdrone_key)
+		addShipToDatabase(
+			queryScienceDatabase(ships_key,frigate_key,cruiser_key),	--base ship database entry
+			cruiserdrone_db,	--modified ship database entry
+			ship,				--ship just created, long description on the next line
+			_("scienceDB","A standard cruiser modifed for target practice purposes: stronger hull and shields, faster impulse and better maneuverability. Some of these may have slipped out of the automated manufacturing facility to be refurbished for actual militia use."),
+			nil,	--tube info
+			nil,	--jump
+			"small_frigate_4"
+		)
+	end
+	return ship
+end
 function cucaracha(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug")
 	ship:onTakingDamage(function(self,instigator)
@@ -120,6 +164,57 @@ function cucaracha(enemyFaction)
 				"space_tug"
 			)
 		end
+	end
+	return ship
+end
+function dreadnought2(enemyFaction)
+	--courtesy of Black Wall scenario
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Dreadnought")
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	local dreadnought2_key = _("scienceDB","Dreadnought II")
+	ship:setTypeName(dreadnought2_key)
+	ship:setHullMax(200):setHull(200)				--stronger (vs 70)
+	ship:setShieldsMax(100, 100, 100, 100, 100)		--weaker (vs 300x5)
+	ship:setImpulseMaxSpeed(90)						--faster (vs 30)
+	ship:setRotationMaxSpeed(4)						--faster (vs 1.5)
+	ship:setWeaponTubeCount(1)						--more (vs 0)
+	ship:setTubeLoadTime(0, 15)
+	ship:setWeaponStorageMax("Homing", 8):setWeaponStorage("Homing", 8)
+	local ships_key = _("scienceDB","Ships")
+	local dreadnought_class_key = _("scienceDB","Dreadnought")
+	local dreadnought_ship_key = _("scienceDB","Dreadnought")
+	local dreadnought2_db = queryScienceDatabase(ships_key,dreadnought_class_key,dreadnought2_key)
+	if dreadnought2_db == nil then
+		local ships_db = queryScienceDatabase(ships_key)
+		if ships_db == nil then
+			ships_db = ScienceDatabase():setName(ships_key)
+			ships_db = queryScienceDatabase(ships_key)
+		end
+		local dreadnought_class_db = queryScienceDatabase(ships_key,dreadnought_class_key)
+		if dreadnought_class_db == nil then
+			dreadnought_class_db = ships_db:addEntry(dreadnought_class_key)
+			dreadnought_class_db = queryScienceDatabase(ships_key,dreadnought_class_key)
+		end
+		dreadnought_class_db:addEntry(dreadnought2_key)
+		dreadnought2_db = queryScienceDatabase(ships_key,dreadnought_class_key,dreadnought2_key)
+		local tube_key = _("scienceDB","Tube 0")
+		local load_val = _("scienceDB","15 sec")
+		addShipToDatabase(
+			queryScienceDatabase(ships_key,dreadnought_class_key,dreadnought_ship_key),	--base ship database entry
+			dreadnought2_db,	--modified ship database entry
+			ship,				--ship just created, long description on the next line
+			_("scienceDB","A modified Dreadnought: stronger hull, weaker shields, ~3x faster impulse and turn speeds. A tube that shoots homing missiles has been added.\n\nDon't forget to thank your science database librarian for making this information available. She likes cookies."),
+			{
+				{key = tube_key, value = load_val},	--torpedo tube direction and load speed
+			},
+			nil,	--jump
+			"battleship_destroyer_1_upgraded"
+		)
 	end
 	return ship
 end
@@ -511,6 +606,57 @@ function farco13(enemyFaction)
 	end
 	return ship
 end
+function fighter2(enemyFaction)
+	--courtesy of Black Wall scenario
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Fighter")
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	local fighter2_key = _("scienceDB","Fighter II")
+	ship:setTypeName(fighter2_key)
+	ship:setBeamWeapon(0, 60, 0, 1000.0, 4.0, 6)	--more damage (vs 4)
+	ship:setHullMax(60):setHull(60)					--stronger hull (vs 30)
+	ship:setShieldsMax(50):setShields(50)			--stronger shields (vs 30)
+	ship:setImpulseMaxSpeed(100)					--slower impulse (vs 120)
+	ship:setWeaponTubeCount(1)						--more tubes (vs 0)
+	ship:setTubeLoadTime(0, 8)
+	ship:setWeaponStorageMax("Homing", 2):setWeaponStorage("Homing", 2)
+	local ships_key = _("scienceDB","Ships")
+	local starfighter_key = _("scienceDB","Starfighter")
+	local fighter_key = _("scienceDB","Fighter")
+	local fighter2_db = queryScienceDatabase(ships_key,starfighter_key,fighter2_key)
+	if fighter2_db == nil then
+		local ships_db = queryScienceDatabase(ships_key)
+		if ships_db == nil then
+			ships_db = ScienceDatabase():setName(ships_key)
+			ships_db = queryScienceDatabase(ships_key)
+		end
+		local starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
+		if starfighter_db == nil then
+			starfighter_db = ships_db:addEntry(starfighter_key)
+			starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
+		end
+		starfighter_db:addEntry(fighter2_key)
+		fighter2_db = queryScienceDatabase(ships_key,starfighter_key,fighter2_key)
+		local tube_key = _("scienceDB","Tube 0")
+		local load_val = _("scienceDB","8 sec")
+		addShipToDatabase(
+			queryScienceDatabase(ships_key,starfighter_key,fighter_key),	--base ship database entry
+			fighter2_db,	--modified ship database entry
+			ship,				--ship just created, long description on the next line
+			_("scienceDB","Fighters are quick, agile ships that do not do a lot of damage, but usually come in larger groups. They are easy to take out, but should not be underestimated. The Fighter II is a more powerful version with stronger beams, hull and shields and an added homing missile tube. All those additions make it a bit slower, though.\n\nGive your science database librarian a big smile. She works hard for you."),
+			{
+				{key = tube_key, value = load_val},		--torpedo tube direction and load speed
+			},
+			nil,	--jump
+			"small_fighter_1"
+		)
+	end
+	return ship
+end
 function gnat(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone")
 	ship:setTypeName("Gnat")
@@ -538,6 +684,92 @@ function gnat(enemyFaction)
 				nil,	--misc key value pairs
 				nil,	--jump range
 				"sci_fi_alien_ship_4"
+			)
+		end
+	end
+	return ship
+end
+function gunship2(enemyFaction)
+	--courtesy of Black Wall scenario
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adv. Gunship")
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	local gunship2_key = _("scienceDB","Gunship II")
+	ship:setTypeName(gunship2_key)
+	ship:setBeamWeapon(0, 50,-15, 1000.0, 6.0, 10)	--more damage (vs 8)
+	ship:setBeamWeapon(1, 50, 15, 1000.0, 6.0, 10)
+	ship:setHullMax(90):setHull(90)					--weaker hull (vs 100)
+	local ships_key = _("scienceDB","Ships")
+	local frigate_key = _("scienceDB","Frigate")
+	local adv_gunship_key = _("scienceDB","Adv. Gunship")
+	local gunship2_db = queryScienceDatabase(ships_key,frigate_key,gunship2_key)
+	if gunship2_db == nil then
+		local ships_db = queryScienceDatabase(ships_key)
+		if ships_db == nil then
+			ships_db = ScienceDatabase():setName(ships_key)
+			ships_db = queryScienceDatabase(ships_key)
+		end
+		local frigate_db = queryScienceDatabase(ships_key,frigate_key)
+		if frigate_db == nil then
+			frigate_db = ships_db:addEntry(frigate_key)
+			frigate_db = queryScienceDatabase(ships_key,frigate_key)
+		end
+		frigate_db:addEntry(gunship2_key)
+		gunship2_db = queryScienceDatabase(ships_key,frigate_key,gunship2_key)
+		local tube_key = _("scienceDB","Tube 0")
+		local tube2_key = _("scienceDB"," Tube 0")
+		local load_val = _("scienceDB","8 sec")
+		addShipToDatabase(
+			queryScienceDatabase(ships_key,frigate_key,adv_gunship_key),	--base ship database entry
+			gunship2_db,	--modified ship database entry
+			ship,				--ship just created, long description on the next line
+			_("scienceDB","The advanced gunship is a ship equiped with 2 homing missiles to do initial damage and then take out the enemy with 2 front firing beams. It's designed to quickly take out the enemies weaker then itself. Version II has stronger beams, but a weaker hull.\n\nDon't forget to tip your science database librarian."),
+			{
+				{key = tube_key, value = load_val},		--torpedo tube direction and load speed
+				{key = tube2_key, value = load_val},	--torpedo tube direction and load speed
+			},
+			nil,	--jump
+			"battleship_destroyer_4_upgraded"
+		)
+	end
+	return ship
+end
+function hornetFX64(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet")
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	ship:setTypeName("FX64 Hornet")
+	ship:setBeamWeapon(0, 15, 0, 1500.0, 4.0, 6.0)	--longer and stronger beam (vs 700 & 2)
+	ship:setRotationMaxSpeed(43)					--faster maneuver (vs 30)
+	ship:setImpulseMaxSpeed(180)					--faster impulse (vs 120)
+	ship:setHullMax(20)								--weaker hull (vs 30)
+	ship:setHull(20)
+	local ships_key = _("scienceDB","Ships")
+	local starfighter_key = _("scienceDB","Starfighter")
+	local fx64_hornet_key = _("scienceDB","FX64 Hornet")
+	local hornet_key = _("scienceDB","MT52 Hornet")
+	local hornet_fx64_db = queryScienceDatabase(ships_key,starfighter_key,fx64_hornet_key)
+	if hornet_fx64_db == nil then
+		local starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
+		if starfighter_db ~= nil then	--added for translation issues
+			starfighter_db:addEntry(fx64_hornet_key)
+			hornet_fx64_db = queryScienceDatabase(ships_key,starfighter_key,fx64_hornet_key)
+			addShipToDatabase(
+				queryScienceDatabase(ships_key,starfighter_key,hornet_key),	--base ship database entry
+				hornet_fx64_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				_("scienceDB","The FX64 Hornet is somewhat similar to the MT52 and MU52 models. The beam is longer, narrower and does more damage than both of the other Hornet models. It's max impulse speed and turn speed is faster than both of the other Hornet models. It's hull is weaker"),
+				nil,	--misc key value pairs
+				nil,	--jump
+				"WespeScoutYellow"
 			)
 		end
 	end
@@ -605,43 +837,6 @@ function hornetMV52(enemyFaction)
 				hornet_mv52_db,	--modified ship database entry
 				ship,			--ship just created, long description on the next line
 				_("scienceDB","The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52"),
-				nil,	--misc key value pairs
-				nil,	--jump
-				"WespeScoutYellow"
-			)
-		end
-	end
-	return ship
-end
-function hornetFX64(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet")
-	ship:onTakingDamage(function(self,instigator)
-		string.format("")	--serious proton needs a global context
-		if instigator ~= nil then
-			self.damage_instigator = instigator
-		end
-	end)
-	ship:setTypeName("FX64 Hornet")
-	ship:setBeamWeapon(0, 15, 0, 1500.0, 4.0, 6.0)	--longer and stronger beam (vs 700 & 2)
-	ship:setRotationMaxSpeed(43)					--faster maneuver (vs 30)
-	ship:setImpulseMaxSpeed(180)					--faster impulse (vs 120)
-	ship:setHullMax(20)								--weaker hull (vs 30)
-	ship:setHull(20)
-	local ships_key = _("scienceDB","Ships")
-	local starfighter_key = _("scienceDB","Starfighter")
-	local fx64_hornet_key = _("scienceDB","FX64 Hornet")
-	local hornet_key = _("scienceDB","MT52 Hornet")
-	local hornet_fx64_db = queryScienceDatabase(ships_key,starfighter_key,fx64_hornet_key)
-	if hornet_fx64_db == nil then
-		local starfighter_db = queryScienceDatabase(ships_key,starfighter_key)
-		if starfighter_db ~= nil then	--added for translation issues
-			starfighter_db:addEntry(fx64_hornet_key)
-			hornet_fx64_db = queryScienceDatabase(ships_key,starfighter_key,fx64_hornet_key)
-			addShipToDatabase(
-				queryScienceDatabase(ships_key,starfighter_key,hornet_key),	--base ship database entry
-				hornet_fx64_db,	--modified ship database entry
-				ship,			--ship just created, long description on the next line
-				_("scienceDB","The FX64 Hornet is somewhat similar to the MT52 and MU52 models. The beam is longer, narrower and does more damage than both of the other Hornet models. It's max impulse speed and turn speed is faster than both of the other Hornet models. It's hull is weaker"),
 				nil,	--misc key value pairs
 				nil,	--jump
 				"WespeScoutYellow"
@@ -1389,6 +1584,53 @@ function waddle5(enemyFaction)
 	end
 	return ship
 end
+function weaponsplatform2(enemyFaction)
+	--courtesy of Black Wall scenario
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Weapons platform")
+	ship:onTakingDamage(function(self,instigator)
+		string.format("")	--serious proton needs a global context
+		if instigator ~= nil then
+			self.damage_instigator = instigator
+		end
+	end)
+	local platform2_key = _("scienceDB","Weapons platform II")
+	ship:setTypeName(platform2_key)
+	ship:setBeamWeapon(0, 30,   0, 4000.0, 3.5, 10)	--slower cycle (vs 1.5), less damage (vs 20)
+	ship:setBeamWeapon(1, 30,  60, 4000.0, 3.5, 10)
+	ship:setBeamWeapon(2, 30, 120, 4000.0, 3.5, 10)
+	ship:setBeamWeapon(3, 30, 180, 4000.0, 3.5, 10)
+	ship:setBeamWeapon(4, 30, 240, 4000.0, 3.5, 10)
+	ship:setBeamWeapon(5, 30, 300, 4000.0, 3.5, 10)
+	ship:setHullMax(170):setHull(170)				--stronger hull (vs 70)
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local platform_key = _("scienceDB","Weapons platform")
+	local platform2_db = queryScienceDatabase(ships_key,no_class_key,platform2_key)
+	if platform2_db == nil then
+		local ships_db = queryScienceDatabase(ships_key)
+		if ships_db == nil then
+			ships_db = ScienceDatabase():setName(ships_key)
+			ships_db = queryScienceDatabase(ships_key)
+		end
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
+		if no_class_db == nil then
+			no_class_db = ships_db:addEntry(no_class_key)
+			no_class_db = queryScienceDatabase(ships_key,no_class_key)
+		end
+		no_class_db:addEntry(platform2_key)
+		platform2_db = queryScienceDatabase(ships_key,no_class_key,platform2_key)
+		addShipToDatabase(
+			queryScienceDatabase(ships_key,no_class_key,platform_key),	--base ship database entry
+			platform2_db,	--modified ship database entry
+			ship,				--ship just created, long description on the next line
+			_("scienceDB","The weapons-platform is a stationary platform with beam-weapons. It's extremely slow to turn, but it's beam weapons do a huge amount of damage. The weapons platform II is a modification of this design with a stronger hull, but slower and weaker beams.\n\nDid you know it's hug your science database librarian day?"),
+			nil,	--tube info
+			nil,	--jump
+			"space_cruiser_4"
+		)
+	end
+	return ship
+end
 function whirlwind(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm")
 	ship:onTakingDamage(function(self,instigator)
@@ -1715,6 +1957,7 @@ function addFreighter(freighter_type,ship)
 	end
 end
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
+	max_repeat_loop = 300
 	modified_db:setLongDescription(description)
 	if base_db ~= nil then
 		modified_db:setImage(base_db:getImage())
@@ -1771,6 +2014,7 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 	if ship:getBeamWeaponRange(0) > 0 then
 		local bi = 0
 		local count_repeat_loop = 0
+		local no_more_beams = false
 		repeat
 			local beam_direction = ship:getBeamWeaponDirection(bi)
 			if beam_direction > 315 and beam_direction < 360 then
@@ -1783,7 +2027,13 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 			modified_db:setKeyValue(key,string.format(_("scienceDB","%.1f Dmg / %.1f sec"),ship:getBeamWeaponDamage(bi),ship:getBeamWeaponCycleTime(bi)))
 			bi = bi + 1
 			count_repeat_loop = count_repeat_loop + 1
-		until(ship:getBeamWeaponRange(bi) < 1 or count_repeat_loop > max_repeat_loop)
+			no_more_beams = false
+			if ship:getBeamWeaponRange(bi) == nil then
+				no_more_beams = true
+			elseif ship:getBeamWeaponRange(bi) < 1 then
+				no_more_beams = true				
+			end
+		until(no_more_beams or count_repeat_loop > max_repeat_loop)
 		if count_repeat_loop > max_repeat_loop then
 			print("repeated too many times when going through beams")
 		end

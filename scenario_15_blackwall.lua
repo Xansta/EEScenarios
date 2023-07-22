@@ -11,9 +11,10 @@
 -- Reputation[Hero]: 50 reputation - you've helped important people or lots of people
 
 require("utils.lua")
+require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.5.0"
+	scenario_version = "0.6.0"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -31,14 +32,9 @@ function init()
 	Heimatbasis=SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(3000, 3000):setCallSign(_("callsign-station","Home Station"))
 	Wurmlochbasis=SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setPosition(-53000,-25000):setCallSign(_("callsign-station","Wormhole Station"))
 	defend0r_name = _("callsign-ship","Defend0r II")
-	Defend0r=CpuShip():setFaction("Human Navy"):setPosition(4000,6000):setCallSign(defend0r_name):orderDefendTarget(Heimatbasis):setCommsScript(""):setCommsFunction(commsShip)
+	Defend0r = dreadnought2("Human Navy")
+	Defend0r:setPosition(4000,6000):setCallSign(defend0r_name):orderDefendTarget(Heimatbasis):setCommsScript(""):setCommsFunction(commsShip)
 	Defend0r.mission_order = {order="defend",target=Heimatbasis}
-	setShipToDreadnoughtII(Defend0r)
-
--- savegamethings
-	Save_1=Asteroid():setPosition(-37500,12500)
-	Save_2=Asteroid():setPosition(-30000,7500)
-	Save_3=Asteroid():setPosition(-22500,12500)
 	
 	Wurmlochmodifikation=0
 	Wurmlochrange=0
@@ -547,77 +543,11 @@ function setShipToBeamRS(ship)
 	ship:setWeaponStorageMax("Nuke", 4)
 	ship:setWeaponStorageMax("EMP", 6)
 end
---Conversion function to convert a CpuShip into a different version specially for this scenario
-function setShipToDreadnoughtII(ship)
-	ship:setTemplate("Dreadnought")
-	ship:setTypeName("Dreadnought II")
-	ship:setHullMax(200):setHull(200)				--stronger (vs 70)
-	ship:setShieldsMax(100, 100, 100, 100, 100)		--weaker (vs 300x5)
-	ship:setImpulseMaxSpeed(90)						--faster (vs 30)
-	ship:setRotationMaxSpeed(4)						--faster (vs 1.5)
-	ship:setWeaponTubeCount(1)						--more (vs 0)
-	ship:setTubeLoadTime(0, 15)
-	ship:setWeaponStorageMax("Homing", 8):setWeaponStorage("Homing", 8)
-	return ship
-end
-function setShipToWeaponsPlatformII(ship)
-	ship:setTemplate("Weapons platform")
-	ship:setTypeName("Weapons platform II")
-	ship:setBeamWeapon(0, 30,   0, 4000.0, 3.5, 10)	--slower cycle (vs 1.5), less damage (vs 20)
-	ship:setBeamWeapon(1, 30,  60, 4000.0, 3.5, 10)
-	ship:setBeamWeapon(2, 30, 120, 4000.0, 3.5, 10)
-	ship:setBeamWeapon(3, 30, 180, 4000.0, 3.5, 10)
-	ship:setBeamWeapon(4, 30, 240, 4000.0, 3.5, 10)
-	ship:setBeamWeapon(5, 30, 300, 4000.0, 3.5, 10)
-	ship:setHullMax(170):setHull(170)				--stronger hull (vs 70)
-	return ship
-end
-function setShipToDreadnoughtIII(ship)
-	ship:setTemplate("Dreadnought")
-	ship:setTypeName("Dreadnought III")
-	ship:setHullMax(100):setHull(100)			--stronger (vs 70)
-	ship:setShieldsMax(100, 100, 100, 100, 100)	--weaker (vs 300x5)
-	ship:setImpulseMaxSpeed(40)					--faster (vs 30)
-	ship:setRotationMaxSpeed(3)					--faster (vs 1.5)
-	ship:setWeaponTubeCount(1)					--more (vs 0)
-	ship:setTubeLoadTime(0, 15)
-	ship:setWeaponStorageMax("Homing", 8):setWeaponStorage("Homing", 8)
-	return ship
-end
-function setShipToGunshipII(ship)
-	ship:setTemplate("Adv. Gunship")
-	ship:setTypeName("Gunship II")
-	ship:setBeamWeapon(0, 50,-15, 1000.0, 6.0, 10)	--more damage (vs 8)
-	ship:setBeamWeapon(1, 50, 15, 1000.0, 6.0, 10)
-	ship:setHullMax(90):setHull(90)					--weaker hull (vs 100)
-	return ship
-end
-function setShipToFighterII(ship)
-	ship:setTemplate("Fighter")
-	ship:setTypeName("Fighter II")
-	ship:setBeamWeapon(0, 60, 0, 1000.0, 4.0, 6)	--more damage (vs 4)
-	ship:setHullMax(60):setHull(60)					--stronger hull (vs 30)
-	ship:setShieldsMax(50):setShields(50)			--stronger shields (vs 30)
-	ship:setImpulseMaxSpeed(100)					--slower impulse (vs 120)
-	ship:setWeaponTubeCount(1)						--more tubes (vs 0)
-	ship:setTubeLoadTime(0, 8)
-	ship:setWeaponStorageMax("Homing", 2):setWeaponStorage("Homing", 2)
-	return ship
-end
-function setShipToCruiserDrone(ship)
-	ship:setTemplate("Cruiser")
-	ship:setTypeName("Cruiser_Drone")
-	ship:setHullMax(80):setHull(80)
-	ship:setShieldsMax(60, 60):setShields(60, 60)
-	ship:setImpulseMaxSpeed(70)
-	ship:setRotationMaxSpeed(15)
-	return ship
-end
 --	Update loop related functions
 function missionStateReperatur()
 	Reperaturwerft:sendCommsMessage(Serenity, _("orders-incCall", "Finally, the maintenance and repairs are complete!\nPay attention to your ship! Don't overstress your Reactor.\nBefore you receive new orders, you should do a field exercise.\nMove to Sector G3 and eliminate the hostile Drone.\nMay the stars guide you."))
 	instructions = _("msgRelay","Eliminate drone in G3")
-	Test_Drohne=setShipToCruiserDrone(CpuShip()):setFaction("Kraylor"):setPosition(-30000, 47000):setCallSign(_("callsign-ship","Test Drone")):orderAttack(Serenity)
+	Test_Drohne = cruiserdrone("Kraylor"):setPosition(-30000, 47000):setCallSign(_("callsign-ship","Test Drone")):orderAttack(Serenity)
 	missionStatePlotLine = missionStateTestlauf
 end
 function missionStateTestlauf()
@@ -639,9 +569,10 @@ function missionStateTransportmission()
 		Wurmlochbasis:sendCommsMessage(Serenity, _("incCall", "Welcome here at the Wormhole Station!\nThanks for the deep-telemetry-telescope, the cargo has just been unloaded.\nHave a good stopover here.\nMay the stars. .. krrrrtzzzrtzrrrrzrrrrtz\nkkrrrrrtrrrrzzzzr have krrrrtz Interferenkrrrrzrce\nWormholekrr krrzzzzrzrz activated   krrrrzzzrzzzrzrzrzrzrz !!\nkrrzzz Ships krzzzrzzzrzz attack krzzzzzezrzz through Wormkrzzzrzrzzhole krrzzrzz!!!\nemergencykrzzzzzrzzprotocol Omega krzzrzzzzzrzz three initiatedkkrrkrtttkrkkrkkkzzzzkkrkkkzz\nOn krzzrzzrzzrzrz battlekrzzrzzzzzzrzzrzrzrzzrzstation !!!\nkrzzzzzzrzz\nkrzzzrzztz\n..."))
 		instructions = "krrrrtzzzrzzzrzrzrzrzrz"
 		-- Spawne Gegner vor dem Wurmloch, die quasi aus dem Wurmloch herausgesprungen sind ..
-		Ghost_Snake=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setPosition(-65123, -33987):setCallSign(_("callsign-ship","Ghost Snake")):orderAttack(Serenity)
-		Ghost_Wolf=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setPosition(-64123, -34987):setCallSign(_("callsign-ship","Ghost Wolf")):orderAttack(Serenity)
-		Ghost_Rat=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setPosition(-65123, -34987):setCallSign(_("callsign-ship","Ghost Rat")):orderAttack(Serenity)
+		Ghost_Snake = fighter2("Ghosts"):setPosition(-65123, -33987):setCallSign(_("callsign-ship","Ghost Snake")):orderAttack(Serenity)
+		Ghost_Wolf = gunship2("Ghosts")
+		Ghost_Wolf:setPosition(-64123, -34987):setCallSign(_("callsign-ship","Ghost Wolf")):orderAttack(Serenity)
+		Ghost_Rat = fighter2("Ghosts"):setPosition(-65123, -34987):setCallSign(_("callsign-ship","Ghost Rat")):orderAttack(Serenity)
 		missionStatePlotLine = missionStateWurmlochverteidigung
 	end
 end
@@ -671,8 +602,8 @@ function missionStateDurchsWurmloch()
 end
 function missionStateGestrandet()
 	if Ghost_spawn==1 and distance(Serenity,Wurmlochtarget) < 5000 then
-		Ghost_Fly=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Fly")):setPosition(46382, -66891):orderAttack(Serenity)
-		Ghost_Horse=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Horse")):setPosition(43800, -58599):orderAttack(Serenity)
+		Ghost_Fly = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Fly")):setPosition(46382, -66891):orderAttack(Serenity)
+		Ghost_Horse = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Horse")):setPosition(43800, -58599):orderAttack(Serenity)
 		Ghost_Donkey=CpuShip():setTemplate("Fighter"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Donkey")):setPosition(36137, -46657):orderAttack(Serenity)
 		-- eventuell noch ne Abfrage machen ob man die Schilde anhatte, dann halt nur weniger dmg bekommen
 		globalMessage(_("msgMainscreen", "Massive damage to all systems!"))
@@ -713,8 +644,10 @@ function missionStateSchwarzeMauer()
 		if Ghost_spawn==3 then
 			Mauerbasis:sendCommsMessage(Serenity, _("orders-incCall", "Well done, we need one more Probe..."))
 			instructions = _("msgRelay","Locate remaining black wall probe. Return probes to Wall Base. Watch for Ghosts")
-			setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Bat")):setPosition(32300, -76400):orderAttack(Serenity)
-			setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Lamb")):setPosition(32400, -75800):orderAttack(Serenity)
+			local ship = gunship2("Ghosts")
+			ship:setCallSign(_("callsign-ship","Ghost Bat")):setPosition(32300, -76400):orderAttack(Serenity)
+			ship = gunship2("Ghosts")
+			ship:setCallSign(_("callsign-ship","Ghost Lamb")):setPosition(32400, -75800):orderAttack(Serenity)
 			Ghost_spawn=4
 		end
 	end
@@ -768,19 +701,22 @@ function missionStateBoom2()
 	instructions = _("msgRelay","Find and destroy Ghost Station near ZZ8 or ZZ9")
 
 	Ghost_Station=SpaceStation():setTemplate("Large Station"):setFaction("Ghosts"):setCallSign(_("callsign-station","Ghost Station")):setPosition(80040,-125444)
-	BattleStation_Links=setShipToWeaponsPlatformII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","BattleStation Links")):setPosition(74370,-124100):orderRoaming()
-	BattleStation_Rechts=setShipToWeaponsPlatformII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","BattleStation Rechts")):setPosition(82560,-119700):orderRoaming()
+	BattleStation_Links = weaponsplatform2("Ghosts")
+	BattleStation_Links:setCallSign(_("callsign-ship","BattleStation Links")):setPosition(74370,-124100):orderRoaming()
+	BattleStation_Rechts = weaponsplatform2("Ghosts")
+	BattleStation_Rechts:setCallSign(_("callsign-ship","BattleStation Rechts")):setPosition(82560,-119700):orderRoaming()
 
-	Ghost_Shark=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Shark")):setPosition(78747, -129559):orderDefendTarget(Ghost_Station)
-	Ghost_Croco=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Croco")):setPosition(83593, -127820):orderDefendTarget(Ghost_Station)
+	Ghost_Shark = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Shark")):setPosition(78747, -129559):orderDefendTarget(Ghost_Station)
+	Ghost_Croco = gunship2("Ghosts")
+	Ghost_Croco:setCallSign(_("callsign-ship","Ghost Croco")):setPosition(83593, -127820):orderDefendTarget(Ghost_Station)
 	Ghost_Lion=CpuShip():setTemplate("Cruiser"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Lion")):setPosition(69580, -119856):orderDefendLocation(69580, -119856)
-	Ghost_Ele=setShipToGunshipII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Ele")):setPosition(73000,-115500):orderDefendLocation(73000,-115500)
-	Ghost_Ant=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Ant")):setPosition(83546, -114698):orderDefendLocation(83546, -114698)
-	Ghost_Ape=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Ape")):setPosition(77100,-113700):orderDefendLocation(77100,-113700)
+	Ghost_Ele = gunship2("Ghosts"):setCallSign(_("callsign-ship","Ghost Ele")):setPosition(73000,-115500):orderDefendLocation(73000,-115500)
+	Ghost_Ant = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Ant")):setPosition(83546, -114698):orderDefendLocation(83546, -114698)
+	Ghost_Ape = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Ape")):setPosition(77100,-113700):orderDefendLocation(77100,-113700)
 
-	Ghost_Bee=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Bee")):setPosition(58246, -98445):orderDefendLocation(58246, -98445)
-	Ghost_Cat=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Cat")):setPosition(64631, -92350):orderDefendLocation(64631, -92350)
-	Ghost_Dog=setShipToFighterII(CpuShip()):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Dog")):setPosition(71139, -88665):orderDefendLocation(71139, -88665)
+	Ghost_Bee = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Bee")):setPosition(58246, -98445):orderDefendLocation(58246, -98445)
+	Ghost_Cat = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Cat")):setPosition(64631, -92350):orderDefendLocation(64631, -92350)
+	Ghost_Dog = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Dog")):setPosition(71139, -88665):orderDefendLocation(71139, -88665)
 
 	Defend0r:orderFlyFormation(Serenity, -500, 2500)
 	Defend0r.mission_order = {order="formation",target=Serenity,x=-500,y=2500}
@@ -788,13 +724,13 @@ function missionStateBoom2()
 	for i=11,99 do
 		table.insert(defend_numbers,i)
 	end
-	local ship = setShipToFighterII(CpuShip()):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47646, -57097):orderFlyFormation(Defend0r, -750, 1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
+	local ship = fighter2("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47646, -57097):orderFlyFormation(Defend0r, -750, 1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Defend0r,x=-750,y=1000}
 	ship = CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(48348, -56731):orderFlyFormation(Serenity, -750, 1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Serenity,x=-750,y=1000}	
 	ship = CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, -750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Serenity,x=-750,y=-1000}	
-	ship = setShipToFighterII(CpuShip()):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47356, -56151):orderFlyFormation(Defend0r, -750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
+	ship = fighter2("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47356, -56151):orderFlyFormation(Defend0r, -750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Defend0r,x=-750,y=-1000}	
 	ship = CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, 750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Serenity,x=750,y=-1000}	
@@ -955,7 +891,9 @@ function update(delta)
   			victory("Ghosts")
   		end
 	end
-	missionStatePlotLine()	--main mission plot handler
+	if missionStatePlotLine ~= nil then
+		missionStatePlotLine()	--main mission plot handler
+	end
 	if ghost_station_spawned then
 		if Ghost_Station ~= nil and Ghost_Station:isValid() then
 			if win_condition_diagnostic then
