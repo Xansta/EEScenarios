@@ -14,7 +14,7 @@ require("utils.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.6.0"
+	scenario_version = "0.6.1"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -741,7 +741,7 @@ function missionStateBoom2()
 end
 function missionStateEndkampf()
 	if distance(Serenity, Ghost_Station) < 21000 then
-		Mauerbasis:sendCommsMessage(Serenity, string.format(_("-incCall", "Serenity, we received new information about the Battlestations observed by %s near the Ghost Station.\nIt seems they are connected to the main Ghost Station through a c35-subspace-connection. If we manage to destroy the main Ghost Station, then the Battlestations will also explode.\nOne more thing: The %s carries a special high explosive charge which she can attach to the Ghost Station with a Dropship. But the %s must get very close to the Station.\nSerenity, your order is: 'Support the %s in any way. Draw the fire and protect the %s at all costs!'\nMay the stars guide you."),defend0r_name,defend0r_name,defend0r_name,defend0r_name,defend0r_name))
+		Mauerbasis:sendCommsMessage(Serenity, string.format(_("-incCall", "Serenity, we received new information about the Battlestations near the Ghost Station.\nIt seems they are connected to the main Ghost Station through a c35-subspace-connection. If we manage to destroy the main Ghost Station, then the Battlestations will also explode.\nOne more thing: The %s carries a special high explosive charge which she can attach to the Ghost Station with a Dropship. But the %s must get very close to the Station.\nSerenity, your order is: 'Support and protect the %s in any way, draw the enemy's fire if necessary!'\nMay the stars guide you."),defend0r_name,defend0r_name,defend0r_name))
 		instructions = string.format(_("msgRelay","Destroy Ghost Station. Defend %s"),defend0r_name)
 		Defend0r:orderFlyTowardsBlind(80040,-125444)
 		Defend0r.mission_order = {order="blind",x=80040,y=-125444}
