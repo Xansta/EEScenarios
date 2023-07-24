@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.5.4"
+	scenario_version = "6.5.5"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1094,7 +1094,7 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("George")		--J
 	makePlayerShipActive("Slingshot")	--J
-	makePlayerShipActive("Fist") 		--J 
+	makePlayerShipActive("Endeavor") 	--J 
 	makePlayerShipActive("Rip")			--W
 	makePlayerShipActive("Jarvis")		--W
 	makePlayerShipActive("Farrah") 		--W 
@@ -10266,13 +10266,19 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 1 and not mirrorUniverse then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
---			dp1Zone:setColor(0,128,0):setLabel("1")
---		elseif i == 6 and not mirrorUniverse then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
---		else		
+		if i == 1 and not mirrorUniverse then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 6 and not mirrorUniverse then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
+		elseif i == 2 and not mirrorUniverse then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
+		elseif i == 5 and not mirrorUniverse then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
+			dp5Zone:setColor(0,128,0):setLabel("5")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -10280,7 +10286,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -11120,7 +11126,7 @@ function createIcarusStations()
 	station_names[stationGatarbleax:getCallSign()] = {stationGatarbleax:getSectorName(), stationGatarbleax}
 	table.insert(stations,stationGatarbleax)
 	--Kitpik
-	stationKiptik = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Kiptik"):setPosition(-29279, 233358):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKiptik = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Kiptik 2"):setPosition(-29279, 233358):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		-- it seems a shame to not use a few stations like this
 		-- as such its being removed until / unless someone can think of a good use
@@ -25458,6 +25464,7 @@ function createPlayerShipEndeavor()
 	playerEndeavor:setBeamWeaponEnergyPerFire(1,playerEndeavor:getBeamWeaponEnergyPerFire(1)*3)		--triple power use
 	playerEndeavor:setBeamWeaponHeatPerFire(1,playerEndeavor:getBeamWeaponHeatPerFire(1)*3)			--triple heat
 	playerEndeavor:setWeaponTubeCount(3)					--fewer (vs 5)
+	playerEndeavor:setWeaponTubeDirection(1,  90)
 	playerEndeavor:setWeaponTubeDirection(2, 180)
 	playerEndeavor:setWeaponTubeExclusiveFor(2,"Mine")
 	playerEndeavor:onTakingDamage(playerShipDamage)
