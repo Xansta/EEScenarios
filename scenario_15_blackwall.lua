@@ -14,7 +14,7 @@ require("utils.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.6.1"
+	scenario_version = "0.6.2"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -328,7 +328,7 @@ function commsShipFriendly(comms_source, comms_target)
 				--Defend0r.mission_order = {order="idle"}
     			comms_target:orderIdle()
     		end
-    		setCommsMessage("Following mission orders.")
+    		setCommsMessage(_("commsShipAssist","Following mission orders."))
     	end)
     end
     addCommsReply(
