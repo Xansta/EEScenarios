@@ -2020,7 +2020,15 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 			if beam_direction > 315 and beam_direction < 360 then
 				beam_direction = beam_direction - 360
 			end
-			key = string.format(_("scienceDB","Beam weapon %.1f:%.1f"),ship:getBeamWeaponDirection(bi),ship:getBeamWeaponArc(bi))
+			local beam_dir = string.format("%.1f",ship:getBeamWeaponDirection(bi))
+			if ship:getBeamWeaponDirection(bi) % 1 == 0 then
+				beam_dir = string.format("%i",ship:getBeamWeaponDirection(bi))
+			end
+			local beam_arc = string.format("%.1f",ship:getBeamWeaponArc(bi))
+			if ship:getBeamWeaponArc(bi) % 1 == 0 then
+				beam_arc = string.format("%i",ship:getBeamWeaponArc(bi))
+			end
+			key = string.format(_("scienceDB","Beam weapon %s:%s"),beam_dir,beam_arc)
 			while(modified_db:getKeyValue(key) ~= "") do
 				key = " " .. key
 			end
