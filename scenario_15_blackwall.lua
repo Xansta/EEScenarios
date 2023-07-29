@@ -14,7 +14,7 @@ require("utils.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.6.2"
+	scenario_version = "0.7.0"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -705,6 +705,9 @@ function missionStateBoom2()
 	BattleStation_Links:setCallSign(_("callsign-ship","BattleStation Links")):setPosition(74370,-124100):orderRoaming()
 	BattleStation_Rechts = weaponsplatform2("Ghosts")
 	BattleStation_Rechts:setCallSign(_("callsign-ship","BattleStation Rechts")):setPosition(82560,-119700):orderRoaming()
+	BattleStation_Schlerp = weaponsplatform2("Ghosts")
+	BattleStation_Schlerp:setCallSign(_("callsign-ship","BattleStation Schlerp")):setPosition(81301, -127377):orderRoaming()
+
 
 	Ghost_Shark = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Shark")):setPosition(78747, -129559):orderDefendTarget(Ghost_Station)
 	Ghost_Croco = gunship2("Ghosts")
@@ -745,6 +748,7 @@ function missionStateEndkampf()
 		instructions = string.format(_("msgRelay","Destroy Ghost Station. Defend %s"),defend0r_name)
 		Defend0r:orderFlyTowardsBlind(80040,-125444)
 		Defend0r.mission_order = {order="blind",x=80040,y=-125444}
+		Defend0r:setImpulseMaxSpeed(250)
 		Schildgenerator=1
 		missionStatePlotLine = missionStateDefend0r
 	end
@@ -754,6 +758,7 @@ function missionStateDefend0r()
 		if Schildgenerator==1 and distance(Defend0r, Ghost_Station) < 3500 then
 			Defend0r:orderIdle()
 			Defend0r.mission_order = {order="idle"}
+			Defend0r:setImpulseMaxSpeed(90)
 			Defend0r:sendCommsMessage(Serenity, _("-incCall", "Serenity, we are now in range for launching the Dropship, but the shields of the Ghost base are too strong. You need to help us lowering the shields. If we use our own shield generators and generate interference, we may manage to collapse the Shields of the Ghost Station.\nFirst of all overheat your front and rear-shields"))
 			instructions = string.format(_("msgRelay","Destroy Ghost Station. Defend %s. Overheat shields"),defend0r_name)
 			if Ghost_Shark:isValid() then
@@ -907,6 +912,10 @@ function update(delta)
 			if BattleStation_Rechts ~= nil and BattleStation_Rechts:isValid() then
 				ExplosionEffect():setPosition(BattleStation_Rechts:getPosition()):setSize(3000):setOnRadar(true)
 				BattleStation_Rechts:destroy()
+			end
+			if BattleStation_Schlerp ~= nil and BattleStation_Schlerp:isValid() then
+				ExplosionEffect():setPosition(BattleStation_Schlerp:getPosition()):setSize(3000):setOnRadar(true)
+				BattleStation_Schlerp:destroy()
 			end
 			if not battles_stations_destroyed then
 				Mauerbasis:sendCommsMessage(Serenity, _("-incCall", "Well done Serenity! You destroyed the ememy's main station.\nThe attack of the ghosts has been thwarted.\nThe remaining Ghosts will probably retreat now."))
