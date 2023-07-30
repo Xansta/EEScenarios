@@ -14,7 +14,7 @@ require("utils.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.7.0"
+	scenario_version = "0.7.1"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -322,7 +322,7 @@ function commsShipFriendly(comms_source, comms_target)
     		elseif comms_target.mission_order.order == "blind" then
 				--Defend0r:orderFlyTowardsBlind(80040,-125444)
 				--Defend0r.mission_order = {order="blind",x=80040,y=-125444}
-    			comms_target:orderFlytowardsBlind(comms_target.mission_order.x,comms_target.mission_order.y)
+    			comms_target:orderFlyTowardsBlind(comms_target.mission_order.x,comms_target.mission_order.y)
     		elseif comms_target.mission_order.order == "idle" then
 				--Defend0r:orderIdle()
 				--Defend0r.mission_order = {order="idle"}
@@ -396,6 +396,29 @@ function commsShipFriendly(comms_source, comms_target)
 		end
 	end
     return true
+end
+function getStatusReport(ship)
+    local msg = string.format(_("commsShipAssist", "Hull: %d%%\n"), math.floor(ship:getHull() / ship:getHullMax() * 100))
+
+    local shields = ship:getShieldCount()
+    if shields == 1 then
+        msg = msg .. string.format(_("commsShipAssist", "Shield: %d%%\n"), math.floor(ship:getShieldLevel(0) / ship:getShieldMax(0) * 100))
+    elseif shields == 2 then
+        msg = msg .. string.format(_("commsShipAssist", "Front Shield: %d%%\n"), math.floor(ship:getShieldLevel(0) / ship:getShieldMax(0) * 100))
+        msg = msg .. string.format(_("commsShipAssist", "Rear Shield: %d%%\n"), math.floor(ship:getShieldLevel(1) / ship:getShieldMax(1) * 100))
+    else
+        for n = 0, shields - 1 do
+            msg = msg .. string.format(_("commsShipAssist", "Shield %d: %d%%\n"), n, math.floor(ship:getShieldLevel(n) / ship:getShieldMax(n) * 100))
+        end
+    end
+	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
+    for i, missile_type in ipairs(missile_types) do
+        if ship:getWeaponStorageMax(missile_type) > 0 then
+            msg = msg .. string.format(_("commsShipAssist", "%s Missiles: %d/%d\n"), missile_type, math.floor(ship:getWeaponStorage(missile_type)), math.floor(ship:getWeaponStorageMax(missile_type)))
+        end
+    end
+
+    return msg
 end
 
 --Communication function for supply drop ships. Does not allow for much interaction.
