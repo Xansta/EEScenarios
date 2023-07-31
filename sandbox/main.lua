@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.5.5"
+	scenario_version = "6.6.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1093,10 +1093,10 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("George")		--J
-	makePlayerShipActive("Slingshot")	--J
+	makePlayerShipActive("Mixer")		--J
 	makePlayerShipActive("Endeavor") 	--J 
 	makePlayerShipActive("Rip")			--W
-	makePlayerShipActive("Jarvis")		--W
+	makePlayerShipActive("Rocinante")	--W
 	makePlayerShipActive("Farrah") 		--W 
 
 	active_player_ship = true
@@ -8201,7 +8201,10 @@ function santaContainment()
 	-- statis stations
 	local commsFun = function ()
 		setCommsMessage("This is an automated stasis bubble generator \n You have permission to contact the operator of this station")
-		addCommsReply("Contact operator",function () commsSwitchToGM() end)
+		addCommsReply("Contact operator",function() 
+			setCommsMessage("Stand by while connecting")
+			commsSwitchToGM() 
+		end)
 		commsSwitchToGM()
 		return true
 	end
@@ -10266,19 +10269,19 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 1 and not mirrorUniverse then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
-			dp1Zone:setColor(0,128,0):setLabel("1")
-		elseif i == 6 and not mirrorUniverse then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
-		elseif i == 2 and not mirrorUniverse then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
-		elseif i == 5 and not mirrorUniverse then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
-			dp5Zone:setColor(0,128,0):setLabel("5")
-		else		
+--		if i == 1 and not mirrorUniverse then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+--			dp1Zone:setColor(0,128,0):setLabel("1")
+--		elseif i == 6 and not mirrorUniverse then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+--			dp6Zone:setColor(0,128,0):setLabel("6")
+--		elseif i == 2 and not mirrorUniverse then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
+--		elseif i == 5 and not mirrorUniverse then
+--			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
+--			dp5Zone:setColor(0,128,0):setLabel("5")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -10286,7 +10289,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -21207,6 +21210,7 @@ function riptideBinarySector()
 	psamtikStationComms = function(comms_source, comms_target) 
 		setCommsMessage("---------------------")
 		addCommsReply("Contact",function()
+			setCommsMessage("Stand by while connecting")
 			commsSwitchToGM()
 			addGMMessage(string.format("Player ship %s in %s initiating contact to GM on %s station %s in %s.\nPrompt was %s %s", comms_source:getCallSign(), comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 			addCommsReply("Back", commsStation)
@@ -21834,6 +21838,7 @@ end
 function SwitchToGM ()
     setCommsMessage(" ")
     addCommsReply("hail",function()
+    	setCommsMessage("Stand by while connecting")
  		commsSwitchToGM()
     end)
     commsSwitchToGM()
@@ -47513,6 +47518,7 @@ function friendlyComms(comms_data)
 	local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
 	local gm_name = gm_ship_names[math.random(1,#gm_ship_names)]
 	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+		setCommsMessage(string.format("Connecting to %s",gm_name))
 		commsSwitchToGM()
 		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on friendly %s ship %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 		addCommsReply("Back", commsShip)
@@ -48334,6 +48340,7 @@ function neutralComms(comms_data)
 		local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
 		local gm_name = gm_ship_names[math.random(1,#gm_ship_names)]
 		addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+			setCommsMessage(string.format("Connecting to %s",gm_name))
 			commsSwitchToGM()
 			addGMMessage(string.format("Player ship %s in %s initiating contact to GM on neutral %s ship %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 			addCommsReply("Back", commsShip)
@@ -50906,6 +50913,12 @@ function handleWeaponRestock(weapon)
     end
 end
 function getWeaponCost(weapon)
+	if comms_data.weapon_cost == nil then
+		print("comms data weapons cost is nil. Station:",comms_target:getCallSign())
+	end
+	if comms_data.weapon_cost[weapon] == nil then
+		print("comms data weapon cost for weapon",weapon,"is nil. Station:",comms_target:getCallSign())
+	end
     return math.ceil(comms_data.weapon_cost[weapon] * comms_data.reputation_cost_multipliers[getFriendStatus()])
 end
 function preOrderOrdnance()
@@ -51090,6 +51103,7 @@ function handleUndockedState()
 	local gm_verb = gm_verbs[math.random(1,#gm_verbs)]
 	local gm_name = gm_names[math.random(1,#gm_names)]
 	addCommsReply(string.format("%s %s",gm_verb,gm_name),function()
+		setCommsMessage(string.format("Connecting to %s",gm_name))
 		commsSwitchToGM()
 		addGMMessage(string.format("Player ship %s in %s initiating contact to GM on %s station %s in %s.\nPrompt was %s %s",comms_source:getCallSign(),comms_source:getSectorName(),comms_target:getFaction(),comms_target:getCallSign(),comms_target:getSectorName(),gm_verb,gm_name))
 		addCommsReply("Back", commsStation)
