@@ -14,7 +14,7 @@ require("utils.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.7.2"
+	scenario_version = "0.7.3"
 	print(string.format("     -----     Scenario: Black Wall     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	win_condition_diagnostic = false
@@ -628,7 +628,7 @@ function missionStateGestrandet()
 	if Ghost_spawn==1 and distance(Serenity,Wurmlochtarget) < 5000 then
 		Ghost_Fly = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Fly")):setPosition(46382, -66891):orderAttack(Serenity)
 		Ghost_Horse = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Horse")):setPosition(43800, -58599):orderAttack(Serenity)
-		Ghost_Donkey=CpuShip():setTemplate("Fighter"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Donkey")):setPosition(36137, -46657):orderAttack(Serenity)
+		Ghost_Donkey=CpuShip():setTemplate("MT52 Hornet"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Donkey")):setPosition(36137, -46657):orderAttack(Serenity)
 		-- eventuell noch ne Abfrage machen ob man die Schilde anhatte, dann halt nur weniger dmg bekommen
 		globalMessage(_("msgMainscreen", "Massive damage to all systems!"))
 		Wurmlochbasis:sendCommsMessage(Serenity,_("incCall", "Massive damage to all systems! Jump drive fault!\nGet yourself ready for battle!. We have located other power signatures in the nebula!"))
@@ -736,7 +736,7 @@ function missionStateBoom2()
 	Ghost_Shark = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Shark")):setPosition(78747, -129559):orderDefendTarget(Ghost_Station)
 	Ghost_Croco = gunship2("Ghosts")
 	Ghost_Croco:setCallSign(_("callsign-ship","Ghost Croco")):setPosition(83593, -127820):orderDefendTarget(Ghost_Station)
-	Ghost_Lion=CpuShip():setTemplate("Cruiser"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Lion")):setPosition(69580, -119856):orderDefendLocation(69580, -119856)
+	Ghost_Lion=CpuShip():setTemplate("Phobos T3"):setFaction("Ghosts"):setCallSign(_("callsign-ship","Ghost Lion")):setPosition(69580, -119856):orderDefendLocation(69580, -119856)
 	Ghost_Ele = gunship2("Ghosts"):setCallSign(_("callsign-ship","Ghost Ele")):setPosition(73000,-115500):orderDefendLocation(73000,-115500)
 	Ghost_Ant = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Ant")):setPosition(83546, -114698):orderDefendLocation(83546, -114698)
 	Ghost_Ape = fighter2("Ghosts"):setCallSign(_("callsign-ship","Ghost Ape")):setPosition(77100,-113700):orderDefendLocation(77100,-113700)
@@ -753,15 +753,15 @@ function missionStateBoom2()
 	end
 	local ship = fighter2("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47646, -57097):orderFlyFormation(Defend0r, -750, 1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Defend0r,x=-750,y=1000}
-	ship = CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(48348, -56731):orderFlyFormation(Serenity, -750, 1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
+	ship = CpuShip():setTemplate("MT52 Hornet"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(48348, -56731):orderFlyFormation(Serenity, -750, 1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Serenity,x=-750,y=1000}	
-	ship = CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, -750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
+	ship = CpuShip():setTemplate("MT52 Hornet"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, -750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Serenity,x=-750,y=-1000}	
 	ship = fighter2("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(47356, -56151):orderFlyFormation(Defend0r, -750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Defend0r,x=-750,y=-1000}	
-	ship = CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, 750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
+	ship = CpuShip():setTemplate("MT52 Hornet"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(49111, -56410):orderFlyFormation(Serenity, 750, -1000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Serenity,x=750,y=-1000}	
-	ship = CpuShip():setTemplate("Fighter"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(48119, -55754):orderFlyFormation(Serenity, -1000, -2000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
+	ship = CpuShip():setTemplate("MT52 Hornet"):setFaction("Human Navy"):setCallSign(string.format(_("callsign-ship","Defend %s"),tableRemoveRandom(defend_numbers))):setPosition(48119, -55754):orderFlyFormation(Serenity, -1000, -2000):setScanState("simplescan"):setCommsScript(""):setCommsFunction(commsShip)
 	ship.mission_order = {order="formation",target=Serenity,x=-1000,y=-2000}	
 	ghost_station_spawned = true
 	missionStatePlotLine = missionStateEndkampf
@@ -772,7 +772,7 @@ function missionStateEndkampf()
 		instructions = string.format(_("msgRelay","Destroy Ghost Station. Defend %s"),defend0r_name)
 		Defend0r:orderFlyTowardsBlind(80040,-125444)
 		Defend0r.mission_order = {order="blind",x=80040,y=-125444}
-		Defend0r:setImpulseMaxSpeed(250)
+		Defend0r:setImpulseMaxSpeed(145)
 		Schildgenerator=1
 		missionStatePlotLine = missionStateDefend0r
 	end
