@@ -1,0 +1,1024 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Empty Epsilon\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: muerteFR\n"
+"Language-Team: muerteFR\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+# Scenario name
+msgid "The Black Wall"
+msgstr "Le Mur Noir"
+
+# Scenario description
+msgid ""
+"Fight the Ghosts behind the wall\n"
+"\n"
+"One player ship which is spawned by the scenario. Requires beam/shield "
+"frequencies\n"
+"\n"
+"Author: Dyrian, Daid, Xansta, Muerte"
+msgstr ""
+"- Durée approx. : 1h30\n"
+"- Difficulté : Facile\n"
+"- Vaisseaux joueurs : 1\n"
+"\n"
+"Mission : Combattez les Fantômes derrière le mur !\n"
+"\n"
+"Ce scénario nécessite que l'option Fréquences des faisceaux/boucliers soit "
+"activée.\n"
+"\n"
+"- Titre original : The black Wall\n"
+"- Auteur : Dyrian (révision par Daid 2016, Muerte et Xansta Aout 2023)\n"
+"- Traduction FR : Muerte\n"
+"\n"
+"Communauté française et anglophone sur le Discord USN https://discord.gg/"
+"TVxuxn7ZYW : feedback sur les scénarios, aide, sessions de jeu tous les we."
+
+# Scenario setting
+msgctxt "setting"
+msgid "Reputation"
+msgstr "Réputation"
+
+msgctxt "setting"
+msgid "Amount of reputation to start with"
+msgstr "Définit la quantité de réputation avec laquelle vous démarrez."
+
+msgctxt "Reputation"
+msgid "Unknown"
+msgstr "Inconnu"
+
+msgctxt "Reputation"
+msgid "Zero reputation - nobody knows anything about you"
+msgstr "Aucune réputation - Personne ne sait rien de vous et votre équipage."
+
+msgctxt "Reputation"
+msgid "Nice"
+msgstr "Bon"
+
+msgctxt "Reputation"
+msgid ""
+"20 reputation - you've had a small positive influence on the local community"
+msgstr ""
+"Réputation 20 - Vous avez eu une petite influence positive sur la communauté "
+"locale."
+
+msgctxt "Reputation"
+msgid "Hero"
+msgstr "Bienfaiteur"
+
+msgctxt "Reputation"
+msgid "50 reputation - you've helped important people or lots of people"
+msgstr ""
+"Réputation 50 - Vous avez aidé beaucoup de personnes dont des personnes "
+"importantes."
+
+#: scripts/scenario_15_blackwall.lua:23
+msgctxt "callsign-ship"
+msgid "Serenity"
+msgstr "Serenity"
+
+# Scenario setting
+#: scripts/scenario_15_blackwall.lua:31
+msgctxt "callsign-station"
+msgid "Repair Station"
+msgstr "Station de réparation"
+
+#: scripts/scenario_15_blackwall.lua:32
+msgctxt "callsign-station"
+msgid "Home Station"
+msgstr "Station d'accueil"
+
+#: scripts/scenario_15_blackwall.lua:33
+msgctxt "callsign-station"
+msgid "Wormhole Station"
+msgstr "Station du trou de ver"
+
+#: scripts/scenario_15_blackwall.lua:34
+msgctxt "callsign-ship"
+msgid "Defend0r II"
+msgstr "Defend0r II"
+
+#: scripts/scenario_15_blackwall.lua:283
+msgctxt "-incCall"
+msgid ""
+"Neatly done! Now you have to put your Shields' Frequency to 440, so the "
+"Shields of the Ghoststation will collapse."
+msgstr ""
+"Parfait !\n"
+"Maintenant, modifiez à nouveau la fréquence de vos boucliers sur 440Thz. Si "
+"tout se passe comme prévu, les boucliers de la base Fantôme devraient "
+"s'effondrer."
+
+#: scripts/scenario_15_blackwall.lua:284
+msgctxt "msgRelay"
+msgid "Destroy Ghost Station. Set shield frequency to 440"
+msgstr ""
+"Détruire la base Fantôme. Régler la fréquence des boucliers sur 440THz."
+
+#: scripts/scenario_15_blackwall.lua:288
+msgctxt "-incCall"
+msgid ""
+"Perfect. The Shields of the Ghoststation are destroyed. Now we can launch "
+"our Dropship."
+msgstr ""
+"On y est !\n"
+"Les boucliers de la base sont détruits. Nous larguons l'explosif."
+
+#: scripts/scenario_15_blackwall.lua:289 scripts/scenario_15_blackwall.lua:811
+#: scripts/scenario_15_blackwall.lua:844
+msgctxt "msgRelay"
+msgid "Destroy Ghost Station"
+msgstr "Détruire la base Fantôme."
+
+#: scripts/scenario_15_blackwall.lua:308
+msgctxt "commsShipAssist"
+msgid "What do you want?"
+msgstr "Que voulez-vous ?"
+
+#: scripts/scenario_15_blackwall.lua:310
+msgctxt "commsShipAssist"
+msgid "Sir, how can we assist?"
+msgstr "Monsieur, comment pouvons-nous vous assister ?"
+
+#: scripts/scenario_15_blackwall.lua:313
+msgctxt "commsShipAssist"
+msgid "Follow your mission orders."
+msgstr "Suivez votre ordre de mission"
+
+#: scripts/scenario_15_blackwall.lua:331
+msgctxt "commsShipAssist"
+msgid "Following mission orders."
+msgstr "Bien reçu Serenity, nous restons sur notre ordre de mission."
+
+#: scripts/scenario_15_blackwall.lua:332 scripts/scenario_15_blackwall.lua:340
+#: scripts/scenario_15_blackwall.lua:349 scripts/scenario_15_blackwall.lua:362
+#: scripts/scenario_15_blackwall.lua:370 scripts/scenario_15_blackwall.lua:381
+#: scripts/scenario_15_blackwall.lua:395
+msgctxt "button"
+msgid "Back"
+msgstr "Précédent"
+
+#: scripts/scenario_15_blackwall.lua:336
+msgctxt "commsShipAssist"
+msgid "Defend a waypoint"
+msgstr "Défendez un marqueur"
+
+#: scripts/scenario_15_blackwall.lua:339
+msgctxt "commsShipAssist"
+msgid "No waypoints set. Please set a waypoint first."
+msgstr ""
+"Officier, nous ne détectons aucun marqueur. Veuillez commencer par en placer "
+"un."
+
+#: scripts/scenario_15_blackwall.lua:342
+msgctxt "commsShipAssist"
+msgid "Which waypoint should we defend?"
+msgstr "Quel marqueur devons-nous défendre ?"
+
+#: scripts/scenario_15_blackwall.lua:344
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Defend WP %d"
+msgstr "Défendez le marqueur %d"
+
+#: scripts/scenario_15_blackwall.lua:348
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "We are heading to assist at WP %d"
+msgstr "Nous partons immédiatement défendre le marqueur %d."
+
+#: scripts/scenario_15_blackwall.lua:358
+msgctxt "commsShipAssist"
+msgid "Assist me"
+msgstr "Aidez-nous !"
+
+#: scripts/scenario_15_blackwall.lua:360
+msgctxt "commsShipAssist"
+msgid "Heading toward you to assist."
+msgstr "Entendu, nous partons immédiatement vous aider."
+
+#: scripts/scenario_15_blackwall.lua:367
+msgctxt "commsShipAssist"
+msgid "Report status"
+msgstr "Au rapport"
+
+#: scripts/scenario_15_blackwall.lua:377 scripts/scenario_15_blackwall.lua:392
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Dock at %s"
+msgstr "Amarrez-vous à %s"
+
+#: scripts/scenario_15_blackwall.lua:379
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Docking at %s."
+msgstr "En cours d'amarrage à %s."
+
+#: scripts/scenario_15_blackwall.lua:393
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Docking at %s"
+msgstr "Bien reçu %s, nous nous amarrons à vous."
+
+#: scripts/scenario_15_blackwall.lua:402
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Hull: %d%%\n"
+msgstr "Coque : %d%%\n"
+
+#: scripts/scenario_15_blackwall.lua:406
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Shield: %d%%\n"
+msgstr "Boucliers : %d%%\n"
+
+#: scripts/scenario_15_blackwall.lua:408
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Front Shield: %d%%\n"
+msgstr "Boucliers avant : %d%%\n"
+
+#: scripts/scenario_15_blackwall.lua:409
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Rear Shield: %d%%\n"
+msgstr "Boucliers arrière : %d%%\n"
+
+#: scripts/scenario_15_blackwall.lua:412
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "Shield %d: %d%%\n"
+msgstr "Bouclier %d : %d%%\n"
+
+#: scripts/scenario_15_blackwall.lua:418
+#, lua-format
+msgctxt "commsShipAssist"
+msgid "%s Missiles: %d/%d\n"
+msgstr "%s Missiles : %d/%d\n"
+
+#: scripts/scenario_15_blackwall.lua:428 scripts/scenario_15_blackwall.lua:437
+msgctxt "-comms"
+msgid "Scan here ..."
+msgstr "Scan en cours..."
+
+#: scripts/scenario_15_blackwall.lua:434 scripts/scenario_15_blackwall.lua:441
+msgctxt "-comms"
+msgid "Tick, Tick, Tick, Tick, ... Boooom!"
+msgstr "Tic, tic, tic, tic, ... boooouum !"
+
+#: scripts/scenario_15_blackwall.lua:450
+msgctxt "station-comms"
+msgid ""
+"Good day officer,\n"
+"If you want to upgrade the ship, you have to dock with us first."
+msgstr ""
+"Bonjour officier !\n"
+"Si vous souhaitez améliorer votre vaisseau, veuillez vous amarrer à notre "
+"station au préalable."
+
+#: scripts/scenario_15_blackwall.lua:455
+msgctxt "station-comms"
+msgid ""
+"Hey Serenity,\n"
+"We can upgrade your ship in different ways. Please choose your way."
+msgstr ""
+"Salutations Serenity,\n"
+"Ici l'équipe d'ingénierie, nous venons d'être mis au courant, nous allons "
+"voir ce que l'on peut faire pour vous.\n"
+"\n"
+"Après plusieurs minutes d'attente…\n"
+"\n"
+"Bien, nous avons inspecté votre vaisseau. Nous pouvons vous proposer de "
+"l'améliorer de différentes manières. Veuillez faire votre choix :"
+
+#: scripts/scenario_15_blackwall.lua:456
+msgctxt "station-comms"
+msgid "Upgrade our speed and shields please!"
+msgstr "Booster les moteurs et renforcer les boucliers"
+
+#: scripts/scenario_15_blackwall.lua:459 scripts/scenario_15_blackwall.lua:464
+#: scripts/scenario_15_blackwall.lua:469
+msgctxt "station-comms"
+msgid ""
+"A wise choice!\n"
+"You can undock now."
+msgstr ""
+"Un choix judicieux !\n"
+"\n"
+"...Après quelques minutes d'attente…\n"
+"\n"
+"Améliorations terminées !\n"
+"Vous pouvez maintenant vous désamarrer."
+
+#: scripts/scenario_15_blackwall.lua:461
+msgctxt "station-comms"
+msgid "Upgrade our missile storage and beam damage!"
+msgstr "Augmenter le stockage des missiles et la puissance des faisceaux laser"
+
+#: scripts/scenario_15_blackwall.lua:466
+msgctxt "station-comms"
+msgid "Upgrade our beam range and the speed of fire!"
+msgstr "Améliorer la portée des faisceaux laser et la cadence de tir"
+
+#: scripts/scenario_15_blackwall.lua:472
+msgctxt "station-comms"
+msgid "Do you like your upgrades?"
+msgstr "Appréciez-vous nos modifications ?"
+
+#: scripts/scenario_15_blackwall.lua:572
+msgctxt "orders-incCall"
+msgid ""
+"Finally, the maintenance and repairs are complete!\n"
+"Pay attention to your ship! Don't overstress your Reactor.\n"
+"Before you receive new orders, you should do a field exercise.\n"
+"Move to Sector G3 and eliminate the hostile Drone.\n"
+"May the stars guide you."
+msgstr ""
+"… Et voilà ! L'entretien et les réparations sont enfin terminés !\n"
+"Faites un peu plus attention à votre vaisseau à l'avenir et ne surchargez "
+"pas le réacteur.\n"
+"\n"
+"Avant de recevoir votre nouvel ordre de mission, vous allez effectuer un "
+"petit exercice de vérification.\n"
+"Veuillez-vous déplacer vers le secteur G3 et éliminer le drone hostile.\n"
+"\n"
+"Que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:573
+msgctxt "msgRelay"
+msgid "Eliminate drone in G3"
+msgstr "Éliminer le drone en secteur G3."
+
+#: scripts/scenario_15_blackwall.lua:574
+msgctxt "callsign-ship"
+msgid "Test Drone"
+msgstr "Drone de test"
+
+#: scripts/scenario_15_blackwall.lua:579
+msgctxt "orders-incCall"
+msgid ""
+"Yeah, well done! I see the reactor is still working. Perfect!\n"
+"Now the Serenity is fully operational.\n"
+"You should should navigate to the Home Station to get new orders. Your long "
+"range scanner should be able to localise the Station.\n"
+"Pay attention out there.\n"
+"May the stars guide you."
+msgstr ""
+"Parfait ! Je vois que le réacteur fonctionne toujours.\n"
+"Maintenant, le Serenity est pleinement opérationnel.\n"
+"\n"
+"Dirigez-vous vers la station d'accueil afin d'y recevoir vos nouvelles "
+"directives. Vous la localiserez sans problème sur la carte des "
+"Communications.\n"
+"\n"
+"Bonne route et que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:580
+msgctxt "msgRelay"
+msgid "Dock with Home Station"
+msgstr "S'amarrer à la station d'accueil."
+
+#: scripts/scenario_15_blackwall.lua:586
+msgctxt "orders-incCall"
+msgid ""
+"Hey Serenity, good to hear that you finaly got released from the dry-dock!\n"
+"Since you are fully operational, the fleet command has a small transport "
+"quest for your ship. Make your way to the Wormhole Station.\n"
+"The order says: 'Move to the Wormwole Station in sector D2. They need a new "
+"deep-telemetry-telescope, which has already been loaded into your cargo "
+"hold. Deliver the telescope to the Wormhole Station and wait there for new "
+"orders.'\n"
+"May the stars guide you."
+msgstr ""
+"Eh Serenity, content de vous voir libéré de la cale sèche !\n"
+"Puisque vous êtes pleinement opérationnel, le commandement de la flotte a "
+"une petite mission de transport à vous confier. Vous devez vous rendre à la "
+"station du trou de ver.\n"
+"\n"
+"Vos ordres : Rejoignez la station du trou de ver en secteur D2. Ils ont "
+"besoin d'un nouveau télescope à télémétrie fine. Nous venons de le charger "
+"dans votre soute. Une fois là-bas livrez leur le télescope et attendez sur "
+"place de nouveaux ordres.\n"
+"\n"
+"Que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:587
+msgctxt "msgRelay"
+msgid "Dock with Wormhole Station to deliver telescope"
+msgstr "S'amarrer à la station du trou de ver pour y livrer le télescope."
+
+#: scripts/scenario_15_blackwall.lua:593
+msgctxt "incCall"
+msgid ""
+"Welcome here at the Wormhole Station!\n"
+"Thanks for the deep-telemetry-telescope, the cargo has just been unloaded.\n"
+"Have a good stopover here.\n"
+"May the stars. .. krrrrtzzzrtzrrrrzrrrrtz\n"
+"kkrrrrrtrrrrzzzzr have krrrrtz Interferenkrrrrzrce\n"
+"Wormholekrr krrzzzzrzrz activated   krrrrzzzrzzzrzrzrzrzrz !!\n"
+"krrzzz Ships krzzzrzzzrzz attack krzzzzzezrzz through Wormkrzzzrzrzzhole "
+"krrzzrzz!!!\n"
+"emergencykrzzzzzrzzprotocol Omega krzzrzzzzzrzz three "
+"initiatedkkrrkrtttkrkkrkkkzzzzkkrkkkzz\n"
+"On krzzrzzrzzrzrz battlekrzzrzzzzzzrzzrzrzrzzrzstation !!!\n"
+"krzzzzzzrzz\n"
+"krzzzrzztz\n"
+"..."
+msgstr ""
+"Bienvenue sur la station du trou de ver !\n"
+"\n"
+"Merci de nous avoir rapporté le télescope à télémétrie fine, Nous sommes en "
+"train de le décharger.\n"
+"Nous vous souhaitons bonne escale chez nous.\n"
+"\n"
+"Que les étoiles. .. krrrrtzzzrtzrrrrzrrrrtz\n"
+"kkrrrrrtrrrrzzzzr vous krrrrtz Interferenkrrrrzrce\n"
+"trou de verskrr krrzzzzrzrz activé krrrrzzzrzzzrzrzrzrzrz !!\n"
+"krrzzz vaisseaux krzzzrzzzrzz attaquent krzzzzzzzz par Troukrzzzrzderzzzvers "
+"krrzzrzz!!!\n"
+"urgencekrzzzzzrzzprotocole Omegakrzzrzzzzzrzz "
+"activékkrrkrtttkrkkrkkkzzzzkkrkkkzz\n"
+"sur krzzrzzrzzrzrz stationkrzzrzzdezzzzrzzrzrzrzzrzcombat !!!\n"
+"krzzzzzzrzz\n"
+"krzzzrzztz\n"
+"..."
+
+#: scripts/scenario_15_blackwall.lua:596
+msgctxt "callsign-ship"
+msgid "Ghost Snake"
+msgstr "Serpent fantôme"
+
+#: scripts/scenario_15_blackwall.lua:598
+msgctxt "callsign-ship"
+msgid "Ghost Wolf"
+msgstr "Loup fantôme"
+
+#: scripts/scenario_15_blackwall.lua:599
+msgctxt "callsign-ship"
+msgid "Ghost Rat"
+msgstr "Rat fantôme"
+
+#: scripts/scenario_15_blackwall.lua:605
+msgctxt "orders-incCall"
+msgid ""
+"Thanks for the Support! It is good that Serenity was in range to help. "
+"Hopefully your ship didn't receive too much damage.\n"
+"The attack of the Ghosts came unexpectedly. It seems like they found a way "
+"to move their Troops safely through the wormhole. It seems they rearmed "
+"their ships in a special way. The debris of the Ghosts ships showed us their "
+"modifications. With a bit of luck our engineers can upgrade the Serenity in "
+"the same way.\n"
+"We need to know where the attacks come from. So we can coordinate our attack "
+"and set up a defence. You have to jump with the Serenity through the "
+"Wormhole and scout where the attacks come from.\n"
+"Dock with the Wormhole Station so we can do the needed modifications on your "
+"ship..."
+msgstr ""
+"Merci pour votre soutien!\n"
+"Une chance que le Serenity ait été dans les parages pour aider. J'espère que "
+"vous n'avez pas trop subi de dégâts.\n"
+"\n"
+"L'attaque des Fantômes a été soudaine. Il semble qu'ils aient trouvé un "
+"moyen de déplacer leurs troupes en toute sécurité à travers le Trou de ver. "
+"Ils ont aussi réarmé leurs vaisseaux d'une manière spéciale, nous l'avons "
+"constaté sur les débris récupérés. Avec un peu de chance, nos ingénieurs "
+"pourront faire de même et améliorer le Serenity.\n"
+"\n"
+"Nous devons impérativement identifier d'où proviennent ces attaques. "
+"Serenity, vous allez passer par le trou de ver pour le découvrir. Nous "
+"pourrons alors nous coordonner pour attaquer et sécuriser nos défenses. \n"
+"Mais avant de partir, amarrez-vous à nouveau à notre station afin que nous "
+"puissions apporter les modifications nécessaires à votre vaisseau pour "
+"permettre la traversée."
+
+#: scripts/scenario_15_blackwall.lua:606
+msgctxt "msgRelay"
+msgid "Dock with Wormhole Station for wormhole transit ship modifications"
+msgstr ""
+"S'amarrer de nouveau à la station du trou de ver afin d'y subir les "
+"modifications nécessaires à la traversée du trou de ver."
+
+#: scripts/scenario_15_blackwall.lua:612
+msgctxt "orders-incCall"
+msgid ""
+"... thats all. Our engineers modified the Serenity. In addition to the "
+"wormhole transit stabilizer we increased your speed and your shields. Now "
+"you should be able to avoid the enemy attacks.\n"
+"In exchange we needed to dismount some of your weapons.\n"
+"Your order is: 'Scout where the attacks come from. Get an overview about the "
+"enemy's strength. Then come back and make a report.'\n"
+"May the stars guide you."
+msgstr ""
+"Après plusieurs minutes d'attente…\n"
+"\n"
+"... Et voilà. Nos ingénieurs ont effectués les modifications sur le "
+"Serenity.\n"
+"En plus du stabilisateur de passage prévu pour le trou de ver, nous avons "
+"boosté vos moteurs et renforcé vos boucliers. Avec ça, vous devriez être en "
+"mesure d'éviter les attaques ennemies.\n"
+"Cela à dû se faire au détriment de certaines de vos armes que nous vous "
+"avons retiré.\n"
+"\n"
+"Vos ordres : Découvrez d'où viennent ces attaques, estimez grossièrement la "
+"force de l'ennemi puis revenez nous faire un rapport.\n"
+"\n"
+"Que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:613
+msgctxt "msgRelay"
+msgid "Scout attack source through wormhole"
+msgstr "Identifier l'origine de l'attaque en passant par le trou de ver."
+
+#: scripts/scenario_15_blackwall.lua:622
+msgctxt "incCall"
+msgid ""
+"Attention Serenity!!!\n"
+"We got some unexpected measurement values from the Wormhole! It seems the "
+"Ghosts manipulated the Wormhole with some kind of specialized interference. "
+"The firmness of the wormhole transist protectors are no longer under "
+"warranty!\n"
+"The jump may become bumpy!"
+msgstr ""
+"Serenity, écoutez !!!\n"
+"\n"
+"Nous venons de recevoir des valeurs inhabituelles émanant du trou de ver. Il "
+"semblerait que les Fantômes l'aient trafiqué avec une sorte d'interférence "
+"artificielle. Le stabilisateur que l'on vient de vous installer risque "
+"d'être mis à mal pendant votre passage !\n"
+"\n"
+"Le saut sera agité ! Accrochez-vous !"
+
+#: scripts/scenario_15_blackwall.lua:623
+msgctxt "msgRelay"
+msgid "Scout attack source through wormhole. Expect a bumpy ride"
+msgstr ""
+"Identifier l'origine de l'attaque en passant par le trou de ver. Passage "
+"difficile."
+
+#: scripts/scenario_15_blackwall.lua:629
+msgctxt "callsign-ship"
+msgid "Ghost Fly"
+msgstr "Mouche fantôme"
+
+#: scripts/scenario_15_blackwall.lua:630
+msgctxt "callsign-ship"
+msgid "Ghost Horse"
+msgstr "Cheval fantôme"
+
+#: scripts/scenario_15_blackwall.lua:631
+msgctxt "callsign-ship"
+msgid "Ghost Donkey"
+msgstr "Âne fantôme"
+
+#: scripts/scenario_15_blackwall.lua:633
+msgctxt "msgMainscreen"
+msgid "Massive damage to all systems!"
+msgstr ""
+"                  --- ALERTE ---\n"
+"\n"
+"Tous les systèmes endommagés !\n"
+"           Surchauffe excessive !\n"
+"                 Risque majeur !"
+
+#: scripts/scenario_15_blackwall.lua:634
+msgctxt "incCall"
+msgid ""
+"Massive damage to all systems! Jump drive fault!\n"
+"Get yourself ready for battle!. We have located other power signatures in "
+"the nebula!"
+msgstr ""
+"Dégâts importants sur tous les systèmes ! Avarie moteurs sur la "
+"téléportation !\n"
+"\n"
+"Restez sur vos gardes ! Nous détectons plusieurs signaux de vaisseaux dans "
+"la nébuleuse !"
+
+#: scripts/scenario_15_blackwall.lua:635
+msgctxt "msgRelay"
+msgid "Scout attack source. Watch for enemy ambush"
+msgstr "Identifier l'origine de l'attaque. Se méfier des embuscades."
+
+#: scripts/scenario_15_blackwall.lua:656
+msgctxt "orders-incCall"
+msgid ""
+"You are still alive! Good job Serenity!\n"
+"The attacks of the Ghosts seems to come from behind the black wall. We dont "
+"know anything about the black wall and the things that lay behind it. We "
+"need to find a way to get behind the wall.\n"
+"We constructed a small station near the wall. It provides a base and a "
+"research post for the black wall. Our scientists need probes from the wall. "
+"Scout the wall and find the probes placed near the wall.\n"
+"New orders, Serenity: 'Gather two Probes from the black wall and get them to "
+"the 'Wall base'. Beware of the Ghosts. They might still be out in the "
+"Nebula\n"
+"May the stars guide you."
+msgstr ""
+"Vous êtes toujours en vie ! Bravo Serenity !\n"
+"\n"
+"Les attaques des Fantômes semblent provenir de derrière ce grand Mur Noir. "
+"Nous ne savons rien sur celui-ci et des choses qui se cachent derrière. Nous "
+"devons trouver un moyen de passer de l'autre coté.\n"
+"Nous avons établi une petite station à côté, elle sert de base et de station "
+"de recherche sur le Mur Noir. Nos scientifiques ont besoin de sondes se "
+"trouvant à proximité du mur. Explorez-le et trouvez les sondes.\n"
+"Vos ordres : Récupérez 2 sondes du Mur Noir et amenez-les à la base du Mur. "
+"Méfiez-vous des fantômes. Ils pourraient encore être dans la nébuleuse\n"
+"Que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:657
+msgctxt "msgRelay"
+msgid "Locate black wall probes and return them to Wall Base. Watch for Ghosts"
+msgstr ""
+"Localiser 2 sondes du Mur Noir et les remettre à la base du Mur. Surveiller "
+"les Fantômes."
+
+#: scripts/scenario_15_blackwall.lua:658
+msgctxt "callsign-station"
+msgid "Wall base"
+msgstr "Base du Mur"
+
+#: scripts/scenario_15_blackwall.lua:661 scripts/scenario_15_blackwall.lua:662
+msgctxt "scienceDescription-wallProbe"
+msgid "Black wall scan probe"
+msgstr "Sonde d'analyse du Mur Noir"
+
+#: scripts/scenario_15_blackwall.lua:661 scripts/scenario_15_blackwall.lua:662
+msgctxt "scienceDescription-wallProbe"
+msgid "Black wall scan probe: scan data stored in probe memory"
+msgstr ""
+"Sonde d'analyse du Mur Noir : données stockées dans la mémoire de la sonde"
+
+#: scripts/scenario_15_blackwall.lua:669
+msgctxt "orders-incCall"
+msgid "Well done, we need one more Probe..."
+msgstr "Excellent, Il en reste encore une à récupérer."
+
+#: scripts/scenario_15_blackwall.lua:670
+msgctxt "msgRelay"
+msgid ""
+"Locate remaining black wall probe. Return probes to Wall Base. Watch for "
+"Ghosts"
+msgstr ""
+"Localiser la dernière sonde. Remettre les sondes à la base du Mur. "
+"Surveiller les Fantômes."
+
+#: scripts/scenario_15_blackwall.lua:672
+msgctxt "callsign-ship"
+msgid "Ghost Bat"
+msgstr "Chauve souris fantôme"
+
+#: scripts/scenario_15_blackwall.lua:674
+msgctxt "callsign-ship"
+msgid "Ghost Lamb"
+msgstr "Agneau fantôme"
+
+#: scripts/scenario_15_blackwall.lua:680
+msgctxt "orders-incCall"
+msgid ""
+"Good job, Serenity!\n"
+"Now get the Probes to the 'Wall base'"
+msgstr ""
+"Bon travail, Serenity !\n"
+"Maintenant apportez les sondes à la base du Mur."
+
+#: scripts/scenario_15_blackwall.lua:681
+msgctxt "msgRelay"
+msgid "Return black wall probes to Wall Base. Watch for Ghosts"
+msgstr "Remettre les sondes à la base du Mur. Surveiller les Fantômes."
+
+#: scripts/scenario_15_blackwall.lua:685
+msgctxt "orders-incCall"
+msgid ""
+"Well done Serenity! With these Probes our scientists will find a way through "
+"the black wall.\n"
+"Until the science report is available, we have time to upgrade our ship!\n"
+"Stay docked with the base and contact our engineers via Comms."
+msgstr ""
+"Bien joué Serenity !\n"
+"\n"
+"Avec les informations recueillies dans la mémoire de stockage de ces sondes, "
+"nos scientifiques vont trouver un moyen de passer au travers du Mur Noir.\n"
+"Le temps que le rapport scientifique soit disponible, nous allons améliorer "
+"votre vaisseau !\n"
+"\n"
+"Restez amarré et contactez nos ingénieurs via les Comm."
+
+#: scripts/scenario_15_blackwall.lua:686
+msgctxt "msgRelay"
+msgid "Stay docked with Wall Base. Contact engineers on Wall Base"
+msgstr "Rester amarré à la base du Mur et contacter leurs ingénieurs."
+
+#: scripts/scenario_15_blackwall.lua:694
+msgctxt "orders-incCall"
+msgid ""
+"Our scientists found a way to collapse the wall, or at least a part of it. "
+"The scientists developed a disruptor. You have to place the disruptor inside "
+"the wall. Move the disruptor to the black wall in 'B7'. But don't move too "
+"deep into the wall!\n"
+"When Serenity is close enough to the black wall, your weapons officer can "
+"activate the disruptor.\n"
+"May the stars guide you."
+msgstr ""
+"Serenity !\n"
+"Nos scientifiques ont trouvé un moyen de faire tomber le Mur, ou du moins "
+"une partie de celui-ci.\n"
+"Ils ont développé un disrupteur. Vous devez placer ce disrupteur à "
+"l'intérieur du Mur Noir, plus exactement au bord du trou noir se trouvant à "
+"cheval entre les secteurs B7 et B8, mais faites très attention à ne pas vous "
+"enfoncez trop profondément, vous seriez aspirés et perdus à jamais !\n"
+"\n"
+"Lorsque le Serenity sera suffisamment bien placé, votre officier des armes "
+"verra la commande de largage apparaitre et devra alors larguer le "
+"disrupteur.\n"
+"\n"
+"Que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:695
+msgctxt "msgRelay"
+msgid "Enter edge of B7 black hole and activate disruptor"
+msgstr ""
+"Approchez vous au plus près du trou noir se trouvant à cheval entre les "
+"secteurs B7 et B8 puis larguer le disrupteur."
+
+#: scripts/scenario_15_blackwall.lua:703 scripts/scenario_15_blackwall.lua:705
+msgctxt "buttonWeapons"
+msgid "Activate Disruptor"
+msgstr "Larguer le disrupteur"
+
+#: scripts/scenario_15_blackwall.lua:724
+#, lua-format
+msgctxt "-incCall"
+msgid ""
+"It worked! A big part of the wall collapsed. Now we can get an impression of "
+"the Ghost Station out in the Nebula.\n"
+"Our subspace deep scanner managed to isolate some strong energy signatures "
+"in sectors ZZ8 or ZZ9. It seems like the Ghost Attack base is out there.\n"
+"Your goal is to destroy the Ghost Station. We sent the %s and some more "
+"forces to assist.\n"
+"Your order is: 'Destroy the Ghost Station'\n"
+"May the stars guide you."
+msgstr ""
+"Ça a fonctionné !\n"
+"Une grande partie du Mur s'est effondrée. Nous avons maintenant une petite "
+"idée de l'endroit où pourrait se trouver le gros des forces des Fantômes à "
+"l'origine des attaques.\n"
+"\n"
+"En effet, notre scanner longue portée subspatial a détecté de fortes "
+"signatures énergétiques aux environs des secteurs ZZ8 et ZZ9. La base "
+"offensive des Fantômes se trouve sûrement là-bas.\n"
+"\n"
+"Votre objectif désormais est de détruire cette base Fantôme. Nous vous "
+"envoyons %s ainsi que d'autres vaisseaux en renfort.\n"
+"\n"
+"Que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:725
+msgctxt "msgRelay"
+msgid "Find and destroy Ghost Station near ZZ8 or ZZ9"
+msgstr ""
+"Trouver et détruire la base Fantôme aux alentours des secteurs ZZ8 et ZZ9."
+
+#: scripts/scenario_15_blackwall.lua:727
+msgctxt "callsign-station"
+msgid "Ghost Station"
+msgstr "Base Fantôme"
+
+#: scripts/scenario_15_blackwall.lua:729
+msgctxt "callsign-ship"
+msgid "BattleStation Links"
+msgstr "Poste de défense Links"
+
+#: scripts/scenario_15_blackwall.lua:731
+msgctxt "callsign-ship"
+msgid "BattleStation Rechts"
+msgstr "Poste de défense Rechts"
+
+#: scripts/scenario_15_blackwall.lua:733
+msgctxt "callsign-ship"
+msgid "BattleStation Schlerp"
+msgstr "Poste de défense Schlerp"
+
+#: scripts/scenario_15_blackwall.lua:736
+msgctxt "callsign-ship"
+msgid "Ghost Shark"
+msgstr "Requin fantôme"
+
+#: scripts/scenario_15_blackwall.lua:738
+msgctxt "callsign-ship"
+msgid "Ghost Croco"
+msgstr "Croco fantôme"
+
+#: scripts/scenario_15_blackwall.lua:739
+msgctxt "callsign-ship"
+msgid "Ghost Lion"
+msgstr "Lion fantôme"
+
+#: scripts/scenario_15_blackwall.lua:740
+msgctxt "callsign-ship"
+msgid "Ghost Ele"
+msgstr "Éléphantôme"
+
+#: scripts/scenario_15_blackwall.lua:741
+msgctxt "callsign-ship"
+msgid "Ghost Ant"
+msgstr "Fourmi fantôme"
+
+#: scripts/scenario_15_blackwall.lua:742
+msgctxt "callsign-ship"
+msgid "Ghost Ape"
+msgstr "Singe fantôme"
+
+#: scripts/scenario_15_blackwall.lua:744
+msgctxt "callsign-ship"
+msgid "Ghost Bee"
+msgstr "Abeille fantôme"
+
+#: scripts/scenario_15_blackwall.lua:745
+msgctxt "callsign-ship"
+msgid "Ghost Cat"
+msgstr "Chat fantôme"
+
+#: scripts/scenario_15_blackwall.lua:746
+msgctxt "callsign-ship"
+msgid "Ghost Dog"
+msgstr "Chien fantôme"
+
+#: scripts/scenario_15_blackwall.lua:754 scripts/scenario_15_blackwall.lua:756
+#: scripts/scenario_15_blackwall.lua:758 scripts/scenario_15_blackwall.lua:760
+#: scripts/scenario_15_blackwall.lua:762 scripts/scenario_15_blackwall.lua:764
+#, lua-format
+msgctxt "callsign-ship"
+msgid "Defend %s"
+msgstr "Défenseur %s"
+
+#: scripts/scenario_15_blackwall.lua:771
+#, lua-format
+msgctxt "-incCall"
+msgid ""
+"Serenity, we received new information about the Battlestations near the "
+"Ghost Station.\n"
+"It seems they are connected to the main Ghost Station through a c35-subspace-"
+"connection. If we manage to destroy the main Ghost Station, then the "
+"Battlestations will also explode.\n"
+"One more thing: The %s carries a special high explosive charge which she can "
+"attach to the Ghost Station with a Dropship. But the %s must get very close "
+"to the Station.\n"
+"Serenity, your order is: 'Support and protect the %s in any way, draw the "
+"enemy's fire if necessary!'\n"
+"May the stars guide you."
+msgstr ""
+"Serenity, nous venons de recevoir de nouvelles informations concernant les "
+"postes de défense observés près de la base Fantôme.\n"
+"Il semblerait qu'ils soient reliés à la base principale via une connexion "
+"sous-spatiale c35. Si nous parvenons à détruire la base principale, les "
+"postes de défense exploseront également.\n"
+"%s transporte une charge explosive spéciale qui peut se fixer à la base "
+"Fantôme après avoir été larguée. Mais pour se faire, %s doit se trouver "
+"suffisamment près.\n"
+"\n"
+"Serenity, votre ordre est le suivant : Escortez %s coûte que coûte jusqu'à "
+"la base Fantôme. Frayez-lui un chemin jusqu'à sa cible et suivez ses "
+"ordres !\n"
+"\n"
+"Que les étoiles vous guident."
+
+#: scripts/scenario_15_blackwall.lua:772
+#, lua-format
+msgctxt "msgRelay"
+msgid "Destroy Ghost Station. Defend %s"
+msgstr "Détruire la base Fantôme. Escorter %s."
+
+#: scripts/scenario_15_blackwall.lua:786
+msgctxt "-incCall"
+msgid ""
+"Serenity, we are now in range for launching the Dropship, but the shields of "
+"the Ghost base are too strong. You need to help us lowering the shields. If "
+"we use our own shield generators and generate interference, we may manage to "
+"collapse the Shields of the Ghost Station.\n"
+"First of all overheat your front and rear-shields"
+msgstr ""
+"Serenity, nous sommes maintenant assez proche pour pouvoir larguer "
+"l'explosif, mais les boucliers de la base Fantôme sont trop puissants et "
+"empêcheront l'explosif de s'y fixer. Vous devez nous aider à les affaiblir.\n"
+"Si nous utilisons nos propres générateurs de boucliers et générons "
+"suffisamment d'interférences, nous devrions réussir à faire s'effondrer les "
+"boucliers de la base.\n"
+"\n"
+"Tout d'abord surchauffez vos boucliers avant et arrière !"
+
+#: scripts/scenario_15_blackwall.lua:787
+#, lua-format
+msgctxt "msgRelay"
+msgid "Destroy Ghost Station. Defend %s. Overheat shields"
+msgstr ""
+"Détruire la base Fantôme. Escorter %s. Surchauffer les boucliers du Serenity."
+
+#: scripts/scenario_15_blackwall.lua:810 scripts/scenario_15_blackwall.lua:843
+#, lua-format
+msgctxt "-incCall"
+msgid "%s has been destroyed. You are on your own to destroy the Ghost Station"
+msgstr ""
+"%s vient d'être abattu. Cette mission critique repose désormais entièrement "
+"sur vous.\n"
+"Détruisez cette maudite base. Que les étoiles vous accompagnent !\n"
+"Bonne chance."
+
+#: scripts/scenario_15_blackwall.lua:817
+msgctxt "-incCall"
+msgid ""
+"Well done! Now set the shield frequency to 720... Fast, we need to hurry!"
+msgstr ""
+"Bien joué ! Réglez maintenant la fréquence de vos boucliers sur 720... Vite, "
+"il faut se dépêcher !"
+
+#: scripts/scenario_15_blackwall.lua:818
+#, lua-format
+msgctxt "msgRelay"
+msgid "Destroy Ghost Station. Defend %s. Set shield frequency to 720"
+msgstr ""
+"Détruire la base Fantôme. Escorter %s. Régler la fréquence des boucliers sur "
+"720THz."
+
+#: scripts/scenario_15_blackwall.lua:853
+msgctxt "msgMainscreen"
+msgid ""
+"The Serenity was able to defend humanity from the Invasion of the ghosts! "
+"You can be proud of your crew!"
+msgstr ""
+"Le Serenity a su protéger l'humanité de l'invasion des Fantômes !\n"
+"           Vous pouvez être fier de votre équipage !"
+
+#: scripts/scenario_15_blackwall.lua:859
+msgctxt "msgMainscreen"
+msgid "Scenario requires that the Beam/Shield Frequencies option be enabled"
+msgstr ""
+"Ce scénario nécessite que l'option Fréquences des faisceaux/boucliers soit "
+"activée."
+
+#: scripts/scenario_15_blackwall.lua:870 scripts/scenario_15_blackwall.lua:880
+msgctxt "buttonRelay"
+msgid "Instructions"
+msgstr "Ordres en cours"
+
+#: scripts/scenario_15_blackwall.lua:874
+msgctxt "msgRelay"
+msgid "None"
+msgstr "Aucun"
+
+#: scripts/scenario_15_blackwall.lua:884
+msgctxt "msgOperations"
+msgid "None"
+msgstr "Aucun"
+
+#: scripts/scenario_15_blackwall.lua:910
+msgctxt "msgMainscreen"
+msgid "You did not manage to avoid the Ghosts!"
+msgstr "Vous avez échoué dans votre mission contre les Fantômes !"
+
+#: scripts/scenario_15_blackwall.lua:915
+msgctxt "incCall"
+msgid ""
+"Serenity! What are you doing? Your ship cannot transit the wormhole without "
+"proper preparation!"
+msgstr ""
+"Serenity ! Que faites-vous ? Votre vaisseau ne peut pas transiter par le "
+"trou de ver sans une préparation adéquate !"
+
+#: scripts/scenario_15_blackwall.lua:919
+msgctxt "msgMainscreen"
+msgid "Your ship is lost in the wormhole!"
+msgstr "Votre vaisseau a disparu à jamais dans le trou de ver..."
+
+#: scripts/scenario_15_blackwall.lua:945
+msgctxt "-incCall"
+msgid ""
+"Well done Serenity! You destroyed the ememy's main station.\n"
+"The attack of the ghosts has been thwarted.\n"
+"The remaining Ghosts will probably retreat now."
+msgstr ""
+"Bravo Serenity !\n"
+"\n"
+"Vous avez détruit la base principale de l'ennemi.\n"
+"L'attaque des Fantômes a été déjouée.\n"
+"\n"
+"Les fantômes restants vont surement battre en retraite maintenant."
+
+#~ msgctxt "msgMainscreen"
+#~ msgid "Through the wormhole ..."
+#~ msgstr "Au travers du Trou de ver ..."
+
+#~ msgctxt "msgMainscreen"
+#~ msgid "End fight"
+#~ msgstr "Fin du combat !"
+
+#~ msgctxt "msgRelay"
+#~ msgid "Destroy Ghost station"
+#~ msgstr "Détruire la station Fantôme Ghost Station."
