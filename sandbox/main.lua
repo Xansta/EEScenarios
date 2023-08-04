@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.6.1"
+	scenario_version = "6.7.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -170,8 +170,15 @@ function setConstants()
 	ship_enhancement_factor = 1		--1 is normal (rare)
 	enhancement_warning_message = true
 	spiky_spin_ships = {}
+	impulse_boost_degree_factors = {1.5,1.75,2,2.5,3}
+	impulse_boost_time_factors = {3,5,8,13,21,34}
 	impulse_boost_ships = {}
+	beam_factors = {1,2,3,5,8,13,21}
+	pdc_factors = {20,30,50,75,90}
 	pdc_ships = {}
+	cyber_attack_factors = {30, 50, 75, 90, 100}
+	cyber_attack_intervals = {20, 40, 60, 80, 100}
+	cyber_attack_ships = {}
 	anomalous_nebulae = {}
 	immobile_stations = {}
 	coolant_losses = {
@@ -31965,6 +31972,13 @@ function addEnhancementToScienceDatabase(enhancement_type)
 			pdc_db = queryScienceDatabase("Ships","Enhancements","Point Defense Cannon")
 			pdc_db:setLongDescription("If a ship is equipped with a Point Defense Cannon, it can shoot down incoming missiles if the targeting computer can get a lock. The factor shown represents the percentage chance of locking on to a missile based on the targeting computer's capability.")
 		end
+	elseif enhancement_type == "Cyber Attack" then
+		local cyber_attack_db = queryScienceDatabase("Ships","Enhancements","Cyber Attack")
+		if cyber_attack_db == nil then
+			enhancement_db:addEntry("Cyber Attack")
+			cyber_attack_db = queryScienceDatabase("Ships","Enhancements","Cyber Attack")
+			cyber_attack_db:setLongDescription("If a ship is equipped with Cyber Attack, it can hack various systems on your ship. When assessing this capability the integer portion of the number represents the interval between attacks in seconds. The fractional portion of the number represents the chance of success.")
+		end
 	end
 end
 function setShipEnhancement(ship)
@@ -31973,7 +31987,6 @@ function setShipEnhancement(ship)
 	if ship_template ~= nil and template_name ~= nil and ship_template[template_name] ~= nil then
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
 			if ship:getBeamWeaponRange(0) > 1 then
-				local beam_factors = {1,2,3,5,8,13,21}
 				ship.shield_drain_beam_factor = beam_factors[math.random(1,#beam_factors)]
 				table.insert(enhancements,string.format("Shield Drain Beam. Factor:%i",ship.shield_drain_beam_factor))
 				addEnhancementToScienceDatabase("Shield Drain Beam")
@@ -31981,7 +31994,6 @@ function setShipEnhancement(ship)
 		end
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
 			if ship:getBeamWeaponRange(0) > 1 then
-				local pdc_factors = {20,30,50,75,90}
 				ship.pdc_factor = pdc_factors[math.random(1,#pdc_factors)]
 				table.insert(pdc_ships,ship)
 				table.insert(enhancements,string.format("Point Defense Cannon. Factor %i%%",ship.pdc_factor))
@@ -32014,13 +32026,18 @@ function setShipEnhancement(ship)
 			addEnhancementToScienceDatabase("Spiky Spin")
 		end
 		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
-			local impulse_boost_degree_factors = {1.5,1.75,2,2.5,3}
-			local impulse_boost_time_factors = {3,5,8,13,21,34}
 			ship.boost_impulse_degree_factor = impulse_boost_degree_factors[math.random(1,#impulse_boost_degree_factors)]
 			ship.boost_impulse_time_factor = impulse_boost_time_factors[math.random(1,#impulse_boost_time_factors)]
 			ship.boost_impulse_factor = string.format("%ix%s",ship.boost_impulse_time_factor,ship.boost_impulse_degree_factor)
 			table.insert(enhancements,string.format("Boost Impulse %s",ship.boost_impulse_factor))
 			addEnhancementToScienceDatabase("Boost Impulse")
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor then
+			ship.cyber_attack_factor = cyber_attack_factors[math.random(1,#cyber_attack_factors)]
+			ship.cyber_attack_interval = cyber_attack_intervals[math.random(1,#cyber_attack_intervals)]
+			table.insert(cyber_attack_ships,ship)
+			table.insert(enhancements,string.format("Cyber Attack. Factor %s.%s",ship.cyber_attack_interval,ship.cyber_attack_factor))
+			addEnhancementToScienceDatabase("Cyber Attack")
 		end
 	end
 	if #enhancements > 0 then
@@ -36486,6 +36503,11 @@ function selectSpecialWeapons()
 		button_label = string.format("%s* %i",button_label,special_ship.pdc_factor)
 	end
 	addGMFunction(button_label,setPdcFactor)
+	button_label = "+Cyber Attack"
+	if special_ship.cyber_attack_factor ~= nil then
+		button_label = string.format("+Cyber I%i F%i",special_ship.cyber_attack_interval,special_ship.cyber_attack_factor)
+	end
+	addGMFunction(button_label,setCyberAttack)
 end
 function selectSpecial()
 	clearGMFunctions()
@@ -36624,7 +36646,6 @@ function setBoostImpulseFactor()
 			setSpecialDescription(special_ship)
 			setBoostImpulseFactor()
 		end)
-		local impulse_boost_time_factors = {3,5,8,13,21,34}
 		local current_index = 3
 		if special_ship.boost_impulse_time_factor ~= nil then
 			for index, factor in ipairs(impulse_boost_time_factors) do
@@ -36694,7 +36715,6 @@ function setBoostImpulseFactor()
 				end)
 			end
 		end
-		local impulse_boost_degree_factors = {1.5,1.75,2,2.5,3}
 		current_index = 3
 		if special_ship.boost_impulse_degree_factor ~= nil then
 			for index, factor in ipairs(impulse_boost_degree_factors) do
@@ -36791,7 +36811,6 @@ function setShieldDrainBeamFactor()
 			setSpecialDescription(special_ship)
 			setShieldDrainBeamFactor()
 		end)
-		local beam_factors = {1,2,3,5,8,13,21}
 		for _, factor in ipairs(beam_factors) do
 			button_label = string.format("Shld Drain Fctr:%i",factor)
 			if special_ship.shield_drain_beam_factor ~= nil and special_ship.shield_drain_beam_factor == factor then
@@ -36865,7 +36884,6 @@ function setPdcFactor()
 			setSpecialDescription(special_ship)
 			setPdcFactor()
 		end)
-		local pdc_factors = {20,30,50,75,90}
 		for _, factor in ipairs(pdc_factors) do
 			button_label = string.format("PDC Factor: %i",factor)
 			if special_ship.pdc_factor ~= nil and special_ship.pdc_factor == factor then
@@ -36878,6 +36896,115 @@ function setPdcFactor()
 				setSpecialDescription(special_ship)
 				addEnhancementToScienceDatabase("Point Defense Cannon")
 				setPdcFactor()
+			end)
+		end
+	else
+		addGMMessage("Must select CPU ship. No action taken")
+		selectSpecial()
+	end
+end
+function setCyberAttack()
+	if special_ship ~= nil then
+		clearGMFunctions()
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
+		addGMFunction("-Special Weapons",selectSpecialWeapons)
+		local button_label = "No Cyber Attack"
+		if special_ship.cyber_attack_factor == nil then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			string.format("")
+			special_ship.cyber_attack_factor = nil
+			special_ship.cyber_attack_interval = nil
+			setSpecialDescription(special_ship)
+			setCyberAttack()
+		end)
+		button_label = "+Cyber Factor"
+		if special_ship.cyber_attack_factor ~= nil then
+			button_label = string.format("%s %s",button_label,special_ship.cyber_attack_factor)
+		end
+		addGMFunction(button_label,setCyberAttackFactor)
+		button_label = "+Cyber Interval"
+		if special_ship.cyber_attack_interval ~= nil then
+			button_label = string.format("%s %s",button_label,special_ship.cyber_attack_interval)
+		end
+		addGMFunction(button_label,setCyberAttackInterval)
+	else
+		addGMMessage("Must select CPU ship. No action taken")
+		selectSpecial()
+	end
+end
+function setCyberAttackFactor()
+	if special_ship ~= nil then
+		clearGMFunctions()
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
+		addGMFunction("-Special Weapons",selectSpecialWeapons)
+		addGMFunction("-Cyber Attack",setCyberAttack)
+		local button_label = "No Cyber Attack"
+		if special_ship.cyber_attack_factor == nil then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			string.format("")
+			special_ship.cyber_attack_factor = nil
+			special_ship.cyber_attack_interval = nil
+			setSpecialDescription(special_ship)
+			setCyberAttackFactor()
+		end)
+		for i, factor in ipairs(cyber_attack_factors) do
+			button_label = string.format("Cyber Factor: %i",factor)
+			if special_ship.cyber_attack_factor ~= nil and special_ship.cyber_attack_factor == factor then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				string.format("")
+				special_ship.cyber_attack_factor = factor
+				table.insert(cyber_attack_ships,special_ship)
+				if special_ship.cyber_attack_interval == nil then
+					special_ship.cyber_attack_interval = 60
+				end
+				setSpecialDescription(special_ship)
+				addEnhancementToScienceDatabase("Cyber Attack")
+				setCyberAttackFactor()
+			end)
+		end
+	else
+		addGMMessage("Must select CPU ship. No action taken")
+		selectSpecial()
+	end
+end
+function setCyberAttackInterval()
+	if special_ship ~= nil then
+		clearGMFunctions()
+		addGMFunction(string.format("-%s Specials",special_ship:getCallSign()),selectSpecial)
+		addGMFunction("-Special Weapons",selectSpecialWeapons)
+		addGMFunction("-Cyber Attack",setCyberAttack)
+		local button_label = "No Cyber Attack"
+		if special_ship.cyber_attack_factor == nil then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			string.format("")
+			special_ship.cyber_attack_factor = nil
+			special_ship.cyber_attack_interval = nil
+			setSpecialDescription(special_ship)
+			setCyberAttackFactor()
+		end)
+		for i, interval in ipairs(cyber_attack_intervals) do
+			button_label = string.format("Cyber Interval: %i",interval)
+			if special_ship.cyber_attack_interval ~= nil and special_ship.cyber_attack_interval == interval then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				string.format("")
+				special_ship.cyber_attack_interval = interval
+				table.insert(cyber_attack_ships,special_ship)
+				if special_ship.cyber_attack_factor == nil then
+					special_ship.cyber_attack_factor = 75
+				end
+				setSpecialDescription(special_ship)
+				addEnhancementToScienceDatabase("Cyber Attack")
+				setCyberAttackInterval()
 			end)
 		end
 	else
@@ -37191,6 +37318,13 @@ function setSpecialDescription(ship)
 			special_description = string.format("Factor %i%% Point Defense Cannons.",ship.pdc_factor)
 		else
 			special_description = string.format("%s Factor %i%% Point Defense Cannons.",special_description,ship.pdc_factor)
+		end
+	end
+	if ship.cyber_attack_factor ~= nil then
+		if special_description == "" then
+			special_description = string.format("Cyber Attack %i.%i.",ship.cyber_attack_interval,ship.cyber_attack_factor)
+		else
+			special_description = string.format("%s Cyber Attack %i.%i.",special_description,ship.cyber_attack_interval,ship.cyber_attack_factor)
 		end
 	end
 	if special_description == "" then
@@ -53106,6 +53240,7 @@ function update(delta)
 			updatePlayerSystemHealthRepair(delta,p)
 			updatePlayerInNebula(delta,p)
 			updatePlayerJumpOverchargeBanner(p)
+			updatePlayerHackedButton(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -53142,6 +53277,64 @@ function update(delta)
 			ship.boost_impulse_active = nil
 			ship.boosk_impulse_cooling = nil
 			table.remove(impulse_boost_ships,index)
+			break
+		end
+	end
+	for index, ship in ipairs(cyber_attack_ships) do
+		if ship ~= nil and ship:isValid() then
+			if ship.cyber_attack_timer == nil then
+				local obj_list = ship:getObjectsInRange(20000)
+				local player_victims = {}
+				local cpu_ship_victims = {}
+				for i,obj in ipairs(obj_list) do
+					if obj.typeName == "PlayerSpaceship" then
+						if obj:isEnemy(ship) then
+							table.insert(player_victims,obj)
+						end
+					elseif obj.typeName == "CpuShip" then
+						if obj:isEnemy(ship) then
+							table.insert(cpu_ship_victims,obj)
+						end
+					end
+				end
+				if #player_victims > 0 then
+					if random(1,100) <= ship.cyber_attack_factor then
+						local player_ship = player_victims[math.random(1,#player_victims)]
+						local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+						if not player_ship:hasWarpDrive() then
+							table.remove(system_list,6)
+							if not player_ship:hasJumpDrive() then
+								table.remove(system_list,6)
+							end
+						elseif not player_ship:hasJumpDrive() then
+							table.remove(system_list,7)
+						end
+						selected_system = system_list[math.random(1,#system_list)]
+						player_ship:setSystemHackedLevel(selected_system,math.min(player_ship:getSystemHackedLevel(selected_system) + .5,1))
+					end
+					ship.cyber_attack_timer = getScenarioTime() + ship.cyber_attack_interval
+				elseif #cpu_ship_victims > 0 then
+					if random(1,100) <= ship.cyber_attack_factor then
+						local cpu_ship = player_victims[math.random(1,#cpu_ship_victims)]
+						local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+						if not cpu_ship:hasWarpDrive() then
+							table.remove(system_list,6)
+							if not cpu_ship:hasJumpDrive() then
+								table.remove(system_list,6)
+							end
+						elseif not cpu_ship:hasJumpDrive() then
+							table.remove(system_list,7)
+						end
+						selected_system = system_list[math.random(1,#system_list)]
+						cpu_ship:setSystemHackedLevel(selected_system,math.min(cpu_ship:getSystemHackedLevel(selected_system) + .5,1))
+					end
+					ship.cyber_attack_timer = getScenarioTime() + ship.cyber_attack_interval
+				end
+			elseif getScenarioTime() > ship.cyber_attack_timer then
+				ship.cyber_attack_timer = nil
+			end
+		else
+			table.remove(cyber_attack_ships,index)
 			break
 		end
 	end
@@ -53315,6 +53508,59 @@ function updatePlayerInventoryButton(p,player_name)
 			p:addCustomMessage("Operations","inventory_message",out)
 		end,23)
 	end
+end
+function updatePlayerHackedButton(p)
+	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+	local hacked_count = 0
+	for i,system in ipairs(system_list) do
+		if p:getSystemHackedLevel(system) > 0 then
+			hacked_count = hacked_count + 1
+		end
+	end
+	if hacked_count > 0 then
+		p.hacked_button_rel = "hacked_button_rel"
+		p:addCustomButton("Relay",p.hacked_button_rel,string.format("Hacked %i",hacked_count),function()
+			string.format("")
+			hackedReport(p,"Relay")
+		end,25)
+		p.hacked_button_ops = "hacked_button_ops"
+		p:addCustomButton("Operations",p.hacked_button_ops,string.format("Hacked %i",hacked_count),function()
+			string.format("")
+			hackedReport(p,"Operations")
+		end,25)
+	else
+		if p.hacked_button_ops ~= nil then
+			p:removeCustom(p.hacked_button_ops)
+			p.hacked_button_ops = nil
+		end
+		if p.hacked_button_rel ~= nil then
+			p:removeCustom(p.hacked_button_rel)
+			p.hacked_button_rel = nil
+		end
+	end
+end
+function hackedReport(p,console)
+	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+	local hacked_count = 0
+	local out = ""
+	for i,system in ipairs(system_list) do
+		local level = p:getSystemHackedLevel(system)
+		if level > 0 then
+			hacked_count = hacked_count + 1
+			out = string.format("%s\n    %s: %.1f%%",out,system,level*100)
+		end
+	end
+	if hacked_count > 0 then
+		if hacked_count > 1 then
+			out = string.format("%i hacked systems:%s",hacked_count,out)
+		else
+			out = string.format("One hacked system:%s",out)
+		end
+	else
+		out = "No hacked systems"
+	end
+	p.hacked_report_message = "hacked_report_message"
+	p:addCustomMessage(console,p.hacked_report_message,out)
 end
 function updatePlayerRendezvousPoints(p)
 	for _,rp in pairs(rendezvousPoints) do	--send rendezvous point message when applicable
