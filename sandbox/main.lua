@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.7.1"
+	scenario_version = "6.8.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -36514,7 +36514,11 @@ function selectSpecial()
 	addGMFunction("-Main from select special",initialGMFunctions)
 	addGMFunction("-Order Ship",orderShip)
 	addGMFunction("-Specials",setSpecialsOnNPS)
-	addGMFunction(string.format("+Change from %s",special_ship:getCallSign()),changeSpecialShip)
+	if special_ship ~= nil and special_ship:isValid() then
+		addGMFunction(string.format("+Change from %s",special_ship:getCallSign()),changeSpecialShip)
+	else
+		addGMFunction("+Select Special Ship",changeSpecialShip)
+	end
 	addGMFunction("+Special Weapons",selectSpecialWeapons)
 	local button_label = "+Boost Impulse"
 	if special_ship.boost_impulse_factor ~= nil then
