@@ -55,7 +55,7 @@ require("cpu_ship_diversification_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "0.0.3"
+	scenario_version = "0.0.4"
 	print(string.format("     -----     Scenario: Negotiate     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	spawn_enemy_diagnostic = false
@@ -9136,6 +9136,12 @@ end
 function whammyTime(p)
 	if lead_wham == nil then
 		lead_wham = {}
+		whammy_names = {
+			"Obey Ahshi Maru",
+			"Co-pay Ahshee Mahroo",
+			"Go Be Ashi Marou",
+		}
+		whammy_name_index = math.random(1,#whammy_names)
 	end
 	local p_x, p_y = p:getPosition()
 	local objs = getObjectsInRadius(p_x,p_y,10000)
@@ -9156,7 +9162,11 @@ function whammyTime(p)
 		WarpJammer():setPosition(poa_x,poa_y):setRange(math.max(4000,base_distance*2)):setFaction("Exuari")
 		local fleet_prefix = generateCallSignPrefix()
 		local lead_ship = starhammerV("Exuari")
-		lead_ship:setPosition(poa_x,poa_y):setHeading(attack_angle):orderFlyTowards(p_x,p_y):setCallSign(generateCallSign(fleet_prefix))
+		whammy_name_index = whammy_name_index + 1
+		if whammy_name_index > #whammy_names then
+			whammy_name_index = 1
+		end
+		lead_ship:setPosition(poa_x,poa_y):setHeading(attack_angle):orderFlyTowards(p_x,p_y):setCallSign(whammy_names[whammy_name_index])
 		table.insert(lead_wham,lead_ship)
 		lead_ship.formation_ships = {}
 		local forward_formation = {
