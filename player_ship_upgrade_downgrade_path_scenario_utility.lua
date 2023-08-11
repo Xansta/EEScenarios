@@ -653,7 +653,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade =	_("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
@@ -2676,7 +2676,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--8
 					jump_long = 20000, jump_short = 2000, warp = 800,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--9
@@ -3104,7 +3104,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 300,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced warp speed by 25%"),
 				},
 				{	--4
@@ -3571,7 +3571,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
@@ -3749,7 +3749,7 @@ function playerShipUpgradeDowngradeData()
 				{tube = 11,	ord = 7, desc = _("upgrade-comms","increase tube load speed by 25%"), downgrade = _("downgrade-comms","removed 3rd mining tube, reduced mine, EMP and nuke capacity")},								--13
 				{tube = 12,	ord = 8, desc = _("upgrade-comms","add 3rd mining tube, increase mine, EMP and nuke capacity"), downgrade = _("downgrade-comms","increased tube load speeds, reduced nuke and HVLI capacity")},	--14
 				{tube = 13,	ord = 9, desc = _("upgrade-comms","increase tube load speeds, increase nuke and HVLI capacity"), downgrade = _("downgrade-comms","reduced homing, EMP, mine and HVLI capacity")},	--15
-				{tube = 13,	ord = 10,desc = _("upgrade-comms","increase homing, EMP, mine and HVLI capacity)")},				--16
+				{tube = 13,	ord = 10,desc = _("upgrade-comms","increase homing, EMP, mine and HVLI capacity")},				--16
 				["start"] = 5,
 			},		
 			["tube"] = {
@@ -4030,7 +4030,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
@@ -5275,7 +5275,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
@@ -6143,7 +6143,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--4
@@ -6538,7 +6538,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
@@ -6923,7 +6923,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced jump range by 1/3"),
 				},
 				{	--3
@@ -7191,7 +7191,7 @@ function playerShipUpgradeDowngradeData()
 			["missiles"] = {
 				{tube = 1,	ord = 1, downgrade = _("downgrade-comms","removed medium homing tubes")},																	--1
 				{tube = 2,	ord = 2, desc = _("upgrade-comms","add medium homing tubes"), downgrade = _("downgrade-comms","cut capacity in half")},				--2  
-				{tube = 2,	ord = 3, desc = _("upgrade-comms","double capacity)"), downgrade = _("downgrade-comms","slowed tube load time")},						--3  
+				{tube = 2,	ord = 3, desc = _("upgrade-comms","double capacity"), downgrade = _("downgrade-comms","slowed tube load time")},						--3  
 				{tube = 3,	ord = 3, desc = _("upgrade-comms","reduce tube load time by 10%"), downgrade = _("downgrade-comms","reduced capacity by 1/3")},			--4
 				{tube = 3,	ord = 4, desc = _("upgrade-comms","increase capacity by 50%"), downgrade = _("downgrade-comms","removed some tubes")},				--5
 				{tube = 4,	ord = 4, desc = _("upgrade-comms","add more tubes"), downgrade = _("downgrade-comms","slowed tube load times")},						--6
@@ -7455,7 +7455,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced jump range by 20%"),
 				},
 				{	--3
@@ -7842,7 +7842,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","reduced warp speed by 20%"),
 				},
 				{	--4
@@ -8205,7 +8205,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--3
 					jump_long = 20000, jump_short = 2000, warp = 400,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 					downgrade = _("downgrade-comms","removed warp speed by 20%"),
 				},
 				{	--4
@@ -8546,7 +8546,7 @@ function playerShipUpgradeDowngradeData()
 				},
 				{	--2
 					jump_long = 20000, jump_short = 2000, warp = 0,
-					desc = _("upgrade-comms","add 20k jump drive"),
+					desc = _("upgrade-comms","add 20u jump drive"),
 				},
 				{	--3
 					jump_long = 25000, jump_short = 2500, warp = 0,
