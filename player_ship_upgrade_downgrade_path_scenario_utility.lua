@@ -1,3 +1,292 @@
+function addShipUpgradeInfoToScienceDatabase(template)
+	local ship_yard_key = _("scienceDB","Ship Yard")
+	local ship_yard_db = queryScienceDatabase(ship_yard_key)
+	if ship_yard_db == nil then
+		ship_yard_db = ScienceDatabase():setName(ship_yard_key)
+		ship_yard_db = queryScienceDatabase(ship_yard_key)
+		ship_yard_db:setLongDescription(_("scienceDB","A ship yard is where starships are built, maintained and enhanced. They typically get built in to stations to facilitate services such as energy recharging, hull repair, probe and ordnance replenishment, etc. This section of the science database shows ship types that might get upgraded by ship yards in the area and the details around potentially available upgrades."))
+	end
+	local template_db = queryScienceDatabase(ship_yard_key,template)
+	if template_db == nil and upgrade_path[template] ~= nil then
+		local template_descriptions = {
+			["MP52 Hornet"] =		{image = "radar/fighter.png",			model = "WespeScoutYellow",					desc = _("scienceDB","The MP52 Hornet is a significantly upgraded version of MU52 Hornet, with nearly twice the hull strength, nearly three times the shielding, better acceleration, impulse boosters, and a second laser cannon."),},
+			["ZX-Lindworm"] =		{image = "radar/fighter.png",			model = "LindwurmFighterBlue",				desc = _("scienceDB","The ZX model is an improvement on the WX-Lindworm with stronger hull and shields, faster impulse and tubes, more missiles and a single weak, turreted beam. The 'Worm' as it's often called, is a bomber-class starfighter. While one of the least-shielded starfighters in active duty, the Worm's launchers can pack quite a punch. Its goal is to fly in, destroy its target, and fly out or be destroyed."),},
+			["Phobos M3P"] =		{image = "radar/cruiser.png",			model = "AtlasHeavyFighterYellow",			desc = _("scienceDB","Player variant of the Phobos M3. Not as strong as the Atlantis, but has front firing tubes, making it an easier to use ship in some scenarios."),},
+			["Hathcock"] =			{image = "radar/piranha.png",			model = "HeavyCorvetteGreen",				desc = _("scienceDB","Long range narrow beam and some point defense beams, broadside missiles. Agile for a frigate"),},
+			["Piranha"] =			{image = "radar/piranha.png",			model = "HeavyCorvetteRed",					desc = _("scienceDB","This combat-specialized Piranha F12 adds mine-laying tubes, combat maneuvering systems, and a jump drive."),},
+			["Flavia P.Falcon"] =	{image = "radar/tug.png",				model = "LightCorvetteGrey",				desc = _("scienceDB","Popular among traders and smugglers, the Flavia is a small cargo and passenger transport. It's cheaper than a freighter for small loads and short distances, and is often used to carry high-value cargo discreetly.\n\nThe Flavia Falcon is a Flavia transport modified for faster flight, and adds rear-mounted lasers to keep enemies off its back.\n\nThe Flavia P.Falcon has a nuclear-capable rear-facing weapon tube and a warp drive."),},
+			["Repulse"] =			{image = "radar/tug.png",				model = "LightCorvetteRed",					desc = _("scienceDB","A Flavia P. Falcon with better hull and shields, a jump drive, two turreted beams covering both sides and a forward and rear tube. The nukes and mines are gone"),},
+			["Atlantis"] =			{image = "radar/dread.png",				model = "battleship_destroyer_1_upgraded",	desc = _("scienceDB","A refitted Atlantis X23 for more general tasks. The large shield system has been replaced with an advanced combat maneuvering systems and improved impulse engines. Its missile loadout is also more diverse. Mistaking the modified Atlantis for an Atlantis X23 would be a deadly mistake."),},
+			["Crucible"] =			{image = "radar/laser.png",				model = "LaserCorvetteRed",					desc = _("scienceDB","A number of missile tubes range around this ship. Beams were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis"),},
+			["Maverick"] =			{image = "radar/laser.png",				model = "LaserCorvetteGreen",				desc = _("scienceDB","A number of beams bristle from various points on this gunner. Missiles were deemed lower priority, though they are still present. Stronger defenses than a frigate, but not as strong as the Atlantis"),},
+			["Benedict"] =			{image = "radar/transport.png",			model = "transport_4_2",					desc = _("scienceDB","Benedict is an improved version of the Jump Carrier"),},
+			["Kiriya"] =			{image = "radar/transport.png",			model = "transport_4_2",					desc = _("scienceDB","Kiriya is Warp Carrier based on the jump carrier with stronger shields and hull and with minimal armament"),},
+			["Player Cruiser"] =	{image = "radar/cruiser.png",			model = "battleship_destroyer_5_upgraded",	desc = _("scienceDB","A fairly standard cruiser. Stronger than average beams, weaker than average shields, farther than average jump drive range"),},
+			["Player Missile Cr."] ={image = "radar/missile_cruiser.png",	model = "space_cruiser_4",					desc = _("scienceDB","It's all about the missiles for this model. Broadside tubes shoot homing missiles (30!), front, homing, EMP and nuke. Comparatively weak shields, especially in the rear. Sluggish impulse drive."),},
+			["Ender"] =				{image = "radar/battleship.png",		model = "Ender Battlecruiser",				desc = _("scienceDB","The Ender battle station is a huge ship with many defensive features. It can be docked by smaller ships."),},
+			["Nautilus"] =			{image = "radar/tug.png",				model = "space_tug",						desc = _("scienceDB","Small mine laying vessel with minimal armament, shields and hull."),},
+			["Striker"] =			{image = "radar/adv_striker.png",		model = "dark_fighter_6",					desc = _("scienceDB","The Striker is the predecessor to the advanced striker, slow but agile, but does not do an extreme amount of damage, and lacks in shields."),},
+			["Player Fighter"] =	{image = "radar/fighter.png",			model = "small_fighter_1",					desc = _("scienceDB","One of the first and smallest starfighters ever manufactured. It's a favorite for collectors now. Strong beams, though they are mounted awkwardly. A bit slower than modern starfighters. Stronger hull and shields than today's Hornet."),},
+		}
+		ship_yard_db:addEntry(template)
+		template_db = queryScienceDatabase(ship_yard_key,template)
+		if template_db ~= nil and template_descriptions[template] ~= nil then
+			template_db:setLongDescription(template_descriptions[template].desc)
+			template_db:setModelDataName(template_descriptions[template].model)
+			template_db:setImage(template_descriptions[template].image)
+			--	add beam upgrade info
+			local beam_key = _("scienceDB","Beam Weapons")
+			template_db:addEntry(beam_key)
+			local beam_db = queryScienceDatabase(ship_yard_key,template,beam_key)
+			beam_db:setLongDescription(string.format(_("scienceDB","These are the beam upgrade level progressions for the %s"),template))
+			beam_db:setModelDataName(template_descriptions[template].model)
+			beam_db:setImage(template_descriptions[template].image)
+			for i,beam in ipairs(upgrade_path[template]["beam"]) do
+				local level_key = string.format(_("scienceDB","Level %2i"),i) 
+				beam_db:addEntry(level_key)
+				local level_db = queryScienceDatabase(ship_yard_key,template,beam_key,level_key)
+				level_db:setModelDataName(template_descriptions[template].model)
+				level_db:setImage(template_descriptions[template].image)
+				local out = string.format(_("scienceDB","%s beam weapon characteristics."),level_key)
+				if i ~= #upgrade_path[template]["beam"] then
+					out = string.format(_("scienceDB","%s An upgrade to level %i would %s."),out,i+1,upgrade_path[template]["beam"][i+1].desc)
+				end
+				level_db:setLongDescription(out)
+				for j,emplacement in ipairs(beam) do
+					local dir_key = string.format(_("scienceDB","Beam %i Direction"),j)
+					local arc_rng_key = string.format(_("scienceDB","%i Arc, Range"),j)
+					local cyc_dmg_key = string.format(_("scienceDB","%i Cycle, Damage"),j)
+					level_db:setKeyValue(dir_key,string.format(_("scienceDB","%s degrees"),emplacement.dir))
+					level_db:setKeyValue(arc_rng_key,string.format(_("scienceDB","%s degrees, %.2fu"),emplacement.arc,emplacement.rng/1000))
+					level_db:setKeyValue(cyc_dmg_key,string.format(_("scienceDB","%.1f seconds, %.1f"),emplacement.cyc,emplacement.dmg))
+					if emplacement.tar ~= nil then
+						local tur_key = string.format(_("scienceDB","%i Turret Arc, Turn"),j)
+						level_db:setKeyValue(tur_key,string.format(_("scienceDB","%s degrees, %.1f"),emplacement.tar,emplacement.trt))
+					end
+				end
+			end
+			--	add missile upgrade info
+			local missile_key = _("scienceDB","Missile systems")
+			template_db:addEntry(missile_key)
+			local missile_db = queryScienceDatabase(ship_yard_key,template,missile_key)
+			missile_db:setLongDescription(string.format(_("scienceDB","These are the missile systems level progressions for the %s"),template))
+			missile_db:setModelDataName(template_descriptions[template].model)
+			missile_db:setImage(template_descriptions[template].image)
+			for i,missile in ipairs(upgrade_path[template]["missiles"]) do
+				local level_key = string.format(_("scienceDB","Level %2i"),i)
+				missile_db:addEntry(level_key)
+				local level_db = queryScienceDatabase(ship_yard_key,template,missile_key,level_key)
+				level_db:setModelDataName(template_descriptions[template].model)
+				level_db:setImage(template_descriptions[template].image)
+				local out = string.format(_("scienceDB","%s missile system characteristics.\n    S = Small size\n    M = Medium size\n    L = Large size"),level_key)
+				if i ~= #upgrade_path[template]["missiles"] then
+					out = string.format(_("scienceDB","%s\nAn upgrade to level %i would %s."),out,i+1,upgrade_path[template]["missiles"][i+1].desc)
+				end
+				level_db:setLongDescription(out)
+				for j,tub in ipairs(upgrade_path[template]["tube"][missile.tube]) do
+					local dir_siz_key = string.format(_("scienceDB","Tube %i %i degrees %s"),j,tub.dir,tub.siz)
+					level_db:setKeyValue(dir_siz_key,string.format(_("scienceDB","%.1f seconds load time"),tub.spd))
+					local type_count = 0
+					local type_list = ""
+					if tub.hom then
+						type_count = type_count + 1
+						type_list = _("scienceDB","Homing")
+					end
+					if tub.nuk then
+						type_count = type_count + 1
+						if type_list == "" then
+							type_list = _("scienceDB","Nuke")
+						else
+							type_list = string.format(_("scienceDB","%s, Nuke"),type_list)
+						end
+					end
+					if tub.emp then
+						type_count = type_count + 1
+						if type_list == "" then
+							type_list = _("scienceDB","EMP")
+						else
+							type_list = string.format(_("scienceDB","%s, EMP"),type_list)
+						end
+					end
+					if tub.min then
+						type_count = type_count + 1
+						if type_list == "" then
+							type_list = _("scienceDB","Mine")
+						else
+							type_list = string.format(_("scienceDB","%s, Mine"),type_list)
+						end
+					end
+					if tub.hvl then
+						type_count = type_count + 1
+						if type_list == "" then
+							type_list = _("scienceDB","HVLI")
+						else
+							type_list = string.format(_("scienceDB","%s, HVLI"),type_list)
+						end
+					end
+					local type_key = string.format(_("scienceDB","Tube %i missile type"),j)
+					if type_count > 1 then
+						type_key = string.format(_("scienceDB","Tube %i missile types"),j)						
+					end
+					level_db:setKeyValue(type_key,type_list)
+				end
+				if upgrade_path[template]["ordnance"][missile.ord].hom > 0 then
+					local homing_key = _("scienceDB","Homing capacity")
+					level_db:setKeyValue(homing_key,upgrade_path[template]["ordnance"][missile.ord].hom)
+				end
+				if upgrade_path[template]["ordnance"][missile.ord].nuk > 0 then
+					local nuke_key = _("scienceDB","Nuke capacity")
+					level_db:setKeyValue(nuke_key,upgrade_path[template]["ordnance"][missile.ord].nuk)
+				end
+				if upgrade_path[template]["ordnance"][missile.ord].emp > 0 then
+					local emp_key = _("scienceDB","EMP capacity")
+					level_db:setKeyValue(emp_key,upgrade_path[template]["ordnance"][missile.ord].emp)
+				end
+				if upgrade_path[template]["ordnance"][missile.ord].min > 0 then
+					local min_key = _("scienceDB","Mine capacity")
+					level_db:setKeyValue(min_key,upgrade_path[template]["ordnance"][missile.ord].min)
+				end
+				if upgrade_path[template]["ordnance"][missile.ord].hvl > 0 then
+					local hvl_key = _("scienceDB","HVLI capacity")
+					level_db:setKeyValue(hvl_key,upgrade_path[template]["ordnance"][missile.ord].hvl)
+				end
+			end
+			--	add shield upgrade info
+			local shield_key = _("scienceDB","Shield system")
+			template_db:addEntry(shield_key)
+			local shield_db = queryScienceDatabase(ship_yard_key,template,shield_key)
+			shield_db:setLongDescription(string.format(_("scienceDB","These are the shield system level progressions for the %s"),template))
+			shield_db:setModelDataName(template_descriptions[template].model)
+			shield_db:setImage(template_descriptions[template].image)
+			for i,shield in ipairs(upgrade_path[template]["shield"]) do
+				local level_key = string.format(_("scienceDB","Level %2i"),i)
+				shield_db:addEntry(level_key)
+				local level_db = queryScienceDatabase(ship_yard_key,template,shield_key,level_key)
+				level_db:setModelDataName(template_descriptions[template].model)
+				level_db:setImage(template_descriptions[template].image)
+				local out = string.format(_("scienceDB","%s shield system characteristics."),level_key)
+				if i ~= #upgrade_path[template]["shield"] then
+					out = string.format(_("scienceDB","%s An upgrade to level %i would %s."),out,i+1,upgrade_path[template]["shield"][i+1].desc)
+				end
+				level_db:setLongDescription(out)
+				local shield_arc_key = _("scienceDB","Shield strength")
+				if #shield == 1 then
+					level_db:setKeyValue(shield_arc_key,shield[1].max)
+				else
+					shield_arc_key = _("scienceDB","Front shield strength")
+					level_db:setKeyValue(shield_arc_key,shield[1].max)
+					shield_arc_key = _("scienceDB","Rear shield strength")
+					level_db:setKeyValue(shield_arc_key,shield[2].max)					
+				end
+			end
+			--	add hull upgrade info
+			local hull_key = _("scienceDB","Hull")
+			template_db:addEntry(hull_key)
+			local hull_db = queryScienceDatabase(ship_yard_key,template,hull_key)
+			hull_db:setLongDescription(string.format(_("scienceDB","These are the hull level progressions for the %s"),template))
+			hull_db:setModelDataName(template_descriptions[template].model)
+			hull_db:setImage(template_descriptions[template].image)
+			for i,hull in ipairs(upgrade_path[template]["hull"]) do
+				local level_key = string.format(_("scienceDB","Level %2i"),i)
+				hull_db:addEntry(level_key)
+				local level_db = queryScienceDatabase(ship_yard_key,template,hull_key,level_key)
+				level_db:setModelDataName(template_descriptions[template].model)
+				level_db:setImage(template_descriptions[template].image)
+				local out = string.format(_("scienceDB","%s hull characteristics."),level_key)
+				if i ~= #upgrade_path[template]["hull"] then
+					out = string.format(_("scienceDB","%s An upgrade to level %i would %s."),out,i+1,upgrade_path[template]["hull"][i+1].desc)
+				end
+				level_db:setLongDescription(out)
+				level_db:setKeyValue(_("scienceDB","Hull strength"),hull.max)
+			end
+			--	add impulse upgrade info
+			local impulse_key = _("scienceDB","Impulse systems")
+			template_db:addEntry(impulse_key)
+			local impulse_db = queryScienceDatabase(ship_yard_key,template,impulse_key)
+			impulse_db:setLongDescription(string.format(_("scienceDB","These are the impulse systems level progressions for the %s"),template))
+			impulse_db:setModelDataName(template_descriptions[template].model)
+			impulse_db:setImage(template_descriptions[template].image)
+			for i,impulse in ipairs(upgrade_path[template]["impulse"]) do
+				local level_key = string.format(_("scienceDB","Level %2i"),i)
+				impulse_db:addEntry(level_key)
+				local level_db = queryScienceDatabase(ship_yard_key,template,impulse_key,level_key)
+				level_db:setModelDataName(template_descriptions[template].model)
+				level_db:setImage(template_descriptions[template].image)
+				local out = string.format(_("scienceDB","%s impulse system characteristics."),level_key)
+				if i ~= #upgrade_path[template]["impulse"] then
+					out = string.format(_("scienceDB","%s An upgrade to level %i would %s."),out,i+1,upgrade_path[template]["impulse"][i+1].desc)
+				end
+				level_db:setLongDescription(out)
+				level_db:setKeyValue(_("scienceDB","Forward speed"),string.format(_("scienceDB","%.1f units/minute"),impulse.max_front*60/1000))
+				level_db:setKeyValue(_("scienceDB","Reverse speed"),string.format(_("scienceDB","%.1f units/minute"),impulse.max_back*60/1000))
+				level_db:setKeyValue(_("scienceDB","Forward acceleration"),impulse.accel_front)
+				level_db:setKeyValue(_("scienceDB","Reverse acceleration"),impulse.accel_back)
+				level_db:setKeyValue(_("scienceDB","Turn speed"),string.format(_("scienceDB","%.1f degrees per second"),impulse.turn))
+				if impulse.boost ~= 0 or impulse.strafe ~= 0 then
+					level_db:setKeyValue(_("scienceDB","Combat maneuver boost"),string.format(_("scienceDB","%i (forward)"),impulse.boost))
+					level_db:setKeyValue(_("scienceDB","Combat maneuver strafe"),string.format(_("scienceDB","%i (sideways)"),impulse.strafe))
+				end
+			end
+			--	add ftl upgrade info
+			local ftl_key = _("scienceDB","FTL system")
+			template_db:addEntry(ftl_key)
+			local ftl_db = queryScienceDatabase(ship_yard_key,template,ftl_key)
+			ftl_db:setLongDescription(string.format(_("scienceDB","These are the Faster Than Light (FTL) drive system level progressions for the %s"),template))
+			ftl_db:setModelDataName(template_descriptions[template].model)
+			ftl_db:setImage(template_descriptions[template].image)
+			for i,ftl in ipairs(upgrade_path[template]["ftl"]) do
+				local level_key = string.format(_("scienceDB","Level %2i"),i)
+				ftl_db:addEntry(level_key)
+				local level_db = queryScienceDatabase(ship_yard_key,template,ftl_key,level_key)
+				level_db:setModelDataName(template_descriptions[template].model)
+				level_db:setImage(template_descriptions[template].image)
+				local out = string.format(_("scienceDB","%s Faster Than Light (FTL) drive system characteristics."),level_key)
+				if i ~= #upgrade_path[template]["ftl"] then
+					out = string.format(_("scienceDB","%s An upgrade to level %i would %s."),out,i+1,upgrade_path[template]["ftl"][i+1].desc)
+				end
+				level_db:setLongDescription(out)
+				if ftl.jump_long > 0 then
+					level_db:setKeyValue(_("scienceDB","Jump drive long range"),string.format(_("scienceDB","%.1f units"),ftl.jump_long/1000))
+					level_db:setKeyValue(_("scienceDB","Short range"),string.format(_("scienceDB","%.1f units"),ftl.jump_short/1000))
+				end
+				if ftl.warp > 0 then
+					level_db:setKeyValue(_("scienceDB","Warp drive speed"),string.format(_("scienceDB","%.1f units/minute"),ftl.warp*60/1000))
+				end
+				if ftl.jump_long == 0 and ftl.warp == 0 then
+					level_db:setKeyValue(_("scienceDB","FTL state"),_("scienceDB","No jump or warp drive"))
+				end
+			end
+			--	add sensor upgrade info
+			local sensor_key = _("scienceDB","Sensor system")
+			template_db:addEntry(sensor_key)
+			local sensor_db = queryScienceDatabase(ship_yard_key,template,sensor_key)
+			sensor_db:setLongDescription(string.format(_("scienceDB","These are the sensor system level progressions for the %s"),template))
+			sensor_db:setModelDataName(template_descriptions[template].model)
+			sensor_db:setImage(template_descriptions[template].image)
+			for i,sensor in ipairs(upgrade_path[template]["sensors"]) do
+				local level_key = string.format(_("scienceDB","Level %2i"),i)
+				sensor_db:addEntry(level_key)
+				local level_db = queryScienceDatabase(ship_yard_key,template,sensor_key,level_key)
+				level_db:setModelDataName(template_descriptions[template].model)
+				level_db:setImage(template_descriptions[template].image)
+				local out = string.format(_("scienceDB","%s sensor system characteristics."),level_key)
+				if i ~= #upgrade_path[template]["sensors"] then
+					out = string.format(_("scienceDB","%s An upgrade to level %i would %s."),out,i+1,upgrade_path[template]["sensors"][i+1].desc)
+				end
+				level_db:setLongDescription(out)
+				level_db:setKeyValue(_("scienceDB","Short range sensors"),string.format(_("scienceDB","%.1f units (Helm, Weapons)"),sensor.short/1000))
+				level_db:setKeyValue(_("scienceDB","Long range sensors"),string.format(_("scienceDB","%.1f units (Science)"),sensor.long/1000))
+				if sensor.prox_scan > 0 then
+					if sensor.prox_scan <= 1 then
+						level_db:setKeyValue(_("scienceDB","Automated scan"),string.format(_("scienceDB","Within %.1f unit"),sensor.prox_scan))
+					else
+						level_db:setKeyValue(_("scienceDB","Automated scan"),string.format(_("scienceDB","Within %.1f units"),sensor.prox_scan))
+					end
+				end
+			end
+		end
+	end
+end
 function playerShipUpgradeDowngradeData()
 	if base_upgrade_cost == nil then
 		base_upgrade_cost = 5
@@ -3460,7 +3749,7 @@ function playerShipUpgradeDowngradeData()
 				{tube = 11,	ord = 7, desc = _("upgrade-comms","increase tube load speed by 25%"), downgrade = _("downgrade-comms","removed 3rd mining tube, reduced mine, EMP and nuke capacity")},								--13
 				{tube = 12,	ord = 8, desc = _("upgrade-comms","add 3rd mining tube, increase mine, EMP and nuke capacity"), downgrade = _("downgrade-comms","increased tube load speeds, reduced nuke and HVLI capacity")},	--14
 				{tube = 13,	ord = 9, desc = _("upgrade-comms","increase tube load speeds, increase nuke and HVLI capacity"), downgrade = _("downgrade-comms","reduced homing, EMP, mine and HVLI capacity")},	--15
-				{tub = 13,	ord = 10,desc = _("upgrade-comms","increase homing, EMP, mine and HVLI capacity)")},				--16
+				{tube = 13,	ord = 10,desc = _("upgrade-comms","increase homing, EMP, mine and HVLI capacity)")},				--16
 				["start"] = 5,
 			},		
 			["tube"] = {
