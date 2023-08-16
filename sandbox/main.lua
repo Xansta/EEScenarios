@@ -58,7 +58,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.8.1"
+	scenario_version = "6.9.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1099,12 +1099,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("George")		--J
-	makePlayerShipActive("Mixer")		--J
-	makePlayerShipActive("Endeavor") 	--J 
+	makePlayerShipActive("Splinter")	--J
+	makePlayerShipActive("Flaire")		--J
+	makePlayerShipActive("Barracuda") 	--J 
 	makePlayerShipActive("Rip")			--W
-	makePlayerShipActive("Rocinante")	--W
-	makePlayerShipActive("Farrah") 		--W 
+	makePlayerShipActive("Claw")		--W
+	makePlayerShipActive("Quill") 		--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -10276,19 +10276,16 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 1 and not mirrorUniverse then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
---			dp1Zone:setColor(0,128,0):setLabel("1")
---		elseif i == 6 and not mirrorUniverse then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
+		if i == 6 and not mirrorUniverse then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
 --		elseif i == 2 and not mirrorUniverse then
 --			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
 --			dp2Zone:setColor(0,128,0):setLabel("2")
 --		elseif i == 5 and not mirrorUniverse then
 --			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 --			dp5Zone:setColor(0,128,0):setLabel("5")
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -10296,7 +10293,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -25075,8 +25072,8 @@ function createPlayerShipBarracuda()
 	playerBarracuda:setSystemPowerFactor("jumpdrive",4)			--more efficient (vs 5)
 	playerBarracuda:setHullMax(140)								--stronger hull (vs 120)
 	playerBarracuda:setHull(140)
-	playerBarracuda:setShieldsMax(100, 100)						--stronger shields (vs 70, 70)
-	playerBarracuda:setShields(100, 100)
+	playerBarracuda:setShieldsMax(120, 120)						--stronger shields (vs 70, 70)
+	playerBarracuda:setShields(120, 120)
 	playerBarracuda:setBeamWeapon(0, 10, 0, 1000.0, 4.0, 4)		--one beam (vs 0)
 	playerBarracuda:setBeamWeaponTurret(0, 80, 0, .5)			--slow turret 
 	playerBarracuda:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
@@ -25602,8 +25599,8 @@ function createPlayerShipFlaire()
 	playerPeacock:setRepairCrewCount(4)					--more repair crew (vs 3)
 	playerPeacock:setImpulseMaxSpeed(75)				--slower impulse max (vs 90)
 	playerPeacock:setRotationMaxSpeed(9)				--slower spin (vs 10)
-	playerPeacock:setShieldsMax(100,80)					--stronger (vs 80,80)
-	playerPeacock:setShields(100,80)
+	playerPeacock:setShieldsMax(120,100)				--stronger (vs 80,80)
+	playerPeacock:setShields(120,100)
 	playerPeacock.max_jump_range = 30000				--shorter than typical (vs 50)
 	playerPeacock.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerPeacock:setJumpDriveRange(playerPeacock.min_jump_range,playerPeacock.max_jump_range)
@@ -26738,7 +26735,7 @@ function createPlayerShipQuill()
 		:setBeamWeaponTurret(2,	45,   90+35,.1)
 	playerQuill:setWarpSpeed(300)			--slower (vs 500)
 	playerQuill:setShieldsMax(100, 100)		--stronger (vs 70,70)
-	playerQuill:setShields(100, 100)
+	playerQuill:setShields(120, 120)
 	playerQuill:setLongRangeRadarRange(25000)
 	playerQuill.normal_long_range_radar = 25000
 	playerQuill:onTakingDamage(playerShipDamage)
@@ -27227,6 +27224,8 @@ function createPlayerShipSplinter()
 	playerFresnel:setRadarTrace("ktlitan_fighter.png")	--different radar trace
 	playerFresnel:setMaxEnergy(500)								--more maximum energy (vs 400)
 	playerFresnel:setEnergy(500)
+	playerFresnel:setShieldsMax(80,80)							--stronger shields (vs 40)
+	playerFresnel:setShields(80,80)
 	playerFresnel:setJumpDrive(true)							--jump drive (vs none)
 	playerFresnel.max_jump_range = 20000						--shorter than typical (vs 50)
 	playerFresnel.min_jump_range = 2000							--shorter than typical (vs 5)
@@ -51005,7 +51004,12 @@ function handleWeaponRestock(weapon)
         return
     end
     local points_per_item = getWeaponCost(weapon)
-    local item_amount = math.floor(comms_source:getWeaponStorageMax(weapon) * comms_data.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage(weapon)
+    local item_amount = 1
+    if comms_data.max_weapon_refill_amount == nil then
+    	print("comms data, max weapon refill amount is nil for station:",comms_target:getCallSign())
+    else
+    	item_amount = math.floor(comms_source:getWeaponStorageMax(weapon) * comms_data.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage(weapon)
+    end
     if item_amount <= 0 then
         if weapon == "Nuke" then
             setCommsMessage("All nukes are charged and primed for destruction.");
