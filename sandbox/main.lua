@@ -47,6 +47,7 @@
 -- Engineering, Engineering+	Gather coolant status	5
 -- Helm, Tactical				fighter dock banner		5
 -- Helm, Tactical				jump overcharge			6
+-- Engineering, Engineering+	Shields	banner			7
 
 require("utils.lua")
 require("sandbox/errorHandling.lua")
@@ -58,7 +59,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.9.1"
+	scenario_version = "6.10.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1099,12 +1100,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Splinter")	--J
-	makePlayerShipActive("Flaire")		--J
-	makePlayerShipActive("Barracuda") 	--J 
-	makePlayerShipActive("Rip")			--W
-	makePlayerShipActive("Claw")		--W
-	makePlayerShipActive("Quill") 		--W 
+	makePlayerShipActive("Knuckle Drag")	--J
+	makePlayerShipActive("Flaire")			--J
+	makePlayerShipActive("Barracuda") 		--J 
+	makePlayerShipActive("Sting")			--W
+	makePlayerShipActive("Anvil")			--W
+	makePlayerShipActive("Quill") 			--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -10276,16 +10277,16 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 6 and not mirrorUniverse then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
+--		if i == 6 and not mirrorUniverse then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+--			dp6Zone:setColor(0,128,0):setLabel("6")
 --		elseif i == 2 and not mirrorUniverse then
 --			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
 --			dp2Zone:setColor(0,128,0):setLabel("2")
 --		elseif i == 5 and not mirrorUniverse then
 --			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 --			dp5Zone:setColor(0,128,0):setLabel("5")
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -10293,7 +10294,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -50036,6 +50037,37 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
+	if comms_source.shield_banner == nil or not comms_source.shield_banner then
+		if comms_target.shield_banner == nil then
+			if random(1,100) < 50 then
+				comms_target.shield_banner = true
+			else
+				comms_target.shield_banner = false
+			end
+		end
+		if comms_target.shield_banner then
+			addCommsReply(_("station-comms","Spare portable shield diagnostic"),function()
+				setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
+				addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
+					if comms_source:takeReputationPoints(5) then
+						comms_source.shield_banner = true
+						comms_target.shield_banner = false
+						setCommsMessage(_("station-comms","Installed"))
+					else
+						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+					end
+					addCommsReply(_("Back"), commsStation)
+				end)
+			end)
+		end
+	elseif comms_source.shield_banner ~= nil and comms_source.shield_banner then
+		addCommsReply("Give portable shield diagnostic to repair technicians",function()
+			setCommsMessage("Thanks. They will put it to good use.")
+			comms_source.shield_banner = false
+			comms_target.shield_banner = true
+			addCommsReply(_("Back"), commsStation)
+		end)
+	end
     if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) and 
     	comms_target.comms_data.idle_defense_fleet ~= nil then
     	local defense_fleet_count = 0
@@ -53249,6 +53281,7 @@ function update(delta)
 			updatePlayerInNebula(delta,p)
 			updatePlayerJumpOverchargeBanner(p)
 			updatePlayerHackedButton(p)
+			updatePlayerShieldBanner(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -54235,6 +54268,41 @@ function updatePlayerTimerWidgets(p)
 		timer_gm_message = nil
 	end	--end of timer started boolean checks
 end
+function updatePlayerShieldBanner(p)
+	if p.shield_banner then
+		local shield_status = ""
+		if p:getShieldCount() > 1 then
+			shield_status = string.format("F:%.1f/%i R:%.1f/%i",p:getShieldLevel(0),p:getShieldMax(0),p:getShieldLevel(1),p:getShieldMax(1))
+		elseif p:getShieldCount() == 1 then
+			shield_status = string.format("Shield:%.1f/%i",p:getShieldLevel(0),p:getShieldMax(0))
+		end
+		if shield_status ~= "" then
+			p.shield_banner_eng = "shield_banner_eng"
+			p:addCustomInfo("Engineering",p.shield_banner_eng,shield_status,7)
+			p.shield_banner_epl = "shield_banner_epl"
+			p:addCustomInfo("Engineering+",p.shield_banner_epl,shield_status,7)
+		else
+			if p.shield_banner_eng ~= nil then
+				p:removeCustom(p.shield_banner_eng)
+				p.shield_banner_eng = nil
+			end
+			if p.shield_banner_epl ~= nil then
+				p:removeCustom(p.shield_banner_epl)
+				p.shield_banner_epl = nil
+			end
+		end
+	else
+		if p.shield_banner_eng ~= nil then
+			p:removeCustom(p.shield_banner_eng)
+			p.shield_banner_eng = nil
+		end
+		if p.shield_banner_epl ~= nil then
+			p:removeCustom(p.shield_banner_epl)
+			p.shield_banner_epl = nil
+		end		
+	end
+end
+
 function powerSensorConfigButtons(p)
 	p.power_sensor_state = "configure"
 	updatePowerSensorButtons(p)
