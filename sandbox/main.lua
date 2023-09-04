@@ -59,7 +59,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.10.1"
+	scenario_version = "6.11.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1100,12 +1100,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Knuckle Drag")	--J
+	makePlayerShipActive("Bling")			--J
 	makePlayerShipActive("Flaire")			--J
-	makePlayerShipActive("Barracuda") 		--J 
-	makePlayerShipActive("Sting")			--W
+	makePlayerShipActive("Outcast") 		--J 
+	makePlayerShipActive("Vision")			--W
 	makePlayerShipActive("Anvil")			--W
-	makePlayerShipActive("Quill") 			--W 
+	makePlayerShipActive("Watson") 			--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -13344,17 +13344,17 @@ function createKentarColor()
 	local start_angle = 315
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
---		if i == 1 then
---			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
---			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
+		if i == 1 then
+			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
 --		elseif i == 2 then
 --			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
 --			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
---		else
+		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
---		end
+		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -25186,8 +25186,8 @@ function createPlayerShipBling()
 	playerGadfly:setTypeName("Gadfly")
 	playerGadfly:setHullMax(100)						--stronger (vs 60)
 	playerGadfly:setHull(100)
-	playerGadfly:setShieldsMax(90,50)					--stronger shields (vs 40)
-	playerGadfly:setShields(90,50)
+	playerGadfly:setShieldsMax(100,70)					--stronger shields (vs 40)
+	playerGadfly:setShields(100,70)
 	playerGadfly:setJumpDrive(true)						--jump drive (vs none)
 	playerGadfly.max_jump_range = 15000					--shorter than typical (vs 50)
 	playerGadfly.min_jump_range = 2000					--shorter than typical (vs 5)
@@ -26541,15 +26541,15 @@ function createPlayerShipOutcast()
 	playerOutcast.min_jump_range = 2500					--shorter than typical (vs 5)
 	playerOutcast:setJumpDriveRange(playerOutcast.min_jump_range,playerOutcast.max_jump_range)
 	playerOutcast:setJumpDriveCharge(playerOutcast.max_jump_range)
-	playerOutcast:setShieldsMax(120,100)				--stronger (vs 70,70)
-	playerOutcast:setShields(120,100)
+	playerOutcast:setShieldsMax(140,100)				--stronger (vs 70,70)
+	playerOutcast:setShields(140,100)
 --                 				   Arc, Dir, Range, CycleTime, Damage
 	playerOutcast:setBeamWeapon(0,  10,   0,  1200,			5,	4)	--3 front, 1 rear turret (vs 4 front)
 	playerOutcast:setBeamWeapon(1,  80, -20,  1000, 		5,	5)	--shorter (vs 1400, 1200, 1000, 800)
 	playerOutcast:setBeamWeapon(2,  80,  20,  1000, 		5,	5)	--shorter beams stronger
 	playerOutcast:setBeamWeapon(3,  10, 180,  1000, 		5,	5)
 --										   Arc, Dir, Rotate speed
-	playerOutcast:setBeamWeaponTurret(3,	90,	180,	 .4)		--slow turret
+	playerOutcast:setBeamWeaponTurret(3,	90,	180,	 .4)	--slow turret
 	playerOutcast:setWeaponTubeCount(3)							--more (vs 2)
 	playerOutcast:setWeaponTubeDirection(2,180)
 	playerOutcast:setWeaponStorageMax("Mine",3)					--more (vs 0)
@@ -38993,14 +38993,16 @@ function podPickupProcess(self,retriever)
 	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			local preparerIsRetriever = false
-			for pb, pb_item in pairs(p.podButton) do
-				if pb == podCallSign then
-					if not pb_item.active then
-						podPrepped = true
-						if p == pb_item.preparer then
-							preparerIsRetriever = true
+			if p.podButton ~= nil then
+				for pb, pb_item in pairs(p.podButton) do
+					if pb == podCallSign then
+						if not pb_item.active then
+							podPrepped = true
+							if p == pb_item.preparer then
+								preparerIsRetriever = true
+							end
+							break
 						end
-						break
 					end
 				end
 			end
@@ -49483,7 +49485,7 @@ function commsStation()
 			if defense_fleet_count > 0 then
 				addCommsReply("Activate station defense fleet (" .. getServiceCost("activatedefensefleet") .. " rep)",function()
 					if comms_source:takeReputationPoints(getServiceCost("activatedefensefleet")) then
-						local out = string.format("%s defense fleet\n",comms_target:getCallSign())
+					--	local out = string.format("%s defense fleet\n",comms_target:getCallSign())
 						for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
 							local script = Script()
 							local position_x, position_y = comms_target:getPosition()
@@ -49494,11 +49496,12 @@ function commsStation()
 							script:setVariable("template",template)
 							script:setVariable("faction_id",comms_target:getFactionId())
 							script:run("border_defend_station.lua")
-							out = out .. " " .. name
+					--		out = out .. " " .. name
 							comms_target.comms_data.idle_defense_fleet[name] = nil
 						end
-						out = out .. "\nactivated"
-						setCommsMessage(out)
+					--	out = out .. "\nactivated"
+					--	setCommsMessage(out)
+						setCommsMessage("Defense fleet activated")
 					else
 						setCommsMessage("Insufficient reputation")
 					end
