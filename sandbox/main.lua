@@ -59,7 +59,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.11.1"
+	scenario_version = "6.12.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -615,6 +615,14 @@ function setConstants()
 						{angle = 150, dist = 2	},
 						{angle = 210, dist = 2	},
 					},
+		["H"] =		{
+						{angle = 90	, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 45 , dist = math.sqrt(2) },
+						{angle = 135, dist = math.sqrt(2) },
+						{angle = 225, dist = math.sqrt(2) },
+						{angle = 315, dist = math.sqrt(2) },
+					},
 		["/"] =		{
 						{angle = 60	, dist = 1	},
 						{angle = 240, dist = 1	},
@@ -738,6 +746,112 @@ function setConstants()
 						{angle = 330, dist = 2	},
 						{angle = 150, dist = 2	},
 						{angle = 210, dist = 2	},
+					},
+		["X12"] =	{
+						{angle = 60	, dist = 1	},
+						{angle = 300, dist = 1	},
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
+						{angle = 60	, dist = 2	},
+						{angle = 300, dist = 2	},
+						{angle = 120, dist = 2	},
+						{angle = 240, dist = 2	},
+						{angle = 60	, dist = 3	},
+						{angle = 300, dist = 3	},
+						{angle = 120, dist = 3	},
+						{angle = 240, dist = 3	},
+					},
+		["Xac12"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 30	, dist = 2	},
+						{angle = 330, dist = 2	},
+						{angle = 150, dist = 2	},
+						{angle = 210, dist = 2	},
+						{angle = 30	, dist = 3	},
+						{angle = 330, dist = 3	},
+						{angle = 150, dist = 3	},
+						{angle = 210, dist = 3	},
+					},
+		["X16"] =	{
+						{angle = 60	, dist = 1	},
+						{angle = 300, dist = 1	},
+						{angle = 120, dist = 1	},
+						{angle = 240, dist = 1	},
+						{angle = 60	, dist = 2	},
+						{angle = 300, dist = 2	},
+						{angle = 120, dist = 2	},
+						{angle = 240, dist = 2	},
+						{angle = 60	, dist = 3	},
+						{angle = 300, dist = 3	},
+						{angle = 120, dist = 3	},
+						{angle = 240, dist = 3	},
+						{angle = 60	, dist = 4	},
+						{angle = 300, dist = 4	},
+						{angle = 120, dist = 4	},
+						{angle = 240, dist = 4	},
+					},
+		["Xac16"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 30	, dist = 2	},
+						{angle = 330, dist = 2	},
+						{angle = 150, dist = 2	},
+						{angle = 210, dist = 2	},
+						{angle = 30	, dist = 3	},
+						{angle = 330, dist = 3	},
+						{angle = 150, dist = 3	},
+						{angle = 210, dist = 3	},
+						{angle = 30	, dist = 4	},
+						{angle = 330, dist = 4	},
+						{angle = 150, dist = 4	},
+						{angle = 210, dist = 4	},
+					},
+		["*"] =		{
+						{angle = 30	, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 270, dist = 1	},
+					},
+		["*12"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 30	, dist = 2	},
+						{angle = 90	, dist = 2	},
+						{angle = 330, dist = 2	},
+						{angle = 150, dist = 2	},
+						{angle = 210, dist = 2	},
+						{angle = 270, dist = 2	},
+					},
+		["*18"] =	{
+						{angle = 30	, dist = 1	},
+						{angle = 90	, dist = 1	},
+						{angle = 330, dist = 1	},
+						{angle = 150, dist = 1	},
+						{angle = 210, dist = 1	},
+						{angle = 270, dist = 1	},
+						{angle = 30	, dist = 2	},
+						{angle = 90	, dist = 2	},
+						{angle = 330, dist = 2	},
+						{angle = 150, dist = 2	},
+						{angle = 210, dist = 2	},
+						{angle = 270, dist = 2	},
+						{angle = 30	, dist = 3	},
+						{angle = 90	, dist = 3	},
+						{angle = 330, dist = 3	},
+						{angle = 150, dist = 3	},
+						{angle = 210, dist = 3	},
+						{angle = 270, dist = 3	},
 					},
 	}
 	prebuilt_leaders = {		--130			140		120			125				120		140					140			140			150				100			76		73		70			70			70				45
@@ -29277,10 +29391,40 @@ function setPrebuiltFormationShape()
 	addGMFunction("+M",setPrebuiltFormationCategoryM)
 	addGMFunction("+W",setPrebuiltFormationCategoryW)
 	addGMFunction("+X",setPrebuiltFormationCategoryX)
+	addGMFunction("+H",setPrebuiltFormationCategoryH)
+	addGMFunction("+*",setPrebuiltFormationCategorySplat)
+end
+function setPrebuiltFormationCategorySplat()
+	clearGMFunctions()
+	local form_list = {"*","*12","*18"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
+end
+function setPrebuiltFormationCategoryH()
+	clearGMFunctions()
+	local form_list = {"H"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
 end
 function setPrebuiltFormationCategoryX()
 	clearGMFunctions()
-	local form_list = {"X","X8","Xac","Xac8"}
+	local form_list = {"X","X8","Xac","Xac8","X12","Xac12","X16","Xac16"}
 	for _, form in ipairs(form_list) do
 		local button_label = form
 		if form == formation_shape then
