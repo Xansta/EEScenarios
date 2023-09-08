@@ -24,7 +24,7 @@ require("generate_call_sign_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.0.1"
+	scenario_version = "0.0.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Locust Swarm    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -1334,6 +1334,16 @@ function gatherSwarm()
 		end
 	end
 end
+function modifyLocustBehavior()
+	if behavior_modified == nil then
+		for i,ship in pairs(swarm_ships) do
+			if ship:isValid() then
+				ship:setAI("default")
+			end
+		end
+		behavior_modified = "done"
+	end
+end
 function update(delta)
 	if delta == 0 then
 		--game paused
@@ -1421,5 +1431,8 @@ function update(delta)
 	end
 	if getScenarioTime() > 600 then
 		gatherSwarm()
+	end
+	if getScenarioTime() > 1800 then
+		modifyLocustBehavior()
 	end
 end
