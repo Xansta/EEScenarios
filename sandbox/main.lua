@@ -48,6 +48,7 @@
 -- Helm, Tactical				fighter dock banner		5
 -- Helm, Tactical				jump overcharge			6
 -- Engineering, Engineering+	Shields	banner			7
+-- Engineering, Engineering+	Hull banner				8
 
 require("utils.lua")
 require("sandbox/errorHandling.lua")
@@ -59,7 +60,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.12.1"
+	scenario_version = "6.13.1"
 	ee_version = "2022.10.29"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -132,6 +133,7 @@ function setConstants()
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
 --	universe:addAvailableRegion("Bask (R56)",baskSector,958938,260657)	--spawn point adjusted to 100 units west of Magnasol while Bask is under construction
 	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
+	universe:addAvailableRegion("Staunch (AR12)",staunchSector,153668,775877)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	universe:addAvailableRegion("FilkRoad (zj-12).", filkRoadSector, -323500, -431000)
 	initialSandboxDatabaseUpdate()
@@ -1214,11 +1216,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Bling")			--J
+	makePlayerShipActive("Terror")			--J
 	makePlayerShipActive("Flaire")			--J
-	makePlayerShipActive("Outcast") 		--J 
+	makePlayerShipActive("Kindling") 		--J 
 	makePlayerShipActive("Vision")			--W
-	makePlayerShipActive("Anvil")			--W
+	makePlayerShipActive("Crux")			--W
 	makePlayerShipActive("Watson") 			--W 
 
 	active_player_ship = true
@@ -2298,6 +2300,65 @@ function createSkeletonUniverse()
 	}
 	station_names[stationBask:getCallSign()] = {stationBask:getSectorName(), stationBask}
 	stationBask.skeleton_station = true
+	--	Staunch
+	staunch_x = 142731
+	staunch_y = 775509
+	stationStaunch = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Staunch"):setPosition(staunch_x, staunch_y):setDescription("Mining and liaison"):setCommsScript(""):setCommsFunction(commsStation)
+	stationStaunch:setShortRangeRadarRange(7000)
+    stationStaunch.comms_data = {
+    	friendlyness = 57,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 12,					EMP = math.random(9,11) },
+        weapon_available = 	{Homing = true,		HVLI = true,			Mine = true,			Nuke = true,				EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornetreinforcements =	math.random(75,125),
+			phobosreinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<80},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "We mine the asteroids nearby. We also interact with the other stations in the region.",
+    	history = "This region looked like a good place to set up our operation. We have a friendly reciprocal helpful relationship with the stations around here.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Nirvana R5",
+			DF7 = "Adder MK8",
+			DF8 = "Elara P2",
+    	},
+	}
+	station_names[stationStaunch:getCallSign()] = {stationStaunch:getSectorName(), stationStaunch}
+	stationStaunch.skeleton_station = true
 
 	-- name regions
 	Zone():setColor(40, 40, 60):setLabel("Twin Pits Reserve"):setPoints(-329513, -356716, -426268, -419647, -379858, -512076, -252817, -514436, -239445, -450720, -253211, -411389)
@@ -10208,7 +10269,7 @@ function setDefaultPlayerSpawnPointsInOtherRegions()
 	addGMFunction("-Start Region",setStartRegion)
 	addGMFunction("-Player Spawn Point",setDefaultPlayerSpawnPoint)
 	local region_group_2 = {
-		"Eris", "Santa", "Riptide",
+		"Eris", "Santa", "Riptide", "Staunch"
 	}
 	for i=1,#universe.available_regions do
 		local region=universe.available_regions[i]
@@ -21806,6 +21867,343 @@ function riptideBinarySector()
 	}
 	return ret
 end
+--	New region
+function staunchSector()
+	staunch_color = true
+	staunch_planets = createStaunchPlanets()
+	staunch_asteroids = createStaunchAsteroids()
+	staunch_stations = createStaunchStations()
+	regionStations = staunch_stations
+	return {destroy=removeStaunchColor}
+end
+function createStaunchStations()
+	local stations = {}
+	--	Wortast
+	stationWortast = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wortast"):setPosition(112296, 730897):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationWortast:setShortRangeRadarRange(5000)
+	stationWortast.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	warp =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We gather minerals from the asteroids",
+    	history = "We just came for the minerals. Pickings are pretty good, so we've been growing our station capacity.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 14 then stationWortast:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationWortast:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationWortast:setSharesEnergyWithDocked(false) end
+	station_names[stationWortast:getCallSign()] = {stationWortast:getSectorName(), stationWortast}
+	table.insert(stations,stationWortast)
+	--	Trendy
+	stationTrendy = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Trendy"):setPosition(79971, 697816):setDescription("Mining and monitoring"):setCommsScript(""):setCommsFunction(commsStation)
+	stationTrendy:setShortRangeRadarRange(6000)
+	stationTrendy.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<50,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<50,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<70,
+        self_destruct_repair =	random(1,100)<20,
+--		mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	lifter =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We gather minerals from the asteroids and not traffic patterns in the area",
+    	history = "We're her eprimarily for the minerals, but we also get a stipend from the CUF to make periodic reports on civilian and military traffic in the area.",
+    	idle_defense_fleet = {
+			DF1 = "MU52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	if random(1,100) <= 14 then stationTrendy:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationTrendy:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationTrendy:setSharesEnergyWithDocked(false) end
+	station_names[stationTrendy:getCallSign()] = {stationTrendy:getSectorName(), stationTrendy}
+	table.insert(stations,stationTrendy)
+    return stations
+end
+function createStaunchPlanets()
+	local gizen_x = 50292
+	local gizen_y = 789498
+	planet_gizen = Planet():setPosition(gizen_x, gizen_y):setPlanetRadius(1000):setDistanceFromMovementPlane(-2000.00):setPlanetSurfaceTexture("planets/star-1.png"):setPlanetCloudRadius(1050.00):setPlanetAtmosphereColor(1.0,.9,.9)
+	local px, py = vectorFromAngle(random(0,360),56409)
+	px = px + gizen_x
+	py = py + gizen_y
+	--	original position x,y: 92074, 751601
+	planet_merc = Planet():setPosition(px, py):setPlanetRadius(6000):setDistanceFromMovementPlane(-1000.00):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudRadius(6300.00)
+	planet_merc:setOrbit(planet_gizen, 10)	--final: 600
+	px, py = vectorFromAngle(random(0,360),165884)
+	px = px + gizen_x
+	py = py + gizen_y
+	--	original position x,y: 173959, 678936
+	planet_medusa = Planet():setPosition(px, py):setPlanetRadius(21000):setDistanceFromMovementPlane(-6000.00):setPlanetSurfaceTexture("planets/gas-1.png"):setPlanetCloudRadius(22050.00)
+	planet_medusa:setOrbit(planet_gizen, 30)	--final: 3400
+	local ox, oy = vectorFromAngle(random(0,360),33021)
+	ox = ox + px
+	oy = oy + py
+	--	original position x,y: 146932, 697907
+	planet_phantom = Planet():setPosition(ox, oy):setPlanetRadius(2000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-1.png"):setPlanetCloudRadius(2100.00)
+	planet_phantom:setOrbit(planet_medusa, 2)	--final: 890
+	ox, oy = vectorFromAngle(random(0,360),55376)
+	ox = ox + px
+	oy = oy + py
+	--	original position x,y: 132685, 715854
+	planet_gorgon = Planet():setPosition(ox, oy):setPlanetRadius(3000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-3.png"):setPlanetCloudRadius(3150.00)
+	planet_gorgon:setOrbit(planet_medusa, 3)	--final: 1790
+end
+function createStaunchAsteroids()
+	local asteroid_list = {}
+	table.insert(asteroid_list,Asteroid():setPosition(109764, 732062):setSize(34))
+	table.insert(asteroid_list,Asteroid():setPosition(105078, 732816):setSize(230))
+	table.insert(asteroid_list,Asteroid():setPosition(106428, 729214):setSize(323))
+	table.insert(asteroid_list,Asteroid():setPosition(104312, 727587):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(111473, 727424):setSize(23))
+	table.insert(asteroid_list,Asteroid():setPosition(106184, 725471):setSize(321))
+	table.insert(asteroid_list,Asteroid():setPosition(112938, 734666):setSize(463))
+	table.insert(asteroid_list,Asteroid():setPosition(109677, 736780):setSize(412))
+	table.insert(asteroid_list,Asteroid():setPosition(116518, 739305):setSize(522))
+	table.insert(asteroid_list,Asteroid():setPosition(116193, 738816):setSize(617))
+	table.insert(asteroid_list,Asteroid():setPosition(123354, 748174):setSize(715))
+	table.insert(asteroid_list,Asteroid():setPosition(123598, 750616):setSize(828))
+	table.insert(asteroid_list,Asteroid():setPosition(114910, 747405):setSize(912))
+	table.insert(asteroid_list,Asteroid():setPosition(119448, 744757):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(122784, 744513):setSize(229))
+	table.insert(asteroid_list,Asteroid():setPosition(120913, 740851):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(125693, 742489):setSize(325))
+	table.insert(asteroid_list,Asteroid():setPosition(126168, 749783):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(123790, 735194):setSize(417))
+	table.insert(asteroid_list,Asteroid():setPosition(118345, 732409):setSize(228))
+	table.insert(asteroid_list,Asteroid():setPosition(125376, 732657):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(118309, 737352):setSize(513))
+	table.insert(asteroid_list,Asteroid():setPosition(117820, 739630):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(124266, 725680):setSize(612))
+	table.insert(asteroid_list,Asteroid():setPosition(120618, 726156):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(109113, 729540):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(109520, 726610):setSize(714))
+	table.insert(asteroid_list,Asteroid():setPosition(107079, 723600):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(111717, 724983):setSize(16))
+	table.insert(asteroid_list,Asteroid():setPosition(114077, 725715):setSize(29))
+	table.insert(asteroid_list,Asteroid():setPosition(115786, 730272):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(117211, 736379):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(119350, 722508):setSize(18))
+	table.insert(asteroid_list,Asteroid():setPosition(97625, 723301):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(101220, 721321):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(104150, 722379):setSize(114))
+	table.insert(asteroid_list,Asteroid():setPosition(103175, 737890):setSize(10))
+	table.insert(asteroid_list,Asteroid():setPosition(126168, 763103):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(78029, 701222):setSize(475))
+	table.insert(asteroid_list,Asteroid():setPosition(76238, 697804):setSize(119))
+	table.insert(asteroid_list,Asteroid():setPosition(87712, 702524):setSize(24))
+	table.insert(asteroid_list,Asteroid():setPosition(91130, 714893):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(86166, 707162):setSize(317))
+	table.insert(asteroid_list,Asteroid():setPosition(92025, 710010):setSize(121))
+	table.insert(asteroid_list,Asteroid():setPosition(84213, 701547):setSize(413))
+	table.insert(asteroid_list,Asteroid():setPosition(81284, 703419):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(101589, 710298):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(97965, 713184):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(93978, 706104):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(89909, 707732):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(100406, 716195):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(102441, 718636):setSize(58))
+	table.insert(asteroid_list,Asteroid():setPosition(103336, 717985):setSize(115))
+	table.insert(asteroid_list,Asteroid():setPosition(106664, 715214):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(104801, 719368):setSize(48))
+	table.insert(asteroid_list,Asteroid():setPosition(104556, 725146):setSize(121))
+	table.insert(asteroid_list,Asteroid():setPosition(93978, 714079):setSize(114))
+	table.insert(asteroid_list,Asteroid():setPosition(96012, 716683):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(148052, 779754):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(143612, 780547):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(143136, 785304):setSize(54))
+	table.insert(asteroid_list,Asteroid():setPosition(139964, 785780):setSize(115))
+	table.insert(asteroid_list,Asteroid():setPosition(139330, 779278):setSize(402))
+	table.insert(asteroid_list,Asteroid():setPosition(138379, 783718):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(145673, 776899):setSize(51))
+	table.insert(asteroid_list,Asteroid():setPosition(147417, 773411):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(138854, 769764):setSize(24))
+	table.insert(asteroid_list,Asteroid():setPosition(143136, 770874):setSize(390))
+	table.insert(asteroid_list,Asteroid():setPosition(144405, 767702):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(140599, 789585):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(145197, 791171):setSize(74))
+	table.insert(asteroid_list,Asteroid():setPosition(148052, 791964):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(150272, 788792):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(150272, 784511):setSize(123))
+	table.insert(asteroid_list,Asteroid():setPosition(145832, 785145):setSize(211))
+	table.insert(asteroid_list,Asteroid():setPosition(142819, 763579):setSize(129))
+	table.insert(asteroid_list,Asteroid():setPosition(142184, 759298):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(138696, 764689):setSize(328))
+	table.insert(asteroid_list,Asteroid():setPosition(135207, 763738):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(138537, 773569):setSize(413))
+	table.insert(asteroid_list,Asteroid():setPosition(135524, 776424):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(135841, 753113):setSize(617))
+	table.insert(asteroid_list,Asteroid():setPosition(136952, 758663):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(119033, 749783):setSize(727))
+	table.insert(asteroid_list,Asteroid():setPosition(119033, 754540):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(115861, 718227):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(123314, 719178):setSize(827))
+	table.insert(asteroid_list,Asteroid():setPosition(112214, 741062):setSize(113))
+	table.insert(asteroid_list,Asteroid():setPosition(111738, 720606):setSize(123))
+	table.insert(asteroid_list,Asteroid():setPosition(128864, 768812):setSize(925))
+	table.insert(asteroid_list,Asteroid():setPosition(130767, 762311):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(133304, 771349):setSize(113))
+	table.insert(asteroid_list,Asteroid():setPosition(132194, 766433):setSize(326))
+	table.insert(asteroid_list,Asteroid():setPosition(126961, 758981):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(131719, 757078):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(128706, 753589):setSize(420))
+	table.insert(asteroid_list,Asteroid():setPosition(126010, 755333):setSize(128))
+	table.insert(asteroid_list,Asteroid():setPosition(128706, 744392):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(126486, 737573):setSize(323))
+	table.insert(asteroid_list,Asteroid():setPosition(132353, 752320):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(127596, 745819):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(67179, 684292):setSize(65))
+	table.insert(asteroid_list,Asteroid():setPosition(62104, 686988):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(60043, 681913):setSize(76))
+	table.insert(asteroid_list,Asteroid():setPosition(73046, 682706):setSize(126))
+	table.insert(asteroid_list,Asteroid():setPosition(67972, 692221):setSize(31))
+	table.insert(asteroid_list,Asteroid():setPosition(68606, 689208):setSize(115))
+	table.insert(asteroid_list,Asteroid():setPosition(70985, 685402):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(76238, 693329):setSize(39))
+	table.insert(asteroid_list,Asteroid():setPosition(72332, 695526):setSize(127))
+	table.insert(asteroid_list,Asteroid():setPosition(83887, 695444):setSize(500))
+	table.insert(asteroid_list,Asteroid():setPosition(67496, 680803):setSize(129))
+	table.insert(asteroid_list,Asteroid():setPosition(89062, 696344):setSize(124))
+	table.insert(asteroid_list,Asteroid():setPosition(73146, 691701):setSize(320))
+	table.insert(asteroid_list,Asteroid():setPosition(77215, 689667):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(79982, 693247):setSize(419))
+	table.insert(asteroid_list,Asteroid():setPosition(81609, 691457):setSize(115))
+	--	Southeast quadrant
+	table.insert(asteroid_list,Asteroid():setPosition(64821, 862078):setSize(621))
+	table.insert(asteroid_list,Asteroid():setPosition(66597, 860600):setSize(214))
+	table.insert(asteroid_list,Asteroid():setPosition(79566, 862266):setSize(18))
+	table.insert(asteroid_list,Asteroid():setPosition(75029, 860565):setSize(747))
+	table.insert(asteroid_list,Asteroid():setPosition(68980, 869639):setSize(23))
+	table.insert(asteroid_list,Asteroid():setPosition(64254, 868883):setSize(129))
+	table.insert(asteroid_list,Asteroid():setPosition(62742, 867938):setSize(312))
+	table.insert(asteroid_list,Asteroid():setPosition(63876, 867371):setSize(122))
+	table.insert(asteroid_list,Asteroid():setPosition(95256, 854138):setSize(32))
+	table.insert(asteroid_list,Asteroid():setPosition(86938, 853382):setSize(879))
+	table.insert(asteroid_list,Asteroid():setPosition(88860, 853607):setSize(428))
+	table.insert(asteroid_list,Asteroid():setPosition(96012, 851302):setSize(24))
+	table.insert(asteroid_list,Asteroid():setPosition(93933, 847900):setSize(34))
+	table.insert(asteroid_list,Asteroid():setPosition(102628, 841662):setSize(43))
+	table.insert(asteroid_list,Asteroid():setPosition(108866, 842040):setSize(943))
+	table.insert(asteroid_list,Asteroid():setPosition(102439, 849034):setSize(1123))
+	table.insert(asteroid_list,Asteroid():setPosition(110001, 828051):setSize(24))
+	table.insert(asteroid_list,Asteroid():setPosition(87505, 857919):setSize(29))
+	table.insert(asteroid_list,Asteroid():setPosition(96567, 854035):setSize(329))
+	table.insert(asteroid_list,Asteroid():setPosition(115672, 824459):setSize(857))
+	table.insert(asteroid_list,Asteroid():setPosition(115861, 832588):setSize(788))
+	table.insert(asteroid_list,Asteroid():setPosition(117118, 833769):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(124367, 821246):setSize(34))
+	table.insert(asteroid_list,Asteroid():setPosition(122855, 820112):setSize(687))
+	table.insert(asteroid_list,Asteroid():setPosition(118546, 837908):setSize(47))
+	table.insert(asteroid_list,Asteroid():setPosition(117118, 836909):setSize(229))
+	table.insert(asteroid_list,Asteroid():setPosition(116617, 835423):setSize(585))
+	table.insert(asteroid_list,Asteroid():setPosition(115548, 834054):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(115483, 822947):setSize(347))
+	table.insert(asteroid_list,Asteroid():setPosition(62364, 863023):setSize(117))
+	table.insert(asteroid_list,Asteroid():setPosition(67657, 859809):setSize(458))
+	table.insert(asteroid_list,Asteroid():setPosition(65199, 859998):setSize(336))
+	table.insert(asteroid_list,Asteroid():setPosition(101494, 846198):setSize(116))
+	table.insert(asteroid_list,Asteroid():setPosition(74462, 862645):setSize(286))
+	table.insert(asteroid_list,Asteroid():setPosition(127581, 817465):setSize(21))
+	table.insert(asteroid_list,Asteroid():setPosition(132496, 814440):setSize(37))
+	table.insert(asteroid_list,Asteroid():setPosition(127581, 827295):setSize(643))
+	table.insert(asteroid_list,Asteroid():setPosition(125502, 822569):setSize(732))
+	table.insert(asteroid_list,Asteroid():setPosition(125882, 820960):setSize(111))
+	table.insert(asteroid_list,Asteroid():setPosition(132685, 810282):setSize(13))
+	table.insert(asteroid_list,Asteroid():setPosition(106976, 842418):setSize(324))
+	table.insert(asteroid_list,Asteroid():setPosition(111135, 836369):setSize(115))
+	table.insert(asteroid_list,Asteroid():setPosition(112647, 841851):setSize(417))
+	table.insert(asteroid_list,Asteroid():setPosition(114538, 825594):setSize(112))
+	table.insert(asteroid_list,Asteroid():setPosition(122666, 822002):setSize(328))
+	table.insert(asteroid_list,Asteroid():setPosition(127203, 822002):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(121343, 828051):setSize(218))
+	table.insert(asteroid_list,Asteroid():setPosition(88451, 850546):setSize(124))
+	table.insert(asteroid_list,Asteroid():setPosition(88640, 852437):setSize(378))
+	table.insert(asteroid_list,Asteroid():setPosition(85426, 852437):setSize(118))
+	table.insert(asteroid_list,Asteroid():setPosition(103952, 851681):setSize(440))
+	table.insert(asteroid_list,Asteroid():setPosition(101872, 850357):setSize(120))
+	table.insert(asteroid_list,Asteroid():setPosition(124746, 834856):setSize(331))
+	table.insert(asteroid_list,Asteroid():setPosition(118507, 836936):setSize(125))
+	table.insert(asteroid_list,Asteroid():setPosition(107543, 840338):setSize(279))
+	table.insert(asteroid_list,Asteroid():setPosition(75785, 863590):setSize(125))
+	table.insert(asteroid_list,Asteroid():setPosition(77676, 862077):setSize(366))
+	table.insert(asteroid_list,Asteroid():setPosition(56892, 865024):setSize(43))
+	return asteroid_list
+end
+function removeStaunchColor()
+	staunch_color = false
+	if staunch_planets ~= nil then
+		for i,sp in pairs(staunch_planets) do
+			sp:destroy()
+		end
+	end
+	staunch_planets = nil
+	if staunch_asteroids ~= nil then
+		for i,sa in pairs(staunch_asteroids) do
+			sa:destroy()
+		end
+	end
+	staunch_asteroids = nil
+	if staunch_stations ~= nil then
+		for i,ss in pairs(staunch_stations) do
+			if ss ~= stationStaunch then
+				ss:destroy()
+			end
+		end
+	end
+	staunch_stations = nil
+end
 
 function placeTknolgBase()
 	if gm_click_mode == "tknolg base" then
@@ -26349,8 +26747,8 @@ function createPlayerShipKindling()
 	playerKindling.min_jump_range = 3000					--shorter than typical (vs 5)
 	playerKindling:setJumpDriveRange(playerKindling.min_jump_range,playerKindling.max_jump_range)
 	playerKindling:setJumpDriveCharge(playerKindling.max_jump_range)
-	playerKindling:setShieldsMax(125, 75)					--stronger shields (vs 80, 80)
-	playerKindling:setShields(125, 75)
+	playerKindling:setShieldsMax(130, 95)					--stronger shields (vs 80, 80)
+	playerKindling:setShields(130, 95)
 	playerKindling:setHullMax(100)							--weaker hull (vs 200)
 	playerKindling:setHull(100)
 	playerKindling:setWeaponTubeDirection(0,-90)			--left -60 (vs -5)
@@ -50184,6 +50582,37 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
+	if comms_source.hull_banner == nil or not comms_source.hull_banner then
+		if comms_target.hull_banner == nil then
+			if random(1,100) < 50 then
+				comms_target.hull_banner = true
+			else
+				comms_target.hull_banner = false
+			end
+		end
+		if comms_target.hull_banner then
+			addCommsReply("Spare portable hull diagnostic",function()
+				setCommsMessage(_("station-comms","We've got a spare portable hull diagnostic if you're interested. Engineers use these to get raw data on hull status. Why? Well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
+				addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
+					if comms_source:takeReputationPoints(5) then
+						comms_source.hull_banner = true
+						comms_target.hull_banner = false
+						setCommsMessage(_("station-comms","Installed"))
+					else
+						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+					end
+					addCommsReply(_("Back"), commsStation)
+				end)
+			end)
+		end
+	elseif comms_source.hull_banner ~= nil and comms_source.hull_banner then
+		addCommsReply("Give portable hull diagnostic to repair technicians",function()
+			setCommsMessage("Thanks. They will put it to good use.")
+			comms_source.hull_banner = false
+			comms_target.hull_banner = true
+			addCommsReply("Back", commsStation)
+		end)
+	end
 	if comms_source.shield_banner == nil or not comms_source.shield_banner then
 		if comms_target.shield_banner == nil then
 			if random(1,100) < 50 then
@@ -50194,7 +50623,7 @@ function handleDockedState()
 		end
 		if comms_target.shield_banner then
 			addCommsReply(_("station-comms","Spare portable shield diagnostic"),function()
-				setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
+				setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? Well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
 				addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
 					if comms_source:takeReputationPoints(5) then
 						comms_source.shield_banner = true
@@ -51120,7 +51549,7 @@ function getCoolantFromStation(relationship)
 					else
 						local delay_seconds = math.random(3,20)
 						comms_target.comms_data.coolant_packaging_delay = getScenarioTime() + delay_seconds
-						setCommsMessage(string.format(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transport. They say thay should have it working in about %i seconds"),delay_seconds))
+						setCommsMessage(string.format(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transport. They say they should have it working in about %i seconds"),delay_seconds))
 					end
 				else	--delay in progress
 					local delay_seconds = math.floor(comms_target.comms_data.coolant_packaging_delay - getScenarioTime())
@@ -53429,6 +53858,7 @@ function update(delta)
 			updatePlayerJumpOverchargeBanner(p)
 			updatePlayerHackedButton(p)
 			updatePlayerShieldBanner(p)
+			updatePlayerHullBanner(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -54414,6 +54844,24 @@ function updatePlayerTimerWidgets(p)
 		timer_value = nil
 		timer_gm_message = nil
 	end	--end of timer started boolean checks
+end
+function updatePlayerHullBanner(p)
+	if p.hull_banner then
+		local hull_status = string.format("Hull:%.1f/%i",p:getHull(),p:getHullMax())
+		p.hull_banner_eng = "hull_banner_eng"
+		p:addCustomInfo("Engineering",p.hull_banner_eng,hull_status,8)
+		p.hull_banner_epl = "hull_banner_epl"
+		p:addCustomInfo("Engineering+",p.hull_banner_epl,hull_status,8)
+	else
+		if p.hull_banner_eng ~= nil then
+			p:removeCustom(p.hull_banner_eng)
+			p.hull_banner_eng = nil
+		end
+		if p.hull_banner_epl ~= nil then
+			p:removeCustom(p.hull_banner_epl)
+			p.hull_banner_epl = nil
+		end
+	end
 end
 function updatePlayerShieldBanner(p)
 	if p.shield_banner then
