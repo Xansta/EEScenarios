@@ -231,7 +231,12 @@ function errorHandling:_checkRelayMessageSent(fn,myTraceback)
 		addCommsReply = function (text, fn)
 			return _addCommsReply(text,self:_checkRelayMessageSent(fn,traceback()))
 		end
-		local ret = fn()
+		local ret = nil
+		if fn() ~= nil then
+			ret = fn()
+		else
+			ret = "fn passed to error handling for checking relay messaging was nil"
+		end
 		if messageUnset and myTraceback then
 			self:onError("A function set via addCommsReply has been called, but setCommsMessage wasn't called. This will result in relay seeing \"?\"\n Traceback of the function setting the callback is as follows \n\n",myTraceback)
 		end

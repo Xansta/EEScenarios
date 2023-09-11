@@ -60,8 +60,8 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.13.1"
-	ee_version = "2022.10.29"
+	scenario_version = "6.14.1"
+	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -282,6 +282,7 @@ function setConstants()
 		["Adder MK4"] =			{strength = 6,	adder = true,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = false,	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 580,	create = stockTemplate},
 		["Fighter"] =			{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Ktlitan Fighter"] =	{strength = 6,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 1180,	create = stockTemplate},
+		["Touchy"] =			{strength = 7,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 2000,	create = touchy},
 		["MU55 Hornet"] =		{strength = 7,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5500,	hop_angle = 0,	hop_range = 880,	create = hornetMU55},
 		["Blade"] =				{strength = 7,	adder = false,	missiler = false,	beamer = true,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
 		["Gunner"] =			{strength = 7,	adder = false,	missiler = false,	beamer = false,	frigate = false,	chaser = false,	fighter = true, 	drone = false,	unusual = false,	base = false,	short_range_radar = 5000,	hop_angle = 0,	hop_range = 980,	create = stockTemplate},
@@ -1217,9 +1218,9 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Terror")			--J
-	makePlayerShipActive("Flaire")			--J
+	makePlayerShipActive("Rattler")			--J
 	makePlayerShipActive("Kindling") 		--J 
-	makePlayerShipActive("Vision")			--W
+	makePlayerShipActive("Swoop")			--W
 	makePlayerShipActive("Crux")			--W
 	makePlayerShipActive("Watson") 			--W 
 
@@ -1367,6 +1368,7 @@ function setConstants()
 		["Fiend G5"] =						400,
 		["Fiend G6"] =						400,
 		["Fighter"] =						100,
+		["Touchy"] =						100,
 		["Flash"] =							100,
 		["Flavia"] =						200,
 		["Flavia Falcon"] =					200,
@@ -1450,6 +1452,7 @@ function setConstants()
 		["Nirvana R5A"] =					200,
 		["Odin"] = 							1500,
 		["Omnibus"] = 						800,
+		["Peacock"] =						400,
 		["Personnel Freighter 1"] =			600,
 		["Personnel Freighter 2"] =			600,
 		["Personnel Freighter 3"] =			600,
@@ -27285,10 +27288,13 @@ function createPlayerShipRaptor()
 	return playerRaptor
 end
 function createPlayerShipRattler()
+	--	stolen from Kraylor, may be used for intelligence gathering
 	playerRattler = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Rattler")
 	playerRattler:setTypeName("MX-Lindworm")
 	playerRattler:setRepairCrewCount(2)						--more (vs 1)
 	playerRattler:setJumpDrive(true)
+	playerRattler:setShieldsMax(80)							--stronger shields (vs 40)
+	playerRattler:setShields(80)
 	playerRattler.max_jump_range = 20000					--shorter than typical (vs 50)
 	playerRattler.min_jump_range = 3000						--shorter than typical (vs 5)
 	playerRattler:setJumpDriveRange(playerRattler.min_jump_range,playerRattler.max_jump_range)
@@ -27385,16 +27391,16 @@ function createPlayerShipRoc()
 	playerRoc:setTypeName("Roc")
 	playerRoc:setRepairCrewCount(5)					--more repair crew (vs 3)
 	playerRoc:setWarpDrive(true)					--warp drive (vs none)
-	playerRoc:setWarpSpeed(440)
-	playerRoc:setShieldsMax(150,50)					--strong front, weak rear (vs 100,100)
-	playerRoc:setShields(150,50)
+	playerRoc:setWarpSpeed(480)
+	playerRoc:setShieldsMax(150,80)					--strong front, weak rear (vs 100,100)
+	playerRoc:setShields(150,80)
 	playerRoc:setImpulseMaxSpeed(75)				--slower impulse max (vs 80)
 	playerRoc:setRotationMaxSpeed(9)				--slower spin (vs 10)
 	playerRoc:setAcceleration(15)					--slower acceleration (vs 20)
 --                 			  Arc, Dir, Range, CycleTime, Damage
 	playerRoc:setBeamWeapon(0, 30,  10,	 1000,		 8.0, 6)	--shorter, narrower (vs 1.2u, 90 deg) 
 	playerRoc:setBeamWeapon(1, 30, -10,	 1000,		 8.0, 6)	--shorter, narrower (vs 1.2u, 90 deg) 
-	playerRoc:setBeamWeapon(2, 10, 180,	 1500,		 2.0, 0.5)	--weak turreted 3rd beam 
+	playerRoc:setBeamWeapon(2, 10, 180,	 1500,		 2.0, 1)	--weak turreted 3rd beam 
 --									  Arc,	Dir, Rotate speed
 	playerRoc:setBeamWeaponTurret( 2, 310,	180, 1)		
 	playerRoc:setWeaponTubeCount(8)					--more (vs 3)
@@ -35322,6 +35328,32 @@ function mikado(enemyFaction)
 	end
 	return ship
 end
+function touchy(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Fighter"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	if ship_template["Touchy"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Touchy"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Touchy")
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	12,	  0,	 2200,	9.0,	9.0)	--narrower (vs 60), longer (vs 1000), slower (vs 4),  stronger (vs 4)
+	local touchy_db = queryScienceDatabase("Ships","Starfighter","Touchy")
+	if touchy_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Touchy")
+		touchy_db = queryScienceDatabase("Ships","Starfighter","Touchy")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Exuari","Dagger"),	--base ship database entry
+			touchy_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Touchy is a fighter with a highly modified beam weapon: narrower, longer, slower and stronger",
+			nil,
+			nil,
+			"small_fighter_1"
+		)
+	end
+	return ship
+end
 
 function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range,model_name)
 	modified_db:setLongDescription(description)
@@ -41918,7 +41950,7 @@ function createSupplyDrop(location,energy,homing,nuke,mine,emp,hvli,repairCrew,c
 	end
 	-- this really wants to be a function argument, but that will want enum support for the web interface ideally
 	-- aka this is on the list but cant be done right now
-	print(supplyLabel,wordy_label)
+--	print(supplyLabel,wordy_label)
 	if supply_drop_info == "Label" then
 		customSupplyDrop:setCallSign(supplyLabel)
 	elseif supply_drop_info == "Scan" then
@@ -49999,6 +50031,7 @@ function commsStation()
 		["Large Station"]	= 4,
 		["Huge Station"]	= 5,
 		["Military Outpost"] = 2,
+		["Sniper Tower"]	= 2,
     }
     local temp_type = comms_target:getTypeName()
     local panic_range = 5000
@@ -52054,7 +52087,7 @@ function handleUndockedState()
 				end
 				for i=1,#knowledge_stations do
 					station = tableRemoveRandom(knowledge_stations)
-					print("random station:",station,station:getCallSign())
+--					print("random station:",station,station:getCallSign())
 					if station ~= nil and station:isValid() and station ~= comms_target then
 						local brainCheckChance = 60
 						if distance(comms_target,station) > 75000 then
