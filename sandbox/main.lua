@@ -37,6 +37,9 @@
 -- Weapons, Tactical			Turbo Torpedo			13
 -- Engineering, Engineering+	Level Coolant			26
 -- Helm, Tactical				Dock with name			18
+-- All							Notify security			35
+-- All							Activate Defenses		36
+-- Relay, Operations			Security Report			42
 
 -- addCustomInfo indices
 -- Relay, Operations			Fast Dock Expired		2
@@ -60,7 +63,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.14.1"
+	scenario_version = "6.15.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1826,6 +1829,27 @@ function setConstants()
 	explosion_range = 1000
 	explosion_damage_degredation = "Linear"
 	linked_beam = false
+	benign_successes_source = {
+		"The boarders left milk and cookies in the galley. They are being analyzed by medical personnel.",
+		"The boarders hung some attractive abstract art pieces on the walls of the recreation center. We're still trying to determine their purpose.",
+		"After the boarders left, the environmental controls function with greater efficiency. The air quality has greatly improved. Maintenance personnel are running diagnostics.",
+		"One of the crew member's quarters was found in slight disarray - a colorful mural now adorns one wall. We checked it for adverse environmental impact, but it was benign. That crew member now has more frequent visitors from other vrew members.",
+		"The boarders left the lighting on deck 3, corridor 5 is slightly brighter. We can't determine how this was accomplished. Replacing the lighting sources seems to make no difference. No adverse impacts from the lighting.",
+		"The walls in the small recreation area on deck 5 are now completely reflective as if mirrors were installed. Analysis reveals a coating of some reflective material approximately two microns thick. Testing shows nothing dangerous.",
+		"The boarders set some kind of trigger on the entry into the captain's quarters. A female voice now says something like 'Nyah nyah' everytime someone enters. Engineering has not yet been able to determine the source of the sound.",
+	}
+	security_morale_boosters = {
+		"Target practice",
+		"Situational awareness",
+		"Advanced combat training",
+		"Target identification simulation",
+		"Self defense",
+		"Tactical analysis",
+		"Knowing your opponent's mind",
+		"Advanced weapons training",
+		"Competetive shooting training",
+		"Advanced martial arts",
+	}
 end
 function addFactions()
 -- extra factions
@@ -2360,6 +2384,11 @@ function createSkeletonUniverse()
 			DF8 = "Elara P2",
     	},
 	}
+	--	Staunch defense platforms
+	local sdp_1 = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("SDP_1"):setPosition(144252, 774451):orderRoaming()
+	station_names[sdp_1:getCallSign()] = {sdp_1:getSectorName(), sdp_1}
+	local sdp_2 = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("SDP_2"):setPosition(141426, 776608):orderRoaming()
+	station_names[sdp_2:getCallSign()] = {sdp_2:getSectorName(), sdp_2}
 	station_names[stationStaunch:getCallSign()] = {stationStaunch:getSectorName(), stationStaunch}
 	stationStaunch.skeleton_station = true
 
@@ -9755,18 +9784,11 @@ function filkRoadSector()
 		table.insert(objects, worm)
 	end
 
-	wormHGenCommsFunc = function()
-		setCommsMessage(_("station-comms", "THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."))
-	end
-	wormWPCommsFunc = function()
-		setCommsMessage(_("station-comms", "Beep bop I'm an automated defense system and not in talkative mood."))
-	end
-
-	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 7"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-333556, -444455):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 6"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-284920, -390762):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 5"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-185633, -237027):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 4"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-240207, -311652):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 3"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-125286, -166062):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
+	table.insert(objects, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 7"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-333556, -444455):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
+	table.insert(objects, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 6"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-284920, -390762):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
+	table.insert(objects, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 5"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-185633, -237027):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
+	table.insert(objects, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 4"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-240207, -311652):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
+	table.insert(objects, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 3"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-125286, -166062):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
 	
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-184991, -238907):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 	table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 4"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-285064, -392):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
@@ -9819,11 +9841,6 @@ function filkRoadSector()
 	westPoint:setRepairDocked(random(1,100)<76)
 	westPoint:setSharesEnergyWithDocked(random(1,100)<92)
 	table.insert(objects, westPoint)
-
-	-- spawned in Icarus region
-	-- table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	-- table.insert(objects, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	-- table.insert(objects, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-67349, -95244):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
 
 	-- exuari ambush site close in Twin Pits Reserve
 	table.insert(objects, Mine():setPosition(-297992, -402936))
@@ -9903,25 +9920,6 @@ function filkRoadSector()
 	microSolutionsDockingRing:setRepairDocked(random(1,100)<76)
 	microSolutionsDockingRing:setSharesEnergyWithDocked(random(1,100)<92)
 	table.insert(objects, microSolutionsDockingRing)
-
-	-- wrecks of player ships
-	-- TBD: cool idea? we could put some interesting treasure on them as well.
-	table.insert(objects, CpuShip():setFaction("Independent"):setTemplate("Atlantis"):setTypeName("Triumph"):setPosition(-293975, -401175):setCallSign("Dominant's mangled remains"):setDescription("Resting place of Human Navy ship 'Endeavor', lost to Exuari by Icarus Patrol on 06May2023, despite overwhelming firepower."):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-294421, y=-401343}, 500, 1, 1, 1, 3, 5, 0, 1, 1, 30, 1))
-	table.insert(objects, createSupplyDrop({x=-294265, y=-401604}, 600, 3, 2, 1, 2, 8, 0, 1, 1, 10, 1))
-
-	table.insert(objects, CpuShip():setFaction("Ktlitans"):setTemplate("Ktlitan Queen"):setTypeName("Ktlitan Brood Mother"):setPosition(-193130, -270975):setCallSign("Brood Mother corpse"):setDescription("Decaying body of a Ktlitan Brood Mother, slain by Icarus Patrol on 06May2023"):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-193040, y=-270157}, 500, 5, 1, 1, 1, 5, 0, 1, 2, 10, 1))
-	table.insert(objects, createSupplyDrop({x=-193562, y=-270295}, 600, 3, 2, 3, 2, 8, 0, 1, 3, 40, 1))
-
-	table.insert(objects, CpuShip():setFaction("Independent"):setTemplate("Atlantis"):setTypeName("Bermuda"):setPosition(-171549, -215552):setCallSign("Endeavor's resting place"):setDescription("What remains of Human Navy ship 'Endeavor', lost to Exuari by Icarus Patrol on 06May2023, due to general incompetence."):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-171617, y=-215971}, 200, 2, 1, 0, 1, 5, 0, 1, 2, 30, 1))
-	table.insert(objects, createSupplyDrop({x=-171195, y=-215707}, 300, 3, 2, 3, 2, 8, 0, 1, 3, 40, 1))
-
-	table.insert(objects, CpuShip():setFaction("Independent"):setTemplate("Hathcock"):setTypeName("Chavez"):setPosition(-42114, -67989):setCallSign("Wesson's wreckage"):setDescription("Remains of Human Navy ship 'Wesson', lost to Exuari by Icarus Patrol on 06May2023. She was a good ship, the crew - not so much."):orderIdle())
-	table.insert(objects, createSupplyDrop({x=-41040, y=-67705}, 200, 2, 1, 0, 1, 5, 0, 2, 2, 20, 1))
-	table.insert(objects, createSupplyDrop({x=-43081, y=-67487}, 300, 0, 0, 3, 0, 2, 0, 0, 2, 33, 1))
-	table.insert(objects, createSupplyDrop({x=-39218, y=-67341}, 400, 0, 0, 2, 1, 5, 0, 2, 2, 15, 1))
 
 	addGMMessage("[FilkRoad] starting objects, count=" .. #objects)
 
@@ -10455,16 +10453,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 and not mirrorUniverse then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
---		elseif i == 2 and not mirrorUniverse then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
+		if i == 2 and not mirrorUniverse then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
 --		elseif i == 5 and not mirrorUniverse then
 --			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 --			dp5Zone:setColor(0,128,0):setLabel("5")
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -10472,7 +10467,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -11449,9 +11444,10 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-	--local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 7 E4")
-	--maximilianZone:setColor(51,153,255)
-    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 7"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 8 E4")
+	maximilianZone:setColor(51,153,255):setLabel("X")
+	--[[
+    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 8"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationMaximilian:setFaction("Spacer")
 	end
@@ -11501,6 +11497,7 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
+	--]]
 	--Mean Time
 	stationMeanTime = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Mean Time"):setPosition(-59605, -126288):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMeanTime.comms_data = {
@@ -11732,9 +11729,10 @@ function createIcarusStations()
 	station_names[stationMosEspa:getCallSign()] = {stationMosEspa:getSectorName(), stationMosEspa}
 	table.insert(stations,stationMosEspa)
 	--Nerva E4m8
---	local nervaZone = squareZone(-9203, -2077, "Nerva 11 E4")
---	nervaZone:setColor(51,153,255):setLabel("N")
-    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 11"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
+	local nervaZone = squareZone(-9203, -2077, "Nerva 12 E4")
+	nervaZone:setColor(51,153,255):setLabel("N")
+	--[[
+    stationNerva = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Nerva 12"):setPosition(-9203, -2077):setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationNerva:setFaction("Spacer")
 	end
@@ -11785,6 +11783,7 @@ function createIcarusStations()
 	if random(1,100) <= 23 then stationNerva:setSharesEnergyWithDocked(false) end
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
+	--]]
 	--Pistil
 --	local pistilZone = squareZone(24834, 20416, "Pistil 9 G6")
 --	pistilZone:setColor(0,128,0):setLabel("P")
@@ -12588,17 +12587,22 @@ end
 function createIcarusFilkRoadStuff()
 	local ret = {}
 
-	table.insert(ret, WormHole():setPosition(-9623, -13494):setTargetPosition(-67497, -89579):setCallSign("to Micro Solutions Inc."))
+--	table.insert(ret, WormHole():setPosition(-9623, -13494):setTargetPosition(-67497, -89579):setCallSign("to Micro Solutions Inc."))
 	table.insert(ret, WormHole():setPosition(-71370, -94747):setTargetPosition(-125051, -162639):setCallSign("to Micro Solutions Inc."))
 	table.insert(ret, WormHole():setPosition(-63495, -92114):setTargetPosition(-5569, -17483):setCallSign("to Icarus"))
 
-	wormHGenCommsFunc = function()
-		setCommsMessage(_("station-comms", "THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."))
-	end
-	table.insert(ret, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(ret, CpuShip():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc):orderRoaming())
-	table.insert(ret, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-67349, -95244):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming())
+	table.insert(ret, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
+	local wormhole_generator_1_zone	= squareZone(-6841, -16073, "WH Gen 1 E4")
+	wormhole_generator_1_zone:setColor(51,153,255):setLabel("W")
+--	table.insert(ret, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
+	table.insert(ret, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-67349, -95244):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderStandGround())
 	return ret
+end
+function wormHGenCommsFunc()
+	setCommsMessage(_("station-comms", "THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."))
+end
+function wormWPCommsFunc()
+	setCommsMessage(_("station-comms", "Beep bop I'm an automated defense system and not in talkative mood."))
 end
 function createIcarusArtifacts()
 	local artifact_list = {}
@@ -21925,6 +21929,11 @@ function createStaunchStations()
 	if random(1,100) <= 14 then stationWortast:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationWortast:setRepairDocked(false) end
 	if random(1,100) <= 12 then stationWortast:setSharesEnergyWithDocked(false) end
+	--	Wortast defense platforms
+	local wdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP2"):setPosition(112896, 733538):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
+	station_names[wdp1:getCallSign()] = {wdp1:getSectorName(), wdp1}
+	local wdp2 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP1"):setPosition(110476, 728574):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
+	station_names[wdp2:getCallSign()] = {wdp2:getSectorName(), wdp2}
 	station_names[stationWortast:getCallSign()] = {stationWortast:getSectorName(), stationWortast}
 	table.insert(stations,stationWortast)
 	--	Trendy
@@ -21960,7 +21969,7 @@ function createStaunchStations()
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
         general_information = "We gather minerals from the asteroids and not traffic patterns in the area",
-    	history = "We're her eprimarily for the minerals, but we also get a stipend from the CUF to make periodic reports on civilian and military traffic in the area.",
+    	history = "We're here primarily for the minerals, but we also get a stipend from the CUF to make periodic reports on civilian and military traffic in the area.",
     	idle_defense_fleet = {
 			DF1 = "MU52 Hornet",
 			DF2 = "MU52 Hornet",
@@ -21971,8 +21980,63 @@ function createStaunchStations()
 	if random(1,100) <= 14 then stationTrendy:setRestocksScanProbes(false) end
 	if random(1,100) <= 11 then stationTrendy:setRepairDocked(false) end
 	if random(1,100) <= 12 then stationTrendy:setSharesEnergyWithDocked(false) end
+	--	Trendy defense platforms
+	local tdp_1 = CpuShip():setFaction("CUF"):setTemplate("Defense platform"):setCallSign("TDP_1"):setPosition(81291, 696715):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	station_names[tdp_1:getCallSign()] = {tdp_1:getSectorName(), tdp_1}
+	local tdp_2 = CpuShip():setFaction("CUF"):setTemplate("Defense platform"):setCallSign("TDP_2"):setPosition(79036, 699499):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	station_names[tdp_2:getCallSign()] = {tdp_2:getSectorName(), tdp_2}
 	station_names[stationTrendy:getCallSign()] = {stationTrendy:getSectorName(), stationTrendy}
 	table.insert(stations,stationTrendy)
+	--	Dalton
+	stationDalton = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Dalton"):setPosition(110418, 831782)
+	stationDalton:setShortRangeRadarRange(6000)
+	stationDalton.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,					HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<30},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<50,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		true,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<70,
+        self_destruct_repair =	random(1,100)<20,
+--		mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	optic =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We get minerals and chill out",
+    	history = "This looked like a place for pretty easy pickings",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5",
+    	},
+	}
+	if random(1,100) <= 14 then stationDalton:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationDalton:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationDalton:setSharesEnergyWithDocked(false) end
+	station_names[stationDalton:getCallSign()] = {stationDalton:getSectorName(), stationDalton}
+	table.insert(stations,stationDalton)
+	--	Horst
+	stationHorst = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Horst"):setPosition(68783, 865202)
+	station_names[stationHorst:getCallSign()] = {stationHorst:getSectorName(), stationHorst}
+	table.insert(stations,stationHorst)
     return stations
 end
 function createStaunchPlanets()
@@ -22182,6 +22246,64 @@ function createStaunchAsteroids()
 	table.insert(asteroid_list,Asteroid():setPosition(75785, 863590):setSize(125))
 	table.insert(asteroid_list,Asteroid():setPosition(77676, 862077):setSize(366))
 	table.insert(asteroid_list,Asteroid():setPosition(56892, 865024):setSize(43))
+	--	Southwest quadrant near the star
+    table.insert(asteroid_list,Asteroid():setPosition(18628, 801679):setSize(610))
+    table.insert(asteroid_list,Asteroid():setPosition(19451, 793894):setSize(15))
+    table.insert(asteroid_list,Asteroid():setPosition(22517, 797000):setSize(780))
+    table.insert(asteroid_list,Asteroid():setPosition(16585, 795813):setSize(34))
+    table.insert(asteroid_list,Asteroid():setPosition(16234, 798261):setSize(32))
+    table.insert(asteroid_list,Asteroid():setPosition(16585, 798186):setSize(26))
+    table.insert(asteroid_list,Asteroid():setPosition(21331, 800625):setSize(840))
+    table.insert(asteroid_list,Asteroid():setPosition(18507, 797427):setSize(940))
+    table.insert(asteroid_list,Asteroid():setPosition(19043, 794712):setSize(19))
+    table.insert(asteroid_list,Asteroid():setPosition(19502, 794584):setSize(55))
+    table.insert(asteroid_list,Asteroid():setPosition(20294, 801964):setSize(32))
+    table.insert(asteroid_list,Asteroid():setPosition(19354, 804316):setSize(820))
+    table.insert(asteroid_list,Asteroid():setPosition(24329, 796295):setSize(211))
+    table.insert(asteroid_list,Asteroid():setPosition(24890, 796346):setSize(129))
+    table.insert(asteroid_list,Asteroid():setPosition(26069, 795915):setSize(322))
+    table.insert(asteroid_list,Asteroid():setPosition(24627, 796670):setSize(126))
+    table.insert(asteroid_list,Asteroid():setPosition(25879, 797725):setSize(413))
+    table.insert(asteroid_list,Asteroid():setPosition(23537, 801044):setSize(112))
+    table.insert(asteroid_list,Asteroid():setPosition(23111, 801086):setSize(511))
+    table.insert(asteroid_list,Asteroid():setPosition(24746, 799506):setSize(26))
+    table.insert(asteroid_list,Asteroid():setPosition(24839, 799129):setSize(112))
+    table.insert(asteroid_list,Asteroid():setPosition(22132, 799436):setSize(417))
+    table.insert(asteroid_list,Asteroid():setPosition(22847, 798252):setSize(121))
+    table.insert(asteroid_list,Asteroid():setPosition(26320, 795452):setSize(311))
+    table.insert(asteroid_list,Asteroid():setPosition(23836, 795418):setSize(123))
+    table.insert(asteroid_list,Asteroid():setPosition(21954, 794890):setSize(211))
+    table.insert(asteroid_list,Asteroid():setPosition(21529, 795154):setSize(11))
+    table.insert(asteroid_list,Asteroid():setPosition(21545, 794686):setSize(125))
+    table.insert(asteroid_list,Asteroid():setPosition(21852, 795401):setSize(43))
+    table.insert(asteroid_list,Asteroid():setPosition(21520, 795605):setSize(327))
+    table.insert(asteroid_list,Asteroid():setPosition(21721, 799317):setSize(120))
+    table.insert(asteroid_list,Asteroid():setPosition(18864, 795044):setSize(424))
+    table.insert(asteroid_list,Asteroid():setPosition(19068, 794175):setSize(122))
+    table.insert(asteroid_list,Asteroid():setPosition(18966, 793716):setSize(513))
+    table.insert(asteroid_list,Asteroid():setPosition(16949, 798491):setSize(129))
+    table.insert(asteroid_list,Asteroid():setPosition(21698, 803522):setSize(423))
+    table.insert(asteroid_list,Asteroid():setPosition(21529, 803129):setSize(124))
+    table.insert(asteroid_list,Asteroid():setPosition(23690, 801325):setSize(328))
+    table.insert(asteroid_list,Asteroid():setPosition(23282, 801453):setSize(122))
+    table.insert(asteroid_list,Asteroid():setPosition(21903, 803113):setSize(224))
+    table.insert(asteroid_list,Asteroid():setPosition(20013, 801745):setSize(119))
+    table.insert(asteroid_list,Asteroid():setPosition(18101, 805964):setSize(770))
+    table.insert(asteroid_list,Asteroid():setPosition(16239, 808769):setSize(113))
+    table.insert(asteroid_list,Asteroid():setPosition(17706, 803986):setSize(329))
+    table.insert(asteroid_list,Asteroid():setPosition(19074, 803098):setSize(128))
+    table.insert(asteroid_list,Asteroid():setPosition(16898, 795784):setSize(422))
+    table.insert(asteroid_list,Asteroid():setPosition(16847, 795503):setSize(129))
+    table.insert(asteroid_list,Asteroid():setPosition(19156, 795615):setSize(511))
+    table.insert(asteroid_list,Asteroid():setPosition(16463, 798670):setSize(126))
+    table.insert(asteroid_list,Asteroid():setPosition(17969, 798582):setSize(426))
+    table.insert(asteroid_list,Asteroid():setPosition(19419, 793374):setSize(368))
+    table.insert(asteroid_list,Asteroid():setPosition(20983, 797418):setSize(113))
+    table.insert(asteroid_list,Asteroid():setPosition(20672, 797659):setSize(271))
+    table.insert(asteroid_list,Asteroid():setPosition(26193, 797674):setSize(116))
+    table.insert(asteroid_list,Asteroid():setPosition(20702, 797163):setSize(389))
+    table.insert(asteroid_list,Asteroid():setPosition(19655, 798848):setSize(111))
+    table.insert(asteroid_list,Asteroid():setPosition(19419, 799175):setSize(453))
 	return asteroid_list
 end
 function removeStaunchColor()
@@ -22390,6 +22512,403 @@ function tweakPlayerShip()
 	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
 	addGMFunction("+Sensors",playerSensors)
 	addGMFunction("+Helm",playerHelm)
+	addGMFunction("+Boarders",setBoarders)
+end
+function setBoarders()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
+	addGMFunction("-From Boarders",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if boarder_intent == nil then
+			boarder_intent = "sabotage"
+		end
+		if boarder_entry == nil then
+			boarder_entry = "random"
+		end
+		if boarder_competence == nil then
+			boarder_competence = "medium"
+			boarder_success_chance = 50
+		end
+		if boarder_speed == nil then
+			boarder_speed = 60
+		end
+		addGMFunction(string.format("+Intent:%s",boarder_intent),setBoarderIntent)
+		addGMFunction(string.format("+Entry:%s",boarder_entry),setBoarderEntry)
+		addGMFunction(string.format("+Competence:%s",boarder_competence),setBoarderCompetence)
+		addGMFunction(string.format("+Speed:%s",boarder_speed),setBoarderSpeed)
+		addGMFunction(string.format("Board %s",p:getCallSign()),function()
+			if p.security_log == nil then
+				p.security_log = {}
+			end
+			if p.boarding == nil then
+				local boarder_entries = {}
+				if boarder_entry == "random" then
+					local possible_consoles = {
+						"Helms",
+						"Weapons",
+						"Engineering",
+						"Science",
+						"Relay",
+						"Tactical",
+						"Engineering+",
+						"Operations",
+						"Single",
+						"DamageControl",
+						"PowerManagement",
+						"Database",
+						"AltRelay",
+						"CommsOnly",
+						"ShipLog",
+					}
+					local consoles_in_use = {}
+					for i,console in ipairs(possible_consoles) do
+						if p:hasPlayerAtPosition(console) then
+							table.insert(consoles_in_use,console)
+						end
+					end
+					table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+					if #consoles_in_use > 0 and random(1,100) < 50 then
+						table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+						if #consoles_in_use > 0 and random(1,100) < 30 then
+							table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+							if #consoles_in_use > 0 and random(1,100) < 25 then
+								table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+								if #consoles_in_use > 0 and random(1,100) < 20 then
+									table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+								end
+							end
+						end
+					end
+				else
+					table.insert(boarder_entries,boarder_entry)
+				end
+				p.boarder_entry_button_inform_security = {}
+				p.boarder_entry_button_activate_defenses = {}
+				p.boarder_entry_message = {}
+				local boarder_consoles = ""
+				for i,console in ipairs(boarder_entries) do
+					p.boarder_entry_button_inform_security[console] = string.format("boarder_entry_button_inform_security_%s",console)
+					p:addCustomButton(console,p.boarder_entry_button_inform_security[console],"Inform Security",function()
+						string.format("")
+						boarderInformSecurity(p,console)
+					end,35)
+					p.boarder_entry_button_activate_defenses[console] = string.format("boarder_entry_button_activate_defenses_%s",console)
+					p:addCustomButton(console,p.boarder_entry_button_activate_defenses[console],"Activate Defenses",function()
+						boarderActivateDefenses(p,console)
+					end,36)
+					p.boarder_entry_message[console] = string.format("boarder_entry_message_%s",console)
+					p:addCustomMessage(console,p.boarder_entry_message[console],string.format("INTRUDER ALERT\nInternal sensors have detected non-crew life forms entering %s. You may inform security, activate automated defenses or do nothing",p:getCallSign()))
+					if boarder_consoles == "" then
+						boarder_consoles = console
+					else
+						boarder_consoles = string.format("%s, %s",boarder_consoles,console)
+					end
+				end
+				p.boarding = {
+					entries = boarder_entries,
+					intent = boarder_intent,
+					chance = boarder_success_chance,
+					done = getScenarioTime() + boarder_speed + random(0,3),
+				}
+				table.insert(p.security_log,{board_time = getScenarioTime(), egress_time = p.boarding.done, entries = boarder_entries, intent = boarder_intent})
+				addGMMessage(string.format("Boarding has started on %s. Notification has gone to the following consoles:\n%s",p:getCallSign(),boarder_consoles))
+			else
+				addGMMessage(string.format("Boarding already in progress on %s",p:getCallSign()))
+			end
+			setBoarders()
+		end)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function boarderActivateDefenses(p,console)
+	p.boarding.chance = p.boarding.chance - (5/#p.boarding.entries)
+	boarderRemoveButtons(p,console)
+end
+function boarderInformSecurity(p,console)
+	p.boarding.chance = p.boarding.chance - (10/#p.boarding.entries)
+	boarderRemoveButtons(p,console)
+end
+function boarderResult(p)
+	if p.boarding ~= nil then
+		if getScenarioTime() > p.boarding.done then
+			local board_roll = random(1,100) * p.security_morale
+			if board_roll < p.boarding.chance then
+				if p.boarding.intent == "sabotage" then
+					local possible_systems = {"reactor", "beamweapons", "missilesystem", "maneuver", "impulse", "warp", "jumpdrive", "frontshield", "rearshield"}
+					local sabotageable_systems = {}
+					for i,system in ipairs(possible_systems) do
+						if system == "beamweapons" then
+							if p:getBeamWeaponRange(0) > 1 then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "missilesystem" then
+							if p:getWeaponTubeCount() > 0 then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "warp" then
+							if p:hasWarpDrive() then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "jumpdrive" then
+							if p:hasJumpDrive() then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "rearshield" then
+							if p:getShieldCount() > 1 then
+								table.insert(sabotageable_systems,system)
+							end
+						else
+							table.insert(sabotageable_systems,system)
+						end
+					end
+					local system_to_sabotage = tableRemoveRandom(sabotageable_systems)
+					local damage_amount = .5
+					local morale_modifier = .95
+					p.security_log[#p.security_log].result = "success"
+					if (p.boarding.chance - board_roll) > 20 then
+						p.security_log[#p.security_log].result = "smashing success"
+						damage_amount = 1
+						morale_modifier = .9
+						if (p.boarding.chance - board_roll) > 40 then
+							damage_amount = 1.5
+							morale_modifier = .85
+							p.security_log[#p.security_log].result = "devastating success"
+						end
+					end
+					p.security_morale = p.security_morale * morale_modifier
+					p:setSystemHealth(system_to_sabotage,math.max(p:getSystemHealth(system_to_sabotage) - damage_amount,-1))
+					p.security_log[#p.security_log].result_desc = string.format("Boarding party sabotaged our %s",system_to_sabotage)
+				elseif p.boarding.intent == "information" then
+					p.security_log[#p.security_log].result = "success"
+					local morale_modifier = .95 
+					p.security_log[#p.security_log].result_desc = "From the forensic evidence left near our data access points, we believe the boarders obtained information from our systems."
+					if (p.boarding.chance - board_roll) > 20 then
+						morale_modifier = .9
+						p.security_log[#p.security_log].result = "smashing success"
+						p.security_log[#p.security_log].result_desc = "The intent of the boarders could not be determined."
+					end
+					p.security_morale = p.security_morale * morale_modifier
+				elseif p.boarding.intent == "benign" then
+					p.security_log[#p.security_log].result = "success"
+					if benign_successes == nil or #benign_successes < 1 then
+						benign_successes = {}
+						for i,benign in ipairs(benign_successes_source) do
+							table.insert(benign_successes,benign)
+						end
+					end
+					p.security_log[#p.security_log].result_desc = tableRemoveRandom(benign_successes)
+				end
+			else
+				local morale_modifier = 1.05
+				if board_roll - p.boarding.chance < 20 then
+					p.security_log[#p.security_log].result = "failure"
+					p.security_log[#p.security_log].result_desc = "The boarders were repelled."
+				else
+					p.security_log[#p.security_log].result = "severe failure"
+					p.security_log[#p.security_log].result_desc = "The boarders were easily repelled."
+					morale_modifier = 1.1
+				end
+				p.security_morale = math.min(1,p.security_morale * morale_modifier)
+			end
+			for i,console in ipairs(p.boarding.entries) do
+				boarderRemoveButtons(p,console)
+			end
+			
+			p.boarding = nil
+		end
+	end
+end
+function outClock(time_stamp)
+	if time_stamp == nil then
+		return "00:00:00.0"
+	end
+	if time_stamp >= 60 then
+		if time_stamp >= 3600 then
+			local hours = math.floor(time_stamp / 3600)
+			local minutes = math.floor((time_stamp - (hours * 3600)) / 60)
+			local seconds = time_stamp % 60
+			return string.format("%02d:%02d:%02.1f",hours,minutes,seconds)
+		else
+			local minutes = math.floor(time_stamp / 60)
+			local seconds = time_stamp % 60
+			return string.format("00:%02d:%02.1f",minutes,seconds)
+		end
+	else
+		return string.format("00:00:%02.1f",time_stamp)
+	end
+end
+function securityReport(p,console)
+	local list_out = ""
+	if p.security_log ~= nil and #p.security_log > 0 then
+		for i,log in ipairs(p.security_log) do
+			local report_item = string.format("%s: Sensors report intruders to",outClock(log.board_time))
+			if #log.entries > 1 then
+				for i,entry in ipairs(log.entries) do
+					if i == 1 then
+						report_item = string.format("%s consoles: %s",report_item,entry)
+					else
+						report_item = string.format("%s, %s",report_item,entry)
+					end
+				end
+				report_item = report_item .. "."
+			else
+				report_item = string.format("%s %s.",report_item,log.entries[1])
+			end
+			if getScenarioTime() > log.egress_time then
+				if log.result_desc ~= nil then
+					report_item = string.format("%s\n%s: %s",report_item,outClock(log.egress_time),log.result_desc)
+				else
+					report_item = string.format("%s\n%s: Sensors show intruders still aboard.",report_item,outClock(getScenarioTime()))
+				end
+			else
+				report_item = string.format("%s\n%s: Sensors show intruders still aboard.",report_item,outClock(getScenarioTime()))
+			end
+			if list_out == "" then
+				list_out = report_item
+			else
+				list_out = string.format("%s\n%s",list_out,report_item)
+			end
+		end
+	else
+		list_out = "No security incidents to report."
+	end
+	local out = string.format("%s\nSecurity morale: %.1f%%",list_out,p.security_morale * 100)
+	p.security_report_message = "security_report_message"
+	p:addCustomMessage(console,p.security_report_message,out)
+end
+function boarderRemoveButtons(p,console)
+	p:removeCustom(p.boarder_entry_button_inform_security[console])
+	p:removeCustom(p.boarder_entry_button_activate_defenses[console])
+	p:removeCustom(p.boarder_entry_message[console])
+end
+function setBoarderEntry()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
+	addGMFunction("-From Boarders",tweakPlayerShip)
+	addGMFunction("-From Entry",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local entry_point_setting = {
+			"random",
+			"Helms",
+			"Weapons",
+			"Engineering",
+			"Science",
+			"Relay",
+			"Tactical",
+			"Engineering+",
+			"Operations",
+			"Single",
+			"DamageControl",
+			"PowerManagement",
+			"Database",
+			"AltRelay",
+			"CommsOnly",
+			"ShipLog",
+		}
+		for i, entry in ipairs(entry_point_setting) do
+			if entry == "random" or p:hasPlayerAtPosition(entry) then
+				local button_label = string.format("Entry:%s",entry)
+				if boarder_entry == entry then
+					button_label = button_label .. "*"
+				end
+				addGMFunction(button_label,function()
+					boarder_entry = entry
+					setBoarderEntry()
+				end)
+			end
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setBoarderSpeed()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
+	addGMFunction("-From Boarders",tweakPlayerShip)
+	addGMFunction("-From Speed",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local speed_settings = {
+			10,
+			30,
+			60,
+			90,
+			120,
+		}
+		for i,speed in ipairs(speed_settings) do
+			local button_label = string.format("Speed:%s",speed)
+			if boarder_speed == speed then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				boarder_speed = speed
+				setBoarderSpeed()
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setBoarderCompetence()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
+	addGMFunction("-From Boarders",tweakPlayerShip)
+	addGMFunction("-From Competence",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local competence_settings = {
+			{desc = "low",		rate = 30},
+			{desc = "medium",	rate = 50},
+			{desc = "high",		rate = 80},
+		}
+		for i,competence in ipairs(competence_settings) do
+			local button_label = string.format("Competence:%s",competence.desc)
+			if boarder_competence == competence.desc then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				boarder_competence = competence.desc
+				boarder_success_chance = competence.rate
+				setBoarderCompetence()
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setBoarderIntent()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
+	addGMFunction("-From Boarders",tweakPlayerShip)
+	addGMFunction("-From Intent",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local intent_settings = {
+			"benign",
+			"sabotage",
+			"information",
+		}
+		for i, intent in ipairs(intent_settings) do
+			local button_label = string.format("Intent:%s",intent)
+			if boarder_intent == intent then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				boarder_intent = intent
+				setBoarderIntent()
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
 end
 function playerHelm()
 	clearGMFunctions()
@@ -29079,6 +29598,16 @@ function assignPlayerShipScore(p)
 	if spawn_x<200 and spawn_x>-200 and spawn_y<200 and spawn_y>-200 then-- if the player ship was spawned by the server ship selection screen
 		p:setPosition(playerSpawnX,playerSpawnY)	--put player in the correct region when spawned
 	end
+	p.security_report_button_rel = "security_report_button_rel"
+	p:addCustomButton("Relay",p.security_report_button_rel,"Security Report",function()
+		string.format("")
+		securityReport(p,"Relay")
+	end,42)
+	p.security_report_button_ops = "secursecurity_report_button_opsity_report_button_rel"
+	p:addCustomButton("Operations",p.security_report_button_ops,"Security Report",function()
+		string.format("")
+		securityReport(p,"Operations")
+	end,42)
 	--set defaults for those ships not found in the list
 	p.shipScore = 24
 	p.maxCargo = 5
@@ -29088,6 +29617,7 @@ function assignPlayerShipScore(p)
 	p.mining = false
 	p.max_pods = 1
 	p.pods = p.max_pods
+	p.security_morale = 1
 	updatePlayerSoftTemplate(p)
 end
 function updatePlayerSoftTemplate(p)
@@ -40480,13 +41010,15 @@ function engineerPointPrepButton(p,console,engineerCallSign,label,msg)
 		local other_players = getActivePlayerShips()
 		for other_pidx, other_p in ipairs(other_players) do
 			if other_p:isValid() then
-				for epb, epb_item in pairs(other_p.engineerPointButton) do
-					if epb_item.active and epb == engineerCallSign then
-						other_p:removeCustom(string.format("%s%s",epb,"Engineering"))
-						other_p:removeCustom(string.format("%s%s",epb,"Engineering+"))
-						other_p:addCustomMessage(console,"epbgone",string.format(msg,p:getCallSign(),epb))
-						other_p.engineerPointButton[epb].active = false
-						other_p.engineerPointButton[epb].preparer = p
+				if other_p.engineerPointButton ~= nil then
+					for epb, epb_item in pairs(other_p.engineerPointButton) do
+						if epb_item.active and epb == engineerCallSign then
+							other_p:removeCustom(string.format("%s%s",epb,"Engineering"))
+							other_p:removeCustom(string.format("%s%s",epb,"Engineering+"))
+							other_p:addCustomMessage(console,"epbgone",string.format(msg,p:getCallSign(),epb))
+							other_p.engineerPointButton[epb].active = false
+							other_p.engineerPointButton[epb].preparer = p
+						end
 					end
 				end
 			end
@@ -50677,6 +51209,32 @@ function handleDockedState()
 			addCommsReply(_("Back"), commsStation)
 		end)
 	end
+	if comms_source.security_morale < 1 then
+		if #security_morale_boosters > 0 then
+			if comms_target.security_training == nil then
+				comms_target.security_training = (random(1,100) < 77)
+			end
+			if comms_target.security_training then
+				addCommsReply("Select a morale boosting security training course",function()
+					setCommsMessage("We have access to some training courses for your security officers. They are designed to boost their morale as well as give them some training. Pick one to be downloaded for 5 reputation into your simulation systems if you're interested.")
+					for i,title in ipairs(security_morale_boosters) do
+						addCommsReply(title,function()
+							if comms_source:takeReputationPoints(5) then
+								setCommsMessage(string.format("'%s' has been downloaded. Your security officers are already taking advantage of it",title))
+								security_morale_boosters[i] = security_morale_boosters[#security_morale_boosters]
+								security_morale_boosters[#security_morale_boosters] = nil
+								comms_source.security_morale = 1
+							else
+								setCommsMessage("Insufficient reputation")
+							end	
+							addCommsReply(_("Back"), commsStation)				
+						end)
+					end
+					addCommsReply(_("Back"), commsStation)
+				end)
+			end
+		end
+	end
     if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) and 
     	comms_target.comms_data.idle_defense_fleet ~= nil then
     	local defense_fleet_count = 0
@@ -53892,6 +54450,7 @@ function update(delta)
 			updatePlayerHackedButton(p)
 			updatePlayerShieldBanner(p)
 			updatePlayerHullBanner(p)
+			boarderResult(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
