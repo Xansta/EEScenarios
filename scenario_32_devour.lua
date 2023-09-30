@@ -35,7 +35,7 @@ require("cpu_ship_diversification_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "1.0.0"
+	scenario_version = "1.0.1"
 	print(string.format("     -----     Scenario: Planet Devourer     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	spawn_enemy_diagnostic = false
@@ -1034,7 +1034,7 @@ function updatePlayerSoftTemplate(p)
 	local system_types = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
 	p.normal_coolant_rate = {}
 	p.normal_power_rate = {}
-	for _, system in ipairs(system_types) do
+	for i, system in ipairs(system_types) do
 		p.normal_coolant_rate[system] = p:getSystemCoolantRate(system)
 		p.normal_power_rate[system] = p:getSystemPowerRate(system)
 	end
@@ -1482,7 +1482,7 @@ function placeWarpJammer(axis)
 				local wj = WarpJammer():setPosition(eo_x, eo_y)
 				local closest_station_distance = 999999
 				local closest_station = nil
-				for _, station in ipairs(station_list) do
+				for i, station in ipairs(station_list) do
 					local current_distance = distance(station, eo_x, eo_y)
 					if current_distance < closest_station_distance then
 						closest_station_distance = current_distance
@@ -1586,7 +1586,7 @@ function placeSensorBuoy(axis)
 			buoy_type = tableRemoveRandom(buoy_type_list)
 			if buoy_type == "station" then
 				local selected_stations = {}
-				for _, station in ipairs(station_list) do
+				for i, station in ipairs(station_list) do
 					table.insert(selected_stations,station)
 				end
 				for i=1,3 do
@@ -1604,7 +1604,7 @@ function placeSensorBuoy(axis)
 			end
 			if buoy_type == "transport" then
 				local selected_transports = {}
-				for _, transport in ipairs(transport_list) do
+				for i, transport in ipairs(transport_list) do
 					table.insert(selected_transports,transport)
 				end
 				for i=1,3 do
@@ -1709,7 +1709,7 @@ function placeEnvironmentStation(axis)
 		local spaced_station = true
 		local closest_station_distance = 999999
 		local closest_station = nil
-		for _, station in ipairs(station_list) do
+		for i, station in ipairs(station_list) do
 			local current_distance = distance(station, eo_x, eo_y)
 			if current_distance < closest_station_distance then
 				closest_station_distance = current_distance
@@ -1776,7 +1776,7 @@ function placeEnvironmentStation(axis)
         }
 		--defense fleet
 		local fleet = spawnEnemies(eo_x, eo_y, 1, selected_faction, 35)
-		for _, ship in ipairs(fleet) do
+		for i, ship in ipairs(fleet) do
 			ship:setFaction("Independent")
 			ship:orderDefendTarget(station)
 			ship:setFaction(selected_faction)
@@ -1838,7 +1838,7 @@ function placeTransport(axis)
 		local ship, ship_size = randomTransportType()
 		local human_transports = 0
 		local independent_transports = 0
-		for _,transport in ipairs(transport_list) do
+		for i,transport in ipairs(transport_list) do
 			if transport:isValid() then
 				if transport:getFaction() == "Human Navy" then
 					human_transports = human_transports + 1
@@ -1870,7 +1870,7 @@ function placeAsteroid(axis)
 end
 function farEnough(o_x,o_y,obj_dist)
 	local far_enough = true
-	for _, item in ipairs(place_space) do
+	for i, item in ipairs(place_space) do
 		if item.shape == "circle" then
 			if distanceDiagnostic then
 				print("Distance diagnostic 2: item.obj:",item.obj,item.obj:getCallSign(),"o_x:",o_x,"o_y:",o_y)
@@ -1979,7 +1979,7 @@ function defenseMaintenance(delta)
 							local df_x, df_y = station:getPosition()
 							local station_faction = station:getFaction()
 							local fleet = spawnEnemies(df_x, df_y, 1, station_faction)
-							for _, ship in ipairs(fleet) do
+							for i, ship in ipairs(fleet) do
 								ship:setFaction("Independent")
 								ship:orderDefendTarget(station)
 								ship:setFaction(station_faction)
@@ -2260,7 +2260,7 @@ function handleDockedState()
 		setCommsMessage(_("station-comms","What station service are you interested in?"))
 		local missilePresence = 0
 		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
-		for _, missile_type in ipairs(missile_types) do
+		for i, missile_type in ipairs(missile_types) do
 			missilePresence = missilePresence + comms_source:getWeaponStorageMax(missile_type)
 		end
 		if missilePresence > 0 then
@@ -2576,7 +2576,7 @@ function handleDockedState()
 						setCommsMessage(_("station-comms","It's a monster. If we had the technical readouts for the planet devourer, we might find a weakness, and exploit it."))
 						addCommsReply(_("station-comms","Where can we get the plans for the planet devourer?"),function()
 							if station_kraylor == nil then
-								for _, station in ipairs(station_list) do
+								for i, station in ipairs(station_list) do
 									if station ~= nil and station:isValid() then
 										if station:getFaction() == "Kraylor" then
 											station_kraylor = station
@@ -3196,10 +3196,10 @@ function handleUndockedState()
 			end
 		end
 	end
-	for _, wj in ipairs(warp_jammer_list) do
+	for i, wj in ipairs(warp_jammer_list) do
 		if wj ~= nil and wj:isValid() then
 			local already_accessible = false
-			for _, awj in ipairs(accessible_warp_jammers) do
+			for j, awj in ipairs(accessible_warp_jammers) do
 				if awj == wj then
 					already_accessible = true
 				end
@@ -4349,7 +4349,7 @@ function revertWait(delta)
 end
 function revertCheck(delta)
 	if enemy_reverts ~= nil then
-		for _, enemy in ipairs(enemy_reverts) do
+		for i, enemy in ipairs(enemy_reverts) do
 			if enemy ~= nil and enemy:isValid() then
 				local expiration_chance = 0
 				local enemy_faction = enemy:getFaction()
@@ -5374,7 +5374,7 @@ function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, enemyStrength, tem
 			spawn_angle = random(0,360)
 		end
 		local circle_increment = 360/#enemyList
-		for _, enemy in ipairs(enemyList) do
+		for i, enemy in ipairs(enemyList) do
 			local dex, dey = vectorFromAngle(spawn_angle,spawn_distance*1000)
 			enemy:setPosition(xOrigin+dex,yOrigin+dey):setRotation(spawn_angle+180)
 			spawn_angle = spawn_angle + circle_increment
@@ -5398,7 +5398,7 @@ function getTemplatePool(max_strength)
 	end)
 	local template_pool = {}
 	if pool_selectivity == "less/heavy" then
-		for _, current_ship_template in ipairs(ship_template_by_strength) do
+		for i, current_ship_template in ipairs(ship_template_by_strength) do
 			if ship_template[current_ship_template].strength <= max_strength then
 				table.insert(template_pool,current_ship_template)
 			end
@@ -5498,7 +5498,7 @@ function devourPlanets()
 	if devourer.planet_target == nil and ejecta == nil then
 		local object_list = devourer:getObjectsInRange(300000)
 		local planets = {}
-		for _, obj in ipairs(object_list) do
+		for i, obj in ipairs(object_list) do
 			if obj.typeName == "Planet" then
 				table.insert(planets,obj)
 			end
@@ -5506,7 +5506,7 @@ function devourPlanets()
 		local distance_to_planet = 999999
 		local selected_planet = nil
 		if #planets > 0 then
-			for _, planet in ipairs(planets) do
+			for i, planet in ipairs(planets) do
 				if distance(devourer,planet) < distance_to_planet then
 					selected_planet = planet
 					distance_to_planet = distance(devourer,planet)
@@ -5894,7 +5894,7 @@ function explodeDevourer()
 			else
 				local object_list = getObjectsInRadius(center_x, center_y, 300000)
 				local planet_count = 0
-				for _, obj in ipairs(object_list) do
+				for i, obj in ipairs(object_list) do
 					if obj.typeName == "Planet" then
 						planet_count = planet_count + 1
 					end
@@ -6262,7 +6262,7 @@ function updateInner(delta)
 		devourPlanets()
 	end
 	explodeDevourer()
-	for _, p in ipairs(getActivePlayerShips()) do
+	for i, p in ipairs(getActivePlayerShips()) do
 		if p.start_message == nil then
 			p:addToShipLog(string.format("From: Headquarters\nTo: Captain and crew of %s\nThe Kraylor have decided to field test some newly developed weaponry. All we know is that it's big. Find out what they are up to. If, as usual, they are up to no good, stop them.\nGood luck.",p:getCallSign()),"Magenta")
 			p.start_message = "sent"
@@ -6271,7 +6271,7 @@ function updateInner(delta)
 			if getScenarioTime() > 60 then
 				if availableForComms(p) then
 					local friendly_station = nil
-					for _, station in ipairs(station_list) do
+					for j, station in ipairs(station_list) do
 						if station ~= nil and station:isValid() then
 							if station:isFriendly(p) then
 								friendly_station = station
