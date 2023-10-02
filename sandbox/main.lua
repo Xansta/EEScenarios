@@ -63,7 +63,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.15.2"
+	scenario_version = "6.16.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1224,7 +1224,7 @@ function setConstants()
 	makePlayerShipActive("Rattler")			--J
 	makePlayerShipActive("Kindling") 		--J 
 	makePlayerShipActive("Swoop")			--W
-	makePlayerShipActive("Crux")			--W
+	makePlayerShipActive("Ignite")			--W
 	makePlayerShipActive("Watson") 			--W 
 
 	active_player_ship = true
@@ -28624,6 +28624,8 @@ function createPlayerShipTorch()
 	playerTorch:setImpulseMaxSpeed(100)				--slower impulse max (vs 110)
 	playerTorch:setAcceleration(30)					--slower (vs 40)
 	playerTorch:setWarpSpeed(960)
+	playerTorch:setShieldsMax(80)					--stronger shields (vs 40)
+	playerTorch:setShields(80)
 	playerTorch:setHullMax(100)						--stronger hull (vs 60)
 	playerTorch:setHull(100)
 	local update_data = {
@@ -54521,7 +54523,7 @@ function update(delta)
 					ship.cyber_attack_timer = getScenarioTime() + ship.cyber_attack_interval
 				elseif #cpu_ship_victims > 0 then
 					if random(1,100) <= ship.cyber_attack_factor then
-						local cpu_ship = player_victims[math.random(1,#cpu_ship_victims)]
+						local cpu_ship = cpu_ship_victims[math.random(1,#cpu_ship_victims)]
 						local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
 						if not cpu_ship:hasWarpDrive() then
 							table.remove(system_list,6)
