@@ -21,6 +21,7 @@
 --			Defined here if not already defined. See populateStationPool
 
 --	placeStation returns the station placed or nil if there was an error. 
+--	placeStation sets the global sizeTemplate if selected randomly via szt
 function placeStation(x,y,name,faction,size,diagnostic)
 	--x and y are the position of the station
 	--name should be the name of the station or the name of the station group
@@ -49,20 +50,38 @@ function placeStation(x,y,name,faction,size,diagnostic)
 	else
 		if stationFaction ~= nil then
 			station:setFaction(stationFaction)
+			faction = stationFaction
 		else
 			station:setFaction("Independent")
+			faction = "Independent"
 		end
 	end
-	local station_size_templates = {
-		["Small Station"] = 0,
-		["Medium Station"] = 20,
-		["Large Station"] = 30,
-		["Huge Station"] = 40,
-	}
+	if station_template_chance == nil then
+		station_template_chance = {
+			["Small Station"] = 0,
+			["Medium Station"] = 20,
+			["Large Station"] = 30,
+			["Huge Station"] = 40,
+		}
+	end
+	if faction_station_service_chance == nil then
+		faction_station_service_chance = {
+			["Human Navy"] = 0,
+			["Kraylor"] = 0,
+			["Independent"] = 0,
+			["Arlenians"] = 0,
+			["Ghosts"] = 0,
+			["Ktlitans"] = 0,
+			["Exuari"] = 0,
+			["TSN"] = 0,
+			["USN"] = 0,
+			["CUF"] = 0,
+		}
+	end
 	if size == nil then
 		station:setTemplate(szt())
 	else
-		if station_size_templates[size] ~= nil then
+		if station_template_chance[size] ~= nil then
 			station:setTemplate(size)
 		else
 			station:setTemplate(szt())
@@ -76,37 +95,49 @@ function placeStation(x,y,name,faction,size,diagnostic)
 	--Randomize the availability of some station services. Unless you write your station 
 	--communication routines to take advantage of these, they'll be ignored,
 	--except for the last three. See below.
-	local size_matters = station_size_templates[station:getTypeName()] or 0
+	local size_matters = station_template_chance[station:getTypeName()] or 0
+	local faction_matters = faction_station_service_chance[faction] or 0
 	if station.comms_data.service_cost == nil then
 		station.comms_data.service_cost = {}
 	end
-	station.comms_data.probe_launch_repair =	random(1,100) <= (20 + size_matters)
+	station.comms_data.probe_launch_repair =	random(1,100) <= (20 + size_matters + faction_matters)
 	if station.comms_data.probe_launch_repair then
 		station.comms_data.service_cost.probe_launch_repair = math.random(2,8)
 	end
-	station.comms_data.scan_repair =			random(1,100) <= (30 + size_matters)
+	station.comms_data.scan_repair =			random(1,100) <= (30 + size_matters + faction_matters)
 	if station.comms_data.scan_repair then
 		station.comms_data.service_cost.scan_repair = math.random(2,8)
 	end
-	station.comms_data.hack_repair =			random(1,100) <= (10 + size_matters)
+	station.comms_data.hack_repair =			random(1,100) <= (10 + size_matters + faction_matters)
 	if station.comms_data.hack_repair then
 		station.comms_data.service_cost.hack_repair = math.random(2,8)
 	end
-	station.comms_data.combat_maneuver_repair =	random(1,100) <= (15 + size_matters)
+	station.comms_data.combat_maneuver_repair =	random(1,100) <= (15 + size_matters + faction_matters)
 	if station.comms_data.combat_maneuver_repair then
 		station.comms_data.service_cost.combat_maneuver_repair = math.random(2,8)
 	end
-	station.comms_data.self_destruct_repair =	random(1,100) <= (25 + size_matters)
+	station.comms_data.self_destruct_repair =	random(1,100) <= (25 + size_matters + faction_matters)
 	if station.comms_data.self_destruct_repair then
 		station.comms_data.service_cost.self_destruct_repair = math.random(2,8)
 	end
-	station.comms_data.jump_overcharge =		random(1,100) <= (5 + size_matters)
+	station.comms_data.jump_overcharge =		random(1,100) <= (5 + size_matters + faction_matters)
 	--If you want a station where the players can dock to provide energy,
 	--repair hull and restock scan probes, you'll want to set these to true after
 	--the station gets placed. 
-	station:setSharesEnergyWithDocked(random(1,100) <= (50 + size_matters))
-	station:setRepairDocked(random(1,100) <= (55 + size_matters))
-	station:setRestocksScanProbes(random(1,100) <= (45 + size_matters))
+	station:setSharesEnergyWithDocked(random(1,100) <= (50 + size_matters + faction_matters))
+	station:setRepairDocked(random(1,100) <= (55 + size_matters + faction_matters))
+	station:setRestocksScanProbes(random(1,100) <= (45 + size_matters + faction_matters))
+	--	more repair services
+	station.comms_data.system_repair = {}
+	station.comms_data.coolant_pump_repair = {}
+	local system_list = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+	for i, system in ipairs(system_list) do
+		local chance = 60 + size_matters + faction_matters
+		local eval = random(1,100)
+		station.comms_data.system_repair[system] = eval <= chance
+		eval = random(1,100)
+		station.comms_data.coolant_pump_repair[system] = eval <= chance
+	end
 	return station
 end
 function pickStation(name)
