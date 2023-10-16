@@ -1,6 +1,10 @@
 -- Name: Surf's Up!
 -- Description: Waves with some additions.
 --- No victory condition. How many waves can you survive?
+---
+--- Version 1
+---
+--- USN Discord: https://discord.gg/PntGG3a where you can join a game online. There's one every weekend. All experience levels are welcome. 
 -- Type: Basic
 -- Setting[Enemies]: Configures strength and/or number of enemies in this scenario
 -- Enemies[Easy]: Fewer or weaker enemies
@@ -25,6 +29,10 @@ require("cpu_ship_diversification_scenario_utility.lua")
 require("generate_call_sign_scenario_utility.lua")
 
 function init()
+	scenario_version = "1.0.1"
+	ee_version = "2023.06.17"
+	print(string.format("    ----    Scenario: Surf's Up!    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	print(_VERSION)
     -- global variables:
     wave_number = 0
     spawn_wave_delay = nil
@@ -574,12 +582,10 @@ function angleFromVectorNorth(p1x,p1y,p2x,p2y)
 	return (360 - (RAD2DEG * theta)) % 360
 end
 function vectorFromAngleNorth(angle,distance)
-	if spew_function_diagnostic then print("top of vector from angle north") end
 --	print("input angle to vectorFromAngleNorth:")
 --	print(angle)
 	angle = (angle + 270) % 360
 	local x, y = vectorFromAngle(angle,distance)
-	if spew_function_diagnostic then print("bottom (ish) of vector from angle north") end
 	return x, y
 end
 function getDuration()
@@ -636,24 +642,91 @@ function getDuration()
 	end
 	return duration_string
 end
+function nameBanner(p)
+	local banner = string.format(_("name-tab","%s in %s"),p:getCallSign(),p:getSectorName())
+	p.name_tag_hlm = "name_tag_hlm"
+	p:addCustomInfo("Helms",p.name_tag_hlm,banner,1)
+	p.name_tag_tac = "name_tag_tac"
+	p:addCustomInfo("Tactical",p.name_tag_tac,banner,1)
+	p.name_tag_rel = "name_tag_rel"
+	p:addCustomInfo("Relay",p.name_tag_rel,banner,1)
+	p.name_tag_alt = "name_tag_alt"
+	p:addCustomInfo("AltRelay",p.name_tag_alt,banner,1)
+	p.name_tag_com = "name_tag_com"
+	p:addCustomInfo("CommsOnly",p.name_tag_com,banner,1)
+	p.name_tag_log = "name_tag_log"
+	p:addCustomInfo("ShipLog",p.name_tag_log,banner,1)
+end
+function earlyEnd()
+	if trigger_end_status == nil then
+		trigger_end_status = "button created"
+		addGMFunction(_("buttonGM","End with Odin"),function()
+			for i,p in ipairs(getActivePlayerShips()) do
+				p:addToShipLog(string.format(_("shipLog","We picked up an anomalous chroniton particle reading near %s. Encoded within the anomalous reading is a designated point along the timeline in the future. We are still working on the decoding rest of the information, but initial efforts hint at some major military action being taken by the Ghosts. We have placed countdown timers on some of your consoles indicating when this event is supposed to occur."),friendly_stations[1]:getCallSign()),"Magenta")
+			end
+			trigger_end_status = "started"
+			odin_spawn_time = getScenarioTime() + 30
+			addGMMessage(_("msgGM","30 second countdown to Odin spawn has begun."))
+			clearGMFunctions()
+		end)
+	elseif trigger_end_status == "started" then
+		if getScenarioTime() > odin_spawn_time then
+			if friendly_stations ~= nil then
+				if endOdin == nil then
+					if #friendly_stations > 1 then
+						local station_pool = {}
+						for i,station in ipairs(friendly_stations) do
+							table.insert(station_pool,station)
+						end
+						local first_station = tableRemoveRandom(station_pool)
+						local second_station = tableRemoveRandom(station_pool)
+						local fx, fy = first_station:getPosition()
+						local sx, sy = second_station:getPosition()
+						local ox = (fx + sx)/2
+						local oy = (fy + sy)/2
+						endOdin = CpuShip():setTemplate("Odin"):setFaction("Ghosts")
+						endOdin:setPosition(ox, oy):orderRoaming()
+					else
+						local fx, fy = friendly_stations[1]:getPosition()
+						local ox, oy = vectorFromAngle(random(0,360),4000)
+						endOdin = CpuShip():setTemplate("Odin"):setFaction("Ghosts")
+						endOdin:setPosition(fx + ox, fy + oy):orderRoaming()
+					end
+					endOdin:setImpulseMaxSpeed(30):setRotationMaxSpeed(5):setAcceleration(5)
+					trigger_end_status = "spawned"
+				end
+			end
+			for i,p in ipairs(getActivePlayerShips()) do
+				p:removeCustom(p.odin_time_rel)
+				p:removeCustom(p.odin_time_ops)
+				p:removeCustom(p.odin_time_log)
+				p:removeCustom(p.odin_time_alt)
+			end
+		else
+			local out_time = math.floor(odin_spawn_time - getScenarioTime())
+			local banner = string.format(_("timer-tab","Anomalous Time:%s"),out_time)
+			for i,p in ipairs(getActivePlayerShips()) do
+				p.odin_time_rel = "odin_time_rel"
+				p:addCustomInfo("Relay",p.odin_time_rel,banner,2)
+				p.odin_time_ops = "odin_time_ops"
+				p:addCustomInfo("Operations",p.odin_time_ops,banner,2)
+				p.odin_time_log = "odin_time_log"
+				p:addCustomInfo("ShipLog",p.odin_time_log,banner,2)
+				p.odin_time_alt = "odin_time_alt"
+				p:addCustomInfo("AltRelay",p.odin_time_alt,banner,2)
+			end
+		end
+	end
+end
 ----------------------
 --	Plot functions  --
 ----------------------
 function spawnWave()
-	wave_message = nil
 	wave_number = wave_number + 1
 	if not asteroid_storm then
 		if random(1,100) - wave_number < 27 and #storm_asteroids == 0 then
 			asteroid_storm = true
 		end
-	end
-	for i,p in ipairs(getActivePlayerShips()) do
-		if asteroid_storm then
-			p:addToShipLog(string.format(_("shipLog","Wave %i. Asteroid storm reported."),wave_number), "Red")
-		else
-			p:addToShipLog(string.format(_("shipLog","Wave %i"),wave_number), "Red")
-		end
-		p:addReputationPoints(100 + wave_number * 10)
 	end
 	enemy_list = {}
 	enemy_strength = math.pow(wave_number,1.3) * 10 * enemy_power + 5
@@ -661,20 +734,76 @@ function spawnWave()
 	spawn_angle = random(0,360)
 	spawn_range = random(20000,25000 + 1000 * wave_number)
 	base_spawn_x, base_spawn_y = vectorFromAngle(spawn_angle,spawn_range)
-	wave_styles = {
-		{style = "defense",		chance = 10,	func = spawnDefense},
-		{style = "base",		chance = 20,	func = spawnBase},
-		{style = "formation",	chance = 50,	func = spawnFormation},
-		{style = "simple",		chance = 100,	func = spawnSimple},
+	local wave_styles = {
+		{style = "defense",		chance = 10,	msg = string.format(_("shipLog","Wave %i. Hunt down enemy base."),wave_number),	func = spawnDefense},
+		{style = "base",		chance = 20,	msg = string.format(_("shipLog","Wave %i. Hunt down enemy base."),wave_number),	func = spawnBase},
+		{style = "formation",	chance = 50,	msg = string.format(_("shipLog","Wave %i."),wave_number),						func = spawnFormation},
+		{style = "simple",		chance = 100,	msg = string.format(_("shipLog","Wave %i."),wave_number),						func = spawnSimple},
 	}
 	local roll = random(1,100) - wave_number
+	local wave_style = nil
 	print("Roll:",roll,"Wave number:",wave_number)
 	for i, wave in ipairs(wave_styles) do
 		if roll <= wave.chance then
 			print("Wave type selected:",wave.style)
-			wave.func()
+			wave_style = wave
 			break
 		end
+	end
+	local wave_message = wave_style.msg
+	if asteroid_storm then
+		wave_message = string.format(_("shipLog","%s Asteroid storm reported."),wave_style.msg)
+	end
+	for i,p in ipairs(getActivePlayerShips()) do
+		p:addToShipLog(wave_message,"Green")
+		p:addReputationPoints(50 + wave_number * 10)
+		local wave_number_out = string.format("Wave %i",wave_number)
+		p.wave_number_banner_rel = "wave_number_banner_rel"
+		p:addCustomInfo("Relay",p.wave_number_banner_rel,wave_number_out,5)
+		p.wave_number_banner_ops = "wave_number_banner_ops"
+		p:addCustomInfo("Operations",p.wave_number_banner_ops,wave_number_out,5)
+	end
+	globalMessage(wave_message)
+	wave_style.func()
+end
+function spawnSimple()
+	local spawn_point_leader = nil
+	local split = false
+	while enemy_strength > 0 do
+		local attempts = 0
+		local selected_ship = nil
+		repeat
+			selected_ship = ship_templates[math.random(1,#ship_templates)]
+			attempts = attempts + 1
+		until(selected_ship.strength < (enemy_strength + 3) or attempts > 50)
+		local ship = selected_ship.create("Ghosts",selected_ship.name)
+		suffix_index = math.random(11,70)
+		ship:setCallSign(generateCallSign(nil,"Ghosts"))
+		if selected_ship.warp_jammer ~= nil and selected_ship.warp_jammer ~= "none" then
+			ship.warp_jammer_count = math.random(0,2)
+			ship.warp_jammer_type = selected_ship.warp_jammer
+		end
+		table.insert(enemy_list,ship)
+		if not split then
+			if current_enemy_strength >= enemy_strength then
+				local angle = random(0,360)
+				local dist = random(30000,35000 + 1000 * wave_number)
+				base_spawn_x, base_spawn_y = vectorFromAngle(angle,dist)
+				spawn_point_leader = nil
+				split = true
+			end
+		end
+		if spawn_point_leader == nil then
+			ship:setPosition(base_spawn_x, base_spawn_y)
+			spawn_point_leader = ship
+			ship:orderRoaming()
+		else
+			ship:orderDefendTarget(spawn_point_leader)
+			local defend_x, defend_y = vectorFromAngle(random(0,360),5000)
+			ship:setPosition(base_spawn_x + defend_x, base_spawn_y + defend_y)
+		end
+		current_enemy_strength = current_enemy_strength + selected_ship.strength
+		enemy_strength = enemy_strength - selected_ship.strength
 	end
 end
 function spawnBase()
@@ -688,7 +817,6 @@ function spawnBase()
 	enemy_station = placeStation(base_spawn_x, base_spawn_y, "Sinister", "Ghosts")
 	enemy_station:onDestruction(baseDestroyed)
 	table.insert(enemy_list,enemy_station)
-	wave_message = string.format(_("msgMainscreen","Wave %d. Hunt down enemy base."),wave_number)
 	spawnSimple()
 end
 function spawnDefense()
@@ -713,7 +841,6 @@ function spawnDefense()
 		table.insert(enemy_list,dp)
 		defense_angle = defense_angle + (360/defense_count)
 	end
-	wave_message = string.format(_("msgMainscreen","Wave %d. Hunt down enemy base."),wave_number)
 	spawnSimple()
 end
 function baseDestroyed(self,instigator)
@@ -728,7 +855,7 @@ function baseDestroyed(self,instigator)
 	end
 	if destruct_warning then
 		for i,p in ipairs(getActivePlayerShips()) do
-			p:addToShipLog("Defense platform self destruct activated.","Red")
+			p:addToShipLog(_("shipLog","Defense platform self destruct activated."),"Red")
 		end
 	end
 end
@@ -1101,57 +1228,11 @@ function spawnFormation()
 		local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * formation_spacing)
 		ship:setPosition(base_spawn_x + form_x, base_spawn_y + form_y):setHeading(fly_angle):orderFlyFormation(leader_ship,form_prime_x,form_prime_y)
 		ship:setCallSign(generateCallSign(fleet_prefix))
-		current_enemy_strength = current_enemy_strength + selected_form.strength
 		table.insert(enemy_list,ship)
 	end
 	enemy_strength = enemy_strength - lead.strength - selected_form.strength
 	if enemy_strength > 10 then
 		spawnSimple()
-	else
-		globalMessage(string.format(_("msgMainscreen","Wave %d"), wave_number))
-	end
-end
-function spawnSimple()
-	local spawn_point_leader = nil
-	local split = false
-	while enemy_strength > 0 do
-		local attempts = 0
-		local selected_ship = nil
-		repeat
-			selected_ship = ship_templates[math.random(1,#ship_templates)]
-			attempts = attempts + 1
-		until(selected_ship.strength < (enemy_strength + 3) or attempts > 50)
-		local ship = selected_ship.create("Ghosts",selected_ship.name)
-		suffix_index = math.random(11,70)
-		ship:setCallSign(generateCallSign(nil,"Ghosts"))
-		if selected_ship.warp_jammer ~= nil and selected_ship.warp_jammer ~= "none" then
-			ship.warp_jammer_count = math.random(0,2)
-			ship.warp_jammer_type = selected_ship.warp_jammer
-		end
-		table.insert(enemy_list,ship)
-		if not split then
-			if current_enemy_strength >= enemy_strength then
-				base_spawn_x, base_spawn_y = vectorFromAngle(random(0,360),random(30000,35000 + 1000 * wave_number))
-				spawn_point_leader = nil
-				split = true
-			end
-		end
-		if spawn_point_leader == nil then
-			ship:setPosition(base_spawn_x, base_spawn_y)
-			spawn_point_leader = ship
-			ship:orderRoaming()
-		else
-			ship:orderDefendTarget(spawn_point_leader)
-			local defend_x, defend_y = vectorFromAngle(random(0,360),5000)
-			ship:setPosition(base_spawn_x + defend_x, base_spawn_y + defend_y)
-		end
-		current_enemy_strength = current_enemy_strength + selected_ship.strength
-		enemy_strength = enemy_strength - selected_ship.strength
-	end
-	if wave_message == nil then
-	    globalMessage(string.format(_("msgMainscreen","Wave %d"), wave_number))
-	else
-		globalMessage(wave_message)
 	end
 end
 function asteroidStorm()
@@ -1290,9 +1371,11 @@ end
 function dropWarpJammer(enemy)
 	if enemy.warp_jammer_count ~= nil and enemy.warp_jammer_count > 0 then
 		if enemy.active_warp_jammer == nil then
+			local close_player_count = 0
 			for j,p in ipairs(getActivePlayerShips()) do
 				local dist = distance(enemy,p)
 				if distance(p,enemy) < 5000 then
+					close_player_count = close_player_count + 1
 					if enemy.jammer_drop_time == nil then
 						enemy.jammer_drop_time = getScenarioTime() + random(5,10)
 					end
@@ -1333,6 +1416,9 @@ function dropWarpJammer(enemy)
 						enemy.active_warp_jammer:onDestruction(loseWarpJammer)
 					end
 				end
+			end
+			if close_player_count == 0 then
+				enemy.jammer_drop_time = nil
 			end
 		end
 	end
@@ -1493,7 +1579,7 @@ function handleUndockedState()
             else
                 setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"));
                 for n=1,comms_source:getWaypointCount() do
-                    addCommsReply("WP" .. n, function()
+                    addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 						if comms_source:takeReputationPoints(getServiceCost("supplydrop")) then
 							local position_x, position_y = comms_target:getPosition()
 							local target_x, target_y = comms_source:getWaypoint(n)
@@ -1501,7 +1587,7 @@ function handleUndockedState()
 							script:setVariable("position_x", position_x):setVariable("position_y", position_y)
 							script:setVariable("target_x", target_x):setVariable("target_y", target_y)
 							script:setVariable("faction_id", comms_target:getFactionId()):run("supply_drop.lua")
-                            setCommsMessage(string.format(_("stationAssist-comms", "We have dispatched a supply ship toward WP %d"), n));
+                            setCommsMessage(string.format(_("stationAssist-comms", "We have dispatched a supply ship toward waypoint %d"), n));
 						else
                             setCommsMessage(_("needRep-comms", "Not enough reputation!"));
 						end
@@ -1545,13 +1631,13 @@ function commsStationReinforcements()
 	for i, info in ipairs(reinforcement_info) do
 		if info.avail then
 			avail_count = avail_count + 1
-			addCommsReply(string.format("%s (%d rep)",info.desc,info.cost), function()
+			addCommsReply(string.format(_("stationAssist-comms","%s (%d reputation)"),info.desc,info.cost), function()
 				if comms_source:getWaypointCount() < 1 then
 					setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request reinforcements."))
 				else
 					setCommsMessage(_("stationAssist-comms", "To which waypoint should we dispatch the reinforcements?"))
 					for n = 1, comms_source:getWaypointCount() do
-						addCommsReply(string.format(_("stationAssist-comms", "WP %d"), n),function()
+						addCommsReply(string.format(_("stationAssist-comms", "Waypoint %d"), n),function()
 							if comms_source:takeReputationPoints(info.cost) then
 								local ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate(info.template):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
 								suffix_index = math.random(11,77)
@@ -1573,7 +1659,6 @@ function commsStationReinforcements()
 	end
 	addCommsReply(_("Back"), commsStation)
 end
-
 function handleDockedState()
     if comms_source:isFriendly(comms_target) then
     	if comms_target.comms_data.friendlyness > 66 then
@@ -1863,77 +1948,81 @@ function stationStatusReport()
 	--						local needed_good = mission_good[improvement]["good"]
 							setCommsMessage(string.format(_("situationReport-comms","%s could be improved with %s. You may be able to get %s from independent stations or transports."),improvement_prompt[improvement],needed_good,needed_good))
 							if comms_source.goods ~= nil then
-								if comms_source.goods[needed_good] ~= nil and comms_source.goods[needed_good] > 0 then
+								if comms_source.goods[needed_good] ~= nil and comms_source.goods[needed_good] > 0 and comms_source:isDocked(comms_target) then
 									addCommsReply(string.format(_("situationReport-comms","Provide %s to station %s"),needed_good,comms_target:getCallSign()),function()
-										comms_source.goods[needed_good] = comms_source.goods[needed_good] - 1
-										comms_source.cargo = comms_source.cargo + 1
-										local improvement_msg = _("situationReport-comms","There was a problem with the improvement process")
-										if improvement == "energy" then
-											if comms_source.instant_energy == nil then
-												comms_source.instant_energy = {}
+										if comms_source:isDocked(comms_target) then
+											comms_source.goods[needed_good] = comms_source.goods[needed_good] - 1
+											comms_source.cargo = comms_source.cargo + 1
+											local improvement_msg = _("situationReport-comms","There was a problem with the improvement process")
+											if improvement == "energy" then
+												if comms_source.instant_energy == nil then
+													comms_source.instant_energy = {}
+												end
+												table.insert(comms_source.instant_energy,comms_target)
+												comms_target:setSharesEnergyWithDocked(true)
+												improvement_msg = _("situationReport-comms","We can recharge again! Come back any time to have your batteries instantly recharged.")
+											elseif improvement == "hull" then
+												if comms_source.instant_hull == nil then
+													comms_source.instant_hull = {}
+												end
+												table.insert(comms_source.instant_hull,comms_target)
+												comms_target:setRepairDocked(true)
+												improvement_msg = _("situationReport-comms","We can repair hulls again! Come back any time to have your hull instantly repaired.")
+											elseif improvement == "restock_probes" then
+												if comms_source.instant_probes == nil then
+													comms_source.instant_probes = {}
+												end
+												table.insert(comms_source.instant_probes,comms_target)
+												comms_target:setRestocksScanProbes(true)
+												improvement_msg = _("situationReport-comms","We can restock scan probes again! Come back any time to have your scan probes instantly restocked.")
+											elseif improvement == "Nuke" then
+												if comms_source.nuke_discount == nil then
+													comms_source.nuke_discount = {}
+												end
+												table.insert(comms_source.nuke_discount,comms_target)
+												comms_target.comms_data.weapon_available.Nuke = true
+												comms_target.comms_data.weapons["Nuke"] = "neutral"
+												comms_target.comms_data.max_weapon_refill_amount.neutral = 1
+												improvement_msg = _("situationReport-comms","We can replenish nukes again! Come back any time to have your supply of nukes replenished.")
+											elseif improvement == "EMP" then
+												if comms_source.emp_discount == nil then
+													comms_source.emp_discount = {}
+												end
+												table.insert(comms_source.emp_discount,comms_target)
+												comms_target.comms_data.weapon_available.EMP = true
+												comms_target.comms_data.weapons["EMP"] = "neutral"
+												comms_target.comms_data.max_weapon_refill_amount.neutral = 1
+												improvement_msg = _("situationReport-comms","We can replenish EMPs again! Come back any time to have your supply of EMPs replenished.")
+											elseif improvement == "Homing" then
+												if comms_source.homing_discount == nil then
+													comms_source.homing_discount = {}
+												end
+												table.insert(comms_source.homing_discount,comms_target)
+												comms_target.comms_data.weapon_available.Homing = true
+												comms_target.comms_data.max_weapon_refill_amount.neutral = 1
+												improvement_msg = _("situationReport-comms","We can replenish homing missiles again! Come back any time to have your supply of homing missiles replenished.")
+											elseif improvement == "Mine" then
+												if comms_source.mine_discount == nil then
+													comms_source.mine_discount = {}
+												end
+												table.insert(comms_source.mine_discount,comms_target)
+												comms_target.comms_data.weapon_available.Mine = true
+												comms_target.comms_data.weapons["Mine"] = "neutral"
+												comms_target.comms_data.max_weapon_refill_amount.neutral = 1
+												improvement_msg = _("situationReport-comms","We can replenish mines again! Come back any time to have your supply of mines replenished.")
+											elseif improvement == "HVLI" then
+												if comms_source.hvli_discount == nil then
+													comms_source.hvli_discount = {}
+												end
+												table.insert(comms_source.hvli_discount,comms_target)
+												comms_target.comms_data.weapon_available.HVLI = true
+												comms_target.comms_data.max_weapon_refill_amount.neutral = 1
+												improvement_msg = _("situationReport-comms","We can replenish HVLIs again! Come back any time to have your supply of high velocity lead impactors replenished.")
 											end
-											table.insert(comms_source.instant_energy,comms_target)
-											comms_target:setSharesEnergyWithDocked(true)
-											improvement_msg = _("situationReport-comms","We can recharge again! Come back any time to have your batteries instantly recharged.")
-										elseif improvement == "hull" then
-											if comms_source.instant_hull == nil then
-												comms_source.instant_hull = {}
-											end
-											table.insert(comms_source.instant_hull,comms_target)
-											comms_target:setRepairDocked(true)
-											improvement_msg = _("situationReport-comms","We can repair hulls again! Come back any time to have your hull instantly repaired.")
-										elseif improvement == "restock_probes" then
-											if comms_source.instant_probes == nil then
-												comms_source.instant_probes = {}
-											end
-											table.insert(comms_source.instant_probes,comms_target)
-											comms_target:setRestocksScanProbes(true)
-											improvement_msg = _("situationReport-comms","We can restock scan probes again! Come back any time to have your scan probes instantly restocked.")
-										elseif improvement == "Nuke" then
-											if comms_source.nuke_discount == nil then
-												comms_source.nuke_discount = {}
-											end
-											table.insert(comms_source.nuke_discount,comms_target)
-											comms_target.comms_data.weapon_available.Nuke = true
-											comms_target.comms_data.weapons["Nuke"] = "neutral"
-											comms_target.comms_data.max_weapon_refill_amount.neutral = 1
-											improvement_msg = _("situationReport-comms","We can replenish nukes again! Come back any time to have your supply of nukes replenished.")
-										elseif improvement == "EMP" then
-											if comms_source.emp_discount == nil then
-												comms_source.emp_discount = {}
-											end
-											table.insert(comms_source.emp_discount,comms_target)
-											comms_target.comms_data.weapon_available.EMP = true
-											comms_target.comms_data.weapons["EMP"] = "neutral"
-											comms_target.comms_data.max_weapon_refill_amount.neutral = 1
-											improvement_msg = _("situationReport-comms","We can replenish EMPs again! Come back any time to have your supply of EMPs replenished.")
-										elseif improvement == "Homing" then
-											if comms_source.homing_discount == nil then
-												comms_source.homing_discount = {}
-											end
-											table.insert(comms_source.homing_discount,comms_target)
-											comms_target.comms_data.weapon_available.Homing = true
-											comms_target.comms_data.max_weapon_refill_amount.neutral = 1
-											improvement_msg = _("situationReport-comms","We can replenish homing missiles again! Come back any time to have your supply of homing missiles replenished.")
-										elseif improvement == "Mine" then
-											if comms_source.mine_discount == nil then
-												comms_source.mine_discount = {}
-											end
-											table.insert(comms_source.mine_discount,comms_target)
-											comms_target.comms_data.weapon_available.Mine = true
-											comms_target.comms_data.weapons["Mine"] = "neutral"
-											comms_target.comms_data.max_weapon_refill_amount.neutral = 1
-											improvement_msg = _("situationReport-comms","We can replenish mines again! Come back any time to have your supply of mines replenished.")
-										elseif improvement == "HVLI" then
-											if comms_source.hvli_discount == nil then
-												comms_source.hvli_discount = {}
-											end
-											table.insert(comms_source.hvli_discount,comms_target)
-											comms_target.comms_data.weapon_available.HVLI = true
-											comms_target.comms_data.max_weapon_refill_amount.neutral = 1
-											improvement_msg = _("situationReport-comms","We can replenish HVLIs again! Come back any time to have your supply of high velocity lead impactors replenished.")
+											setCommsMessage(improvement_msg)
+										else
+											setCommsMessage(_("situationReport-comms","Can't do that when you're not docked"))
 										end
-										setCommsMessage(improvement_msg)
 										addCommsReply(_("Back"), commsStation)
 									end)
 								end
@@ -2555,6 +2644,7 @@ function update(delta)
     for i,p in ipairs(getActivePlayerShips()) do
 	    improvedStationService(p)
 	    checkZones(p,delta)
+	    nameBanner(p)
     end
     randomTransports()
     -- Show countdown, spawn wave
@@ -2625,8 +2715,11 @@ function update(delta)
     		msg = string.format(_("msgMainscreen","%s\nNo waves completed at the %s setting."),msg,getScenarioSetting("Enemies"))
     	end
 		local duration_string = getDuration()
-		msg = string.format(_("msgMainscreen","%s\nDuration: %s"),msg,duration_string)
+		msg = string.format(_("msgMainscreen","%s\nDuration: %s."),msg,duration_string)
     	globalMessage(msg)
         victory("Ghosts") -- Victory for the Ghosts (= defeat for the players)
+    end
+    if getScenarioTime() > 60*15 then
+    	earlyEnd()
     end
 end
