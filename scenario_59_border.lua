@@ -59,7 +59,7 @@ require("cpu_ship_diversification_scenario_utility.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.5.5"
+	scenario_version = "5.5.6"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	print("Example of calling a function via http API, assuming you start EE with parameter httpserver=8080 (or it's in options.ini):")
@@ -5984,6 +5984,7 @@ function setOptionalMissions()
 		beamTimeBase.comms_data.character = "Horace Grayson"
 		beamTimeBase.comms_data.characterDescription = _("characterInfo-comms", "He dabbles in ship system innovations. He's been working on improving beam weapons by reducing the amount of time between firing. I hear he's already installed some improvements on ships that have docked here previously")
 		beamTimeBase.comms_data.characterFunction = "shrinkBeamCycle"
+		beamTimeBase.comms_data.characterShort = _("scienceDB","May reduce beam cycle time")
 		if beamTimeGood == nil then
 			beamTimeBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6026,6 +6027,7 @@ function setOptionalMissions()
 		spinBase.comms_data.character = "Emily Patel"
 		spinBase.comms_data.characterDescription = _("characterInfo-comms", "She tinkers with ship systems like engines and thrusters. She's consulted with the military on tuning spin time by increasing thruster power. She's got prototypes that are awaiting formal military approval before installation")
 		spinBase.comms_data.characterFunction = "increaseSpin"
+		spinBase.comms_data.characterShort = _("scienceDB","May improve maneuverability")
 		if spinGood == nil then
 			spinBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6068,6 +6070,7 @@ function setOptionalMissions()
 		auxTubeBase.comms_data.character = "Fred McLassiter"
 		auxTubeBase.comms_data.characterDescription = _("characterInfo-comms", "He specializes in miniaturization of weapons systems. He's come up with a way to add a missile tube and some missiles to any ship regardless of size or configuration")
 		auxTubeBase.comms_data.characterFunction = "addAuxTube"
+		auxTubeBase.comms_data.characterShort = _("scienceDB","May add a missile tube")
 		if auxTubeGood == nil then
 			auxTubeBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6110,6 +6113,7 @@ function setOptionalMissions()
 		coolBeamBase.comms_data.character = "Dorothy Ly"
 		coolBeamBase.comms_data.characterDescription = _("characterInfo-comms", "She developed this technique for cooling beam systems so that they can be fired more often without burning out")
 		coolBeamBase.comms_data.characterFunction = "coolBeam"
+		coolBeamBase.comms_data.characterShort = _("scienceDB","May provide beam cooling upgrade")
 		if coolBeamGood == nil then
 			coolBeamBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6152,6 +6156,7 @@ function setOptionalMissions()
 		longerBeamBase.comms_data.character = "Gerald Cook"
 		longerBeamBase.comms_data.characterDescription = _("characterInfo-comms", "He knows how to modify beam systems to extend their range")
 		longerBeamBase.comms_data.characterFunction = "longerBeam"
+		longerBeamBase.comms_data.characterShort = _("scienceDB","May increase beam range")
 		if longerBeamGood == nil then
 			longerBeamBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6194,6 +6199,7 @@ function setOptionalMissions()
 		damageBeamBase.comms_data.character = "Sally Jenkins"
 		damageBeamBase.comms_data.characterDescription = _("characterInfo-comms", "She can make your beams hit harder")
 		damageBeamBase.comms_data.characterFunction = "damageBeam"
+		damageBeamBase.comms_data.characterShort = _("scienceDB","May increase damage by beams")
 		if damageBeamGood == nil then
 			damageBeamBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6236,6 +6242,7 @@ function setOptionalMissions()
 		moreMissilesBase.comms_data.character = "Anh Dung Ly"
 		moreMissilesBase.comms_data.characterDescription = _("characterInfo-comms", "He can fit more missiles aboard your ship")
 		moreMissilesBase.comms_data.characterFunction = "moreMissiles"
+		moreMissilesBase.comms_data.characterShort = _("scienceDB","May increase missile capacity")
 		if moreMissilesGood == nil then
 			moreMissilesBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6278,6 +6285,7 @@ function setOptionalMissions()
 		fasterImpulseBase.comms_data.character = "Doralla Ognats"
 		fasterImpulseBase.comms_data.characterDescription = _("characterInfo-comms", "She can soup up your impulse engines")
 		fasterImpulseBase.comms_data.characterFunction = "fasterImpulse"
+		fasterImpulseBase.comms_data.characterShort = _("scienceDB","May increase impulse speed")
 		if fasterImpulseGood == nil then
 			fasterImpulseBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6320,6 +6328,7 @@ function setOptionalMissions()
 		strongerHullBase.comms_data.character = "Maduka Lawal"
 		strongerHullBase.comms_data.characterDescription = _("characterInfo-comms", "He can strengthen your hull")
 		strongerHullBase.comms_data.characterFunction = "strongerHull"
+		strongerHullBase.comms_data.characterShort = _("scienceDB","May strengthen hull")
 		if strongerHullGood ~= nil then
 			strongerHullBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6362,6 +6371,7 @@ function setOptionalMissions()
 		efficientBatteriesBase.comms_data.character = "Susil Tarigan"
 		efficientBatteriesBase.comms_data.characterDescription = _("characterInfo-comms", "She knows how to increase your maximum energy capacity by improving battery efficiency")
 		efficientBatteriesBase.comms_data.characterFunction = "efficientBatteries"
+		efficientBatteriesBase.comms_data.characterShort = _("scienceDB","May increase battery capacity")
 		if efficientBatteriesGood == nil then
 			efficientBatteriesBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6404,6 +6414,7 @@ function setOptionalMissions()
 		strongerShieldsBase.comms_data.character = "Paulo Silva"
 		strongerShieldsBase.comms_data.characterDescription = _("characterInfo-comms", "He can strengthen your shields")
 		strongerShieldsBase.comms_data.characterFunction = "strongerShields"
+		strongerShieldsBase.comms_data.characterShort = _("scienceDB","May strengthen shields")
 		if strongerShieldsGood == nil then
 			strongerShieldsBase.comms_data.characterGood = vapor_goods[math.random(1,#vapor_goods)]			
 		else
@@ -6995,6 +7006,9 @@ function commsStation()
         }
     })
     comms_data = comms_target.comms_data
+	if not comms_source:isEnemy(comms_target) then
+		addStationToDatabase(comms_target)
+	end
 	setPlayers()
     if comms_source:isEnemy(comms_target) then
         return false
@@ -9250,6 +9264,201 @@ function wartimeStatistics()
 		end)
 		addCommsReply(_("Back"),commsStation)
 	end)
+end
+function addStationToDatabase(station)
+	--	Assumes all player ships will be the same faction
+	local player_faction = "Human Navy"
+	local stations_key = _("scienceDB","Stations")
+	local stations_db = queryScienceDatabase(stations_key)
+	if stations_db == nil then
+		stations_db = ScienceDatabase():setName(stations_key)
+	end
+	local station_db = nil
+	local station_key = station:getCallSign()
+	local temp_artifact = Artifact():setFaction(player_faction)
+	local first_time_entry = false
+	if station:isFriendly(temp_artifact) then
+		local friendly_key = _("scienceDB","Friendly")
+		local friendly_db = queryScienceDatabase(stations_key,friendly_key)
+		if friendly_db == nil then
+			stations_db:addEntry(friendly_key)
+			friendly_db = queryScienceDatabase(stations_key,friendly_key)
+			friendly_db:setLongDescription(_("scienceDB","Friendly stations share their short range telemetry with your ship on the Relay and Strategic Map consoles. These are the known friendly stations."))
+		end
+		station_db = queryScienceDatabase(stations_key,friendly_key,station_key)
+		if station_db == nil then
+			friendly_db:addEntry(station_key)
+			station_db = queryScienceDatabase(stations_key,friendly_key,station_key)
+			first_time_entry = true
+		end
+	elseif not station:isEnemy(temp_artifact) then
+		local neutral_key = "Neutral"
+		local neutral_db = queryScienceDatabase(stations_key,neutral_key)
+		if neutral_db == nil then
+			stations_db:addEntry(neutral_key)
+			neutral_db = queryScienceDatabase(stations_key,neutral_key)
+			neutral_db:setLongDescription(_("scienceDB","Neutral stations don't share their short range telemetry with your ship, but they do allow for docking. These are the known neutral stations."))
+		end
+		station_db = queryScienceDatabase(stations_key,neutral_key,station_key)
+		if station_db == nil then
+			neutral_db:addEntry(station_key)
+			station_db = queryScienceDatabase(stations_key,neutral_key,station_key)
+			first_time_entry = true
+		end
+	end
+	if first_time_entry then
+		local out = ""
+		if station:getDescription() ~= nil then
+			out = station:getDescription()
+		end
+		if station.comms_data ~= nil then
+			if station.comms_data.general ~= nil and station.comms_data.general ~= "" then
+				out = string.format(_("scienceDB","%s\n\nGeneral Information: %s"),out,station.comms_data.general)
+			end
+			if station.comms_data.history ~= nil and station.comms_data.history ~= "" then
+				out = string.format(_("scienceDB","%s\n\nHistory: %s"),out,station.comms_data.history)
+			end
+		end
+		if out ~= "" then
+			station_db:setLongDescription(out)
+		end
+		local station_type = station:getTypeName()
+		local size_value = ""
+		local small_station_key = _("scienceDB","Small Station")
+		local medium_station_key = _("scienceDB","Medium Station")
+		local large_station_key = _("scienceDB","Large Station")
+		local huge_station_key = _("scienceDB","Huge Station")
+		if station_type == small_station_key then
+			size_value = _("scienceDB","Small")
+			local small_db = queryScienceDatabase(stations_key,small_station_key)
+			if small_db ~= nil then
+				station_db:setImage(small_db:getImage())
+			end
+			station_db:setModelDataName("space_station_4")
+		elseif station_type == medium_station_key then
+			size_value = _("scienceDB","Medium")
+			local medium_db = queryScienceDatabase(stations_key,medium_station_key)
+			if medium_db ~= nil then
+				station_db:setImage(medium_db:getImage())
+			end
+			station_db:setModelDataName("space_station_3")
+		elseif station_type == large_station_key then
+			size_value = _("scienceDB","Large")
+			local large_db = queryScienceDatabase(stations_key,large_station_key)
+			if large_db ~= nil then
+				station_db:setImage(large_db:getImage())
+			end
+			station_db:setModelDataName("space_station_2")
+		elseif station_type == huge_station_key then
+			size_value = _("scienceDB","Huge")
+			local huge_db = queryScienceDatabase(stations_key,huge_station_key)
+			if huge_db ~= nil then
+				station_db:setImage(huge_db:getImage())
+			end
+			station_db:setModelDataName("space_station_1")
+		end
+		if size_value ~= "" then
+			local size_key = _("scienceDB","Size")
+			station_db:setKeyValue(size_key,size_value)
+		end
+		local location_key = _("scienceDB","Location, Faction")
+		station_db:setKeyValue(location_key,string.format("%s, %s",station:getSectorName(),station:getFaction()))
+	end
+	local dock_service = ""
+	local service_count = 0
+	if station:getSharesEnergyWithDocked() then
+		dock_service = _("scienceDB","share energy")
+		service_count = service_count + 1
+	end
+	if station:getRepairDocked() then
+		if dock_service == "" then
+			dock_service = _("scienceDB","repair hull")
+		else
+			dock_service = string.format(_("scienceDB","%s, repair hull"),dock_service)
+		end
+		service_count = service_count + 1
+	end
+	if station:getRestocksScanProbes() then
+		if dock_service == "" then
+			dock_service = _("scienceDB","replenish probes")
+		else
+			dock_service = string.format(_("scienceDB","%s, replenish probes"),dock_service)
+		end
+		service_count = service_count + 1
+	end
+	if service_count > 0 then
+		local docking_services_key = _("scienceDB","Docking Services")
+		if service_count == 1 then
+			docking_services_key = _("scienceDB","Docking Service")
+		end
+		station_db:setKeyValue(docking_services_key,dock_service)
+	end
+	if station.comms_data ~= nil then
+		if station.comms_data.weapon_available ~= nil then
+			if station.comms_data.weapon_cost == nil then
+				station.comms_data.weapon_cost = {
+					Homing = math.random(1,4),
+					HVLI = math.random(1,3),
+					Mine = math.random(2,5),
+					Nuke = math.random(12,18),
+					EMP = math.random(7,13),
+				}
+			end
+			if station.comms_data.reputation_cost_multipliers == nil then
+				station.comms_data.reputation_cost_multipliers = {
+					friend = 1.0,
+					neutral = 3.0,
+				}
+			end
+			local station_missiles = {
+				{name = "Homing",	key = _("scienceDB","Restock Homing")},
+				{name = "HVLI",		key = _("scienceDB","Restock HVLI")},
+				{name = "Mine",		key = _("scienceDB","Restock Mine")},
+				{name = "Nuke",		key = _("scienceDB","Restock Nuke")},
+				{name = "EMP",		key = _("scienceDB","Restock EMP")},
+			}
+			for i,sm in ipairs(station_missiles) do
+				if station.comms_data.weapon_available[sm.name] then
+					if station.comms_data.weapon_cost[sm.name] ~= nil then
+						local val = string.format(_("scienceDB","%i reputation each"),math.ceil(station.comms_data.weapon_cost[sm.name] * station.comms_data.reputation_cost_multipliers["friend"]))
+						station_db:setKeyValue(sm.key,val)
+					end
+				end
+			end
+		end
+		if station.comms_data.service_available ~= nil then
+			local general_service = {
+				{name = "supplydrop",				key = _("scienceDB","Drop supplies")},
+				{name = "reinforcements",			key = _("scienceDB","Standard reinforcements")},
+				{name = "hornet_reinforcements",	key = _("scienceDB","Hornet reinforcements")},
+				{name = "phobos_reinforcements",	key = _("scienceDB","Phobos reinforcements")},
+				{name = "amk3_reinforcements",		key = _("scienceDB","Adder3 reinforcements")},
+				{name = "amk8_reinforcements",		key = _("scienceDB","Adder8 reinforcements")},
+				{name = "shield_overcharge",		key = _("scienceDB","Shield overcharge")},
+			}
+			for i,gs in ipairs(general_service) do
+				if station.comms_data.service_available[gs.name] then
+					if station.comms_data.service_cost[gs.name] ~= nil then
+						local val = string.format(_("scienceDB","%s reputation"),station.comms_data.service_cost[gs.name])
+						station_db:setKeyValue(gs.key,val)
+					end
+				end
+			end
+		end
+		if station.comms_data.characterFunction ~= nil then
+			station_db:setKeyValue(station.comms_data.character,station.comms_data.characterShort)
+		end
+		if station.comms_data.goods ~= nil and not temp_artifact:isFriendly(station) then
+			for good, details in pairs(station.comms_data.goods) do
+				if details.quantity > 0 then
+					local sell_key = string.format(_("scienceDB","Sells %s"),good)
+					local sell_value = string.format(_("scienceDB","for %s reputation each"),details.cost)
+					station_db:setKeyValue(sell_key,sell_value)
+				end
+			end
+		end
+	end
+	temp_artifact:destroy()
 end
 -------------------------------
 -- Defend ship communication --
