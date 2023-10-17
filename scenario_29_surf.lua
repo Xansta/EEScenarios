@@ -17,6 +17,13 @@
 -- Prototype[Cruiser]: Spawn a player cruiser
 -- Prototype[Missile Cruiser]: Spawn a player missile cruiser (no beams)
 -- Prototype[Fighter]: Spawn a player fighter (no warp or jump)
+-- Setting[Pace]: Configures how fast the enemy ships move
+-- Pace[Normal|Default]: Enemy ships move at their normal speed
+-- Pace[10]: Enemy ships move ten percent faster than normal
+-- Pace[20]: Enemy ships move twenty percent faster than normal
+-- Pace[30]: Enemy ships move thirty percent faster than normal
+-- Pace[40]: Enemy ships move forty percent faster than normal
+-- Pace[50]: Enemy ships move fifty percent faster than normal
 
 require("utils.lua")
 -- For this scenario, utils.lua provides:
@@ -29,7 +36,7 @@ require("cpu_ship_diversification_scenario_utility.lua")
 require("generate_call_sign_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.1"
+	scenario_version = "1.0.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Surf's Up!    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -172,6 +179,15 @@ function init()
 		["Quixotic"] =	{number = 5},
 	}
 	enemy_power =	enemy_config[getScenarioSetting("Enemies")].number
+	local enemy_speed = {
+		["Normal"] = 1,
+		["10"] = 1.1,
+		["20"] = 1.2,
+		["30"] = 1.3,
+		["40"] = 1.4,
+		["50"] = 1.5
+	}
+	speed_factor = enemy_speed[getScenarioSetting("Pace")]
 	ship_templates = {
 		{name = "Gnat",				warp_jammer = "none",		strength = 2,	create = gnat},
 		{name = "MT52 Hornet",		warp_jammer = "none",		strength = 5,	create = stockTemplate},
@@ -693,6 +709,10 @@ function earlyEnd()
 						endOdin:setPosition(fx + ox, fy + oy):orderRoaming()
 					end
 					endOdin:setImpulseMaxSpeed(30):setRotationMaxSpeed(5):setAcceleration(5)
+					local forward, reverse = endOdin:getImpulseMaxSpeed()
+					endOdin:setImpulseMaxSpeed(forward*speed_factor,reverse*speed_factor)
+					endOdin:setRotationMaxSpeed(endOdin:getRotationMaxSpeed()*speed_factor)
+					endOdin:setAcceleration(endOdin:getAcceleration()*speed_factor)
 					trigger_end_status = "spawned"
 				end
 			end
@@ -777,6 +797,13 @@ function spawnSimple()
 			attempts = attempts + 1
 		until(selected_ship.strength < (enemy_strength + 3) or attempts > 50)
 		local ship = selected_ship.create("Ghosts",selected_ship.name)
+		local forward, reverse = ship:getImpulseMaxSpeed()
+		ship:setImpulseMaxSpeed(forward*speed_factor,reverse*speed_factor)
+		ship:setRotationMaxSpeed(ship:getRotationMaxSpeed()*speed_factor)
+		ship:setAcceleration(ship:getAcceleration()*speed_factor)
+		if ship:hasWarpDrive() then
+			ship:setWarpSpeed(ship:getWarpSpeed()*speedFactor)
+		end
 		suffix_index = math.random(11,70)
 		ship:setCallSign(generateCallSign(nil,"Ghosts"))
 		if selected_ship.warp_jammer ~= nil and selected_ship.warp_jammer ~= "none" then
@@ -836,6 +863,8 @@ function spawnDefense()
 	for i=1,defense_count do
 		local def_x, def_y = vectorFromAngle(defense_angle,4000)
 		local dp = CpuShip():setTemplate("Defense platform"):setFaction("Ghosts")
+		dp:setRotationMaxSpeed(dp:getRotationMaxSpeed()*speed_factor)
+		dp:setAcceleration(dp:getAcceleration()*speed_factor)
 		dp:setPosition(base_spawn_x + def_x, base_spawn_y + def_y):orderStandGround()
 		dp:setCallSign(generateCallSign(fleet_prefix))
 		table.insert(enemy_list,dp)
@@ -1640,6 +1669,13 @@ function commsStationReinforcements()
 						addCommsReply(string.format(_("stationAssist-comms", "Waypoint %d"), n),function()
 							if comms_source:takeReputationPoints(info.cost) then
 								local ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate(info.template):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
+								local forward, reverse = ship:getImpulseMaxSpeed()
+								ship:setImpulseMaxSpeed(forward*speed_factor,reverse*speed_factor)
+								ship:setRotationMaxSpeed(ship:getRotationMaxSpeed()*speed_factor)
+								ship:setAcceleration(ship:getAcceleration()*speed_factor)
+								if ship:hasWarpDrive() then
+									ship:setWarpSpeed(ship:getWarpSpeed()*speedFactor)
+								end
 								suffix_index = math.random(11,77)
 								ship:setCallSign(generateCallSign(nil,comms_target:getFaction()))
 								setCommsMessage(string.format(_("stationAssist-comms","We have dispatched %s to assist at waypoint %s"),ship:getCallSign(),n))
