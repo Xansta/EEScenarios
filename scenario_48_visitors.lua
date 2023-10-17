@@ -7,7 +7,7 @@
 ---
 --- Buttons on the Game Master screen can change the speed of objects in various orbits by 10 percent per click
 ---
---- If you are playing on a LAN and no longer want to hear voices from the server running a main screen, change file scenario_48_visitors.lua in the scripts folder such that 'server_voices = false' rather than 'server_voices = true' on line 37. Note: case is important, so match the case in the lua file, not what you see here (which is always upper case). After editing, you will need to restart the server.
+--- If you are playing on a LAN and no longer want to hear voices from the server running a main screen, change file scenario_48_visitors.lua in the scripts folder such that 'server_voices = false' rather than 'server_voices = true' on line 41. Note: case is important, so match the case in the lua file. After editing, you will need to restart the server.
 ---
 --- Voice Actors:
 --- Admiral U. E.
@@ -20,20 +20,31 @@
 --- Slate https://www.amazon.com/T.-L.-Ford/e/B0034Q6Q2S
 --- Stephen Priddy
 --- 
---- Version 1
+--- Version 2
 -- Type: Replayable Mission
--- Variation[Easy]: Easy goals and/or enemies
--- Variation[Hard]: Hard goals and/or enemies
--- Variation[Random]: Next mission is chosen at random
--- Variation[Selectable]: Next mission may be selected
--- Variation[Easy Random]: Easy goals and/or enemies, Next mission is chosen at random
--- Variation[Easy Selectable]: Easy goals and/or enemies, Next mission may be selected
--- Variation[Hard Random]: Hard goals and/or enemies, Next mission is chosen at random
--- Variation[Hard Selectable]: Hard goals and/or enemies, Next mission may be selected
+-- Setting[Enemies]: Configures the strength of the enemies
+-- Enemies[Easy]: Enemies are weaker or fewer than normal
+-- Enemies[Normal|Default]: Enemies are normal strength
+-- Enemies[Hard]: Enemies are stronger or more numerous than normal
+-- Enemies[Extreme]: Much stronger, many more enemies
+-- Enemies[Quixotic]: Insanely strong and/or inordinately large numbers of enemies
+-- Setting[Murphy]: Configures the perversity of the universe according to Murphy's law
+-- Murphy[Easy]: Random factors are more in your favor
+-- Murphy[Normal|Default]: Random factors are normal
+-- Murphy[Hard]: Random factors are more against you
+-- Setting[Mission]: Configures the scenario missions. There are different regions with missions. The default setting lets the players choose to move to the next region. The players must always complete the first mission.
+-- Mission[Random]: The next mission is randomly selected
+-- Mission[Region|Default]: Players may skip to the next region of missions
+-- Mission[Selectable]: Players may choose each individual mission in each region
 
 require("utils.lua")
+require("generate_call_sign_scenario_utility.lua")
 
 function init()
+	scenario_version = "2.0.1"
+	ee_version = "2023.06.17"
+	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	print(_VERSION)
 	server_voices = true
 	if server_voices then
 		voice_queue = {}
@@ -41,7 +52,6 @@ function init()
 		voice_played = {}
 		plotV = handleVoiceQueue
 	end
-	print(_VERSION)
 	updateDiagnostic = false
 	stationCommsDiagnostic = false
 	planetologistDiagnostic = false
@@ -49,8 +59,6 @@ function init()
 	pollyDiagnostic = false
 	fixSatelliteDiagnostic = false
 	shipCommsDiagnostic = false
-	prefix_length = 0
-	suffix_index = 0
 	--stationCommunication could be nil (default), commsStation (embedded function) or comms_station_enhanced (external script)
 	stationCommunication = "commsStation"
 	setVariations()
@@ -450,26 +458,31 @@ end
 -- Initialization and utility functions --
 ------------------------------------------
 function setVariations()
-	local svs = getScenarioVariation()	--scenario variation string
-	if string.find(svs,"Easy") then
-		difficulty = .5
-		coolant_loss = .99999
-		coolant_gain = .01
-	elseif string.find(svs,"Hard") then
-		difficulty = 2
-		coolant_loss = .9999
-		coolant_gain = .0001
-	else
-		difficulty = 1		--default (normal)
-		coolant_loss = .99995
-		coolant_gain = .001
-	end
-	mission_choice = "Region Selectable"	--valid choices are "Random", "Region Selectable" (default) and "Selectable"
-	if string.find(svs,"Selectable") then
-		mission_choice = "Selectable"
-	elseif string.find(svs,"Random") then
-		mission_choice = "Random"
-	end
+	local enemy_config = {
+		["Easy"] =		{number = .5},
+		["Normal"] =	{number = 1},
+		["Hard"] =		{number = 2},
+		["Extreme"] =	{number = 3},
+		["Quixotic"] =	{number = 5},
+	}
+	enemy_power =	enemy_config[getScenarioSetting("Enemies")].number
+	local murphy_config = {
+		["Easy"] =		{number = .5,	adverse = .999,	lose_coolant = .99999,	gain_coolant = .005,	rep = 40,	start_danger =  .4},
+		["Normal"] =	{number = 1,	adverse = .995,	lose_coolant = .99995,	gain_coolant = .001,	rep = 20,	start_danger =  .8},
+		["Hard"] =		{number = 2,	adverse = .99,	lose_coolant = .9999,	gain_coolant = .0001,	rep = 0,	start_danger = 1.2},
+	}
+	difficulty =			murphy_config[getScenarioSetting("Murphy")].number
+	adverseEffect =			murphy_config[getScenarioSetting("Murphy")].adverse
+	coolant_loss =			murphy_config[getScenarioSetting("Murphy")].lose_coolant
+	coolant_gain =			murphy_config[getScenarioSetting("Murphy")].gain_coolant
+	reputation_start_amount=murphy_config[getScenarioSetting("Murphy")].rep
+	current_danger =		murphy_config[getScenarioSetting("Murphy")].start_danger
+	mission_choices = {
+		["Region"] = "Region Selectable",
+		["Random"] = "Random",
+		["Selectable"] = "Selectable",
+	}
+	mission_choice = mission_choices[getScenarioSetting("Mission")]
 	gameTimeLimit = 0
 	playWithTimeLimit = false
 end
@@ -8029,7 +8042,7 @@ function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, perimeter_min, per
 	if danger == nil then 
 		danger = 1
 	end
-	local enemyStrength = math.max(danger * difficulty * playerPower(),5)
+	local enemyStrength = math.max(danger * enemy_power * playerPower(),5)
 	local enemyPosition = 0
 	local sp = irandom(400,900)			--random spacing of spawned group
 	local deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
@@ -8391,632 +8404,6 @@ end
 function getCoolant8()
 	local p = getPlayerShip(8)
 	getCoolantGivenPlayer(p)
-end
-------------------------------------
---	Generate call sign functions  --
-------------------------------------
-function generateCallSign(prefix,faction)
-	if faction == nil then
-		if prefix == nil then
-			prefix = generateCallSignPrefix()
-		end
-	else
-		if prefix == nil then
-			prefix = getFactionPrefix(faction)
-		else
-			prefix = string.format("%s %s",getFactionPrefix(faction),prefix)
-		end
-	end
-	suffix_index = suffix_index + math.random(1,3)
-	if suffix_index > 999 then 
-		suffix_index = 1
-	end
-	return string.format("%s%i",prefix,suffix_index)
-end
-function generateCallSignPrefix(length)
-	if call_sign_prefix_pool == nil then
-		call_sign_prefix_pool = {}
-		prefix_length = prefix_length + 1
-		if prefix_length > 3 then
-			prefix_length = 1
-		end
-		fillPrefixPool()
-	end
-	if length == nil then
-		length = prefix_length
-	end
-	local prefix_index = 0
-	local prefix = ""
-	for i=1,length do
-		if #call_sign_prefix_pool < 1 then
-			fillPrefixPool()
-		end
-		prefix_index = math.random(1,#call_sign_prefix_pool)
-		prefix = prefix .. call_sign_prefix_pool[prefix_index]
-		table.remove(call_sign_prefix_pool,prefix_index)
-	end
-	return prefix
-end
-function fillPrefixPool()
-	for i=1,26 do
-		table.insert(call_sign_prefix_pool,string.char(i+64))
-	end
-end
-function getFactionPrefix(faction)
-	local faction_prefix = nil
-	if faction == "Kraylor" then
-		if kraylor_names == nil then
-			setKraylorNames()
-		else
-			if #kraylor_names < 1 then
-				setKraylorNames()
-			end
-		end
-		local kraylor_name_choice = math.random(1,#kraylor_names)
-		faction_prefix = kraylor_names[kraylor_name_choice]
-		table.remove(kraylor_names,kraylor_name_choice)
-	end
-	if faction == "Exuari" then
-		if exuari_names == nil then
-			setExuariNames()
-		else
-			if #exuari_names < 1 then
-				setExuariNames()
-			end
-		end
-		local exuari_name_choice = math.random(1,#exuari_names)
-		faction_prefix = exuari_names[exuari_name_choice]
-		table.remove(exuari_names,exuari_name_choice)
-	end
-	if faction == "Ghosts" then
-		if ghosts_names == nil then
-			setGhostsNames()
-		else
-			if #ghosts_names < 1 then
-				setGhostsNames()
-			end
-		end
-		local ghosts_name_choice = math.random(1,#ghosts_names)
-		faction_prefix = ghosts_names[ghosts_name_choice]
-		table.remove(ghosts_names,ghosts_name_choice)
-	end
-	if faction == "Independent" then
-		if independent_names == nil then
-			setIndependentNames()
-		else
-			if #independent_names < 1 then
-				setIndependentNames()
-			end
-		end
-		local independent_name_choice = math.random(1,#independent_names)
-		faction_prefix = independent_names[independent_name_choice]
-		table.remove(independent_names,independent_name_choice)
-	end
-	if faction == "Human Navy" then
-		if human_names == nil then
-			setHumanNames()
-		else
-			if #human_names < 1 then
-				setHumanNames()
-			end
-		end
-		local human_name_choice = math.random(1,#human_names)
-		faction_prefix = human_names[human_name_choice]
-		table.remove(human_names,human_name_choice)
-	end
-	if faction_prefix == nil then
-		faction_prefix = generateCallSignPrefix()
-	end
-	return faction_prefix
-end
-function setGhostsNames()
-	ghosts_names = {}
-	table.insert(ghosts_names,"Abstract")
-	table.insert(ghosts_names,"Ada")
-	table.insert(ghosts_names,"Assemble")
-	table.insert(ghosts_names,"Assert")
-	table.insert(ghosts_names,"Backup")
-	table.insert(ghosts_names,"BASIC")
-	table.insert(ghosts_names,"Big Iron")
-	table.insert(ghosts_names,"BigEndian")
-	table.insert(ghosts_names,"Binary")
-	table.insert(ghosts_names,"Bit")
-	table.insert(ghosts_names,"Block")
-	table.insert(ghosts_names,"Boot")
-	table.insert(ghosts_names,"Branch")
-	table.insert(ghosts_names,"BTree")
-	table.insert(ghosts_names,"Bubble")
-	table.insert(ghosts_names,"Byte")
-	table.insert(ghosts_names,"Capacitor")
-	table.insert(ghosts_names,"Case")
-	table.insert(ghosts_names,"Chad")
-	table.insert(ghosts_names,"Charge")
-	table.insert(ghosts_names,"COBOL")
-	table.insert(ghosts_names,"Collate")
-	table.insert(ghosts_names,"Compile")
-	table.insert(ghosts_names,"Control")
-	table.insert(ghosts_names,"Construct")
-	table.insert(ghosts_names,"Cycle")
-	table.insert(ghosts_names,"Data")
-	table.insert(ghosts_names,"Debug")
-	table.insert(ghosts_names,"Decimal")
-	table.insert(ghosts_names,"Decision")
-	table.insert(ghosts_names,"Default")
-	table.insert(ghosts_names,"DIMM")
-	table.insert(ghosts_names,"Displacement")
-	table.insert(ghosts_names,"Edge")
-	table.insert(ghosts_names,"Exit")
-	table.insert(ghosts_names,"Factor")
-	table.insert(ghosts_names,"Flag")
-	table.insert(ghosts_names,"Float")
-	table.insert(ghosts_names,"Flow")
-	table.insert(ghosts_names,"FORTRAN")
-	table.insert(ghosts_names,"Fullword")
-	table.insert(ghosts_names,"GIGO")
-	table.insert(ghosts_names,"Graph")
-	table.insert(ghosts_names,"Hack")
-	table.insert(ghosts_names,"Hash")
-	table.insert(ghosts_names,"Halfword")
-	table.insert(ghosts_names,"Hertz")
-	table.insert(ghosts_names,"Hexadecimal")
-	table.insert(ghosts_names,"Indicator")
-	table.insert(ghosts_names,"Initialize")
-	table.insert(ghosts_names,"Integer")
-	table.insert(ghosts_names,"Integrate")
-	table.insert(ghosts_names,"Interrupt")
-	table.insert(ghosts_names,"Java")
-	table.insert(ghosts_names,"Lisp")
-	table.insert(ghosts_names,"List")
-	table.insert(ghosts_names,"Logic")
-	table.insert(ghosts_names,"Loop")
-	table.insert(ghosts_names,"Lua")
-	table.insert(ghosts_names,"Magnetic")
-	table.insert(ghosts_names,"Mask")
-	table.insert(ghosts_names,"Memory")
-	table.insert(ghosts_names,"Mnemonic")
-	table.insert(ghosts_names,"Micro")
-	table.insert(ghosts_names,"Model")
-	table.insert(ghosts_names,"Nibble")
-	table.insert(ghosts_names,"Octal")
-	table.insert(ghosts_names,"Order")
-	table.insert(ghosts_names,"Operator")
-	table.insert(ghosts_names,"Parameter")
-	table.insert(ghosts_names,"Pascal")
-	table.insert(ghosts_names,"Pattern")
-	table.insert(ghosts_names,"Pixel")
-	table.insert(ghosts_names,"Point")
-	table.insert(ghosts_names,"Polygon")
-	table.insert(ghosts_names,"Port")
-	table.insert(ghosts_names,"Process")
-	table.insert(ghosts_names,"RAM")
-	table.insert(ghosts_names,"Raster")
-	table.insert(ghosts_names,"Rate")
-	table.insert(ghosts_names,"Redundant")
-	table.insert(ghosts_names,"Reference")
-	table.insert(ghosts_names,"Refresh")
-	table.insert(ghosts_names,"Register")
-	table.insert(ghosts_names,"Resistor")
-	table.insert(ghosts_names,"ROM")
-	table.insert(ghosts_names,"Routine")
-	table.insert(ghosts_names,"Ruby")
-	table.insert(ghosts_names,"SAAS")
-	table.insert(ghosts_names,"Sequence")
-	table.insert(ghosts_names,"Share")
-	table.insert(ghosts_names,"Silicon")
-	table.insert(ghosts_names,"SIMM")
-	table.insert(ghosts_names,"Socket")
-	table.insert(ghosts_names,"Sort")
-	table.insert(ghosts_names,"Structure")
-	table.insert(ghosts_names,"Switch")
-	table.insert(ghosts_names,"Symbol")
-	table.insert(ghosts_names,"Trace")
-	table.insert(ghosts_names,"Transistor")
-	table.insert(ghosts_names,"Value")
-	table.insert(ghosts_names,"Vector")
-	table.insert(ghosts_names,"Version")
-	table.insert(ghosts_names,"View")
-	table.insert(ghosts_names,"WYSIWYG")
-	table.insert(ghosts_names,"XOR")
-end
-function setExuariNames()
-	exuari_names = {}
-	table.insert(exuari_names,"Astonester")
-	table.insert(exuari_names,"Ametripox")
-	table.insert(exuari_names,"Bakeltevex")
-	table.insert(exuari_names,"Baropledax")
-	table.insert(exuari_names,"Batongomox")
-	table.insert(exuari_names,"Bekilvimix")
-	table.insert(exuari_names,"Benoglopok")
-	table.insert(exuari_names,"Bilontipur")
-	table.insert(exuari_names,"Bolictimik")
-	table.insert(exuari_names,"Bomagralax")
-	table.insert(exuari_names,"Buteldefex")
-	table.insert(exuari_names,"Catondinab")
-	table.insert(exuari_names,"Chatorlonox")
-	table.insert(exuari_names,"Culagromik")
-	table.insert(exuari_names,"Dakimbinix")
-	table.insert(exuari_names,"Degintalix")
-	table.insert(exuari_names,"Dimabratax")
-	table.insert(exuari_names,"Dokintifix")
-	table.insert(exuari_names,"Dotandirex")
-	table.insert(exuari_names,"Dupalgawax")
-	table.insert(exuari_names,"Ekoftupex")
-	table.insert(exuari_names,"Elidranov")
-	table.insert(exuari_names,"Fakobrovox")
-	table.insert(exuari_names,"Femoplabix")
-	table.insert(exuari_names,"Fibatralax")
-	table.insert(exuari_names,"Fomartoran")
-	table.insert(exuari_names,"Gateldepex")
-	table.insert(exuari_names,"Gamutrewal")
-	table.insert(exuari_names,"Gesanterux")
-	table.insert(exuari_names,"Gimardanax")
-	table.insert(exuari_names,"Hamintinal")
-	table.insert(exuari_names,"Holangavak")
-	table.insert(exuari_names,"Igolpafik")
-	table.insert(exuari_names,"Inoklomat")
-	table.insert(exuari_names,"Jamewtibex")
-	table.insert(exuari_names,"Jepospagox")
-	table.insert(exuari_names,"Kajortonox")
-	table.insert(exuari_names,"Kapogrinix")
-	table.insert(exuari_names,"Kelitravax")
-	table.insert(exuari_names,"Kipaldanax")
-	table.insert(exuari_names,"Kodendevex")
-	table.insert(exuari_names,"Kotelpedex")
-	table.insert(exuari_names,"Kutandolak")
-	table.insert(exuari_names,"Lakirtinix")
-	table.insert(exuari_names,"Lapoldinek")
-	table.insert(exuari_names,"Lavorbonox")
-	table.insert(exuari_names,"Letirvinix")
-	table.insert(exuari_names,"Lowibromax")
-	table.insert(exuari_names,"Makintibix")
-	table.insert(exuari_names,"Makorpohox")
-	table.insert(exuari_names,"Matoprowox")
-	table.insert(exuari_names,"Mefinketix")
-	table.insert(exuari_names,"Motandobak")
-	table.insert(exuari_names,"Nakustunux")
-	table.insert(exuari_names,"Nequivonax")
-	table.insert(exuari_names,"Nitaldavax")
-	table.insert(exuari_names,"Nobaldorex")
-	table.insert(exuari_names,"Obimpitix")
-	table.insert(exuari_names,"Owaklanat")
-	table.insert(exuari_names,"Pakendesik")
-	table.insert(exuari_names,"Pazinderix")
-	table.insert(exuari_names,"Pefoglamuk")
-	table.insert(exuari_names,"Pekirdivix")
-	table.insert(exuari_names,"Potarkadax")
-	table.insert(exuari_names,"Pulendemex")
-	table.insert(exuari_names,"Quatordunix")
-	table.insert(exuari_names,"Rakurdumux")
-	table.insert(exuari_names,"Ralombenik")
-	table.insert(exuari_names,"Regosporak")
-	table.insert(exuari_names,"Retordofox")
-	table.insert(exuari_names,"Rikondogox")
-	table.insert(exuari_names,"Rokengelex")
-	table.insert(exuari_names,"Rutarkadax")
-	table.insert(exuari_names,"Sakeldepex")
-	table.insert(exuari_names,"Setiftimix")
-	table.insert(exuari_names,"Siparkonal")
-	table.insert(exuari_names,"Sopaldanax")
-	table.insert(exuari_names,"Sudastulux")
-	table.insert(exuari_names,"Takeftebex")
-	table.insert(exuari_names,"Taliskawit")
-	table.insert(exuari_names,"Tegundolex")
-	table.insert(exuari_names,"Tekintipix")
-	table.insert(exuari_names,"Tiposhomox")
-	table.insert(exuari_names,"Tokaldapax")
-	table.insert(exuari_names,"Tomuglupux")
-	table.insert(exuari_names,"Tufeldepex")
-	table.insert(exuari_names,"Unegremek")
-	table.insert(exuari_names,"Uvendipax")
-	table.insert(exuari_names,"Vatorgopox")
-	table.insert(exuari_names,"Venitribix")
-	table.insert(exuari_names,"Vobalterix")
-	table.insert(exuari_names,"Wakintivix")
-	table.insert(exuari_names,"Wapaltunix")
-	table.insert(exuari_names,"Wekitrolax")
-	table.insert(exuari_names,"Wofarbanax")
-	table.insert(exuari_names,"Xeniplofek")
-	table.insert(exuari_names,"Yamaglevik")
-	table.insert(exuari_names,"Yakildivix")
-	table.insert(exuari_names,"Yegomparik")
-	table.insert(exuari_names,"Zapondehex")
-	table.insert(exuari_names,"Zikandelat")
-end
-function setKraylorNames()		
-	kraylor_names = {}
-	table.insert(kraylor_names,"Abroten")
-	table.insert(kraylor_names,"Ankwar")
-	table.insert(kraylor_names,"Bakrik")
-	table.insert(kraylor_names,"Belgor")
-	table.insert(kraylor_names,"Benkop")
-	table.insert(kraylor_names,"Blargvet")
-	table.insert(kraylor_names,"Bloktarg")
-	table.insert(kraylor_names,"Bortok")
-	table.insert(kraylor_names,"Bredjat")
-	table.insert(kraylor_names,"Chankret")
-	table.insert(kraylor_names,"Chatork")
-	table.insert(kraylor_names,"Chokarp")
-	table.insert(kraylor_names,"Cloprak")
-	table.insert(kraylor_names,"Coplek")
-	table.insert(kraylor_names,"Cortek")
-	table.insert(kraylor_names,"Daltok")
-	table.insert(kraylor_names,"Darpik")
-	table.insert(kraylor_names,"Dastek")
-	table.insert(kraylor_names,"Dotark")
-	table.insert(kraylor_names,"Drambok")
-	table.insert(kraylor_names,"Duntarg")
-	table.insert(kraylor_names,"Earklat")
-	table.insert(kraylor_names,"Ekmit")
-	table.insert(kraylor_names,"Fakret")
-	table.insert(kraylor_names,"Fapork")
-	table.insert(kraylor_names,"Fawtrik")
-	table.insert(kraylor_names,"Fenturp")
-	table.insert(kraylor_names,"Feplik")
-	table.insert(kraylor_names,"Figront")
-	table.insert(kraylor_names,"Floktrag")
-	table.insert(kraylor_names,"Fonkack")
-	table.insert(kraylor_names,"Fontreg")
-	table.insert(kraylor_names,"Foondrap")
-	table.insert(kraylor_names,"Frotwak")
-	table.insert(kraylor_names,"Gastonk")
-	table.insert(kraylor_names,"Gentouk")
-	table.insert(kraylor_names,"Gonpruk")
-	table.insert(kraylor_names,"Gortak")
-	table.insert(kraylor_names,"Gronkud")
-	table.insert(kraylor_names,"Hewtang")
-	table.insert(kraylor_names,"Hongtag")
-	table.insert(kraylor_names,"Hortook")
-	table.insert(kraylor_names,"Indrut")
-	table.insert(kraylor_names,"Iprant")
-	table.insert(kraylor_names,"Jakblet")
-	table.insert(kraylor_names,"Jonket")
-	table.insert(kraylor_names,"Jontot")
-	table.insert(kraylor_names,"Kandarp")
-	table.insert(kraylor_names,"Kantrok")
-	table.insert(kraylor_names,"Kiptak")
-	table.insert(kraylor_names,"Kortrant")
-	table.insert(kraylor_names,"Krontgat")
-	table.insert(kraylor_names,"Lobreck")
-	table.insert(kraylor_names,"Lokrant")
-	table.insert(kraylor_names,"Lomprok")
-	table.insert(kraylor_names,"Lutrank")
-	table.insert(kraylor_names,"Makrast")
-	table.insert(kraylor_names,"Moklahft")
-	table.insert(kraylor_names,"Morpug")
-	table.insert(kraylor_names,"Nagblat")
-	table.insert(kraylor_names,"Nokrat")
-	table.insert(kraylor_names,"Nomek")
-	table.insert(kraylor_names,"Notark")
-	table.insert(kraylor_names,"Ontrok")
-	table.insert(kraylor_names,"Orkpent")
-	table.insert(kraylor_names,"Peechak")
-	table.insert(kraylor_names,"Plogrent")
-	table.insert(kraylor_names,"Pokrint")
-	table.insert(kraylor_names,"Potarg")
-	table.insert(kraylor_names,"Prangtil")
-	table.insert(kraylor_names,"Quagbrok")
-	table.insert(kraylor_names,"Quimprill")
-	table.insert(kraylor_names,"Reekront")
-	table.insert(kraylor_names,"Ripkort")
-	table.insert(kraylor_names,"Rokust")
-	table.insert(kraylor_names,"Rontrait")
-	table.insert(kraylor_names,"Saknep")
-	table.insert(kraylor_names,"Sengot")
-	table.insert(kraylor_names,"Skitkard")
-	table.insert(kraylor_names,"Skopgrek")
-	table.insert(kraylor_names,"Sletrok")
-	table.insert(kraylor_names,"Slorknat")
-	table.insert(kraylor_names,"Spogrunk")
-	table.insert(kraylor_names,"Staklurt")
-	table.insert(kraylor_names,"Stonkbrant")
-	table.insert(kraylor_names,"Swaktrep")
-	table.insert(kraylor_names,"Tandrok")
-	table.insert(kraylor_names,"Takrost")
-	table.insert(kraylor_names,"Tonkrut")
-	table.insert(kraylor_names,"Torkrot")
-	table.insert(kraylor_names,"Trablok")
-	table.insert(kraylor_names,"Trokdin")
-	table.insert(kraylor_names,"Unkelt")
-	table.insert(kraylor_names,"Urjop")
-	table.insert(kraylor_names,"Vankront")
-	table.insert(kraylor_names,"Vintrep")
-	table.insert(kraylor_names,"Volkerd")
-	table.insert(kraylor_names,"Vortread")
-	table.insert(kraylor_names,"Wickurt")
-	table.insert(kraylor_names,"Xokbrek")
-	table.insert(kraylor_names,"Yeskret")
-	table.insert(kraylor_names,"Zacktrope")
-end
-function setIndependentNames()
-	independent_names = {}
-	table.insert(independent_names,"Akdroft")	--faux Kraylor
-	table.insert(independent_names,"Bletnik")	--faux Kraylor
-	table.insert(independent_names,"Brogfent")	--faux Kraylor
-	table.insert(independent_names,"Cruflech")	--faux Kraylor
-	table.insert(independent_names,"Dengtoct")	--faux Kraylor
-	table.insert(independent_names,"Fiklerg")	--faux Kraylor
-	table.insert(independent_names,"Groftep")	--faux Kraylor
-	table.insert(independent_names,"Hinkflort")	--faux Kraylor
-	table.insert(independent_names,"Irklesht")	--faux Kraylor
-	table.insert(independent_names,"Jotrak")	--faux Kraylor
-	table.insert(independent_names,"Kargleth")	--faux Kraylor
-	table.insert(independent_names,"Lidroft")	--faux Kraylor
-	table.insert(independent_names,"Movrect")	--faux Kraylor
-	table.insert(independent_names,"Nitrang")	--faux Kraylor
-	table.insert(independent_names,"Poklapt")	--faux Kraylor
-	table.insert(independent_names,"Raknalg")	--faux Kraylor
-	table.insert(independent_names,"Stovtuk")	--faux Kraylor
-	table.insert(independent_names,"Trongluft")	--faux Kraylor
-	table.insert(independent_names,"Vactremp")	--faux Kraylor
-	table.insert(independent_names,"Wunklesp")	--faux Kraylor
-	table.insert(independent_names,"Yentrilg")	--faux Kraylor
-	table.insert(independent_names,"Zeltrag")	--faux Kraylor
-	table.insert(independent_names,"Avoltojop")		--faux Exuari
-	table.insert(independent_names,"Bimartarax")	--faux Exuari
-	table.insert(independent_names,"Cidalkapax")	--faux Exuari
-	table.insert(independent_names,"Darongovax")	--faux Exuari
-	table.insert(independent_names,"Felistiyik")	--faux Exuari
-	table.insert(independent_names,"Gopendewex")	--faux Exuari
-	table.insert(independent_names,"Hakortodox")	--faux Exuari
-	table.insert(independent_names,"Jemistibix")	--faux Exuari
-	table.insert(independent_names,"Kilampafax")	--faux Exuari
-	table.insert(independent_names,"Lokuftumux")	--faux Exuari
-	table.insert(independent_names,"Mabildirix")	--faux Exuari
-	table.insert(independent_names,"Notervelex")	--faux Exuari
-	table.insert(independent_names,"Pekolgonex")	--faux Exuari
-	table.insert(independent_names,"Rifaltabax")	--faux Exuari
-	table.insert(independent_names,"Sobendeyex")	--faux Exuari
-	table.insert(independent_names,"Tinaftadax")	--faux Exuari
-	table.insert(independent_names,"Vadorgomax")	--faux Exuari
-	table.insert(independent_names,"Wilerpejex")	--faux Exuari
-	table.insert(independent_names,"Yukawvalak")	--faux Exuari
-	table.insert(independent_names,"Zajiltibix")	--faux Exuari
-	table.insert(independent_names,"Alter")		--faux Ghosts
-	table.insert(independent_names,"Assign")	--faux Ghosts
-	table.insert(independent_names,"Brain")		--faux Ghosts
-	table.insert(independent_names,"Break")		--faux Ghosts
-	table.insert(independent_names,"Boundary")	--faux Ghosts
-	table.insert(independent_names,"Code")		--faux Ghosts
-	table.insert(independent_names,"Compare")	--faux Ghosts
-	table.insert(independent_names,"Continue")	--faux Ghosts
-	table.insert(independent_names,"Core")		--faux Ghosts
-	table.insert(independent_names,"CRUD")		--faux Ghosts
-	table.insert(independent_names,"Decode")	--faux Ghosts
-	table.insert(independent_names,"Decrypt")	--faux Ghosts
-	table.insert(independent_names,"Device")	--faux Ghosts
-	table.insert(independent_names,"Encode")	--faux Ghosts
-	table.insert(independent_names,"Encrypt")	--faux Ghosts
-	table.insert(independent_names,"Event")		--faux Ghosts
-	table.insert(independent_names,"Fetch")		--faux Ghosts
-	table.insert(independent_names,"Frame")		--faux Ghosts
-	table.insert(independent_names,"Go")		--faux Ghosts
-	table.insert(independent_names,"IO")		--faux Ghosts
-	table.insert(independent_names,"Interface")	--faux Ghosts
-	table.insert(independent_names,"Kilo")		--faux Ghosts
-	table.insert(independent_names,"Modify")	--faux Ghosts
-	table.insert(independent_names,"Pin")		--faux Ghosts
-	table.insert(independent_names,"Program")	--faux Ghosts
-	table.insert(independent_names,"Purge")		--faux Ghosts
-	table.insert(independent_names,"Retrieve")	--faux Ghosts
-	table.insert(independent_names,"Store")		--faux Ghosts
-	table.insert(independent_names,"Unit")		--faux Ghosts
-	table.insert(independent_names,"Wire")		--faux Ghosts
-end
-function setHumanNames()
-	human_names = {}
-	table.insert(human_names,"Achilles")
-	table.insert(human_names,"Agamemnon")
-	table.insert(human_names,"Aloof")
-	table.insert(human_names,"Atlas")
-	table.insert(human_names,"Bent Lament")
-	table.insert(human_names,"Blue Suede Shoes")
-	table.insert(human_names,"Blade")
-	table.insert(human_names,"Blue Sky")
-	table.insert(human_names,"Bright Light")
-	table.insert(human_names,"Charon")
-	table.insert(human_names,"Cloudy Sky")
-	table.insert(human_names,"Contingency")
-	table.insert(human_names,"Corner Office")
-	table.insert(human_names,"Cutter")
-	table.insert(human_names,"d'Artagnan")
-	table.insert(human_names,"Dante")
-	table.insert(human_names,"Dark Star")
-	table.insert(human_names,"Dreamer")
-	table.insert(human_names,"Eager Beaver")
-	table.insert(human_names,"Earnest Plea")
-	table.insert(human_names,"Exodous")
-	table.insert(human_names,"Expedition")
-	table.insert(human_names,"Faint Praise")
-	table.insert(human_names,"Far Cry")
-	table.insert(human_names,"Fashion Sense")
-	table.insert(human_names,"Final Frontier")
-	table.insert(human_names,"Finn")
-	table.insert(human_names,"First Try")
-	table.insert(human_names,"Free Lunch")
-	table.insert(human_names,"Formidable")
-	table.insert(human_names,"Gargantuan")
-	table.insert(human_names,"Glide Path")
-	table.insert(human_names,"Grand Plan")
-	table.insert(human_names,"Gremlin")
-	table.insert(human_names,"Guiding Light")
-	table.insert(human_names,"Hades")
-	table.insert(human_names,"Haughty")
-	table.insert(human_names,"Heavenly Body")
-	table.insert(human_names,"Hermes")
-	table.insert(human_names,"Highlander")
-	table.insert(human_names,"Holy Cow")
-	table.insert(human_names,"Hunter")
-	table.insert(human_names,"Hypertension")
-	table.insert(human_names,"Indifferent")
-	table.insert(human_names,"Insatiable")
-	table.insert(human_names,"Insidious")
-	table.insert(human_names,"Instigator")
-	table.insert(human_names,"Invincible")
-	table.insert(human_names,"J. B. Sloop")
-	table.insert(human_names,"Kipling")
-	table.insert(human_names,"Knowledge Fount")
-	table.insert(human_names,"Kremlin")
-	table.insert(human_names,"Lady Luck")
-	table.insert(human_names,"Last Chance")
-	table.insert(human_names,"Lurker")
-	table.insert(human_names,"Malady")
-	table.insert(human_names,"Manticore")
-	table.insert(human_names,"Mars")
-	table.insert(human_names,"Medusa")
-	table.insert(human_names,"Mercury")
-	table.insert(human_names,"Minnow")
-	table.insert(human_names,"Morpheus")
-	table.insert(human_names,"Murphy's Law")
-	table.insert(human_names,"Murphy's Corollary")
-	table.insert(human_names,"Mystery")
-	table.insert(human_names,"Near Horizon")
-	table.insert(human_names,"Near Term")
-	table.insert(human_names,"Neo")
-	table.insert(human_names,"Nightshade")
-	table.insert(human_names,"Nineva")
-	table.insert(human_names,"North Star")
-	table.insert(human_names,"Occam's Razor")
-	table.insert(human_names,"Opulent")
-	table.insert(human_names,"Ostentatious")
-	table.insert(human_names,"Outlander")
-	table.insert(human_names,"Pentagon")
-	table.insert(human_names,"Persistent")
-	table.insert(human_names,"Persnickety")
-	table.insert(human_names,"Phoebus")
-	table.insert(human_names,"Plumbline")
-	table.insert(human_names,"Portent")
-	table.insert(human_names,"Purple People Eater")
-	table.insert(human_names,"Quatrain")
-	table.insert(human_names,"Raider")
-	table.insert(human_names,"Reflection")
-	table.insert(human_names,"Red Baron")
-	table.insert(human_names,"Red Dawn")
-	table.insert(human_names,"Safari")
-	table.insert(human_names,"Sawyer")
-	table.insert(human_names,"Schoolgirl")
-	table.insert(human_names,"Scupper")
-	table.insert(human_names,"Seeker")
-	table.insert(human_names,"Shadow")
-	table.insert(human_names,"Silvery Moon")
-	table.insert(human_names,"Snake Eyes")
-	table.insert(human_names,"Solaris")
-	table.insert(human_names,"Stream of Consciousness")
-	table.insert(human_names,"Teluride")
-	table.insert(human_names,"Throckwaddle")
-	table.insert(human_names,"Tramp")
-	table.insert(human_names,"Tracker")
-	table.insert(human_names,"Tried and True")
-	table.insert(human_names,"Tripe")
-	table.insert(human_names,"Tripper")
-	table.insert(human_names,"Trixie")
-	table.insert(human_names,"Underbelly")
-	table.insert(human_names,"Urgent")
-	table.insert(human_names,"Vacuous")
-	table.insert(human_names,"Venial")
-	table.insert(human_names,"Veritas")
-	table.insert(human_names,"Ways and Means")
-	table.insert(human_names,"Weeping Widow")
-	table.insert(human_names,"Wolfman")
 end
 ----------------------------
 -- Plot related functions --
