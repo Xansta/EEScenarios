@@ -36,7 +36,7 @@ require("cpu_ship_diversification_scenario_utility.lua")
 require("generate_call_sign_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.2"
+	scenario_version = "1.0.3"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Surf's Up!    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -2088,7 +2088,7 @@ function handleWeaponRestock(weapon)
 		return
 	end
 	if comms_data.weapons == nil then
-        weapons = {
+        comms_data.weapons = {
             Homing = "neutral",
             HVLI = "neutral",
             Mine = "neutral",
