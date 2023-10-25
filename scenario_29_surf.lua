@@ -24,6 +24,16 @@
 -- Pace[30]: Enemy ships move thirty percent faster than normal
 -- Pace[40]: Enemy ships move forty percent faster than normal
 -- Pace[50]: Enemy ships move fifty percent faster than normal
+-- Setting[Advance]: Configure the simulated wave level. Default is one
+-- Advance[1|Default]: Normal wave start point
+-- Advance[2]: Advance wave start to 2
+-- Advance[3]: Advance wave start to 3
+-- Advance[4]: Advance wave start to 4
+-- Advance[5]: Advance wave start to 5
+-- Advance[6]: Advance wave start to 6
+-- Advance[7]: Advance wave start to 7
+-- Advance[8]: Advance wave start to 8
+-- Advance[9]: Advance wave start to 9
 
 require("utils.lua")
 -- For this scenario, utils.lua provides:
@@ -36,7 +46,7 @@ require("cpu_ship_diversification_scenario_utility.lua")
 require("generate_call_sign_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.3"
+	scenario_version = "1.0.4"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Surf's Up!    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -188,6 +198,18 @@ function init()
 		["50"] = 1.5
 	}
 	speed_factor = enemy_speed[getScenarioSetting("Pace")]
+	local advance_config = {
+		["1"] = 0,
+		["2"] = 1,
+		["3"] = 2,
+		["4"] = 3,
+		["5"] = 4,
+		["6"] = 5,
+		["7"] = 6,
+		["8"] = 7,
+		["9"] = 8,
+	}
+	wave_advance = advance_config[getScenarioSetting("Advance")]
 	ship_templates = {
 		{name = "Gnat",				warp_jammer = "none",		strength = 2,	create = gnat},
 		{name = "MT52 Hornet",		warp_jammer = "none",		strength = 5,	create = stockTemplate},
@@ -355,6 +377,26 @@ function init()
     end
     
     -- Player ship(s)
+	player_ship_stats = {	
+		["Atlantis"]			= { strength = 52,	cargo = 6,	long_range_radar = 30000, short_range_radar = 5000, 	},
+		["Benedict"]			= { strength = 10,	cargo = 9,	long_range_radar = 30000, short_range_radar = 5000, 	},
+		["Crucible"]			= { strength = 45,	cargo = 5,	long_range_radar = 20000, short_range_radar = 6000, 	},
+		["Ender"]				= { strength = 100,	cargo = 20,	long_range_radar = 45000, short_range_radar = 7000, 	},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	long_range_radar = 40000, short_range_radar = 5000, 	},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	long_range_radar = 35000, short_range_radar = 6000, 	},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	long_range_radar = 35000, short_range_radar = 5000, 	},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	long_range_radar = 18000, short_range_radar = 4000, 	},
+		["Maverick"]			= { strength = 45,	cargo = 5,	long_range_radar = 20000, short_range_radar = 4000, 	},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	long_range_radar = 22000, short_range_radar = 4000, 	},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	long_range_radar = 25000, short_range_radar = 5000, 	},
+		["Piranha"]				= { strength = 16,	cargo = 8,	long_range_radar = 25000, short_range_radar = 6000, 	},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	long_range_radar = 30000, short_range_radar = 5000, 	},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	long_range_radar = 15000, short_range_radar = 4500, 	},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	long_range_radar = 35000, short_range_radar = 6000, 	},
+		["Repulse"]				= { strength = 14,	cargo = 12,	long_range_radar = 38000, short_range_radar = 5000, 	},
+		["Striker"]				= { strength = 8,	cargo = 4,	long_range_radar = 35000, short_range_radar = 5000, 	},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	long_range_radar = 18000, short_range_radar = 5500, 	},
+	}	
     player_ship_names = {
     	["Atlantis"] =			{"Excaliber","Thrasher","Punisher","Vorpal","Protang","Drummond","Parchim","Coronado"},
     	["Benedict"] =			{"Elizabeth","Ford","Vikramaditya","Liaoning","Avenger","Naruebet","Washington","Lincoln","Garibaldi","Eisenhower"},
@@ -371,6 +413,7 @@ function init()
     	["Player Cruiser"] =	{"Excelsior","Velociraptor","Thunder","Kona","Encounter","Perth","Aspern","Panther"},
     	["Player Fighter"] =	{"Buzzer","Flitter","Zippiticus","Hopper","Molt","Stinger","Stripe"},
     	["Player Missile Cr."] ={"Projectus","Hurlmeister","Flinger","Ovod","Amatola","Nakhimov","Antigone"},
+		["Repulse"] = 			{"Fiddler","Brinks","Loomis","Mowag","Patria","Pandur","Terrex","Komatsu","Eitan"},
     	["Striker"] =			{"Sparrow","Sizzle","Squawk","Crow","Phoenix","Snowbird","Hawk"},
     	["ZX-Lindworm"] =		{"Seagull","Catapult","Blowhard","Flapper","Nixie","Pixie","Tinkerbell"},
 		["Player Cruiser"] =	{"Excelsior","Velociraptor","Thunder","Kona","Encounter","Perth","Aspern","Panther"},
@@ -744,15 +787,29 @@ end
 function spawnWave()
 	wave_number = wave_number + 1
 	if not asteroid_storm then
-		if random(1,100) - wave_number < 27 and #storm_asteroids == 0 then
+		if random(1,100) - (wave_number + wave_advance) < 27 and #storm_asteroids == 0 then
 			asteroid_storm = true
 		end
 	end
 	enemy_list = {}
-	enemy_strength = math.pow(wave_number,1.3) * 10 * enemy_power + 5
+	local player_power = 0
+	for i,p in ipairs(getActivePlayerShips()) do
+		local template_name = p:getTypeName()
+		if template_name ~= nil then
+			local player_strength = player_ship_stats[template_name].strength
+			if player_strength ~= nil then
+				player_power = player_power + player_strength
+			else
+				player_power = player_power + 24
+			end
+		else
+			player_power = player_power + 24
+		end
+	end
+	enemy_strength = math.pow((wave_number + wave_advance),1.3) * 10 * enemy_power + player_power
 	current_enemy_strength = 0
 	spawn_angle = random(0,360)
-	spawn_range = random(20000,25000 + 1000 * wave_number)
+	spawn_range = random(20000,25000 + 1000 * (wave_number + wave_advance))
 	base_spawn_x, base_spawn_y = vectorFromAngle(spawn_angle,spawn_range)
 	local wave_styles = {
 		{style = "defense",		chance = 10,	msg = string.format(_("shipLog","Wave %i. Hunt down enemy base."),wave_number),	func = spawnDefense},
@@ -760,9 +817,9 @@ function spawnWave()
 		{style = "formation",	chance = 50,	msg = string.format(_("shipLog","Wave %i."),wave_number),						func = spawnFormation},
 		{style = "simple",		chance = 100,	msg = string.format(_("shipLog","Wave %i."),wave_number),						func = spawnSimple},
 	}
-	local roll = random(1,100) - wave_number
+	local roll = random(1,100) - (wave_number + wave_advance)
 	local wave_style = nil
-	print("Roll:",roll,"Wave number:",wave_number)
+	print("Roll:",roll,"Wave number:",wave_number,"Enemy strength:",enemy_strength,"Player power:",player_power,"Advance:",wave_advance + 1)
 	for i, wave in ipairs(wave_styles) do
 		if roll <= wave.chance then
 			print("Wave type selected:",wave.style)
@@ -802,7 +859,7 @@ function spawnSimple()
 		ship:setRotationMaxSpeed(ship:getRotationMaxSpeed()*speed_factor)
 		ship:setAcceleration(ship:getAcceleration()*speed_factor)
 		if ship:hasWarpDrive() then
-			ship:setWarpSpeed(ship:getWarpSpeed()*speedFactor)
+			ship:setWarpSpeed(ship:getWarpSpeed()*speed_factor)
 		end
 		suffix_index = math.random(11,70)
 		ship:setCallSign(generateCallSign(nil,"Ghosts"))
@@ -814,7 +871,7 @@ function spawnSimple()
 		if not split then
 			if current_enemy_strength >= enemy_strength then
 				local angle = random(0,360)
-				local dist = random(30000,35000 + 1000 * wave_number)
+				local dist = random(30000,35000 + 1000 * (wave_number + wave_advance))
 				base_spawn_x, base_spawn_y = vectorFromAngle(angle,dist)
 				spawn_point_leader = nil
 				split = true
@@ -897,7 +954,7 @@ function subWave()
 		sub_wave_interval = math.max(sub_wave_interval - 10,0)
 	elseif getScenarioTime() > sub_wave_time then
 		sub_wave_time = nil
-		enemy_strength = math.pow(wave_number,1.3) * 10 * enemy_power
+		enemy_strength = math.pow((wave_number + wave_advance),1.3) * 10 * enemy_power
 		if enemy_station ~= nil and enemy_station:isValid() then
 			base_spawn_x, base_spawn_y = enemy_station:getPosition()
 			local spawn_point_leader = nil
@@ -1252,7 +1309,7 @@ function spawnFormation()
 	local fleet_prefix = generateCallSignPrefix()
 	local formation_spacing = random(800,1200)
 	for i, form in ipairs(fly_formation[selected_form.form]) do
-		local ship = selected_form.create("Ghosts",selected_form.name)
+		local ship = selected_form.create("Ghosts",selected_form.template)
 		local form_x, form_y = vectorFromAngleNorth(fly_angle + form.angle, form.dist * formation_spacing)
 		local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * formation_spacing)
 		ship:setPosition(base_spawn_x + form_x, base_spawn_y + form_y):setHeading(fly_angle):orderFlyFormation(leader_ship,form_prime_x,form_prime_y)
@@ -1674,7 +1731,7 @@ function commsStationReinforcements()
 								ship:setRotationMaxSpeed(ship:getRotationMaxSpeed()*speed_factor)
 								ship:setAcceleration(ship:getAcceleration()*speed_factor)
 								if ship:hasWarpDrive() then
-									ship:setWarpSpeed(ship:getWarpSpeed()*speedFactor)
+									ship:setWarpSpeed(ship:getWarpSpeed()*speed_factor)
 								end
 								suffix_index = math.random(11,77)
 								ship:setCallSign(generateCallSign(nil,comms_target:getFaction()))
@@ -2752,6 +2809,12 @@ function update(delta)
     	end
 		local duration_string = getDuration()
 		msg = string.format(_("msgMainscreen","%s\nDuration: %s."),msg,duration_string)
+		if wave_advance > 0 then
+			msg = string.format(_("msgMainscreen","%s\nWave advance setting: %s"),msg,wave_advance + 1)
+		end
+		if getScenarioSetting("Pace") ~= "Normal" then
+			msg = string.format(_("msgMainscreen","%s\nPace setting: %s"),msg,getScenarioSetting("Pace"))
+		end
     	globalMessage(msg)
         victory("Ghosts") -- Victory for the Ghosts (= defeat for the players)
     end
