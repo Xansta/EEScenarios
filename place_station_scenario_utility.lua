@@ -19,6 +19,14 @@
 --			Default to 1 (normal) if not already defined
 --		table station_priority:
 --			Defined here if not already defined. See populateStationPool
+--		table station_template_chance:
+--			Defined here if not already defined. The value is the modification of the 
+--			chance out of 100 that a station will have a service based on station template.
+--		table faction_station_service_chance:
+--			Defined here if not already defined. The value is the modification of the 
+--			chance out of 100 that a station will have a service based on station faction.
+--		string sizeTemplate:
+--			Set to the station template size if the station size is selected randomly
 
 --	placeStation returns the station placed or nil if there was an error. 
 --	placeStation sets the global sizeTemplate if selected randomly via szt
@@ -26,6 +34,7 @@ function placeStation(x,y,name,faction,size,diagnostic)
 	--x and y are the position of the station
 	--name should be the name of the station or the name of the station group
 	--		omit name to get random station from groups in priority order. See pickStation
+	--		Special values across groups: Random, RandomHumanNeutral, RandomGenericSinister
 	--faction is the faction of the station
 	--		omit faction and global variable stationFaction will be used. 
 	--			If stationFaction is not defined, faction will be set to Independent
