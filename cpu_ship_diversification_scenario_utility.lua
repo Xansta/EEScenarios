@@ -18,7 +18,13 @@
 --	...where you specify selected_template and enemyFaction using whatever criteria your
 --	scenario requires.
 --
---	No global variables per se, just the function names themselves.
+--	The ship creation function also adds the ship to the science database.
+--
+--	No global variables per se, just the function names themselves. These functions were
+--	cloned from scenario to scenario until I put them in this document in an effort to 
+--	reduce the workload on the pull request reviewer.
+--
+--	Version 2
 function stockTemplate(enemyFaction,template)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate(template)
 	ship:onTakingDamage(function(self,instigator)
