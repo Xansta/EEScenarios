@@ -1,13 +1,13 @@
 -- Name: Unwanted Visitors
--- Description: Get rid of the unwanted visitors. Various other missions follow (check the dispatch office). Missions may challenge the helm officer regardless of the difficulty level chosen. You may choose to continue or stand down after each mission. 
+-- Description: Get rid of the unwanted visitors. Other missions follow. Check friendly stations for mission orders. Dispatch office provides new missions. Continue or stand down after each mission. 
 ---
---- Running all missions can take several hours. Consider real life limits when given the option to stand down at the end of each mission. Some missions are easier to complete in a warp ship than in a jump ship. Only one of the last set of missions may be selected.
+--- Each mission takes 15 - 50 minutes. That can add up. Four missions in the first area, three in the second area and in the third area, one open ended mission, chosen from three possibilities.
 ---
---- If you have already played one or more missions and want to choose to replay or avoid a particular mission, choose a 'Selectable' variation. Choosing a 'Random' variation gives you no mission choice. The default is partial selection control allowing you to select a mission group.
+--- When returning to this scenario, choose "selectable" to perform missions you have not yet completed. Choose "Random" to be surprised at the missions selected.
 ---
---- Buttons on the Game Master screen can change the speed of objects in various orbits by 10 percent per click
+--- GM buttons slow or speed celestial body orbits, turn on or off server voices, insert unique player ships or end the mission.
 ---
---- If you are playing on a LAN and no longer want to hear voices from the server running a main screen, use the button on the GM screen to turn off the voices. You can also change the default on line 87 in the scenario_48_visitors.lua file.
+--- USN Discord: https://discord.gg/PntGG3a where you can join a game online.
 ---
 --- Voice Actors:
 --- Admiral U. E.
@@ -54,7 +54,7 @@ require("place_station_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.5"
+	scenario_version = "2.0.6"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -2551,6 +2551,7 @@ function shrinkBeamCycle()
 					end
 					if partQuantity > 0 then
 						comms_source.shrinkBeamCycleUpgrade = "done"
+						optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 						comms_source.cargo = comms_source.cargo + 1
 						local bi = 0
@@ -2569,6 +2570,7 @@ function shrinkBeamCycle()
 					end
 				else
 					comms_source.shrinkBeamCycleUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					bi = 0
 					repeat
 						tempArc = comms_source:getBeamWeaponArc(bi)
@@ -2598,6 +2600,7 @@ function increaseSpin()
 				end
 				if partQuantity > 0 then
 					comms_source.increaseSpinUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 					comms_source.cargo = comms_source.cargo + 1
 					comms_source:setRotationMaxSpeed(comms_source:getRotationMaxSpeed()*1.5)
@@ -2607,6 +2610,7 @@ function increaseSpin()
 				end
 			else
 				comms_source.increaseSpinUpgrade = "done"
+				optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 				comms_source:setRotationMaxSpeed(player:getRotationMaxSpeed()*1.5)
 				setCommsMessage(string.format(_("upgrade-comms","%s: I increased the speed your ship spins by 50%%. Normally, I'd require %s, but seeing as you're going out to take on the Exuari, we worked it out"),ctd.character,ctd.characterGood))
 			end
@@ -2628,6 +2632,7 @@ function addAuxTube()
 				end
 				if partQuantity > 0 and luxQuantity > 0 then
 					comms_source.auxTubeUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 					comms_source.goods["luxury"] = comms_source.goods["luxury"] - 1
 					comms_source.cargo = comms_source.cargo + 2
@@ -2643,6 +2648,7 @@ function addAuxTube()
 				end
 			else
 				comms_source.auxTubeUpgrade = "done"
+				optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 				originalTubes = comms_source:getWeaponTubeCount()
 				newTubes = originalTubes + 1
 				comms_source:setWeaponTubeCount(newTubes)
@@ -2666,6 +2672,7 @@ function coolBeam()
 					end
 					if partQuantity > 0 then
 						comms_source.coolBeamUpgrade = "done"
+						optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 						comms_source.cargo = comms_source.cargo + 1
 						local bi = 0
@@ -2679,6 +2686,7 @@ function coolBeam()
 					end
 				else
 					comms_source.coolBeamUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					bi = 0
 					repeat
 						comms_source:setBeamWeaponHeatPerFire(bi,comms_source:getBeamWeaponHeatPerFire(bi) * 0.5)
@@ -2709,6 +2717,7 @@ function longerBeam()
 					end
 					if partQuantity > 0 then
 						comms_source.longerBeamUpgrade = "done"
+						optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 						comms_source.cargo = comms_source.cargo + 1
 						local bi = 0
@@ -2727,6 +2736,7 @@ function longerBeam()
 					end
 				else
 					comms_source.longerBeamUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					bi = 0
 					repeat
 						tempArc = comms_source:getBeamWeaponArc(bi)
@@ -2758,6 +2768,7 @@ function damageBeam()
 					end
 					if partQuantity > 0 then
 						comms_source.damageBeamUpgrade = "done"
+						optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 						comms_source.cargo = comms_source.cargo + 1
 						local bi = 0
@@ -2776,6 +2787,7 @@ function damageBeam()
 					end
 				else
 					comms_source.damageBeamUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					bi = 0
 					repeat
 						tempArc = comms_source:getBeamWeaponArc(bi)
@@ -2806,6 +2818,7 @@ function moreMissiles()
 					end
 					if partQuantity > 0 then
 						comms_source.moreMissilesUpgrade = "done"
+						optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 						comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 						comms_source.cargo = comms_source.cargo + 1
 						local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
@@ -2818,6 +2831,7 @@ function moreMissiles()
 					end
 				else
 					comms_source.moreMissilesUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 					for i, missile_type in ipairs(missile_types) do
 						comms_source:setWeaponStorageMax(missile_type, math.ceil(comms_source:getWeaponStorageMax(missile_type)*1.25))
@@ -2841,6 +2855,7 @@ function fasterImpulse()
 				end
 				if partQuantity > 0 then
 					comms_source.fasterImpulseUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 					comms_source.cargo = comms_source.cargo + 1
 					comms_source:setImpulseMaxSpeed(comms_source:getImpulseMaxSpeed()*1.25)
@@ -2850,6 +2865,7 @@ function fasterImpulse()
 				end
 			else
 				comms_source.fasterImpulseUpgrade = "done"
+				optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 				comms_source:setImpulseMaxSpeed(comms_source:getImpulseMaxSpeed()*1.25)
 				setCommsMessage(string.format(_("upgrade-comms","%s: Your impulse engines now push you up to 25%% faster. I didn't need %s after all. Go run circles around those blinking Exuari"),ctd.character,ctd.characterGood))
 			end
@@ -2867,6 +2883,7 @@ function strongerHull()
 				end
 				if partQuantity > 0 then
 					comms_source.strongerHullUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 					comms_source.cargo = comms_source.cargo + 1
 					comms_source:setHullMax(comms_source:getHullMax()*1.5)
@@ -2877,6 +2894,7 @@ function strongerHull()
 				end
 			else
 				comms_source.strongerHullUpgrade = "done"
+				optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 				comms_source:setHullMax(comms_source:getHullMax()*1.5)
 				comms_source:setHull(comms_source:getHullMax())
 				setCommsMessage(string.format(_("upgrade-comms","%s: I made your hull 50%% stronger. I scrounged some %s from around here since you are on the Exuari offense team"),ctd.character,ctd.characterGood))
@@ -2895,6 +2913,7 @@ function efficientBatteries()
 				end
 				if partQuantity > 0 then
 					comms_source.efficientBatteriesUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 					comms_source.cargo = comms_source.cargo + 1
 					comms_source:setMaxEnergy(comms_source:getMaxEnergy()*1.25)
@@ -2905,6 +2924,7 @@ function efficientBatteries()
 				end
 			else
 				comms_source.efficientBatteriesUpgrade = "done"
+				optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 				comms_source:setMaxEnergy(comms_source:getMaxEnergy()*1.25)
 				comms_source:setEnergy(comms_source:getMaxEnergy())
 				setCommsMessage(string.format(_("upgrade-comms","%s increased your battery efficiency by 25%% without the need for %s due to the pressing military demands on your ship"),ctd.character,ctd.characterGood))
@@ -2923,6 +2943,7 @@ function strongerShields()
 				end
 				if partQuantity > 0 then
 					comms_source.strongerShieldsUpgrade = "done"
+					optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 					comms_source.goods[ctd.characterGood] = comms_source.goods[ctd.characterGood] - 1
 					comms_source.cargo = comms_source.cargo + 1
 					if comms_source:getShieldCount() == 1 then
@@ -2936,6 +2957,7 @@ function strongerShields()
 				end
 			else
 				comms_source.strongerShieldsUpgrade = "done"
+				optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
 				if comms_source:getShieldCount() == 1 then
 					comms_source:setShieldsMax(comms_source:getShieldMax(0)*1.2)
 				else
@@ -7711,6 +7733,20 @@ function showEndStats(reason)
 		stat_message = stat_message .. _("msgMainscreen","none")
 	end
 	stat_message = stat_message .. string.format(_("msgMainscreen","\nMissions completed: %i"),mission_complete_count)
+--	optional_missions[comms_source:getCallSign()] = optional_missions[comms_source:getCallSign()] + 1
+	local opt_msg = ""
+	for player,count in pairs(optional_missions) do
+		if count ~= nil and count > 0 then
+			if opt_msg == "" then
+				opt_msg = string.format("Optional missions completed: %s:%i",player,count)
+			else
+				opt_msg = string.format("%s, %s:%i",opt_msg,player,count)
+			end
+		end
+	end
+	if opt_msg ~= "" then
+		stat_message = string.format("%s\n%s",stat_message,opt_msg)
+	end
 	if reason ~= nil then
 		stat_message = stat_message .. "\n" .. reason
 	end
@@ -7751,6 +7787,10 @@ function setPlayers()
 			if ship_name ~= nil then
 				pobj:setCallSign(ship_name)
 			end
+			if optional_missions == nil then
+				optional_missions = {}
+			end
+			optional_missions[pobj:getCallSign()] = 0
 			pobj.maxCargo = player_ship_stats[tempPlayerType].cargo
 			pobj.shipScore = player_ship_stats[tempPlayerType].strength
 			pobj:setLongRangeRadarRange(player_ship_stats[tempPlayerType].long_range_radar)
