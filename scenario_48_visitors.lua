@@ -54,7 +54,7 @@ require("place_station_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.4"
+	scenario_version = "2.0.5"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -1957,20 +1957,20 @@ function nebulaRiver()
 		end
 	end
 	coolant_nebula = {}
-	local nebula_index = 0
-	for i=1,#nebula_list do
-		nebula_list[i].lose = false
-		nebula_list[i].gain = false
+	for i,neb in ipairs(nebula_list) do
+		neb.lose = false
+		neb.gain = false
 	end
 	local nebula_count = #nebula_list
 	for i=1,math.random(math.floor(nebula_count/2)) do
-		nebula_index = math.random(1,#nebula_list)
-		table.insert(coolant_nebula,nebula_list[nebula_index])
-		table.remove(nebula_list,nebula_index)
-		if math.random(1,100) < 50 then
-			coolant_nebula[#coolant_nebula].lose = true
-		else
-			coolant_nebula[#coolant_nebula].gain = true
+		local neb = tableRemoveRandom(nebula_list)
+		if neb ~= nil then
+			if math.random(1,100) < 50 then
+				neb.lose = true
+			else
+				neb.gain = true
+			end
+			table.insert(coolant_nebula,neb)
 		end
 	end
 end
@@ -5803,7 +5803,12 @@ function handleVoiceQueue(delta)
 	if #voice_queue > 0 then
 		if voice_play_time == nil then
 			playSoundFile(string.format("scenario48audio/sa_48_%s.ogg",voice_queue[1]))
-			voice_play_time = getScenarioTime() + voice_clips[voice_queue[1]] + 1
+			if voice_clips[voice_queue[1]] == nil then
+				print("In the voice clips list,",voice_queue[1],"comes up as nil. Setting play gap to 20")
+				voice_play_time = getScenarioTime() + 20
+			else
+				voice_play_time = getScenarioTime() + voice_clips[voice_queue[1]] + 1
+			end
 			table.remove(voice_queue,1)
 		elseif getScenarioTime() > voice_play_time then
 			voice_play_time = nil
@@ -6923,7 +6928,7 @@ function marauderApproach(delta)
 				if enemy ~= nil and enemy:isValid() then
 					if distance(enemy,protect_station) < 30000 then
 						local ex, ey = enemy:getPosition()
-						local marauder_bearing = angleFromVectorNorth(sx, sy, ex, ey)
+						local marauder_bearing = angleFromVectorNorth(ex, ey, sx, sy)
 						if protect_station.marauder_choice ~= nil and protect_station.marauder_choice:isValid() then
 							protect_station.marauder_choice:addToShipLog(string.format(_("goal-shipLog","[%s in %s] The Exuari are coming! We detected them on bearing %.1f from us."),protect_station_name,protect_station:getSectorName(),marauder_bearing),"Magenta")
 							protect_station.marauder_warning = "done"
