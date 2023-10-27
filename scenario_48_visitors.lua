@@ -54,7 +54,7 @@ require("place_station_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.6"
+	scenario_version = "2.0.7"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -7455,7 +7455,7 @@ function startStronghold()
 	psy = solY+esy
 	stationFaction = "Exuari"
 	stationStaticAsteroids = true
-	pStation = placeUVStation(psx,psy,"RandomHumanNeutral")
+	pStation = placeUVStation(psx,psy,"Sinister")
 	table.insert(stationList,pStation)			--save station in general station list
 	table.insert(exuariStationList,pStation)	--save station in exuari station list
 	exuari_stronghold = pStation
@@ -7512,7 +7512,7 @@ function checkStrongholdEvents(delta)
 		stronghold_timer = getScenarioTime() + stronghold_interval
 	end
 end
--- TERTIUS PLOT Eliminate Exuari stronghold
+-- TERTIUS PLOT Survive Exuari attack
 function startSurvive()
 	set_up_survive = "done"
 	primaryOrders = _("orders-comms","Survive until the game time runs out")
