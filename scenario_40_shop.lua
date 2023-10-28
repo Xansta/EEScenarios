@@ -32,7 +32,7 @@ require("generate_call_sign_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.0.1"
+	scenario_version = "1.0.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Shop Til You Drop    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -915,6 +915,18 @@ function constructEnvironment()
 		end
 		local ax, ay = vectorFromAngleNorth(asteroid_field_angle + random(-45,45),800 + (random(size,size + 300) * i))
 		local as = Asteroid():setPosition(center_x + ax, center_y + ay):setSize(size)
+		size = 0
+		for j=1,4 do
+			size = size + random(5,180)
+		end
+		ax, ay = vectorFromAngleNorth(asteroid_field_angle + random(-45,45),800 + (random(size,size + 300) * i))
+		as = VisualAsteroid():setPosition(center_x + ax, center_y + ay):setSize(size)
+		size = 0
+		for j=1,4 do
+			size = size + random(5,180)
+		end
+		ax, ay = vectorFromAngleNorth(asteroid_field_angle + random(-45,45),800 + (random(size,size + 300) * i))
+		as = VisualAsteroid():setPosition(center_x + ax, center_y + ay):setSize(size)
 	end
 	local needy_station_angle = asteroid_field_angle + random(170,190)
 	local psx, psy = vectorFromAngleNorth(needy_station_angle,random(8000,16000))
@@ -1420,6 +1432,8 @@ function constructEnvironment()
 				Mine():setPosition(ox,oy)
 			elseif insert_type == "Asteroid" then
 				Asteroid():setPosition(ox,oy):setSize(random(20,950))
+				VisualAsteroid():setPosition(ox + random(-200,200), oy + random(-200,200))
+				VisualAsteroid():setPosition(ox + random(-200,200), oy + random(-200,200))
 			end
 		end
 		scattered_objects = scattered_objects + 1
@@ -1460,6 +1474,10 @@ function placeAsteroidBlob(x,y,field_radius)
 	local size = random(10,400) + random(10,400)
 	a:setSize(size)
 	table.insert(asteroid_list,a)
+	local va = VisualAsteroid():setPosition(x + random(-200,200), y + random(-200,200))
+	va:setSize(random(10,400) + random(10,400))
+	va = VisualAsteroid():setPosition(x + random(-200,200), y + random(-200,200))
+	va:setSize(random(10,400) + random(10,400))
 	local reached_the_edge = false
 	repeat
 		local overlay = false
@@ -1490,6 +1508,10 @@ function placeAsteroidBlob(x,y,field_radius)
 		a = Asteroid():setPosition(nax,nay)
 		a:setSize(size)
 		table.insert(asteroid_list,a)
+		va = VisualAsteroid():setPosition(nax + random(-200,200), nay + random(-200,200))
+		va:setSize(random(10,400) + random(10,400))
+		va = VisualAsteroid():setPosition(nax + random(-200,200), nay + random(-200,200))
+		va:setSize(random(10,400) + random(10,400))
 		if distance(x,y,nax,nay) > field_radius then
 			reached_the_edge = true
 		end
@@ -4811,27 +4833,6 @@ function addStationToDatabase(station)
 				if station.comms_data.service_cost[ssr.name] ~= nil then
 					local val = string.format(_("scienceDB","%s reputation"),station.comms_data.service_cost[ssr.name])
 					station_db:setKeyValue(ssr.key,val)
-				end
-			end
-		end
-		if station.comms_data.system_repair ~= nil then
-			local primary_system_repair = {
-				{name = "reactor",			key = _("scienceDB","Repair reactor")},
-				{name = "beamweapons",		key = _("scienceDB","Repair beam weapons")},
-				{name = "missilesystem",	key = _("scienceDB","Repair missile weapons")},
-				{name = "maneuver",			key = _("scienceDB","Repair maneuvering")},
-				{name = "impulse",			key = _("scienceDB","Repair impulse")},
-				{name = "warp",				key = _("scienceDB","Repair warp drive")},
-				{name = "jumpdrive",		key = _("scienceDB","Repair jump drive")},
-				{name = "frontshield",		key = _("scienceDB","Repair front shield")},
-				{name = "rearshield",		key = _("scienceDB","Repair rear shield")},
-			}
-			for i,psr in ipairs(primary_system_repair) do
-				if station.comms_data.system_repair[psr.name] ~= nil then
-					if station.comms_data.system_repair[psr.name].avail then
-						local val = string.format(_("scienceDB","%s reputation, up to %.1f%% max"),station.comms_data.system_repair[psr.name].cost,station.comms_data.system_repair[psr.name].max*100)
-						station_db:setKeyValue(psr.key,val)
-					end
 				end
 			end
 		end
