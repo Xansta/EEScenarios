@@ -52,6 +52,7 @@ require("utils.lua")
 require("generate_call_sign_scenario_utility.lua")
 require("place_station_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
+require("spawn_ships_scenario_utility.lua")
 
 function init()
 	scenario_version = "2.0.7"
@@ -98,6 +99,7 @@ function mainGMButtons()
 	addGMFunction(_("buttonGM","+Adjust speed"),adjustSpeedGMButtons)
 	addGMFunction(_("buttonGM","+End Mission"),endMissionGMButtons)
 	addGMFunction(_("buttonGM","+Voices"),adjustServerVoices)
+	addGMFunction("+Spawn Ship(s)",spawnGMShips)
 end
 -- GM player ship functions
 function playerShipGMButtons()
@@ -7825,9 +7827,11 @@ function setPlayers()
 				pobj.autoCoolant = false
 				pobj:setWarpDrive(true)
 			else
-				pobj.shipScore = 24
-				pobj.maxCargo = 5
-				pobj:setWarpDrive(true)
+				if pobj.shipScore == nil then
+					pobj.shipScore = 24
+					pobj.maxCargo = 5
+					pobj:setWarpDrive(true)
+				end
 			end
 			local playerCallSign = pobj:getCallSign()
 			goods[playerCallSign] = {}
