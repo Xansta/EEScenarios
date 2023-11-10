@@ -24,7 +24,7 @@ require("generate_call_sign_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "0.0.2"
+	scenario_version = "0.0.3"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Locust Swarm    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -676,6 +676,20 @@ function constructEnvironment()
 		end
 		placement_attempt_count = placement_attempt_count + 1
 	until(filled_out or placement_attempt_count > 500)
+	beginning_enemy_station_count = 0
+	beginning_friendly_station_count = 0
+	beginning_neutral_station_count = 0
+	local tpa = Artifact():setFaction(player_faction)
+	for i,station in ipairs(station_list) do
+		if tpa:isEnemy(station) then
+			beginning_enemy_station_count = beginning_enemy_station_count + 1
+		elseif tpa:isFriendly(station) then
+			beginning_friendly_station_count = beginning_friendly_station_count + 1
+		else
+			beginning_neutral_station_count = beginning_neutral_station_count + 1
+		end
+	end
+	tpa:destroy()
 	for i=1,math.random(10,15) do
 		local ox, oy = vectorFromAngle(random(0,360),random(2000,66000) + random(2000,66000) + random(2000,66000))
 		Nebula():setPosition(center_x + ox, center_y + oy)
@@ -704,6 +718,14 @@ function placeAsteroidBlob(x,y,field_radius)
 	local size = random(10,400) + random(10,400)
 	a:setSize(size)
 	table.insert(asteroid_list,a)
+	local visual_angle = random(0,360)
+	local vx, vy = vectorFromAngle(visual_angle,random(0,field_radius))
+	local va = VisualAsteroid():setPosition(x + vx, y + vy)
+	va:setSize(random(10,300) + random(5,300))
+	visual_angle = visual_angle + random(120,240)
+	vx, vy = vectorFromAngle(visual_angle,random(0,field_radius))
+	va = VisualAsteroid():setPosition(x + vx, y + vy)
+	va:setSize(random(10,300) + random(5,300))
 	local reached_the_edge = false
 	repeat
 		local overlay = false
@@ -734,6 +756,14 @@ function placeAsteroidBlob(x,y,field_radius)
 		a = Asteroid():setPosition(nax,nay)
 		a:setSize(size)
 		table.insert(asteroid_list,a)
+		visual_angle = random(0,360)
+		vx, vy = vectorFromAngle(visual_angle,random(0,field_radius))
+		va = VisualAsteroid():setPosition(nax + vx,nay + vy)
+		va:setSize(random(10,300) + random(5,300))
+		visual_angle = visual_angle + random(120,240)
+		vx, vy = vectorFromAngle(visual_angle,random(0,field_radius))
+		va = VisualAsteroid():setPosition(nax + vx, nay + vy)
+		va:setSize(random(10,300) + random(5,300))
 		if distance(x,y,nax,nay) > field_radius then
 			reached_the_edge = true
 		end
@@ -802,7 +832,6 @@ function setPlayers(p)
 	end
 end
 function updatePlayerSoftTemplate(p)
-	if spew_function_diagnostic then print("top of update player soft template") end
 	local tempTypeName = p:getTypeName()
 	if tempTypeName ~= nil then
 		if playerShipStats[tempTypeName] ~= nil then
@@ -874,16 +903,15 @@ function updatePlayerSoftTemplate(p)
 		p.normal_power_rate[system] = p:getSystemPowerRate(system)
 	end
 	p.swarm_status_rel = "swarm_status_rel"
-	p:addCustomButton("Relay",p.swarm_status_rel,"Locust Status",function()
+	p:addCustomButton("Relay",p.swarm_status_rel,_("buttonRelay","Locust Status"),function()
 		string.format("")
 		locustStatus(p,"Relay")
 	end,20)
 	p.swarm_status_ops = "swarm_status_ops"
-	p:addCustomButton("Operations",p.swarm_status_ops,"Locust Status",function()
+	p:addCustomButton("Operations",p.swarm_status_ops,_("buttonOperations","Locust Status"),function()
 		string.format("")
 		locustStatus(p,"Operations")
 	end,20)
-	if spew_function_diagnostic then print("bottom of update player soft template") end
 end
 function locustStatus(p,console)
 	string.format("")
@@ -943,7 +971,6 @@ function organicSystems(self,instigator)
 end
 --	Utility 
 function angleFromVectorNorth(p1x,p1y,p2x,p2y)
-	if spew_function_diagnostic then print("top of angle from vector north") end
 	TWOPI = 6.2831853071795865
 	RAD2DEG = 57.2957795130823209
 	atan2parm1 = p2x - p1x
@@ -952,20 +979,16 @@ function angleFromVectorNorth(p1x,p1y,p2x,p2y)
 	if theta < 0 then
 		theta = theta + TWOPI
 	end
-	if spew_function_diagnostic then print("bottom (ish) of angle from vector north") end
 	return (360 - (RAD2DEG * theta)) % 360
 end
 function vectorFromAngleNorth(angle,distance)
-	if spew_function_diagnostic then print("top of vector from angle north") end
 --	print("input angle to vectorFromAngleNorth:")
 --	print(angle)
 	angle = (angle + 270) % 360
 	local x, y = vectorFromAngle(angle,distance)
-	if spew_function_diagnostic then print("bottom (ish) of vector from angle north") end
 	return x, y
 end
 function tableRemoveRandom(array)
-	if spew_function_diagnostic then print("top of table remove random") end
 --	Remove random element from array and return it.
 	-- Returns nil if the array is empty,
 	-- analogous to `table.remove`.
@@ -977,7 +1000,6 @@ function tableRemoveRandom(array)
     local temp = array[selected_item]
     array[selected_item] = array[array_item_count]
     array[array_item_count] = temp
-	if spew_function_diagnostic then print("bottom (ish) of table remove random") end
     return table.remove(array)
 end
 function testFormation()
@@ -1319,16 +1341,18 @@ function gatherSwarm()
 				end
 			end
 			lead_ship = closest_ship
-			lead_ship:orderRoaming():setImpulseMaxSpeed(110):setRotationMaxSpeed(20)
-			local flight_angle = lead_ship:getHeading()
-			local spawn_distance = 1000
-			local j = 0
-			for i,ship in ipairs(swarm_ships) do
-				if ship ~= lead_ship then
-					j = j + 1
-					local form = hex_ring_positions[j]
-					local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * spawn_distance)
-					ship:orderFlyFormation(lead_ship,form_prime_x,form_prime_y)
+			if lead_ship ~= nil and lead_ship:isValid() then
+				lead_ship:orderRoaming():setImpulseMaxSpeed(110):setRotationMaxSpeed(20)
+				local flight_angle = lead_ship:getHeading()
+				local spawn_distance = 1000
+				local j = 0
+				for i,ship in ipairs(swarm_ships) do
+					if ship ~= lead_ship then
+						j = j + 1
+						local form = hex_ring_positions[j]
+						local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * spawn_distance)
+						ship:orderFlyFormation(lead_ship,form_prime_x,form_prime_y)
+					end
 				end
 			end
 		end
@@ -1397,13 +1421,25 @@ function update(delta)
 					end
 				end
 			else
+				local tpa = Artifact():setFaction(player_faction)
 				local surviving_station_count = 0
+				local final_enemy_station_count = 0
+				local final_friendly_station_count = 0
+				local final_neutral_station_count = 0
 				for i,station in pairs(station_list) do
 					if station ~= nil and station:isValid() then
 						surviving_station_count = surviving_station_count + 1
+						if tpa:isEnemy(station) then
+							final_enemy_station_count = final_enemy_station_count + 1
+						elseif tpa:isFriendly(station) then
+							final_friendly_station_count = final_friendly_station_count + 1
+						else
+							final_neutral_station_count = final_neutral_station_count + 1
+						end
 					end
 				end
-				globalMessage(string.format(_("msgMainscreen","Surviving stations: %i"),surviving_station_count))
+				tpa:destroy()
+				globalMessage(string.format(_("msgMainscreen","Surviving stations: %i\nFriendly: %i out of %i\nNeutral: %i out of %i\nEnemy: %i out of %i"),surviving_station_count,final_friendly_station_count,beginning_friendly_station_count,final_neutral_station_count,beginning_neutral_station_count,final_enemy_station_count,beginning_enemy_station_count))
 				victory("Human Navy")
 			end
 		end
