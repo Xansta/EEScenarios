@@ -6522,20 +6522,20 @@ function friendlyComms(comms_data)
 			end)
 		end
 		--]]
-		addCommsReply("Set your shield frequency",function()
-			local out = "Enemy ships nearby:"
+		addCommsReply(_("shipAssist-comms","Set your shield frequency"),function()
+			local out = _("shipAssist-comms","Enemy ships nearby:")
 			for i, ship in ipairs(nearby_enemy_ships) do
 				if ship.beam ~= nil then
-					out = string.format("%s\n%s: Beams penetrate best against shields at %i THz",out,ship.name,ship.beam * 20 + 400)
+					out = string.format(_("shipAssist-comms","%s\n%s: Beams penetrate best against shields at %i THz"),out,ship.name,ship.beam * 20 + 400)
 				else
 					out = string.format("%s\n%s",out,ship.name)
 				end
 			end
 			setCommsMessage(out)
 			for i=0,20 do
-				addCommsReply(string.format("Set shields to frequency %i THz",i * 20 + 400),function()
+				addCommsReply(string.format(_("shipAssist-comms","Set shields to frequency %i THz"),i * 20 + 400),function()
 					comms_target:setShieldsFrequency(i)
-					setCommsMessage(string.format("Shields set to %i THz",i * 20 + 400))
+					setCommsMessage(string.format(_("shipAssist-comms","Shields set to %i THz"),i * 20 + 400))
 					addCommsReply(_("Back"), commsShip)
 				end)
 			end
