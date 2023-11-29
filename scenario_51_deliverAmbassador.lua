@@ -28,7 +28,7 @@ function init()
 	-- Create various stations of various size, purpose and faction.
 	stationList = {}
     outpost41 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
-    outpost41:setPosition(22400, 16100):setCallSign("Outpost-41"):setDescription("Strategically located human station")
+    outpost41:setPosition(22400, 16100):setCallSign("Outpost-41"):setDescription(_("scienceDescription-station", "Strategically located human station"))
     table.insert(stationList,outpost41)
     outpost17 = SpaceStation():setTemplate("Small Station"):setFaction("Independent")
     outpost17:setPosition(52400, -26150):setCallSign("Outpost-17")
@@ -37,7 +37,7 @@ function init()
     outpost26:setPosition(-42400, -32150):setCallSign("Outpost-26")
     table.insert(stationList,outpost26)
     outpost13 = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCommsScript(""):setCommsFunction(commsStation)
-	outpost13:setPosition(12600, 27554):setCallSign("Outpost-13"):setDescription("Gathering point for asteroid miners")
+	outpost13:setPosition(12600, 27554):setCallSign("Outpost-13"):setDescription(_("scienceDescription-station", "Gathering point for asteroid miners"))
     table.insert(stationList,outpost13)
     outpost57 = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor")
 	outpost57:setPosition(63630, 47554):setCallSign("Outpost-57")
@@ -46,34 +46,34 @@ function init()
 	science22:setPosition(11200, 67554):setCallSign("Science-22")
     table.insert(stationList,science22)
     science37 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
-	science37:setPosition(-18200, -32554):setCallSign("Science-37"):setDescription("Observatory")
+	science37:setPosition(-18200, -32554):setCallSign("Science-37"):setDescription(_("scienceDescription-station", "Observatory"))
     table.insert(stationList,science37)
     bpcommnex = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCommsScript(""):setCommsFunction(commsStation)
-	bpcommnex:setPosition(-53500,84000):setCallSign("BP Comm Nex"):setDescription("Balindor Prime Communications Nexus")
+	bpcommnex:setPosition(-53500,84000):setCallSign("BP Comm Nex"):setDescription(_("scienceDescription-station", "Balindor Prime Communications Nexus"))
     table.insert(stationList,bpcommnex)
     goltincomms = SpaceStation():setTemplate("Small Station"):setFaction("Independent")
 	goltincomms:setPosition(93150,24387):setCallSign("Goltin Comms")
     table.insert(stationList,goltincomms)
     stationOrdinkal = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCommsScript(""):setCommsFunction(commsStation)
-	stationOrdinkal:setPosition(-14600, 47554):setCallSign("Ordinkal"):setDescription("Trading Post")
+	stationOrdinkal:setPosition(-14600, 47554):setCallSign("Ordinkal"):setDescription(_("scienceDescription-station", "Trading Post"))
     table.insert(stationList,stationOrdinkal)
     stationNakor = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCommsScript(""):setCommsFunction(commsStation)
-	stationNakor:setPosition(-34310, -37554):setCallSign("Nakor"):setDescription("Science and trading hub")
+	stationNakor:setPosition(-34310, -37554):setCallSign("Nakor"):setDescription(_("scienceDescription-station", "Science and trading hub"))
     table.insert(stationList,stationNakor)
     stationKelfist = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor")
 	stationKelfist:setPosition(44640, 13554):setCallSign("Kelfist")
     table.insert(stationList,stationKelfist)
     stationFranklin = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
-	stationFranklin:setPosition(-24640, -13554):setCallSign("Franklin"):setDescription("Civilian and military station")
+	stationFranklin:setPosition(-24640, -13554):setCallSign("Franklin"):setDescription(_("scienceDescription-station", "Civilian and military station"))
     table.insert(stationList,stationFranklin)
     stationBroad = SpaceStation():setTemplate("Large Station"):setFaction("Independent")
-	stationBroad:setPosition(44340, 63554):setCallSign("Broad"):setDescription("Trading Post")
+	stationBroad:setPosition(44340, 63554):setCallSign("Broad"):setDescription(_("scienceDescription-station", "Trading Post"))
     table.insert(stationList,stationBroad)
     stationBazamoana = SpaceStation():setTemplate("Large Station"):setFaction("Independent")
-	stationBazamoana:setPosition(35, 87):setCallSign("Bazamoana"):setDescription("Trading Nexus")
+	stationBazamoana:setPosition(35, 87):setCallSign("Bazamoana"):setDescription(_("scienceDescription-station", "Trading Nexus"))
     table.insert(stationList,stationBazamoana)
     stationPangora = SpaceStation():setTemplate("Huge Station"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
-	stationPangora:setPosition(72340, -23554):setCallSign("Pangora"):setDescription("Major military installation")
+	stationPangora:setPosition(72340, -23554):setCallSign("Pangora"):setDescription(_("scienceDescription-station", "Major military installation"))
     table.insert(stationList,stationPangora)
 	--	Set up variables based on difficulty setting
 	local config_diff = {
@@ -453,7 +453,7 @@ function travelGoltin(delta)	--Go to Goltin, win if research complete or identif
 	else
 		if distance(player, goltin) < 3300 then
 			goltincomms:sendCommsMessage(player, _("audio-incCall","Audio message received. Auto-transcribed into log. Stored for playback: AMBGREMUS032"))
-			player:addToShipLog(string.format(_("audio-incCall","[AMBGREMUS032](Ambassador Gremus) Thanks for transporting me, %s. I will need artifact research for successful negotiation. Please return with that research when you can."),playerCallSign),"Yellow")
+			player:addToShipLog(string.format(_("audio-shipLog","[AMBGREMUS032](Ambassador Gremus) Thanks for transporting me, %s. I will need artifact research for successful negotiation. Please return with that research when you can."),playerCallSign),"Yellow")
 			if player.play_msg_gremus_6_button == nil then
 				player.play_msg_gremus_6_button = "play_msg_gremus_6_button"
 				player:addCustomButton("Relay",player.play_msg_gremus_6_button,_("audio-buttonRelay","|> AMBGREMUS021"),function()
@@ -544,9 +544,9 @@ function revolutionOccurs(delta)
 		local mob_minutes = math.floor(breakout_remainder / 60)
 		local mob_seconds = math.floor(breakout_remainder % 60)
 		if mob_minutes <= 0 then
-			mob_label = string.format("%s %i",mob_label,mob_seconds)
+			mob_label = string.format(_("audio-tabRelay&Operations", "%s %i"),mob_label,mob_seconds)
 		else
-			mob_label = string.format("%s %i:%.2i",mob_label,mob_minutes,mob_seconds)
+			mob_label = string.format(_("audio-tabRelay&Operations", "%s %i:%.2i"),mob_label,mob_minutes,mob_seconds)
 		end
 		if player:hasPlayerAtPosition("Relay") then
 			player.mob_timer = "mob_timer"
@@ -829,7 +829,7 @@ end
 function pangoraArtifactChange(delta)
 	--started from plot 3, artifact by station
 	if player.pangora_reading_change_message == nil then
-		player:addCustomMessage("Science", "Warning", _("artifact-msgScience","The readings on the Pangora artifact have changed"))
+		player:addCustomMessage("Science", _("artifact-msgScience", "Warning"), _("artifact-msgScience","The readings on the Pangora artifact have changed"))
 		player.pangora_reading_change_message = "sent"
 	end
 	plot4 = pangoraArtifactExplode
@@ -965,9 +965,9 @@ function handleDockedState()
 				oMessage = _("orders-comms","Current Orders: Transport ambassador Gremus to Goltin 7. ")
 			end
 			if plot3 == artifactResearch or plot3 == artifactByStation then
-				oMessage = string.format(_("orders-comms","%sAdditional Orders: Research artifacts. Some artifacts reported near Pangora, Nakor and Science-37. "),oMessage)
+				oMessage = string.format(_("artifactOrders-comms","%sAdditional Orders: Research artifacts. Some artifacts reported near Pangora, Nakor and Science-37. "),oMessage)
 				if plot1 == departForResearch or plot1 == goltinAndResearch then
-					oMessage = string.format(_("orders-comms","%sProvide artifact research to ambassador Gremus on Goltin 7. "),oMessage)
+					oMessage = string.format(_("artifactOrders-comms","%sProvide artifact research to ambassador Gremus on Goltin 7. "),oMessage)
 				end
 			end
 			setCommsMessage(oMessage)
