@@ -2381,7 +2381,7 @@ function UpdateTraffic()
   local station = Traffic.stations[irandom(1,#Traffic.stations)]
   local new_ship = CpuShip():setFaction(faction):setTemplate(type):setPosition(sectorToXY(src)):orderDock(station)
   if faction == "TSN" then
-    new_ship:setCommsFunction(function () setCommsMessage(_(_("newShip-comms", "Too busy to talk today, Captain.")) end)
+    new_ship:setCommsFunction(function () setCommsMessage(_("newShip-comms", "Too busy to talk today, Captain.")) end)
   end
   table.insert(Traffic.new_ships, new_ship)
 end
