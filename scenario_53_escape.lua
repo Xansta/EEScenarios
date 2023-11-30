@@ -129,14 +129,14 @@ function init()
 	plotSign = billboardUpdate	
 	--Initial player ship
 	scrag_system_health = {
-		["reactor"] =		{initial = .01,	max = .5,				msg = _("repair-msgEngineer", "Reached maximum repair on reactor"),			},
-		["beamweapons"] =	{initial = -1,	max = random(-.7,-.2),	msg = _("repair-msgEngineer", "Reached maximum repair on beam weapons"),	},
-		["maneuver"] =		{initial = .05,	max = .5,				msg = _("repair-msgEngineer", "Reached maximum repair on maneuver"),		},
+		["reactor"] =		{initial = .01,	max = .5,				msg = _("repair-msgEngineer&+", "Reached maximum repair on reactor"),			},
+		["beamweapons"] =	{initial = -1,	max = random(-.7,-.2),	msg = _("repair-msgEngineer&+", "Reached maximum repair on beam weapons"),	},
+		["maneuver"] =		{initial = .05,	max = .5,				msg = _("repair-msgEngineer&+", "Reached maximum repair on maneuver"),		},
 		["missilesystem"] =	{initial = -1,	},
-		["impulse"] =		{initial = -.5,	max = .2,				msg = _("repair-msgEngineer", "Reached maximum repair on impulse engines"),	},
+		["impulse"] =		{initial = -.5,	max = .2,				msg = _("repair-msgEngineer&+", "Reached maximum repair on impulse engines"),	},
 		["warp"] =			{initial = -1,	},
 		["jumpdrive"] =		{initial = -1,	},
-		["frontshield"] =	{initial = .1,	max = .25,				msg = _("repair-msgEngineer", "Reached maximum repair on shields"),			},
+		["frontshield"] =	{initial = .1,	max = .25,				msg = _("repair-msgEngineer&+", "Reached maximum repair on shields"),			},
 		["rearshield"] =	{initial = .1,	},
 	}
 	playerFighter = PlayerSpaceship():setFaction("Human Navy"):setTemplate("MP52 Hornet"):setCallSign("Scrag"):setPosition(912035, 152062)
@@ -148,7 +148,7 @@ function init()
 		end
 	end
 	playerFighter:onDestruction(function()
-		globalMessage(_("msgMainscreen","You were destroyed. The Human Navy did not receive your Kraylor intel."))
+		globalMessage(_("defeat-msgMainscreen","You were destroyed. The Human Navy did not receive your Kraylor intel."))
 		victory("Kraylor")
 	end)
 	playerFighter:setScanProbeCount(1):setEnergy(50):setHull(5):setShields(5)
@@ -1940,83 +1940,83 @@ function handleDockedState()
 	end
 end
 function stationStatusReport()
-	addCommsReply(_("situationReport-comms","Report status"), function()
-		msg = string.format(_("situationReport-comms","Hull:%s"),math.floor(comms_target:getHull() / comms_target:getHullMax() * 100))
+	addCommsReply(_("stationAssist-comms","Report status"), function()
+		msg = string.format(_("stationAssist-comms","Hull:%s"),math.floor(comms_target:getHull() / comms_target:getHullMax() * 100))
 		local shields = comms_target:getShieldCount()
 		if shields == 1 then
-			msg = string.format(_("situationReport-comms","%s\nShield:%s"),msg,math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
+			msg = string.format(_("stationAssist-comms","%s\nShield:%s"),msg,math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
 		else
 			for n=0,shields-1 do
-				msg = string.format(_("situationReport-comms","%s\nShield %s:%s"),msg,n,math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
+				msg = string.format(_("stationAssist-comms","%s\nShield %s:%s"),msg,n,math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
 			end
 		end
 		local improvements = {}
 		if comms_target:getRestocksScanProbes() then
-			msg = string.format(_("situationReport-comms","%s\nReplenish scan probes: nominal."),msg)
+			msg = string.format(_("stationServices-comms","%s\nReplenish scan probes: nominal."),msg)
 		else
 			if comms_target.probe_fail_reason == nil then
 				local reason_list = {
-					_("situationReport-comms", "Cannot replenish scan probes due to fabrication unit failure."),
-					_("situationReport-comms", "Parts shortage prevents scan probe replenishment."),
-					_("situationReport-comms", "Station management has curtailed scan probe replenishment for cost cutting reasons."),
+					_("stationServices-comms", "Cannot replenish scan probes due to fabrication unit failure."),
+					_("stationServices-comms", "Parts shortage prevents scan probe replenishment."),
+					_("stationServices-comms", "Station management has curtailed scan probe replenishment for cost cutting reasons."),
 				}
 				comms_target.probe_fail_reason = reason_list[math.random(1,#reason_list)]
 			end
-			msg = string.format("%s\n%s",msg,comms_target.probe_fail_reason)
+			msg = string.format(_("stationServices-comms", "%s\n%s"),msg,comms_target.probe_fail_reason)
 			table.insert(improvements,"restock_probes")
 		end
 		if comms_target:getRepairDocked() then
-			msg = string.format(_("situationReport-comms","%s\nRepair ship hull: nominal."),msg)
+			msg = string.format(_("stationServices-comms","%s\nRepair ship hull: nominal."),msg)
 		else
 			if comms_target.repair_fail_reason == nil then
 				reason_list = {
-					_("situationReport-comms", "We're out of the necessary materials and supplies for hull repair."),
-					_("situationReport-comms", "Hull repair automation unavailable while it is undergoing maintenance."),
-					_("situationReport-comms", "All hull repair technicians quarantined to quarters due to illness."),
+					_("stationServices-comms", "We're out of the necessary materials and supplies for hull repair."),
+					_("stationServices-comms", "Hull repair automation unavailable while it is undergoing maintenance."),
+					_("stationServices-comms", "All hull repair technicians quarantined to quarters due to illness."),
 				}
 				comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
 			end
-			msg = string.format("%s\n%s",msg,comms_target.repair_fail_reason)
+			msg = string.format(_("stationServices-comms", "%s\n%s"),msg,comms_target.repair_fail_reason)
 			table.insert(improvements,"hull")
 		end
 		if comms_target:getSharesEnergyWithDocked() then
-			msg = string.format(_("situationReport-comms","%s\nRecharge ship energy stores: nominal."),msg)
+			msg = string.format(_("stationServices-comms","%s\nRecharge ship energy stores: nominal."),msg)
 		else
 			if comms_target.energy_fail_reason == nil then
 				reason_list = {
-					_("situationReport-comms", "A recent reactor failure has put us on auxiliary power, so we cannot recharge ships."),
-					_("situationReport-comms", "A damaged power coupling makes it too dangerous to recharge ships."),
-					_("situationReport-comms", "An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now."),
+					_("stationServices-comms", "A recent reactor failure has put us on auxiliary power, so we cannot recharge ships."),
+					_("stationServices-comms", "A damaged power coupling makes it too dangerous to recharge ships."),
+					_("stationServices-comms", "An asteroid strike damaged our solar cells and we are short on power, so we can't recharge ships right now."),
 				}
 				comms_target.energy_fail_reason = reason_list[math.random(1,#reason_list)]
 			end
-			msg = string.format("%s\n%s",msg,comms_target.energy_fail_reason)
+			msg = string.format(_("stationServices-comms", "%s\n%s"),msg,comms_target.energy_fail_reason)
 			table.insert(improvements,"energy")
 		end
 		local provides_some_missiles = false
-		local missile_provision_msg = _("situationReport-comms","Ordnance available:")
+		local missile_provision_msg = _("ammo-comms","Ordnance available:")
 		local missile_types = {
-			{name = "Nuke",		desc = _("situationReport-comms","nukes")},
-			{name = "EMP",		desc = _("situationReport-comms","EMPs")},
-			{name = "Homing",	desc = _("situationReport-comms","homings")},
-			{name = "Mine",		desc = _("situationReport-comms","mines")},
-			{name = "HVLI",		desc = _("situationReport-comms","HVLIs")},
+			{name = "Nuke",		desc = _("ammo-comms","nukes")},
+			{name = "EMP",		desc = _("ammo-comms","EMPs")},
+			{name = "Homing",	desc = _("ammo-comms","homings")},
+			{name = "Mine",		desc = _("ammo-comms","mines")},
+			{name = "HVLI",		desc = _("ammo-comms","HVLIs")},
 		}
 		for i,m_type in ipairs(missile_types) do
 			if comms_target.comms_data.weapon_available[m_type.name] then
-				if missile_provision_msg == _("situationReport-comms","Ordnance available:") then
-					missile_provision_msg = string.format(_("situationReport-comms","%s %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
+				if missile_provision_msg == _("ammo-comms","Ordnance available:") then
+					missile_provision_msg = string.format(_("ammo-comms","%s %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
 				else
-					missile_provision_msg = string.format(_("situationReport-comms","%s, %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
+					missile_provision_msg = string.format(_("ammo-comms","%s, %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
 				end
 			else
 				table.insert(improvements,m_type.name)
 			end
 		end
-		if missile_provision_msg == _("situationReport-comms","Ordnance available:") then
-			msg = string.format(_("situationReport-comms","%s\nNo ordnance available."),msg)
+		if missile_provision_msg == _("ammo-comms","Ordnance available:") then
+			msg = string.format(_("ammo-comms","%s\nNo ordnance available."),msg)
 		else
-			msg = string.format("%s\n%s.",msg,missile_provision_msg)
+			msg = string.format(_("ammo-comms", "%s\n%s."),msg,missile_provision_msg)
 		end
 		setCommsMessage(msg)
 		addCommsReply(_("Back"), commsStation)
@@ -2847,11 +2847,11 @@ function checkForSuffocationOnFighter(delta)
 				if hintRepulseTimer == nil or hintRepulseTimer > 0 then
 					if playerFighter.early_hint_msg_eng == nil then
 						playerFighter.early_hint_msg_eng = "early_hint_msg_eng"
-						playerFighter:addCustomMessage("Engineering",playerFighter.early_hint_msg_eng,string.format(_("msgEngineer","The Repulse ship %s seems like it's in the best condition. You should ask the science officer to scan it again to check the state of its engines."),junkRepulse:getCallSign()))
+						playerFighter:addCustomMessage("Engineering",playerFighter.early_hint_msg_eng,string.format(_("air-msgEngineer","The Repulse ship %s seems like it's in the best condition. You should ask the science officer to scan it again to check the state of its engines."),junkRepulse:getCallSign()))
 					end
 					if playerFighter.early_hint_msg_epl == nil then
 						playerFighter.early_hint_msg_epl = "early_hint_msg_epl"
-						playerFighter:addCustomMessage("Engineering+",playerFighter.early_hint_msg_epl,string.format(_("msgEngineer","The Repulse ship %s seems like it's in the best condition. You should ask the science officer to scan it again to check the state of its engines."),junkRepulse:getCallSign()))
+						playerFighter:addCustomMessage("Engineering+",playerFighter.early_hint_msg_epl,string.format(_("air-msgEngineer+","The Repulse ship %s seems like it's in the best condition. You should ask the science officer to scan it again to check the state of its engines."),junkRepulse:getCallSign()))
 					end
 				end
 			end
@@ -2897,7 +2897,7 @@ function checkForSuffocationOnFighter(delta)
 			playerFighter:addCustomInfo("Operations",playerFighter.suffocation_timer_ops,suffocation_label)
 		end
 		if suffocation_timer < 0 then
-			globalMessage(_("air-msgMainscreen", "You suffocated while aboard the fighter hulk"))
+			globalMessage(_("defeat-msgMainscreen", "You suffocated while aboard the fighter hulk"))
 			victory("Kraylor")
 			if playerFighter.suffocation_timer ~= nil then
 				playerFighter:removeCustom(playerFighter.suffocation_timer)
@@ -2956,7 +2956,7 @@ function hugRepulse(delta)
 			end
 		end
 	else
-		globalMessage(_("msgMainscreen","You were destroyed. The Human Navy did not receive your Kraylor intel."))
+		globalMessage(_("defeat-msgMainscreen","You were destroyed. The Human Navy did not receive your Kraylor intel."))
 		victory("Kraylor")
 	end
 end
@@ -2974,7 +2974,7 @@ function repulseTransfer()
 		end
 	end
 	playerRepulse:onDestruction(function()
-		globalMessage(_("msgMainscreen","You were destroyed. The Human Navy did not receive your Kraylor intel."))
+		globalMessage(_("defeat-msgMainscreen","You were destroyed. The Human Navy did not receive your Kraylor intel."))
 		victory("Kraylor")
 	end)
 	playerRepulse:setSystemHealth("jumpdrive",-.2)	--jump drive more damaged than sensors indicated
@@ -3429,7 +3429,7 @@ function returnHome(delta)
 	for i=1,#friendlyStationList do
 		if friendlyStationList[i] ~= nil and friendlyStationList[i]:isValid() then
 			if playerRepulse:isDocked(friendlyStationList[i]) then
-				globalMessage(_("msgMainscreen","Congratulations! You escaped the Kraylor clutches and returned all your gathered data on the Kraylor to the Human Navy."))
+				globalMessage(_("victory-msgMainscreen","Congratulations! You escaped the Kraylor clutches and returned all your gathered data on the Kraylor to the Human Navy."))
 				victory("Human Navy")
 			end
 		end
