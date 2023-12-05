@@ -22,6 +22,9 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
+	scenario_version = "5.0.2"
+	print(string.format("     -----     Scenario: Escape     -----     Version %s     -----",scenario_version))
+	print(_VERSION)
 	wfv = "nowhere"		--wolf fence value - used for debugging
 	setSettings()
 	addRepulseToDatabase()
@@ -351,16 +354,24 @@ function addRepulseToDatabase()
 	local ships_db = queryScienceDatabase(ships_key)
 	local starfighter_key = _("scienceDB","Starfighter")
 	local fighter_db = queryScienceDatabase(ships_key,starfighter_key)
-	fighter_db:setLongDescription(_("scienceDB","Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes."))
+	if fighter_db ~= nil then
+		fighter_db:setLongDescription(_("scienceDB","Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes."))
+	end
 	local frigate_key = _("scienceDB","Frigate")
 	local frigate_db = queryScienceDatabase(ships_key,frigate_key)
-	frigate_db:setLongDescription(_("scienceDB","Frigates are one size up from starfighters. They require a crew from 3 to 20 people.\nThink, Firefly, millennium falcon, slave I (Boba fett's ship).\n\nThey generally have 2 or more shield sections, but hardly ever more than 4.\n\nThis class of ships is normally not fitted with jump or warp drives. But in some cases ships are modified to include these, or for certain roles it is built in.\n\nThey are divided in 3 different sub-classes:\n* Cruiser: Weaponized frigates, focused on combat. These come in various roles.\n* Light transport: Small transports, like transporting up to 50 soldiers in spartan conditions or a few diplomats in luxury. Depending on the role it can have some weaponry.\n* Support: Support types come in many varieties. They are simply a frigate hull fitted with whatever was needed. Anything from mine-layers to science vessels."))
+	if frigate_db ~= nil then
+		frigate_db:setLongDescription(_("scienceDB","Frigates are one size up from starfighters. They require a crew from 3 to 20 people.\nThink, Firefly, millennium falcon, slave I (Boba fett's ship).\n\nThey generally have 2 or more shield sections, but hardly ever more than 4.\n\nThis class of ships is normally not fitted with jump or warp drives. But in some cases ships are modified to include these, or for certain roles it is built in.\n\nThey are divided in 3 different sub-classes:\n* Cruiser: Weaponized frigates, focused on combat. These come in various roles.\n* Light transport: Small transports, like transporting up to 50 soldiers in spartan conditions or a few diplomats in luxury. Depending on the role it can have some weaponry.\n* Support: Support types come in many varieties. They are simply a frigate hull fitted with whatever was needed. Anything from mine-layers to science vessels."))
+	end
 	local corvette_key = _("scienceDB","Corvette")
 	local corvette_db = queryScienceDatabase(ships_key,corvette_key)
-	corvette_db:setLongDescription(_("scienceDB","Corvettes are the common large ships. Larger then a frigate, smaller then a dreadnaught.\nThey generally have 4 or more shield sections. Run with a crew of 20 to 250.\nThis class generally has jumpdrives or warpdrives. But lack the maneuverability that is seen in frigates.\n\nThey come in 3 different subclasses:\n* Destroyer: Combat oriented ships. No science, no transport. Just death in a large package.\n* Support: Large scale support roles. Drone carriers fall in this category, as well as mobile repair centers.\n* Freighter: Large scale transport ships. Most common here are the jump freighters, using specialized jumpdrives to cross large distances with large amounts of cargo."))
+	if corvette_db ~= nil then
+		corvette_db:setLongDescription(_("scienceDB","Corvettes are the common large ships. Larger then a frigate, smaller then a dreadnaught.\nThey generally have 4 or more shield sections. Run with a crew of 20 to 250.\nThis class generally has jumpdrives or warpdrives. But lack the maneuverability that is seen in frigates.\n\nThey come in 3 different subclasses:\n* Destroyer: Combat oriented ships. No science, no transport. Just death in a large package.\n* Support: Large scale support roles. Drone carriers fall in this category, as well as mobile repair centers.\n* Freighter: Large scale transport ships. Most common here are the jump freighters, using specialized jumpdrives to cross large distances with large amounts of cargo."))
+	end
 	local dreadnought_key = _("scienceDB","Dreadnought")
 	local dreadnought_db = queryScienceDatabase(ships_key,dreadnought_key)
-	dreadnought_db:setLongDescription(_("scienceDB","Dreadnoughts are the largest ships.\nThey are so large and uncommon that every type is pretty much their own subclass.\nThey usually come with 6 or more shield sections, require a crew of 250+ to operate.\n\nThink: Stardestroyer."))
+	if dreadnought_db ~= nil then
+		dreadnought_db:setLongDescription(_("scienceDB","Dreadnoughts are the largest ships.\nThey are so large and uncommon that every type is pretty much their own subclass.\nThey usually come with 6 or more shield sections, require a crew of 250+ to operate.\n\nThink: Stardestroyer."))
+	end
 ---------------------------------------------------------------------
 --	Cruiser (identified as Karnack MK2 in stock science database)  --
 ---------------------------------------------------------------------
@@ -2880,6 +2891,14 @@ function checkForSuffocationOnFighter(delta)
 			playerFighter.suffocation_timer_eng_plus = "suffocation_timer_eng_plus"
 			playerFighter:addCustomInfo("Engineering+",playerFighter.suffocation_timer_eng_plus,suffocation_label)
 		end
+		if playerFighter:hasPlayerAtPosition("DamageControl") then
+			if playerFighter.suffocation_message_dmg_ctl == nil then
+				playerFighter.suffocation_message_dmg_ctl = "suffocation_message_dmg_ctl"
+				playerFighter:addCustomMessage("DamageControl",playerFighter.suffocation_message_dmg_ctl,_("air-msgDamageControl", "Environmental systems show limited air remaining"))
+			end
+			playerFighter.suffocation_timer_dmg_ctl = "suffocation_timer_dmg_ctl"
+			playerFighter:addCustomInfo("DamageControl",playerFighter.suffocation_timer_dmg_ctl,suffocation_label)
+		end
 		if playerFighter:hasPlayerAtPosition("Science") then
 			if playerFighter.suffocation_message_science == nil then
 				playerFighter.suffocation_message_science = "suffocation_message_science"
@@ -2906,6 +2925,10 @@ function checkForSuffocationOnFighter(delta)
 			if playerFighter.suffocation_timer_eng_plus ~= nil then
 				playerFighter:removeCustom(playerFighter.suffocation_timer_eng_plus)
 				playerFighter.suffocation_timer_eng_plus = nil
+			end
+			if playerFighter.suffocation_timer_dmg_ctl ~= nil then
+				playerFighter:removeCustom(playerFighter.suffocation_timer_dmg_ctl)
+				playerFighter.suffocation_timer_dmg_ctl = nil
 			end
 			if playerFighter.suffocation_timer_science ~= nil then
 				playerFighter:removeCustom(playerFighter.suffocation_timer_science)
@@ -2951,7 +2974,11 @@ function hugRepulse(delta)
 				repulseTransferButtonEPlus = "repulseTransferButtonEPlus"
 				playerFighter:addCustomButton("Engineering+",repulseTransferButtonEPlus,_("crewTransfer-buttonEngineer+", "Transfer to Repulse"),repulseTransfer)
 			end
-			if repulseTransferButtonEPlus ~= nil or repulseTransferButton ~= nil then
+			if playerFighter:hasPlayerAtPosition("DamageControl") then
+				repulseTransferButtonDmgCtl = "repulseTransferButtonDmgCtl"
+				playerFighter:addCustomButton("DamageControl",repulseTransferButtonDmgCtl,_("crewTransfer-buttonDamageControl", "Transfer to Repulse"),repulseTransfer)
+			end
+			if repulseTransferButtonEPlus ~= nil or repulseTransferButton ~= nil or repulseTransferButtonDmgCtl ~= nil then
 				plot1 = nil
 			end
 		end
