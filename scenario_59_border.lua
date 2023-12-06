@@ -59,7 +59,7 @@ require("cpu_ship_diversification_scenario_utility.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.5.6"
+	scenario_version = "5.6.1"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	print("Example of calling a function via http API, assuming you start EE with parameter httpserver=8080 (or it's in options.ini):")
@@ -1980,6 +1980,10 @@ function wreckModHealthBeam(x,y)
 					p.artifact_improved_max_beam_health_message_plus = "artifact_improved_max_beam_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_max_beam_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the beam system maximum health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_max_beam_health_message_dmg = "artifact_improved_max_beam_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_max_beam_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the beam system maximum health"),full_desc))
+				end
 			elseif health < 1 then
 				p:setSystemHealth("beamweapons",math.min(1, health + .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -1990,6 +1994,10 @@ function wreckModHealthBeam(x,y)
 					p.artifact_improved_beam_health_message_plus = "artifact_improved_beam_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_beam_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the beam system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_beam_health_message_dmg = "artifact_improved_beam_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_beam_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the beam system health"),full_desc))
+				end
 			else
 				if p:hasPlayerAtPosition("Engineering") then
 					p.artifact_beam_health_message = "artifact_beam_health_message"
@@ -1998,6 +2006,10 @@ function wreckModHealthBeam(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_beam_health_message_plus = "artifact_beam_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_beam_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy beam system"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_beam_health_message_dmg = "artifact_beam_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_beam_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy beam system"),full_desc))
 				end
 			end
 		else
@@ -2011,6 +2023,10 @@ function wreckModHealthBeam(x,y)
 					p.artifact_damaged_beam_health_message_plus = "artifact_damaged_beam_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_beam_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the beam system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_beam_health_message_dmg = "artifact_damaged_beam_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_beam_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the beam system health"),full_desc))
+				end
 			else
 				p:setSystemHealthMax("beamweapons",math.max(-1, max_health - .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2020,6 +2036,10 @@ function wreckModHealthBeam(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_damaged_max_beam_health_message_plus = "artifact_damaged_max_beam_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_max_beam_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the beam system maximum health"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_max_beam_health_message_dmg = "artifact_damaged_max_beam_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_max_beam_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the beam system maximum health"),full_desc))
 				end
 			end
 		end
@@ -2049,6 +2069,10 @@ function wreckModHealthMissile(x,y)
 					p.artifact_improved_max_missile_health_message_plus = "artifact_improved_max_missile_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_max_missile_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the missile system maximum health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_max_missile_health_message_dmg = "artifact_improved_max_missile_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_max_missile_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the missile system maximum health"),full_desc))
+				end
 			elseif health < 1 then
 				p:setSystemHealth("missilesystem",math.min(1, health + .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2059,6 +2083,10 @@ function wreckModHealthMissile(x,y)
 					p.artifact_improved_missile_health_message_plus = "artifact_improved_missile_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_missile_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the missile system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_missile_health_message_dmg = "artifact_improved_missile_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_missile_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the missile system health"),full_desc))
+				end
 			else
 				if p:hasPlayerAtPosition("Engineering") then
 					p.artifact_missile_health_message = "artifact_missile_health_message"
@@ -2067,6 +2095,10 @@ function wreckModHealthMissile(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_missile_health_message_plus = "artifact_missile_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_missile_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy missile system"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_missile_health_message_dmg = "artifact_missile_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_missile_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy missile system"),full_desc))
 				end
 			end
 		else
@@ -2080,6 +2112,10 @@ function wreckModHealthMissile(x,y)
 					p.artifact_damaged_missile_health_message_plus = "artifact_damaged_missile_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_missile_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the missile system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_missile_health_message_dmg = "artifact_damaged_missile_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_missile_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the missile system health"),full_desc))
+				end
 			else
 				p:setSystemHealthMax("missilesystem",math.max(-1, max_health - .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2089,6 +2125,10 @@ function wreckModHealthMissile(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_damaged_max_missile_health_message_plus = "artifact_damaged_max_missile_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_max_missile_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the missile system maximum health"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_max_missile_health_message_dmg = "artifact_damaged_max_missile_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_max_missile_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the missile system maximum health"),full_desc))
 				end
 			end
 		end
@@ -2118,6 +2158,10 @@ function wreckModHealthImpulse(x,y)
 					p.artifact_improved_max_impulse_health_message_plus = "artifact_improved_max_impulse_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_max_impulse_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the impulse system maximum health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_max_impulse_health_message_dmg = "artifact_improved_max_impulse_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_max_impulse_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the impulse system maximum health"),full_desc))
+				end
 			elseif health < 1 then
 				p:setSystemHealth("impulse",math.min(1, health + .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2128,6 +2172,10 @@ function wreckModHealthImpulse(x,y)
 					p.artifact_improved_impulse_health_message_plus = "artifact_improved_impulse_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_impulse_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the impulse system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_impulse_health_message_dmg = "artifact_improved_impulse_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_impulse_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the impulse system health"),full_desc))
+				end
 			else
 				if p:hasPlayerAtPosition("Engineering") then
 					p.artifact_impulse_health_message = "artifact_impulse_health_message"
@@ -2136,6 +2184,10 @@ function wreckModHealthImpulse(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_impulse_health_message_plus = "artifact_impulse_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_impulse_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy impulse system"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_impulse_health_message_dmg = "artifact_impulse_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_impulse_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy impulse system"),full_desc))
 				end
 			end
 		else
@@ -2149,6 +2201,10 @@ function wreckModHealthImpulse(x,y)
 					p.artifact_damaged_impulse_health_message_plus = "artifact_damaged_impulse_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_impulse_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the impulse system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_impulse_health_message_dmg = "artifact_damaged_impulse_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_impulse_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the impulse system health"),full_desc))
+				end
 			else
 				p:setSystemHealthMax("impulse",math.max(-1, max_health - .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2158,6 +2214,10 @@ function wreckModHealthImpulse(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_damaged_max_impulse_health_message_plus = "artifact_damaged_max_impulse_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_max_impulse_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the impulse system maximum health"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_max_impulse_health_message_dmg = "artifact_damaged_max_impulse_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_max_impulse_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the impulse system maximum health"),full_desc))
 				end
 			end
 		end
@@ -2188,6 +2248,10 @@ function wreckModHealthWarp(x,y)
 						p.artifact_improved_max_warp_health_message_plus = "artifact_improved_max_warp_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_max_warp_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the warp system maximum health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_max_warp_health_message_dmg = "artifact_improved_max_warp_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_max_warp_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the warp system maximum health"),full_desc))
+					end
 				elseif health < 1 then
 					p:setSystemHealth("warp",math.min(1, health + .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2198,6 +2262,10 @@ function wreckModHealthWarp(x,y)
 						p.artifact_improved_warp_health_message_plus = "artifact_improved_warp_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_warp_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the warp system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_warp_health_message_dmg = "artifact_improved_warp_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_warp_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the warp system health"),full_desc))
+					end
 				else
 					if p:hasPlayerAtPosition("Engineering") then
 						p.artifact_warp_health_message = "artifact_warp_health_message"
@@ -2206,6 +2274,10 @@ function wreckModHealthWarp(x,y)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p.artifact_warp_health_message_plus = "artifact_warp_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_warp_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy warp system"),full_desc))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_warp_health_message_dmg = "artifact_warp_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_warp_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy warp system"),full_desc))
 					end
 				end
 			else
@@ -2219,6 +2291,10 @@ function wreckModHealthWarp(x,y)
 						p.artifact_damaged_warp_health_message_plus = "artifact_damaged_warp_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_damaged_warp_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the warp system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_damaged_warp_health_message_dmg = "artifact_damaged_warp_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_damaged_warp_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the warp system health"),full_desc))
+					end
 				else
 					p:setSystemHealthMax("warp",math.max(-1, max_health - .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2229,17 +2305,12 @@ function wreckModHealthWarp(x,y)
 						p.artifact_damaged_max_warp_health_message_plus = "artifact_damaged_max_warp_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_damaged_max_warp_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the warp system maximum health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_damaged_max_warp_health_message_dmg = "artifact_damaged_max_warp_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_damaged_max_warp_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the warp system maximum health"),full_desc))
+					end
 				end
 			end
---		else
---			if p:hasPlayerAtPosition("Engineering") then
---				p.artifact_warp_health_message = "artifact_warp_health_message"
---				p:addCustomMessage("Engineering",p.artifact_warp_health_message,string.format(_("artifactEffect-msgEngineer", "The %s retrieved has had no impact on a non-existent warp system"),full_desc))
---			end
---			if p:hasPlayerAtPosition("Engineering+") then
---				p.artifact_warp_health_message_plus = "artifact_warp_health_message_plus"
---				p:addCustomMessage("Engineering+",p.artifact_warp_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on a non-existent warp system"),full_desc))
---			end
 		end
 	end)
 	return wma
@@ -2268,6 +2339,10 @@ function wreckModHealthJump(x,y)
 						p.artifact_improved_max_jump_health_message_plus = "artifact_improved_max_jump_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_max_jump_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the jump system maximum health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_max_jump_health_message_dmg = "artifact_improved_max_jump_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_max_jump_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the jump system maximum health"),full_desc))
+					end
 				elseif health < 1 then
 					p:setSystemHealth("jumpdrive",math.min(1, health + .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2278,6 +2353,10 @@ function wreckModHealthJump(x,y)
 						p.artifact_improved_jump_health_message_plus = "artifact_improved_jump_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_jump_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the jump system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_jump_health_message_dmg = "artifact_improved_jump_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_jump_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the jump system health"),full_desc))
+					end
 				else
 					if p:hasPlayerAtPosition("Engineering") then
 						p.artifact_jump_health_message = "artifact_jump_health_message"
@@ -2286,6 +2365,10 @@ function wreckModHealthJump(x,y)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p.artifact_jump_health_message_plus = "artifact_jump_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_jump_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy jump system"),full_desc))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_jump_health_message_dmg = "artifact_jump_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_jump_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy jump system"),full_desc))
 					end
 				end
 			else
@@ -2299,6 +2382,10 @@ function wreckModHealthJump(x,y)
 						p.artifact_damaged_jump_health_message_plus = "artifact_damaged_jump_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_damaged_jump_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the jump system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_damaged_jump_health_message_dmg = "artifact_damaged_jump_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_damaged_jump_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the jump system health"),full_desc))
+					end
 				else
 					p:setSystemHealthMax("jumpdrive",math.max(-1, max_health - .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2309,17 +2396,12 @@ function wreckModHealthJump(x,y)
 						p.artifact_damaged_max_jump_health_message_plus = "artifact_damaged_max_jump_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_damaged_max_jump_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the jump system maximum health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_damaged_max_jump_health_message_dmg = "artifact_damaged_max_jump_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_damaged_max_jump_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the jump system maximum health"),full_desc))
+					end
 				end
 			end
---		else
---			if p:hasPlayerAtPosition("Engineering") then
---				p.artifact_jump_health_message = "artifact_jump_health_message"
---				p:addCustomMessage("Engineering",p.artifact_jump_health_message,string.format(_("artifactEffect-msgEngineer", "The %s retrieved has had no impact on a non-existent jump system"),full_desc))
---			end
---			if p:hasPlayerAtPosition("Engineering+") then
---				p.artifact_jump_health_message_plus = "artifact_jump_health_message_plus"
---				p:addCustomMessage("Engineering+",p.artifact_jump_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on a non-existent jump system"),full_desc))
---			end
 		end
 	end)
 	return wma
@@ -2350,6 +2432,10 @@ function wreckModHealthShield(x,y)
 						p.artifact_improved_max_front_shield_health_message_plus = "artifact_improved_max_front_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_max_front_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the front shield system maximum health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_max_front_shield_health_message_dmg = "artifact_improved_max_front_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_max_front_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the front shield system maximum health"),full_desc))
+					end
 				elseif max_health_rear < 1 then
 					p:setSystemHealthMax("rearshield",math.min(1, max_health + .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2359,6 +2445,10 @@ function wreckModHealthShield(x,y)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p.artifact_improved_max_rear_shield_health_message_plus = "artifact_improved_max_rear_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_max_rear_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the rear shield system maximum health"),full_desc))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_max_rear_shield_health_message_dmg = "artifact_improved_max_rear_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_max_rear_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the rear shield system maximum health"),full_desc))
 					end
 				elseif health_front < 1 then
 					p:setSystemHealth("frontshield",math.min(1, health + .05))
@@ -2370,6 +2460,10 @@ function wreckModHealthShield(x,y)
 						p.artifact_improved_front_shield_health_message_plus = "artifact_improved_front_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_front_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the front shield system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_front_shield_health_message_dmg = "artifact_improved_front_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_front_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the front shield system health"),full_desc))
+					end
 				elseif health_rear < 1 then
 					p:setSystemHealth("rearshield",math.min(1, health + .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2380,6 +2474,10 @@ function wreckModHealthShield(x,y)
 						p.artifact_improved_rear_shield_health_message_plus = "artifact_improved_rear_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_rear_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the rear shield system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_rear_shield_health_message_dmg = "artifact_improved_rear_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_rear_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the rear shield system health"),full_desc))
+					end
 				else
 					if p:hasPlayerAtPosition("Engineering") then
 						p.artifact_shield_health_message = "artifact_shield_health_message"
@@ -2388,6 +2486,10 @@ function wreckModHealthShield(x,y)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p.artifact_shield_health_message_plus = "artifact_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy shield system"),full_desc))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_shield_health_message_dmg = "artifact_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy shield system"),full_desc))
 					end
 				end
 			else
@@ -2402,6 +2504,10 @@ function wreckModHealthShield(x,y)
 							p.artifact_damaged_front_shield_health_message_plus = "artifact_damaged_front_shield_health_message_plus"
 							p:addCustomMessage("Engineering+",p.artifact_damaged_front_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the front shield system health"),full_desc))
 						end
+						if p:hasPlayerAtPosition("DamageControl") then
+							p.artifact_damaged_front_shield_health_message_dmg = "artifact_damaged_front_shield_health_message_dmg"
+							p:addCustomMessage("DamageControl",p.artifact_damaged_front_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the front shield system health"),full_desc))
+						end
 					else
 						p:setSystemHealth("rearshield",math.max(-1, health - .05))
 						if p:hasPlayerAtPosition("Engineering") then
@@ -2411,6 +2517,10 @@ function wreckModHealthShield(x,y)
 						if p:hasPlayerAtPosition("Engineering+") then
 							p.artifact_damaged_rear_shield_health_message_plus = "artifact_damaged_rear_shield_health_message_plus"
 							p:addCustomMessage("Engineering+",p.artifact_damaged_rear_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the rear shield system health"),full_desc))
+						end
+						if p:hasPlayerAtPosition("DamageControl") then
+							p.artifact_damaged_rear_shield_health_message_dmg = "artifact_damaged_rear_shield_health_message_dmg"
+							p:addCustomMessage("DamageControl",p.artifact_damaged_rear_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the rear shield system health"),full_desc))
 						end
 					end
 				else
@@ -2424,6 +2534,10 @@ function wreckModHealthShield(x,y)
 							p.artifact_damaged_max_front_shield_health_message_plus = "artifact_damaged_max_front_shield_health_message_plus"
 							p:addCustomMessage("Engineering+",p.artifact_damaged_max_front_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the front shield system maximum health"),full_desc))
 						end
+						if p:hasPlayerAtPosition("DamageControl") then
+							p.artifact_damaged_max_front_shield_health_message_dmg = "artifact_damaged_max_front_shield_health_message_dmg"
+							p:addCustomMessage("DamageControl",p.artifact_damaged_max_front_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the front shield system maximum health"),full_desc))
+						end
 					else
 						p:setSystemHealthMax("rearshield",math.max(-1, max_health - .05))
 						if p:hasPlayerAtPosition("Engineering") then
@@ -2433,6 +2547,10 @@ function wreckModHealthShield(x,y)
 						if p:hasPlayerAtPosition("Engineering+") then
 							p.artifact_damaged_max_rear_shield_health_message_plus = "artifact_damaged_max_rear_shield_health_message_plus"
 							p:addCustomMessage("Engineering+",p.artifact_damaged_max_rear_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the rear shield system maximum health"),full_desc))
+						end
+						if p:hasPlayerAtPosition("DamageControl") then
+							p.artifact_damaged_max_rear_shield_health_message_dmg = "artifact_damaged_max_rear_shield_health_message_dmg"
+							p:addCustomMessage("DamageControl",p.artifact_damaged_max_rear_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the rear shield system maximum health"),full_desc))
 						end
 					end
 				end
@@ -2451,6 +2569,10 @@ function wreckModHealthShield(x,y)
 						p.artifact_improved_max_shield_health_message_plus = "artifact_improved_max_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_max_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the shield system maximum health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_max_shield_health_message_dmg = "artifact_improved_max_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_max_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the shield system maximum health"),full_desc))
+					end
 				elseif health < 1 then
 					p:setSystemHealth("frontshield",math.min(1, health + .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2461,6 +2583,10 @@ function wreckModHealthShield(x,y)
 						p.artifact_improved_shield_health_message_plus = "artifact_improved_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_improved_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the shield system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_improved_shield_health_message_dmg = "artifact_improved_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_improved_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the shield system health"),full_desc))
+					end
 				else
 					if p:hasPlayerAtPosition("Engineering") then
 						p.artifact_shield_health_message = "artifact_shield_health_message"
@@ -2469,6 +2595,10 @@ function wreckModHealthShield(x,y)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p.artifact_shield_health_message_plus = "artifact_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy shield system"),full_desc))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_shield_health_message_dmg = "artifact_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy shield system"),full_desc))
 					end
 				end
 			else
@@ -2482,6 +2612,10 @@ function wreckModHealthShield(x,y)
 						p.artifact_damaged_shield_health_message_plus = "artifact_damaged_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_damaged_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the shield system health"),full_desc))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_damaged_shield_health_message_dmg = "artifact_damaged_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_damaged_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the shield system health"),full_desc))
+					end
 				else
 					p:setSystemHealthMax("frontshield",math.max(-1, max_health - .05))
 					if p:hasPlayerAtPosition("Engineering") then
@@ -2491,6 +2625,10 @@ function wreckModHealthShield(x,y)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p.artifact_damaged_max_shield_health_message_plus = "artifact_damaged_max_shield_health_message_plus"
 						p:addCustomMessage("Engineering+",p.artifact_damaged_max_shield_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the shield system maximum health"),full_desc))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p.artifact_damaged_max_shield_health_message_dmg = "artifact_damaged_max_shield_health_message_dmg"
+						p:addCustomMessage("DamageControl",p.artifact_damaged_max_shield_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the shield system maximum health"),full_desc))
 					end
 				end
 			end
@@ -2521,6 +2659,10 @@ function wreckModHealthSpin(x,y)
 					p.artifact_improved_max_maneuver_health_message_plus = "artifact_improved_max_maneuver_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_max_maneuver_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the maneuver system maximum health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_max_maneuver_health_message_dmg = "artifact_improved_max_maneuver_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_max_maneuver_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the maneuver system maximum health"),full_desc))
+				end
 			elseif health < 1 then
 				p:setSystemHealth("maneuver",math.min(1, health + .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2531,6 +2673,10 @@ function wreckModHealthSpin(x,y)
 					p.artifact_improved_maneuver_health_message_plus = "artifact_improved_maneuver_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_maneuver_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the maneuver system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_maneuver_health_message_dmg = "artifact_improved_maneuver_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_maneuver_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the maneuver system health"),full_desc))
+				end
 			else
 				if p:hasPlayerAtPosition("Engineering") then
 					p.artifact_maneuver_health_message = "artifact_maneuver_health_message"
@@ -2539,6 +2685,10 @@ function wreckModHealthSpin(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_maneuver_health_message_plus = "artifact_maneuver_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_maneuver_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy maneuver system"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_maneuver_health_message_dmg = "artifact_maneuver_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_maneuver_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy maneuver system"),full_desc))
 				end
 			end
 		else
@@ -2552,6 +2702,10 @@ function wreckModHealthSpin(x,y)
 					p.artifact_damaged_maneuver_health_message_plus = "artifact_damaged_maneuver_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_maneuver_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the maneuver system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_maneuver_health_message_dmg = "artifact_damaged_maneuver_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_maneuver_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the maneuver system health"),full_desc))
+				end
 			else
 				p:setSystemHealthMax("maneuver",math.max(-1, max_health - .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2561,6 +2715,10 @@ function wreckModHealthSpin(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_damaged_max_maneuver_health_message_plus = "artifact_damaged_max_maneuver_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_max_maneuver_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the maneuver system maximum health"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_max_maneuver_health_message_dmg = "artifact_damaged_max_maneuver_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_max_maneuver_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the maneuver system maximum health"),full_desc))
 				end
 			end
 		end
@@ -2590,6 +2748,10 @@ function wreckModHealthReactor(x,y)
 					p.artifact_improved_max_reactor_health_message_plus = "artifact_improved_max_reactor_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_max_reactor_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the reactor system maximum health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_max_reactor_health_message_dmg = "artifact_improved_max_reactor_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_max_reactor_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the reactor system maximum health"),full_desc))
+				end
 			elseif health < 1 then
 				p:setSystemHealth("reactor",math.min(1, health + .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2600,6 +2762,10 @@ function wreckModHealthReactor(x,y)
 					p.artifact_improved_reactor_health_message_plus = "artifact_improved_reactor_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_improved_reactor_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has improved the reactor system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_improved_reactor_health_message_dmg = "artifact_improved_reactor_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_improved_reactor_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has improved the reactor system health"),full_desc))
+				end
 			else
 				if p:hasPlayerAtPosition("Engineering") then
 					p.artifact_reactor_health_message = "artifact_reactor_health_message"
@@ -2608,6 +2774,10 @@ function wreckModHealthReactor(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_reactor_health_message_plus = "artifact_reactor_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_reactor_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no impact on an already healthy reactor system"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_reactor_health_message_dmg = "artifact_reactor_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_reactor_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no impact on an already healthy reactor system"),full_desc))
 				end
 			end
 		else
@@ -2621,6 +2791,10 @@ function wreckModHealthReactor(x,y)
 					p.artifact_damaged_reactor_health_message_plus = "artifact_damaged_reactor_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_reactor_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the reactor system health"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_reactor_health_message_dmg = "artifact_damaged_reactor_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_reactor_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the reactor system health"),full_desc))
+				end
 			else
 				p:setSystemHealthMax("reactor",math.max(-1, max_health - .05))
 				if p:hasPlayerAtPosition("Engineering") then
@@ -2630,6 +2804,10 @@ function wreckModHealthReactor(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_damaged_max_reactor_health_message_plus = "artifact_damaged_max_reactor_health_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_damaged_max_reactor_health_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the reactor system maximum health"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_damaged_max_reactor_health_message_dmg = "artifact_damaged_max_reactor_health_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_damaged_max_reactor_health_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the reactor system maximum health"),full_desc))
 				end
 			end
 		end
@@ -2920,6 +3098,10 @@ function wreckModChangeCoolant(x,y)
 				p.artifact_increase_coolant_message_plus = "artifact_increase_coolant_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_increase_coolant_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has increased our coolant"),full_desc))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_increase_coolant_message_dmg = "artifact_increase_coolant_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_increase_coolant_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has increased our coolant"),full_desc))
+			end
 		else
 			p:setMaxCoolant(current_coolant*.9)
 			if p:hasPlayerAtPosition("Engineering") then
@@ -2929,6 +3111,10 @@ function wreckModChangeCoolant(x,y)
 			if p:hasPlayerAtPosition("Engineering+") then
 				p.artifact_decrease_coolant_message_plus = "artifact_decrease_coolant_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_decrease_coolant_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has decreased our coolant: incompatible, corrosive reaction"),full_desc))
+			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_decrease_coolant_message_dmg = "artifact_decrease_coolant_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_decrease_coolant_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has decreased our coolant: incompatible, corrosive reaction"),full_desc))
 			end
 		end
 	end)
@@ -2955,6 +3141,10 @@ function wreckModChangeRepair(x,y)
 				p.artifact_increase_repair_crew_message_plus = "artifact_increase_repair_crew_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_increase_repair_crew_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has increased the number of repair crew"),full_desc))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_increase_repair_crew_message_dmg = "artifact_increase_repair_crew_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_increase_repair_crew_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has increased the number of repair crew"),full_desc))
+			end
 		else
 			if current_repair_crew_count > 0 then
 				p:setRepairCrewCount(current_repair_crew_count - 1)
@@ -2966,6 +3156,10 @@ function wreckModChangeRepair(x,y)
 					p.artifact_decrease_repair_crew_message_plus = "artifact_decrease_repair_crew_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_decrease_repair_crew_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has decreased the number of repair crew: assassination malware"),full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_decrease_repair_crew_message_dmg = "artifact_decrease_repair_crew_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_decrease_repair_crew_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has decreased the number of repair crew: assassination malware"),full_desc))
+				end
 			else
 				if p:hasPlayerAtPosition("Engineering") then
 					p.artifact_repair_crew_message = "artifact_repair_crew_message"
@@ -2974,6 +3168,10 @@ function wreckModChangeRepair(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.artifact_repair_crew_message_plus = "artifact_repair_crew_message_plus"
 					p:addCustomMessage("Engineering+",p.artifact_repair_crew_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has had no effect on the number of repair crew: malfunction"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.artifact_repair_crew_message_dmg = "artifact_repair_crew_message_dmg"
+					p:addCustomMessage("DamageControl",p.artifact_repair_crew_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has had no effect on the number of repair crew: malfunction"),full_desc))
 				end
 			end
 		end
@@ -3001,6 +3199,10 @@ function wreckModChangeHull(x,y)
 				p.artifact_increase_hull_message_plus = "artifact_increase_hull_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_increase_hull_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has repaired some hull damage"),full_desc))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_increase_hull_message_dmg = "artifact_increase_hull_message_dmg"
+				p:addCustomMessage("DamageControl+",p.artifact_increase_hull_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has repaired some hull damage"),full_desc))
+			end
 		else
 			p:setHull(current_hull*.9)
 			if p:hasPlayerAtPosition("Engineering") then
@@ -3010,6 +3212,10 @@ function wreckModChangeHull(x,y)
 			if p:hasPlayerAtPosition("Engineering+") then
 				p.artifact_decrease_hull_message_plus = "artifact_decrease_hull_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_decrease_hull_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has damaged the hull: poor integration"),full_desc))
+			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_decrease_hull_message_dmg = "artifact_decrease_hull_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_decrease_hull_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has damaged the hull: poor integration"),full_desc))
 			end
 		end
 	end)
@@ -3039,6 +3245,10 @@ function wreckModChangeShield(x,y)
 				p.artifact_increase_shield_message_plus = "artifact_increase_shield_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_increase_shield_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has added charge to the shields"),full_desc))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_increase_shield_message_dmg = "artifact_increase_shield_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_increase_shield_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has added charge to the shields"),full_desc))
+			end
 		else
 			if p:getShieldCount() > 1 then
 				p:setShields(p:getShieldLevel(0)*.9,p:getShieldLevel(1)*.9)
@@ -3052,6 +3262,10 @@ function wreckModChangeShield(x,y)
 			if p:hasPlayerAtPosition("Engineering+") then
 				p.artifact_decrease_shield_message_plus = "artifact_decrease_shield_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_decrease_shield_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has reduced shield charge: corroded couplings"),full_desc))
+			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_decrease_shield_message_dmg = "artifact_decrease_shield_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_decrease_shield_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has reduced shield charge: corroded couplings"),full_desc))
 			end
 		end
 	end)
@@ -3078,6 +3292,10 @@ function wreckModChangePower(x,y)
 				p.artifact_increase_energy_message_plus = "artifact_increase_energy_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_increase_energy_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has added energy to our reserves"),full_desc))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_increase_energy_message_dmg = "artifact_increase_energy_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_increase_energy_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has added energy to our reserves"),full_desc))
+			end
 		else
 			p:setEnergy(current_energy - p:getMaxEnergy()*.1)
 			if p:hasPlayerAtPosition("Engineering") then
@@ -3087,6 +3305,10 @@ function wreckModChangePower(x,y)
 			if p:hasPlayerAtPosition("Engineering+") then
 				p.artifact_decrease_energy_message_plus = "artifact_decrease_energy_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_decrease_energy_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved has drained some energy: incompatibility"),full_desc))
+			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_decrease_energy_message_dmg = "artifact_decrease_energy_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_decrease_energy_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved has drained some energy: incompatibility"),full_desc))
 			end
 		end
 	end)
@@ -3607,6 +3829,29 @@ function wmBatteryButton(p,console)
 					end
 					p:removeCustom(p.activate_battery_button_plus)
 					p.activate_battery_button_plus = nil
+					if p.activate_battery_button_plus ~= nil then
+						p:removeCustom(p.activate_battery_button_plus)
+						p.activate_battery_button_plus = nil
+					end
+				end)
+			end
+		end
+	elseif console == "DamageControl" then
+		if p:hasPlayerAtPosition("DamageControl") then
+			if p.activate_battery_button_dmg == nil then
+				p.activate_battery_button_dmg = "activate_battery_button_dmg"
+				p:addCustomButton("DamageControl",p.activate_battery_button_dmg,_("upgrade-buttonDamageControl", "Battery Capacity"),function()
+					string.format("")	--global context for serious proton
+					if p.battery_count > 0 then
+						p.battery_active = true
+						p:setMaxEnergy(p:getMaxEnergy()*1.1)
+						p.battery_timer = 300
+						p.battery_count = p.battery_count - 1
+						p.battery_activated_message_dmg = "battery_activated_message_dmg"
+						p:addCustomMessage("DamageControl",p.battery_activated_message_dmg,_("upgrade-msgDamageControl", "The maximum battery capacity has been increased"))
+					end
+					p:removeCustom(p.activate_battery_button_dmg)
+					p.activate_battery_button_dmg = nil
 					if p.activate_battery_button ~= nil then
 						p:removeCustom(p.activate_battery_button)
 						p.activate_battery_button = nil
@@ -3627,6 +3872,11 @@ function resetCoolantPumpButtons(p)
 		if p.coolant_pump_fix_buttons_plus ~= nil then
 			if p.coolant_pump_fix_buttons_plus[system] ~= nil then
 				p:removeCustom(p.coolant_pump_fix_buttons_plus[system])
+			end
+		end
+		if p.coolant_pump_fix_buttons_dmg ~= nil then
+			if p.coolant_pump_fix_buttons_dmg[system] ~= nil then
+				p:removeCustom(p.coolant_pump_fix_buttons_dmg[system])
 			end
 		end
 		if p.normal_coolant_rate ~= nil then
@@ -3653,6 +3903,19 @@ function resetCoolantPumpButtons(p)
 							p.coolant_pump_part_count = p.coolant_pump_part_count - 1
 							p.coolant_pump_fixed_message_plus = "coolant_pump_fixed_message_plus"
 							p:addCustomMessage("Engineering+",p.coolant_pump_fixed_message_plus,string.format(_("coolant-msgEngineer+", "The %s coolant pump has been repaired"),system))
+						end
+						resetCoolantPumpButtons(p)
+					end)
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.coolant_pump_fix_buttons_dmg[system] = string.format("coolant_pump_fix_buttons_dmg%s",system)
+					p:addCustomButton("DamageControl",p.coolant_pump_fix_buttons_dmg[system],string.format(_("coolant-buttonDamageControl", "%s C. Pump"),system),function()
+						string.format("")	--global context for serious proton
+						if p.coolant_pump_part_count > 0 then
+							p:setSystemCoolantRate(system,p.normal_coolant_rate[system])
+							p.coolant_pump_part_count = p.coolant_pump_part_count - 1
+							p.coolant_pump_fixed_message_dmg = "coolant_pump_fixed_message_dmg"
+							p:addCustomMessage("DamageControl",p.coolant_pump_fixed_message_dmg,string.format(_("coolant-msgDamageControl", "The %s coolant pump has been repaired"),system))
 						end
 						resetCoolantPumpButtons(p)
 					end)
@@ -3689,6 +3952,22 @@ function wmCoolantPump(p,console,system)
 						p.coolant_pump_part_count = p.coolant_pump_part_count - 1
 						p.coolant_pump_fixed_message_plus = "coolant_pump_fixed_message_plus"
 						p:addCustomMessage("Engineering+",p.coolant_pump_fixed_message_plus,string.format(_("coolant-msgEngineer+", "The %s coolant pump has been repaired"),system))
+					end
+					resetCoolantPumpButtons(p)
+				end)
+			end
+		end
+	elseif console == "DamageControl" then
+		if p:hasPlayerAtPosition("DamageControl") then
+			if p.coolant_pump_fix_buttons_dmg[system] == nil then
+				p.coolant_pump_fix_buttons_dmg[system] = string.format("coolant_pump_fix_buttons_dmg%s",system)
+				p:addCustomButton("DamageControl",p.coolant_pump_fix_buttons_dmg[system],string.format(_("coolant-buttonDamageControl", "%s C. Pump"),system),function()
+					string.format("")	--global context for serious proton
+					if p.coolant_pump_part_count > 0 then
+						p:setSystemCoolantRate(system,p.normal_coolant_rate[system])
+						p.coolant_pump_part_count = p.coolant_pump_part_count - 1
+						p.coolant_pump_fixed_message_dmg = "coolant_pump_fixed_message_dmg"
+						p:addCustomMessage("DamageControl",p.coolant_pump_fixed_message_dmg,string.format(_("coolant-msgDamageControl", "The %s coolant pump has been repaired"),system))
 					end
 					resetCoolantPumpButtons(p)
 				end)
@@ -4513,6 +4792,10 @@ function wreckModBatteryMax(x,y)
 					p.lost_battery_message_plus = "lost_battery_message_plus"
 					p:addCustomMessage("Engineering+",p.lost_battery_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved disabled a %s previously retrieved"),full_desc,full_desc))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.lost_battery_message_dmg = "lost_battery_message_dmg"
+					p:addCustomMessage("DamageControl",p.lost_battery_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved disabled a %s previously retrieved"),full_desc,full_desc))
+				end
 			else
 				p:setMaxEnergy(p:getMaxEnergy()*.9)
 				if p:hasPlayerAtPosition("Engineering") then
@@ -4522,6 +4805,10 @@ function wreckModBatteryMax(x,y)
 				if p:hasPlayerAtPosition("Engineering+") then
 					p.reduced_battery_message_plus = "reduced_battery_message_plus"
 					p:addCustomMessage("Engineering+",p.reduced_battery_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved reduced maximum battery capacity"),full_desc))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.reduced_battery_message_dmg = "reduced_battery_message_dmg"
+					p:addCustomMessage("DamageControl",p.reduced_battery_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved reduced maximum battery capacity"),full_desc))
 				end
 			end
 		end
@@ -4604,6 +4891,10 @@ function wreckModCoolantPump(x,y)
 				p.artifact_provided_coolant_pump_parts_message_plus = "artifact_provided_coolant_pump_parts_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_provided_coolant_pump_parts_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved provided spare coolant pump parts that may be used to repair a damaged coolant pump"),full_desc))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_provided_coolant_pump_parts_message_dmg = "artifact_provided_coolant_pump_parts_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_provided_coolant_pump_parts_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved provided spare coolant pump parts that may be used to repair a damaged coolant pump"),full_desc))
+			end
 			local system_types = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
 			if p.coolant_pump_fix_buttons == nil then
 				p.coolant_pump_fix_buttons = {}
@@ -4611,10 +4902,14 @@ function wreckModCoolantPump(x,y)
 			if p.coolant_pump_fix_buttons_plus == nil then
 				p.coolant_pump_fix_buttons_plus = {}
 			end
+			if p.coolant_pump_fix_buttons_dmg == nil then
+				p.coolant_pump_fix_buttons_dmg = {}
+			end
 			for i, system in ipairs(system_types) do
 				if p.normal_coolant_rate[system] < p:getSystemCoolantRate(system) then
 					wmCoolantPump(p,"Engineering",system)
 					wmCoolantPump(p,"Engineering+",system)
+					wmCoolantPump(p,"DamageControl",system)
 				end
 			end
 		else
@@ -4625,6 +4920,10 @@ function wreckModCoolantPump(x,y)
 			if p:hasPlayerAtPosition("Engineering+") then
 				p.artifact_incompatible_message_plus = "artifact_incompatible_message_plus"
 				p:addCustomMessage("Engineering+",p.artifact_incompatible_message_plus,string.format(_("artifactEffect-msgEngineer+", "The %s retrieved contains no compatible or salvageable parts for your coolant pump system"),full_desc))
+			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.artifact_incompatible_message_dmg = "artifact_incompatible_message_dmg"
+				p:addCustomMessage("DamageControl",p.artifact_incompatible_message_dmg,string.format(_("artifactEffect-msgDamageControl", "The %s retrieved contains no compatible or salvageable parts for your coolant pump system"),full_desc))
 			end
 		end
 	end)
@@ -9426,6 +9725,43 @@ function addStationToDatabase(station)
 				end
 			end
 		end
+		local secondary_system_repair = {
+			{name = "scan_repair",				key = _("scienceDB","Repair scanners")},
+			{name = "combat_maneuver_repair",	key = _("scienceDB","Repair combat maneuver")},
+			{name = "hack_repair",				key = _("scienceDB","Repair hacking")},
+			{name = "probe_launch_repair",		key = _("scienceDB","Repair probe launch")},
+			{name = "tube_slow_down_repair",	key = _("scienceDB","Repair slow tube")},
+			{name = "self_destruct_repair",		key = _("scienceDB","Repair scanners")},
+		}
+		for i,ssr in ipairs(secondary_system_repair) do
+			if station.comms_data[ssr.name] then
+				if station.comms_data.service_cost[ssr.name] ~= nil then
+					local val = string.format(_("scienceDB","%s reputation"),station.comms_data.service_cost[ssr.name])
+					station_db:setKeyValue(ssr.key,val)
+				end
+			end
+		end
+		if station.comms_data.system_repair ~= nil then
+			local primary_system_repair = {
+				{name = "reactor",			key = _("scienceDB","Repair reactor")},
+				{name = "beamweapons",		key = _("scienceDB","Repair beam weapons")},
+				{name = "missilesystem",	key = _("scienceDB","Repair missile weapons")},
+				{name = "maneuver",			key = _("scienceDB","Repair maneuvering")},
+				{name = "impulse",			key = _("scienceDB","Repair impulse")},
+				{name = "warp",				key = _("scienceDB","Repair warp drive")},
+				{name = "jumpdrive",		key = _("scienceDB","Repair jump drive")},
+				{name = "frontshield",		key = _("scienceDB","Repair front shield")},
+				{name = "rearshield",		key = _("scienceDB","Repair rear shield")},
+			}
+			for i,psr in ipairs(primary_system_repair) do
+				if station.comms_data.system_repair[psr.name] ~= nil then
+					if station.comms_data.system_repair[psr.name].avail then
+						local val = string.format(_("scienceDB","%s reputation, up to %.1f%% max"),station.comms_data.system_repair[psr.name].cost,station.comms_data.system_repair[psr.name].max*100)
+						station_db:setKeyValue(psr.key,val)
+					end
+				end
+			end
+		end
 		if station.comms_data.service_available ~= nil then
 			local general_service = {
 				{name = "supplydrop",				key = _("scienceDB","Drop supplies")},
@@ -9448,7 +9784,7 @@ function addStationToDatabase(station)
 		if station.comms_data.characterFunction ~= nil then
 			station_db:setKeyValue(station.comms_data.character,station.comms_data.characterShort)
 		end
-		if station.comms_data.goods ~= nil and not temp_artifact:isFriendly(station) then
+		if station.comms_data.goods ~= nil then
 			for good, details in pairs(station.comms_data.goods) do
 				if details.quantity > 0 then
 					local sell_key = string.format(_("scienceDB","Sells %s"),good)
@@ -11345,6 +11681,10 @@ function healthCheck(delta, p)
 					local repairCrewRecoveryPlus = "repairCrewRecoveryPlus"
 					p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,_("repairCrew-msgEngineer+", "Medical team has revived one of your repair crew"))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					local repairCrewRecoveryDmg = "repairCrewRecoveryDmg"
+					p:addCustomMessage("DamageControl",repairCrewRecoveryDmg,_("repairCrew-msgDamageControl", "Medical team has revived one of your repair crew"))
+				end
 				resetPreviousSystemHealth(p)
 			end
 		end
@@ -11365,6 +11705,9 @@ function healthCheck(delta, p)
 						end
 						if p:hasPlayerAtPosition("Engineering+") then
 							p:addCustomMessage("Engineering+","coolant_recovery_plus",_("coolant-msgEngineer+", "Automated systems have recovered some coolant"))
+						end
+						if p:hasPlayerAtPosition("DamageControl") then
+							p:addCustomMessage("DamageControl","coolant_recovery_dmg",_("coolant-msgDamageControl", "Automated systems have recovered some coolant"))
 						end
 					end
 					resetPreviousSystemHealth(p)
@@ -11424,6 +11767,10 @@ function crewFate(p, fatalityChance)
 				local repairCrewFatalityPlus = "repairCrewFatalityPlus"
 				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+", "One of your repair crew has perished"))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				local repairCrewFatalityDmg = "repairCrewFatalityDmg"
+				p:addCustomMessage("DamageControl",repairCrewFatalityDmg,_("repairCrew-msgDamageControl", "One of your repair crew has perished"))
+			end
 		else
 			local damaged_system = p.system_choice_list[math.random(1,#p.system_choice_list)]
 			local damage = p:getSystemHealth(damaged_system)
@@ -11467,6 +11814,10 @@ function crewFate(p, fatalityChance)
 					local repairCrewFatalityPlus = "repairCrewFatalityPlus"
 					p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+", "One of your repair crew has perished"))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					local repairCrewFatalityDmg = "repairCrewFatalityDmg"
+					p:addCustomMessage("DamageControl",repairCrewFatalityDmg,_("repairCrew-msgDamageControl", "One of your repair crew has perished"))
+				end
 			elseif consequence == 2 then
 				local current_coolant = p:getMaxCoolant()
 				local lost_coolant = 0
@@ -11488,6 +11839,10 @@ function crewFate(p, fatalityChance)
 					local coolantLossPlus = "coolantLossPlus"
 					p:addCustomMessage("Engineering+",coolantLossPlus,_("damage-msgEngineer+", "Damage has caused a loss of coolant"))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					local coolantLossDmg = "coolantLossDmg"
+					p:addCustomMessage("DamageControl",coolantLossDmg,_("damage-msgDamageControl", "Damage has caused a loss of coolant"))
+				end
 			else
 				local named_consequence = consequence_list[consequence-2]
 				if named_consequence == "probe" then
@@ -11498,6 +11853,9 @@ function crewFate(p, fatalityChance)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","probe_launch_damage_message_plus",_("damage-msgEngineer+", "The probe launch system has been damaged"))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","probe_launch_damage_message_dmg",_("damage-msgDamageControl", "The probe launch system has been damaged"))
+					end
 				elseif named_consequence == "hack" then
 					p:setCanHack(false)
 					if p:hasPlayerAtPosition("Engineering") then
@@ -11505,6 +11863,9 @@ function crewFate(p, fatalityChance)
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","hack_damage_message_plus",_("damage-msgEngineer+", "The hacking system has been damaged"))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","hack_damage_message_dmg",_("damage-msgDamageControl", "The hacking system has been damaged"))
 					end
 				elseif named_consequence == "scan" then
 					p:setCanScan(false)
@@ -11514,6 +11875,9 @@ function crewFate(p, fatalityChance)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","scan_damage_message_plus",_("damage-msgEngineer+", "The scanners have been damaged"))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","scan_damage_message_dmg",_("damage-msgDamageControl", "The scanners have been damaged"))
+					end
 				elseif named_consequence == "combat_maneuver" then
 					p:setCanCombatManeuver(false)
 					if p:hasPlayerAtPosition("Engineering") then
@@ -11521,6 +11885,9 @@ function crewFate(p, fatalityChance)
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus",_("damage-msgEngineer+", "Combat maneuver has been damaged"))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","combat_maneuver_damage_message_dmg",_("damage-msgDamageControl", "Combat maneuver has been damaged"))
 					end
 				elseif named_consequence == "self_destruct" then
 					p:setCanSelfDestruct(false)
@@ -11530,6 +11897,9 @@ function crewFate(p, fatalityChance)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","self_destruct_damage_message_plus",_("damage-msgEngineer+", "Self destruct system has been damaged"))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","self_destruct_damage_message_dmg",_("damage-msgDamageControl", "Self destruct system has been damaged"))
+					end
 				elseif named_consequence == "reactor_coolant_pump" then
 					p:setSystemCoolantRate("reactor",p:getSystemCoolantRate("reactor")/2)
 					resetCoolantPumpButtons(p)
@@ -11538,6 +11908,9 @@ function crewFate(p, fatalityChance)
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","reactor_coolant_pump_damage_message_plus",_("damage-msgEngineer+", "Reactor coolant pump has been damaged"))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","reactor_coolant_pump_damage_message_dmg",_("damage-msgDamageControl", "Reactor coolant pump has been damaged"))
 					end
 				end
 			end	--coolant loss branch
@@ -11627,6 +12000,25 @@ function autoCoolant(p)
 				p.autoCoolButton = true
 			end
 		end
+		if p:hasPlayerAtPosition("DamageControl") then
+			if p.autoCoolButton == nil then
+				tbi = "enableAutoCoolDmg" .. p:getCallSign()
+				p:addCustomButton("DamageControl",tbi,_("coolant-buttonDamageControl", "Auto cool"),function()
+					string.format("")	--global context for serious proton
+					p:commandSetAutoRepair(true)
+					p:setAutoCoolant(true)
+					p.autoCoolant = true
+				end)
+				tbi = "disableAutoCoolDmg" .. p:getCallSign()
+				p:addCustomButton("DamageControl",tbi,_("coolant-buttonDamageControl", "Manual cool"),function()
+					string.format("")	--global context for serious proton
+					p:commandSetAutoRepair(false)
+					p:setAutoCoolant(false)
+					p.autoCoolant = false
+				end)
+				p.autoCoolButton = true
+			end
+		end
 	end
 end
 --		Gain or lose coolant from nebula functions
@@ -11673,6 +12065,11 @@ function coolantNebulae(delta, p)
 				p:addCustomButton("Engineering+",p.get_coolant_button_plus,_("coolant-buttonEngineer+", "Get Coolant"),function() getCoolantGivenPlayer(p) end)
 				p.get_coolant = true
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				p.get_coolant_button_dmg = "get_coolant_button_dmg"
+				p:addCustomButton("DamageControl",p.get_coolant_button_dmg,_("coolant-buttonDamageControl", "Get Coolant"),function() getCoolantGivenPlayer(p) end)
+				p.get_coolant = true
+			end
 		end
 	else
 		p.get_coolant = false
@@ -11697,6 +12094,16 @@ function coolantNebulae(delta, p)
 			if p.gather_coolant_plus ~= nil then
 				p:removeCustom(p.gather_coolant_plus)
 				p.gather_coolant_plus = nil
+			end
+		end
+		if p:hasPlayerAtPosition("DamageControl") then
+			if p.get_coolant_button_dmg ~= nil then
+				p:removeCustom(p.get_coolant_button_dmg)
+				p.get_coolant_button_dmg = nil
+			end
+			if p.gather_coolant_dmg ~= nil then
+				p:removeCustom(p.gather_coolant_dmg)
+				p.gather_coolant_dmg = nil
 			end
 		end
 	end
@@ -11741,6 +12148,10 @@ function updateCoolantGivenPlayer(p, delta)
 	if p:hasPlayerAtPosition("Engineering+") then
 		p.gather_coolant_plus = "gather_coolant_plus"
 		p:addCustomInfo("Engineering+",p.gather_coolant_plus,gather_coolant_status)
+	end
+	if p:hasPlayerAtPosition("DamageControl") then
+		p.gather_coolant_dmg = "gather_coolant_dmg"
+		p:addCustomInfo("DamageControl",p.gather_coolant_dmg,gather_coolant_status)
 	end
 end
 function getCoolantGivenPlayer(p)
@@ -13551,6 +13962,8 @@ function addMiningButtons(p,mining_objects)
 				else
 					local mining_lock_fail_message = "mining_lock_fail_message"
 					p:addCustomMessage("Engineering",mining_lock_fail_message,string.format(_("mining-msgEngineer", "Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U"),asteroid_distance/1000))
+					p:addCustomMessage("Engineering+",mining_lock_fail_message,string.format(_("mining-msgEngineer+", "Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U"),asteroid_distance/1000))
+					p:addCustomMessage("DamageControl",mining_lock_fail_message,string.format(_("mining-msgDamageControl", "Mining target lock failed\nAsteroid distance is %.4fU\nMaximum range for mining is 1U"),asteroid_distance/1000))
 					p.mining_target = nil
 				end
 				removeMiningButtons(p)
@@ -14756,6 +15169,10 @@ function updateInner(delta)
 					p.battery_timer_info_plus = "battery_timer_info_plus"
 					p:addCustomInfo("Engineering+",p.battery_timer_info_plus,timer_status)
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					p.battery_timer_info_dmg = "battery_timer_info_dmg"
+					p:addCustomInfo("DamageControl",p.battery_timer_info_dmg,timer_status)
+				end
 				if p.battery_timer < 0 then
 					p.battery_active = false
 					p:setMaxEnergy(p:getMaxEnergy()*random(.9,.95))
@@ -14775,6 +15192,10 @@ function updateInner(delta)
 					if p.battery_timer_info_plus ~= nil then
 						p:removeCustom(p.battery_timer_info_plus)
 						p.battery_timer_info_plus = nil
+					end
+					if p.battery_timer_info_dmg ~= nil then
+						p:removeCustom(p.battery_timer_info_dmg)
+						p.battery_timer_info_dmg = nil
 					end
 					if p.battery_count > 0 then
 						wmBatteryButton(p,"Engineering")
