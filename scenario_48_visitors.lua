@@ -53,9 +53,10 @@ require("generate_call_sign_scenario_utility.lua")
 require("place_station_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
+require("control_code_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.7"
+	scenario_version = "2.0.8"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -100,6 +101,7 @@ function mainGMButtons()
 	addGMFunction(_("buttonGM","+End Mission"),endMissionGMButtons)
 	addGMFunction(_("buttonGM","+Voices"),adjustServerVoices)
 	addGMFunction("+Spawn Ship(s)",spawnGMShips)
+	addGMFunction("+Control Codes",manageControlCodes)
 end
 -- GM player ship functions
 function playerShipGMButtons()
@@ -3120,7 +3122,7 @@ function handleDockedState()
 			(comms_target.comms_data.weapon_available.Mine   and comms_source:getWeaponStorageMax("Mine") > 0)   or 
 			(comms_target.comms_data.weapon_available.HVLI   and comms_source:getWeaponStorageMax("HVLI") > 0)   then
 			addCommsReply(_("ammo-comms","I need ordnance restocked"), function()
-				setCommsMessage("What type of ordnance do you need?")
+				setCommsMessage(_("ammo-comms","What type of ordnance do you need?"))
 				local prompts = {
 					["Nuke"] = {
 						_("ammo-comms","Can you supply us with some nukes?"),
@@ -6105,6 +6107,10 @@ function healthCheck(delta)
 							local repairCrewRecoveryPlus = "repairCrewRecoveryPlus"
 							p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,_("repairCrew-msgEngineer+","Medical team has revived one of your repair crew"))
 						end
+						if p:hasPlayerAtPosition("DamageControl") then
+							local repairCrewRecoveryDmg = "repairCrewRecoveryDmg"
+							p:addCustomMessage("DamageControl",repairCrewRecoveryDmg,_("repairCrew-msgDamageControl","Medical team has revived one of your repair crew"))
+						end
 						resetPreviousSystemHealth(p)
 					end
 				end
@@ -6147,6 +6153,10 @@ function crewFate(p, fatalityChance)
 				local repairCrewFatalityPlus = "repairCrewFatalityPlus"
 				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+","One of your repair crew has perished"))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				local repairCrewFatalityDmg = "repairCrewFatalityDmg"
+				p:addCustomMessage("DamageControl",repairCrewFatalityDmg,_("repairCrew-msgDamageControl","One of your repair crew has perished"))
+			end
 		else
 			if random(1,100) < 50 then
 				p:setRepairCrewCount(p:getRepairCrewCount() - 1)
@@ -6157,6 +6167,10 @@ function crewFate(p, fatalityChance)
 				if p:hasPlayerAtPosition("Engineering+") then
 					local repairCrewFatalityPlus = "repairCrewFatalityPlus"
 					p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+","One of your repair crew has perished"))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					local repairCrewFatalityDmg = "repairCrewFatalityDmg"
+					p:addCustomMessage("DamageControl",repairCrewFatalityDmg,_("repairCrew-msgDamageControl","One of your repair crew has perished"))
 				end
 			else
 				local current_coolant = p:getMaxCoolant()
@@ -6172,6 +6186,10 @@ function crewFate(p, fatalityChance)
 				if p:hasPlayerAtPosition("Engineering+") then
 					local coolantLossPlus = "coolantLossPlus"
 					p:addCustomMessage("Engineering+",coolantLossPlus,_("coolant-msgEngineer+","Damage has caused a loss of coolant"))
+				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					local coolantLossDmg = "coolantLossDmg"
+					p:addCustomMessage("DamageControl",coolantLossDmg,_("coolant-msgDamageControl","Damage has caused a loss of coolant"))
 				end
 			end
 		end
@@ -6202,6 +6220,11 @@ function coolantNebulae(delta)
 				end,7)
 				p.get_coolant_button_epl = "get_coolant_button_epl"
 				p:addCustomButton("Engineering+",p.get_coolant_button_epl,_("coolant-buttonEngineer+","Get Coolant"),function()
+					string.format("")
+					getCoolantGivenPlayer(p)
+				end,7)
+				p.get_coolant_button_dmg = "get_coolant_button_dmg"
+				p:addCustomButton("DamageControl",p.get_coolant_button_dmg,_("coolant-buttonDamageControl","Get Coolant"),function()
 					string.format("")
 					getCoolantGivenPlayer(p)
 				end,7)
@@ -6248,6 +6271,8 @@ function updateCoolantGivenPlayer(p, delta)
 	p:addCustomInfo("Engineering",p.gather_coolant_banner_eng,p.gather_coolant_status,8)
 	p.gather_coolant_banner_epl = "gather_coolant_banner_epl"
 	p:addCustomInfo("Engineering+",p.gather_coolant_banner_epl,p.gather_coolant_status,8)
+	p.gather_coolant_banner_dmg = "gather_coolant_banner_dmg"
+	p:addCustomInfo("DamageControl",p.gather_coolant_banner_dmg,p.gather_coolant_status,8)
 end
 function getCoolantGivenPlayer(p)
 	if p.get_coolant_button_eng ~= nil then
