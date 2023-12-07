@@ -5707,9 +5707,12 @@ function stealPlans(p)
 						p:addCustomMessage("Engineering",p.plans_extracted_msg_eng,string.format(_("mission-msgEngineer", "The technical readouts for %s have been extracted from the databanks on Kraylor station %s"),devourer:getCallSign(),station_kraylor:getCallSign()))
 						p.plans_extracted_msg_epl = "plans_extracted_msg_epl"
 						p:addCustomMessage("Engineering+",p.plans_extracted_msg_epl,string.format(_("mission-msgEngineer+", "The technical readouts for %s have been extracted from the databanks on Kraylor station %s"),devourer:getCallSign(),station_kraylor:getCallSign()))
+						p.plans_extracted_msg_dmg = "plans_extracted_msg_dmg"
+						p:addCustomMessage("DamageControl",p.plans_extracted_msg_dmg,string.format(_("mission-msgDamageControl", "The technical readouts for %s have been extracted from the databanks on Kraylor station %s"),devourer:getCallSign(),station_kraylor:getCallSign()))
 					else
 						p:addCustomInfo("Engineering",p.extract_info_eng,string.format(_("mission-tabEngineer", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 						p:addCustomInfo("Engineering+",p.extract_info_epl,string.format(_("mission-tabEngineer+", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
+						p:addCustomInfo("DamageControl",p.extract_info_dmg,string.format(_("mission-tabDamageControl", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 						p:addCustomInfo("Helms",p.extract_info_hlm,string.format(_("mission-tabHelms", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 					end
 				else
@@ -5718,11 +5721,14 @@ function stealPlans(p)
 						p:addCustomButton("Engineering",p.extract_button_eng,_("mission-buttonEngineer", "Extract Plans"),function()
 							p:removeCustom(p.extract_button_eng)
 							p:removeCustom(p.extract_button_epl)
+							p:removeCustom(p.extract_button_dmg)
 							p.extract_time = getScenarioTime() + 47
 							p.extract_info_eng = "extract_info_eng"
 							p:addCustomInfo("Engineering",p.extract_info_eng,string.format(_("mission-tabEngineer", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 							p.extract_info_epl = "extract_info_epl"
 							p:addCustomInfo("Engineering+",p.extract_info_epl,string.format(_("mission-tabEngineer+", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
+							p.extract_info_dmg = "extract_info_dmg"
+							p:addCustomInfo("DamageControl",p.extract_info_dmg,string.format(_("mission-tabDamageControl", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 							p.extract_info_hlm = "extract_info_hlm"
 							p:addCustomInfo("Helms",p.extract_info_hlm,string.format(_("mission-tabHelms", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 						end,29)
@@ -5732,11 +5738,29 @@ function stealPlans(p)
 						p:addCustomButton("Engineering+",p.extract_button_epl,_("mission-buttonEngineer+", "Extract Plans"),function()
 							p:removeCustom(p.extract_button_epl)
 							p:removeCustom(p.extract_button_eng)
+							p:removeCustom(p.extract_button_dmg)
 							p.extract_time = getScenarioTime() + 47
 							p.extract_info_eng = "extract_info_eng"
 							p:addCustomInfo("Engineering",p.extract_info_eng,string.format(_("mission-tabEngineer", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 							p.extract_info_epl = "extract_info_epl"
 							p:addCustomInfo("Engineering+",p.extract_info_epl,string.format(_("mission-tabEngineer+", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
+							p.extract_info_dmg = "extract_info_dmg"
+							p:addCustomInfo("DamageControl",p.extract_info_dmg,string.format(_("mission-tabDamageControl", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
+						end,29)
+					end
+					if p.extract_button_dmg == nil then
+						p.extract_button_dmg = "extract_button_dmg"
+						p:addCustomButton("DamageControl",p.extract_button_dmg,_("mission-buttonDamageControl", "Extract Plans"),function()
+							p:removeCustom(p.extract_button_eng)
+							p:removeCustom(p.extract_button_epl)
+							p:removeCustom(p.extract_button_dmg)
+							p.extract_time = getScenarioTime() + 47
+							p.extract_info_eng = "extract_info_eng"
+							p:addCustomInfo("Engineering",p.extract_info_eng,string.format(_("mission-tabEngineer", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
+							p.extract_info_epl = "extract_info_epl"
+							p:addCustomInfo("Engineering+",p.extract_info_epl,string.format(_("mission-tabEngineer+", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
+							p.extract_info_dmg = "extract_info_dmg"
+							p:addCustomInfo("DamageControl",p.extract_info_dmg,string.format(_("mission-tabDamageControl", "Extract timer:%i"),math.floor(p.extract_time - getScenarioTime())),30)
 						end,29)
 					end
 				end
@@ -5770,6 +5794,7 @@ function deployVirus(p)
 				p:addCustomButton("Engineering",p.deploy_virus_eng,_("mission-buttonEngineer", "Upload Virus"),function()
 					p:removeCustom(p.deploy_virus_eng)
 					p:removeCustom(p.deploy_virus_epl)
+					p:removeCustom(p.deploy_virus_dmg)
 					nerfDevourer()
 					if p.nerf_award == nil then
 						p.nerf_award = "given"
@@ -5782,9 +5807,27 @@ function deployVirus(p)
 				p:addCustomButton("Engineering+",p.deploy_virus_epl,_("mission-buttonEngineer+", "Upload Virus"),function()
 					p:removeCustom(p.deploy_virus_epl)
 					p:removeCustom(p.deploy_virus_eng)
+					p:removeCustom(p.deploy_virus_dmg)
 					nerfDevourer()
+					if p.nerf_award == nil then
+						p.nerf_award = "given"
+						p:addReputationPoints(100)
+					end
 					p.devourer_nerfed_epl = "devourer_nerfed_epl"
 					p:addCustomMessage("Engineering+",p.devourer_nerfed_epl,string.format(_("mission-msgEngineer+", "The virus has been uploaded to %s. A portion of the Planet Devourer's beam and missile systems have entered maintenance mode."),devourer:getCallSign()))
+				end,33)
+				p.deploy_virus_dmg = "deploy_virus_dmg"
+				p:addCustomButton("DamageControl",p.deploy_virus_dmg,_("mission-buttonDamageControl", "Upload Virus"),function()
+					p:removeCustom(p.deploy_virus_epl)
+					p:removeCustom(p.deploy_virus_eng)
+					p:removeCustom(p.deploy_virus_dmg)
+					nerfDevourer()
+					if p.nerf_award == nil then
+						p.nerf_award = "given"
+						p:addReputationPoints(100)
+					end
+					p.devourer_nerfed_dmg = "devourer_nerfed_dmg"
+					p:addCustomMessage("DamageControl",p.devourer_nerfed_dmg,string.format(_("mission-msgDamageControl", "The virus has been uploaded to %s. A portion of the Planet Devourer's beam and missile systems have entered maintenance mode."),devourer:getCallSign()))
 				end,33)
 			else
 				if p.deploy_virus_eng ~= nil then
@@ -5794,6 +5837,10 @@ function deployVirus(p)
 				if p.deploy_virus_epl ~= nil then
 					p:removeCustom(p.deploy_virus_epl)
 					p.deploy_virus_epl = nil
+				end
+				if p.deploy_virus_dmg ~= nil then
+					p:removeCustom(p.deploy_virus_dmg)
+					p.deploy_virus_dmg = nil
 				end
 			end
 		end
@@ -6021,6 +6068,10 @@ function healthCheck(delta)
 							local repairCrewRecoveryPlus = "repairCrewRecoveryPlus"
 							p:addCustomMessage("Engineering+",repairCrewRecoveryPlus,_("repairCrew-msgEngineer+","Medical team has revived one of your repair crew"))
 						end
+						if p:hasPlayerAtPosition("DamageControl") then
+							local repairCrewRecoveryDmg = "repairCrewRecoveryDmg"
+							p:addCustomMessage("DamageControl",repairCrewRecoveryDmg,_("repairCrew-msgDamageControl","Medical team has revived one of your repair crew"))
+						end
 						resetPreviousSystemHealth(p)
 					end
 				end
@@ -6041,6 +6092,9 @@ function healthCheck(delta)
 								end
 								if p:hasPlayerAtPosition("Engineering+") then
 									p:addCustomMessage("Engineering+","coolant_recovery_plus",_("coolant-msgEngineer+","Automated systems have recovered some coolant"))
+								end
+								if p:hasPlayerAtPosition("DamageControl") then
+									p:addCustomMessage("DamageControl","coolant_recovery_dmg",_("coolant-msgDamageControl","Automated systems have recovered some coolant"))
 								end
 							end
 							resetPreviousSystemHealth(p)
@@ -6086,6 +6140,10 @@ function crewFate(p, fatalityChance)
 				local repairCrewFatalityPlus = "repairCrewFatalityPlus"
 				p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+","One of your repair crew has perished"))
 			end
+			if p:hasPlayerAtPosition("DamageControl") then
+				local repairCrewFatalityDmg = "repairCrewFatalityDmg"
+				p:addCustomMessage("DamageControl",repairCrewFatalityDmg,_("repairCrew-msgDamageControl","One of your repair crew has perished"))
+			end
 		else
 			local consequence = 0
 			local upper_consequence = 2
@@ -6121,6 +6179,10 @@ function crewFate(p, fatalityChance)
 					local repairCrewFatalityPlus = "repairCrewFatalityPlus"
 					p:addCustomMessage("Engineering+",repairCrewFatalityPlus,_("repairCrew-msgEngineer+","One of your repair crew has perished"))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					local repairCrewFatalityDmg = "repairCrewFatalityDmg"
+					p:addCustomMessage("DamageControl",repairCrewFatalityDmg,_("repairCrew-msgDamageControl","One of your repair crew has perished"))
+				end
 			elseif consequence == 2 then
 				local current_coolant = p:getMaxCoolant()
 				local lost_coolant = 0
@@ -6142,6 +6204,10 @@ function crewFate(p, fatalityChance)
 					local coolantLossPlus = "coolantLossPlus"
 					p:addCustomMessage("Engineering+",coolantLossPlus,_("coolant-msgEngineer+","Damage has caused a loss of coolant"))
 				end
+				if p:hasPlayerAtPosition("DamageControl") then
+					local coolantLossDmg = "coolantLossDmg"
+					p:addCustomMessage("DamageControl",coolantLossDmg,_("coolant-msgDamageControl","Damage has caused a loss of coolant"))
+				end
 			else
 				local named_consequence = consequence_list[consequence-2]
 				if named_consequence == "probe" then
@@ -6152,6 +6218,9 @@ function crewFate(p, fatalityChance)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","probe_launch_damage_message_plus",_("damage-msgEngineer+","The probe launch system has been damaged"))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","probe_launch_damage_message_dmg",_("damage-msgDamageControl","The probe launch system has been damaged"))
+					end
 				elseif named_consequence == "hack" then
 					p:setCanHack(false)
 					if p:hasPlayerAtPosition("Engineering") then
@@ -6159,6 +6228,9 @@ function crewFate(p, fatalityChance)
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","hack_damage_message_plus",_("damage-msgEngineer+","The hacking system has been damaged"))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","hack_damage_message_dmg",_("damage-msgDamageControl","The hacking system has been damaged"))
 					end
 				elseif named_consequence == "scan" then
 					p:setCanScan(false)
@@ -6168,6 +6240,9 @@ function crewFate(p, fatalityChance)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","scan_damage_message_plus",_("damage-msgEngineer+","The scanners have been damaged"))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","scan_damage_message_dmg",_("damage-msgDamageControl","The scanners have been damaged"))
+					end
 				elseif named_consequence == "combat_maneuver" then
 					p:setCanCombatManeuver(false)
 					if p:hasPlayerAtPosition("Engineering") then
@@ -6176,6 +6251,9 @@ function crewFate(p, fatalityChance)
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","combat_maneuver_damage_message_plus",_("damage-msgEngineer+","Combat maneuver has been damaged"))
 					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","combat_maneuver_damage_message_dmg",_("damage-msgDamageControl","Combat maneuver has been damaged"))
+					end
 				elseif named_consequence == "self_destruct" then
 					p:setCanSelfDestruct(false)
 					if p:hasPlayerAtPosition("Engineering") then
@@ -6183,6 +6261,9 @@ function crewFate(p, fatalityChance)
 					end
 					if p:hasPlayerAtPosition("Engineering+") then
 						p:addCustomMessage("Engineering+","self_destruct_damage_message_plus",_("damage-msgEngineer+","Self destruct system has been damaged"))
+					end
+					if p:hasPlayerAtPosition("DamageControl") then
+						p:addCustomMessage("DamageControl","self_destruct_damage_message_dmg",_("damage-msgDamageControl","Self destruct system has been damaged"))
 					end
 				end
 			end	--coolant loss branch
