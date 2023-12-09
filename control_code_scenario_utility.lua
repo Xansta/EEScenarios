@@ -20,12 +20,12 @@ function manageControlCodes()
 	addGMFunction(_("buttonGM","-Main From Ctl Codes"),mainGMButtons)
 	local active_player_ships = getActivePlayerShips()
 	if #active_player_ships == 0 then
-		addGMMessage("There are no active player ships for you to view or set the control codes for.")
+		addGMMessage(_("msgGM","There are no active player ships for you to view or set the control codes for."))
 		mainGMButtons()
 	else
 		viewControlCodes()
-		addGMFunction("View Control Codes",viewControlCodes)
-		addGMFunction("+Set Control Codes",setControlCodes)
+		addGMFunction(_("buttonGM","View Control Codes"),viewControlCodes)
+		addGMFunction(_("buttonGM","+Set Control Codes"),setControlCodes)
 	end
 end
 function setControlCodeGlobals()
@@ -55,51 +55,51 @@ function viewControlCodes()
 	end
 	if code_count > 0 then
 		table.sort(name_code_faction)
-		local out = "Player ships and some of their control codes:"
+		local out = _("msgGM","Player ships and some of their control codes:")
 		if code_count == #active_player_ships then
-			out = "Player ships and their control codes:"
+			out = _("msgGM","Player ships and their control codes:")
 		end
 		for i,ship in ipairs(name_code_faction) do
 			if ship.control_code == nil then
-				out = string.format("%s\n%s: <none> (%s)",out,ship.name,ship.faction)
+				out = string.format(_("msgGM","%s\n%s: <none> (%s)"),out,ship.name,ship.faction)
 			else
-				out = string.format("%s\n%s: %s (%s)",out,ship.name,ship.control_code,ship.faction)
+				out = string.format(_("msgGM","%s\n%s: %s (%s)"),out,ship.name,ship.control_code,ship.faction)
 			end
 		end
 		addGMMessage(out)
 	else
-		addGMMessage("None of the active player ships have a control code set for you to view.")
+		addGMMessage(_("msgGM","None of the active player ships have a control code set for you to view."))
 	end
 end
 function setControlCodes()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM","-Main From Set Codes"),mainGMButtons)
 	addGMFunction(_("buttonGM","-Control Codes"),manageControlCodes)
-	local button_label = "Change Code Object"
+	local button_label = _("buttonGM","Change Code Object")
 	if code_object == nil then
-		button_label = "+Select Code Object"
+		button_label = _("buttonGM","+Select Code Object")
 	end
 	addGMFunction(button_label,changeCodeObject)
 	if code_object ~= nil then
 		local p = playerShipSelected()
 		if p ~= nil then
-			addGMFunction("+Set Control Code",function()
+			addGMFunction(_("buttonGM","+Set Control Code"),function()
 				local dcp = playerShipSelected()	--double check player ship selected
 				if dcp ~= nil then
 					dcp.control_code = code_object:getDescription()
 					dcp:setControlCode(code_object:getDescription())
-					addGMMessage(string.format("%s now has a control code of %s",dcp:getCallSign(),dcp.control_code))
+					addGMMessage(string.format(_("msgGM","%s now has a control code of %s"),dcp:getCallSign(),dcp.control_code))
 				else
-					addGMMessage("Player ship not selected. No action taken")
+					addGMMessage(_("msgGM","Player ship not selected. No action taken"))
 				end
 				setControlCodes()
 			end)
 		else
-			addGMFunction("+Select Player",setControlCodes)
+			addGMFunction(_("buttonGM","+Select Player"),setControlCodes)
 		end
 	end
 	if default_player_ship_control_code ~= nil then
-		addGMFunction("+Default Control Codes",setDefaultControlCodes)
+		addGMFunction(_("buttonGM","+Default Control Codes"),setDefaultControlCodes)
 	end
 end
 function changeCodeObject()
@@ -107,14 +107,14 @@ function changeCodeObject()
 	if object_list ~= nil then
 		if #object_list == 1 then
 			code_object = object_list[1]
-			addGMMessage(string.format("Object in %s selected to set control code.\nPlace control code in unscanned description field via tweak button",code_object:getSectorName()))
+			addGMMessage(string.format(_("msgGM","Object in %s selected to set control code.\nPlace control code in unscanned description field via tweak button"),code_object:getSectorName()))
 			setControlCodes()
 		else
-			addGMMessage("Select only one object to use to set control code via its unscanned description field. No action taken")
+			addGMMessage(_("msgGM","Select only one object to use to set control code via its unscanned description field. No action taken"))
 			setControlCodes()
 		end
 	else
-		addGMMessage("Select an object to use to set control code via its unscanned description field. No action taken")
+		addGMMessage(_("msgGM","Select an object to use to set control code via its unscanned description field. No action taken"))
 		setControlCodes()
 	end 
 end
@@ -146,8 +146,8 @@ function setDefaultControlCodes()
 	addGMFunction(_("buttonGM","-Control Codes"),manageControlCodes)
 	addGMFunction(_("buttonGM","-Set Codes"),setControlCodes)
 	viewPlayersMatchesDefaults()
-	addGMFunction("View Defaults",viewPlayersMatchesDefaults)
-	addGMFunction("Set Defaults",function()
+	addGMFunction(_("buttonGM","View Defaults"),viewPlayersMatchesDefaults)
+	addGMFunction(_("buttonGM","Set Defaults"),function()
 		local codes_set = {}
 		for name,code in pairs(default_player_ship_control_code) do
 			for i,p in ipairs(getActivePlayerShips()) do
@@ -158,12 +158,12 @@ function setDefaultControlCodes()
 				end
 			end
 		end
-		local out = "No matches found. No codes set."
+		local out = _("msgGM","No matches found. No codes set.")
 		if #codes_set > 0 then
-			out = "The following player ships have their control codes set:"
+			out = _("msgGM","The following player ships have their control codes set:")
 			table.sort(codes_set)
 			for i,ship in ipairs(codes_set) do
-				out = string.format("%s\n%s: %s",out,ship.name,ship.code)
+				out = string.format(_("msgGM","%s\n%s: %s"),out,ship.name,ship.code)
 			end
 		end
 		addGMMessage(out)
@@ -179,12 +179,12 @@ function viewPlayersMatchesDefaults()
 			end
 		end
 	end
-	local matches_out = "No matches between player ships and defaults."
+	local matches_out = _("msgGM","No matches between player ships and defaults.")
 	table.sort(matches)
 	if #matches > 0 then
-		matches_out = "Matches between active player ships and defaults:"
+		matches_out = _("msgGM","Matches between active player ships and defaults:")
 		for i,ship in ipairs(matches) do
-			matches_out = string.format("%s\n%s",matches_out,ship)
+			matches_out = string.format(_("msgGM","%s\n%s"),matches_out,ship)
 		end
 	end
 	local player_ship_names = {}
@@ -192,26 +192,26 @@ function viewPlayersMatchesDefaults()
 		table.insert(player_ship_names,p:getCallSign())
 	end
 	table.sort(player_ship_names)
-	local player_ships_out = "Active player ships:"
+	local player_ships_out = _("msgGM","Active player ships:")
 	for i,name in ipairs(player_ship_names) do
-		player_ships_out = string.format("%s\n%s",player_ships_out,name)
+		player_ships_out = string.format(_("msgGM","%s\n%s"),player_ships_out,name)
 	end
 	local ship_codes = {}
 	for name,code in pairs(default_player_ship_control_code) do
-		table.insert(ship_codes,string.format("%s: %s",name,code))
+		table.insert(ship_codes,string.format(_("msgGM","%s: %s"),name,code))
 	end
 	table.sort(ship_codes)
-	local ship_code_out = "Default ship control codes:"
+	local ship_code_out = _("msgGM","Default ship control codes:")
 	for i,ship_code in ipairs(ship_codes) do
-		ship_code_out = string.format("%s\n%s",ship_code_out,ship_code)
+		ship_code_out = string.format(_("msgGM","%s\n%s"),ship_code_out,ship_code)
 	end
 	local out = ""
 	if #matches == #active_player_ships then
-		out = "All active player ships have matches in the list of defaults.\n"
+		out = _("msgGM","All active player ships have matches in the list of defaults.\n")
 		if #matches == #ship_codes then
-			out = string.format("%s\nAll defaults have matching player ships.\n",out)
+			out = string.format(_("msgGM","%s\nAll defaults have matching player ships.\n"),out)
 		end
 	end
-	addGMMessage(string.format("%s%s\n%s\n%s",out,player_ships_out,matches_out,ship_code_out))
+	addGMMessage(string.format(_("msgGM","%s%s\n%s\n%s"),out,player_ships_out,matches_out,ship_code_out))
 end
 
