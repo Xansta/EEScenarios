@@ -14,9 +14,11 @@
 
 require("utils.lua")
 require("generate_call_sign_scenario_utility.lua")
+require("spawn_ships_scenario_utility.lua")
+require("control_code_scenario_utility.lua")
 
 function init()
-	scenario_version = "5.0.1"
+	scenario_version = "5.0.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Deliver Ambassador Gremus    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -123,7 +125,14 @@ function init()
 	transportPlot = randomTransports
 	plot1 = chasePlayer		-- Start main plot line
 	allowNewPlayerShips(false)
+	mainGMButtons()
 end
+function mainGMButtons()
+	clearGMFunctions()
+	addGMFunction("+Spawn Ship(s)",spawnGMShips)
+	addGMFunction("+Control Codes",manageControlCodes)
+end
+
 --	Utilities
 function audioButtonTimers(delta)
 	--	Make the audio playback buttons on Relay go after 3 minutes
@@ -477,7 +486,7 @@ function goltinAndResearch(delta)	--Complete mission when returning with researc
 	if artifact_research_count > 0 then
 		if distance(player,goltin) < 3300 then
 			globalMessage(_("msgMainscreen",[[Goltin 7 welcomes ambassador Gremus]]))
-			goltincomms:sendCommsMessage(player, string.format(_("audio-incCall", "(Ambassador Gremus) Thanks for researching the artifacts, %d. Tensions are high, but I think negotiations will succeed. In the meantime, be careful of hostile ships."), playerCallSign))
+			goltincomms:sendCommsMessage(player, string.format(_("audio-incCall", "(Ambassador Gremus) Thanks for researching the artifacts, %s. Tensions are high, but I think negotiations will succeed. In the meantime, be careful of hostile ships."), playerCallSign))
 			playSoundFile("sa_51_Gremus7.ogg")
 			last_message_time = getScenarioTime() + 20
 			plot1 = finalMessage			
