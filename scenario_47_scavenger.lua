@@ -92,7 +92,10 @@ function tableRemoveRandom(array)
     return table.remove(array)
 end
 function init()
---	print("start of init")
+	scenario_version = "1.0.1"
+	ee_version = "2023.06.17"
+	print(string.format("    ----    Scenario: Scurvy Scavenger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	print(_VERSION)
 	stationCommsDiagnostic = false
 	exuari_harass_diagnostic = false
 	spawn_enemy_diagnostic = false
@@ -6201,60 +6204,6 @@ function handleUndockedState()
 				addCommsReply(_("Back"), commsStation)
 			end)
 		end
-		addCommsReply(_("trade-comms", "Where can I find particular goods?"), function()
-			local ctd = comms_target.comms_data
-			gkMsg = _("trade-comms", "Friendly stations often have food or medicine or both. Neutral stations may trade their goods for food, medicine or luxury.")
-			if ctd.goodsKnowledge == nil then
-				ctd.goodsKnowledge = {}
-				local knowledgeCount = 0
-				local knowledgeMax = 10
-				for i=1,#humanStationList do
-					local station = humanStationList[i]
-					if station ~= nil and station:isValid() then
-						local brainCheckChance = 60
-						if distance(comms_target,station) > 75000 then
-							brainCheckChance = 20
-						end
-						for good, goodData in pairs(ctd.goods) do
-							if random(1,100) <= brainCheckChance then
-								local stationCallSign = station:getCallSign()
-								local stationSector = station:getSectorName()
-								ctd.goodsKnowledge[good] =	{	station = stationCallSign,
-																sector = stationSector,
-																cost = goodData["cost"] }
-								knowledgeCount = knowledgeCount + 1
-								if knowledgeCount >= knowledgeMax then
-									break
-								end
-							end
-						end
-					end
-					if knowledgeCount >= knowledgeMax then
-						break
-					end
-				end
-			end
-			local goodsKnowledgeCount = 0
-			for good, goodKnowledge in pairs(ctd.goodsKnowledge) do
-				goodsKnowledgeCount = goodsKnowledgeCount + 1
-				addCommsReply(good, function()
-					local ctd = comms_target.comms_data
-					local stationName = ctd.goodsKnowledge[good]["station"]
-					local sectorName = ctd.goodsKnowledge[good]["sector"]
-					local goodName = good
-					local goodCost = ctd.goodsKnowledge[good]["cost"]
-					setCommsMessage(string.format(_("trade-comms", "Station %s in sector %s has %s for %i reputation"),stationName,sectorName,goodName,goodCost))
-					addCommsReply(_("Back"), commsStation)
-				end)
-			end
-			if goodsKnowledgeCount > 0 then
-				gkMsg = gkMsg .. _("trade-comms", "\n\nWhat goods are you interested in?\nI've heard about these:")
-			else
-				gkMsg = gkMsg .. _("trade-comms", " Beyond that, I have no knowledge of specific stations")
-			end
-			setCommsMessage(gkMsg)
-			addCommsReply(_("Back"), commsStation)
-		end)
 		local has_gossip = random(1,100) < (100 - (30 * (difficulty - .5)))
 		if (comms_target.comms_data.general ~= nil and comms_target.comms_data.general ~= "") or
 			(comms_target.comms_data.history ~= nil and comms_target.comms_data.history ~= "") or
@@ -6391,56 +6340,7 @@ function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for the current player.
     return math.ceil(comms_data.service_cost[service])
 end
-function fillStationBrains()
-	comms_target.goodsKnowledge = {}
-	comms_target.goodsKnowledgeSector = {}
-	comms_target.goodsKnowledgeType = {}
-	comms_target.goodsKnowledgeTrade = {}
-	local knowledgeCount = 0
-	local knowledgeMax = 10
-	for sti=1,#humanStationList do
-		if humanStationList[sti] ~= nil and humanStationList[sti]:isValid() then
-			if distance(comms_target,humanStationList[sti]) < 75000 then
-				brainCheck = 3
-			else
-				brainCheck = 1
-			end
-			for gi=1,#goods[humanStationList[sti]] do
-				if random(1,10) <= brainCheck then
-					table.insert(comms_target.goodsKnowledge,humanStationList[sti]:getCallSign())
-					table.insert(comms_target.goodsKnowledgeSector,humanStationList[sti]:getSectorName())
-					table.insert(comms_target.goodsKnowledgeType,goods[humanStationList[sti]][gi][1])
-					tradeString = ""
-					stationTrades = false
-					if tradeMedicine[humanStationList[sti]] ~= nil then
-						tradeString = _("trade-comms", " and will trade it for medicine")
-						stationTrades = true
-					end
-					if tradeFood[humanStationList[sti]] ~= nil then
-						if stationTrades then
-							tradeString = tradeString .. _("trade-comms", " or food")
-						else
-							tradeString = tradeString .. _("trade-comms", " and will trade it for food")
-							stationTrades = true
-						end
-					end
-					if tradeLuxury[humanStationList[sti]] ~= nil then
-						if stationTrades then
-							tradeString = tradeString .. _("trade-comms", " or luxury")
-						else
-							tradeString = tradeString .. _("trade-comms", " and will trade it for luxury")
-						end
-					end
-					table.insert(comms_target.goodsKnowledgeTrade,tradeString)
-					knowledgeCount = knowledgeCount + 1
-					if knowledgeCount >= knowledgeMax then
-						return
-					end
-				end
-			end
-		end
-	end
-end
+
 function getFriendStatus()
     if comms_source:isFriendly(comms_target) then
         return "friend"
@@ -8767,7 +8667,12 @@ function update(delta)
 		end
 	end
 	if plot1 ~= nil then	--various primary plot lines (harassment, transition contract, long discance cargo)
-		plot1(delta)
+		if player ~= nil and player:isValid() then
+			plot1(delta)
+		else
+			globalMessage(_("ridExuari-msgMainscreen","Dash your hopes and dreams again?"))
+			victory("Exuari")
+		end
 	end
 	accumulated_delta = accumulated_delta + delta
 	if player.inventoryButton == nil then
