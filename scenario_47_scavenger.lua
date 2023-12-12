@@ -14,6 +14,7 @@
 -- Murphy[Hard]: Random factors are more against you
 
 require("utils.lua")
+require("cpu_ship_diversification_scenario_utility.lua")
 function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 -- Create amount of objects of type object_type along arc
 -- Center defined by x and y
@@ -92,7 +93,7 @@ function tableRemoveRandom(array)
     return table.remove(array)
 end
 function init()
-	scenario_version = "1.0.1"
+	scenario_version = "1.0.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Scurvy Scavenger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -376,6 +377,8 @@ function missionSelection()
 			end
 		end
 	end)
+end
+function beamUpgrade()
 end
 ------------------------------------------------------
 --	Contract for increased hull strength functions  --
@@ -883,25 +886,260 @@ function setConstants()
 	repeatExitBoundary = 100
 	scarceResources = false
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
-	--Ship Template Name List
-	--stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	--Ship Template Score List
-	--stsl = {5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,25       ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,18       ,14               ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	--stnl: Ship Template Name List, stsl: Ship Template Score List, stbl: Ship Template Boolean List, nsfl: Non Standard Function List
-	stnl = {"Phobos R2","Adder MK8","Adder MK7","Adder MK3","MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
-	stsl = {13         ,10         ,9          ,5          ,5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,25       ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,18       ,14               ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	stbl = {false      ,false      ,false      ,false      ,true         ,true         ,true       ,true       ,true         ,true       ,true       ,true       ,true        ,true         ,true     ,true         ,true        ,true        ,true          ,true           ,true  ,true     ,true     ,true             ,true        ,true          ,true         ,true           ,true             ,true             ,true             ,true            ,true           ,true            ,true           ,true               ,true}
-	nsfl = {}
-	table.insert(nsfl,phobosR2)
-	table.insert(nsfl,adderMk8)
-	table.insert(nsfl,adderMk7)
-	table.insert(nsfl,adderMk3)
-	-- square grid deployment
-	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1}
-	fleetPosDelta1y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2}
-	-- rough hexagonal deployment
-	fleetPosDelta2x = {0,2,-2,1,-1, 1, 1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5}
-	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1}
+	pool_selectivity = "full"
+	ship_template = {	--ordered by relative strength
+		["Gnat"] =				{strength = 2,	short_range_radar = 4500,	create = gnat},
+		["Lite Drone"] =		{strength = 3,	short_range_radar = 5000,	create = droneLite},
+		["Jacket Drone"] =		{strength = 4,	short_range_radar = 5000,	create = droneJacket},
+		["Ktlitan Drone"] =		{strength = 4,	short_range_radar = 5000,	create = stockTemplate},
+		["Heavy Drone"] =		{strength = 5,	short_range_radar = 5500,	create = droneHeavy},
+		["Adder MK3"] =			{strength = 5,	short_range_radar = 5000,	create = stockTemplate},
+		["MT52 Hornet"] =		{strength = 5,	short_range_radar = 5000,	create = stockTemplate},
+		["MU52 Hornet"] =		{strength = 5,	short_range_radar = 5000,	create = stockTemplate},
+		["Dagger"] =			{strength = 6,	short_range_radar = 5000,	create = stockTemplate},
+		["MV52 Hornet"] =		{strength = 6,	short_range_radar = 5000,	create = hornetMV52},
+		["MT55 Hornet"] =		{strength = 6,	short_range_radar = 5000,	create = hornetMT55},
+		["Adder MK4"] =			{strength = 6,	short_range_radar = 5000,	create = stockTemplate},
+		["Fighter"] =			{strength = 6,	short_range_radar = 5000,	create = stockTemplate},
+		["Ktlitan Fighter"] =	{strength = 6,	short_range_radar = 5000,	create = stockTemplate},
+		["FX64 Hornet"] =		{strength = 7,	short_range_radar = 5000,	create = hornetFX64},
+		["Blade"] =				{strength = 7,	short_range_radar = 5000,	create = stockTemplate},
+		["Gunner"] =			{strength = 7,	short_range_radar = 5000,	create = stockTemplate},
+		["K2 Fighter"] =		{strength = 7,	short_range_radar = 5000,	create = k2fighter},
+		["Adder MK5"] =			{strength = 7,	short_range_radar = 5000,	create = stockTemplate},
+		["WX-Lindworm"] =		{strength = 7,	short_range_radar = 5500,	create = stockTemplate},
+		["K3 Fighter"] =		{strength = 8,	short_range_radar = 5000,	create = k3fighter},
+		["Shooter"] =			{strength = 8,	short_range_radar = 5000,	create = stockTemplate},
+		["Jagger"] =			{strength = 8,	short_range_radar = 5000,	create = stockTemplate},
+		["Adder MK6"] =			{strength = 8,	short_range_radar = 5000,	create = stockTemplate},
+		["Ktlitan Scout"] =		{strength = 8,	short_range_radar = 7000,	create = stockTemplate},
+		["WZ-Lindworm"] =		{strength = 9,	short_range_radar = 5500,	create = wzLindworm},
+		["Adder MK7"] =			{strength = 9,	short_range_radar = 5000,	create = stockTemplate},
+		["Adder MK8"] =			{strength = 10,	short_range_radar = 5500,	create = stockTemplate},
+		["Adder MK9"] =			{strength = 11,	short_range_radar = 6000,	create = stockTemplate},
+		["Nirvana R3"] =		{strength = 12,	short_range_radar = 5000,	create = stockTemplate},
+		["Phobos R2"] =			{strength = 13,	short_range_radar = 5000,	create = phobosR2},
+		["Missile Cruiser"] =	{strength = 14,	short_range_radar = 7000,	create = stockTemplate},
+		["Waddle 5"] =			{strength = 15,	short_range_radar = 5000,	create = waddle5},
+		["Jade 5"] =			{strength = 15,	short_range_radar = 5000,	create = jade5},
+		["Phobos T3"] =			{strength = 15,	short_range_radar = 5000,	create = stockTemplate},
+		["Guard"] =				{strength = 15,	short_range_radar = 5000,	create = stockTemplate},
+		["Piranha F8"] =		{strength = 15,	short_range_radar = 6000,	create = stockTemplate},
+		["Piranha F12"] =		{strength = 15,	short_range_radar = 6000,	create = stockTemplate},
+		["Piranha F12.M"] =		{strength = 16,	short_range_radar = 6000,	create = stockTemplate},
+		["Phobos M3"] =			{strength = 16,	short_range_radar = 5500,	create = stockTemplate},
+		["Farco 3"] =			{strength = 16,	short_range_radar = 8000,	create = farco3},
+		["Farco 5"] =			{strength = 16,	short_range_radar = 8000,	create = farco5},
+		["Karnack"] =			{strength = 17,	short_range_radar = 5000,	create = stockTemplate},
+		["Gunship"] =			{strength = 17,	short_range_radar = 5000,	create = stockTemplate},
+		["Phobos T4"] =			{strength = 18,	short_range_radar = 5000,	create = phobosT4},
+		["Cruiser"] =			{strength = 18,	short_range_radar = 6000,	create = stockTemplate},
+		["Nirvana R5"] =		{strength = 19,	short_range_radar = 5000,	create = stockTemplate},
+		["Farco 8"] =			{strength = 19,	short_range_radar = 8000,	create = farco8},
+		["Nirvana R5A"] =		{strength = 20,	short_range_radar = 5000,	create = stockTemplate},
+		["Adv. Gunship"] =		{strength = 20,	short_range_radar = 7000,	create = stockTemplate},
+		["Ktlitan Worker"] =	{strength = 20,	short_range_radar = 5000,	create = stockTemplate},
+		["Farco 11"] =			{strength = 21,	short_range_radar = 8000,	create = farco11},
+		["Storm"] =				{strength = 22,	short_range_radar = 6000,	create = stockTemplate},
+		["Warden"] =			{strength = 22,	short_range_radar = 6000,	create = stockTemplate},
+		["Racer"] =				{strength = 22,	short_range_radar = 5000,	create = stockTemplate},
+		["Strike"] =			{strength = 23,	short_range_radar = 5500,	create = stockTemplate},
+		["Dash"] =				{strength = 23,	short_range_radar = 5500,	create = stockTemplate},
+		["Farco 13"] =			{strength = 24,	short_range_radar = 5000,	create = farco13},
+		["Sentinel"] =			{strength = 24,	short_range_radar = 5000,	create = stockTemplate},
+		["Ranus U"] =			{strength = 25,	short_range_radar = 6000,	create = stockTemplate},
+		["Flash"] =				{strength = 25,	short_range_radar = 6000,	create = stockTemplate},
+		["Ranger"] =			{strength = 25,	short_range_radar = 6000,	create = stockTemplate},
+		["Buster"] =			{strength = 25,	short_range_radar = 6000,	create = stockTemplate},
+		["Stalker Q7"] =		{strength = 25,	short_range_radar = 5000,	create = stockTemplate},
+		["Stalker R7"] =		{strength = 25,	short_range_radar = 5000,	create = stockTemplate},
+		["Whirlwind"] =			{strength = 26,	short_range_radar = 6000,	create = whirlwind},
+		["Hunter"] =			{strength = 26,	short_range_radar = 5500,	create = stockTemplate},
+		["Adv. Striker"] =		{strength = 27,	short_range_radar = 5000,	create = stockTemplate},
+		["Tempest"] =			{strength = 30,	short_range_radar = 6000,	create = tempest},
+		["Strikeship"] =		{strength = 30,	short_range_radar = 5000,	create = stockTemplate},
+		["Maniapak"] =			{strength = 34,	short_range_radar = 6000,	create = maniapak},
+		["Fiend G4"] =			{strength = 35,	short_range_radar = 6500,	create = stockTemplate},
+		["Cucaracha"] =			{strength = 36,	short_range_radar = 5000,	create = cucaracha},
+		["Fiend G6"] =			{strength = 39,	short_range_radar = 6500,	create = stockTemplate},
+		["Predator"] =			{strength = 42,	short_range_radar = 7500,	create = predator},
+		["Ktlitan Breaker"] =	{strength = 45,	short_range_radar = 5000,	create = stockTemplate},
+		["Hurricane"] =			{strength = 46,	short_range_radar = 6000,	create = hurricane},
+		["Ktlitan Feeder"] =	{strength = 48,	short_range_radar = 5000,	create = stockTemplate},
+		["Atlantis X23"] =		{strength = 50,	short_range_radar = 10000,	create = stockTemplate},
+		["Ktlitan Destroyer"] =	{strength = 50,	short_range_radar = 9000,	create = stockTemplate},
+		["K2 Breaker"] =		{strength = 55,	short_range_radar = 5000,	create = k2breaker},
+		["Atlantis Y42"] =		{strength = 60,	short_range_radar = 10000,	create = atlantisY42},
+		["Blockade Runner"] =	{strength = 63,	short_range_radar = 5500,	create = stockTemplate},
+		["Starhammer II"] =		{strength = 70,	short_range_radar = 10000,	create = stockTemplate},
+		["Enforcer"] =			{strength = 75,	short_range_radar = 9000,	create = enforcer},
+		["Dreadnought"] =		{strength = 80,	short_range_radar = 9000,	create = stockTemplate},
+		["Starhammer III"] =	{strength = 85,	short_range_radar = 12000,	create = starhammerIII},
+		["Starhammer V"] =		{strength = 90,	short_range_radar = 15000,	create = starhammerV},
+		["Tyr"] =				{strength = 150,short_range_radar = 9500,	create = tyr},
+	}
+	formation_delta = {
+		["square"] = {
+			x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4},
+			y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2,3,-3,0, 0,3,-3,1, 1, 3,-3,-1,-1,3,-3,2, 2, 3,-3,-2,-2,3,-3, 3,-3,0,4, 0,-4,4,-4,-4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4,0, 0,5,-5,5,-5, 5,-5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5},
+		},
+		["hexagonal"] = {
+			x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0},
+			y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6},
+		},
+		["pyramid"] = {
+			[1] = {
+				{angle =  0, distance = 0},
+			},
+			[2] = {
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+			},
+			[3] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},				
+			},
+			[4] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle =  0, distance = 2},	
+			},
+			[5] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+			},
+			[6] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+			},
+			[7] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[8] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+			},
+			[9] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -4, distance = 4},
+				{angle =  4, distance = 4},
+			},
+			[10] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -2, distance = 3},
+				{angle =  2, distance = 3},
+			},
+			[11] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -4, distance = 4},
+				{angle =  4, distance = 4},
+				{angle = -3, distance = 4},
+				{angle =  3, distance = 4},
+			},
+			[12] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle = -2, distance = 3},
+				{angle =  2, distance = 3},
+				{angle = -1, distance = 3},
+				{angle =  1, distance = 3},
+			},
+			[13] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 3},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+			[14] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 4},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+			[15] = {
+				{angle =  0, distance = 0},
+				{angle = -1, distance = 1},
+				{angle =  1, distance = 1},
+				{angle = -2, distance = 2},
+				{angle =  2, distance = 2},
+				{angle =  0, distance = 2},	
+				{angle = -3, distance = 3},
+				{angle =  3, distance = 3},
+				{angle =  0, distance = 3},
+				{angle =  0, distance = 4},
+				{angle = -2, distance = 4},
+				{angle =  2, distance = 4},
+				{angle = -1, distance = 5},
+				{angle =  1, distance = 5},
+				{angle =  0, distance = 6},
+			},
+		},
+	}
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
 	playerShipNamesForPiranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
@@ -6948,239 +7186,93 @@ function neutralComms(comms_data)
 	end	--end non-freighter communications else branch
 	return true
 end	--end neutral communications function
---	Non-standard enemy ships
-function adderMk3(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK4"):orderRoaming()
-	ship:setTypeName("Adder MK3")
-	ship:setHullMax(35)		--weaker hull (vs 40)
-	ship:setHull(35)
-	ship:setShieldsMax(15)	--weaker shield (vs 20)
-	ship:setShields(15)
-	ship:setRotationMaxSpeed(35)	--faster maneuver (vs 20)
-	local ships_key = _("scienceDB","Ships")
-	local fighter_key = _("scienceDB","Starfighter")
-	local adder_3_key = _("scienceDB","Adder MK3")
-	local adder_4_key = _("scienceDB","Adder MK4")
-	local adder_3_db = queryScienceDatabase(ships_key,fighter_key,adder_3_key)
-	if adder_3_db == nil then
-		local fighter_db = queryScienceDatabase(ships_key,fighter_key)
-		if fighter_db ~= nil then
-			fighter_db:addEntry(adder_3_key)
-			adder_3_db = queryScienceDatabase(ships_key,fighter_key,adder_3_key)
-			local tube_key = _("scienceDB","Small tube 0")
-			local load_val = _("scienceDB","20 sec")
-			addShipToDatabase(
-				queryScienceDatabase(ships_key,fighter_key,adder_4_key),	--base ship database entry
-				queryScienceDatabase(ships_key,fighter_key,adder_3_key),	--modified ship database entry
-				ship,			--ship just created, long description on the next line
-				_("scienceDB", "The Adder MK3 is one of the first of the Adder line to meet with some success. A large number of them were made before the manufacturer went through its first bankruptcy. There has been a recent surge of purchases of the Adder MK3 in the secondary market due to its low price and its similarity to subsequent models. Compared to the Adder MK4, the Adder MK3 has weaker shields and hull, but a faster turn speed"),
-				{
-					{key = tube_key, value = load_val},	--torpedo tube direction and load speed
-				},
-				nil
-			)
+function getTemplatePool(max_strength)
+	local function getStrengthSort(tbl, sortFunction)
+		local keys = {}
+		for key in pairs(tbl) do
+			table.insert(keys,key)
 		end
+		table.sort(keys, function(a,b)
+			return sortFunction(tbl[a], tbl[b])
+		end)
+		return keys
 	end
-	return ship
-end
-function adderMk7(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK6"):orderRoaming()
-	ship:setTypeName("Adder MK7")
-	ship:setShieldsMax(40)	--stronger shields (vs 30)
-	ship:setShields(40)
-	ship:setBeamWeapon(0,30,0,900,5.0,2.0)	--narrower (30 vs 35) but longer (900 vs 800) beam
-	if queryScienceDatabase("Ships","Starfighter","Adder MK7") == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Adder MK7")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK6"),	--base ship database entry
-			queryScienceDatabase("Ships","Starfighter","Adder MK7"),	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			_("scienceDB", "The release of the Adder Mark 7 sent the manufacturer into a second bankruptcy. They made improvements to the Mark 7 over the Mark 6 like stronger shields and longer beams, but the popularity of their previous models, especially the Mark 5, prevented them from raising the purchase price enough to recoup the development and manufacturing costs of the Mark 7"),
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil
-		)
-	end
-	return ship
-end
-function adderMk8(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming()
-	ship:setTypeName("Adder MK8")
-	ship:setShieldsMax(50)					--stronger shields (vs 30)
-	ship:setShields(50)
-	ship:setBeamWeapon(0,30,0,900,5.0,2.3)	--narrower (30 vs 35) but longer (900 vs 800) and stronger (2.3 vs 2.0) beam
-	ship:setRotationMaxSpeed(30)			--faster maneuver (vs 25)
-	if queryScienceDatabase("Ships","Starfighter","Adder MK8") == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Adder MK8")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			queryScienceDatabase("Ships","Starfighter","Adder MK8"),	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			_("scienceDB", "New management after bankruptcy revisited their most popular Adder Mark 5 model with improvements: stronger shields, longer and stronger beams and a faster turn speed. Thus was born the Adder Mark 8 model. Targeted to the practical but nostalgic buyer who must purchase replacements for their Adder Mark 5 fleet"),
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil
-		)
-	end
-	return ship
-end
-function phobosR2(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming()
-	ship:setTypeName("Phobos R2")
-	ship:setWeaponTubeCount(1)			--one tube (vs 2)
-	ship:setWeaponTubeDirection(0,0)	
-	ship:setImpulseMaxSpeed(55)			--slower impulse (vs 60)
-	ship:setRotationMaxSpeed(15)		--faster maneuver (vs 10)
-	if queryScienceDatabase("Ships","Frigate","Phobos R2") == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Phobos R2")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			queryScienceDatabase("Ships","Frigate","Phobos R2"),	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			_("scienceDB", "The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube"),
-			{
-				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
-			},
-			nil
-		)
-	end
-	return ship
-end
-function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,jump_range)
-	modified_db:setLongDescription(description)
-	modified_db:setImage(base_db:getImage())
-	modified_db:setKeyValue("Class",base_db:getKeyValue("Class"))
-	modified_db:setKeyValue("Sub-class",base_db:getKeyValue("Sub-class"))
-	modified_db:setKeyValue("Size",base_db:getKeyValue("Size"))
-	local shields = ship:getShieldCount()
-	if shields > 0 then
-		local shield_string = ""
-		for i=1,shields do
-			if shield_string == "" then
-				shield_string = string.format(_("%i"),math.floor(ship:getShieldMax(i-1)))
-			else
-				shield_string = string.format(_("%s/%i"),shield_string,math.floor(ship:getShieldMax(i-1)))
+	local ship_template_by_strength = getStrengthSort(ship_template, function(a,b)
+		return a.strength > b.strength
+	end)
+	local template_pool = {}
+	if pool_selectivity == "less/heavy" then
+		for _, current_ship_template in ipairs(ship_template_by_strength) do
+			if ship_template[current_ship_template].strength <= max_strength then
+				table.insert(template_pool,current_ship_template)
+			end
+			if #template_pool >= 5 then
+				break
 			end
 		end
-		modified_db:setKeyValue("Shield",shield_string)
-	end
-	modified_db:setKeyValue("Hull",string.format(_("scienceDB", "%i"),math.floor(ship:getHullMax())))
-	modified_db:setKeyValue("Move speed",string.format(_("scienceDB", "%.1f u/min"),ship:getImpulseMaxSpeed()*60/1000))
-	modified_db:setKeyValue("Turn speed",string.format(_("scienceDB", "%.1f deg/sec"),ship:getRotationMaxSpeed()))
-	if ship:hasJumpDrive() then
-		if jump_range == nil then
-			local base_jump_range = base_db:getKeyValue("Jump range")
-			if base_jump_range ~= nil and base_jump_range ~= "" then
-				modified_db:setKeyValue("Jump range",base_jump_range)
-			else
-				modified_db:setKeyValue("Jump range","5 - 50 u")
+	elseif pool_selectivity == "more/light" then
+		for i=#ship_template_by_strength,1,-1 do
+			local current_ship_template = ship_template_by_strength[i]
+			if ship_template[current_ship_template].strength <= max_strength then
+				table.insert(template_pool,current_ship_template)
 			end
-		else
-			modified_db:setKeyValue("Jump range",jump_range)
-		end
-	end
-	if ship:hasWarpDrive() then
-		modified_db:setKeyValue(_("scienceDB", "Warp Speed"),string.format(_("scienceDB", "%.1f u/min"),ship:getWarpSpeed()*60/1000))
-	end
-	local key = ""
-	if ship:getBeamWeaponRange(0) > 0 then
-		local bi = 0
-		repeat
-			local beam_direction = ship:getBeamWeaponDirection(bi)
-			if beam_direction > 315 and beam_direction < 360 then
-				beam_direction = beam_direction - 360
-			end
-			key = string.format(_("scienceDB", "Beam weapon %i:%i"),ship:getBeamWeaponDirection(bi),ship:getBeamWeaponArc(bi))
-			while(modified_db:getKeyValue(key) ~= "") do
-				key = " " .. key
-			end
-			modified_db:setKeyValue(key,string.format(_("scienceDB", "%.1f Dmg / %.1f sec"),ship:getBeamWeaponDamage(bi),ship:getBeamWeaponCycleTime(bi)))
-			bi = bi + 1
-		until(ship:getBeamWeaponRange(bi) < 1)
-	end
-	local tubes = ship:getWeaponTubeCount()
-	if tubes > 0 then
-		if tube_directions ~= nil then
-			for i=1,#tube_directions do
-				modified_db:setKeyValue(tube_directions[i].key,tube_directions[i].value)
+			if #template_pool >= 20 then
+				break
 			end
 		end
-		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
-		for i, missile_type in ipairs(missile_types) do
-			local max_storage = ship:getWeaponStorageMax(missile_type)
-			if max_storage > 0 then
-				modified_db:setKeyValue(string.format(_("scienceDB", "Storage %s"),missile_type),string.format("%i",max_storage))
+	else	--full
+		for current_ship_template, details in pairs(ship_template) do
+			if details.strength <= max_strength then
+				table.insert(template_pool,current_ship_template)
 			end
 		end
 	end
+	return template_pool
 end
-function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, perimeter_min, perimeter_max)
-	if spawn_enemy_diagnostic then print("top of spawnEnemies function") end
+function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, perimeter_min, perimeter_max, shape)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
 	end
 	if danger == nil then 
 		danger = 1
 	end
-	if spawn_enemy_diagnostic then print(string.format("x: %.1f, y: %.1f, danger: %.1f, faction: %s",xOrigin,yOrigin,danger,enemyFaction)) end
 	local enemyStrength = math.max(danger * enemy_power * playerPower(),5)
-	local enemyPosition = 0
+	local template_pool = getTemplatePool(enemyStrength)
+	if #template_pool < 1 then
+		addGMMessage(_("msgGM", "Empty Template pool: fix excludes or other criteria"))
+		return enemyList
+	end
+	local enemy_position = 0
 	local sp = irandom(400,900)			--random spacing of spawned group
-	local deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
-	if spawn_enemy_diagnostic then print(string.format("enemy strength: %.1f, spacing: %i, deploy config: %.1f",enemyStrength,sp,deployConfig)) end
+	if shape == nil then
+		local shape_choices = {"square","hexagonal"}
+		shape = shape_choices[math.random(1,#shape_choices)]
+	end
 	local enemyList = {}
-	-- Reminder: stsl and stnl are ship template score and name list
-	local prefix = generateCallSignPrefix(1)
 	while enemyStrength > 0 do
-		if spawn_enemy_diagnostic then print("top of spawn while loop") end
-		local shipTemplateType = irandom(1,#stsl)
-		if spawn_enemy_diagnostic then print(string.format("temporary ship template type: %s",shipTemplateType)) end
-		while stsl[shipTemplateType] > enemyStrength * 1.1 + 5 do
-			shipTemplateType = irandom(1,#stsl)
-			if spawn_enemy_diagnostic then print(string.format("temporary ship template type: %s",shipTemplateType)) end
-		end		
-		if spawn_enemy_diagnostic then print(string.format("chosen ship template type: %s",shipTemplateType)) end
-		local ship = nil
-		if stbl[shipTemplateType] then
-			ship = CpuShip():setFaction(enemyFaction):setTemplate(stnl[shipTemplateType]):orderRoaming()
-		else
-			ship = nsfl[shipTemplateType](enemyFaction)
-		end
-		enemyPosition = enemyPosition + 1
-		if deployConfig < 50 then
-			ship:setPosition(xOrigin+fleetPosDelta1x[enemyPosition]*sp,yOrigin+fleetPosDelta1y[enemyPosition]*sp)
-		else
-			ship:setPosition(xOrigin+fleetPosDelta2x[enemyPosition]*sp,yOrigin+fleetPosDelta2y[enemyPosition]*sp)
-		end
+		local selected_template = template_pool[math.random(1,#template_pool)]
+		local ship = ship_template[selected_template].create(enemyFaction,selected_template)
+		enemy_position = enemy_position + 1
+		ship:setPosition(xOrigin + formation_delta[shape].x[enemy_position] * sp, yOrigin + formation_delta[shape].y[enemy_position] * sp)
+		ship:setCallSign(generateCallSign(nil,enemyFaction))
 		ship:setCommsScript(""):setCommsFunction(commsShip)
+		ship:orderIdle()
 		table.insert(enemyList, ship)
-		enemyStrength = enemyStrength - stsl[shipTemplateType]
-		ship:setCallSign(generateCallSign(prefix))
-		if spawn_enemy_diagnostic then print(string.format("Adjusted enemy strength (loop control): %.1f",enemyStrength)) end
-		if spawn_enemy_diagnostic then print("end of spawn while loop") end
+		enemyStrength = enemyStrength - ship_template[selected_template].strength
 	end
 	if perimeter_min ~= nil then
-		if spawn_enemy_diagnostic then print("perimeter minimum is not nil") end
 		local enemy_angle = random(0,360)
 		local circle_increment = 360/#enemyList
 		local perimeter_deploy = perimeter_min
-		if spawn_enemy_diagnostic then print(string.format("enemy angle: %.1f, circle increment: %.1f, perimeter deploy: %i",enemy_angle,circle_increment,perimeter_deploy)) end
 		if perimeter_max ~= nil then
 			perimeter_deploy = random(perimeter_min,perimeter_max)
 		end
 		for i, enemy in pairs(enemyList) do
 			local dex, dey = vectorFromAngle(enemy_angle,perimeter_deploy)
 			enemy:setPosition(xOrigin+dex, yOrigin+dey)
-			if spawn_enemy_diagnostic then print(string.format("deploy coordinates: x: %.1f, y: %.f, angle: %.1f",xOrigin+dex,yOrigin+dey,enemy_angle)) end
 			enemy_angle = enemy_angle + circle_increment
 		end
 	end
-	if spawn_enemy_diagnostic then print("end of spawn spawn enemies function") end
 	return enemyList
 end
 function playerPower()
