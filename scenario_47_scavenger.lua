@@ -17,9 +17,10 @@ require("utils.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 require("place_station_scenario_utility.lua")
 require("generate_call_sign_scenario_utility.lua")
+require("spawn_ships_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.1.0"
+	scenario_version = "1.1.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Scurvy Scavenger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -184,7 +185,7 @@ function init()
 		tempTransport:setCallSign(generateCallSign(prefix))
 		table.insert(transports_around_independent_trio,tempTransport)
 	end
-	initialGMButtons()
+	mainGMButtons()
 --	print("end of init")
 	allowNewPlayerShips(false)
 end
@@ -616,7 +617,7 @@ function setInitialContractDetails()
 		func = complete2to3delivery,
 	}
 end
-function initialGMButtons()
+function mainGMButtons()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM", "+Missions"),missionSelection)
 	addGMFunction(_("buttonGM", "Show delta sum"),function()
@@ -633,10 +634,11 @@ function initialGMButtons()
 		end
 		addGMMessage(gm_message)
 	end)
+	addGMFunction(_("buttonGM","+Spawn Ship(s)"),spawnGMShips)
 end
 function missionSelection()
 	clearGMFunctions()
-	addGMFunction(_("buttonGM", "-Main from missions"),initialGMButtons)
+	addGMFunction(_("buttonGM", "-Main from missions"),mainGMButtons)
 	if plot1 ~= nil and plot1 ~= kraylorDiversionarySabotage then
 		addGMFunction(_("buttonGM", "Skip Harassment"),function()
 			player = getPlayerShip(-1)
@@ -1459,9 +1461,7 @@ function stationComponentGood(component_station,preferred_good)
 	if efficient_battery_diagnostic then print("Good added to station: " .. preferred_good) end
 	return preferred_good
 end
-----------------------------------
---	Artifact pick up functions  --
-----------------------------------
+--	Artifact pick up functions
 function burnOutArtifactPickup(self, picker)
 	if self:isScannedBy(picker) then
 		picker:setSystemHealth("beamweapons",picker:getSystemHealth("beamweapons") - 1)
