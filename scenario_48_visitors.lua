@@ -56,7 +56,7 @@ require("spawn_ships_scenario_utility.lua")
 require("control_code_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.8"
+	scenario_version = "2.0.9"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -100,8 +100,8 @@ function mainGMButtons()
 	addGMFunction(_("buttonGM","+Adjust speed"),adjustSpeedGMButtons)
 	addGMFunction(_("buttonGM","+End Mission"),endMissionGMButtons)
 	addGMFunction(_("buttonGM","+Voices"),adjustServerVoices)
-	addGMFunction("+Spawn Ship(s)",spawnGMShips)
-	addGMFunction("+Control Codes",manageControlCodes)
+	addGMFunction(_("buttonGM","+Spawn Ship(s)"),spawnGMShips)
+	addGMFunction(_("buttonGM","+Control Codes"),manageControlCodes)
 end
 -- GM player ship functions
 function playerShipGMButtons()
