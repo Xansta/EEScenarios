@@ -63,7 +63,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.16.1"
+	scenario_version = "6.16.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -859,6 +859,524 @@ function setConstants()
 						{angle = 210, dist = 3	},
 						{angle = 270, dist = 3	},
 					},
+		["O"] =		{
+						{angle = 0,		dist = 1},					--1
+						{angle = 120,	dist = 1},					--2
+						{angle = 240,	dist = 1},					--3
+						{angle = 60,	dist = 1},					--4
+						{angle = 180,	dist = 1},					--5
+						{angle = 300,	dist = 1},					--6
+					},
+		["O2R"] =	{
+						{angle = 0,		dist = 1},					--1
+						{angle = 120,	dist = 1},					--2
+						{angle = 240,	dist = 1},					--3
+						{angle = 60,	dist = 1},					--4
+						{angle = 180,	dist = 1},					--5
+						{angle = 300,	dist = 1},					--6
+						{angle = 0,		dist = 2},					--7
+						{angle = 120,	dist = 2},					--8
+						{angle = 240,	dist = 2},					--9
+						{angle = 60,	dist = 2},					--10
+						{angle = 180,	dist = 2},					--11
+						{angle = 300,	dist = 2},					--12
+						{angle = 30,	dist = 1.7320508075689},	--13
+						{angle = 150,	dist = 1.7320508075689},	--14
+						{angle = 270,	dist = 1.7320508075689},	--15
+						{angle = 90,	dist = 1.7320508075689},	--16
+						{angle = 210,	dist = 1.7320508075689},	--17
+						{angle = 330,	dist = 1.7320508075689},	--18
+					},
+		["O3R"] =	{
+						{angle = 0,		dist = 1},					--1
+						{angle = 120,	dist = 1},					--2
+						{angle = 240,	dist = 1},					--3
+						{angle = 60,	dist = 1},					--4
+						{angle = 180,	dist = 1},					--5
+						{angle = 300,	dist = 1},					--6
+						{angle = 0,		dist = 2},					--7
+						{angle = 120,	dist = 2},					--8
+						{angle = 240,	dist = 2},					--9
+						{angle = 60,	dist = 2},					--10
+						{angle = 180,	dist = 2},					--11
+						{angle = 300,	dist = 2},					--12
+						{angle = 30,	dist = 1.7320508075689},	--13
+						{angle = 150,	dist = 1.7320508075689},	--14
+						{angle = 270,	dist = 1.7320508075689},	--15
+						{angle = 90,	dist = 1.7320508075689},	--16
+						{angle = 210,	dist = 1.7320508075689},	--17
+						{angle = 330,	dist = 1.7320508075689},	--18
+						{angle = 0,		dist = 3},					--19
+						{angle = 120,	dist = 3},					--20
+						{angle = 240,	dist = 3},					--21
+						{angle = 60,	dist = 3},					--22
+						{angle = 180,	dist = 3},					--23
+						{angle = 300,	dist = 3},					--24
+						{angle = 20,	dist = 2.645751310646},		--25
+						{angle = 140,	dist = 2.645751310646},		--26
+						{angle = 260,	dist = 2.645751310646},		--27
+						{angle = 80,	dist = 2.645751310646},		--28
+						{angle = 200,	dist = 2.645751310646},		--29
+						{angle = 320,	dist = 2.645751310646},		--30
+						{angle = 40,	dist = 2.645751310646},		--31
+						{angle = 160,	dist = 2.645751310646},		--32
+						{angle = 280,	dist = 2.645751310646},		--33
+						{angle = 100,	dist = 2.645751310646},		--34
+						{angle = 220,	dist = 2.645751310646},		--35
+						{angle = 340,	dist = 2.645751310646},		--36
+					},
+		["O4R"] =	{
+						{angle = 0,		dist = 1},					--1
+						{angle = 120,	dist = 1},					--2
+						{angle = 240,	dist = 1},					--3
+						{angle = 60,	dist = 1},					--4
+						{angle = 180,	dist = 1},					--5
+						{angle = 300,	dist = 1},					--6
+						{angle = 0,		dist = 2},					--7
+						{angle = 120,	dist = 2},					--8
+						{angle = 240,	dist = 2},					--9
+						{angle = 60,	dist = 2},					--10
+						{angle = 180,	dist = 2},					--11
+						{angle = 300,	dist = 2},					--12
+						{angle = 30,	dist = 1.7320508075689},	--13
+						{angle = 150,	dist = 1.7320508075689},	--14
+						{angle = 270,	dist = 1.7320508075689},	--15
+						{angle = 90,	dist = 1.7320508075689},	--16
+						{angle = 210,	dist = 1.7320508075689},	--17
+						{angle = 330,	dist = 1.7320508075689},	--18
+						{angle = 0,		dist = 3},					--19
+						{angle = 120,	dist = 3},					--20
+						{angle = 240,	dist = 3},					--21
+						{angle = 60,	dist = 3},					--22
+						{angle = 180,	dist = 3},					--23
+						{angle = 300,	dist = 3},					--24
+						{angle = 20,	dist = 2.645751310646},		--25
+						{angle = 140,	dist = 2.645751310646},		--26
+						{angle = 260,	dist = 2.645751310646},		--27
+						{angle = 80,	dist = 2.645751310646},		--28
+						{angle = 200,	dist = 2.645751310646},		--29
+						{angle = 320,	dist = 2.645751310646},		--30
+						{angle = 40,	dist = 2.645751310646},		--31
+						{angle = 160,	dist = 2.645751310646},		--32
+						{angle = 280,	dist = 2.645751310646},		--33
+						{angle = 100,	dist = 2.645751310646},		--34
+						{angle = 220,	dist = 2.645751310646},		--35
+						{angle = 340,	dist = 2.645751310646},		--36
+						{angle = 0,		dist = 4},					--37
+						{angle = 120,	dist = 4},					--37
+						{angle = 240,	dist = 4},					--37
+						{angle = 60,	dist = 4},					--38
+						{angle = 180,	dist = 4},					--39
+						{angle = 300,	dist = 4},					--40
+						{angle = 30,	dist = 3.4641016151378},	--41
+						{angle = 150,	dist = 3.4641016151378},	--42
+						{angle = 270,	dist = 3.4641016151378},	--43
+						{angle = 90,	dist = 3.4641016151378},	--44
+						{angle = 210,	dist = 3.4641016151378},	--45
+						{angle = 330,	dist = 3.4641016151378},	--46
+						{angle = 15,	dist = 3.605551275464},		--47
+						{angle = 135,	dist = 3.605551275464},		--48
+						{angle = 255,	dist = 3.605551275464},		--49
+						{angle = 75,	dist = 3.605551275464},		--50
+						{angle = 195,	dist = 3.605551275464},		--51
+						{angle = 315,	dist = 3.605551275464},		--52
+						{angle = 45,	dist = 3.605551275464},		--53
+						{angle = 165,	dist = 3.605551275464},		--54
+						{angle = 285,	dist = 3.605551275464},		--55
+						{angle = 105,	dist = 3.605551275464},		--56
+						{angle = 225,	dist = 3.605551275464},		--57
+						{angle = 345,	dist = 3.605551275464},		--58
+					},
+		["O5R"] =	{
+						{angle = 0,		dist = 1},					--1
+						{angle = 120,	dist = 1},					--2
+						{angle = 240,	dist = 1},					--3
+						{angle = 60,	dist = 1},					--4
+						{angle = 180,	dist = 1},					--5
+						{angle = 300,	dist = 1},					--6
+						{angle = 0,		dist = 2},					--7
+						{angle = 120,	dist = 2},					--8
+						{angle = 240,	dist = 2},					--9
+						{angle = 60,	dist = 2},					--10
+						{angle = 180,	dist = 2},					--11
+						{angle = 300,	dist = 2},					--12
+						{angle = 30,	dist = 1.7320508075689},	--13
+						{angle = 150,	dist = 1.7320508075689},	--14
+						{angle = 270,	dist = 1.7320508075689},	--15
+						{angle = 90,	dist = 1.7320508075689},	--16
+						{angle = 210,	dist = 1.7320508075689},	--17
+						{angle = 330,	dist = 1.7320508075689},	--18
+						{angle = 0,		dist = 3},					--19
+						{angle = 120,	dist = 3},					--20
+						{angle = 240,	dist = 3},					--21
+						{angle = 60,	dist = 3},					--22
+						{angle = 180,	dist = 3},					--23
+						{angle = 300,	dist = 3},					--24
+						{angle = 20,	dist = 2.645751310646},		--25
+						{angle = 140,	dist = 2.645751310646},		--26
+						{angle = 260,	dist = 2.645751310646},		--27
+						{angle = 80,	dist = 2.645751310646},		--28
+						{angle = 200,	dist = 2.645751310646},		--29
+						{angle = 320,	dist = 2.645751310646},		--30
+						{angle = 40,	dist = 2.645751310646},		--31
+						{angle = 160,	dist = 2.645751310646},		--32
+						{angle = 280,	dist = 2.645751310646},		--33
+						{angle = 100,	dist = 2.645751310646},		--34
+						{angle = 220,	dist = 2.645751310646},		--35
+						{angle = 340,	dist = 2.645751310646},		--36
+						{angle = 0,		dist = 4},					--37
+						{angle = 120,	dist = 4},					--37
+						{angle = 240,	dist = 4},					--37
+						{angle = 60,	dist = 4},					--38
+						{angle = 180,	dist = 4},					--39
+						{angle = 300,	dist = 4},					--40
+						{angle = 30,	dist = 3.4641016151378},	--41
+						{angle = 150,	dist = 3.4641016151378},	--42
+						{angle = 270,	dist = 3.4641016151378},	--43
+						{angle = 90,	dist = 3.4641016151378},	--44
+						{angle = 210,	dist = 3.4641016151378},	--45
+						{angle = 330,	dist = 3.4641016151378},	--46
+						{angle = 15,	dist = 3.605551275464},		--47
+						{angle = 135,	dist = 3.605551275464},		--48
+						{angle = 255,	dist = 3.605551275464},		--49
+						{angle = 75,	dist = 3.605551275464},		--50
+						{angle = 195,	dist = 3.605551275464},		--51
+						{angle = 315,	dist = 3.605551275464},		--52
+						{angle = 45,	dist = 3.605551275464},		--53
+						{angle = 165,	dist = 3.605551275464},		--54
+						{angle = 285,	dist = 3.605551275464},		--55
+						{angle = 105,	dist = 3.605551275464},		--56
+						{angle = 225,	dist = 3.605551275464},		--57
+						{angle = 345,	dist = 3.605551275464},		--58
+						{angle = 0,		dist = 5},					--59
+						{angle = 120,	dist = 5},					--60
+						{angle = 240,	dist = 5},					--61
+						{angle = 60,	dist = 5},					--62
+						{angle = 180,	dist = 5},					--63
+						{angle = 300,	dist = 5},					--64
+						{angle = 12,	dist = 4.5825756949558},	--65
+						{angle = 132,	dist = 4.5825756949558},	--66
+						{angle = 252,	dist = 4.5825756949558},	--67
+						{angle = 72,	dist = 4.5825756949558},	--68
+						{angle = 192,	dist = 4.5825756949558},	--69
+						{angle = 312,	dist = 4.5825756949558},	--70
+						{angle = 48,	dist = 4.5825756949558},	--71
+						{angle = 168,	dist = 4.5825756949558},	--72
+						{angle = 288,	dist = 4.5825756949558},	--73
+						{angle = 108,	dist = 4.5825756949558},	--74
+						{angle = 228,	dist = 4.5825756949558},	--75
+						{angle = 348,	dist = 4.5825756949558},	--76
+						{angle = 24,	dist = 4.3588989435407},	--77
+						{angle = 144,	dist = 4.3588989435407},	--78
+						{angle = 264,	dist = 4.3588989435407},	--79
+						{angle = 84,	dist = 4.3588989435407},	--80
+						{angle = 204,	dist = 4.3588989435407},	--81
+						{angle = 324,	dist = 4.3588989435407},	--82
+						{angle = 36,	dist = 4.3588989435407},	--83
+						{angle = 156,	dist = 4.3588989435407},	--84
+						{angle = 276,	dist = 4.3588989435407},	--85
+						{angle = 96,	dist = 4.3588989435407},	--86
+						{angle = 216,	dist = 4.3588989435407},	--87
+						{angle = 336,	dist = 4.3588989435407},	--88
+					},
+		["O6R"] =	{
+						{angle = 0,		dist = 1},					--1
+						{angle = 120,	dist = 1},					--2
+						{angle = 240,	dist = 1},					--3
+						{angle = 60,	dist = 1},					--4
+						{angle = 180,	dist = 1},					--5
+						{angle = 300,	dist = 1},					--6
+						{angle = 0,		dist = 2},					--7
+						{angle = 120,	dist = 2},					--8
+						{angle = 240,	dist = 2},					--9
+						{angle = 60,	dist = 2},					--10
+						{angle = 180,	dist = 2},					--11
+						{angle = 300,	dist = 2},					--12
+						{angle = 30,	dist = 1.7320508075689},	--13
+						{angle = 150,	dist = 1.7320508075689},	--14
+						{angle = 270,	dist = 1.7320508075689},	--15
+						{angle = 90,	dist = 1.7320508075689},	--16
+						{angle = 210,	dist = 1.7320508075689},	--17
+						{angle = 330,	dist = 1.7320508075689},	--18
+						{angle = 0,		dist = 3},					--19
+						{angle = 120,	dist = 3},					--20
+						{angle = 240,	dist = 3},					--21
+						{angle = 60,	dist = 3},					--22
+						{angle = 180,	dist = 3},					--23
+						{angle = 300,	dist = 3},					--24
+						{angle = 20,	dist = 2.645751310646},		--25
+						{angle = 140,	dist = 2.645751310646},		--26
+						{angle = 260,	dist = 2.645751310646},		--27
+						{angle = 80,	dist = 2.645751310646},		--28
+						{angle = 200,	dist = 2.645751310646},		--29
+						{angle = 320,	dist = 2.645751310646},		--30
+						{angle = 40,	dist = 2.645751310646},		--31
+						{angle = 160,	dist = 2.645751310646},		--32
+						{angle = 280,	dist = 2.645751310646},		--33
+						{angle = 100,	dist = 2.645751310646},		--34
+						{angle = 220,	dist = 2.645751310646},		--35
+						{angle = 340,	dist = 2.645751310646},		--36
+						{angle = 0,		dist = 4},					--37
+						{angle = 120,	dist = 4},					--37
+						{angle = 240,	dist = 4},					--37
+						{angle = 60,	dist = 4},					--38
+						{angle = 180,	dist = 4},					--39
+						{angle = 300,	dist = 4},					--40
+						{angle = 30,	dist = 3.4641016151378},	--41
+						{angle = 150,	dist = 3.4641016151378},	--42
+						{angle = 270,	dist = 3.4641016151378},	--43
+						{angle = 90,	dist = 3.4641016151378},	--44
+						{angle = 210,	dist = 3.4641016151378},	--45
+						{angle = 330,	dist = 3.4641016151378},	--46
+						{angle = 15,	dist = 3.605551275464},		--47
+						{angle = 135,	dist = 3.605551275464},		--48
+						{angle = 255,	dist = 3.605551275464},		--49
+						{angle = 75,	dist = 3.605551275464},		--50
+						{angle = 195,	dist = 3.605551275464},		--51
+						{angle = 315,	dist = 3.605551275464},		--52
+						{angle = 45,	dist = 3.605551275464},		--53
+						{angle = 165,	dist = 3.605551275464},		--54
+						{angle = 285,	dist = 3.605551275464},		--55
+						{angle = 105,	dist = 3.605551275464},		--56
+						{angle = 225,	dist = 3.605551275464},		--57
+						{angle = 345,	dist = 3.605551275464},		--58
+						{angle = 0,		dist = 5},					--59
+						{angle = 120,	dist = 5},					--60
+						{angle = 240,	dist = 5},					--61
+						{angle = 60,	dist = 5},					--62
+						{angle = 180,	dist = 5},					--63
+						{angle = 300,	dist = 5},					--64
+						{angle = 12,	dist = 4.5825756949558},	--65
+						{angle = 132,	dist = 4.5825756949558},	--66
+						{angle = 252,	dist = 4.5825756949558},	--67
+						{angle = 72,	dist = 4.5825756949558},	--68
+						{angle = 192,	dist = 4.5825756949558},	--69
+						{angle = 312,	dist = 4.5825756949558},	--70
+						{angle = 48,	dist = 4.5825756949558},	--71
+						{angle = 168,	dist = 4.5825756949558},	--72
+						{angle = 288,	dist = 4.5825756949558},	--73
+						{angle = 108,	dist = 4.5825756949558},	--74
+						{angle = 228,	dist = 4.5825756949558},	--75
+						{angle = 348,	dist = 4.5825756949558},	--76
+						{angle = 24,	dist = 4.3588989435407},	--77
+						{angle = 144,	dist = 4.3588989435407},	--78
+						{angle = 264,	dist = 4.3588989435407},	--79
+						{angle = 84,	dist = 4.3588989435407},	--80
+						{angle = 204,	dist = 4.3588989435407},	--81
+						{angle = 324,	dist = 4.3588989435407},	--82
+						{angle = 36,	dist = 4.3588989435407},	--83
+						{angle = 156,	dist = 4.3588989435407},	--84
+						{angle = 276,	dist = 4.3588989435407},	--85
+						{angle = 96,	dist = 4.3588989435407},	--86
+						{angle = 216,	dist = 4.3588989435407},	--87
+						{angle = 336,	dist = 4.3588989435407},	--88
+						{angle = 0,		dist = 6},					--89
+						{angle = 120,	dist = 6},					--90
+						{angle = 240,	dist = 6},					--91
+						{angle = 60,	dist = 6},					--92
+						{angle = 180,	dist = 6},					--93
+						{angle = 300,	dist = 6},					--94
+						{angle = 10,	dist = 5.56776436283},		--95
+						{angle = 130,	dist = 5.56776436283},		--96
+						{angle = 250,	dist = 5.56776436283},		--97
+						{angle = 70,	dist = 5.56776436283},		--98
+						{angle = 190,	dist = 5.56776436283},		--99
+						{angle = 310,	dist = 5.56776436283},		--100
+						{angle = 50,	dist = 5.56776436283},		--101
+						{angle = 170,	dist = 5.56776436283},		--102
+						{angle = 290,	dist = 5.56776436283},		--103
+						{angle = 110,	dist = 5.56776436283},		--104
+						{angle = 230,	dist = 5.56776436283},		--105
+						{angle = 350,	dist = 5.56776436283},		--106
+						{angle = 20,	dist = 5.2915026221292},	--107
+						{angle = 140,	dist = 5.2915026221292},	--108
+						{angle = 260,	dist = 5.2915026221292},	--109
+						{angle = 80,	dist = 5.2915026221292},	--110
+						{angle = 200,	dist = 5.2915026221292},	--111
+						{angle = 320,	dist = 5.2915026221292},	--112
+						{angle = 40,	dist = 5.2915026221292},	--113
+						{angle = 160,	dist = 5.2915026221292},	--114
+						{angle = 280,	dist = 5.2915026221292},	--115
+						{angle = 100,	dist = 5.2915026221292},	--116
+						{angle = 220,	dist = 5.2915026221292},	--117
+						{angle = 340,	dist = 5.2915026221292},	--118
+						{angle = 30,	dist = 5.1961524227066},	--119
+						{angle = 150,	dist = 5.1961524227066},	--120
+						{angle = 270,	dist = 5.1961524227066},	--121
+						{angle = 90,	dist = 5.1961524227066},	--122
+						{angle = 210,	dist = 5.1961524227066},	--123
+						{angle = 330,	dist = 5.1961524227066},	--124
+					},
+		["O7R"] =	{
+						{angle = 0,		dist = 1},					--1
+						{angle = 120,	dist = 1},					--2
+						{angle = 240,	dist = 1},					--3
+						{angle = 60,	dist = 1},					--4
+						{angle = 180,	dist = 1},					--5
+						{angle = 300,	dist = 1},					--6
+						{angle = 0,		dist = 2},					--7
+						{angle = 120,	dist = 2},					--8
+						{angle = 240,	dist = 2},					--9
+						{angle = 60,	dist = 2},					--10
+						{angle = 180,	dist = 2},					--11
+						{angle = 300,	dist = 2},					--12
+						{angle = 30,	dist = 1.7320508075689},	--13
+						{angle = 150,	dist = 1.7320508075689},	--14
+						{angle = 270,	dist = 1.7320508075689},	--15
+						{angle = 90,	dist = 1.7320508075689},	--16
+						{angle = 210,	dist = 1.7320508075689},	--17
+						{angle = 330,	dist = 1.7320508075689},	--18
+						{angle = 0,		dist = 3},					--19
+						{angle = 120,	dist = 3},					--20
+						{angle = 240,	dist = 3},					--21
+						{angle = 60,	dist = 3},					--22
+						{angle = 180,	dist = 3},					--23
+						{angle = 300,	dist = 3},					--24
+						{angle = 20,	dist = 2.645751310646},		--25
+						{angle = 140,	dist = 2.645751310646},		--26
+						{angle = 260,	dist = 2.645751310646},		--27
+						{angle = 80,	dist = 2.645751310646},		--28
+						{angle = 200,	dist = 2.645751310646},		--29
+						{angle = 320,	dist = 2.645751310646},		--30
+						{angle = 40,	dist = 2.645751310646},		--31
+						{angle = 160,	dist = 2.645751310646},		--32
+						{angle = 280,	dist = 2.645751310646},		--33
+						{angle = 100,	dist = 2.645751310646},		--34
+						{angle = 220,	dist = 2.645751310646},		--35
+						{angle = 340,	dist = 2.645751310646},		--36
+						{angle = 0,		dist = 4},					--37
+						{angle = 120,	dist = 4},					--37
+						{angle = 240,	dist = 4},					--37
+						{angle = 60,	dist = 4},					--38
+						{angle = 180,	dist = 4},					--39
+						{angle = 300,	dist = 4},					--40
+						{angle = 30,	dist = 3.4641016151378},	--41
+						{angle = 150,	dist = 3.4641016151378},	--42
+						{angle = 270,	dist = 3.4641016151378},	--43
+						{angle = 90,	dist = 3.4641016151378},	--44
+						{angle = 210,	dist = 3.4641016151378},	--45
+						{angle = 330,	dist = 3.4641016151378},	--46
+						{angle = 15,	dist = 3.605551275464},		--47
+						{angle = 135,	dist = 3.605551275464},		--48
+						{angle = 255,	dist = 3.605551275464},		--49
+						{angle = 75,	dist = 3.605551275464},		--50
+						{angle = 195,	dist = 3.605551275464},		--51
+						{angle = 315,	dist = 3.605551275464},		--52
+						{angle = 45,	dist = 3.605551275464},		--53
+						{angle = 165,	dist = 3.605551275464},		--54
+						{angle = 285,	dist = 3.605551275464},		--55
+						{angle = 105,	dist = 3.605551275464},		--56
+						{angle = 225,	dist = 3.605551275464},		--57
+						{angle = 345,	dist = 3.605551275464},		--58
+						{angle = 0,		dist = 5},					--59
+						{angle = 120,	dist = 5},					--60
+						{angle = 240,	dist = 5},					--61
+						{angle = 60,	dist = 5},					--62
+						{angle = 180,	dist = 5},					--63
+						{angle = 300,	dist = 5},					--64
+						{angle = 12,	dist = 4.5825756949558},	--65
+						{angle = 132,	dist = 4.5825756949558},	--66
+						{angle = 252,	dist = 4.5825756949558},	--67
+						{angle = 72,	dist = 4.5825756949558},	--68
+						{angle = 192,	dist = 4.5825756949558},	--69
+						{angle = 312,	dist = 4.5825756949558},	--70
+						{angle = 48,	dist = 4.5825756949558},	--71
+						{angle = 168,	dist = 4.5825756949558},	--72
+						{angle = 288,	dist = 4.5825756949558},	--73
+						{angle = 108,	dist = 4.5825756949558},	--74
+						{angle = 228,	dist = 4.5825756949558},	--75
+						{angle = 348,	dist = 4.5825756949558},	--76
+						{angle = 24,	dist = 4.3588989435407},	--77
+						{angle = 144,	dist = 4.3588989435407},	--78
+						{angle = 264,	dist = 4.3588989435407},	--79
+						{angle = 84,	dist = 4.3588989435407},	--80
+						{angle = 204,	dist = 4.3588989435407},	--81
+						{angle = 324,	dist = 4.3588989435407},	--82
+						{angle = 36,	dist = 4.3588989435407},	--83
+						{angle = 156,	dist = 4.3588989435407},	--84
+						{angle = 276,	dist = 4.3588989435407},	--85
+						{angle = 96,	dist = 4.3588989435407},	--86
+						{angle = 216,	dist = 4.3588989435407},	--87
+						{angle = 336,	dist = 4.3588989435407},	--88
+						{angle = 0,		dist = 6},					--89
+						{angle = 120,	dist = 6},					--90
+						{angle = 240,	dist = 6},					--91
+						{angle = 60,	dist = 6},					--92
+						{angle = 180,	dist = 6},					--93
+						{angle = 300,	dist = 6},					--94
+						{angle = 10,	dist = 5.56776436283},		--95
+						{angle = 130,	dist = 5.56776436283},		--96
+						{angle = 250,	dist = 5.56776436283},		--97
+						{angle = 70,	dist = 5.56776436283},		--98
+						{angle = 190,	dist = 5.56776436283},		--99
+						{angle = 310,	dist = 5.56776436283},		--100
+						{angle = 50,	dist = 5.56776436283},		--101
+						{angle = 170,	dist = 5.56776436283},		--102
+						{angle = 290,	dist = 5.56776436283},		--103
+						{angle = 110,	dist = 5.56776436283},		--104
+						{angle = 230,	dist = 5.56776436283},		--105
+						{angle = 350,	dist = 5.56776436283},		--106
+						{angle = 20,	dist = 5.2915026221292},	--107
+						{angle = 140,	dist = 5.2915026221292},	--108
+						{angle = 260,	dist = 5.2915026221292},	--109
+						{angle = 80,	dist = 5.2915026221292},	--110
+						{angle = 200,	dist = 5.2915026221292},	--111
+						{angle = 320,	dist = 5.2915026221292},	--112
+						{angle = 40,	dist = 5.2915026221292},	--113
+						{angle = 160,	dist = 5.2915026221292},	--114
+						{angle = 280,	dist = 5.2915026221292},	--115
+						{angle = 100,	dist = 5.2915026221292},	--116
+						{angle = 220,	dist = 5.2915026221292},	--117
+						{angle = 340,	dist = 5.2915026221292},	--118
+						{angle = 30,	dist = 5.1961524227066},	--119
+						{angle = 150,	dist = 5.1961524227066},	--120
+						{angle = 270,	dist = 5.1961524227066},	--121
+						{angle = 90,	dist = 5.1961524227066},	--122
+						{angle = 210,	dist = 5.1961524227066},	--123
+						{angle = 330,	dist = 5.1961524227066},	--124
+						{angle = 0,			dist = 7},				--125
+						{angle = 120,		dist = 7},				--126
+						{angle = 240,		dist = 7},				--127
+						{angle = 60,		dist = 7},				--128
+						{angle = 180,		dist = 7},				--129
+						{angle = 300,		dist = 7},				--130
+						{angle = 60/7,		dist = 6.557438524302},	--131
+						{angle = 60/7+120,	dist = 6.557438524302},	--132
+						{angle = 60/7+240,	dist = 6.557438524302},	--133
+						{angle = 60/7+60,	dist = 6.557438524302},	--134
+						{angle = 60/7+180,	dist = 6.557438524302},	--135
+						{angle = 60/7+300,	dist = 6.557438524302},	--136
+						{angle = 60/7*6,	dist = 6.557438524302},	--137
+						{angle = 60/7*6+120,dist = 6.557438524302},	--138
+						{angle = 60/7*6+240,dist = 6.557438524302},	--139
+						{angle = 60/7*6+60,	dist = 6.557438524302},	--140
+						{angle = 60/7*6+180,dist = 6.557438524302},	--141
+						{angle = 60/7*6+300,dist = 6.557438524302},	--142
+						{angle = 60/7*2,	dist = 6.2449979983984},--143
+						{angle = 60/7*2+120,dist = 6.2449979983984},--144
+						{angle = 60/7*2+240,dist = 6.2449979983984},--145
+						{angle = 60/7*2+60,	dist = 6.2449979983984},--146
+						{angle = 60/7*2+180,dist = 6.2449979983984},--147
+						{angle = 60/7*2+300,dist = 6.2449979983984},--148
+						{angle = 60/7*5,	dist = 6.2449979983984},--149
+						{angle = 60/7*5+120,dist = 6.2449979983984},--150
+						{angle = 60/7*5+240,dist = 6.2449979983984},--151
+						{angle = 60/7*5+60,	dist = 6.2449979983984},--152
+						{angle = 60/7*5+180,dist = 6.2449979983984},--153
+						{angle = 60/7*5+300,dist = 6.2449979983984},--154
+						{angle = 60/7*3,	dist = 6.0827625302982},--155
+						{angle = 60/7*3+120,dist = 6.0827625302982},--156
+						{angle = 60/7*3+240,dist = 6.0827625302982},--157
+						{angle = 60/7*3+60,	dist = 6.0827625302982},--158
+						{angle = 60/7*3+180,dist = 6.0827625302982},--159
+						{angle = 60/7*3+300,dist = 6.0827625302982},--160
+						{angle = 60/7*4,	dist = 6.0827625302982},--161
+						{angle = 60/7*4+120,dist = 6.0827625302982},--162
+						{angle = 60/7*4+240,dist = 6.0827625302982},--163
+						{angle = 60/7*4+60,	dist = 6.0827625302982},--164
+						{angle = 60/7*4+180,dist = 6.0827625302982},--165
+						{angle = 60/7*4+300,dist = 6.0827625302982},--166
+					},
 	}
 	prebuilt_leaders = {		--130			140		120			125				120		140					140			140			150				100			76		73		70			70			70				45
 		["Cucaracha"] =			{"Lite Drone","Gnat","MT52 Hornet","MU52 Hornet","Fighter","Ktlitan Fighter","K2 Fighter","K3 Fighter","Ktlitan Scout"},
@@ -1223,7 +1741,7 @@ function setConstants()
 	makePlayerShipActive("Terror")			--J
 	makePlayerShipActive("Rattler")			--J
 	makePlayerShipActive("Kindling") 		--J 
-	makePlayerShipActive("Swoop")			--W
+	makePlayerShipActive("Anvil")			--W
 	makePlayerShipActive("Ignite")			--W
 	makePlayerShipActive("Watson") 			--W 
 
@@ -1409,6 +1927,7 @@ function setConstants()
 		["Gunship"] =						400,
 		["Heavy Drone"] = 					300,
 		["Hunter"] =						200,
+		["Hurricane"] =						200,
 		["Jacket Drone"] =					300,
 		["Jade 5"] =						100,
 		["Jagger"] =						100,
@@ -13520,14 +14039,12 @@ function createKentarColor()
 		table.insert(regionStations,stationKentar)
 	end
 	local start_angle = 315
+	local kentar_zone = nil
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
 		if i == 1 then
-			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+			kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
 			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
---		elseif i == 2 then
---			local kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
---			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
 		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -13828,16 +14345,22 @@ function createKentarStations()
 
 	-- the color far stations
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
-    table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
+	local gf1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far,"GF1 Y9")
+	gf1zone:setColor(0,128,0):setLabel("F")
+--	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
 
 	-- the mid way "guidance" stations, split to left center and right
 	local guidance_width = 14
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
-    table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
+	local ggc1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid,"GGC1 Y8")
+	ggc1zone:setColor(0,128,0):setLabel("G")
+--	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  - guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
-    table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
+	local ggl1zone = squareZone(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid,"GGL1 X8")
+	ggl1zone:setColor(0,128,0):setLabel("L")
+--	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  -guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGR1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0    +guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  + guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGR1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  +guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  + guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
@@ -13848,10 +14371,10 @@ function createKentarStations()
 	local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
 	dp:setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((0  )/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
---	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
---	dpg1zone:setColor(0,128,0):setLabel("DPG1")
-	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
-	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
+	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
+	dpg1zone:setColor(0,128,0):setLabel("DPG1")
+--	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
+--	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
 	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
 	dp:setPosition(gateway_x + math.sin(((240)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((240)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPB1"):setScanState("fullscan")
@@ -13875,9 +14398,9 @@ function createKentarStations()
 	table.insert(gateway_objects,CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("AGDP2"):setPosition(x, y):orderRoaming():setCommsScript(""):setCommsFunction(commsStation))
 	local x = gateway_x + math.sin(((95  )/360)*math.pi*2)*19000
 	local y =gateway_y - math.cos(((95  )/360)*math.pi*2)*19000
---	local agst2Zone = squareZone(x, y, "AGST2 X8")
---	agst2Zone:setColor(0,128,0):setLabel("AGST2")
-	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST2"):setPosition(x, y):orderRoaming())
+	local agst2Zone = squareZone(x, y, "AGST2 X8")
+	agst2Zone:setColor(0,128,0):setLabel("AGST2")
+--	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST2"):setPosition(x, y):orderRoaming())
 
 	local orbit_time = 15
 	local red_artifact = Artifact()
@@ -30325,6 +30848,21 @@ function setPrebuiltFormationShape()
 	addGMFunction("+X",setPrebuiltFormationCategoryX)
 	addGMFunction("+H",setPrebuiltFormationCategoryH)
 	addGMFunction("+*",setPrebuiltFormationCategorySplat)
+	addGMFunction("+O",setPrebuiltFormationCategoryOh)	
+end
+function setPrebuiltFormationCategoryOh()
+	clearGMFunctions()
+	local form_list = {"O","O2R","O3R","O4R","O5R","O6R","O7R"}
+	for _, form in ipairs(form_list) do
+		local button_label = form
+		if form == formation_shape then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			formation_shape = form
+			setPrebuiltFleet()
+		end)
+	end
 end
 function setPrebuiltFormationCategorySplat()
 	clearGMFunctions()
@@ -31869,7 +32407,7 @@ function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, 
 		end
 	end
 	if shape == "ambush" then
-		if spawn_distance ~= nil then
+		if spawn_distance == nil then
 			spawn_distance = 5
 		end
 		if spawn_angle == nil then
@@ -54548,7 +55086,6 @@ function update(delta)
 	end
 	for index, ship in pairs(pdc_ships) do
 		if ship ~= nil and ship:isValid() then
---			print(string.format("pdc ship: %s",ship:getCallSign()))
 			local template_name = ship:getTypeName()
 			if template_name == nil then
 				print("template name for item in pdc ship list cannot be determined")
