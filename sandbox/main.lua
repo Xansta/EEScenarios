@@ -52,6 +52,9 @@
 -- Helm, Tactical				jump overcharge			6
 -- Engineering, Engineering+	Shields	banner			7
 -- Engineering, Engineering+	Hull banner				8
+-- Helm, Tactical				Sensor lock				8
+-- Helm, Tactical				Weapons lock			9
+-- Helm, Tactical				Missile lock			10
 
 require("utils.lua")
 require("sandbox/errorHandling.lua")
@@ -63,7 +66,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.16.2"
+	scenario_version = "6.17.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -54986,6 +54989,7 @@ function update(delta)
 			updatePlayerHackedButton(p)
 			updatePlayerShieldBanner(p)
 			updatePlayerHullBanner(p)
+			updatePlayerLockBanners(p)
 			boarderResult(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
@@ -58006,6 +58010,107 @@ function updateCarrierDeployedFighter(delta)
 			end
 		else
 			carrier_deployed_fighter[fighter_name] = nil
+		end
+	end
+end
+function updatePlayerLockBanners(p)
+	local range = p:getShortRangeRadarRange()
+	local px, py = p:getPosition()
+	local sensor_object_list = getObjectsInRadius(px, py, math.max(10000,range))
+	local lock_list = {}
+	local long_count = 0
+	local short_count = 0
+	local missile_count = 0
+	for i,obj in ipairs(sensor_object_list) do
+		if obj ~= p then
+			local obj_type = obj.typeName
+			if obj_type == "CpuShip" or obj_type == "PlayerSpaceship" or obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+				if obj:getTarget() == p then
+					local dist = distance(p,obj)
+					local ox, oy = obj:getPosition()
+					table.insert(lock_list,{ship=obj,typ=obj_type,dist=dist,dir=angleFromVectorNorth(ox,oy,px,py)})
+					if dist > range then
+						long_count = long_count + 1
+					else
+						if obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+							missile_count = missile_count + 1
+						else
+							short_count = short_count + 1
+						end
+					end
+				end
+			end
+		end
+	end
+	if long_count > 0 then
+		local sensor_lock_msg = "Sensor lock"
+		if long_count < 2 then
+			local lone_lock = nil
+			for i,lock in ipairs(lock_list) do
+				if lock.dist > range then
+					lone_lock = lock
+					break
+				end
+			end
+			sensor_lock_msg = string.format("%s %s %.1fU",sensor_lock_msg,math.floor(lone_lock.dir),lone_lock.dist)
+		end
+		p.sensor_lock_msg_hlm = "sensor_lock_msg_hlm"
+		p:addCustomInfo("Helms",p.sensor_lock_msg_hlm,sensor_lock_msg,8)
+		p.sensor_lock_msg_tac = "sensor_lock_msg_tac"
+		p:addCustomInfo("Tactical",p.sensor_lock_msg_tac,sensor_lock_msg,8)
+	else
+		if p.sensor_lock_msg_hlm ~= nil then
+			p:removeCustom(p.sensor_lock_msg_hlm)
+			p.sensor_lock_msg_hlm = nil
+			p:removeCustom(p.sensor_lock_msg_tac)
+			p.sensor_lock_msg_tac = nil
+		end
+	end
+	if short_count > 0 then
+		local weapon_lock_msg = "Weapon lock"
+		if short_count < 2 then
+			local lone_near_lock = nil
+			for i,lock in ipairs(lock_list) do
+				if lock.dist <= range and lock.typ ~= "HomingMissile" and lock.typ ~= "Nuke" and lock.typ ~= "EMPMissile" then
+					lone_near_lock = lock
+					break
+				end
+			end
+			weapon_lock_msg = string.format("%s %s %s",weapon_lock_msg,math.floor(lone_near_lock.dir),lone_near_lock.ship:getCallSign())
+		end
+		p.weapon_lock_msg_hlm = "weapon_lock_msg_hlm"
+		p:addCustomInfo("Helms",p.weapon_lock_msg_hlm,weapon_lock_msg,9)
+		p.weapon_lock_msg_tac = "weapon_lock_msg_tac"
+		p:addCustomInfo("Tactical",p.weapon_lock_msg_tac,weapon_lock_msg,9)
+	else
+		if p.weapon_lock_msg_hlm ~= nil then
+			p:removeCustom(p.weapon_lock_msg_hlm)
+			p.weapon_lock_msg_hlm = nil
+			p:removeCustom(p.weapon_lock_msg_tac)
+			p.weapon_lock_msg_tac = nil
+		end
+	end
+	if missile_count > 0 then
+		local missile_lock_msg = "Missile lock"
+		if missile_count < 2 then
+			local lone_missile = nil
+			for i,lock in ipairs(lock_list) do
+				if lock.dist <= range and (lock.typ == "HomingMissile" or lock.typ == "Nuke" or lock.typ == "EMPMissile") then
+					lone_missile = lock
+				end
+			end
+			missile_lock_msg = string.format("%s %s %.1fU",missile_lock_msg,math.floor(lone_missile.dir),lone_missile.dist)
+		end
+		p.missile_lock_msg_hlm = "missile_lock_msg_hlm"
+		p:addCustomInfo("Helms",p.missile_lock_msg_hlm,missile_lock_msg,10)
+		p.missile_lock_msg_tac = "missile_lock_msg_tac"
+		p:addCustomInfo("Tactical",p.missile_lock_msg_tac,missile_lock_msg,10)
+	else
+		if p.missile_lock_msg_hlm ~= nil then
+			p:removeCustom(p.missile_lock_msg_hlm)
+			p.missile_lock_msg_hlm = nil
+			p:removeCustom(p.missile_lock_msg_tac)
+			p.missile_lock_msg_tac = nil
 		end
 	end
 end
