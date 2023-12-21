@@ -66,7 +66,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.17.1"
+	scenario_version = "6.18.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -48053,6 +48053,7 @@ function oneOffs()
 	addGMFunction("+MMOTM",mmotmOneOff)
 	addGMFunction("+Starry",starryOneOff)
 	addGMFunction("+Kosai",kosaiOneOff)
+	addGMFunction("+Xansta",xanstaOneOff)
 end
 ----------------------------------------------
 --	Custom > Dangerous description grabber  --
@@ -49125,7 +49126,47 @@ function kosaiOneOff()
 	-- end)
 
 end
-
+function xanstaOneOff()
+	clearGMFunctions()
+	addGMFunction("-Main From Xansta",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("-One-Offs",oneOffs)
+	local button_label = "Measure Distance"
+	if gm_click_mode == "measure distance" then
+		if first_measure_point_x == nil then
+			button_label = ">Set 1st point<"
+		else
+			button_label = ">Set 2nd point<"
+		end
+	end
+	addGMFunction(button_label,function()
+		if gm_click_mode == "measure distance" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "measure distance"
+			onGMClick(measureDistance)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   measure distance\nGM click mode.",prev_mode))
+			end
+		end
+		xanstaOneOff()
+	end)
+end
+function measureDistance(x, y)
+	if first_measure_point_x == nil then
+		first_measure_point_x = x
+		first_measure_point_y = y
+	else
+		addGMMessage(string.format("The distance between these two points:\nX:%.1f, Y:%.1f\nX:%.1f, Y:%.1f\nis:%.1f or %.1fU",first_measure_point_x,first_measure_point_y,x,y,distance(first_measure_point_x,first_measure_point_y,x,y),distance(first_measure_point_x,first_measure_point_y,x,y)/1000))
+		first_measure_point_x = nil
+		first_measure_point_y = nil
+		gm_click_mode = nil
+		onGMClick(nil)
+	end
+	xanstaOneOff()
+end
 --	Inserted for future enhancement. Not hooked in yet.
 --	Button interaction and expiration needs examination/testing
 function createInterdictor(p)
