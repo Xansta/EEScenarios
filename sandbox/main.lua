@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.19.1"
+	scenario_version = "6.20.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -51800,108 +51800,126 @@ function handleDockedState()
 			addCommsReply("Back", commsStation)
 		end)
 	end
-	if comms_source.hull_banner == nil or not comms_source.hull_banner then
-		if comms_target.hull_banner == nil then
-			if random(1,100) < 50 then
-				comms_target.hull_banner = true
-			else
-				comms_target.hull_banner = false
-			end
-		end
-		if comms_target.hull_banner then
-			addCommsReply("Spare portable hull diagnostic",function()
-				setCommsMessage(_("station-comms","We've got a spare portable hull diagnostic if you're interested. Engineers use these to get raw data on hull status. Why? Well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
-				addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
-					if comms_source:takeReputationPoints(5) then
-						comms_source.hull_banner = true
-						comms_target.hull_banner = false
-						setCommsMessage(_("station-comms","Installed"))
-					else
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-					end
-					addCommsReply(_("Back"), commsStation)
-				end)
-			end)
-		end
-	elseif comms_source.hull_banner ~= nil and comms_source.hull_banner then
-		addCommsReply("Give portable hull diagnostic to repair technicians",function()
-			setCommsMessage("Thanks. They will put it to good use.")
-			comms_source.hull_banner = false
+	if comms_target.hull_banner == nil then
+		if random(1,100) < 50 then
 			comms_target.hull_banner = true
-			addCommsReply("Back", commsStation)
-		end)
-	end
-	if comms_source.way_dist == nil or not comms_source.way_dist then
-		if comms_target.way_dist == nil then
-			if random(1,100) < 85 then
-				comms_target.way_dist = true
-			else
-				comms_target.way_dist = false
-			end
+		else
+			comms_target.hull_banner = false
 		end
-		if comms_target.way_dist then
-			addCommsReply("Spare waypoint distance calculator",function()
-				setCommsMessage("We've got a spare portable waypoint distance calculator if you're interested. Helm or Tactical officers use this to get hyper accurate distance calculations for waypoints placed by Relay or Operations. Would you like to get this for helm/tactical?")
-				addCommsReply("Yes, that's a perfect gift (5 reputation)",function()
-					if comms_source:takeReputationPoints(5) then
-						comms_source.way_dist = true
-						comms_target.way_dist = false
-						setCommsMessage("Installed")
-					else
-						setCommsMessage("Insufficient reputation")
-					end
+	end
+	if comms_target.way_dist == nil then
+		if random(1,100) < 50 then
+			comms_target.way_dist = true
+		else
+			comms_target.way_dist = false
+		end
+	end
+	if comms_target.shield_banner == nil then
+		if random(1,100) < 50 then
+			comms_target.shield_banner = true
+		else
+			comms_target.shield_banner = false
+		end
+	end
+	if comms_source.hull_banner == nil then
+		comms_source.hull_banner = false
+	end
+	if comms_source.way_dist == nil then
+		comms_source.way_dist = false
+	end
+	if comms_source.shield_banner == nil then
+		comms_source.shield_banner = false
+	end
+	local portable_tech = false
+	if comms_source.hull_banner or comms_target.hull_banner then
+		portable_tech = true
+	end
+	if comms_source.way_dist or comms_target.way_dist then
+		portable_tech = true
+	end
+	if comms_source.shield_banner or comms_target.shield_banner then
+		portable_tech = true
+	end
+	if portable_tech then
+		addCommsReply("Investigate portable upgrades for ship",function()
+			setCommsMessage("Do any of these transactions interest you?")
+			if comms_source.hull_banner then
+				addCommsReply("Give portable hull diagnostic to repair technicians",function()
+					setCommsMessage("Thanks. They will put it to good use.")
+					comms_source.hull_banner = false
+					comms_target.hull_banner = true
+					addCommsReply("Back", commsStation)
+				end)
+			elseif comms_target.hull_banner then
+				addCommsReply("Get spare portable hull diagnostic",function()
+					setCommsMessage(_("station-comms","We've got a spare portable hull diagnostic if you're interested. Engineers use these to get raw data on hull status. Why? Well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
+					addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source.hull_banner = true
+							comms_target.hull_banner = false
+							setCommsMessage(_("station-comms","Installed"))
+						else
+							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						end
+						addCommsReply(_("Back"), commsStation)
+					end)
+				end)
+			end
+			if comms_source.way_dist then
+				addCommsReply(string.format("Give waypoint distance calculator to technicians at %s",comms_target:getCallSign()),function()
+					setCommsMessage("Not every ship in the fleet has a portable waypoint distance calculator. If you were to give us yours, we could install it on another ship if they wanted it. Would you like to give us your waypoint distance calculator?")
+					addCommsReply("Yes, we like to help the fleet (add 5 rep)",function()
+						comms_source:addReputationPoints(5)
+						comms_source.way_dist = false
+						comms_target.way_dist = true
+						if comms_source.way_distance_button_hlm ~= nil then
+							comms_source:removeCustom(comms_source.way_distance_button_hlm)
+							comms_source:removeCustom(comms_source.way_distance_button_tac)
+							comms_source.way_distance_button_hlm = nil
+							comms_source.way_distance_button_tac = nil
+						end
+						setCommsMessage("Thanks. I'll be sure to give this to the next fleet member that asks.")
+						addCommsReply("Back",commsStation)
+					end)
 					addCommsReply("Back",commsStation)
 				end)
-			end)
-		end
-	elseif comms_source.way_dist ~= nil and comms_source.way_dist then
-		addCommsReply(string.format("Give waypoint distance calculator to technicians at %s",comms_target:getCallSign()),function()
-			setCommsMessage("Not every ship in the fleet has a portable waypoint distance calculator. If you were to give us yours, we could install it on another ship if they wanted it. Would you like to give us your waypoint distance calculator?")
-			addCommsReply("Yes, we like to help the fleet (add 5 rep)",function()
-				comms_source:addReputationPoints(5)
-				comms_source.way_dist = false
-				comms_target.way_dist = true
-				if comms_source.way_distance_button_hlm ~= nil then
-					comms_source:removeCustom(comms_source.way_distance_button_hlm)
-					comms_source:removeCustom(comms_source.way_distance_button_tac)
-					comms_source.way_distance_button_hlm = nil
-					comms_source.way_distance_button_tac = nil
-				end
-				setCommsMessage("Thanks. I'll be sure to give this to the next fleet member that asks.")
-				addCommsReply("Back",commsStation)
-			end)
-			addCommsReply("Back",commsStation)
-		end)
-	end
-	if comms_source.shield_banner == nil or not comms_source.shield_banner then
-		if comms_target.shield_banner == nil then
-			if random(1,100) < 50 then
-				comms_target.shield_banner = true
-			else
-				comms_target.shield_banner = false
+			elseif comms_target.way_dist then
+				addCommsReply("Get Spare waypoint distance calculator",function()
+					setCommsMessage("We've got a spare portable waypoint distance calculator if you're interested. Helm or Tactical officers use this to get hyper accurate distance calculations for waypoints placed by Relay or Operations. Would you like to get this for helm/tactical?")
+					addCommsReply("Yes, that's a perfect gift (5 reputation)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source.way_dist = true
+							comms_target.way_dist = false
+							setCommsMessage("Installed")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						addCommsReply("Back",commsStation)
+					end)
+				end)
 			end
-		end
-		if comms_target.shield_banner then
-			addCommsReply(_("station-comms","Spare portable shield diagnostic"),function()
-				setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? Well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
-				addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
-					if comms_source:takeReputationPoints(5) then
-						comms_source.shield_banner = true
-						comms_target.shield_banner = false
-						setCommsMessage(_("station-comms","Installed"))
-					else
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-					end
+			if comms_source.shield_banner then
+				addCommsReply("Give portable shield diagnostic to repair technicians",function()
+					setCommsMessage("Thanks. They will put it to good use.")
+					comms_source.shield_banner = false
+					comms_target.shield_banner = true
 					addCommsReply(_("Back"), commsStation)
 				end)
-			end)
-		end
-	elseif comms_source.shield_banner ~= nil and comms_source.shield_banner then
-		addCommsReply("Give portable shield diagnostic to repair technicians",function()
-			setCommsMessage("Thanks. They will put it to good use.")
-			comms_source.shield_banner = false
-			comms_target.shield_banner = true
-			addCommsReply(_("Back"), commsStation)
+			elseif comms_target.shield_banner then
+				addCommsReply(_("station-comms","Get spare portable shield diagnostic"),function()
+					setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? Well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
+					addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source.shield_banner = true
+							comms_target.shield_banner = false
+							setCommsMessage(_("station-comms","Installed"))
+						else
+							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						end
+						addCommsReply(_("Back"), commsStation)
+					end)
+				end)
+			end
 		end)
 	end
 	if comms_source.security_morale < 1 then
@@ -58217,103 +58235,124 @@ function updateCarrierDeployedFighter(delta)
 	end
 end
 function updatePlayerLockBanners(p)
-	local range = p:getShortRangeRadarRange()
-	local px, py = p:getPosition()
-	local sensor_object_list = getObjectsInRadius(px, py, math.max(10000,range))
-	local lock_list = {}
-	local long_count = 0
-	local short_count = 0
-	local missile_count = 0
-	for i,obj in ipairs(sensor_object_list) do
-		if obj ~= p then
-			local obj_type = obj.typeName
-			if obj_type == "CpuShip" or obj_type == "PlayerSpaceship" or obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
-				if obj:getTarget() == p then
-					local dist = distance(p,obj)
-					local ox, oy = obj:getPosition()
-					table.insert(lock_list,{ship=obj,typ=obj_type,dist=dist,dir=angleFromVectorNorth(ox,oy,px,py)})
-					if dist > range then
-						long_count = long_count + 1
-					else
-						if obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
-							missile_count = missile_count + 1
+	if p.lock_banners ~= nil and p.lock_banners then
+		local range = p:getShortRangeRadarRange()
+		local px, py = p:getPosition()
+		local sensor_object_list = getObjectsInRadius(px, py, math.max(10000,range))
+		local lock_list = {}
+		local long_count = 0
+		local short_count = 0
+		local missile_count = 0
+		for i,obj in ipairs(sensor_object_list) do
+			if obj ~= p then
+				local obj_type = obj.typeName
+				if obj_type == "CpuShip" or obj_type == "PlayerSpaceship" or obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+					if obj:getTarget() == p then
+						local dist = distance(p,obj)
+						local ox, oy = obj:getPosition()
+						table.insert(lock_list,{ship=obj,typ=obj_type,dist=dist,dir=angleFromVectorNorth(ox,oy,px,py)})
+						if dist > range then
+							long_count = long_count + 1
 						else
-							short_count = short_count + 1
+							if obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+								missile_count = missile_count + 1
+							else
+								short_count = short_count + 1
+							end
 						end
 					end
 				end
 			end
 		end
-	end
-	if long_count > 0 then
-		local sensor_lock_msg = "Sensor lock"
-		if long_count < 2 then
-			local lone_lock = nil
-			for i,lock in ipairs(lock_list) do
-				if lock.dist > range then
-					lone_lock = lock
-					break
+		if long_count > 0 then
+			local sensor_lock_msg = "Sensor lock"
+			if long_count < 2 then
+				local lone_lock = nil
+				for i,lock in ipairs(lock_list) do
+					if lock.dist > range then
+						lone_lock = lock
+						break
+					end
 				end
+				sensor_lock_msg = string.format("%s %s %.1fU",sensor_lock_msg,math.floor(lone_lock.dir),lone_lock.dist)
 			end
-			sensor_lock_msg = string.format("%s %s %.1fU",sensor_lock_msg,math.floor(lone_lock.dir),lone_lock.dist)
+			p.sensor_lock_msg_hlm = "sensor_lock_msg_hlm"
+			p:addCustomInfo("Helms",p.sensor_lock_msg_hlm,sensor_lock_msg,8)
+			p.sensor_lock_msg_tac = "sensor_lock_msg_tac"
+			p:addCustomInfo("Tactical",p.sensor_lock_msg_tac,sensor_lock_msg,8)
+		else
+			if p.sensor_lock_msg_hlm ~= nil then
+				p:removeCustom(p.sensor_lock_msg_hlm)
+				p.sensor_lock_msg_hlm = nil
+				p:removeCustom(p.sensor_lock_msg_tac)
+				p.sensor_lock_msg_tac = nil
+			end
 		end
-		p.sensor_lock_msg_hlm = "sensor_lock_msg_hlm"
-		p:addCustomInfo("Helms",p.sensor_lock_msg_hlm,sensor_lock_msg,8)
-		p.sensor_lock_msg_tac = "sensor_lock_msg_tac"
-		p:addCustomInfo("Tactical",p.sensor_lock_msg_tac,sensor_lock_msg,8)
-	else
-		if p.sensor_lock_msg_hlm ~= nil then
-			p:removeCustom(p.sensor_lock_msg_hlm)
-			p.sensor_lock_msg_hlm = nil
-			p:removeCustom(p.sensor_lock_msg_tac)
-			p.sensor_lock_msg_tac = nil
-		end
-	end
-	if short_count > 0 then
-		local weapon_lock_msg = "Weapon lock"
-		if short_count < 2 then
-			local lone_near_lock = nil
-			for i,lock in ipairs(lock_list) do
-				if lock.dist <= range and lock.typ ~= "HomingMissile" and lock.typ ~= "Nuke" and lock.typ ~= "EMPMissile" then
-					lone_near_lock = lock
-					break
+		if short_count > 0 then
+			local weapon_lock_msg = "Weapon lock"
+			if short_count < 2 then
+				local lone_near_lock = nil
+				for i,lock in ipairs(lock_list) do
+					if lock.dist <= range and lock.typ ~= "HomingMissile" and lock.typ ~= "Nuke" and lock.typ ~= "EMPMissile" then
+						lone_near_lock = lock
+						break
+					end
 				end
+				weapon_lock_msg = string.format("%s %s %s",weapon_lock_msg,math.floor(lone_near_lock.dir),lone_near_lock.ship:getCallSign())
 			end
-			weapon_lock_msg = string.format("%s %s %s",weapon_lock_msg,math.floor(lone_near_lock.dir),lone_near_lock.ship:getCallSign())
+			p.weapon_lock_msg_hlm = "weapon_lock_msg_hlm"
+			p:addCustomInfo("Helms",p.weapon_lock_msg_hlm,weapon_lock_msg,9)
+			p.weapon_lock_msg_tac = "weapon_lock_msg_tac"
+			p:addCustomInfo("Tactical",p.weapon_lock_msg_tac,weapon_lock_msg,9)
+		else
+			if p.weapon_lock_msg_hlm ~= nil then
+				p:removeCustom(p.weapon_lock_msg_hlm)
+				p.weapon_lock_msg_hlm = nil
+				p:removeCustom(p.weapon_lock_msg_tac)
+				p.weapon_lock_msg_tac = nil
+			end
 		end
-		p.weapon_lock_msg_hlm = "weapon_lock_msg_hlm"
-		p:addCustomInfo("Helms",p.weapon_lock_msg_hlm,weapon_lock_msg,9)
-		p.weapon_lock_msg_tac = "weapon_lock_msg_tac"
-		p:addCustomInfo("Tactical",p.weapon_lock_msg_tac,weapon_lock_msg,9)
-	else
-		if p.weapon_lock_msg_hlm ~= nil then
-			p:removeCustom(p.weapon_lock_msg_hlm)
-			p.weapon_lock_msg_hlm = nil
-			p:removeCustom(p.weapon_lock_msg_tac)
-			p.weapon_lock_msg_tac = nil
-		end
-	end
-	if missile_count > 0 then
-		local missile_lock_msg = "Missile lock"
-		if missile_count < 2 then
-			local lone_missile = nil
-			for i,lock in ipairs(lock_list) do
-				if lock.dist <= range and (lock.typ == "HomingMissile" or lock.typ == "Nuke" or lock.typ == "EMPMissile") then
-					lone_missile = lock
+		if missile_count > 0 then
+			local missile_lock_msg = "Missile lock"
+			if missile_count < 2 then
+				local lone_missile = nil
+				for i,lock in ipairs(lock_list) do
+					if lock.dist <= range and (lock.typ == "HomingMissile" or lock.typ == "Nuke" or lock.typ == "EMPMissile") then
+						lone_missile = lock
+					end
 				end
+				missile_lock_msg = string.format("%s %s %.1fU",missile_lock_msg,math.floor(lone_missile.dir),lone_missile.dist)
 			end
-			missile_lock_msg = string.format("%s %s %.1fU",missile_lock_msg,math.floor(lone_missile.dir),lone_missile.dist)
+			p.missile_lock_msg_hlm = "missile_lock_msg_hlm"
+			p:addCustomInfo("Helms",p.missile_lock_msg_hlm,missile_lock_msg,10)
+			p.missile_lock_msg_tac = "missile_lock_msg_tac"
+			p:addCustomInfo("Tactical",p.missile_lock_msg_tac,missile_lock_msg,10)
+		else
+			if p.missile_lock_msg_hlm ~= nil then
+				p:removeCustom(p.missile_lock_msg_hlm)
+				p.missile_lock_msg_hlm = nil
+				p:removeCustom(p.missile_lock_msg_tac)
+				p.missile_lock_msg_tac = nil
+			end
 		end
-		p.missile_lock_msg_hlm = "missile_lock_msg_hlm"
-		p:addCustomInfo("Helms",p.missile_lock_msg_hlm,missile_lock_msg,10)
-		p.missile_lock_msg_tac = "missile_lock_msg_tac"
-		p:addCustomInfo("Tactical",p.missile_lock_msg_tac,missile_lock_msg,10)
 	else
 		if p.missile_lock_msg_hlm ~= nil then
 			p:removeCustom(p.missile_lock_msg_hlm)
 			p.missile_lock_msg_hlm = nil
 			p:removeCustom(p.missile_lock_msg_tac)
 			p.missile_lock_msg_tac = nil
+		end
+		if p.weapon_lock_msg_hlm ~= nil then
+			p:removeCustom(p.weapon_lock_msg_hlm)
+			p.weapon_lock_msg_hlm = nil
+			p:removeCustom(p.weapon_lock_msg_tac)
+			p.weapon_lock_msg_tac = nil
+		end
+		if p.sensor_lock_msg_hlm ~= nil then
+			p:removeCustom(p.sensor_lock_msg_hlm)
+			p.sensor_lock_msg_hlm = nil
+			p:removeCustom(p.sensor_lock_msg_tac)
+			p.sensor_lock_msg_tac = nil
 		end
 	end
 end
