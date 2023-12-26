@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.20.2"
+	scenario_version = "6.21.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1745,10 +1745,10 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Terror")			--J
 	makePlayerShipActive("Rattler")			--J
-	makePlayerShipActive("Kindling") 		--J 
-	makePlayerShipActive("Anvil")			--W
-	makePlayerShipActive("Ignite")			--W
-	makePlayerShipActive("Watson") 			--W 
+	makePlayerShipActive("Thunderbird") 	--J 
+	makePlayerShipActive("Tango")			--W
+	makePlayerShipActive("Rip")				--W
+	makePlayerShipActive("Farrah") 			--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -8042,6 +8042,13 @@ function endSession()
 	addGMFunction("+Region Report",regionReport)
 	addGMFunction("+Faction Victory",endMission)
 end
+function establishPolarisDatabase()
+	local ships_db = queryScienceDatabase("Ships")
+	ships_db:addEntry("Polaris Incident")
+	polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	polaris_db:setLongDescription("These ships observed by research on station Polaris. They seem to be part of Kraylor research mixing stasis bubbles and ancient human seasonal rituals.")
+	return polaris_db
+end
 function carolStage1()
 	local pearTree=CpuShip():
 		setTemplate("Atlantis X23"):
@@ -8055,7 +8062,30 @@ function carolStage1()
 		setShieldsMax(100,100,100,100):
 		setShields(100,100,100,100):
 		setJumpDrive(false)
-
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local pear_tree_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","Arboretum")
+	if pear_tree_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Polaris Incident","Corvette")
+		if corvette_db == nil then
+			polaris_db:addEntry("Corvette")
+			corvette_db = queryScienceDatabase("Ships","Polaris Incident","Corvette")
+			corvette_db:setLongDescription("Corvettes are the common large ships. Larger then a frigate, smaller then a dreadnaught.\nThey generally have 4 or more shield sections. Run with a crew of 20 to 250.\nThis class generally has jumpdrives or warpdrives. But lack the maneuverability that is seen in frigates.\n\nThey come in 3 different subclasses:\n* Destroyer: Combat oriented ships. No science, no transport. Just death in a large package.\n* Support: Large scale support roles. Drone carriers fall in this category, as well as mobile repair centers.\n* Freighter: Large scale transport ships. Most common here are the jump freighters, using specialized jumpdrives to cross large distances with large amounts of cargo.")
+		end
+		corvette_db:addEntry("Arboretum")
+		pear_tree_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","Arboretum")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
+			pear_tree_db,		--modified ship database entry
+			pearTree,			--ship just created, long description on the next line
+			"The Arboretum looks like it started as an Atlantis X23. But, there are no missile tubes or missiles, the beams have been redirected and curtailed, and the shields weakened. Also, it's missing its jump drive.",
+			nil,
+			nil,
+			"battleship_destroyer_1_upgraded"
+		)
+	end
 	local partridge=CpuShip():
 		setTemplate("Defense platform"):
 		setRotationMaxSpeed(5):
@@ -8068,12 +8098,27 @@ function carolStage1()
 		setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):
 		orderStandGround():
 		setTypeName("Fowl Fort")
+	local partridge_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","Fowl Fort")
+	if partridge_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Polaris Incident","Corvette")
+		corvette_db:addEntry("Fowl Fort")
+		partridge_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","Fowl Fort")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Defense platform"),	--base ship database entry
+			partridge_db,		--modified ship database entry
+			partridge,			--ship just created, long description on the next line
+			"The Fowl Fort seems to be a modified defense platform. Rather than six equidistant beams four units long, it has only one long beam. It makes up for the other missing beams with a broad coverage beam with a 2 unit range plus maneuvering thrusters that make it ten time faster to hone in on a target. It's shields consist of a single arc, slightly weaker than its defense platform progenitor.",
+			nil,
+			nil,
+			"space_station_4"
+		)
+	end
 	update_system:addOrbitTargetUpdate(partridge,pearTree,500,60)
 	-- I wanted pear tree to regenerate when destroyed but there isnt any good code to loot for that
 	return pearTree
 end
 function carolStage2()
-	return CpuShip()
+	local white_sky = CpuShip()
 		:setTemplate("Atlantis X23")
 		:setTypeName("White Sky")
 		:setJumpDrive(false)
@@ -8090,20 +8135,72 @@ function carolStage2()
 		:setBeamWeapon(7, 80, 180, 1500, 8, 11)
 		:setBeamWeapon(8, 80, 240, 1500, 8, 11)
 		:setBeamWeapon(9, 80, 300, 1500, 8, 11)
-	:setShieldsMax(300, 300, 200):setShields(300, 300, 200)
+		:setShieldsMax(300, 300, 200):setShields(300, 300, 200)
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local white_sky_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","White Sky")
+	if white_sky_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Polaris Incident","Corvette")
+		if corvette_db == nil then
+			polaris_db:addEntry("Corvette")
+			corvette_db = queryScienceDatabase("Ships","Polaris Incident","Corvette")
+			corvette_db:setLongDescription("Corvettes are the common large ships. Larger then a frigate, smaller then a dreadnaught.\nThey generally have 4 or more shield sections. Run with a crew of 20 to 250.\nThis class generally has jumpdrives or warpdrives. But lack the maneuverability that is seen in frigates.\n\nThey come in 3 different subclasses:\n* Destroyer: Combat oriented ships. No science, no transport. Just death in a large package.\n* Support: Large scale support roles. Drone carriers fall in this category, as well as mobile repair centers.\n* Freighter: Large scale transport ships. Most common here are the jump freighters, using specialized jumpdrives to cross large distances with large amounts of cargo.")
+		end
+		corvette_db:addEntry("White Sky")
+		white_sky_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","White Sky")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
+			white_sky_db,		--modified ship database entry
+			white_sky,			--ship just created, long description on the next line
+			"The White Sky resembles an Atlantis X23 without missiles. The beams no longer favor the front of the ship, but fully cover the ship with a slight overlap. They are more powerful, but slower. The shields have fewer but stronger arcs. The jump drive is gone.",
+			nil,
+			nil,
+			"battleship_destroyer_1_upgraded"
+		)
+	end
+	return white_sky
 end
 function carolStage3()
 	-- alpha strike fighter
-	return CpuShip():
+	local cowards_charge = CpuShip():
 		setTemplate("MT52 Hornet"):
 		setWeaponTubeCount(1):
 		setWeaponStorageMax("Homing", 3):setWeaponStorage("Homing", 3):
 		setWeaponTubeDirection(0,0):setTubeLoadTime(0,0.5):
 		setTypeName("Cowards Charge")
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local cowards_charge_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Cowards Charge")
+	if cowards_charge_db == nil then
+		local fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+		if fighter_db == nil then
+			polaris_db:addEntry("Starfighter")
+			fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+			fighter_db:setLongDescription("Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes.")
+		end
+		fighter_db:addEntry("Cowards Charge")
+		cowards_charge_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Cowards Charge")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+			cowards_charge_db,		--modified ship database entry
+			cowards_charge,			--ship just created, long description on the next line
+			"Cowards Charge seems to have characteristics close to an Adder MK5. However, instead of being loaded with four rounds of HVLI, it's loaded with three rapid fire homing missiles.",
+			{
+				{key = "Tube 0", value = "1/2 sec"},	--torpedo tube direction and load speed
+			},
+			nil,
+			"AdlerLongRangeScoutYellow"
+		)
+	end
+	return cowards_charge
 end
 function carolStage4()
 	-- warp gunship
-	return CpuShip()
+	local raven = CpuShip()
 		:setTemplate("Gunship")
 		:setWeaponTubeCount(0)
 		:setBeamWeapon(0, 30, -8, 3000, 6.0, 4.0) -- there probably is an interesting ship design with damage = around 6-8, but it is too heavy for this curren
@@ -8116,20 +8213,73 @@ function carolStage4()
 		:setShields(50):setShieldsMax(50)
 		:setHull(50):setHullMax(50):
 		setTypeName("Raven")
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local raven_db = queryScienceDatabase("Ships","Polaris Incident","Frigate","Raven")
+	if raven_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Polaris Incident","Frigate")
+		if frigate_db == nil then
+			polaris_db:addEntry("Frigate")
+			frigate_db = queryScienceDatabase("Ships","Polaris Incident","Frigate")
+			frigate_db:setLongDescription("Frigates are one size up from starfighters. They require a crew from 3 to 20 people.\nThink, Firefly, millennium falcon, slave I (Boba fett's ship).\n\nThey generally have 2 or more shield sections, but hardly ever more than 4.\n\nThis class of ships is normally not fitted with jump or warp drives. But in some cases ships are modified to include these, or for certain roles it is built in.\n\nThey are divided in 3 different sub-classes:\n* Cruiser: Weaponized frigates, focused on combat. These come in various roles.\n* Light transport: Small transports, like transporting up to 50 soldiers in spartan conditions or a few diplomats in luxury. Depending on the role it can have some weaponry.\n* Support: Support types come in many varieties. They are simply a frigate hull fitted with whatever was needed. Anything from mine-layers to science vessels.")
+		end
+		frigate_db:addEntry("Raven")
+		raven_db = queryScienceDatabase("Ships","Polaris Incident","Frigate","Raven")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Gunship"),	--base ship database entry
+			raven_db,		--modified ship database entry
+			raven,			--ship just created, long description on the next line
+			"The Raven is a Gunship that's been given 'warp wings' in exchange for their missiles. Compared to its Gunship origins, the Raven has longer but weaker beams. It's nimble, but its impulse engines are gone, so it can't chase you in combat. It's shields have been reduced to a single arc and it had to lose some structural protection in order to fly.",
+			nil,
+			nil,
+			"battleship_destroyer_4_upgraded"
+		)
+	end
+	return raven
 end
 function carolStage5()
 	-- shieldless starhammer like
-	return CpuShip():
+	local golden_chime = CpuShip():
 		setTemplate("Starhammer II"):
 		setShieldsMax(0):setShields(0):
 		setHullMax(1000):setHull(200):
 		setWeaponStorageMax("HVLI", 7):setWeaponStorage("HVLI", 7):
 		setTypeName("Golden Chime")-- the difference between max and hull is so beams dont break systems quickly
 		-- this becomes an alarmingly tanky ship if it ever gets to dock somewhere it can regen hull
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local golden_chime_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","Golden Chime")
+	if golden_chime_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Polaris Incident","Corvette")
+		if corvette_db == nil then
+			polaris_db:addEntry("Corvette")
+			corvette_db = queryScienceDatabase("Ships","Polaris Incident","Corvette")
+			corvette_db:setLongDescription("Corvettes are the common large ships. Larger then a frigate, smaller then a dreadnaught.\nThey generally have 4 or more shield sections. Run with a crew of 20 to 250.\nThis class generally has jumpdrives or warpdrives. But lack the maneuverability that is seen in frigates.\n\nThey come in 3 different subclasses:\n* Destroyer: Combat oriented ships. No science, no transport. Just death in a large package.\n* Support: Large scale support roles. Drone carriers fall in this category, as well as mobile repair centers.\n* Freighter: Large scale transport ships. Most common here are the jump freighters, using specialized jumpdrives to cross large distances with large amounts of cargo.")
+		end
+		corvette_db:addEntry("Golden Chime")
+		golden_chime_db = queryScienceDatabase("Ships","Polaris Incident","Corvette","Golden Chime")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
+			golden_chime_db,		--modified ship database entry
+			golden_chime,			--ship just created, long description on the next line
+			"The Golden Chime seems to have come from the same assembly line as the Starhammer II. It's got five times the armor of a Starhammer II, but there seems to be a big hole in the armor making it comparable to a Starhammer II. If this ship ever docks up to get its hull repaired, beware. No shields for this baby. Its HVLI capacity has been severly limited.",
+			{
+				{key = "Tube 0", value = "10 sec / Homing, EMP, HVLI"},	--torpedo tube direction and load speed
+				{key = " Tube 0", value = "10 sec / Homing, HVLI"},	--torpedo tube direction and load speed
+			},
+			nil,
+			"battleship_destroyer_4_upgraded"
+		)
+	end
+	return golden_chime
 end
 function carolStage6()
 	-- tbh this one is kind of bland, just an adder with a small homing payload
-	return CpuShip():
+	local starspawn = CpuShip():
 		setTemplate("Adder MK8"):
 		setRotationMaxSpeed(20):
 		setWeaponTubeCount(2):
@@ -8138,41 +8288,138 @@ function carolStage6()
 		setWeaponStorageMax("Homing", 6):setWeaponStorage("Homing", 6):
 		setWeaponStorageMax("HVLI", 0):setWeaponStorage("HVLI", 0):
 		setTypeName("Starspawn")
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local starspawn_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Starspawn")
+	if starspawn_db == nil then
+		local fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+		if fighter_db == nil then
+			polaris_db:addEntry("Starfighter")
+			fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+			fighter_db:setLongDescription("Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes.")
+		end
+		fighter_db:addEntry("Starspawn")
+		starspawn_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Starspawn")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK8"),	--base ship database entry
+			starspawn_db,		--modified ship database entry
+			starspawn,			--ship just created, long description on the next line
+			"Starspawn comes from an Adder MK8. Two faster angled weapons tubes instead of a centered one. Six homing missiles instead of HVLIs. Slower maneuverability.",
+			{
+				{key = "Tube -35", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 35", value = "10 sec"},	--torpedo tube direction and load speed
+			},
+			nil,
+			"AdlerLongRangeScoutGreen"
+		)
+	end
+	return starspawn
 end
 function carolStage7()
 	-- HVLI missile tubes in every direction
-	return CpuShip():setTemplate("Missile Cruiser"):setWeaponTubeCount(16):
-	setWeaponTubeDirection(0,0):setTubeSize(0,"small"):setTubeLoadTime(0,10):
-	setWeaponTubeDirection(1,22.5):setTubeSize(1,"small"):setTubeLoadTime(1,10):
-	setWeaponTubeDirection(2,45):setTubeSize(2,"small"):setTubeLoadTime(2,10):
-	setWeaponTubeDirection(3,67.5):setTubeSize(3,"small"):setTubeLoadTime(3,10):
-	setWeaponTubeDirection(4,90):setTubeSize(4,"small"):setTubeLoadTime(4,10):
-	setWeaponTubeDirection(5,112.5):setTubeSize(5,"small"):setTubeLoadTime(5,10):
-	setWeaponTubeDirection(6,135):setTubeSize(6,"small"):setTubeLoadTime(6,10):
-	setWeaponTubeDirection(7,157.5):setTubeSize(7,"small"):setTubeLoadTime(7,10):
-	setWeaponTubeDirection(8,180):setTubeSize(8,"small"):setTubeLoadTime(8,10):
-	setWeaponTubeDirection(9,202.5):setTubeSize(9,"small"):setTubeLoadTime(9,10):
-	setWeaponTubeDirection(10,225):setTubeSize(10,"small"):setTubeLoadTime(10,10):
-	setWeaponTubeDirection(11,247.5):setTubeSize(11,"small"):setTubeLoadTime(11,10):
-	setWeaponTubeDirection(12,270):setTubeSize(12,"small"):setTubeLoadTime(12,10):
-	setWeaponTubeDirection(13,292.5):setTubeSize(13,"small"):setTubeLoadTime(13,10):
-	setWeaponTubeDirection(14,315):setTubeSize(14,"small"):setTubeLoadTime(14,10):
-	setWeaponTubeDirection(15,337.5):setTubeSize(15,"small"):setTubeLoadTime(15,10):
-	setWeaponStorageMax("Homing", 0):setWeaponStorage("Homing", 0):setWeaponStorageMax("HVLI", 200):setWeaponStorage("HVLI", 200):setAI("missilevolley"):
-	setTypeName("Cygnus")
+	local cygnus = CpuShip():setTemplate("Missile Cruiser"):setWeaponTubeCount(16):
+		setWeaponTubeDirection(0,     0):setTubeSize(0, "small"):setTubeLoadTime(0, 10):
+		setWeaponTubeDirection(1,  22.5):setTubeSize(1, "small"):setTubeLoadTime(1, 10):
+		setWeaponTubeDirection(2,    45):setTubeSize(2, "small"):setTubeLoadTime(2, 10):
+		setWeaponTubeDirection(3,  67.5):setTubeSize(3, "small"):setTubeLoadTime(3, 10):
+		setWeaponTubeDirection(4,    90):setTubeSize(4, "small"):setTubeLoadTime(4, 10):
+		setWeaponTubeDirection(5, 112.5):setTubeSize(5, "small"):setTubeLoadTime(5, 10):
+		setWeaponTubeDirection(6,   135):setTubeSize(6, "small"):setTubeLoadTime(6, 10):
+		setWeaponTubeDirection(7, 157.5):setTubeSize(7, "small"):setTubeLoadTime(7, 10):
+		setWeaponTubeDirection(8,   180):setTubeSize(8, "small"):setTubeLoadTime(8, 10):
+		setWeaponTubeDirection(9, 202.5):setTubeSize(9, "small"):setTubeLoadTime(9, 10):
+		setWeaponTubeDirection(10,  225):setTubeSize(10,"small"):setTubeLoadTime(10,10):
+		setWeaponTubeDirection(11,247.5):setTubeSize(11,"small"):setTubeLoadTime(11,10):
+		setWeaponTubeDirection(12,  270):setTubeSize(12,"small"):setTubeLoadTime(12,10):
+		setWeaponTubeDirection(13,292.5):setTubeSize(13,"small"):setTubeLoadTime(13,10):
+		setWeaponTubeDirection(14,  315):setTubeSize(14,"small"):setTubeLoadTime(14,10):
+		setWeaponTubeDirection(15,337.5):setTubeSize(15,"small"):setTubeLoadTime(15,10):
+		setWeaponStorageMax("Homing", 0):setWeaponStorage("Homing", 0):
+		setWeaponStorageMax("HVLI", 200):setWeaponStorage("HVLI", 200):setAI("missilevolley"):
+		setTypeName("Cygnus")
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local cygnus_db = queryScienceDatabase("Ships","Polaris Incident","Frigate","Cygnus")
+	if cygnus_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Polaris Incident","Frigate")
+		if frigate_db == nil then
+			polaris_db:addEntry("Frigate")
+			frigate_db = queryScienceDatabase("Ships","Polaris Incident","Frigate")
+			frigate_db:setLongDescription("Frigates are one size up from starfighters. They require a crew from 3 to 20 people.\nThink, Firefly, millennium falcon, slave I (Boba fett's ship).\n\nThey generally have 2 or more shield sections, but hardly ever more than 4.\n\nThis class of ships is normally not fitted with jump or warp drives. But in some cases ships are modified to include these, or for certain roles it is built in.\n\nThey are divided in 3 different sub-classes:\n* Cruiser: Weaponized frigates, focused on combat. These come in various roles.\n* Light transport: Small transports, like transporting up to 50 soldiers in spartan conditions or a few diplomats in luxury. Depending on the role it can have some weaponry.\n* Support: Support types come in many varieties. They are simply a frigate hull fitted with whatever was needed. Anything from mine-layers to science vessels.")
+		end
+		frigate_db:addEntry("Cygnus")
+		cygnus_db = queryScienceDatabase("Ships","Polaris Incident","Frigate","Cygnus")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Missile Cruiser"),	--base ship database entry
+			cygnus_db,		--modified ship database entry
+			cygnus,			--ship just created, long description on the next line
+			"Cygnus looks like the classic missile cruiser with missile tubes poked into it like a pincushion. The tubes are spaced equidistant around the ship. There are plenty of HVLIs to go around for any approaching ships.",
+			{
+				{key = "Small Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 22.5", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 45", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 67.5", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 112.5", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 135", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 157.5", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 180", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 202.5", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 225", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 247.5", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 270", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 292.5", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 315", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 337.5", value = "10 sec"},	--torpedo tube direction and load speed
+			},
+			nil,
+			"space_cruiser_4"
+		)
+	end
+	return cygnus
 end
 function carolStage8()
 	-- rear beamed fighter
-	return CpuShip():
+	local shield_maiden = CpuShip():
 		setTemplate("MU52 Hornet"):
 		setTypeName("Shield Maiden"):
+		setShieldsMax(20,20,20,20,20,20,20,20):
+		setShields(20,20,20,20,20,20,20,20):
 		setBeamWeapon(0, 5, 0, 1, 20, 1):
-		setBeamWeapon(1, 5, 180, 2500, 4, 2):setBeamWeaponTurret(1, 90, 180, .3) -- AI needs a beam at the front to behave as expected
-		-- consider upping shields for name
+		setBeamWeapon(1, 5, 180, 2500, 4, 1):setBeamWeaponTurret(1, 90, 180, .3) -- AI needs a beam at the front to behave as expected
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local shield_maiden_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Shield Maiden")
+	if shield_maiden_db == nil then
+		local fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+		if fighter_db == nil then
+			polaris_db:addEntry("Starfighter")
+			fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+			fighter_db:setLongDescription("Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes.")
+		end
+		fighter_db:addEntry("Shield Maiden")
+		shield_maiden_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Shield Maiden")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MU52 Hornet"),	--base ship database entry
+			shield_maiden_db,		--modified ship database entry
+			shield_maiden,			--ship just created, long description on the next line
+			"The Shield Maiden sort of looks like a MU52 Hornet, but it's been upgraded with eight shield arcs. The designers also added a fast, weak rear facing turret.",
+			nil,
+			nil,
+			"WespeScoutYellow"
+		)
+	end
+	return shield_maiden
 end
 function carolStage9()
 -- missilevolley with beams
-	return CpuShip():
+	local trance_queen = CpuShip():
 		setTemplate("Ktlitan Queen"):
 		setWeaponTubeCount(0):
 		setBeamWeapon(0, 30, -90, 3000, 4.0, 8.0):
@@ -8183,10 +8430,35 @@ function carolStage9()
 		setHull(50):setHullMax(50):
 		setShields(40,40,40,40):setShieldsMax(40,40,40,40):
 		setTypeName("Trance Queen")
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local trance_queen_db = queryScienceDatabase("Ships","Polaris Incident","No Class","Trance Queen")
+	if trance_queen_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","Polaris Incident","No Class")
+		if no_class_db == nil then
+			polaris_db:addEntry("No Class")
+			no_class_db = queryScienceDatabase("Ships","Polaris Incident","No Class")
+			no_class_db:setLongDescription("These ships do not easily fit into existing ship classes.")
+		end
+		no_class_db:addEntry("Trance Queen")
+		trance_queen_db = queryScienceDatabase("Ships","Polaris Incident","No Class","Trance Queen")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Queen"),	--base ship database entry
+			trance_queen_db,		--modified ship database entry
+			trance_queen,			--ship just created, long description on the next line
+			"The Trance Queen takes its design cues from the Ktlitan Queen. However, the missiles have been removed in favor of broadside beams, a high powered impulse engine has been installed, and the hull and shields have been weakened.",
+			nil,
+			nil,
+			"sci_fi_alien_ship_8"
+		)
+	end
+	return trance_queen
 end
 function carolStage10()
 	-- emp bomber
-	return CpuShip():
+	local starlord = CpuShip():
 		setTemplate("MT52 Hornet"):
 		setWeaponTubeCount(1):
 		setTypeName("Starlord"):
@@ -8194,31 +8466,85 @@ function carolStage10()
 		setWeaponStorageMax("EMP", 5):setWeaponStorage("EMP", 5):
 		setWeaponStorageMax("Homing",20):setWeaponStorage("Homing",20):
 		setBeamWeapon(0, 30, 0, 0, 0, 0)
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local starlord_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Starlord")
+	if starlord_db == nil then
+		local fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+		if fighter_db == nil then
+			polaris_db:addEntry("Starfighter")
+			fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+			fighter_db:setLongDescription("Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes.")
+		end
+		fighter_db:addEntry("Starlord")
+		starlord_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Starlord")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+			starlord_db,		--modified ship database entry
+			starlord,			--ship just created, long description on the next line
+			"Starlord vaguely resembles a MT52 Hornet where the beams have been swapped out for a missile tube. It shoots EMPs and homing missiles.",
+			{
+				{key = "Small Tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil,
+			"WespeScoutYellow"
+		)
+	end
+	return starlord
 end
 function carolStage11()
 	-- storm but charges in
-	return CpuShip():
+	local warcry = CpuShip():
 		setTemplate("Storm"):
 		setAI("default"):
 		setWeaponStorageMax("Homing",0):setWeaponStorage("Homing",0):
 		setWeaponStorageMax("HVLI",30):setWeaponStorage("HVLI",30):
-		setWeaponTubeDirection(0,-5):setWeaponTubeDirection(1,-2.5):
-		setWeaponTubeDirection(2,0):
-		setWeaponTubeDirection(3,2.5):
-		setWeaponTubeDirection(4,5):
+		setWeaponTubeDirection(0,  -5):setTubeSize(0,"small"):setTubeLoadTime(0,7.5):
+		setWeaponTubeDirection(1,-2.5):setTubeSize(1,"small"):setTubeLoadTime(1,7.5):
+		setWeaponTubeDirection(2,   0):setTubeSize(2,"small"):setTubeLoadTime(2,7.5):
+		setWeaponTubeDirection(3, 2.5):setTubeSize(3,"small"):setTubeLoadTime(3,7.5):
+		setWeaponTubeDirection(4,   5):setTubeSize(4,"small"):setTubeLoadTime(4,7.5):
 		setBeamWeapon(0, 5, 0, 1250, 3.0, 2.0):setBeamWeaponTurret(0, 90, 0, 0.25):
-		setTubeSize(0,"small"):setTubeLoadTime(0,7.5):
-		setTubeSize(1,"small"):setTubeLoadTime(1,7.5):
-		setTubeSize(2,"small"):setTubeLoadTime(2,7.5):
-		setTubeSize(3,"small"):setTubeLoadTime(3,7.5):
-		setTubeSize(4,"small"):setTubeLoadTime(4,7.5):
 		setShields(75):setShieldsMax(75):
 		setImpulseMaxSpeed(60):
 		setTypeName("Warcry")
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local warcry_db = queryScienceDatabase("Ships","Polaris Incident","Frigate","Warcry")
+	if warcry_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Polaris Incident","Frigate")
+		if frigate_db == nil then
+			polaris_db:addEntry("Frigate")
+			frigate_db = queryScienceDatabase("Ships","Polaris Incident","Frigate")
+			frigate_db:setLongDescription("Frigates are one size up from starfighters. They require a crew from 3 to 20 people.\nThink, Firefly, millennium falcon, slave I (Boba fett's ship).\n\nThey generally have 2 or more shield sections, but hardly ever more than 4.\n\nThis class of ships is normally not fitted with jump or warp drives. But in some cases ships are modified to include these, or for certain roles it is built in.\n\nThey are divided in 3 different sub-classes:\n* Cruiser: Weaponized frigates, focused on combat. These come in various roles.\n* Light transport: Small transports, like transporting up to 50 soldiers in spartan conditions or a few diplomats in luxury. Depending on the role it can have some weaponry.\n* Support: Support types come in many varieties. They are simply a frigate hull fitted with whatever was needed. Anything from mine-layers to science vessels.")
+		end
+		frigate_db:addEntry("Warcry")
+		warcry_db = queryScienceDatabase("Ships","Polaris Incident","Frigate","Warcry")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
+			warcry_db,		--modified ship database entry
+			warcry,			--ship just created, long description on the next line
+			"Warcry mimics a Storm. There are differences:\nThe tubes are smaller and faster and only shoot HVLIs\nA turret replaced the standard beam\nThe shields have been strengthened\nThe impulse engine is faster\nThe pilots they've been putting on this ship tend to come at you head on",
+			{
+				{key = "Small Tube -5", value = "7.5 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube -2.5", value = "7.5 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 0", value = "7.5 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 2.5", value = "7.5 sec"},	--torpedo tube direction and load speed
+				{key = "Small Tube 5", value = "7.5 sec"},	--torpedo tube direction and load speed
+			},
+			nil,
+			"HeavyCorvetteYellow"
+		)
+	end
+	return warcry
 end
 function carolStage12()
 	-- fast fighter
-	return CpuShip():
+	local crescendo = CpuShip():
 		setTemplate("MT52 Hornet"):
 		setImpulseMaxSpeed(350):
 		setRotationMaxSpeed(10):
@@ -8226,6 +8552,31 @@ function carolStage12()
 		setShields(10):
 		setBeamWeapon(0, 20, 0, 800, 8, 6):
 		setTypeName("Crescendo")
+	local polaris_db = queryScienceDatabase("Ships","Polaris Incident")
+	if polaris_db == nil then
+		polaris_db = establishPolarisDatabase()
+	end
+	local crescendo_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Crescendo")
+	if crescendo_db == nil then
+		local fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+		if fighter_db == nil then
+			polaris_db:addEntry("Starfighter")
+			fighter_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter")
+			fighter_db:setLongDescription("Starfighters are single to 3 person small ships. These are most commonly used as light firepower roles.\nThey are common in larger groups, and need a close by station or support ship, as they lack long time life support.\nIt's rare to see starfighters with more then one shield section.\n\nOne of the most well known starfighters is the X-Wing.\n\nStarfighters come in 3 subclasses:\n* Interceptors: Fast, low on firepower, high on manouverability\n* Gunship: Equipped with more weapons, but trades in manouverability because of it.\n* Bomber: Slowest of all starfighters, but pack a large punch in a small package. Usually come without any lasers, but the largers bombers have been known to deliver nukes.")
+		end
+		fighter_db:addEntry("Crescendo")
+		crescendo_db = queryScienceDatabase("Ships","Polaris Incident","Starfighter","Crescendo")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+			crescendo_db,		--modified ship database entry
+			crescendo,			--ship just created, long description on the next line
+			"The Crescendo started off as a MT52 Hornet. They put in an extremely fast impulse engine. It's so fast, it gives some warp engines a run for their money. However, the shield strength was chopped in half. They also beefed up the beam strength.",
+			nil,
+			nil,
+			"WespeScoutYellow"
+		)
+	end
+	return crescendo
 end
 function carolSpawnSingle(stage,faction)
 	assert(type(stage)=="number",string.format("function carolSpawnSingle expected a number for the first argument, 'stage,' but got a %s instead",type(stage)))
@@ -8331,6 +8682,26 @@ function carolStage(stage)
 		state = "expanding",
 		yet_to_spawn = stage,
 		update = function (self, obj, delta)
+			local christmas = {
+				["red"] =		{r =	179,	g =	0,		b =	12},	
+				["green"] =		{r =	0,		g =	179,	b =	44},	
+				["gold"] =		{r =	255,	g =	215,	b =	0},		
+				["purple"] =	{r =	148,	g =	0,		b =	211},	
+			}
+			local distributed = {
+				"red",
+				"green",
+				"purple",
+				"green",
+				"red",
+				"gold",
+				"red",
+				"green",
+				"purple",
+				"green",
+				"red",
+				"gold",
+			}
 			local size_per_stage=250
 			local max_radius = stage*size_per_stage
 			if self.state == "expanding" then
@@ -8352,7 +8723,15 @@ function carolStage(stage)
 							local angle=start_angle+((360)/(i*4)*j)
 							local sx,sy=vectorFromAngle(angle,size_per_stage*i)
 							local dx,dy=vectorFromAngle(angle,1)
-							local art=Artifact():setPosition(x+sx,y+sy)
+							local index = j%12
+							if index == 0 then
+								index = 12
+							end
+							local color = distributed[index]
+							local r = christmas[color].r
+							local g = christmas[color].g
+							local b = christmas[color].b
+							local art=Artifact():setPosition(x+sx,y+sy):setRadarTraceColor(r,g,b)
 --						end
 --						local tmp=createObjectCircle{number = i * 4, radius = size_per_stage * i, start_angle = random(0,360), x=x, y=y}
 --						for j=#tmp,1,-1 do
