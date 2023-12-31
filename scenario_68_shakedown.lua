@@ -9,7 +9,7 @@
 --- If you continue, add another hour or so.
 ---
 --- Version 0
--- Type: Mission
+-- Type: Replayable Mission
 -- Setting[Enemies]: Configures strength and/or number of enemies in this scenario
 -- Enemies[Easy]: Fewer or weaker enemies
 -- Enemies[Normal|Default]: Normal number or strength of enemies
@@ -28,8 +28,9 @@ require("place_station_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "0.0.2"
-	print(string.format("     -----     Scenario: Shakedown     -----     Version %s     -----",scenario_version))
+	scenario_version = "0.0.3"
+	ee_version = "2023.06.17"
+	print(string.format("    ----    Scenario: Shakedown    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
 	setVariations()
 	setConstants()	--missle type names, template names and scores, deployment directions, player ship names, etc.
@@ -494,6 +495,7 @@ function setConstants()
 	show_only_player_name = true
 	info_choice = 0
 	info_choice_max = 5
+	enemy_reverts = {}
 end
 function constructEnvironment()
 	friendly_neutral_stations = {}
@@ -522,6 +524,26 @@ function constructEnvironment()
 	integral_station = placeStationPlus(is_x,is_y,"RandomHumanNeutral","Independent","Medium Station")
 	table.insert(friendly_neutral_stations,integral_station)
 	rescue_freighter:orderDock(integral_station)
+	rescue_freighter.mission = "dock with integral station"
+	--			local current_order = comms_target:getOrder()
+				--Possible order strings returned:
+				--Roaming
+				--Fly towards
+				--Attack
+				--Stand Ground
+				--Idle
+				--Defend Location
+				--Defend Target
+				--Fly Formation (?)
+				--Fly towards (ignore all)
+				--Dock
+				--[[
+					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
+						local original_target = comms_target:getOrderTarget()
+						if taunt_diagnostic then print("Target of orders before taunt:",original_target,original_target:getCallSign()) end
+						comms_target.original_target = original_target
+					end
+				--]]
 --	Place shipyard station
 	local ss_x, ss_y =  vectorFromAngleNorth((rescue_angle + 120) % 360,30000)
 	shipyard_station:setPosition(ss_x, ss_y)
@@ -3678,6 +3700,24 @@ function friendlyComms(comms_data)
 				setCommsMessage(_("shipNeedyFreighter-comms","Thanks for helping with those Kraylor.\nWhat can we do for you?"))
 			end
 			if mainPlot == helpFreighterDelivery then
+				if rescue_freighter.mission == "dock with integral station" then
+					local current_order = rescue_freighter:getOrder()
+					if current_order ~= "Dock" then
+						addCommsReply(_("shipNeedyFreighter-comms","Resume original delivery mission"),function()
+							setCommsMessage(_("shipNeedyFreighter-comms","On our way"))
+							rescue_freighter:orderDock(integral_station)
+							addCommsReply(_("Back","Back"), commsShip)
+						end)
+					else
+						if rescue_freighter:getOrderTarget() ~= integral_station then
+							addCommsReply(_("shipNeedyFreighter-comms","Resume original delivery mission"),function()
+								setCommsMessage(_("shipNeedyFreighter-comms","On our way"))
+								rescue_freighter:orderDock(integral_station)
+								addCommsReply(_("Back","Back"), commsShip)
+							end)
+						end
+					end
+				end
 				if rescue_freighter_cargo ~= nil and rescue_freighter_cargo:isValid() then
 					addCommsReply(_("shipNeedyFreighter-comms","It looks like you dropped something..."),function()
 						setCommsMessage(string.format(_("shipNeedyFreighter-comms","Yes, the Kraylor damaged us such that we lost cargo capacity. It would be nice if you could pick that up and deliver it to %s"),integral_station:getCallSign()))
