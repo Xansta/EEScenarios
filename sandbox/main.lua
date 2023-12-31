@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.21.2"
+	scenario_version = "6.21.3"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -53306,6 +53306,9 @@ function handleWeaponRestock(weapon)
     if not comms_source:isDocked(comms_target) then 
 		setCommsMessage("You need to stay docked for that action.")
 		return
+	end
+	if comms_data.weapons == nil then
+		print("Weapons availability has not been set for this station:",comms_target:getCallSign())
 	end
     if not isAllowedTo(comms_data.weapons[weapon]) then
         if weapon == "Nuke" then setCommsMessage("We do not deal in weapons of mass destruction.")
