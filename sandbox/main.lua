@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.21.3"
+	scenario_version = "6.22.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -3647,6 +3647,7 @@ function orderShip()
 	if #object_list > 0 then
 		button_label = "Jam Sensors"
 		local ships_only = true
+		local non_enemies_only = true
 		local obj = object_list[1]
 		if #object_list == 1 then
 			if obj.typeName == "CpuShip" then
@@ -3658,6 +3659,12 @@ function orderShip()
 					end
 				else
 					ships_only = false
+				end
+				for i,p in ipairs(getActivePlayerShips()) do
+					if p:isEnemy(obj) then
+						non_enemies_only = false
+						break
+					end
 				end
 			else
 				ships_only = false
@@ -3672,6 +3679,50 @@ function orderShip()
 		end
 		if ships_only then
 			addGMFunction(button_label,toggleShipSensorJammer)
+			if non_enemies_only then
+				addGMFunction("Destroy=Escape Pod",function()
+					local object_list = getGMSelection()
+					if #object_list > 0 then
+						local ships_only = true
+						local non_enemies_only = true
+						local action_list = {}
+						for i,obj in ipairs(object_list) do
+							if obj == nil or not obj:isValid() or obj.typeName ~= "CpuShip" then
+								ships_only = false
+							else
+								for i,p in ipairs(getActivePlayerShips()) do
+									if p:isEnemy(obj) then
+										non_enemies_only = false
+										break
+									end
+								end
+							end
+							if ships_only and non_enemies_only then
+								table.insert(action_list,obj)
+							end
+						end
+						if ships_only then
+							if non_enemies_only then
+								local out = "Automatic escape pod creation upon destruction added to these ships:"
+								if #action_list < 2 then
+									out = "Automatic escape pod creation upon destruction added to this ship:"
+								end
+								for i,ship in ipairs(action_list) do
+									ship:onDestruction(escapePodWhenDestroyed)
+									out = string.format("%s\n%s",out,ship:getCallSign())
+								end
+								addGMMessage(out)
+							else
+								addGMMessage("You need to select friendly or neutral ship(s) only. No action taken.")
+							end
+						else
+							addGMMessage("You need to select ship(s) only. No action taken.")
+						end
+					else
+						addGMMessage("You need to select ship(s). No action taken.")
+					end
+				end)
+			end
 		end
 		if #object_list == 1 and ships_only then
 			if obj:getTypeName() == "Service Jonque" then
@@ -41502,6 +41553,45 @@ function showPodTelemetry(p)
 		p:wrappedAddCustomMessage("Relay","no_more_pods_msg","No pod telemetry located")
 	end
 end
+function podFloat()
+	for index, flotsam in ipairs(escape_pod_floaters) do
+		if flotsam ~= nil and flotsam:isValid() then
+			local cur_x, cur_y = flotsam:getPosition()
+			if distance(cur_x, cur_y, flotsam.debris_end_x, flotsam.debris_end_y) < 10 then
+				table.remove(escape_pod_floaters,index)
+				break
+			else
+				local mid_x = (cur_x + flotsam.debris_end_x)/2
+				local mid_y = (cur_y + flotsam.debris_end_y)/2
+				local quarter_x = (cur_x + mid_x)/2
+				local quarter_y = (cur_y + mid_y)/2
+				flotsam:setPosition((cur_x + quarter_x)/2,(cur_y + quarter_y)/2)
+			end
+		else
+			table.remove(escape_pod_floaters,index)
+			break
+		end
+	end
+	if #escape_pod_floaters == 0 then
+		escape_pod_floaters = nil
+	end
+end
+function escapePodWhenDestroyed(self,instigator)
+	local self_x,self_y = self:getPosition()
+	local escape_pod = podCreation(self_x,self_y,0,0)
+	local angle = random(0,360)
+	if instigator ~= nil then
+		local ix, iy = instigator:getPosition()
+		angle = (angleFromVectorNorth(self_x,self_y,ix,iy) + random(-20,20) + 360) % 360
+	end
+	escape_pod.debris_end_x, escape_pod.debris_end_y = vectorFromAngleNorth(angle,random(500,2000))
+	escape_pod.debris_end_x = escape_pod.debris_end_x + self_x
+	escape_pod.debris_end_y = escape_pod.debris_end_y + self_y
+	if escape_pod_floaters == nil then
+		escape_pod_floaters = {}
+	end
+	table.insert(escape_pod_floaters,escape_pod)
+end
 function podCreation(originx, originy, vectorx, vectory)
 	artifactCounter = artifactCounter + 1
 	artifactNumber = artifactNumber + math.random(1,4)
@@ -41526,6 +41616,7 @@ function podCreation(originx, originy, vectorx, vectory)
 			podPrepButton(p,"Engineering+",podCallSign,string.format("Prepare to get %s",podCallSign),"Transporters on %s ready for pickup of %s")
 		end
 	end
+	return pod
 end
 ---------------------------------------------
 --	Artifacts > Drop Point > Marine Point  --
@@ -55775,6 +55866,9 @@ function update(delta)
 	end
 	updateProbeLabor()
 	updateShowMineBlob()
+	if escape_pod_floaters ~= nil then
+		podFloat()
+	end
 	if updateDiagnostic then print("update: end of update function") end
 end
 function updatePlayerPodTelemetryButton(p)
