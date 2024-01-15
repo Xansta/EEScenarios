@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.22.1"
+	scenario_version = "6.23.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -125,7 +125,7 @@ function applySettings()
 end
 function setConstants()
 	difficulty = 1
-	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical"})
+	customElements:modifyOperatorPositions("name_tag_positions",{"Relay","Operations","ShipLog","Helms","Tactical","Engineering","Engineering+"})
 	universe=universe()
 	update_system=updateSystem:create()
 	playerFleet=fleetCustom:create()
@@ -1744,9 +1744,9 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Terror")			--J
-	makePlayerShipActive("Rattler")			--J
+	makePlayerShipActive("Levant")			--J
 	makePlayerShipActive("Thunderbird") 	--J 
-	makePlayerShipActive("Tango")			--W
+	makePlayerShipActive("Osprey")			--W
 	makePlayerShipActive("Rip")				--W
 	makePlayerShipActive("Farrah") 			--W 
 
@@ -1975,6 +1975,7 @@ function setConstants()
 		["MU55 Hornet"] =					100,
 		["Munemi"] =						100,
 		["MV52 Hornet"] =					100,
+		["MX-Lindworm"] =					100,
 		["Nirvana R3"] =					200,
 		["Nirvana R5"] =					200,
 		["Nirvana R5A"] =					200,
@@ -11427,13 +11428,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 and not mirrorUniverse then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
+--		if i == 2 and not mirrorUniverse then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
 --		elseif i == 5 and not mirrorUniverse then
 --			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 --			dp5Zone:setColor(0,128,0):setLabel("5")
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -11441,7 +11442,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -13557,14 +13558,14 @@ end
 function createIcarusFilkRoadStuff()
 	local ret = {}
 
---	table.insert(ret, WormHole():setPosition(-9623, -13494):setTargetPosition(-67497, -89579):setCallSign("to Micro Solutions Inc."))
+	table.insert(ret, WormHole():setPosition(-9623, -13494):setTargetPosition(-67497, -89579):setCallSign("to Micro Solutions Inc."))
 	table.insert(ret, WormHole():setPosition(-71370, -94747):setTargetPosition(-125051, -162639):setCallSign("to Micro Solutions Inc."))
 	table.insert(ret, WormHole():setPosition(-63495, -92114):setTargetPosition(-5569, -17483):setCallSign("to Icarus"))
 
 	table.insert(ret, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 2"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-67142, -94163):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
-	local wormhole_generator_1_zone	= squareZone(-6841, -16073, "WH Gen 1 E4")
-	wormhole_generator_1_zone:setColor(51,153,255):setLabel("W")
---	table.insert(ret, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
+--	local wormhole_generator_1_zone	= squareZone(-6841, -16073, "WH Gen 1 E4")
+--	wormhole_generator_1_zone:setColor(51,153,255):setLabel("W")
+	table.insert(ret, SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("WormH-Gen 1"):setDescription("PROPERTY OF MICRO SOLUTIONS INC. Arlenian short range two-way wormhole generator. Deployed by Icarus Patrol on 06May2023."):setScannedByFaction("Human Navy", true):setPosition(-6841, -16073):setCommsScript(""):setCommsFunction(wormHGenCommsFunc))
 	table.insert(ret, CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-67349, -95244):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderStandGround())
 	return ret
 end
