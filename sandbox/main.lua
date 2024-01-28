@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.23.1"
+	scenario_version = "6.23.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1981,6 +1981,7 @@ function setConstants()
 		["Nirvana R5A"] =					200,
 		["Odin"] = 							1500,
 		["Omnibus"] = 						800,
+		["overclocker"] =					600,
 		["Peacock"] =						400,
 		["Personnel Freighter 1"] =			600,
 		["Personnel Freighter 2"] =			600,
