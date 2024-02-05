@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.23.2"
+	scenario_version = "6.23.4"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1743,12 +1743,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Terror")			--J
-	makePlayerShipActive("Levant")			--J
-	makePlayerShipActive("Thunderbird") 	--J 
-	makePlayerShipActive("Osprey")			--W
-	makePlayerShipActive("Rip")				--W
-	makePlayerShipActive("Farrah") 			--W 
+	makePlayerShipActive("Splinter")		--J
+	makePlayerShipActive("Mixer")			--J
+	makePlayerShipActive("Flaire") 			--J 
+	makePlayerShipActive("Claw")			--W
+	makePlayerShipActive("Rocinante")		--W
+	makePlayerShipActive("Vision") 			--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -4178,6 +4178,7 @@ function asteroidsNebulae()
 		end
 	end	
 end
+--	planet addition and configuration
 function tweakPlanet()
 	clearGMFunctions()
 --	addGMFunction("-Main",initialGMFunctions)
@@ -5055,6 +5056,7 @@ function planetSurface()
 		end)
 	end
 end
+--	nebula effects on players
 function nebulaEffectDegree()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -5843,6 +5845,7 @@ function actOnFactionPair()
 		actOnFactionPair()
 	end)
 end
+--	explosions and beam effects
 function setExplosion()
 	clearGMFunctions()
 	addGMFunction("-Main from Explosion",initialGMFunctions)
@@ -6148,6 +6151,7 @@ function setExplosionDamage()
 		end
 	end
 end
+--	freighter commerce
 function freighterCommerce()
 	clearGMFunctions()
 	addGMFunction("-Main from Commerce",initialGMFunctions)
@@ -7401,6 +7405,7 @@ function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
 		specific_freighter_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
 	end
 end
+--	dynamic terrain support
 function mtExuariHugeOnClick(x,y)
 	if exuari_huge_clean_list == nil then
 		exuari_huge_clean_list = {}
@@ -10902,7 +10907,6 @@ function filkRoadSector()
 	return ret
 end
 
-
 function singleCPUShipFunction(fn)
 	return singleObjectFunction(function (obj)
 		if obj.typeName ~= "CpuShip" then
@@ -11378,7 +11382,6 @@ function convertToNonMirror()
 	skeletonToFaction("Human Navy")
 end
 
-
 -- Icarus area stations, asteroids, mines, etc. 
 function icarusSector()
 	createIcarusColor()
@@ -11429,9 +11432,9 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 2 and not mirrorUniverse then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
+--		if i == 4 and not mirrorUniverse then
+--			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
+--			dp4Zone:setColor(0,128,0):setLabel("4")
 --		elseif i == 5 and not mirrorUniverse then
 --			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 --			dp5Zone:setColor(0,128,0):setLabel("5")
@@ -12420,9 +12423,10 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
---	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 8 E4")
---	maximilianZone:setColor(51,153,255):setLabel("X")
-    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 8"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 9 E4")
+	maximilianZone:setColor(51,153,255):setLabel("X")
+	--[[
+    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 9"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationMaximilian:setFaction("Spacer")
 	end
@@ -12472,6 +12476,7 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
+	--]]
 	--Mean Time
 	stationMeanTime = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Mean Time"):setPosition(-59605, -126288):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMeanTime.comms_data = {
@@ -12523,11 +12528,11 @@ function createIcarusStations()
 	end
 	--Mermaid
 	-- only destroyed in non mirror universe
---	if not mirrorUniverse then
---		local mermaidZone = squareZone(28889, -4417, "Mermaid 10 E6")
---		mermaidZone:setColor(51,153,255):setLabel("9")
---	else
-		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 10"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+	if not mirrorUniverse then
+		local mermaidZone = squareZone(28889, -4417, "Mermaid 11 E6")
+		mermaidZone:setColor(51,153,255):setLabel("11")
+	else
+		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 11"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
 		if mirrorUniverse then
 			stationMermaid:setFaction("Spacer")
 		end
@@ -12579,7 +12584,7 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
---	end
+	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
 --	nilweaZone:setColor(51,153,255):setLabel("N")
@@ -29238,8 +29243,8 @@ function createPlayerShipSplinter()
 	playerFresnel:setRadarTrace("ktlitan_fighter.png")	--different radar trace
 	playerFresnel:setMaxEnergy(500)								--more maximum energy (vs 400)
 	playerFresnel:setEnergy(500)
-	playerFresnel:setShieldsMax(80,80)							--stronger shields (vs 40)
-	playerFresnel:setShields(80,80)
+	playerFresnel:setShieldsMax(120,80)							--stronger shields (vs 40)
+	playerFresnel:setShields(120,80)
 	playerFresnel:setJumpDrive(true)							--jump drive (vs none)
 	playerFresnel.max_jump_range = 20000						--shorter than typical (vs 50)
 	playerFresnel.min_jump_range = 2000							--shorter than typical (vs 5)
