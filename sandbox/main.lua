@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.24.1"
+	scenario_version = "6.24.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1761,11 +1761,11 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Splinter")		--J
-	makePlayerShipActive("Mixer")			--J
+	makePlayerShipActive("Bling")			--J
 	makePlayerShipActive("Flaire") 			--J 
-	makePlayerShipActive("Claw")			--W
+	makePlayerShipActive("Ignite")			--W
 	makePlayerShipActive("Rocinante")		--W
-	makePlayerShipActive("Vision") 			--W 
+	makePlayerShipActive("Spike") 			--W 
 
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
@@ -11514,13 +11514,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 4 and not mirrorUniverse then
---			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
---			dp4Zone:setColor(0,128,0):setLabel("4")
+		if i == 4 and not mirrorUniverse then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
+			dp4Zone:setColor(0,128,0):setLabel("4")
 --		elseif i == 5 and not mirrorUniverse then
 --			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 --			dp5Zone:setColor(0,128,0):setLabel("5")
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000):setCommsScript(""):setCommsFunction(commsStation)
@@ -11528,7 +11528,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -12409,11 +12409,8 @@ function createIcarusStations()
 	station_names[stationKiptik:getCallSign()] = {stationKiptik:getSectorName(), stationKiptik}
 	table.insert(stations,stationKiptik)
 	--Loowine
-	if not mirrorUniverse then
-		local loowineZone = squareZone(-41198, 237422, "Loowine II I2")
-		loowineZone:setColor(255,128,0):setLabel("L")
-	end
-	--[[
+--		local loowineZone = squareZone(-41198, 237422, "Loowine II Q2")
+--		loowineZone:setColor(255,128,0):setLabel("L")
 	stationLoowine = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Loowine II"):setPosition(-41198, 237422):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationLoowine.comms_data = {
     	friendlyness = 82,
@@ -12455,7 +12452,6 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationLoowine:setSharesEnergyWithDocked(false) end
 	station_names[stationLoowine:getCallSign()] = {stationLoowine:getSectorName(), stationLoowine}
 	table.insert(stations,stationLoowine)
-	--]]
 	--Macassa
 --	local macassaZone = squareZone(16335, -18034, "Macassa 12 E5")
 --	macassaZone:setColor(0,128,0):setLabel("M")
@@ -12505,9 +12501,8 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 9 E4")
-	maximilianZone:setColor(51,153,255):setLabel("X")
-	--[[
+--	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 9 E4")
+--	maximilianZone:setColor(51,153,255):setLabel("X")
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 9"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationMaximilian:setFaction("Spacer")
@@ -12558,7 +12553,6 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
-	--]]
 	--Mean Time
 	stationMeanTime = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Mean Time"):setPosition(-59605, -126288):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMeanTime.comms_data = {
@@ -12610,10 +12604,10 @@ function createIcarusStations()
 	end
 	--Mermaid
 	-- only destroyed in non mirror universe
-	if not mirrorUniverse then
-		local mermaidZone = squareZone(28889, -4417, "Mermaid 11 E6")
-		mermaidZone:setColor(51,153,255):setLabel("11")
-	else
+--	if not mirrorUniverse then
+--		local mermaidZone = squareZone(28889, -4417, "Mermaid 11 E6")
+--		mermaidZone:setColor(51,153,255):setLabel("11")
+--	else
 		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 11"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
 		if mirrorUniverse then
 			stationMermaid:setFaction("Spacer")
@@ -12666,7 +12660,7 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
-	end
+--	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
 --	nilweaZone:setColor(51,153,255):setLabel("N")
@@ -27279,8 +27273,8 @@ end
 function createPlayerShipBling()
 	playerGadfly = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Bling")
 	playerGadfly:setTypeName("Gadfly")
-	playerGadfly:setHullMax(100)						--stronger (vs 60)
-	playerGadfly:setHull(100)
+	playerGadfly:setHullMax(120)						--stronger (vs 60)
+	playerGadfly:setHull(120)
 	playerGadfly:setShieldsMax(100,70)					--stronger shields (vs 40)
 	playerGadfly:setShields(100,70)
 	playerGadfly:setJumpDrive(true)						--jump drive (vs none)
@@ -29691,8 +29685,8 @@ function createPlayerShipTorch()
 	playerTorch:setWarpSpeed(960)
 	playerTorch:setShieldsMax(80)					--stronger shields (vs 40)
 	playerTorch:setShields(80)
-	playerTorch:setHullMax(100)						--stronger hull (vs 60)
-	playerTorch:setHull(100)
+	playerTorch:setHullMax(120)						--stronger hull (vs 60)
+	playerTorch:setHull(120)
 	local update_data = {
 		update = function (self, obj, delta)
 			local upper_heat = 0.98
@@ -52403,9 +52397,15 @@ function handleUndockedState()
 		contactStationGMRepresentative("Android")
 	end
 	setCommsMessage(oMsg)
-	androidUndockedStationComms()
+	if android_undocked_station_time == nil or getScenarioTime() > android_undocked_station_time + comms_fudge then
+		androidUndockedStationComms()
+		android_undocked_station_time = getScenarioTime()
+	end
 	if interactive then
-		interactiveUndockedStationComms()
+		if interactive_undocked_station_time == nil or getScenarioTime() > interactive_undocked_station_time + comms_fudge then
+			interactiveUndockedStationComms()
+			interactive_undocked_station_time = getScenarioTime()
+		end
 	end
 end
 function androidUndockedStationComms()
@@ -54455,11 +54455,16 @@ function handleDockedState()
 		contactStationGMRepresentative("Android")
 	end
 	setCommsMessage(oMsg)
-	androidDockedStationComms()
-	if interactive then
-		interactiveDockedStationComms()
+	if android_docked_station_time == nil or getScenarioTime() > android_docked_station_time + comms_fudge then
+		androidDockedStationComms()
+		android_docked_station_time = getScenarioTime()
 	end
-	
+	if interactive then
+		if interactive_docked_station_time == nil or getScenarioTime() > interactive_docked_station_time + comms_fudge then
+			interactiveDockedStationComms()
+			interactive_docked_station_time = getScenarioTime()
+		end
+	end
 end
 function androidDockedStationComms()
 	addCommsReply(_("station-comms","Automated station communication"),androidDockedStationCommsMeat)
@@ -54479,7 +54484,7 @@ function androidDockedStationCommsMeat()
 			addCommsReply(_("station-comms","Place goods in deposit hatch"),giveGoodsToStation)
 		end
 	end
-	addCommsReply(_("Back"), commsStation)
+	addCommsReply(_("Back"), commsStation)	--problem child
 end
 function giveGoodsToStation()
 	local donate_prompt = {
