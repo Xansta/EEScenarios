@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.24.2"
+	scenario_version = "6.24.3"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1762,9 +1762,9 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Splinter")		--J
 	makePlayerShipActive("Bling")			--J
-	makePlayerShipActive("Flaire") 			--J 
+	makePlayerShipActive("Headhunter") 		--J 
 	makePlayerShipActive("Ignite")			--W
-	makePlayerShipActive("Rocinante")		--W
+	makePlayerShipActive("Devon")			--W
 	makePlayerShipActive("Spike") 			--W 
 
 	active_player_ship = true
@@ -27478,7 +27478,7 @@ function createPlayerShipDarkstar()
 	return playerDarkstar
 end
 function createPlayerShipDevon()
-	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Farrah")
+	playerWombat = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Devon")
 	--aka Devon or Farrah or Shannon
 	playerWombat:setTypeName("Wombat")
 	playerWombat:setHullMax(140)							--stronger hull (vs 75)
@@ -28017,38 +28017,32 @@ end
 function createPlayerShipHeadhunter()
 	playerHeadhunter = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Headhunter")
 	playerHeadhunter:setTypeName("Redhook")
-	playerHeadhunter:setRepairCrewCount(4)						--more repair crew (vs 2)
-	playerHeadhunter.max_jump_range = 25000				--shorter than typical (vs 50)
-	playerHeadhunter.min_jump_range = 2000					--shorter than typical (vs 5)
+	playerHeadhunter:setRepairCrewCount(4)							--more repair crew (vs 2)
+	playerHeadhunter.max_jump_range = 25000							--shorter than typical (vs 50)
+	playerHeadhunter.min_jump_range = 2500							--shorter than typical (vs 5)
 	playerHeadhunter:setJumpDriveRange(playerHeadhunter.min_jump_range,playerHeadhunter.max_jump_range)
 	playerHeadhunter:setJumpDriveCharge(playerHeadhunter.max_jump_range)
-	playerHeadhunter:setHullMax(140)							--stronger hull (vs 120)
+	playerHeadhunter:setHullMax(140)								--stronger hull (vs 120)
 	playerHeadhunter:setHull(140)
-	playerHeadhunter:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
+	playerHeadhunter:setShieldsMax(100, 100)						--stronger shields (vs 70, 70)
 	playerHeadhunter:setShields(100, 100)
-	playerHeadhunter:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
-	playerHeadhunter:setBeamWeaponTurret(0, 80, 0, 1)			--slow turret 
-	playerHeadhunter:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
-	playerHeadhunter:setWeaponTubeDirection(6, 180)				--mine tube points straight back
-	playerHeadhunter:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(5,"HVLI")
-	playerHeadhunter:setWeaponTubeExclusiveFor(6,"Mine")
-	playerHeadhunter:weaponTubeAllowMissle(1,"Homing")
-	playerHeadhunter:weaponTubeAllowMissle(1,"EMP")
-	playerHeadhunter:weaponTubeAllowMissle(1,"Nuke")
-	playerHeadhunter:weaponTubeAllowMissle(4,"Homing")
-	playerHeadhunter:weaponTubeAllowMissle(4,"EMP")
-	playerHeadhunter:weaponTubeAllowMissle(4,"Nuke")
-	playerHeadhunter:setWeaponStorageMax("Mine",4)				--fewer mines (vs 8)
-	playerHeadhunter:setWeaponStorage("Mine", 4)				
-	playerHeadhunter:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
-	playerHeadhunter:setWeaponStorage("EMP", 4)					
-	playerHeadhunter:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
-	playerHeadhunter:setWeaponStorage("Nuke", 4)				
+--                 				 	 Arc, Dir, Range, CycleTime, Dmg
+	playerHeadhunter:setBeamWeapon(0, 10,   0,  1000,		4.0, 4)	--one beam (vs 0)
+--									    	Arc, Dir, Rotate speed
+	playerHeadhunter:setBeamWeaponTurret(0, 120,   0, 1)			
+	playerHeadhunter:setWeaponTubeCount(6)							--two fewer tubes, EMPS added, one front tube, 2 broadsides: medium and large, rear mine tube
+	playerHeadhunter:setWeaponTubeDirection(0,   0):setTubeSize(0,"small" ):setTubeLoadTime(0, 6):setWeaponTubeExclusiveFor(0,"HVLI")
+	playerHeadhunter:setWeaponTubeDirection(1, -90):setTubeSize(1,"medium"):setTubeLoadTime(1, 8):setWeaponTubeExclusiveFor(1,"HVLI"):weaponTubeAllowMissle(1,"Homing"):weaponTubeAllowMissle(1,"EMP"):weaponTubeAllowMissle(1,"Nuke")
+	playerHeadhunter:setWeaponTubeDirection(2, -90):setTubeSize(2,"large" ):setTubeLoadTime(2,12):setWeaponTubeExclusiveFor(2,"HVLI")
+	playerHeadhunter:setWeaponTubeDirection(3,  90):setTubeSize(3,"medium"):setTubeLoadTime(3, 8):setWeaponTubeExclusiveFor(3,"HVLI"):weaponTubeAllowMissle(3,"Homing"):weaponTubeAllowMissle(3,"EMP"):weaponTubeAllowMissle(3,"Nuke")
+	playerHeadhunter:setWeaponTubeDirection(4,  90):setTubeSize(4,"large" ):setTubeLoadTime(4,12):setWeaponTubeExclusiveFor(4,"HVLI")
+	playerHeadhunter:setWeaponTubeDirection(5, 180):setTubeSize(5,"medium"):setTubeLoadTime(5,10):setWeaponTubeExclusiveFor(5,"Mine")
+	playerHeadhunter:setWeaponStorageMax("Mine",6)					--fewer mines (vs 8)
+	playerHeadhunter:setWeaponStorage(   "Mine",6)				
+	playerHeadhunter:setWeaponStorageMax("EMP", 4)					--more EMPs (vs 0)
+	playerHeadhunter:setWeaponStorage(   "EMP", 4)					
+	playerHeadhunter:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
+	playerHeadhunter:setWeaponStorage(   "Nuke",4)				
 	playerHeadhunter:onTakingDamage(playerShipDamage)
 	playerHeadhunter:addReputationPoints(50)
 	return playerHeadhunter
