@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.24.3"
+	scenario_version = "6.25.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1761,9 +1761,9 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Splinter")		--J
-	makePlayerShipActive("Bling")			--J
-	makePlayerShipActive("Headhunter") 		--J 
-	makePlayerShipActive("Ignite")			--W
+	makePlayerShipActive("Halberd")			--J
+	makePlayerShipActive("Cobra") 			--J 
+	makePlayerShipActive("Quicksilver")		--W
 	makePlayerShipActive("Devon")			--W
 	makePlayerShipActive("Spike") 			--W 
 
@@ -2079,6 +2079,7 @@ function setConstants()
 		["Supervisor"] =					400,
 		["Sweeper"] =						100,
 		["Tempest"] =						200,
+		["Torch"] =							100,
 		["Transport1x1"] =					600,
 		["Transport1x2"] =					600,
 		["Transport1x3"] =					600,
@@ -2468,6 +2469,28 @@ function setConstants()
 		{name = "Miguel Lopez", subject_pronoun = "he", object_pronoun = "him", possessive_adjective = "his"},
 		{name = "Renata Rodriguez", subject_pronoun = "she", object_pronoun = "her", possessive_adjective = "her"},
 	}
+	pretty_system = {
+		["reactor"] = _("stationServices-comms","reactor"),
+		["beamweapons"] = _("stationServices-comms","beam weapons"),
+		["missilesystem"] = _("stationServices-comms","missile system"),
+		["maneuver"] = _("stationServices-comms","maneuver"),
+		["impulse"] = _("stationServices-comms","impulse engines"),
+		["warp"] = _("stationServices-comms","warp drive"),
+		["jumpdrive"] = _("stationServices-comms","jump drive"),
+		["frontshield"] = _("stationServices-comms","front shield"),
+		["rearshield"] = _("stationServices-comms","rear shield"),
+	}
+	pretty_short_system = {
+		["reactor"] = _("stationServices-comms","reactor"),
+		["beamweapons"] = _("stationServices-comms","beams"),
+		["missilesystem"] = _("stationServices-comms","missiles"),
+		["maneuver"] = _("stationServices-comms","maneuver"),
+		["impulse"] = _("stationServices-comms","impulse"),
+		["warp"] = _("stationServices-comms","warp"),
+		["jumpdrive"] = _("stationServices-comms","jump"),
+		["frontshield"] = _("stationServices-comms","front shield"),
+		["rearshield"] = _("stationServices-comms","rear shield"),
+	}
 end
 function addFactions()
 -- extra factions
@@ -2556,6 +2579,12 @@ function createSkeletonUniverse()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -2617,6 +2646,12 @@ function createSkeletonUniverse()
         	supplydrop = math.random(90,110), 
         	reinforcements = math.random(140,160),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -2721,6 +2756,12 @@ function createSkeletonUniverse()
         	supplydrop = math.random(100,140), 
         	reinforcements = math.random(140,180),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<70},
@@ -2777,6 +2818,12 @@ function createSkeletonUniverse()
         	supplydrop = math.random(90,110), 
         	reinforcements = math.random(140,160),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -2839,6 +2886,12 @@ function createSkeletonUniverse()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -2902,6 +2955,12 @@ function createSkeletonUniverse()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -2961,6 +3020,12 @@ function createSkeletonUniverse()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -3990,7 +4055,16 @@ function tweakTerrain()
 							weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
 					        weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
 							weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
-							service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+							service_cost = 		{
+								supplydrop = math.random(80,120), 
+								reinforcements = math.random(125,175),
+								probe_launch_repair = math.random(1,4) + math.random(1,5),
+								hack_repair = math.random(1,4) + math.random(1,5),
+								scan_repair = math.random(1,4) + math.random(1,5),
+								combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+								self_destruct_repair = math.random(1,4) + math.random(1,5),
+								tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+							},
 							system_repair = {
 								["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
 								["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -4019,7 +4093,16 @@ function tweakTerrain()
 								weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
 								weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
 								weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
-								service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+								service_cost = 		{
+									supplydrop = math.random(80,120), 
+									reinforcements = math.random(125,175),
+									probe_launch_repair = math.random(1,4) + math.random(1,5),
+									hack_repair = math.random(1,4) + math.random(1,5),
+									scan_repair = math.random(1,4) + math.random(1,5),
+									combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+									self_destruct_repair = math.random(1,4) + math.random(1,5),
+									tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+								},
 								system_repair = {
 									["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
 									["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -4074,7 +4157,16 @@ function tweakTerrain()
 									weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
 									weapon_cost =		{Homing = math.random(2,5),	HVLI = math.random(1,4),Mine = math.random(3,8),Nuke = math.random(12,18),	EMP = math.random(12,18) },
 									weapon_available = 	{Homing = random(1,10)<=9,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=6,	Nuke = random(1,10)<=4,	EMP = random(1,10)<=5},
-									service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+									service_cost = 		{
+										supplydrop = math.random(80,120), 
+										reinforcements = math.random(125,175),
+										probe_launch_repair = math.random(1,4) + math.random(1,5),
+										hack_repair = math.random(1,4) + math.random(1,5),
+										scan_repair = math.random(1,4) + math.random(1,5),
+										combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+										self_destruct_repair = math.random(1,4) + math.random(1,5),
+										tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+									},
 									system_repair = {
 										["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
 										["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -8917,7 +9009,19 @@ function santaContainment()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = true,HVLI = true,		Mine = true,		Nuke = true,			EMP = true},
-        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
@@ -8976,7 +9080,16 @@ function santaContainment()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 15,					EMP = 10 },
         weapon_available = 	{Homing = true,HVLI = true,		Mine = true,		Nuke = true,			EMP = true},
-        service_cost = 		{supplydrop = math.random(90,110), reinforcements = math.random(140,160)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -10871,7 +10984,19 @@ function filkRoadSector()
 		weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
 		weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
 		weapon_available = 	{Homing = true,		HVLI = true,			Mine = true,			Nuke = true,				EMP = true},
-		service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
 		system_repair = {
 			["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
 			["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -10950,7 +11075,16 @@ function filkRoadSector()
 		weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
 		weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
 		weapon_available = 	{Homing = true,		HVLI = true,			Mine = random(1,100)<50,Nuke = random(1,100)<30,	EMP = random(1,100)<40},
-		service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
 		system_repair = {
 			["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
 			["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -11702,6 +11836,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -11762,6 +11902,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -11813,6 +11959,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -11889,6 +12041,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -11950,8 +12108,14 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,6),	HVLI = math.random(1,4),Mine = math.random(5,9),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = random(1,10)<=8,	Mine = true,			Nuke = random(1,10)<=3,		EMP = random(1,10)<=4},
         service_cost = 		{
-        	supplydrop = math.random(80,120), 
-        	reinforcements = math.random(123,175),
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -12013,8 +12177,14 @@ function createIcarusStations()
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = 30,					EMP = 20 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = false,				EMP = false},
         service_cost = 		{
-        	supplydrop = math.random(80,120), 
-        	reinforcements = math.random(125,175),
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12062,6 +12232,12 @@ function createIcarusStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12110,7 +12286,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "neutral"},
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -12166,7 +12351,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "neutral"},
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = true,			Mine = random(1,10)<=5,	Nuke = random(1,10)<=3,		EMP = random(1,10)<=4},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -12221,8 +12415,14 @@ function createIcarusStations()
         weapon_cost =		{Homing = math.random(3,6),	HVLI = math.random(1,4),Mine = math.random(5,9),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
         service_cost = 		{
-        	supplydrop = math.random(80,120), 
-        	reinforcements = math.random(123,175),
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -12289,6 +12489,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12336,6 +12542,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12379,7 +12591,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(13,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = random(1,10)<=6,	HVLI = random(1,10)<=8,	Mine = true,			Nuke = random(1,10)<=3,		EMP = random(1,10)<=4},
-        service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -12421,6 +12642,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12471,7 +12698,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(13,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -12518,7 +12754,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2,				HVLI = math.random(2,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
@@ -12560,7 +12805,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 				HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = random(1,10)<=6,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=5,	Nuke = random(1,10)<=3,		EMP = random(1,10)<=4},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -12604,11 +12858,11 @@ function createIcarusStations()
 	end
 	--Mermaid
 	-- only destroyed in non mirror universe
---	if not mirrorUniverse then
---		local mermaidZone = squareZone(28889, -4417, "Mermaid 11 E6")
---		mermaidZone:setColor(51,153,255):setLabel("11")
---	else
-		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 11"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+	if not mirrorUniverse then
+		local mermaidZone = squareZone(28889, -4417, "Mermaid 12 E6")
+		mermaidZone:setColor(51,153,255):setLabel("11")
+	else
+		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 12"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
 		if mirrorUniverse then
 			stationMermaid:setFaction("Spacer")
 		end
@@ -12623,7 +12877,16 @@ function createIcarusStations()
 			weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
 			weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
 			weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-			service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+			service_cost = 		{
+				supplydrop = math.random(80,120), 
+				reinforcements = math.random(125,175),
+				probe_launch_repair = math.random(1,4) + math.random(1,5),
+				hack_repair = math.random(1,4) + math.random(1,5),
+				scan_repair = math.random(1,4) + math.random(1,5),
+				combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+				self_destruct_repair = math.random(1,4) + math.random(1,5),
+				tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			},
 			system_repair = {
 				["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
 				["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -12660,7 +12923,7 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
---	end
+	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
 --	nilweaZone:setColor(51,153,255):setLabel("N")
@@ -12673,6 +12936,12 @@ function createIcarusStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12741,6 +13010,12 @@ function createIcarusStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12802,7 +13077,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = 10 },
         weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -12854,7 +13138,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), HVLI = math.random(1,3),Mine = math.random(2,3),Nuke = math.random(14,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = homeAvail,		HVLI = true,			Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(95,120), reinforcements = math.random(145,175)},
+        service_cost = 		{
+        	supplydrop = math.random(95,120), 
+        	reinforcements = math.random(145,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
@@ -12907,6 +13200,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -12958,7 +13257,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5),	HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(11,17) },
         weapon_available = 	{Homing = random(1,10)<=6,	HVLI = random(1,10)<=8,	Mine = random(1,10)<=5,	Nuke = random(1,10)<=3,		EMP = random(1,10)<=4},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -13014,6 +13322,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -13072,7 +13386,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5),	HVLI = math.random(1,2),Mine = math.random(2,5),Nuke = math.random(12,18),	EMP = math.random(11,17) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -13134,7 +13457,15 @@ function createIcarusStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(123,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -13197,7 +13528,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 2, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -13260,6 +13600,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -13311,6 +13657,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -13371,6 +13723,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -13434,6 +13792,12 @@ function createIcarusStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -13507,7 +13871,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = random(1,10)<=8,	Mine = random(1,10)<=5,	Nuke = random(1,10)<=3,		EMP = true},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(123,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -13563,7 +13936,16 @@ function createIcarusStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(3,7),	HVLI = math.random(2,5),Mine = math.random(3,7),Nuke = math.random(12,18),	EMP = math.random(9,13) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = true},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(123,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(123,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -14622,6 +15004,12 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -14975,6 +15363,12 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -15035,6 +15429,12 @@ function createKentarStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -15087,7 +15487,16 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(32,58),	EMP = 20 },
         weapon_available = 	{Homing = false,	HVLI = false,			Mine = false,			Nuke = true,				EMP = true},
-        service_cost = 		{supplydrop = math.random(180,320), reinforcements = math.random(225,375)},
+        service_cost = 		{
+        	supplydrop = math.random(180,320), 
+        	reinforcements = math.random(225,375),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -15141,6 +15550,12 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -15201,7 +15616,16 @@ function createKentarStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "neutral", 			EMP = "neutral"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -15265,6 +15689,12 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -15323,6 +15753,12 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -15380,6 +15816,12 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -15435,6 +15877,14 @@ function createKentarStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -15492,6 +15942,12 @@ function createKentarStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -18456,7 +18912,16 @@ function ghostNebulaSector()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "friend",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,4), HVLI = math.random(2,4),Mine = math.random(2,5),Nuke = math.random(8,20),	EMP = math.random(12,15) },
         weapon_available = 	{Homing = homeAvail,		HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         probe_launch_repair =	true,
         scan_repair =			true,
         sensor_boost = {value = 10000, cost = 10},
@@ -18520,7 +18985,19 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(4,6),Nuke = math.random(12,20),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = true,				HVLI = false,			Mine = random(1,100)<30,Nuke = random(1,100)<30,	EMP = random(1,100)<73	},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -18562,7 +19039,16 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100)<30,Mine = true,			Nuke = random(1,100)<30,	EMP = random(1,100)<30	},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -18615,7 +19101,16 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = hvliAvail,		Mine = true,			Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -18672,6 +19167,12 @@ function createLafrinaStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -18733,6 +19234,12 @@ function createLafrinaStations()
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -18787,6 +19294,12 @@ function createLafrinaStations()
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -18850,7 +19363,16 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = false,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -18903,7 +19425,16 @@ function createLafrinaStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = true,				HVLI = hvliAvail,		Mine = false,		Nuke = nukeAvail,			EMP = empAvail},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -19533,7 +20064,16 @@ function createTereshStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+       	},
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
@@ -19582,7 +20122,16 @@ function createTereshStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
@@ -19630,7 +20179,16 @@ function createTereshStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),	Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100) <= 80,	Mine = true,			Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -19674,7 +20232,16 @@ function createTereshStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),	Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100) <= 80,	Mine = true,			Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -19721,7 +20288,16 @@ function createTereshStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),	Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100) <= 80,	Mine = true,			Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -19766,7 +20342,19 @@ function createTereshStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),	Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100) <= 80,	Mine = true,			Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -19810,7 +20398,16 @@ function createTereshStations()
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),	Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = false,			HVLI = random(1,100) <= 80,	Mine = true,			Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -19863,6 +20460,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -19908,6 +20511,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -19953,6 +20562,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -19996,6 +20611,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<50},
@@ -20036,6 +20657,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -20078,6 +20705,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -20121,6 +20754,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -20165,6 +20804,12 @@ function createTereshStations()
    			hornet_reinforcements =	math.random(75,125),
 			phobos_reinforcements =	math.random(175,225),
 			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
@@ -20552,7 +21197,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -20600,7 +21254,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -20654,7 +21317,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,6), 	HVLI = math.random(2,5),	Mine = math.random(2,6),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -20697,9 +21369,8 @@ function createBaskStations()
 	station_names[stationForward:getCallSign()] = {stationForward:getSectorName(), stationForward}
 	table.insert(stations,stationForward)
 	--	Lizzy
-	local lizzyZone = squareZone(992735, 294340, "Lizzy 2")
-	lizzyZone:setColor(51,153,255):setLabel("L")
-	--[[
+--	local lizzyZone = squareZone(992735, 294340, "Lizzy 2")
+--	lizzyZone:setColor(51,153,255):setLabel("L")
 	stationLizzy = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Lizzy 2"):setPosition(992735, 294340):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationLizzy:setShortRangeRadarRange(6500)
 	selected_remote_warp_jammer = remote_warp_jammer_list[math.random(1,#remote_warp_jammer_list + 1)]
@@ -20711,7 +21382,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,5),	Nuke = math.random(12,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 70,	Mine = random(1,100) <= 50,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -20751,7 +21431,6 @@ function createBaskStations()
 	if random(1,100) <= 12 then stationLizzy:setSharesEnergyWithDocked(false) end
 	station_names[stationLizzy:getCallSign()] = {stationLizzy:getSectorName(), stationLizzy}
 	table.insert(stations,stationLizzy)
-	--]]
 	--	Torch
 	--local torchZone = squareZone(1013452, 269943, "Torch")
 	--torchZone:setColor(51,153,255):setLabel("T")
@@ -20766,7 +21445,19 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "neutral"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,5),	Mine = math.random(2,4),	Nuke = math.random(12,19),	EMP = math.random(9,25) },
         weapon_available = 	{Homing = random(1,100) <= 50,	HVLI = random(1,100) <= 40,	Mine = random(1,100) <= 30,	Nuke = random(1,100) <= 40,	EMP = random(1,100) <= 60},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<60},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
@@ -20823,7 +21514,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "neutral", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,6),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 50,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 20},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -20878,7 +21578,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 50,	Mine = random(1,100) <= 80,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -20932,7 +21641,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(15,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 50,	HVLI = random(1,100) <= 60,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
@@ -20986,7 +21704,19 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,5),	Mine = math.random(3,5),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 70,	HVLI = random(1,100) <= 60,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),        	
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21041,7 +21771,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,4), 	HVLI = math.random(1,4),	Mine = math.random(2,5),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 20},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21095,7 +21834,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,5),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 40,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 27},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21150,7 +21898,19 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(3,6), 	HVLI = math.random(2,6),	Mine = math.random(3,8),	Nuke = math.random(12,16),	EMP = math.random(8,14) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 27},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21205,7 +21965,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,3),	Mine = math.random(2,7),	Nuke = math.random(14,17),	EMP = math.random(8,17) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21261,7 +22030,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,18),	EMP = math.random(9,17) },
         weapon_available = 	{Homing = random(1,100) <= 55,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
@@ -21316,7 +22094,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,4), 	HVLI = math.random(1,4),	Mine = math.random(1,9),	Nuke = math.random(16,21),	EMP = math.random(8,13) },
         weapon_available = 	{Homing = random(1,100) <= 55,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21371,7 +22158,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,5),	Mine = math.random(2,7),	Nuke = math.random(13,16),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21426,7 +22222,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,6), 	HVLI = math.random(1,5),	Mine = math.random(2,7),	Nuke = math.random(13,16),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<50},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<40},
@@ -21481,7 +22286,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 75,	HVLI = random(1,100) <= 67,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21535,7 +22349,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21589,7 +22412,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(16,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 85,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21643,7 +22475,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21697,7 +22538,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -21751,7 +22601,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
@@ -21805,7 +22664,16 @@ function createBaskStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(2,6),	Nuke = math.random(14,19),	EMP = math.random(9,16) },
         weapon_available = 	{Homing = random(1,100) <= 65,	HVLI = random(1,100) <= 57,	Mine = random(1,100) <= 42,	Nuke = random(1,100) <= 20,	EMP = random(1,100) <= 37},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -22640,7 +23508,19 @@ function riptideBinarySector()
         weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = 3, 		HVLI = math.random(1,4),Mine = math.random(2,7),Nuke = math.random(10,18),	EMP = math.random(7,15) },
         weapon_available = 	{Homing = true,		HVLI = true,			Mine = random(1,100)<50,Nuke = random(1,100)<30,	EMP = random(1,100)<40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -22950,7 +23830,16 @@ function createStaunchStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -23001,7 +23890,16 @@ function createStaunchStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -23052,7 +23950,16 @@ function createStaunchStations()
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = true,					HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -28733,9 +29640,9 @@ function createPlayerShipQuick()
 	playerQuick:setTypeName("XR-Lindworm")
 	playerQuick:setRepairCrewCount(3)			--more repair crew (vs 1)
 	playerQuick:setWarpDrive(true)				--warp drive (vs none)
-	playerQuick:setWarpSpeed(400)
-	playerQuick:setShieldsMax(90,40)			--stronger front (vs 40)
-	playerQuick:setShields(90,40)
+	playerQuick:setWarpSpeed(450)
+	playerQuick:setShieldsMax(100,50)			--stronger front (vs 40)
+	playerQuick:setShields(100,50)
 	playerQuick:setWeaponTubeExclusiveFor(0,"HVLI")
 	playerQuick:setTubeSize(0,"large")
 	playerQuick:setTubeLoadTime(0,15)
@@ -30726,6 +31633,7 @@ function updatePlayerSoftTemplate(p)
 			end
 			p.power_sensor_interval = playerShipStats[tempTypeName].power_sensor_interval
 			p.beam_damage_switch = playerShipStats[tempTypeName].beam_damage_switch
+			p.max_health_widgets = false
 			if playerShipStats[tempTypeName].way_dist then
 				p.way_dist = true
 			else
@@ -37293,7 +38201,16 @@ function missilePod(enemyFaction)
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -37801,7 +38718,19 @@ function commandBase(enemyFaction)
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(2,4),Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -37906,7 +38835,19 @@ function militaryOutpost(enemyFaction)
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -37994,7 +38935,16 @@ function sniperTower(enemyFaction)
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), HVLI = math.random(1,4),Mine = math.random(2,6),Nuke = math.random(12,18),	EMP = math.random(9,15) },
         weapon_available = 	{Homing = random(1,10)<8,	HVLI = random(1,10)<9,	Mine = random(1,10)<7,	Nuke = random(1,10)<5,		EMP = random(1,10)<6},
-        service_cost = 		{supplydrop = math.random(80,120), reinforcements = math.random(125,175)},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
@@ -51815,7 +52765,13 @@ function commsStation()
             phobos_reinforcements = math.random(200,250),
             stalker_reinforcements = math.random(275,325),
             activatedefensefleet = 20,
-            servicejonque = math.random(100,150)
+            servicejonque = math.random(100,150),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         reputation_cost_multipliers = {
             friend = 1.0,
@@ -52407,12 +53363,21 @@ function androidUndockedStationComms()
 end
 function androidUndockedStationCommsMeat()
 	setCommsMessage(_("station-comms","Select:"))
-	stationStatusReport({identifier=androidUndockedStationCommsMeat,name="automated station communication"})
+	if android_undocked_station_status_report == nil or getScenarioTime() > android_undocked_station_status_report + comms_fudge then
+		stationStatusReport({identifier=androidUndockedStationCommsMeat,name="automated station communication"})
+		android_undocked_station_status_report = getScenarioTime()
+	end
 	if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) then
-		stationDefenseFleet({identifier=androidUndockedStationCommsMeat,name="automated station communication"})
+		if android_undocked_station_defense_fleet == nil or getScenarioTime() > android_undocked_station_defense_fleet + comms_fudge then
+			stationDefenseFleet({identifier=androidUndockedStationCommsMeat,name="automated station communication"})
+			android_undocked_station_defense_fleet = getScenarioTime()
+		end
 	end
 	if isAllowedTo(comms_target.comms_data.services.reinforcements) then
-		requestReinforcements({identifier=androidUndockedStationCommsMeat,name="automated station communication"})
+		if android_undocked_station_request_reinforcements == nil or getScenarioTime() > android_undocked_station_request_reinforcements + comms_fudge then
+			requestReinforcements({identifier=androidUndockedStationCommsMeat,name="automated station communication"})
+			android_undocked_station_request_reinforcements = getScenarioTime()
+		end
 	end
 	addCommsReply(_("Back"), commsStation)
 end
@@ -52421,39 +53386,73 @@ function interactiveUndockedStationComms()
 end
 function interactiveUndockedStationCommsMeat()
 	setCommsMessage("What can I do for you?")
-	stationStatusReport({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
-	if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) then
-		stationDefenseFleet({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+	if interactive_undocked_station_status_report == nil or getScenarioTime() > interactive_undocked_station_status_report + comms_fudge then
+		stationStatusReport({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		interactive_undocked_station_status_report = getScenarioTime()
 	end
-	requestSupplyDrop({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+	if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) then
+		if interactive_undocked_station_defense_fleet == nil or getScenarioTime() > interactive_undocked_station_defense_fleet + comms_fudge then
+			stationDefenseFleet({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+			interactive_undocked_station_defense_fleet = getScenarioTime()
+		end
+	end
+	if interactive_undocked_station_request_supply_drop == nil or getScenarioTime() > interactive_undocked_station_request_supply_drop + comms_fudge then
+		requestSupplyDrop({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		interactive_undocked_station_request_supply_drop = getScenarioTime()
+	end
 	if isAllowedTo(comms_target.comms_data.services.reinforcements) then
-		requestReinforcements({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		if interactive_undocked_station_request_reinforcements == nil or getScenarioTime() > interactive_undocked_station_request_reinforcements + comms_fudge then
+			requestReinforcements({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+			interactive_undocked_station_request_reinforcements = getScenarioTime()
+		end
 	end
 	if comms_target.comms_data.service_available ~= nil then
 		if comms_target.comms_data.service_available.servicejonque ~= nil and comms_target.comms_data.service_available.servicejonque then
-			requestJonque()
+			if interactive_undocked_station_request_jonque == nil or getScenarioTime() > interactive_undocked_station_request_jonque + comms_fudge then
+				requestJonque()
+				interactive_undocked_station_request_jonque = getScenarioTime()
+			end
 		end
 	end
-	if comms_target:isFriendly(comms_source) and comms_target.comms_data.friendlyness > 33 then
-		requestExpediteDock({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
-	elseif not comms_target:isEnemy(comms_source) and comms_target.comms_data.friendlyness > 66 then
-		requestExpediteDock({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+	if interactive_undocked_station_request_expedited_dock == nil or getScenarioTime() > interactive_undocked_station_request_expedited_dock + comms_fudge then
+		if comms_target:isFriendly(comms_source) and comms_target.comms_data.friendlyness > 33 then
+			requestExpediteDock({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		elseif not comms_target:isEnemy(comms_source) and comms_target.comms_data.friendlyness > 66 then
+			requestExpediteDock({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		end
+		interactive_undocked_station_request_expedited_dock = getScenarioTime()
 	end
 	if comms_target.comms_data.friendlyness > 50 then
-		commercialOptions({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		if interactive_undocked_station_commercial_options == nil or getScenarioTime() > interactive_undocked_station_commercial_options + comms_fudge then
+			commercialOptions({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+			interactive_undocked_station_commercial_options = getScenarioTime()
+		end
 	end
 	if planet_magnasol_star ~= nil and distance(planet_magnasol_star,comms_target) < 120000 then
-		magnasolHeatDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		if interactive_undocked_station_magnasol_heat == nil or getScenarioTime() > interactive_undocked_station_magnasol_heat + comms_fudge then
+			magnasolHeatDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+			interactive_undocked_station_magnasol_heat = getScenarioTime()
+		end
 	end
 	if comms_target == stationHossenfelder then
-		riptideHossenfelderDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		if interactive_undocked_station_riptide_hossenfelder == nil or getScenarioTime() > interactive_undocked_station_riptide_hossenfelder + comms_fudge then
+			riptideHossenfelderDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+			interactive_undocked_station_riptide_hossenfelder = getScenarioTime()
+		end
 	end
 	if comms_target == stationLafrina then
-		lafrinaDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		if interactive_unducked_station_lafrina == nil or getScenarioTime() > interactive_unducked_station_lafrina + comms_fudge then
+			lafrinaDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+			interactive_unducked_station_lafrina = getScenarioTime()
+		end
 	end
 	if comms_target.skeleton_station then
-		influenceEnemyDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+		if interactive_undocked_station_influence_enemy == nil or getScenarioTime() > interactive_undocked_station_influence_enemy + comms_fudge then
+			influenceEnemyDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
+			interactive_undocked_station_influence_enemy = getScenarioTime()
+		end
 	end
+	setCommsMessage("What can I do for you?")
 	addCommsReply("Back",commsStation)
 end
 function catalogImprovements(msg)
@@ -52960,8 +53959,14 @@ function requestReinforcements(calling_function)
 		if avail_count < 1 then
 			setCommsMessage(_("stationAssist-comms","No reinforcements available"))
 		end
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
-		addCommsReply(_("Back to station communication"), commsStation)
+		if undocked_request_reinforcements_caller_back == nil or getScenarioTime() > undocked_request_reinforcements_caller_back + comms_fudge then
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+			undocked_request_reinforcements_caller_back = getScenarioTime()
+		end
+		if undocked_request_reinforcements_comms_back == nil or getScenarioTime() > undocked_request_reinforcements_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			undocked_request_reinforcements_comms_back = getScenarioTime()
+		end
 	end)
 end
 function requestSupplyDrop(calling_function)
@@ -53239,8 +54244,14 @@ function requestSupplyDrop(calling_function)
 				addCommsReply(_("Back"), commsStation)
 			end)
 		end
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
-		addCommsReply(_("Back to station communication"), commsStation)
+		if request_supply_drop_caller_back == nil or getScenarioTime() > request_supply_drop_caller_back + comms_fudge then
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+			request_supply_drop_caller_back = getScenarioTime()
+		end
+		if request_supply_drop_comms_back == nil or getScenarioTime() > request_supply_drop_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			request_supply_drop_comms_back = getScenarioTime()
+		end
 	end)
 end
 function requestJonque()
@@ -53340,7 +54351,10 @@ function requestJonque()
 			end
 		end
 		setCommsMessage(out)
-		addCommsReply(_("Back"), commsStation)
+		if request_jonque_comms_back == nil or getScenarioTime() > request_jonque_comms_back + comms_fudge then
+			addCommsReply(_("Back"), commsStation)
+			request_jonque_comms_back = getScenarioTime()
+		end
 	end)
 end
 function requestExpediteDock(calling_function)
@@ -53350,7 +54364,10 @@ function requestExpediteDock(calling_function)
 			addCommsReply(_("station-comms","Soon (3 minutes max, 10 reputation)"),function()
 				if comms_source:takeReputationPoints(10) then
 					comms_source.expedite_dock = {["limit"] = 3*60}
-					setExpediteDock()
+					if set_expedite_dock == nil or getScenarioTime() > set_expedite_dock + comms_fudge then
+						setExpediteDock()
+						set_expedite_dock = getScenarioTime()
+					end
 				else
 					setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 					addCommsReply(_("Back"), commsStation)
@@ -53359,7 +54376,10 @@ function requestExpediteDock(calling_function)
 			addCommsReply(_("station-comms","In a little while (5 minutes max, 15 reputation)"),function()
 				if comms_source:takeReputationPoints(15) then
 					comms_source.expedite_dock = {["limit"] = 5*60}
-					setExpediteDock()
+					if set_expedite_dock == nil or getScenarioTime() > set_expedite_dock + comms_fudge then
+						setExpediteDock()
+						set_expedite_dock = getScenarioTime()
+					end
 				else
 					setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 					addCommsReply(_("Back"), commsStation)
@@ -53368,7 +54388,10 @@ function requestExpediteDock(calling_function)
 			addCommsReply(_("station-comms","Less than 10 minutes (20 reputation)"),function()
 				if comms_source:takeReputationPoints(20) then
 					comms_source.expedite_dock = {["limit"] = 10*60}
-					setExpediteDock()
+					if set_expedite_dock == nil or getScenarioTime() > set_expedite_dock + comms_fudge then
+						setExpediteDock()
+						set_expedite_dock = getScenarioTime()
+					end
 				else
 					setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 					addCommsReply(_("Back"), commsStation)
@@ -53377,7 +54400,10 @@ function requestExpediteDock(calling_function)
 			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 			addCommsReply(_("Back to station communication"), commsStation)
 		else
-			setExpediteDock()
+			if set_expedite_dock == nil or getScenarioTime() > set_expedite_dock + comms_fudge then
+				setExpediteDock()
+				set_expedite_dock = getScenarioTime()
+			end
 		end
 	end)
 end
@@ -53469,11 +54495,20 @@ function setExpediteDock()
 					addCommsReply(_("station-comms","Replenish energy (5 rep)"),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.expedite_dock.energy = true
-							setExpediteDock()
+							if expedite_replenish_energy_set == nil or getScenarioTime() > expedite_replenish_energy_set + comms_fudge then
+								setExpediteDock()
+								expedite_replenish_energy_set = getScenarioTime()
+							end
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-							addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-							addCommsReply(_("station-comms","Back to station communication"),commsStation)
+							if expedite_replenish_energy_back == nil or getScenarioTime() > expedite_replenish_energy_back + comms_fudge then
+								addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+								expedite_replenish_energy_back = getScenarioTime()
+							end
+							if expedite_replenish_energy_comms_back == nil or getScenarioTime() > expedite_replenish_energy_comms_back + comms_fudge then
+								addCommsReply(_("station-comms","Back to station communication"),commsStation)
+								expedite_replenish_energy_comms_back = getScenarioTime()
+							end
 						end
 					end)
 					service_to_add_count = service_to_add_count + 1
@@ -53488,11 +54523,20 @@ function setExpediteDock()
 					addCommsReply(_("station-comms","Repair hull (10 rep)"),function()
 						if comms_source:takeReputationPoints(10) then
 							comms_source.expedite_dock.hull = true
-							setExpediteDock()
+							if expedite_hull_set == nil or getScenarioTime() > expedite_hull_set + comms_fudge then
+								setExpediteDock()
+								expedite_hull_set = getScenarioTime()
+							end
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-							addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-							addCommsReply(_("station-comms","Back to station communication"),commsStation)
+							if expedite_hull_back == nil or getScenarioTime() > expedite_hull_back + comms_fudge then
+								addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+								expedite_hull_back = getScenarioTime()
+							end
+							if expedite_hull_comms_back == nil or getScenarioTime() > expedite_hull_comms_back + comms_fudge then
+								addCommsReply(_("station-comms","Back to station communication"),commsStation)
+								expedite_hull_comms_back = getScenarioTime()
+							end
 						end
 					end)
 					service_to_add_count = service_to_add_count + 1
@@ -53507,11 +54551,20 @@ function setExpediteDock()
 					addCommsReply(_("station-comms","Replenish probes (5 rep)"),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.expedite_dock.probes = true
-							setExpediteDock()
+							if expedite_probes_set == nil or getScenarioTime() > expedite_probes_set + comms_fudge then
+								setExpediteDock()
+								expedite_probes_set = getScenarioTime()
+							end
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-							addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-							addCommsReply(_("station-comms","Back to station communication"),commsStation)
+							if expedite_probes_back == nil or getScenarioTime() > expedite_probes_back + comms_fudge then
+								addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+								expedite_probes_back = getScenarioTime()
+							end
+							if expedite_probes_comms_back == nil or getScenarioTime() > expedite_probes_comms_back + comms_fudge then
+								addCommsReply(_("station-comms","Back to station communication"),commsStation)
+								expedite_probes_comms_back = getScenarioTime()
+							end
 						end
 					end)
 					service_to_add_count = service_to_add_count + 1
@@ -53540,11 +54593,20 @@ function setExpediteDock()
 								addCommsReply(string.format(_("station-comms","Replenish nukes (%d rep)"),getWeaponCost("Nuke")*full_nuke),function()
 									if comms_source:takeReputationPoints(getWeaponCost("Nuke")*full_nuke) then
 										comms_source.expedite_dock.nuke = full_nuke
-										setExpediteDock()
+										if expedite_nuke_set == nil or getScenarioTime() > expedite_nuke_set + comms_fudge then
+											setExpediteDock()
+											expedite_nuke_set = getScenarioTime()
+										end
 									else
 										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-										addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-										addCommsReply(_("station-comms","Back to station communication"),commsStation)
+										if expedite_nuke_back == nil or getScenarioTime() > expedite_nuke_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+											expedite_nuke_back = getScenarioTime()
+										end
+										if expedite_nuke_comms_back == nil or getScenarioTime() > expedite_nuke_comms_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to station communication"),commsStation)
+											expedite_nuke_comms_back = getScenarioTime()
+										end
 									end
 								end)
 								service_to_add_count = service_to_add_count + 1
@@ -53576,11 +54638,20 @@ function setExpediteDock()
 								addCommsReply(string.format(_("station-comms","Replenish homing missiles (%d rep)"),getWeaponCost("Homing")*full_homing),function()
 									if comms_source:takeReputationPoints(getWeaponCost("Homing")*full_homing) then
 										comms_source.expedite_dock.homing = full_homing
-										setExpediteDock()
+										if expedite_homing_set == nil or getScenarioTime() > expedite_homing_set + comms_fudge then
+											setExpediteDock()
+											expedite_homing_set = getScenarioTime()
+										end
 									else
 										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-										addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-										addCommsReply(_("station-comms","Back to station communication"),commsStation)
+										if expedite_homing_back == nil or getScenarioTime() > expedite_homing_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+											expedite_homing_back = getScenarioTime()
+										end
+										if expedite_homing_comms_back == nil or getScenarioTime() > expedite_homing_comms_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to station communication"),commsStation)
+											expedite_homing_comms_back = getScenarioTime()
+										end
 									end
 								end)
 								service_to_add_count = service_to_add_count + 1
@@ -53612,11 +54683,20 @@ function setExpediteDock()
 								addCommsReply(string.format(_("station-comms","Replenish EMP missiles (%d rep)"),getWeaponCost("EMP")*full_emp),function()
 									if comms_source:takeReputationPoints(getWeaponCost("EMP")*full_emp) then
 										comms_source.expedite_dock.emp = full_emp
-										setExpediteDock()
+										if expedite_emp_set == nil or getScenarioTime() > expedite_emp_set + comms_fudge then
+											setExpediteDock()
+											expedite_emp_set = getScenarioTime()
+										end
 									else
 										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-										addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-										addCommsReply(_("station-comms","Back to station communication"),commsStation)
+										if expedite_emp_back == nil or getScenarioTime() > expedite_emp_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+											expedite_emp_back = getScenarioTime()
+										end
+										if expedite_emp_comms_back == nil or getScenarioTime() > expedite_emp_comms_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to station communication"),commsStation)
+											expedite_emp_comms_back = getScenarioTime()
+										end
 									end
 								end)
 								service_to_add_count = service_to_add_count + 1
@@ -53648,11 +54728,20 @@ function setExpediteDock()
 								addCommsReply(string.format(_("station-comms","Replenish mines (%d rep)"),getWeaponCost("Mine")*full_mine),function()
 									if comms_source:takeReputationPoints(getWeaponCost("Mine")*full_mine) then
 										comms_source.expedite_dock.mine = full_mine
-										setExpediteDock()
+										if expedite_mine_set == nil or getScenarioTime() > expedite_mine_set + comms_fudge then
+											setExpediteDock()
+											expedite_mine_set = getScenarioTime()
+										end
 									else
 										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-										addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-										addCommsReply(_("station-comms","Back to station communication"),commsStation)
+										if expedite_mine_back == nil or getScenarioTime() > expedite_mine_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+											expedite_mine_back = getScenarioTime()
+										end
+										if expedite_mine_comms_back == nil or getScenarioTime() > expedite_mine_comms_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to station communication"),commsStation)
+											expedite_mine_comms_back = getScenarioTime()
+										end
 									end
 								end)
 								service_to_add_count = service_to_add_count + 1
@@ -53684,11 +54773,20 @@ function setExpediteDock()
 								addCommsReply(string.format(_("station-comms","Replenish mines (%d rep)"),getWeaponCost("HVLI")*full_hvli),function()
 									if comms_source:takeReputationPoints(getWeaponCost("HVLI")*full_hvli) then
 										comms_source.expedite_dock.hvli = full_hvli
-										setExpediteDock()
+										if expedite_hvli_set == nil or getScenarioTime() > expedite_hvli_set + comms_fudge then
+											setExpediteDock()
+											expedite_hvli_set = getScenarioTime()
+										end
 									else
 										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-										addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-										addCommsReply(_("station-comms","Back to station communication"),commsStation)
+										if expedite_hvli_back == nil or getScenarioTime() > expedite_hvli_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+											expedite_hvli_back = getScenarioTime()
+										end
+										if expedite_hvli_comms_back == nil or getScenarioTime() > expedite_hvli_comms_back + comms_fudge then
+											addCommsReply(_("station-comms","Back to station communication"),commsStation)
+											expedite_hvli_comms_back = getScenarioTime()
+										end
 									end
 								end)
 								service_to_add_count = service_to_add_count + 1
@@ -53738,11 +54836,20 @@ function setExpediteDock()
 							end
 							if comms_source:takeReputationPoints(hire_cost) then
 								comms_source.expedite_dock.repair_crew = true
-								setExpediteDock()
+								if expedite_crew_set == nil or getScenarioTime() > expedite_crew_set + comms_fudge then
+									setExpediteDock()
+									expedite_crew_set = getScenarioTime()
+								end
 							else
-									setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+								if expedite_crew_back == nil or getScenarioTime() > expedite_crew_back + comms_fudge then
 									addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+									expedite_crew_back = getScenarioTime()
+								end
+								if expedite_crew_comms_back == nil or getScenarioTime() > expedite_crew_comms_back + comms_fudge then
 									addCommsReply(_("station-comms","Back to station communication"),commsStation)
+									expedite_crew_comms_back = getScenarioTime()
+								end
 							end
 						end)
 						service_to_add_count = service_to_add_count + 1
@@ -53790,11 +54897,20 @@ function setExpediteDock()
 							end
 							if comms_source:takeReputationPoints(coolant_cost) then
 								comms_source.expedite_dock.coolant = true
-								setExpediteDock()
+								if expedite_coolant_set == nil or getScenarioTime() > expedite_coolant_set + comms_fudge then
+									setExpediteDock()
+									expedite_coolant_set = getScenarioTime()
+								end
 							else
 								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-								addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
-								addCommsReply(_("station-comms","Back to station communication"),commsStation)
+								if expedite_coolant_back == nil or getScenarioTime() > expedite_coolant_back + comms_fudge then
+									addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
+									expedite_coolant_back = getScenarioTime()
+								end
+								if expedite_coolant_comms_back == nil or getScenarioTime() > expedite_coolant_comms_back + comms_fudge then
+									addCommsReply(_("station-comms","Back to station communication"),commsStation)
+									expedite_coolant_comms_back = getScenarioTime()
+								end
 							end
 						end)
 						service_to_add_count = service_to_add_count + 1
@@ -53814,7 +54930,10 @@ function setExpediteDock()
 					end
 				end
 				setCommsMessage(out)
-				addCommsReply(_("Back"), commsStation)
+				if expedite_service_list_comms_back == nil or getScenarioTime() > expedite_service_list_comms_back + comms_fudge then
+					addCommsReply(_("Back"), commsStation)
+					expedite_service_list_comms_back = getScenarioTime()
+				end
 			end
 		end
 	end
@@ -53843,12 +54962,14 @@ function commercialOptions(calling_function)
 					sell_out = string.format("%s\n%s, %s, %s",sell_out,good_desc[good],good_data.quantity,good_data.cost)
 				end
 				setCommsMessage(sell_out)
-				addCommsReply(_("station-comms","Back to investigate commercial options"),function()
-					setCommsMessage(out)
-					commercialOptions({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
-					addCommsReply("Back",commsStation)
-				end)
-				addCommsReply(_("station-comms","Back to station communication"),commsStation)
+				if commerce_buy_caller_back == nil or getScenarioTime() > commerce_buy_caller_back + comms_fudge then
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+					commerce_buy_caller_back = getScenarioTime()
+				end
+				if commerce_buy_comms_back == nil or getScenarioTime() > commerce_buy_comms_back + comms_fudge then
+					addCommsReply(_("station-comms","Back to station communication"),commsStation)
+					commerce_buy_comms_back = getScenarioTime()
+				end
 			end)
 		end
 		if comms_target.comms_data.buy ~= nil then
@@ -53884,12 +55005,14 @@ function commercialOptions(calling_function)
 					buy_out = string.format(_("station-comms","%s\n\nMatching goods in your cargo hold: %s"),buy_out,match_good_buy_list)
 				end
 				setCommsMessage(buy_out)
-				addCommsReply(_("station-comms","Back to investigate commercial options"),function()
-					setCommsMessage(out)
-					commercialOptions({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
-					addCommsReply("Back",commsStation)
-				end)
-				addCommsReply(_("station-comms","Back to station communication"),commsStation)
+				if commerce_sell_caller_back == nil or getScenarioTime() > commerce_sell_caller_back + comms_fudge then
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+					commerce_sell_caller_back = getScenarioTime()
+				end
+				if commerce_sell_comms_back == nil or getScenarioTime() > commerce_sell_comms_back + comms_fudge then
+					addCommsReply(_("station-comms","Back to station communication"),commsStation)
+					commerce_sell_comms_back = getScenarioTime()
+				end
 			end)
 		end
 		local trade_good_list = ""
@@ -54080,15 +55203,23 @@ function commercialOptions(calling_function)
 			else
 				setCommsMessage(_("station-comms","I don't know about commerce options at other stations."))
 			end
-			addCommsReply(_("station-comms","Back to investigate commercial options"),function()
-				setCommsMessage(out)
-				commercialOptions({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
-				addCommsReply("Back",commsStation)
-			end)
-			addCommsReply(_("station-comms","Back to station communication"),commsStation)
+			if commerce_other_caller_back == nil or getScenarioTime() > commerce_other_caller_back + comms_fudge then
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+				commerce_other_caller_back = getScenarioTime()
+			end
+			if commerce_other_comms_back == nil or getScenarioTime() > commerce_other_comms_back + comms_fudge then
+				addCommsReply(_("station-comms","Back to station communication"),commsStation)
+				commerce_other_comms_back = getScenarioTime()
+			end
 		end)
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
-		addCommsReply("Back",commsStation)
+		if commerce_investigate_caller_back == nil or getScenarioTime() > commerce_investigate_caller_back + comms_fudge then
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+			commerce_investigate_caller_back = getScenarioTime()
+		end
+		if commerce_investigate_comms_back == nil or getScenarioTime() > commerce_investigate_comms_back + comms_fudge then
+			addCommsReply(_("station-comms","Back to station communication"),commsStation)
+			commerce_investigate_comms_back = getScenarioTime()
+		end
 	end)
 end
 --	circumstantial comms
@@ -54443,10 +55574,13 @@ function handleDockedState()
 			end
 		end
 	end
-	if interactive then
-		contactStationGMRepresentative()
-	else
-		contactStationGMRepresentative("Android")
+	if docked_gm_representative == nil or getScenarioTime() > docked_gm_representative + comms_fudge then
+		if interactive then
+			contactStationGMRepresentative()
+		else
+			contactStationGMRepresentative("Android")
+		end
+		docked_gm_representative = getScenarioTime()
 	end
 	setCommsMessage(oMsg)
 	if android_docked_station_time == nil or getScenarioTime() > android_docked_station_time + comms_fudge then
@@ -54465,9 +55599,15 @@ function androidDockedStationComms()
 end
 function androidDockedStationCommsMeat()
 	setCommsMessage(_("station-comms","Select:"))
-	stationStatusReport({identifier=androidDockedStationCommsMeat,name="automated station communications"})
+	if android_docked_station_status_report == nil or getScenarioTime() > android_docked_station_status_report + comms_fudge then
+		stationStatusReport({identifier=androidDockedStationCommsMeat,name="automated station communications"})
+		android_docked_station_status_report = getScenarioTime()
+	end
 	if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) then
-		stationDefenseFleet({identifier=androidDockedStationCommsMeat,name="automated station communication"})
+		if android_docked_station_defense_fleet == nil or getScenarioTime() > android_docked_station_defense_fleet + comms_fudge then
+			stationDefenseFleet({identifier=androidDockedStationCommsMeat,name="automated station communication"})
+			android_docked_station_defense_fleet = getScenarioTime()
+		end
 	end
 	if comms_source.goods ~= nil then
 		local good_count = 0
@@ -54475,10 +55615,16 @@ function androidDockedStationCommsMeat()
 			good_count = good_count + good_quantity
 		end
 		if good_count > 0 then
-			addCommsReply(_("station-comms","Place goods in deposit hatch"),giveGoodsToStation)
+			if android_docked_station_give_goods == nil or getScenarioTime() > android_docked_station_give_goods + comms_fudge then
+				addCommsReply(_("station-comms","Place goods in deposit hatch"),giveGoodsToStation)
+				android_docked_station_give_goods = getScenarioTime()
+			end
 		end
 	end
-	addCommsReply(_("Back"), commsStation)	--problem child
+	if android_docked_station_back == nil or getScenarioTime() > android_docked_station_back + comms_fudge then
+		addCommsReply(_("Back"), commsStation)	--problem child
+		android_docked_station_back = getScenarioTime()
+	end
 end
 function giveGoodsToStation()
 	local donate_prompt = {
@@ -54515,24 +55661,45 @@ function giveGoodsToStation()
 			end)
 		end
 	end
-	if goods_to_give_count == 0 then
-		setCommsMessage(_("trade-comms","No more goods to donate"))
+	if give_goods_to_station_back == nil or getScenarioTime() > give_goods_to_station_back + comms_fudge then
+		if goods_to_give_count == 0 then
+			setCommsMessage(_("trade-comms","No more goods to donate"))
+			addCommsReply(_("Back"), commsStation)
+		end
 		addCommsReply(_("Back"), commsStation)
+		give_goods_to_station_back = getScenarioTime()
 	end
-	addCommsReply(_("Back"), commsStation)
 end
 function interactiveDockedStationComms()
 	addCommsReply("Interact with station relay officer on duty",interactiveDockedStationCommsMeat)
 end
 function interactiveDockedStationCommsMeat()
 	setCommsMessage("What can I do for you?")
-	addCommsReply(_("station-comms","Information"),stationInformation)
-	addCommsReply(_("station-comms","Dispatch office"),dispatchOffice)
-	addCommsReply(_("station-comms","Restock ship"),restockShip)
-	addCommsReply(_("station-comms","Repair ship"),repairShip)
-	addCommsReply(_("station-comms","Enhance ship"),enhanceShip)
+	if interactive_docked_station_information == nil or getScenarioTime() > interactive_docked_station_information + comms_fudge then
+		addCommsReply(_("station-comms","Information"),stationInformation)
+		interactive_docked_station_information = getScenarioTime()
+	end
+	if interactive_docked_station_dispatch == nil or getScenarioTime() > interactive_docked_station_dispatch + comms_fudge then
+		addCommsReply(_("station-comms","Dispatch office"),dispatchOffice)
+		interactive_docked_station_dispatch = getScenarioTime()
+	end
+	if interactive_docked_station_restock == nil or getScenarioTime() > interactive_docked_station_restock + comms_fudge then
+		addCommsReply(_("station-comms","Restock ship"),restockShip)
+		interactive_docked_station_restock = getScenarioTime()
+	end
+	if interactive_docked_station_repair == nil or getScenarioTime() > interactive_docked_station_repair + comms_fudge then
+		addCommsReply(_("station-comms","Repair ship"),repairShip)
+		interactive_docked_station_repair = getScenarioTime()
+	end
+	if interactive_docked_station_enhance == nil or getScenarioTime() > interactive_docked_station_enhance + comms_fudge then
+		addCommsReply(_("station-comms","Enhance ship"),enhanceShip)
+		interactive_docked_station_enhance = getScenarioTime()
+	end
 	if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) then
-		stationDefenseFleet()
+		if interactive_docked_station_defense_fleet == nil or getScenarioTime() > interactive_docked_station_defense_fleet + comms_fudge then
+			stationDefenseFleet()
+			interactive_docked_station_defense_fleet = getScenarioTime()
+		end
 	end
 	if comms_target == stationMonocle then
 		if random(1,100) < 4 then
@@ -54545,32 +55712,49 @@ function interactiveDockedStationCommsMeat()
 		end
 	end
 	if planet_magnasol_star ~= nil and distance(planet_magnasol_star,comms_target) < 120000 then
-		magnasolHeatDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
-	end
-	if comms_target == stationHossenfelder then
-		riptideHossenfelderDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
-	end
-	if comms_target == stationLafrina then
-		lafrinaDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
-	end
-	if not comms_source:isEnemy(comms_target) then
-		if comms_source:isFriendly(comms_target) then
-			if comms_source.pods ~= comms_source.max_pods then
-				unloadEscapePods()
-			end
-		else
-			if comms_source.pods ~= comms_source.max_pods then
-				if comms_target.comms_data.escape_pod_cost == nil then
-					comms_target.comms_data.escape_pod_cost = math.random(8,12)
-				end
-				unloadEscapePods(comms_target.comms_data.escape_pod_cost)
-			end
+		if interactive_docked_station_magnasol == nil or getScenarioTime() > interactive_docked_station_magnasol + comms_fudge then
+			magnasolHeatDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
+			interactive_docked_station_magnasol = getScenarioTime()
 		end
 	end
-	--	jump corridor
-	addCommsReply(_("station-comms","Buy, sell, trade goods, etc."),goodsCommerce)
+	if comms_target == stationHossenfelder then
+		if interactive_docked_station_riptide_hossenfelder == nil or getScenarioTime() > interactive_docked_station_riptide_hossenfelder + comms_fudge then
+			riptideHossenfelderDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
+			interactive_docked_station_riptide_hossenfelder = getScenarioTime()
+		end
+	end
+	if comms_target == stationLafrina then
+		if interactive_docked_station_lafrina == nil or getScenarioTime() > interactive_docked_station_lafrina + comms_fudge then
+			lafrinaDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
+			interactive_docked_station_lafrina = getScenarioTime()
+		end
+	end
+	if interactive_docked_station_unload_pods == nil or getScenarioTime() > interactive_docked_station_unload_pods + comms_fudge then
+		if not comms_source:isEnemy(comms_target) then
+			if comms_source:isFriendly(comms_target) then
+				if comms_source.pods ~= comms_source.max_pods then
+					unloadEscapePods()
+				end
+			else
+				if comms_source.pods ~= comms_source.max_pods then
+					if comms_target.comms_data.escape_pod_cost == nil then
+						comms_target.comms_data.escape_pod_cost = math.random(8,12)
+					end
+					unloadEscapePods(comms_target.comms_data.escape_pod_cost)
+				end
+			end
+		end
+		interactive_docked_station_unload_pods = getScenarioTime()
+	end
+	if interactive_docked_station_goods_commerce == nil or getScenarioTime() > interactive_docked_station_goods_commerce + comms_fudge then
+		addCommsReply(_("station-comms","Buy, sell, trade goods, etc."),goodsCommerce)
+		interactive_docked_station_goods_commerce = getScenarioTime()
+	end
 	if jump_corridor then
-		jumpCorridor()
+		if interactive_docked_station_jump_corridor == nil or getScenarioTime() > interactive_docked_station_jump_corridor + comms_fudge then
+			jumpCorridor()
+			interactive_docked_station_jump_corridor = getScenarioTime()
+		end
 	end
 end
 function stationInformation()
@@ -54582,10 +55766,22 @@ function stationInformation()
 		_("station-comms","What kind of information are you interested in?"),
 	}
 	setCommsMessage(tableRemoveRandom(information_type_prompt))
-	stationStatusReport({identifier=stationInformation,name="information"})
-	stationTalk({identifier=stationInformation,name="information"})
-	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-	addCommsReply("Back to station communication",commsStation)
+	if interactive_docked_station_status_report == nil or getScenarioTime() > interactive_docked_station_status_report + comms_fudge then
+		stationStatusReport({identifier=stationInformation,name="information"})
+		interactive_docked_station_status_report = getScenarioTime()
+	end
+	if interactive_docked_station_talk == nil or getScenarioTime() > interactive_docked_station_talk + comms_fudge then
+		stationTalk({identifier=stationInformation,name="information"})
+		interactive_docked_station_talk = getScenarioTime()
+	end
+	if station_information_back_interactive == nil or getScenarioTime() > station_information_back_interactive + comms_fudge then
+		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+		station_information_back_interactive = getScenarioTime()
+	end
+	if station_information_back_comms == nil or getScenarioTime() > station_information_back_comms + comms_fudge then
+		addCommsReply("Back to station communication",commsStation)
+		station_information_back_comms = getScenarioTime()
+	end
 end
 function stationTalk(calling_function)
 	addCommsReply(_("station-comms","I'm not sure. What do you know?"),function()
@@ -54600,16 +55796,25 @@ function stationTalk(calling_function)
 		if comms_target.comms_data.gossip ~= nil then
 			if comms_target.comms_data.friendlyness > 50 + (difficulty * 15) then
 				knowledge_count = knowledge_count + 1
-				stationGossip(calling_function)
+				if station_talk_gossip == nil or getScenarioTime() > station_talk_gossip + comms_fudge then
+					stationGossip(calling_function)
+					station_talk_gossip = getScenarioTime()
+				end
 			end
 		end
 		if comms_target.comms_data.general_information ~= nil then
 			knowledge_count = knowledge_count + 1
-			stationGeneralInformation(calling_function)
+			if station_talk_general == nil or getScenarioTime() > station_talk_general + comms_fudge then
+				stationGeneralInformation(calling_function)
+				station_talk_general = getScenarioTime()
+			end
 		end
 		if comms_target.comms_data.history ~= nil then
 			knowledge_count = knowledge_count + 1
-			stationHistory(calling_function)
+			if station_talk_history == nil or getScenarioTime() > station_talk_history + comms_fudge then
+				stationHistory(calling_function)
+				station_talk_history = getScenarioTime()
+			end
 		end
 		if knowledge_count == 0 then
 			local lack_of_knowledge_response = {
@@ -54619,33 +55824,69 @@ function stationTalk(calling_function)
 			}
 			setCommsMessage(tableRemoveRandom(lack_of_knowledge_response))
 		end
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply("Back to station communication",commsStation)
+		if station_talk_caller_back == nil or getScenarioTime() > station_talk_caller_back + comms_fudge then
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+			station_talk_caller_back = getScenarioTime()
+		end
+		if station_talk_interactive_back == nil or getScenarioTime() > station_talk_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			station_talk_interactive_back = getScenarioTime()
+		end
+		if station_talk_comms_back == nil or getScenarioTime() > station_talk_comms_back + comms_fudge then
+			addCommsReply("Back to station communication",commsStation)
+			station_talk_comms_back = getScenarioTime()
+		end
 	end)
 end
 function stationGossip(calling_function)
 	addCommsReply(_("gossip-comms","Gossip"), function()
 		setCommsMessage(comms_target.comms_data.gossip)
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply(_("Back to station communication"), commsStation)
+		if station_gossip_caller_back == nil or getScenarioTime() > station_gossip_caller_back + comms_fudge then
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+			station_gossip_caller_back = getScenarioTime()
+		end
+		if station_gossip_interactive_back == nil or getScenarioTime() > station_gossip_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			station_gossip_interactive_back = getScenarioTime()
+		end
+		if station_gossip_comms_back == nil or getScenarioTime() > station_gossip_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			station_gossip_comms_back = getScenarioTime()
+		end
 	end)
 end
 function stationGeneralInformation(calling_function)
 	addCommsReply(_("stationGeneralInfo-comms","General information"), function()
 		setCommsMessage(comms_target.comms_data.general_information)
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply(_("Back to station communication"), commsStation)
+		if station_general_caller_back == nil or getScenarioTime() > station_general_caller_back + comms_fudge then
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+			station_general_caller_back = getScenarioTime()
+		end
+		if station_general_interactive_back == nil or getScenarioTime() > station_general_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			station_general_interactive_back = getScenarioTime()
+		end
+		if station_general_comms_back == nil or getScenarioTime() > station_general_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			station_general_comms_back = getScenarioTime()
+		end
 	end)
 end
 function stationHistory(calling_function)
 	addCommsReply(_("stationStory-comms","Station history"), function()
 		setCommsMessage(comms_target.comms_data.history)
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply(_("Back to station communication"), commsStation)
+		if station_history_caller_back == nil or getScenarioTime() > station_history_caller_back + comms_fudge then
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+			station_history_caller_back = getScenarioTime()
+		end
+		if station_history_interactive_back == nil or getScenarioTime() > station_history_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			station_history_interactive_back = getScenarioTime()
+		end
+		if station_history_comms_back == nil or getScenarioTime() > station_history_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			station_history_comms_back = getScenarioTime()
+		end
 	end)
 end
 function dispatchOffice()
@@ -54662,8 +55903,14 @@ function dispatchOffice()
 	if mission_options_presented_count == 0 then
 		setCommsMessage(_("station-comms","No missions or tasks available here."))
 	end
-	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-	addCommsReply("Back to station communications",commsStation)
+	if dispatch_interactive_back == nil or getScenarioTime() > dispatch_interactive_back + comms_fudge then
+		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+		dispatch_interactive_back = getScenarioTime()
+	end
+	if dispatch_comms_back == nil or getScenarioTime() > dispatch_comms_back + comms_fudge then
+		addCommsReply("Back to station communications",commsStation)
+		dispatch_comms_back = getScenarioTime()
+	end
 end
 function transportAndCargoMissions()
 	local mission_character = nil
@@ -54972,7 +56219,10 @@ function restockShip()
 			(comms_target.comms_data.weapon_available.Homing and comms_source:getWeaponStorageMax("Homing") > 0) or 
 			(comms_target.comms_data.weapon_available.Mine   and comms_source:getWeaponStorageMax("Mine") > 0)   or 
 			(comms_target.comms_data.weapon_available.HVLI   and comms_source:getWeaponStorageMax("HVLI") > 0)   then
-				restockOrdnance()
+				if restock_ship_restock_ordnance == nil or getScenarioTime() > restock_ship_restock_ordnance + comms_fudge then
+					restockOrdnance()
+					restock_ship_restock_ordnance = getScenarioTime()
+				end
 		end
 	end	
 	if comms_source:isFriendly(comms_target) then
@@ -54982,8 +56232,14 @@ function restockShip()
 		getRepairCrewFromStation("neutral")
 		getCoolantFromStation("neutral")
 	end
-	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-	addCommsReply("Back to station communication",commsStation)
+	if restock_ship_interactive_back == nil or getScenarioTime() > restock_ship_interactive_back + comms_fudge then
+		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+		restock_ship_interactive_back = getScenarioTime()
+	end
+	if restock_ship_comms_back == nil or getScenarioTime() > restock_ship_comms_back + comms_fudge then
+		addCommsReply("Back to station communication",commsStation)
+		restock_ship_comms_back = getScenarioTime()
+	end
 end
 function restockOrdnance()
 	addCommsReply(_("ammo-comms","I need ordnance restocked"), function()
@@ -55023,9 +56279,18 @@ function restockOrdnance()
 				end)
 			end
 		end
-		addCommsReply("Back to restock ship",restockShip)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply(_("Back to station communication"), commsStation)
+		if restock_ordnance_restock_ship_back == nil or getScenarioTime() > restock_ordnance_restock_ship_back + comms_fudge then
+			addCommsReply("Back to restock ship",restockShip)
+			restock_ordnance_restock_ship_back = getScenarioTime()
+		end
+		if restock_ordnance_interactive_back == nil or getScenarioTime() > restock_ordnance_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			restock_ordnance_interactive_back = getScenarioTime()
+		end
+		if restock_ordnance_comms_back == nil or getScenarioTime() > restock_ordnance_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			restock_ordnance_comms_back = getScenarioTime()
+		end
 	end)
 end
 function handleWeaponRestock(weapon)
@@ -55093,8 +56358,6 @@ function handleWeaponRestock(weapon)
 				addCommsReply(_("Back to station communication"), commsStation)
 			end
 		end
-        addCommsReply("Back to restock ship",restockShip)
-		addCommsReply(_("Back to station communication"), commsStation)
     end
 end
 function getRepairCrewFromStation(relationship)
@@ -55140,9 +56403,18 @@ function getRepairCrewFromStation(relationship)
 						setCommsMessage(_("trade-comms", "Repair crew member hired"))
 						comms_target.comms_data.crew_available_delay_reason = nil
 					end
-					addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if hire_crew_caller_back == nil or getScenarioTime() > hire_crew_caller_back + comms_fudge then
+						addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
+						hire_crew_caller_back = getScenarioTime()
+					end
+					if hire_crew_interactive_back == nil or getScenarioTime() > hire_crew_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						hire_crew_interactive_back = getScenarioTime()
+					end
+					if hire_crew_comms_back == nil or getScenarioTime() > hire_crew_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						hire_crew_comms_back = getScenarioTime()
+					end
 				end)
 				comms_target.comms_data.crew_available_delay = getScenarioTime() + random(90,300)
 			else
@@ -55157,9 +56429,18 @@ function getRepairCrewFromStation(relationship)
 				local delay_seconds = math.floor(comms_target.comms_data.crew_available_delay - getScenarioTime())
 				setCommsMessage(string.format(_("trade-comms","%s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
 			end
-			addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
-			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-			addCommsReply(_("Back to station communication"), commsStation)
+			if recruit_crew_caller_back == nil or getScenarioTime() > recruit_crew_caller_back + comms_fudge then
+				addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
+				recruit_crew_caller_back = getScenarioTime()
+			end
+			if recruit_crew_interactive_back == nil or getScenarioTime() > recruit_crew_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				recruit_crew_interactive_back = getScenarioTime()
+			end
+			if recruit_crew_comms_back == nil or getScenarioTime() > recruit_crew_comms_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				recruit_crew_comms_back = getScenarioTime()
+			end
 		end)
 	end
 	return presented_option
@@ -55204,9 +56485,18 @@ function getCoolantFromStation(relationship)
 						setCommsMessage(_("trade-comms", "Additional coolant purchased"))
 						comms_target.comms_data.coolant_delay_reason = nil
 					end
-					addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if purchase_coolant_caller_back == nil or getScenarioTime() > purchase_coolant_caller_back + comms_fudge then
+						addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
+						purchase_coolant_caller_back = getScenarioTime()
+					end
+					if purchase_coolant_interactive_back == nil or getScenarioTime() > purchase_coolant_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						purchase_coolant_interactive_back = getScenarioTime()
+					end
+					if purchase_coolant_comms_back == nil or getScenarioTime() > purchase_coolant_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						purchase_coolant_comms_back = getScenarioTime()
+					end
 				end)
 				comms_target.comms_data.coolant_inventory_delay = getScenarioTime() + random(90,300)
 			else
@@ -55221,9 +56511,18 @@ function getCoolantFromStation(relationship)
 				local delay_seconds = math.floor(comms_target.comms_data.coolant_inventory_delay - getScenarioTime())
 				setCommsMessage(string.format(_("trade-comms","%s %i seconds"),comms_target.comms_data.coolant_delay_reason,delay_seconds))
 			end
-			addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
-			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-			addCommsReply(_("Back to station communication"), commsStation)
+			if request_coolant_caller_back == nil or getScenarioTime() > request_coolant_caller_back + comms_fudge then
+				addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
+				request_coolant_caller_back = getScenarioTime()
+			end
+			if request_coolant_interactive_back == nil or getScenarioTime() > request_coolant_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				request_coolant_interactive_back = getScenarioTime()
+			end
+			if request_coolant_comms_back == nil or getScenarioTime() > request_coolant_comms_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				request_coolant_comms_back = getScenarioTime()
+			end
 		end)
 	end
 	return presented_option
@@ -55244,6 +56543,9 @@ function repairShip()
 		{prompt = _("stationServices-comms","Repair combat maneuver (%s Rep)"),		capable = true,	station_avail = comms_target.comms_data.combat_maneuver_repair,	cost = comms_target.comms_data.service_cost.combat_maneuver_repair,	ship_avail = comms_source:getCanCombatManeuver(),	enable = "setCanCombatManeuver",response = _("stationServices-comms", "Your combat maneuver has been repaired.")},
 		{prompt = _("stationServices-comms","Repair self destruct system (%s Rep)"),capable = true,	station_avail = comms_target.comms_data.self_destruct_repair,	cost = comms_target.comms_data.service_cost.self_destruct_repair,	ship_avail = comms_source:getCanSelfDestruct(),		enable = "setCanSelfDestruct",	response = _("stationServices-comms", "Your self destruct system has been repaired.")},
 	}
+	for i,sec in ipairs(secondary_system) do
+		print(string.format(sec.prompt,sec.cost),sec.station_avail,sec.cost,sec.ship_avail,sec.response)
+	end
 	local offer_repair = false
 	for i,secondary in ipairs(secondary_system) do
 		if secondary.station_avail and not secondary.ship_avail and secondary.capable then
@@ -55343,8 +56645,14 @@ function repairShip()
 	if options_presented_count == 0 then
 		setCommsMessage(_("stationServices-comms","No applicable repair service available"))
 	end
-	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-	addCommsReply("Back to station communication",commsStation)
+	if repair_ship_interactive_back == nil or getScenarioTime() > repair_ship_interactive_back + comms_fudge then
+		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+		repair_ship_interactive_back = getScenarioTime()
+	end
+	if repair_ship_comms_back == nil or getScenarioTime() > repair_ship_comms_back + comms_fudge then
+		addCommsReply("Back to station communication",commsStation)
+		repair_ship_comms_back = getScenarioTime()
+	end
 end
 function enhanceShip()
 	comms_source.repairCrewCoolantReturn = {identifier=enhanceShip,name="enhance ship"}
@@ -55394,14 +56702,28 @@ function enhanceShip()
 	if not presented_option then
 		setCommsMessage("No ship enhancements available")
 	end
-	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-	addCommsReply(_("Back to station communication"), commsStation)
+	if interactive_docked_station_enhance_back == nil or getScenarioTime() > interactive_docked_station_enhance_back + comms_fudge then
+		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+		interactive_docked_station_enhance_back = getScenarioTime()
+	end
+	if interactive_docked_station_enhance_comms_back == nil or getScenarioTime() > interactive_docked_station_enhance_comms_back + comms_fudge then
+		addCommsReply(_("Back to station communication"), commsStation)
+		interactive_docked_station_enhance_comms_back = getScenarioTime()
+	end
 end
 function minorUpgrades()
 	local minor_upgrade_available = false
 	local shield_banner_available = false
 	local hull_banner_available = false
 	local way_dist_available = false
+	local max_health_widgets_available = false
+	if comms_target.max_health_widgets == nil then
+		if random(1,100) < 50 then
+			comms_target.max_health_widgets = true
+		else
+			comms_target.max_health_widgets = false
+		end
+	end
 	if comms_target.shield_banner == nil then
 		if random(1,100) < (60 - difficulty*5) then
 			comms_target.shield_banner = true
@@ -55421,6 +56743,19 @@ function minorUpgrades()
 			comms_target.way_dist = true
 		else
 			comms_target.way_dist = false
+		end
+	end
+	if comms_target.max_health_widgets then
+		if comms_target:isFriendly(comms_source) then
+			if comms_target.comms_data.friendlyness > 25 then
+				minor_upgrade_available = true
+				max_health_widgets_available = true
+			end
+		elseif not comms_target:isEnemy(comms_source) then
+			if comms_target.comms_data.friendlyness > 45 then
+				minor_upgrade_available = true
+				max_health_widgets_available = true
+			end
 		end
 	end
 	if comms_target.shield_banner then
@@ -55468,6 +56803,64 @@ function minorUpgrades()
 		addCommsReply(_("upgrade-comms","Minor upgrade"),function()
 			setCommsMessage("Which of these are you interested in?")
 			string.format("")
+			if max_health_widgets_available then
+				addCommsReply("Spare portable max health diagnostic",function()
+					setCommsMessage("There's a portable max health diagnostic here that we are not using. Engineers use these to keep close watch on severely damaged systems. Would you like to get this for your engineer?")
+					addCommsReply("Yes, that's a great gift (5 reputation)",function()
+						if comms_source:takeReputationPoints(5) then
+							comms_source.max_health_widgets = true
+							comms_target.max_health_widgets = false
+							setCommsMessage("Installed")
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+						if minor_max_health_gift_enhance_back == nil or getScenarioTime() > minor_max_health_gift_enhance_back + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							minor_max_health_gift_enhance_back = getScenarioTime()
+						end
+						if minor_max_health_gift_interactive_back == nil or getScenarioTime() > minor_max_health_gift_interactive_back + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							minor_max_health_gift_interactive_back = getScenarioTime()
+						end
+						if minor_max_health_gift_comms_back == nil or getScenarioTime() > minor_max_health_gift_comms_back + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							minor_max_health_gift_comms_back = getScenarioTime()
+						end
+					end)
+					if minor_max_health_enhance_back == nil or getScenarioTime() > minor_max_health_enhance_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_max_health_enhance_back = getScenarioTime()
+					end
+					if minor_max_health_interactive_back == nil or getScenarioTime() > minor_max_health_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_max_health_interactive_back = getScenarioTime()
+					end
+					if minor_max_health_comms_back == nil or getScenarioTime() > minor_max_health_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_max_health_comms_back = getScenarioTime()
+					end
+				end)
+			end
+			if not comms_target.max_health_widgets and comms_source.max_health_widgets ~= nil and comms_source.max_health_widgets then
+				addCommsReply("Give portable max health diagnostic to repair technicians",function()
+					setCommsMessage("Thanks. They will put it to good use")
+					comms_source.max_health_widgets = false
+					comms_target.max_health_widgets = true
+					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
+					if minor_max_health_enhance_return_back == nil or getScenarioTime() > minor_max_health_enhance_return_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_max_health_enhance_return_back = getScenarioTime()
+					end
+					if minor_max_health_interactive_return_back == nil or getScenarioTime() > minor_max_health_interactive_return_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_max_health_interactive_return_back = getScenarioTime()
+					end
+					if minor_max_health_comms_return_back == nil or getScenarioTime() > minor_max_health_comms_return_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_max_health_comms_return_back = getScenarioTime()
+					end
+				end)
+			end
 			if shield_banner_available then
 				addCommsReply(_("station-comms","Spare portable shield diagnostic"),function()
 					setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
@@ -55479,13 +56872,31 @@ function minorUpgrades()
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 						end
-						addCommsReply("Back to enhance ship",enhanceShip)
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						addCommsReply(_("Back to station communication"), commsStation)
+						if minor_shield_gift_enhance_back == nil or getScenarioTime() > minor_shield_gift_enhance_back + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							minor_shield_gift_enhance_back = getScenarioTime()
+						end
+						if minor_shield_gift_interactive_back == nil or getScenarioTime() > minor_shield_gift_interactive_back + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							minor_shield_gift_interactive_back = getScenarioTime()
+						end
+						if minor_shield_gift_comms_back == nil or getScenarioTime() > minor_shield_gift_comms_back + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							minor_shield_gift_comms_back = getScenarioTime()
+						end
 					end)
-					addCommsReply("Back to enhance ship",enhanceShip)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if minor_shield_enhance_back == nil or getScenarioTime() > minor_shield_enhance_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_shield_enhance_back = getScenarioTime()
+					end
+					if minor_shield_interactive_back == nil or getScenarioTime() > minor_shield_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_shield_interactive_back = getScenarioTime()
+					end
+					if minor_shield_comms_back == nil or getScenarioTime() > minor_shield_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_shield_comms_back = getScenarioTime()
+					end
 				end)
 			end
 			if not comms_target.shield_banner and comms_source.shield_banner ~= nil and comms_source.shield_banner then
@@ -55494,9 +56905,18 @@ function minorUpgrades()
 					comms_source.shield_banner = false
 					comms_target.shield_banner = true
 					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
-					addCommsReply("Back to enhance ship",enhanceShip)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if minor_shield_enhance_return_back == nil or getScenarioTime() > minor_shield_enhance_return_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_shield_enhance_return_back = getScenarioTime()
+					end
+					if minor_shield_interactive_return_back == nil or getScenarioTime() > minor_shield_interactive_return_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_shield_interactive_return_back = getScenarioTime()
+					end
+					if minor_shield_comms_return_back == nil or getScenarioTime() > minor_shield_comms_return_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_shield_comms_return_back = getScenarioTime()
+					end
 				end)
 			end
 			if hull_banner_available then
@@ -55510,13 +56930,31 @@ function minorUpgrades()
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 						end
-						addCommsReply("Back to enhance ship",enhanceShip)
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						addCommsReply(_("Back to station communication"), commsStation)
+						if minor_hull_enhance_gift_back == nil or getScenarioTime() > minor_hull_enhance_gift_back + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							minor_hull_enhance_gift_back = getScenarioTime()
+						end
+						if minor_hull_interactive_gift_back == nil or getScenarioTime() > minor_hull_interactive_gift_back + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							minor_hull_interactive_gift_back = getScenarioTime()
+						end
+						if minor_hull_comms_gift_back == nil or getScenarioTime() > minor_hull_comms_gift_back + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							minor_hull_comms_gift_back = getScenarioTime()
+						end
 					end)
-					addCommsReply("Back to enhance ship",enhanceShip)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if minor_hull_enhance_back == nil or getScenarioTime() > minor_hull_enhance_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_hull_enhance_back = getScenarioTime()
+					end
+					if minor_hull_interactive_back == nil or getScenarioTime() > minor_hull_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_hull_interactive_back = getScenarioTime()
+					end
+					if minor_hull_comms_back == nil or getScenarioTime() > minor_hull_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_hull_comms_back = getScenarioTime()
+					end
 				end)
 			end
 			if not comms_target.hull_banner and comms_source.hull_banner ~= nil and comms_source.hull_banner then
@@ -55525,9 +56963,18 @@ function minorUpgrades()
 					comms_source.hull_banner = false
 					comms_target.hull_banner = true
 					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
-					addCommsReply("Back to enhance ship",enhanceShip)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if minor_hull_enhance_return_back == nil or getScenarioTime() > minor_hull_enhance_return_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_hull_enhance_return_back = getScenarioTime()
+					end
+					if minor_hull_interactive_return_back == nil or getScenarioTime() > minor_hull_interactive_return_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_hull_interactive_return_back = getScenarioTime()
+					end
+					if minor_hull_comms_return_back == nil or getScenarioTime() > minor_hull_comms_return_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_hull_comms_return_back = getScenarioTime()
+					end
 				end)
 			end
 			if way_dist_available and not comms_source.way_dist ~= nil then
@@ -55541,13 +56988,31 @@ function minorUpgrades()
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 						end
-						addCommsReply("Back to enhance ship",enhanceShip)
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						addCommsReply(_("Back to station communication"), commsStation)
+						if minor_calculator_enhance_gift_back == nil or getScenarioTime() > minor_calculator_enhance_gift_back + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							minor_calculator_enhance_gift_back = getScenarioTime()
+						end
+						if minor_calculator_interactive_gift_back == nil or getScenarioTime() > minor_calculator_interactive_gift_back + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							minor_calculator_interactive_gift_back = getScenarioTime()
+						end
+						if minor_calculator_comms_gift_back == nil or getScenarioTime() > minor_calculator_comms_gift_back + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							minor_calculator_comms_gift_back = getScenarioTime()
+						end
 					end)
-					addCommsReply("Back to enhance ship",enhanceShip)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if minor_calculator_enhance_back == nil or getScenarioTime() > minor_calculator_enhance_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_calculator_enhance_back = getScenarioTime()
+					end
+					if minor_calculator_interactive_back == nil or getScenarioTime() > minor_calculator_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_calculator_interactive_back = getScenarioTime()
+					end
+					if minor_calculator_comms_back == nil or getScenarioTime() > minor_calculator_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_calculator_comms_back = getScenarioTime()
+					end
 				end)
 			end
 			if not comms_target.way_dist and comms_source.way_dist ~= nil and comms_source.way_dist then
@@ -55565,18 +57030,45 @@ function minorUpgrades()
 							comms_source.way_distance_button_tac = nil
 						end
 						setCommsMessage(_("upgrade-comms","Thanks. I'll be sure to give this to the next fleet member that asks."))
-						addCommsReply("Back to enhance ship",enhanceShip)
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						addCommsReply(_("Back to station communication"), commsStation)
+						if minor_calculator_enhance_sell_back == nil or getScenarioTime() > minor_calculator_enhance_sell_back + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							minor_calculator_enhance_sell_back = getScenarioTime()
+						end
+						if minor_calculator_interactive_sell_back == nil or getScenarioTime() > minor_calculator_interactive_sell_back + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							minor_calculator_interactive_sell_back = getScenarioTime()
+						end
+						if minor_calculator_comms_sell_back == nil or getScenarioTime() > minor_calculator_comms_sell_back + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							minor_calculator_comms_sell_back = getScenarioTime()
+						end
 					end)
-					addCommsReply("Back to enhance ship",enhanceShip)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if minor_calculator_enhance_return_back == nil or getScenarioTime() > minor_calculator_enhance_return_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_calculator_enhance_return_back = getScenarioTime()
+					end
+					if minor_calculator_interactive_return_back == nil or getScenarioTime() > minor_calculator_interactive_return_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_calculator_interactive_return_back = getScenarioTime()
+					end
+					if minor_calculator_comms_return_back == nil or getScenarioTime() > minor_calculator_comms_return_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_calculator_comms_return_back = getScenarioTime()
+					end
 				end)
 			end
-			addCommsReply("Back to enhance ship",enhanceShip)
-			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-			addCommsReply(_("Back to station communication"), commsStation)
+			if minor_enhance_back == nil or getScenarioTime() > minor_enhance_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				minor_enhance_back = getScenarioTime()
+			end
+			if minor_interactive_back == nil or getScenarioTime() > minor_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				minor_interactive_back = getScenarioTime()
+			end
+			if minor_comms_back == nil or getScenarioTime() > minor_comms_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				minor_comms_back = getScenarioTime()
+			end
 		end)
 	end
 	return presented_option
@@ -55586,11 +57078,11 @@ function overchargeShipSystems()
 	local jump_overcharge_available = false
 	local front_shield_overcharge_available = false
 	local rear_shield_overcharge_available = false
+	local max_charge = comms_source.max_jump_range
+	if max_charge == nil then
+		max_charge = 50000
+	end
 	if comms_target.comms_data.jump_overcharge and comms_source:hasJumpDrive() then
-		local max_charge = comms_source.max_jump_range
-		if max_charge == nil then
-			max_charge = 50000
-		end
 		if comms_source:getJumpDriveCharge() >= max_charge then
 			if comms_target:isFriendly(comms_source) then
 				if comms_target.comms_data.friendlyness > 20 then
@@ -55650,9 +57142,18 @@ function overchargeShipSystems()
 					else
 						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 					end
-					addCommsReply("Back to enhance ship",enhanceShip)
-					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-					addCommsReply(_("Back to station communication"), commsStation)
+					if overcharge_jump_enhance_back == nil or getScenarioTime() > overcharge_jump_enhance_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						overcharge_jump_enhance_back = getScenarioTime()
+					end
+					if overcharge_jump_interactive_back == nil or getScenarioTime() > overcharge_jump_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						overcharge_jump_interactive_back = getScenarioTime()
+					end
+					if overcharge_jump_comms_back == nil or getScenarioTime() > overcharge_jump_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						overcharge_jump_comms_back = getScenarioTime()
+					end
 				end)
 			end
 			if front_shield_overcharge_available then
@@ -55686,9 +57187,27 @@ function overchargeShipSystems()
 									else
 										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 									end
-									addCommsReply("Back to enhance ship",enhanceShip)
-									addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-									addCommsReply(_("Back to station communication"), commsStation)
+									if overcharge_front_shield_enhance_back == nil then
+										overcharge_front_shield_enhance_back = {}
+									end
+									if overcharge_front_shield_enhance_back[i] == nil or getScenarioTime() > overcharge_front_shield_enhance_back[i] + comms_fudge then
+										addCommsReply("Back to enhance ship",enhanceShip)
+										overcharge_front_shield_enhance_back[i] = getScenarioTime()
+									end
+									if overcharge_front_shield_interactive_back == nil then
+										overcharge_front_shield_interactive_back = {}
+									end
+									if overcharge_front_shield_interactive_back[i] == nil or getScenarioTime() > overcharge_front_shield_interactive_back[i] + comms_fudge then
+										addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+										overcharge_front_shield_interactive_back[i] = getScenarioTime()
+									end
+									if overcharge_front_shield_comms_back == nil then
+										overcharge_front_shield_comms_back = {}
+									end
+									if overcharge_front_shield_comms_back[i] == nil or getScenarioTime() > overcharge_front_shield_comms_back[i] + comms_fudge then
+										addCommsReply(_("Back to station communication"), commsStation)
+										overcharge_front_shield_comms_back[i] = getScenarioTime()
+									end
 								end)
 							end
 						end
@@ -55705,9 +57224,27 @@ function overchargeShipSystems()
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 						end
-						addCommsReply("Back to enhance ship",enhanceShip)
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						addCommsReply(_("Back to station communication"), commsStation)
+						if overcharge_front_shield_enhance_back == nil then
+							overcharge_front_shield_enhance_back = {}
+						end
+						if overcharge_front_shield_enhance_back[1] == nil or getScenarioTime() > overcharge_front_shield_enhance_back[1] + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							overcharge_front_shield_enhance_back[1] = getScenarioTime()
+						end
+						if overcharge_front_shield_interactive_back == nil then
+							overcharge_front_shield_interactive_back = {}
+						end
+						if overcharge_front_shield_interactive_back[1] == nil or getScenarioTime() > overcharge_front_shield_interactive_back[1] + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							overcharge_front_shield_interactive_back[1] = getScenarioTime()
+						end
+						if overcharge_front_shield_comms_back == nil then
+							overcharge_front_shield_comms_back = {}
+						end
+						if overcharge_front_shield_comms_back[1] == nil or getScenarioTime() > overcharge_front_shield_comms_back[1] + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							overcharge_front_shield_comms_back[1] = getScenarioTime()
+						end
 					end)
 				end
 			end
@@ -55738,9 +57275,27 @@ function overchargeShipSystems()
 									else
 										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 									end
-									addCommsReply("Back to enhance ship",enhanceShip)
-									addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-									addCommsReply(_("Back to station communication"), commsStation)
+									if overcharge_rear_shield_enhance_back == nil then
+										overcharge_rear_shield_enhance_back = {}
+									end
+									if overcharge_rear_shield_enhance_back[i] == nil or getScenarioTime() > overcharge_rear_shield_enhance_back[i] + comms_fudge then
+										addCommsReply("Back to enhance ship",enhanceShip)
+										overcharge_rear_shield_enhance_back[i] = getScenarioTime()
+									end
+									if overcharge_rear_shield_interactive_back == nil then
+										overcharge_rear_shield_interactive_back = {}
+									end
+									if overcharge_rear_shield_interactive_back[i] == nil or getScenarioTime() > overcharge_rear_shield_interactive_back[i] + comms_fudge then
+										addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+										overcharge_rear_shield_interactive_back[i] = getScenarioTime()
+									end
+									if overcharge_rear_shield_comms_back == nil then
+										overcharge_rear_shield_comms_back = {}
+									end
+									if overcharge_rear_shield_comms_back[i] == nil or getScenarioTime() > overcharge_rear_shield_comms_back[i] + comms_fudge then
+										addCommsReply(_("Back to station communication"), commsStation)
+										overcharge_rear_shield_comms_back[i] = getScenarioTime()
+									end
 								end)
 							end
 						end
@@ -55753,15 +57308,42 @@ function overchargeShipSystems()
 						else
 							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 						end
-						addCommsReply("Back to enhance ship",enhanceShip)
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						addCommsReply(_("Back to station communication"), commsStation)
+						if overcharge_rear_shield_enhance_back == nil then
+							overcharge_rear_shield_enhance_back = {}
+						end
+						if overcharge_rear_shield_enhance_back[1] == nil or getScenarioTime() > overcharge_rear_shield_enhance_back[1] + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							overcharge_rear_shield_enhance_back[1] = getScenarioTime()
+						end
+						if overcharge_rear_shield_interactive_back == nil then
+							overcharge_rear_shield_interactive_back = {}
+						end
+						if overcharge_rear_shield_interactive_back[1] == nil or getScenarioTime() > overcharge_rear_shield_interactive_back[1] + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							overcharge_rear_shield_interactive_back[1] = getScenarioTime()
+						end
+						if overcharge_rear_shield_comms_back == nil then
+							overcharge_rear_shield_comms_back = {}
+						end
+						if overcharge_rear_shield_comms_back[1] == nil or getScenarioTime() > overcharge_rear_shield_comms_back[1] + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							overcharge_rear_shield_comms_back[1] = getScenarioTime()
+						end
 					end)
 				end
 			end
-			addCommsReply("Back to enhance ship",enhanceShip)
-			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-			addCommsReply(_("Back to station communication"), commsStation)
+			if overcharge_enhance_back == nil or getScenarioTime() > overcharge_enhance_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				overcharge_enhance_back = getScenarioTime()
+			end
+			if overcharge_interactive_back == nil or getScenarioTime() > overcharge_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				overcharge_interactive_back = getScenarioTime()
+			end
+			if overcharge_comms_back == nil or getScenarioTime() > overcharge_comms_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				overcharge_comms_back = getScenarioTime()
+			end
 		end)
 	end
 	return option_presented
@@ -55777,9 +57359,18 @@ function boostSensorsWhileDocked()
 		else
 			setCommsMessage("Insufficient reputation")
 		end
-		addCommsReply("Back to enhance ship",enhanceShip)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply("Back to station communication", commsStation)
+		if boost_sensors_enhance_back == nil or getScenarioTime() > boost_sensors_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			boost_sensors_enhance_back = getScenarioTime()
+		end
+		if boost_sensors_interactive_back == nil or getScenarioTime() > boost_sensors_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			boost_sensors_interactive_back = getScenarioTime()
+		end
+		if boost_sensors_comms_back == nil or getScenarioTime() > boost_sensors_comms_back + comms_fudge then
+			addCommsReply("Back to station communication", commsStation)
+			boost_sensors_comms_back = getScenarioTime()
+		end
 	end)
 end
 function increaseSecurityMorale()
@@ -55794,15 +57385,42 @@ function increaseSecurityMorale()
 					comms_source.security_morale = 1
 				else
 					setCommsMessage("Insufficient reputation")
-				end	
-				addCommsReply("Back to enhance ship",enhanceShip)
-				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-				addCommsReply("Back to station communication", commsStation)
+				end
+				if security_boost_enhance_back == nil then
+					security_boost_enhance_back = {}
+				end
+				if security_boost_enhance_back[i] == nil or getScenarioTime() > security_boost_enhance_back[i] + comms_fudge then
+					addCommsReply("Back to enhance ship",enhanceShip)
+					security_boost_enhance_back[i] = getScenarioTime()
+				end
+				if security_boost_interactive_back == nil then
+					security_boost_interactive_back = {}
+				end
+				if security_boost_interactive_back[i] == nil or getScenarioTime() > security_boost_interactive_back[i] + comms_fudge then
+					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+					security_boost_interactive_back[i] = getScenarioTime()
+				end
+				if security_boost_comms_back == nil then
+					security_boost_comms_back = {}
+				end
+				if security_boost_comms_back[i] == nil or getScenarioTime() > security_boost_comms_back[i] + comms_fudge then
+					addCommsReply("Back to station communication", commsStation)
+					security_boost_comms_back[i] = getScenarioTime()
+				end
 			end)
 		end
-		addCommsReply("Back to enhance ship",enhanceShip)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply("Back to station communication", commsStation)
+		if security_training_enhance_back == nil or getScenarioTime() > security_training_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			security_training_enhance_back = getScenarioTime()
+		end
+		if security_training_interactive_back == nil or getScenarioTime() > security_training_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			security_training_interactive_back = getScenarioTime()
+		end
+		if security_training_comms_back == nil or getScenarioTime() > security_training_comms_back + comms_fudge then
+			addCommsReply("Back to station communication", commsStation)
+			security_training_comms_back = getScenarioTime()
+		end
 	end)
 end
 function getSpecialtyProbes()
@@ -55946,13 +57564,31 @@ function getSpecialtyProbes()
 			end
 			kit_description = string.format("%s You don't actually get additional probes, rather, you enhance the probes you already have.",kit_description)
 			setCommsMessage(kit_description)
-			addCommsReply("Back to enhance ship",enhanceShip)
-			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-			addCommsReply("Back to station communication", commsStation)
+			if specialty_probes_explain_enhance_back == nil or getScenarioTime() > specialty_probes_explain_enhance_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				specialty_probes_explain_enhance_back = getScenarioTime()
+			end
+			if specialty_probes_explain_interactive_back == nil or getScenarioTime() > specialty_probes_explain_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				specialty_probes_explain_interactive_back = getScenarioTime()
+			end
+			if specialty_probes_explain_comms_back == nil or getScenarioTime() > specialty_probes_explain_comms_back + comms_fudge then
+				addCommsReply("Back to station communication", commsStation)
+				specialty_probes_explain_comms_back = getScenarioTime()
+			end
 		end)
-		addCommsReply("Back to enhance ship",enhanceShip)
-		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-		addCommsReply("Back to station communication", commsStation)
+		if specialty_probes_enhance_back == nil or getScenarioTime() > specialty_probes_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			specialty_probes_enhance_back = getScenarioTime()
+		end
+		if specialty_probes_interactive_back == nil or getScenarioTime() > specialty_probes_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			specialty_probes_interactive_back = getScenarioTime()
+		end
+		if specialty_probes_comms_back == nil or getScenarioTime() > specialty_probes_comms_back + comms_fudge then
+			addCommsReply("Back to station communication", commsStation)
+			specialty_probes_comms_back = getScenarioTime()
+		end
 	end)
 end
 function unloadEscapePods(cost)
@@ -55964,8 +57600,14 @@ function unloadEscapePods(cost)
 			else
 				setCommsMessage(string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()))
 			end
-			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-			addCommsReply("Back to station communication",commsStation)
+			if free_pod_unload_interactive_back == nil or getScenarioTime() > free_pod_unload_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				free_pod_unload_interactive_back = getScenarioTime()
+			end
+			if free_pod_unload_comms_back == nil or getScenarioTime() > free_pod_unload_comms_back + comms_fudge then
+				addCommsReply("Back to station communication",commsStation)
+				free_pod_unload_comms_back = getScenarioTime()
+			end
 		end)
 	else
 		addCommsReply(string.format("Unload retrieved escape pods (%i rep per pod)",cost),function()
@@ -55979,8 +57621,14 @@ function unloadEscapePods(cost)
 			else
 				setCommsMessage("Insufficient reputation")
 			end
-			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-			addCommsReply("Back to station communication",commsStation)
+			if pod_unload_interactive_back == nil or getScenarioTime() > pod_unload_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				pod_unload_interactive_back = getScenarioTime()
+			end
+			if pod_unload_comms_back == nil or getScenarioTime() > pod_unload_comms_back + comms_fudge then
+				addCommsReply("Back to station communication",commsStation)
+				pod_unload_comms_back = getScenarioTime()
+			end
 		end)
 	end
 end
@@ -56049,7 +57697,10 @@ function goodsCommerce()
 		local commerce_out = ""
 		if station_sells then
 			commerce_out = string.format(_("trade-comms","%s sells %s."),comms_target:getCallSign(),goods_for_sale)
-			addCommsReply(_("trade-comms","Buy goods"),buyGoodsFromStation)
+			if commerce_buy == nil or getScenarioTime() > commerce_buy + comms_fudge then
+				addCommsReply(_("trade-comms","Buy goods"),buyGoodsFromStation)
+				commerce_buy = getScenarioTime()
+			end
 		end
 		if station_buys then
 			if commerce_out == "" then
@@ -56069,7 +57720,10 @@ function goodsCommerce()
 				end
 			end
 			if buy_match then
-				addCommsReply(_("trade-comms","Sell goods"),sellGoodsToStation)
+				if commerce_sell == nil or getScenarioTime() > commerce_sell + comms_fudge then
+					addCommsReply(_("trade-comms","Sell goods"),sellGoodsToStation)
+					commerce_sell = getScenarioTime()
+				end
 			end
 		end
 		if station_trades then
@@ -56090,7 +57744,10 @@ function goodsCommerce()
 				end 
 			end
 			if trade_match then
-				addCommsReply(_("trade-comms","Trade goods"),tradeGoodsWithStation)
+				if commerce_trade == nil or getScenarioTime() > commerce_trade + comms_fudge then
+					addCommsReply(_("trade-comms","Trade goods"),tradeGoodsWithStation)
+					commerce_trade = getScenarioTime()
+				end
 			end
 		end
 		if player_has_goods then
@@ -56099,15 +57756,27 @@ function goodsCommerce()
 			else
 				commerce_out = string.format(_("trade-comms","%s\n%s has %s aboard."),commerce_out,comms_source:getCallSign(),player_goods)
 			end
-			addCommsReply(_("trade-comms","Jettison goods"),jettisonGoodsFromShip)
-			addCommsReply(_("trade-comms","Give goods to station"),giveGoodsToStation)
+			if commerce_jettison == nil or getScenarioTime() > commerce_jettison + comms_fudge then
+				addCommsReply(_("trade-comms","Jettison goods"),jettisonGoodsFromShip)
+				commerce_jettison = getScenarioTime()
+			end
+			if commerce_donate == nil or getScenarioTime() > commerce_donate + comms_fudge then
+				addCommsReply(_("trade-comms","Give goods to station"),giveGoodsToStation)
+				commerce_donate = getScenarioTime()
+			end
 		end
 		setCommsMessage(string.format(_("trade-comms","%s\nWhich of these actions related to goods do you wish to take?"),commerce_out))
 	else
 		setCommsMessage(_("trade-comms","No commercial options available"))
 	end
-	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-	addCommsReply("Back to station communication",commsStation)
+	if commerce_interactive_back == nil or getScenarioTime() > commerce_interactive_back + comms_fudge then
+		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+		commerce_interactive_back = getScenarioTime()
+	end
+	if commerce_comms_back == nil or getScenarioTime() > commerce_comms_back + comms_fudge then
+		addCommsReply("Back to station communication",commsStation)
+		commerce_comms_back = getScenarioTime()
+	end
 end
 function tradeGoodsWithStation()
 	local trade_goods_prompt = {
@@ -56348,182 +58017,16 @@ function jumpCorridor()
 						end)
 					end
 				end
-				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-				addCommsReply("Back to station communication",commsStation)
+				if jump_interactive_back == nil or getScenarioTime() > jump_interactive_back + comms_fudge then
+					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+					jump_interactive_back = getScenarioTime()
+				end
+				if jump_comms_back == nil or getScenarioTime() > jump_comms_back + comms_fudge then
+					addCommsReply("Back to station communication",commsStation)
+					jump_comms_back = getScenarioTime()
+				end
 			end)
 		end
-	end
-end
-
-
-function getRepairCrewFromStationOriginal(relationship)
-	addCommsReply(_("trade-comms","Recruit repair crew member"),function()
-		if comms_target.comms_data.available_repair_crew == nil then
-			comms_target.comms_data.available_repair_crew = math.random(0,3)
-		end
-		if comms_target.comms_data.available_repair_crew > 0 then	--station has repair crew available
-			if comms_target.comms_data.crew_available_delay == nil then
-				comms_target.comms_data.crew_available_delay = 0
-			end
-			if getScenarioTime() > comms_target.comms_data.crew_available_delay then	--no delay in progress
-				if random(1,5) <= (3 - difficulty) then		--repair crew available
-					local hire_cost = math.random(45,90)
-					if relationship ~= "friendly" then
-						hire_cost = math.random(60,120)
-					end
-					if comms_source:getRepairCrewCount() < comms_source.maxRepairCrew then
-						hire_cost = math.random(30,60)
-						if relationship ~= "friendly" then
-							hire_cost = math.random(45,90)
-						end
-					end
-					setCommsMessage(_("trade-comms","We have a repair crew candidate for you to consider"))
-					addCommsReply(string.format(_("trade-comms", "Recruit repair crew member for %i reputation"),hire_cost), function()
-						if not comms_source:takeReputationPoints(hire_cost) then
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-						else
-							comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
-							comms_target.comms_data.available_repair_crew = comms_target.comms_data.available_repair_crew - 1
-							if comms_target.comms_data.available_repair_crew <= 0 then
-								comms_target.comms_data.new_repair_crew_delay = getScenarioTime() + random(200,500)
-							end
-							setCommsMessage(_("trade-comms", "Repair crew member hired"))
-						end
-						addCommsReply(_("Back"), commsStation)
-					end)
-				else	--repair crew delayed
-					local delay_reason = {
-						_("trade-comms","A possible repair recruit is awaiting final certification. They should be available in "),
-						_("trade-comms","There's one repair crew candidate completing their license application. They should be available in "),
-						_("trade-comms","One repair crew should be getting here from their medical checkout in "),
-					}
-					local delay_seconds = math.random(10,30)
-					comms_target.comms_data.crew_available_delay = getScenarioTime() + delay_seconds
-					comms_target.comms_data.crew_available_delay_reason = delay_reason[math.random(1,#delay_reason)]
-					setCommsMessage(string.format(_("trade-comms","%s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
-				end
-			else	--delay in progress
-				local delay_seconds = math.floor(comms_target.comms_data.crew_available_delay - getScenarioTime())
-				if delay_seconds > 1 then
-					setCommsMessage(string.format(_("trade-comms","%s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
-				else
-					setCommsMessage(string.format(_("trade-comms","%s a second"),comms_target.comms_data.crew_available_delay_reason))
-				end
-			end
-		else	--station does not have repair crew available
-			if comms_target.comms_data.new_repair_crew_delay == nil then
-				comms_target.comms_data.new_repair_crew_delay = 0
-			end
-			if getScenarioTime() > comms_target.comms_data.new_repair_crew_delay then
-				comms_target.comms_data.available_repair_crew = math.random(1,3)
-				local delay_reason = {
-					_("trade-comms","A possible repair recruit is awaiting final certification. They should be available in "),
-					_("trade-comms","There's one repair crew candidate completing their license application. They should be available in "),
-					_("trade-comms","One repair crew should be getting here from their medical checkout in "),
-				}
-				local delay_seconds = math.random(10,30)
-				comms_target.comms_data.crew_available_delay = getScenarioTime() + delay_seconds
-				comms_target.comms_data.crew_available_delay_reason = delay_reason[math.random(1,#delay_reason)]
-				setCommsMessage(string.format(_("trade-comms","Several arrived on station earlier. %s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
-			else
-				local delay_time = math.floor(comms_target.comms_data.new_repair_crew_delay - getScenarioTime())
-				local delay_minutes = math.floor(delay_time / 60)
-				local delay_seconds = math.floor(delay_time % 60)
-				local delay_status = string.format(_("trade-comms","%i seconds"),delay_seconds)
-				if delay_seconds == 1 then
-					delay_status = string.format(_("trade-comms","%i second"),delay_seconds)
-				end
-				if delay_minutes > 0 then
-					if delay_minutes > 1 then
-						delay_status = string.format(_("trade-comms","%i minutes and %s"),delay_minutes,delay_status)
-					else
-						delay_status = string.format(_("trade-comms","%i minute and %s"),delay_minutes,delay_status)
-					end							
-				end
-				setCommsMessage(string.format(_("trade-comms","There are some repair crew recruits in route for %s. Travel time remaining is %s."),comms_target:getCallSign(),delay_status))
-			end
-		end
-		addCommsReply(_("Back"), commsStation)
-	end)
-end
-function getCoolantFromStationOriginal(relationship)
-	if comms_source.initialCoolant ~= nil then
-		addCommsReply(_("trade-comms","Purchase Coolant"),function()
-			if comms_target.comms_data.coolant_inventory == nil then
-				comms_target.comms_data.coolant_inventory = math.random(0,3)*2
-			end
-			if comms_target.comms_data.coolant_inventory > 0 then	--station has coolant
-				if comms_target.comms_data.coolant_packaging_delay == nil then
-					comms_target.comms_data.coolant_packaging_delay = 0
-				end
-				if getScenarioTime() > comms_target.comms_data.coolant_packaging_delay then		--no delay
-					if math.random(1,5) <= (3 - difficulty) then
-						local coolantCost = math.random(45,90)
-						if relationship ~= "friendly" then
-							coolantCost = math.random(60,120)
-						end
-						if comms_source:getMaxCoolant() < comms_source.initialCoolant then
-							coolantCost = math.random(30,60)
-							if relationship ~= "friendly" then
-								coolantCost = math.random(45,90)
-							end
-						end
-						setCommsMessage(_("trade-comms","We've got some coolant available for you"))
-						addCommsReply(string.format(_("trade-comms", "Purchase coolant for %i reputation"),coolantCost), function()
-							if not comms_source:takeReputationPoints(coolantCost) then
-								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-							else
-								comms_source:setMaxCoolant(comms_source:getMaxCoolant() + 2)
-								comms_target.comms_data.coolant_inventory = comms_target.comms_data.coolant_inventory - 2
-								if comms_target.comms_data.coolant_inventory <= 0 then
-									comms_target.comms_data.coolant_inventory_delay = getScenarioTime() + random(60,300)
-								end
-								setCommsMessage(_("trade-comms", "Additional coolant purchased"))
-							end
-							addCommsReply(_("Back"), commsStation)
-						end)
-					else
-						local delay_seconds = math.random(3,20)
-						comms_target.comms_data.coolant_packaging_delay = getScenarioTime() + delay_seconds
-						setCommsMessage(string.format(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transport. They say they should have it working in about %i seconds"),delay_seconds))
-					end
-				else	--delay in progress
-					local delay_seconds = math.floor(comms_target.comms_data.coolant_packaging_delay - getScenarioTime())
-					if delay_seconds > 1 then
-						setCommsMessage(string.format(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transport. They say they should have it working in about %i seconds"),delay_seconds))
-					else
-						setCommsMessage(_("trade-comms","The coolant preparation facility is having difficulty packaging the coolant for transportation. They say they should have it working in a second"))
-					end
-				end
-			else	--station is out of coolant
-				if comms_target.comms_data.coolant_inventory_delay == nil then
-					comms_target.comms_data.coolant_inventory_delay = 0
-				end
-				if getScenarioTime() > comms_target.comms_data.coolant_inventory_delay then
-					comms_target.comms_data.coolant_inventory = math.random(1,3)*2
-					local delay_seconds = math.random(3,20)
-					comms_target.comms_data.coolant_packaging_delay = getScenarioTime() + delay_seconds
-					setCommsMessage(string.format(_("trade-comms","Our coolant production facility just made some, but it's not quite ready to be transported. The preparation facility says it should take about %i seconds"),delay_seconds))
-				else
-					local delay_time = math.floor(comms_target.comms_data.coolant_inventory_delay - getScenarioTime())
-					local delay_minutes = math.floor(delay_time / 60)
-					local delay_seconds = math.floor(delay_time % 60)
-					local delay_status = string.format(_("trade-comms","%i seconds"),delay_seconds)
-					if delay_seconds == 1 then
-						delay_status = string.format(_("trade-comms","%i second"),delay_seconds)
-					end
-					if delay_minutes > 0 then
-						if delay_minutes > 1 then
-							delay_status = string.format(_("trade-comms","%i minutes and %s"),delay_minutes,delay_status)
-						else
-							delay_status = string.format(_("trade-comms","%i minute and %s"),delay_minutes,delay_status)
-						end							
-					end
-					setCommsMessage(string.format(_("trade-comms","Our coolant production facility is making more right now. Coolant manufacturing time remaining is %s."),delay_status))
-				end
-			end
-			addCommsReply(_("Back"), commsStation)
-		end)
 	end
 end
 function isAllowedTo(state)
@@ -56544,25 +58047,13 @@ function getWeaponCost(weapon)
 	end
     return math.ceil(comms_data.weapon_cost[weapon] * comms_data.reputation_cost_multipliers[getFriendStatus()])
 end
-function handleUndockedStateOriginal()
-    --Handle communications when we are not docked with the station.
-    local ctd = comms_target.comms_data
-    if comms_source:isFriendly(comms_target) then
-        oMsg = "Good day, officer.\nIf you need supplies, please dock with us first."
-    else
-        oMsg = "Greetings.\nIf you want to do business, please dock with us first."
-    end
-    if comms_target:areEnemiesInRange(20000) then
-		oMsg = oMsg .. "\nBe aware that if enemies in the area get much closer, we will be too busy to conduct business with you."
-	end
-	setCommsMessage(oMsg)
- 	addCommsReply("I need information", function()
- 		local ctd = comms_target.comms_data
-		setCommsMessage("What kind of information do you need?")
-	end)
-end
-
 function getServiceCost(service)
+	if comms_data.service_cost == nil then
+		print("comms data service cost is nil. Station:",comms_target:getCallSign())
+	end
+	if comms_data.service_cost[service] == nil then
+		print("comms data service cost for service",service,"is nil. Station:",comms_target:getCallSign())
+	end
     return math.ceil(comms_data.service_cost[service])
 end
 function getFriendStatus()
@@ -57877,6 +59368,8 @@ function update(delta)
 			updatePlayerLockBanners(p)
 			boarderResult(p)
 			updatePlayerWaypointDistanceButton(p)
+			improvedStationService(p)
+			updatePlayerMaxHealthWidgets(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -58090,6 +59583,58 @@ function update(delta)
 		podFloat()
 	end
 	if updateDiagnostic then print("update: end of update function") end
+end
+function improvedStationService(p)
+	if p.instant_energy ~= nil then
+		if #p.instant_energy > 0 then
+			for i,station in ipairs(p.instant_energy) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setEnergyLevel(p:getEnergyLevelMax())
+					end
+				else
+					p.instant_energy[i] = p.instant_energy[#p.instant_energy]
+					p.instant_energy[#p.instant_energy] = nil
+					break
+				end
+			end
+		else
+			p.instant_energy = nil
+		end
+	end
+	if p.instant_hull ~= nil then
+		if #p.instant_hull > 0 then
+			for i,station in ipairs(p.instant_hull) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setHull(p:getHullMax())
+					end
+				else
+					p.instant_hull[i] = p.instant_hull[#p.instant_hull]
+					p.instant_hull[#p.instant_hull] = nil
+					break
+				end
+			end
+		else
+			p.instant_hull = nil
+		end
+	end
+	if p.instant_probes ~= nil then
+		if #p.instant_probes > 0 then
+			for i,station in ipairs(p.instant_probes) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setScanProbeCount(p:getMaxScanProbeCount())
+					end
+				else
+					p.instant_probes[i] = p.instant_probes[#p.instant_probes]
+					p.instant_probes[#p.instant_probes] = nil
+				end
+			end
+		else
+			p.instant_probes = nil
+		end
+	end
 end
 function updatePlayerPodTelemetryButton(p)
 	local pod_count = 0
@@ -59039,6 +60584,136 @@ function waypointDistance(p,console)
 		end
 		p.waypoint_distance_msg = string.format("waypoint_distance_message_%s",console)
 		p:addCustomMessage(console,p.waypoint_distance_msg,string.format("%s\n%s",node,seq))
+	end
+end
+function updatePlayerMaxHealthWidgets(p)
+	local function removeWidgets(p)
+		if p.hide_max_health_button_eng ~= nil then
+			p:removeCustom(p.hide_max_health_button_eng)
+			p.hide_max_health_button_eng = nil
+		end
+		if p.hide_max_health_button_epl ~= nil then
+			p:removeCustom(p.hide_max_health_button_epl)
+			p.hide_max_health_button_epl = nil
+		end
+		if p.show_max_health_button_eng ~= nil then
+			p:removeCustom(p.show_max_health_button_eng)
+			p.show_max_health_button_eng = nil
+		end
+		if p.show_max_health_button_epl ~= nil then
+			p:removeCustom(p.show_max_health_button_epl)
+			p.show_max_health_button_epl = nil
+		end
+		if p.max_health_info_eng ~= nil then
+			for i,banner in ipairs(p.max_health_info_eng) do
+				p:removeCustom(banner)
+			end
+			p.max_health_info_eng = {}
+		end
+		if p.max_health_info_epl ~= nil then
+			for i,banner in ipairs(p.max_health_info_epl) do
+				p:removeCustom(banner)
+			end
+			p.max_health_info_epl = {}
+		end
+	end
+	if p.max_health_widgets then
+		local damaged_systems = {}
+		if p.show_max_health_banners == nil then
+			p.show_max_health_banners = false
+		end
+		for i,system in ipairs(system_list) do
+			if p:hasSystem(system) then
+				if p:getSystemHealthMax(system) < 1 then
+					table.insert(damaged_systems,{name=system,max=p:getSystemHealthMax(system)})
+				end
+			end
+		end
+		if #damaged_systems > 0 then
+			if p.show_max_health_banners then
+				if p.hide_max_health_button_eng == nil then
+					p.hide_max_health_button_eng = "hide_max_health_button_eng"
+					p:addCustomButton("Engineering",p.hide_max_health_button_eng,_("buttonEngineer","Hide max health"),function()
+						p:removeCustom(p.hide_max_health_button_eng)
+						p.hide_max_health_button_eng = nil
+						p.show_max_health_banners = false
+						if p.max_health_info_eng ~= nil then
+							for i,banner in ipairs(p.max_health_info_eng) do
+								p:removeCustom(banner)
+							end
+							p.max_health_info_eng = {}
+						end
+					end,70)
+				end
+				if p.hide_max_health_button_epl == nil then
+					p.hide_max_health_button_epl = "hide_max_health_button_epl"
+					p:addCustomButton("Engineering+",p.hide_max_health_button_epl,_("buttonEngineer+","Hide max health"),function()
+						p:removeCustom(p.hide_max_health_button_epl)
+						p.hide_max_health_button_epl = nil
+						p.show_max_health_banners = false
+						if p.max_health_info_epl ~= nil then
+							for i,banner in ipairs(p.max_health_info_epl) do
+								p:removeCustom(banner)
+							end
+							p.max_health_info_epl = {}
+						end
+					end,70)
+				end
+				local max_out = ""
+				if p.max_health_info_eng == nil then
+					p.max_health_info_eng = {}
+					p.max_health_info_epl = {}
+				end
+				local info_banner_count = 0
+				for i,dmg in ipairs(damaged_systems) do
+					if max_out == "" then
+						max_out = string.format("%s:%i%%",pretty_short_system[dmg.name],math.floor(dmg.max*100))
+					else
+						max_out = string.format("%s %s:%i%%",max_out,pretty_short_system[dmg.name],math.floor(dmg.max*100))
+						info_banner_count = info_banner_count + 1
+						p.max_health_info_eng[info_banner_count] = string.format("max_health_info_eng_%i",info_banner_count)
+						p:addCustomInfo("Engineering",p.max_health_info_eng[info_banner_count],max_out,70 + info_banner_count)
+						p.max_health_info_epl[info_banner_count] = string.format("max_health_info_epl_%i",info_banner_count)
+						p:addCustomInfo("Engineering+",p.max_health_info_epl[info_banner_count],max_out,70 + info_banner_count)
+						max_out = ""
+					end
+				end
+				if max_out ~= "" then
+					info_banner_count = info_banner_count + 1
+					p.max_health_info_eng[info_banner_count] = string.format("max_health_info_eng_%i",info_banner_count)
+					p:addCustomInfo("Engineering",p.max_health_info_eng[info_banner_count],max_out,70 + info_banner_count)
+					p.max_health_info_epl[info_banner_count] = string.format("max_health_info_epl_%i",info_banner_count)
+					p:addCustomInfo("Engineering+",p.max_health_info_epl[info_banner_count],max_out,70 + info_banner_count)
+				end
+				if p.max_health_info_eng[info_banner_count + 1] ~= nil then
+					p:removeCustom(p.max_health_info_eng[info_banner_count + 1])
+					p.max_health_info_eng[info_banner_count + 1] = nil
+					p:removeCustom(p.max_health_info_epl[info_banner_count + 1])
+					p.max_health_info_epl[info_banner_count + 1] = nil
+				end
+			else
+				if p.show_max_health_button_eng == nil then
+					p.show_max_health_button_eng = "show_max_health_button_eng"
+					p:addCustomButton("Engineering",p.show_max_health_button_eng,"Show max health",function()
+						p:removeCustom(p.show_max_health_button_eng)
+						p.show_max_health_button_eng = nil
+						p.show_max_health_banners = true
+					end,70)
+				end
+				if p.show_max_health_button_epl == nil then
+					p.show_max_health_button_epl = "show_max_health_button_epl"
+					p:addCustomButton("Engineering+",p.show_max_health_button_epl,"Show max health",function()
+						p:removeCustom(p.show_max_health_button_epl)
+						p.show_max_health_button_epl = nil
+						p.show_max_health_banners = true
+					end,70)
+				end
+			end
+		else
+			removeWidgets(p)
+		end
+	else
+		removeWidgets(p)
 	end
 end
 function powerSensorConfigButtons(p)
