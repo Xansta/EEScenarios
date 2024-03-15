@@ -1841,7 +1841,7 @@ function UpdateMissionPatrol()
 You have repelled the attackers and the SW Checkpoint is safe for now, but intelligence reports show a huge drone convoy in your vicinity to the NW.
 
 INVESTIGATE BUT DO NOT ENGAGE! We have it on good word that attacking this convoy is extremely risky. Keep your distance, but we'd like to know where they are going.]]))
-      Player:addToShipLog(_("defenceStn-shipLog", "Investigte the convoy, but DO NOT ENGAGE"), "Red")
+      Player:addToShipLog(_("defenceStn-shipLog", "Investigate the convoy, but DO NOT ENGAGE"), "Red")
 
       Defence_station.mission_state = "drone convoy"
       SpawnConvoyEnemies()
