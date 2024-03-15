@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.26.1"
+	scenario_version = "6.27.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -31226,6 +31226,17 @@ function setBeamColor(ship)
 	for i=0,15 do
 		ship:setBeamWeaponArcColor(i,r,g,b,16/255,16/255,16/255)
 	end
+	local factions_db = queryScienceDatabase("Factions")
+	local color_db = queryScienceDatabase("Factions","Colors")
+	if color_db == nil then
+		factions_db:addEntry("Colors")
+		color_db = queryScienceDatabase("Factions","Colors")
+	end
+	local color_out = "As you identify each faction, the onboard computer system assigns a color to the beam arcs to help identify factions. These are the current faction/color correlations:\n"
+	for faction,color in pairs(faction_beam_color) do
+		color_out = string.format("%s\n%s: %s",color_out,faction,color.name)
+	end
+	color_db:setLongDescription(color_out)
 end
 function stockPlayer(template)
 	print("stock player template:",template)
@@ -53340,7 +53351,13 @@ function commsStation()
     	panic_range = 5000
     end
     if comms_target:areEnemiesInRange(panic_range) then
-        setCommsMessage(string.format("[Automated Response]\nWe're sorry, but we cannot take your take your call right now. All personnel are busy at emergency stations due to hostile entities within %.1f units",panic_range/1000));
+    	local busy_messages = {
+    		string.format("[Automated Response]\nWe're sorry, but we cannot take your take your call right now. All personnel are busy at emergency stations due to hostile entities within %.1f units",panic_range/1000),
+    		"[Automated Response]\nRelay officer temporarily reassigned to damage control team in anticipation of enemy attack. Call back later",
+    		"[Automated Response]\nGone to designated battle station (shield support team). Try again later",
+    		string.format("[Automated Response]\nRelay officer reassigned to %s hull breach emergency response team",comms_target:getCallSign()),
+    	}
+        setCommsMessage(tableRemoveRandom(busy_messages))
 		if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) then
 			stationDefenseFleet()
 		end
@@ -53592,14 +53609,21 @@ function addStationToDatabase(station)
 	temp_artifact:destroy()
 end
 function stationStatusReport(calling_function)
-	addCommsReply(_("situationReport-comms","Report status"), function()
+	local status_prompts = {
+		"Report status",
+		"Report station status",
+		string.format("Report station %s status",comms_target:getCallSign()),
+		"What is your status?",
+		string.format("What is the condition of station %s?",comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(status_prompts), function()
 		msg = string.format(_("situationReport-comms","Hull:%s    "),math.floor(comms_target:getHull() / comms_target:getHullMax() * 100))
 		local shields = comms_target:getShieldCount()
 		if shields == 1 then
-			msg = string.format(_("situationReport-comms","%s Shield:%s"),msg,math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
+			msg = string.format(_("situationReport-comms","%s  Shield:%s"),msg,math.floor(comms_target:getShieldLevel(0) / comms_target:getShieldMax(0) * 100))
 		else
 			for n=0,shields-1 do
-				msg = string.format(_("situationReport-comms","%s Shield %s:%s"),msg,n,math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
+				msg = string.format(_("situationReport-comms","%s  Shield %s:%s"),msg,n,math.floor(comms_target:getShieldLevel(n) / comms_target:getShieldMax(n) * 100))
 			end
 		end
 		local improvements = {}
@@ -53678,7 +53702,14 @@ function stationDefenseFleet(calling_function)
 			defense_fleet_count = defense_fleet_count + 1
 		end
 		if defense_fleet_count > 0 then
-			addCommsReply(string.format(_("station-comms","Activate station defense fleet (%s rep)"),getServiceCost("activatedefensefleet")),function()
+			local fleet_prompts = {
+				string.format("Activate station defense fleet (%s rep)",getServiceCost("activatedefensefleet")),
+				string.format("Launch station defense fleet (%s rep)",getServiceCost("activatedefensefleet")),
+				string.format("Send out station defense fleet (%s rep)",getServiceCost("activatedefensefleet")),
+				string.format("Launch %s defenders (%s rep)",comms_target:getCallSign(),getServiceCost("activatedefensefleet")),
+				string.format("Enable %s defenders (%s rep)",comms_target:getCallSign(),getServiceCost("activatedefensefleet")),
+			}
+			addCommsReply(tableRemoveRandom(fleet_prompts),function()
 				if comms_source:takeReputationPoints(getServiceCost("activatedefensefleet")) then
 					for name, template in pairs(comms_target.comms_data.idle_defense_fleet) do
 						local script = Script()
@@ -53692,9 +53723,23 @@ function stationDefenseFleet(calling_function)
 						script:run("border_defend_station.lua")
 						comms_target.comms_data.idle_defense_fleet[name] = nil
 					end
-					setCommsMessage(_("station-comms","Defense fleet activated"))
+					local launched_responses = {
+						"Defense fleet activated",
+						"Defenders launched",
+						string.format("%s defense fleet activated",comms_target:getCallSign()),
+						string.format("Station %s defenders engaged",comms_target:getCallSign()),
+						string.format("%s defenders enabled",comms_target:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(launched_responses))
 				else
-					setCommsMessage(_("station-comms","Insufficient reputation"))
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 				end
 				if calling_function ~= nil then
 					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
@@ -53777,42 +53822,6 @@ function contactStationGMRepresentative(status_string)
 		addCommsReply("Back", commsStation)
 	end)
 end
-function interactiveAvailable()
-	local interactive = false
-	if comms_target:areEnemiesInRange(panic_range*1.5) then
-		if comms_target.comms_data.friendlyness > 20 then
-			oMsg = string.format(_("station-comms","%s\nNo communication officers available due to station emergency."),oMsg)
-			setCommsMessage(oMsg)
-		end
-	elseif comms_target:areEnemiesInRange(panic_range*2) then
-		if comms_target.comms_data.friendlyness > 75 then
-			oMsg = string.format(_("station-comms","%s\nPlease be quick. Sensors detect enemies"),oMsg)
-			setCommsMessage(oMsg)
-			interactive = true
-		else
-			if comms_target.comms_data.friendlyness > 40 then
-				oMsg = string.format(_("station-comms","%s\nNo communication officers available due to station emergency."),oMsg)
-				setCommsMessage(oMsg)
-			end
-		end
-	elseif comms_target:areEnemiesInRange(panic_range*2.5) then
-		if comms_target.comms_data.friendlyness > 33 then
-			if comms_target.comms_data.friendlyness > 75 then
-				oMsg = string.format(_("station-comms","%s\nPlease forgive us if we seem distracted. Our sensors detect enemies within %i units"),oMsg,math.floor(panic_range*2.5/1000))
-				setCommsMessage(oMsg)
-			elseif comms_target.comms_data.friendlyness > 50 then
-				oMsg = string.format(_("station-comms","%s\nPlease forgive us if we seem distracted. Our sensors detect enemies nearby."),oMsg)
-				setCommsMessage(oMsg)
-			end
-			interactive = true
-		end
-	else
-		if comms_target.comms_data.friendlyness > 33 then
-			interactive = true
-		end	
-	end
-	return interactive
-end
 --	undocked communication functions
 function handleUndockedState()
 	local oMsg = ""
@@ -53837,29 +53846,53 @@ function handleUndockedState()
 	end
 	setCommsMessage(oMsg)
 	local interactive = false
+	local no_relay_panic_responses = {
+		"No communication officers available due to station emergency.",
+		"Relay officers unavailable during station emergency.",
+		"Relay officers reassigned for station emergency.",
+		"Station emergency precludes response from relay officer.",
+	}
 	if comms_target:areEnemiesInRange(panic_range*1.5) then
 		if comms_target.comms_data.friendlyness > 20 then
-			oMsg = string.format(_("station-comms","%s\nNo communication officers available due to station emergency."),oMsg)
+			oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(no_relay_panic_responses))
 			setCommsMessage(oMsg)
 		end
 	elseif comms_target:areEnemiesInRange(panic_range*2) then
 		if comms_target.comms_data.friendlyness > 75 then
-			oMsg = string.format(_("station-comms","%s\nPlease be quick. Sensors detect enemies"),oMsg)
+			local quick_relay_responses = {
+				"Please be quick. Sensors detect enemies.",
+				"I have to go soon since there are enemies nearby.",
+				"Talk fast. Enemies approach.",
+				"Enemies are coming so talk fast.",
+			}
+			oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(quick_relay_responses))
 			setCommsMessage(oMsg)
 			interactive = true
 		else
 			if comms_target.comms_data.friendlyness > 40 then
-				oMsg = string.format(_("station-comms","%s\nNo communication officers available due to station emergency."),oMsg)
+				oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(no_relay_panic_responses))
 				setCommsMessage(oMsg)
 			end
 		end
 	elseif comms_target:areEnemiesInRange(panic_range*2.5) then
 		if comms_target.comms_data.friendlyness > 33 then
 			if comms_target.comms_data.friendlyness > 75 then
-				oMsg = string.format(_("station-comms","%s\nPlease forgive us if we seem distracted. Our sensors detect enemies within %i units"),oMsg,math.floor(panic_range*2.5/1000))
+				local distracted_units_responses = {
+					string.format("Please forgive us if we seem distracted. Our sensors detect enemies within %i units",math.floor(panic_range*2.5/1000)),
+					string.format("Enemies at %i units. Things might get busy soon. Business?",math.floor(panic_range*2.5/1000)),
+					string.format("A busy day here at %s: Enemies are %s units away and my boss is reviewing emergency procedures. I'm a bit distracted.",comms_target:getCallSign(),math.floor(panic_range*2.5/1000)),
+					string.format("If I seem distracted, it's only because of the enemies showing up at %i units.",math.floor(panic_range*2.5/1000)),
+				}
+				oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(distracted_units_responses))
 				setCommsMessage(oMsg)
 			elseif comms_target.comms_data.friendlyness > 50 then
-				oMsg = string.format(_("station-comms","%s\nPlease forgive us if we seem distracted. Our sensors detect enemies nearby."),oMsg)
+				local distracted_responses = {
+					"Please forgive us if we seem distracted. Our sensors detect enemies nearby.",
+					string.format("Enemies are close to %s. We might get busy. Business?",comms_target:getCallSign()),
+					"We're quite busy preparing for enemies: evaluating cross training, checking emergency procedures, etc. I'm a little distracted.",
+					string.format("%s is likely going to be attacked soon. Everyone is running around getting ready, distracting me.",comms_target:getCallSign()),
+				}
+				oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(distracted_responses))
 				setCommsMessage(oMsg)
 			end
 			interactive = true
@@ -53913,7 +53946,14 @@ function interactiveUndockedStationComms()
 	addCommsReply("Interact with station relay officer on duty",interactiveUndockedStationCommsMeat)
 end
 function interactiveUndockedStationCommsMeat()
-	setCommsMessage("What can I do for you?")
+	local help_prompts = {
+		"What can I do for you?",
+		"How may I help?",
+		"What do you need or want?",
+		string.format("Go ahead, %s",comms_source:getCallSign()),
+		string.format("How can %s serve you today?",comms_target:getCallSign()),
+	}
+	setCommsMessage(tableRemoveRandom(help_prompts))
 	if interactive_undocked_station_status_report == nil or getScenarioTime() > interactive_undocked_station_status_report + comms_fudge then
 		stationStatusReport({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
 		interactive_undocked_station_status_report = getScenarioTime()
@@ -53980,7 +54020,7 @@ function interactiveUndockedStationCommsMeat()
 			interactive_undocked_station_influence_enemy = getScenarioTime()
 		end
 	end
-	setCommsMessage("What can I do for you?")
+	setCommsMessage(tableRemoveRandom(help_prompts))
 	addCommsReply("Back",commsStation)
 end
 function catalogImprovements(msg)
@@ -54062,22 +54102,74 @@ function improveStationService(improvements)
 		setRepairMissions()
 	end
 	addCommsReply(_("situationReport-comms","Improve station services"),function()
-		setCommsMessage(_("situationReport-comms","What station services would you like to improve?"))
+		local improve_what_service_prompts = {
+			"What station service would you like to improve?",
+			"Which of these station services would you like to improve?",
+			"You could improve any of these station services:",
+			"Certain station services could use improvement. Which one are you interested in?",
+			string.format("Which %s service can %s help improve?",comms_target:getCallSign(),comms_source:getCallSign()),
+		}
+		if #improvements == 1 then
+			improve_what_service_prompts = {
+				"Would you like to improve this service?",
+				"This service could use improvement:",
+				string.format("%s can help %s by improving this service:",comms_source:getCallSign(),comms_target:getCallSign()),
+				"Can you help by improving this service?",
+			}
+		end
+		setCommsMessage(tableRemoveRandom(improve_what_service_prompts))
 		local improvement_prompt = {
-			["restock_probes"] = _("situationReport-comms","Restocking of docked ship's scan probes"),
-			["hull"] = _("situationReport-comms","Repairing of docked ship's hull"),
-			["energy"] = "Charging of docked ship's energy reserves",
-			["Nuke"] = _("situationReport-comms","Replenishment of nuclear ordnance"),
-			["EMP"] = _("situationReport-comms","Replenishment of EMP missiles"),
-			["Homing"] = _("situationReport-comms","Replenishment of homing missiles"),
-			["HVLI"] = _("situationReport-comms","Replenishment of High Velocity Lead Impactors"),
-			["Mine"] = _("situationReport-comms","Replenishment of mines"),
+			["restock_probes"] = {
+				"Restocking of docked ship's scan probes",
+				"Replenishing docked ship's scan probes",
+				"Resupplying scan probes of docked ship",
+			},
+			["hull"] = {
+				"Repairing of docked ship's hull",
+				"Repairing hull of docked ship",
+				"Fixing docked ship's hull",
+			},
+			["energy"] = {
+				"Charging of docked ship's energy reserves",
+				"Charge batteries of docked ship",
+				"Restore energy reserves on docked ship",
+			},
+			["Nuke"] = {
+				"Replenishment of nuclear ordnance on docked ship",
+				"Replenish docked ship's nukes",
+				"Restock nukes of docked ship",
+				"Resupply nukes on docked ship",
+			},
+			["EMP"] = {
+				"Replenishment of EMP missiles on docked ship",
+				"Replenish docked ship's EMPs",
+				"Provide replacement Electro-Magnetic Pulse missiles",
+				"Restock EMPs on docked ship",
+			},
+			["Homing"] = {
+				"Replenishment of homing missiles",
+				"Restock homing missiles of docked ship",
+				"Resupply homing missiles for docked ship",
+				"Provide homing missiles to docked ship",
+			},
+			["HVLI"] = {
+				"Replenishment of High Velocity Lead Impactors",
+				"Restock HVLI missiles for docked ship",
+				"Resupply High Velocity Lead Impactors on docked ship",
+				"Provide HVLIs for docked ship",
+			},
+			["Mine"] = {
+				"Replenishment of mines",
+				"Replace mines on docked ship",
+				"Restock mines on docked ship",
+				"Resupply mines to docked ship",
+			},
 		}
 		for i,improvement in ipairs(improvements) do
 			if improvement_prompt[improvement] == nil then
 				print("Unable to show improvements. Improvement value:",improvement)
 			else
-				addCommsReply(improvement_prompt[improvement],function()	
+				addCommsReply(tableRemoveRandom(improvement_prompt[improvement]),function()	
 					local mission_line = mission_good[improvement]
 					print("improvement:",improvement,"mission_line:",mission_line)
 					for mission,details in pairs(mission_line) do
@@ -54086,7 +54178,7 @@ function improveStationService(improvements)
 					local needed_good = mission_line.good
 					print("needed good:",needed_good)
 					needed_good = mission_good[improvement].good
-					setCommsMessage(string.format(_("situationReport-comms","%s could be improved with %s. You may be able to get %s from independent stations or transports."),improvement_prompt[improvement],needed_good,needed_good))
+					setCommsMessage(string.format(_("situationReport-comms","%s could be improved with %s. You may be able to get %s from stations or transports."),tableRemoveRandom(improvement_prompt[improvement]),needed_good,needed_good))
 					if comms_source.goods ~= nil then
 						if comms_source.goods[needed_good] ~= nil and comms_source.goods[needed_good] > 0 and comms_source:isDocked(comms_target) then
 							addCommsReply(string.format(_("situationReport-comms","Provide %s to station %s"),needed_good,comms_target:getCallSign()),function()
@@ -54405,8 +54497,20 @@ function setRepairMissions()
 	tpa:destroy()
 end
 function requestReinforcements(calling_function)
-	addCommsReply(_("stationAssist-comms","Send reinforcements"),function()
-		setCommsMessage(_("stationAssist-comms", "What kind of reinforcement ship?"))
+	local send_reinforcements_prompt = {
+		"Send reinforcements",
+		"Request friendly warship",
+		"Send military help",
+		"Get a ship to help us",
+	}
+	addCommsReply(tableRemoveRandom(send_reinforcements_prompt),function()
+		local reinforcement_type = {
+			"What kind of reinforcement ship?",
+			"What kind of ship should we send?",
+			"Specify ship type",
+			"Identify desired type of ship",
+		}
+		setCommsMessage(tableRemoveRandom(reinforcement_type))
 		if comms_target.comms_data.service_cost == nil then
 			comms_target.comms_data.service_cost = {}
 		end
@@ -54463,9 +54567,21 @@ function requestReinforcements(calling_function)
 				avail_count = avail_count + 1
 				addCommsReply(string.format(_("stationAssist-comms","%s (%d reputation)"),info.desc,info.cost), function()
 					if comms_source:getWaypointCount() < 1 then
-						setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request reinforcements."))
+						local set_reinforcement_waypoint = {
+							"You need to set a waypoint before you can request reinforcements.",
+							"Set a waypoint so that we can direct your reinforcements.",
+							"Reinforcements require a waypoint as a destination.",
+							"Before requesting reinforcements, you need to set a waypoint.",
+						}
+						setCommsMessage(tableRemoveRandom(set_reinforcement_waypoint))
 					else
-						setCommsMessage(_("stationAssist-comms", "To which waypoint should we dispatch the reinforcements?"))
+						local direct_to_what_waypoint = {
+							"To which waypoint should we dispatch the reinforcements?",
+							"Where should we send the reinforcements?",
+							"Specify reinforcement rendezvous waypoint",
+							"Where should the reinforcements go?"
+						}
+						setCommsMessage(tableRemoveRandom(direct_to_what_waypoint))
 						for n = 1, comms_source:getWaypointCount() do
 							addCommsReply(string.format(_("stationAssist-comms", "Waypoint %d"), n),function()
 								if comms_source:takeReputationPoints(info.cost) then
@@ -54473,9 +54589,22 @@ function requestReinforcements(calling_function)
 									setBeamColor(ship)
 									suffix_index = math.random(11,77)
 									ship:setCallSign(generateCallSign(nil,comms_target:getFaction()))
-									setCommsMessage(string.format(_("stationAssist-comms","We have dispatched %s to assist at waypoint %s"),ship:getCallSign(),n))
+									local sent_reinforcements = {
+										string.format("We have dispatched %s to assist at waypoint %s",ship:getCallSign(),n),
+										string.format("%s is heading for waypoint %s",ship:getCallSign(),n),
+										string.format("%s has been sent to waypoint %s",ship:getCallSign(),n),
+										string.format("We ordered %s to help at waypoint %s",ship:getCallSign(),n),
+									}
+									setCommsMessage(tableRemoveRandom(sent_reinforcements))
 								else
-									setCommsMessage(_("stationAssist-comms","Insufficient reputation"))
+									local insufficient_rep_responses = {
+										"Insufficient reputation",
+										"Not enough reputation",
+										"You need more reputation",
+										string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+										"You don't have enough reputation",
+									}
+									setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 								end
 								addCommsReply(_("Back"), commsStation)
 							end)
@@ -54486,7 +54615,13 @@ function requestReinforcements(calling_function)
 			end
 		end
 		if avail_count < 1 then
-			setCommsMessage(_("stationAssist-comms","No reinforcements available"))
+			local insufficient_reinforcements = {
+				"No reinforcements available",
+				"We don't have any reinforcements",
+				"No military ships in our inventory, sorry",
+				"Reinforcements unavailable",
+			}
+			setCommsMessage(tableRemoveRandom(insufficient_reinforcements))
 		end
 		if undocked_request_reinforcements_caller_back == nil or getScenarioTime() > undocked_request_reinforcements_caller_back + comms_fudge then
 			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
@@ -54499,14 +54634,44 @@ function requestReinforcements(calling_function)
 	end)
 end
 function requestSupplyDrop(calling_function)
-	addCommsReply(_("stationAssist-comms","Request supply drop"),function()
-		setCommsMessage(_("stationAssist-comms","What kind of supply drop would you like?"))
+	local supply_drop_request = {
+		"Request supply drop",
+		"We need some supplies delivered",
+		"Could you drop us some supplies?",
+		"We could really use a supply drop",
+	}
+	addCommsReply(tableRemoveRandom(supply_drop_request),function()
+		local supply_drop_type = {
+			"What kind of supply drop would you like?",
+			"Supply drop type?",
+			"In what way would you like your supplies delivered?",
+			"Supply drop method?",
+		}
+		setCommsMessage(tableRemoveRandom(supply_drop_type))
 		local supply_drop_cost = math.ceil(getServiceCost("supplydrop"))
-		addCommsReply(string.format(_("stationAssist-comms","Normal (%i rep)"),supply_drop_cost),function()
+		local normal_drop_cost = {
+			string.format("Normal (%i reputation)",supply_drop_cost),
+			string.format("Regular (%i reputation)",supply_drop_cost),
+			string.format("Plain (%i reputation)",supply_drop_cost),
+			string.format("Simple (%i reputation)",supply_drop_cost),
+		}
+		addCommsReply(tableRemoveRandom(normal_drop_cost),function()
 			if comms_source:getWaypointCount() < 1 then
-				setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."));
+				local set_supply_waypoint = {
+					"You need to set a waypoint before you can request supplies.",
+					"Set a waypoint so that we can place your supplies.",
+					"Supplies require a waypoint as a target.",
+					"Before requesting supplies, you need to set a waypoint.",
+				}
+				setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 			else
-				setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"));
+				local point_supplies = {
+					"To which waypoint should we deliver your supplies?",
+					"Identify the supply delivery waypoint",
+					"Where do you want your supplies?",
+					"Where do the supplies go?",
+				}
+				setCommsMessage(tableRemoveRandom(point_supplies))
 				for n=1,comms_source:getWaypointCount() do
 					addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 						if comms_source:takeReputationPoints(getServiceCost("supplydrop")) then
@@ -54516,9 +54681,22 @@ function requestSupplyDrop(calling_function)
 							script:setVariable("position_x", position_x):setVariable("position_y", position_y)
 							script:setVariable("target_x", target_x):setVariable("target_y", target_y)
 							script:setVariable("faction_id", comms_target:getFactionId()):run("supply_drop.lua")
-							setCommsMessage(string.format(_("stationAssist-comms", "We have dispatched a supply ship toward waypoint %d"), n));
+							local supply_ship_en_route = {
+								string.format("We have dispatched a supply ship toward waypoint %d",n),
+								string.format("We sent a supply ship to waypoint %i",n),
+								string.format("There's a ship headed for %i with your supplies",n),
+								string.format("A ship should be arriving soon at waypoint %i with your supplies",n)
+							}
+							setCommsMessage(tableRemoveRandom(supply_ship_en_route))
 						else
-							setCommsMessage(_("needRep-comms", "Not enough reputation!"));
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						addCommsReply(_("Back"), commsStation)
 					end)
@@ -54527,11 +54705,29 @@ function requestSupplyDrop(calling_function)
 			addCommsReply(_("Back"), commsStation)
 		end)
 		if comms_target.comms_data.friendlyness > 20 then
-			addCommsReply(string.format(_("stationAssist-comms","Delivered by jump ship (%d rep)"),getServiceCost("jumpsupplydrop")),function()
+			local jump_drop_cost = {
+				string.format("Delivered by jump ship (%d reputation)",getServiceCost("jumpsupplydrop")),
+				string.format("Jump ship drop (%i reputation)",getServiceCost("jumpsupplydrop")),
+				string.format("Deliver with jump ship (%i reputation)",getServiceCost("jumpsupplydrop")),
+				string.format("Jump ship supply drop (%i reputation)",getServiceCost("jumpsupplydrop")),
+			}
+			addCommsReply(tableRemoveRandom(jump_drop_cost),function()
 				if comms_source:getWaypointCount() < 1 then
-					setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."));
+					local set_supply_waypoint = {
+						"You need to set a waypoint before you can request supplies.",
+						"Set a waypoint so that we can place your supplies.",
+						"Supplies require a waypoint as a target.",
+						"Before requesting supplies, you need to set a waypoint.",
+					}
+					setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 				else
-					setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"));
+					local point_supplies = {
+						"To which waypoint should we deliver your supplies?",
+						"Identify the supply delivery waypoint",
+						"Where do you want your supplies?",
+						"Where do the supplies go?",
+					}
+					setCommsMessage(tableRemoveRandom(point_supplies))
 					for n=1,comms_source:getWaypointCount() do
 						addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 							if comms_source:takeReputationPoints(getServiceCost("jumpsupplydrop")) then
@@ -54542,9 +54738,22 @@ function requestSupplyDrop(calling_function)
 								script:setVariable("target_x", target_x):setVariable("target_y", target_y)
 								script:setVariable("jump_freighter","yes")
 								script:setVariable("faction_id", comms_target:getFactionId()):run("supply_drop.lua")
-								setCommsMessage(string.format(_("stationAssist-comms", "We have dispatched a supply ship with a jump drive toward waypoint %d"), n));
+								local supply_ship_en_route = {
+									string.format("We have dispatched a supply ship toward waypoint %d",n),
+									string.format("We sent a supply ship to waypoint %i",n),
+									string.format("There's a ship headed for %i with your supplies",n),
+									string.format("A ship should be arriving soon at waypoint %i with your supplies",n)
+								}
+								setCommsMessage(tableRemoveRandom(supply_ship_en_route))
 							else
-								setCommsMessage(_("needRep-comms", "Not enough reputation!"));
+								local insufficient_rep_responses = {
+									"Insufficient reputation",
+									"Not enough reputation",
+									"You need more reputation",
+									string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+									"You don't have enough reputation",
+								}
+								setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 							end
 							addCommsReply(_("Back"), commsStation)
 						end)
@@ -54554,13 +54763,43 @@ function requestSupplyDrop(calling_function)
 			end)
 		end
 		if comms_target.comms_data.friendlyness > 66 then
-			addCommsReply(string.format(_("stationAssist-comms","Delivered by flinger (%d rep)"),getServiceCost("flingsupplydrop")),function()
-				setCommsMessage(_("stationAssist-comms","Do you want the standard 500 energy, 1 nuke, 4 homings, 2 mines, 1 EMP supply package or would you like to add something?"))
-				addCommsReply(string.format(_("stationAssist-comms","Standard (%d rep, no change)"),getServiceCost("flingsupplydrop")),function()
+			local flinger_drop_cost = {
+				string.format("Delivered by flinger (%d reputation)",getServiceCost("flingsupplydrop")),
+				string.format("Flinger drop (%i reputation)",getServiceCost("flingsupplydrop")),
+				string.format("Flinger supply drop (%i reputation)",getServiceCost("flingsupplydrop")),
+				string.format("Fling supplies to the drop point (%i reputation)",getServiceCost("flingsupplydrop")),
+			}
+			addCommsReply(tableRemoveRandom(flinger_drop_cost),function()
+				local add_supplies_prompt = {
+					"Do you want the standard 500 energy, 1 nuke, 4 homings, 2 mines, 1 EMP supply package or would you like to add something?",
+					"Would you like the standard package (500 energy, 1 nuke, 4 homings, 2 mines, 1 EMP) or would you like to add something?",
+					"Add to standard package (500 energy, 1 nuke, 4 homings, 2 mines, 1 EMP) or not?",
+					"Standard supply package (500 energy, 1 nuke, 4 homings, 2 mines, 1 EMP) or more?",
+				}
+				setCommsMessage(tableRemoveRandom(add_supplies_prompt))
+				local standard_only = {
+					string.format("Standard (%d reputation, no change)",getServiceCost("flingsupplydrop")),
+					string.format("Just the standard package (%i reputation)",getServiceCost("flingsupplydrop")),
+					string.format("Standard only (%s reputation)",getServiceCost("flingsupplydrop")),
+					string.format("Standard package alone (%s reputation)",getServiceCost("flingsupplydrop")),
+				}
+				addCommsReply(tableRemoveRandom(standard_only),function()
 					if comms_source:getWaypointCount() < 1 then
-						setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."));
+						local set_supply_waypoint = {
+							"You need to set a waypoint before you can request supplies.",
+							"Set a waypoint so that we can place your supplies.",
+							"Supplies require a waypoint as a target.",
+							"Before requesting supplies, you need to set a waypoint.",
+						}
+						setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 					else
-						setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"));
+						local point_supplies = {
+							"To which waypoint should we deliver your supplies?",
+							"Identify the supply delivery waypoint",
+							"Where do you want your supplies?",
+							"Where do the supplies go?",
+						}
+						setCommsMessage(tableRemoveRandom(point_supplies))
 						for n=1,comms_source:getWaypointCount() do
 							addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 								if comms_source:takeReputationPoints(getServiceCost("flingsupplydrop")) then
@@ -54569,9 +54808,22 @@ function requestSupplyDrop(calling_function)
 									local flinger_miss = random(100,5000)
 									local landing_x, landing_y = vectorFromAngleNorth(target_angle,flinger_miss)
 									local sd = SupplyDrop():setFactionId(comms_target:getFactionId()):setPosition(target_x + landing_x, target_y + landing_y):setEnergy(500):setWeaponStorage("Nuke", 1):setWeaponStorage("Homing", 4):setWeaponStorage("Mine", 2):setWeaponStorage("EMP", 1)
-									setCommsMessage(string.format(_("stationAssist-comms","Supplies delivered %.1f units from waypoint, bearing %.1f."),flinger_miss/1000,target_angle))
+									local supply_location = {
+										string.format("Supplies delivered %.1f units from waypoint, bearing %.1f.",flinger_miss/1000,target_angle),
+										string.format("Supplies have been launched. You can find them %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+										string.format("Our flinger has launched your supplies at waypoint %i. Look for them at %.1f units from waypoint, bearing %.1f",n,flinger_miss/1000,target_angle),
+										string.format("Flung. Find supplies %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+									}
+									setCommsMessage(tableRemoveRandom(supply_location))
 								else
-									setCommsMessage(_("needRep-comms", "Not enough reputation!"))
+									local insufficient_rep_responses = {
+										"Insufficient reputation",
+										"Not enough reputation",
+										"You need more reputation",
+										string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+										"You don't have enough reputation",
+									}
+									setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 								end
 							end)
 						end
@@ -54579,9 +54831,21 @@ function requestSupplyDrop(calling_function)
 				end)
 				addCommsReply(string.format(_("stationAssist-comms","Add HVLIs (%d rep + %d rep = %d rep)"),getServiceCost("flingsupplydrop"),getWeaponCost("HVLI")*5,getServiceCost("flingsupplydrop") + (getWeaponCost("HVLI")*5)),function()
 					if comms_source:getWaypointCount() < 1 then
-						setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."));
+						local set_supply_waypoint = {
+							"You need to set a waypoint before you can request supplies.",
+							"Set a waypoint so that we can place your supplies.",
+							"Supplies require a waypoint as a target.",
+							"Before requesting supplies, you need to set a waypoint.",
+						}
+						setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 					else
-						setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"));
+						local point_supplies = {
+							"To which waypoint should we deliver your supplies?",
+							"Identify the supply delivery waypoint",
+							"Where do you want your supplies?",
+							"Where do the supplies go?",
+						}
+						setCommsMessage(tableRemoveRandom(point_supplies))
 						for n=1,comms_source:getWaypointCount() do
 							addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 								if comms_source:takeReputationPoints(getServiceCost("flingsupplydrop") + (getWeaponCost("HVLI")*5)) then
@@ -54590,9 +54854,22 @@ function requestSupplyDrop(calling_function)
 									local flinger_miss = random(100,5000)
 									local landing_x, landing_y = vectorFromAngleNorth(target_angle,flinger_miss)
 									local sd = SupplyDrop():setFactionId(comms_target:getFactionId()):setPosition(target_x + landing_x, target_y + landing_y):setEnergy(500):setWeaponStorage("HVLI",5):setWeaponStorage("Nuke", 1):setWeaponStorage("Homing", 4):setWeaponStorage("Mine", 2):setWeaponStorage("EMP", 1)
-									setCommsMessage(string.format(_("stationAssist-comms","Supplies delivered %.1f units from waypoint, bearing %.1f."),flinger_miss/1000,target_angle))
+									local supply_location = {
+										string.format("Supplies delivered %.1f units from waypoint, bearing %.1f.",flinger_miss/1000,target_angle),
+										string.format("Supplies have been launched. You can find them %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+										string.format("Our flinger has launched your supplies at waypoint %i. Look for them at %.1f units from waypoint, bearing %.1f",n,flinger_miss/1000,target_angle),
+										string.format("Flung. Find supplies %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+									}
+									setCommsMessage(tableRemoveRandom(supply_location))
 								else
-									setCommsMessage(_("needRep-comms", "Not enough reputation!"))
+									local insufficient_rep_responses = {
+										"Insufficient reputation",
+										"Not enough reputation",
+										"You need more reputation",
+										string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+										"You don't have enough reputation",
+									}
+									setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 								end
 							end)
 						end
@@ -54600,9 +54877,21 @@ function requestSupplyDrop(calling_function)
 				end)
 				addCommsReply(string.format(_("stationAssist-comms","Add hull repair (%d rep + %d rep = %d rep)"),getServiceCost("flingsupplydrop"),100,getServiceCost("flingsupplydrop") + 100),function()
 					if comms_source:getWaypointCount() < 1 then
-						setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."));
+						local set_supply_waypoint = {
+							"You need to set a waypoint before you can request supplies.",
+							"Set a waypoint so that we can place your supplies.",
+							"Supplies require a waypoint as a target.",
+							"Before requesting supplies, you need to set a waypoint.",
+						}
+						setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 					else
-						setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"));
+						local point_supplies = {
+							"To which waypoint should we deliver your supplies?",
+							"Identify the supply delivery waypoint",
+							"Where do you want your supplies?",
+							"Where do the supplies go?",
+						}
+						setCommsMessage(tableRemoveRandom(point_supplies))
 						for n=1,comms_source:getWaypointCount() do
 							addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 								if comms_source:takeReputationPoints(getServiceCost("flingsupplydrop") + 100) then
@@ -54615,9 +54904,22 @@ function requestSupplyDrop(calling_function)
 										string.format("")
 										player:setHull(player:getHullMax())
 									end)
-									setCommsMessage(string.format(_("stationAssist-comms","Supplies delivered %.1f units from waypoint, bearing %.1f."),flinger_miss/1000,target_angle))
+									local supply_location = {
+										string.format("Supplies delivered %.1f units from waypoint, bearing %.1f.",flinger_miss/1000,target_angle),
+										string.format("Supplies have been launched. You can find them %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+										string.format("Our flinger has launched your supplies at waypoint %i. Look for them at %.1f units from waypoint, bearing %.1f",n,flinger_miss/1000,target_angle),
+										string.format("Flung. Find supplies %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+									}
+									setCommsMessage(tableRemoveRandom(supply_location))
 								else
-									setCommsMessage(_("needRep-comms", "Not enough reputation!"))
+									local insufficient_rep_responses = {
+										"Insufficient reputation",
+										"Not enough reputation",
+										"You need more reputation",
+										string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+										"You don't have enough reputation",
+									}
+									setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 								end
 							end)
 						end
@@ -54625,9 +54927,21 @@ function requestSupplyDrop(calling_function)
 				end)
 				addCommsReply(string.format(_("stationAssist-comms","Add probes (%d rep + %d rep = %d rep)"),getServiceCost("flingsupplydrop"),20,getServiceCost("flingsupplydrop") + 20),function()
 					if comms_source:getWaypointCount() < 1 then
-						setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."))
+						local set_supply_waypoint = {
+							"You need to set a waypoint before you can request supplies.",
+							"Set a waypoint so that we can place your supplies.",
+							"Supplies require a waypoint as a target.",
+							"Before requesting supplies, you need to set a waypoint.",
+						}
+						setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 					else
-						setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"))
+						local point_supplies = {
+							"To which waypoint should we deliver your supplies?",
+							"Identify the supply delivery waypoint",
+							"Where do you want your supplies?",
+							"Where do the supplies go?",
+						}
+						setCommsMessage(tableRemoveRandom(point_supplies))
 						for n=1,comms_source:getWaypointCount() do
 							addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 								if comms_source:takeReputationPoints(getServiceCost("flingsupplydrop") + 20) then
@@ -54640,9 +54954,22 @@ function requestSupplyDrop(calling_function)
 										string.format("")
 										player:setScanProbeCount(player:getMaxScanProbeCount())
 									end)
-									setCommsMessage(string.format(_("stationAssist-comms","Supplies delivered %.1f units from waypoint, bearing %.1f."),flinger_miss/1000,target_angle))
+									local supply_location = {
+										string.format("Supplies delivered %.1f units from waypoint, bearing %.1f.",flinger_miss/1000,target_angle),
+										string.format("Supplies have been launched. You can find them %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+										string.format("Our flinger has launched your supplies at waypoint %i. Look for them at %.1f units from waypoint, bearing %.1f",n,flinger_miss/1000,target_angle),
+										string.format("Flung. Find supplies %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+									}
+									setCommsMessage(tableRemoveRandom(supply_location))
 								else
-									setCommsMessage(_("needRep-comms", "Not enough reputation!"))
+									local insufficient_rep_responses = {
+										"Insufficient reputation",
+										"Not enough reputation",
+										"You need more reputation",
+										string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+										"You don't have enough reputation",
+									}
+									setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 								end
 							end)
 						end
@@ -54670,9 +54997,21 @@ function requestSupplyDrop(calling_function)
 					end
 					addCommsReply(string.format(_("stationAssist-comms","Add android repair crew (%d rep + %d rep = %d rep)"),getServiceCost("flingsupplydrop"),hire_cost,getServiceCost("flingsupplydrop") + hire_cost),function()
 						if comms_source:getWaypointCount() < 1 then
-							setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."))
+							local set_supply_waypoint = {
+								"You need to set a waypoint before you can request supplies.",
+								"Set a waypoint so that we can place your supplies.",
+								"Supplies require a waypoint as a target.",
+								"Before requesting supplies, you need to set a waypoint.",
+							}
+							setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 						else
-							setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"))
+							local point_supplies = {
+								"To which waypoint should we deliver your supplies?",
+								"Identify the supply delivery waypoint",
+								"Where do you want your supplies?",
+								"Where do the supplies go?",
+							}
+							setCommsMessage(tableRemoveRandom(point_supplies))
 							for n=1,comms_source:getWaypointCount() do
 								addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 									local hire_cost = 0
@@ -54698,9 +55037,22 @@ function requestSupplyDrop(calling_function)
 											string.format("")
 											player:setRepairCrewCount(player:getRepairCrewCount() + 1)
 										end)
-										setCommsMessage(string.format(_("stationAssist-comms","Supplies delivered %.1f units from waypoint, bearing %.1f."),flinger_miss/1000,target_angle))
+										local supply_location = {
+											string.format("Supplies delivered %.1f units from waypoint, bearing %.1f.",flinger_miss/1000,target_angle),
+											string.format("Supplies have been launched. You can find them %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+											string.format("Our flinger has launched your supplies at waypoint %i. Look for them at %.1f units from waypoint, bearing %.1f",n,flinger_miss/1000,target_angle),
+											string.format("Flung. Find supplies %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+										}
+										setCommsMessage(tableRemoveRandom(supply_location))
 									else
-										setCommsMessage(_("needRep-comms", "Not enough reputation!"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 									end
 								end)
 							end
@@ -54729,9 +55081,21 @@ function requestSupplyDrop(calling_function)
 					end
 					addCommsReply(string.format(_("stationAssist-comms","Add coolant (%d rep + %d rep = %d rep)"),getServiceCost("flingsupplydrop"),coolant_cost,getServiceCost("flingsupplydrop") + coolant_cost),function()
 						if comms_source:getWaypointCount() < 1 then
-							setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."))
+							local set_supply_waypoint = {
+								"You need to set a waypoint before you can request supplies.",
+								"Set a waypoint so that we can place your supplies.",
+								"Supplies require a waypoint as a target.",
+								"Before requesting supplies, you need to set a waypoint.",
+							}
+							setCommsMessage(tableRemoveRandom(set_supply_waypoint))
 						else
-							setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"))
+							local point_supplies = {
+								"To which waypoint should we deliver your supplies?",
+								"Identify the supply delivery waypoint",
+								"Where do you want your supplies?",
+								"Where do the supplies go?",
+							}
+							setCommsMessage(tableRemoveRandom(point_supplies))
 							for n=1,comms_source:getWaypointCount() do
 								addCommsReply(string.format(_("stationAssist-comms","Waypoint %i"),n), function()
 									local coolant_cost = 0
@@ -54757,9 +55121,22 @@ function requestSupplyDrop(calling_function)
 											string.format("")
 											player:setMaxCoolant(player:getMaxCoolant() + 2)
 										end)
-										setCommsMessage(string.format(_("stationAssist-comms","Supplies delivered %.1f units from waypoint, bearing %.1f."),flinger_miss/1000,target_angle))
+										local supply_location = {
+											string.format("Supplies delivered %.1f units from waypoint, bearing %.1f.",flinger_miss/1000,target_angle),
+											string.format("Supplies have been launched. You can find them %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+											string.format("Our flinger has launched your supplies at waypoint %i. Look for them at %.1f units from waypoint, bearing %.1f",n,flinger_miss/1000,target_angle),
+											string.format("Flung. Find supplies %.1f units from waypoint %i on bearing %.1f",flinger_miss/1000,n,target_angle),
+										}
+										setCommsMessage(tableRemoveRandom(supply_location))
 									else
-										setCommsMessage(_("needRep-comms", "Not enough reputation!"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 									end
 								end)
 							end
@@ -54768,7 +55145,13 @@ function requestSupplyDrop(calling_function)
 				end
 				addCommsReply(_("Back"), commsStation)
 			end)
-			addCommsReply(_("stationAssist-comms","Explain supply drop delivery options"),function()
+			local deliver_type_explain_prompt = {
+				"Explain supply drop delivery options",
+				"What's the difference between the supply drop options?",
+				"Please explain the different supply drop options",
+				"I don't understand the supply drop delivery options",
+			}
+			addCommsReply(tableRemoveRandom(deliver_type_explain_prompt),function()
 				setCommsMessage(_("stationAssist-comms","A normal supply drop delivery is loaded onto a standard freighter and sent to the specified destination. Delivered by jump ship means it gets there quicker if it's farther away because the freighter is equipped with a jump drive. The flinger launches the supply drop using the station's flinger. The supply drop arrives quickly, but the flinger's not as accurate as a freighter."))
 				addCommsReply(_("Back"), commsStation)
 			end)
@@ -54784,9 +55167,27 @@ function requestSupplyDrop(calling_function)
 	end)
 end
 function requestJonque()
-	addCommsReply(_("stationAssist-comms","Please send a service jonque for repairs"), function()
-		local out = string.format(_("stationAssist-comms","Would you like the service jonque to come to you directly or would you prefer to set up a rendezvous via a waypoint? Either way, you will need %.1f reputation."),getServiceCost("servicejonque"))
-		addCommsReply(_("stationAssist-comms","Direct"),function()
+	local send_jonque = {
+		"Please send a service jonque for repairs",
+		"We need a service jonque for repairs",
+		"We could use a service jonque for repairs",
+		"Please dispatch a service jonque for us",
+	}
+	addCommsReply(tableRemoveRandom(send_jonque), function()
+		local jonque_meet_method_cost = {
+			string.format("Would you like the service jonque to come to you directly or would you prefer to set up a rendezvous via a waypoint? Either way, you will need %.1f reputation.",getServiceCost("servicejonque")),
+			string.format("%.1f reputation required. What should we tell the service jonque - meet you directly or go to a waypoint?",getServiceCost("servicejonque")),
+			string.format("Should the service jonque travel directly to you or go to a designated waypoint? The cost is the same: %.1f reputation.",getServiceCost("servicejonque")),
+			string.format("Do you want the service jonque to go to you or to a waypoint? In either case, it will cost %.1f reputation.",getServiceCost("servicejonque")),
+		}
+		local out = string.format(tableRemoveRandom(jonque_meet_method_cost))
+		local jonque_direct_to_ship = {
+			"Direct",
+			string.format("Go directly to %s",comms_source:getCallSign()),
+			"Meet us directly",
+			string.format("Meet %s directly",comms_source:getCallSign()),
+		}
+		addCommsReply(tableRemoveRandom(jonque_direct_to_ship),function()
 			if comms_source:takeReputationPoints(getServiceCost("servicejonque")) then
 				ship = serviceJonque(comms_target:getFaction()):setPosition(comms_target:getPosition()):setCallSign(generateCallSign(nil,comms_target:getFaction())):setScanned(true):orderDefendTarget(comms_source)
 				ship.comms_data = {
@@ -54824,16 +55225,41 @@ function requestJonque()
 						neutral = math.max(comms_target.comms_data.reputation_cost_multipliers.friend,comms_target.comms_data.reputation_cost_multipliers.neutral/2)
 					},
 				}
-				setCommsMessage(string.format(_("stationAssist-comms","We have dispatched %s to come to you to help with repairs"),ship:getCallSign()))
+				local dispatched_jonque = {
+					string.format("We have dispatched %s to come to you to help with repairs",ship:getCallSign()),
+					string.format("Service jonque %s is heading for you to help with repairs",ship:getCallSign()),
+					string.format("We are sending %s to you to help with repairs",ship:getCallSign()),
+					string.format("We directed service jonque %s to you to help with repairs",ship:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(dispatched_jonque))
 			else
-				setCommsMessage(_("needRep-comms", "Not enough reputation!"));
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 			end
 		end)
 		if comms_source:getWaypointCount() < 1 then
-			out = out .. _("stationAssist-comms","\n\nNote: if you want to use a waypoint, you will have to back out and set one and come back.")
+			local waypoint_addendum = {
+				"\n\nNote: if you want to use a waypoint, you will have to back out, set one and return.",
+				"\n\nTo use a waypoint, set one, then back out and return to use the rendezvous at waypoint option.",
+				"\n\nYou will need to set a waypoint, back out and return if you want the service jonque to meet you at a waypoint.",
+				"\n\nNote: set waypoint, back out and return to send the service jonque to a waypoint.",
+			}
+			out = string.format("%s%s",out,tableRemoveRandom(waypoint_addendum))
 		else
 			for n=1,comms_source:getWaypointCount() do
-				addCommsReply(string.format(_("stationAssist-comms","Rendezvous at waypoint %i"),n),function()
+				local rendezvous_prompts = {
+					string.format("Rendezvous at waypoint %i",n),
+					string.format("Tell jonque to meet at waypoint %i",n),
+					string.format("Jonque to rendezvous at waypoint %i",n),
+					string.format("Have the service jonque meet us at waypoint %i",n)
+				}
+				addCommsReply(tableRemoveRandom(rendezvous_prompts),function()
 					if comms_source:takeReputationPoints(getServiceCost("servicejonque")) then
 						ship = serviceJonque(comms_target:getFaction()):setPosition(comms_target:getPosition()):setCallSign(generateCallSign(nil,comms_target:getFaction())):setScanned(true):orderDefendLocation(comms_source:getWaypoint(n))
 						ship.comms_data = {
@@ -54871,9 +55297,22 @@ function requestJonque()
 								neutral = math.max(comms_target.comms_data.reputation_cost_multipliers.friend,comms_target.comms_data.reputation_cost_multipliers.neutral/2)
 							},
 						}
-						setCommsMessage(string.format(_("stationAssist-comms","We have dispatched %s to rendezvous at waypoint %i"),ship:getCallSign(),n))
+						local jonque_sent_to_waypoint = {
+							string.format("We have dispatched %s to rendezvous at waypoint %i",ship:getCallSign(),n),
+							string.format("Service jonque %s is heading for waypoint %i",ship:getCallSign(),n),
+							string.format("We directed %s to meet you at waypoint %i",ship:getCallSign(),n),
+							string.format("Service jonque %s will rendezvous at waypoint %i",ship:getCallSign(),n),
+						}
+						setCommsMessage(tableRemoveRandom(jonque_sent_to_waypoint))
 					else
-						setCommsMessage(_("needRep-comms", "Not enough reputation!"));
+						local insufficient_rep_responses = {
+							"Insufficient reputation",
+							"Not enough reputation",
+							"You need more reputation",
+							string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+							"You don't have enough reputation",
+						}
+						setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					end
 					addCommsReply(_("Back"), commsStation)
 				end)
@@ -54887,42 +55326,99 @@ function requestJonque()
 	end)
 end
 function requestExpediteDock(calling_function)
-	addCommsReply(_("station-comms","Expedite dock"),function()
+	local expedite_dock_prompts = {
+		"Expedite dock",
+		"Speedy dock",
+		"Fast dock",
+		"Decrease dock time",
+	}
+	addCommsReply(tableRemoveRandom(expedite_dock_prompts),function()
 		if comms_source.expedite_dock == nil then
-			setCommsMessage(_("station-comms","We can have workers standing by in the docking bay to rapidly service your ship when you dock. However, they won't wait around forever. When do you think you will dock?"))
-			addCommsReply(_("station-comms","Soon (3 minutes max, 10 reputation)"),function()
-				if comms_source:takeReputationPoints(10) then
-					comms_source.expedite_dock = {["limit"] = 3*60}
+			local explain_expedite_dock = {
+				"We can have workers standing by in the docking bay to rapidly service your ship when you dock. However, they won't wait around forever. When do you think you will dock?",
+				string.format("We can direct dock workers to be ready to service your docked ship. They won't wait for long. How long before you dock with %s?",comms_target:getCallSign()),
+				"To expedite your dock, we can have dock workers ready to load supplies and service your ship as soon as you dock. The workers won't hang around forever. When will you dock?",
+				string.format("To reduce time spent docked at %s, we can hire dock workers to rapidly load and service %s as soon as you dock. However, we can only hire them for a limited period of time. When are you docking?",comms_target:getCallSign(),comms_source:getCallSign()),
+			}
+			setCommsMessage(tableRemoveRandom(explain_expedite_dock))
+			local short_minutes = 3
+			local short_reputation = 10
+			local short_prompts = {
+				string.format("Soon (%i minutes max, %i reputation)",short_minutes,short_reputation),
+				string.format("Quickly (less than %i minutes, %i reputation)",short_minutes,short_reputation),
+				string.format("Shortly (%i reputation, < %i minutes)",short_reputation,short_minutes),
+				string.format("We're nearby (%i reputation, %i minutes max)",short_reputation,short_minutes),
+			}
+			addCommsReply(tableRemoveRandom(short_prompts),function()
+				if comms_source:takeReputationPoints(short_reputation) then
+					comms_source.expedite_dock = {["limit"] = short_minutes*60}
 					if set_expedite_dock == nil or getScenarioTime() > set_expedite_dock + comms_fudge then
 						setExpediteDock()
 						set_expedite_dock = getScenarioTime()
 					end
 				else
-					setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					addCommsReply(_("Back"), commsStation)
 				end
 			end)
-			addCommsReply(_("station-comms","In a little while (5 minutes max, 15 reputation)"),function()
-				if comms_source:takeReputationPoints(15) then
-					comms_source.expedite_dock = {["limit"] = 5*60}
+			local medium_minutes = 5
+			local medium_reputation = 15
+			local medium_prompts = {
+				string.format("In a little while (%i minutes max, %i reputation)",medium_minutes,medium_reputation),
+				string.format("Soon-ish (less than %i minutes, %i reputation)",medium_minutes,medium_reputation),
+				string.format("Less than %i minutes (%i reputation)",medium_minutes,medium_reputation),
+				string.format("Soon, I think (%i reputation, < %i minutes)",medium_reputation,medium_minutes),
+			}
+			addCommsReply(tableRemoveRandom(medium_prompts),function()
+				if comms_source:takeReputationPoints(medium_reputation) then
+					comms_source.expedite_dock = {["limit"] = medium_minutes*60}
 					if set_expedite_dock == nil or getScenarioTime() > set_expedite_dock + comms_fudge then
 						setExpediteDock()
 						set_expedite_dock = getScenarioTime()
 					end
 				else
-					setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					addCommsReply(_("Back"), commsStation)
 				end
 			end)
-			addCommsReply(_("station-comms","Less than 10 minutes (20 reputation)"),function()
-				if comms_source:takeReputationPoints(20) then
-					comms_source.expedite_dock = {["limit"] = 10*60}
+			local long_minutes = 8
+			local long_reputation = 20
+			local long_prompts = {
+				string.format("We're far away (%i minutes max, %i reputation)",long_minutes,long_reputation),
+				string.format("Less than %i minutes (%i reputation)",long_minutes,long_reputation),
+				string.format("Hard to tell (less than %i minutes, %i reputation)",long_minutes,long_reputation),
+				string.format("It'll be a bit (< %i minutes, %i reputation)",long_minutes,long_reputation),
+			}
+			addCommsReply(tableRemoveRandom(long_prompts),function()
+				if comms_source:takeReputationPoints(long_reputation) then
+					comms_source.expedite_dock = {["limit"] = long_minutes*60}
 					if set_expedite_dock == nil or getScenarioTime() > set_expedite_dock + comms_fudge then
 						setExpediteDock()
 						set_expedite_dock = getScenarioTime()
 					end
 				else
-					setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					addCommsReply(_("Back"), commsStation)
 				end
 			end)
@@ -54978,26 +55474,89 @@ function setExpediteDock()
 						out = string.format(_("station-comms","%s, restock probes"),out)
 					end
 				end
+				local additional_services = {
+					"What additional service would you like expedited?",
+					"Would you like to add a service to your expedited services list?",
+					"Might we expedite another service for you?",
+					"We could expedite another service if you wish.",
+				}
 				if standard_service_count > 1 then
-					out = string.format(_("station-comms","Standard expedited services: %s. What additional services would you like expedited?"),out)
+					local plural_existing_services = {
+						"Standard expedited services:",
+						"Normal expedited services:",
+						"Regular expedited services:",
+						"Complimentary expedited services:",
+					}
+					out = string.format("%s %s. %s",tableRemoveRandom(plural_existing_services),out,tableRemoveRandom(additional_services))
 				elseif standard_service_count > 0 then
-					out = string.format(_("station-comms","Standard expedited service: %s. What additional services would you like expedited?"),out)
+					local singular_existing_service = {
+						"Standard expedited service:",
+						"Normal expedited service:",
+						"Regular expedited service:",
+						"Complimentary expedited service:",
+					}
+					out = string.format("%s %s. %s",tableRemoveRandom(singular_existing_service),out,tableRemoveRandom(additional_services))
 				else
-					out = _("station-comms","What services would you like expedited?")
+					local expedite_something = {
+						"What service would you like expedited?",
+						"Can we expedite a service for you?",
+						"Is there a service you'd like expedited?",
+						"Specify the service to expedite",
+					}
+					out = tableRemoveRandom(expedite_something)
 				end
 			else
 				if comms_source.expedite_dock.station ~= comms_target then
 					if comms_source.expedite_dock.station:isValid() then
-						setCommsMessage(string.format(_("station-comms","I represent station %s.\nI see that you have an expedited docking contract with station %s.\nWould you like to cancel it?"),comms_target:getCallSign(),comms_source.expedite_dock.station:getCallSign()))
-						addCommsReply(string.format(_("station-comms","Yes, cancel expedited docking contract with %s"),comms_source.expedite_dock.station:getCallSign()),function()
-							setCommsMessage(string.format(_("station-comms","Expedited docking contract with %s has been cancelled."),comms_source.expedite_dock.station:getCallSign()))
+						local what_about_current_contract = {
+							string.format("I represent station %s.\nI see that you have an expedited docking contract with station %s.\nWould you like to cancel it?",comms_target:getCallSign(),comms_source.expedite_dock.station:getCallSign()),
+							string.format("Considering an expedited docking contract with %s, eh? What should be done about your existing expedited contract with %s? Cancel it?",comms_target:getCallSign(),comms_source.expedite_dock.station:getCallSign()),
+							string.format("Want a fast dock with %s? What should be done about your current agreement with %s? Should it be cancelled?",comms_target:getCallSign(),comms_source.expedite_dock.station:getCallSign()),
+							string.format("You can't set up a quick dock with %s until your quick dock with %s is done or cancelled. Shall I cancel it?",comms_target:getCallSign(),comms_source.expedite_dock.station:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(what_about_current_contract))
+						local cancel_fast_dock_prompt = {
+							string.format("Yes, cancel expedited docking contract with %s",comms_source.expedite_dock.station:getCallSign()),
+							string.format("Abandon fast dock plan with %s",comms_source.expedite_dock.station:getCallSign()),
+							string.format("Cancel planned quick dock with %s",comms_source.expedite_dock.station:getCallSign()),
+							string.format("Please cancel the fast dock contract with %s",comms_source.expedite_dock.station:getCallSign()),
+						}
+						addCommsReply(tableRemoveRandom(cancel_fast_dock_prompt),function()
+							local fast_dock_contract_cancelled = {
+								string.format("Expedited docking contract with %s has been cancelled.",comms_source.expedite_dock.station:getCallSign()),
+								string.format("Fast dock cancelled with %s",comms_source.expedite_dock.station:getCallSign()),
+								string.format("Ok, we just cancelled your expedited docking contract with %s",comms_source.expedite_dock.station:getCallSign()),
+								string.format("%s fast dock contract cancelled",comms_source.expedite_dock.station:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(fast_dock_contract_cancelled))
 							expedite_dock_players[comms_source] = nil
 							comms_source.expedite_dock = nil
 							addCommsReply(_("Back"), commsStation)
 						end)
-						addCommsReply(string.format(_("station-comms","No, keep existing expedited docking contract with %s"),comms_source.expedite_dock.station:getCallSign()),commsStation)
+						local keep_fast_dock_contract = {
+							string.format("No, keep existing expedited docking contract with %s",comms_source.expedite_dock.station:getCallSign()),
+							string.format("Oops, I forgot about that. I need to keep the fast dock contract with %s",comms_source.expedite_dock.station:getCallSign()),
+							string.format("I'd better keep the existing quick dock contract with %s",comms_source.expedite_dock.station:getCallSign()),
+							string.format("Keep the fast dock plan with %s. Let's not waste the reputation already spent there",comms_source.expedite_dock.station:getCallSign()),
+						}
+						addCommsReply(tableRemoveRandom(keep_fast_dock_contract),function()
+							local fast_dock_contract_kept = {
+								string.format("Ok, we left the fast dock contract in place with %s",comms_source.expedite_dock.station:getCallSign()),
+								string.format("Kept the quick dock contract with %s",comms_source.expedite_dock.station:getCallSign()),
+								string.format("The expedited dock contract with %s remains in effect",comms_source.expedite_dock.station:getCallSign()),
+								string.format("Maintaining the fast dock contract with %s",comms_source.expedite_dock.station:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(fast_dock_contract_kept))
+							addCommsReply(_("Back"), commsStation)
+						end)
 					else
-						setCommsMessage(_("station-comms","An expedited docking contract with a now defunct station has been cancelled."))
+						local handled_invalid_contract = {
+							"An expedited docking contract with a now defunct station has been cancelled.",
+							"The station you had a fast dock contract with is gone. Contract cancelled.",
+							"Since the station you were planning to fast dock with no longer exists, the contract has been cancelled.",
+							"Your former fast dock station has ceased to exist. Expedited contract cancelled.",
+						}
+						setCommsMessage(tableRemoveRandom(handled_invalid_contract))
 						expedite_dock_players[comms_source] = nil
 						comms_source.expedite_dock = nil
 						addCommsReply(_("Back"), commsStation)
@@ -55021,7 +55580,13 @@ function setExpediteDock()
 				if comms_source.expedite_dock.energy then
 					service_list = string.format(_("station-comms","%s energy"),service_list)
 				else
-					addCommsReply(_("station-comms","Replenish energy (5 rep)"),function()
+					local replenish_energy_fast_dock_prompt = {
+						"Replenish energy (5 reputation)",
+						"Charge batteries (5 reputation)",
+						"Recharge power (5 reputation)",
+						"Replenish power reserves (5 reputation)",
+					}
+					addCommsReply(tableRemoveRandom(replenish_energy_fast_dock_prompt),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.expedite_dock.energy = true
 							if expedite_replenish_energy_set == nil or getScenarioTime() > expedite_replenish_energy_set + comms_fudge then
@@ -55029,7 +55594,14 @@ function setExpediteDock()
 								expedite_replenish_energy_set = getScenarioTime()
 							end
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 							if expedite_replenish_energy_back == nil or getScenarioTime() > expedite_replenish_energy_back + comms_fudge then
 								addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 								expedite_replenish_energy_back = getScenarioTime()
@@ -55049,7 +55621,13 @@ function setExpediteDock()
 						service_list = string.format(_("station-comms","%s, hull"),service_list)
 					end
 				else
-					addCommsReply(_("station-comms","Repair hull (10 rep)"),function()
+					local repair_hull_fast_dock_prompt = {
+						"Repair hull (10 reputation)",
+						"Fix hull (10 reputation)",
+						"Restore hull (10 reputation)",
+						"Refurbish hull (10 reputation)",
+					}
+					addCommsReply(tableRemoveRandom(repair_hull_fast_dock_prompt),function()
 						if comms_source:takeReputationPoints(10) then
 							comms_source.expedite_dock.hull = true
 							if expedite_hull_set == nil or getScenarioTime() > expedite_hull_set + comms_fudge then
@@ -55057,7 +55635,14 @@ function setExpediteDock()
 								expedite_hull_set = getScenarioTime()
 							end
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 							if expedite_hull_back == nil or getScenarioTime() > expedite_hull_back + comms_fudge then
 								addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 								expedite_hull_back = getScenarioTime()
@@ -55077,7 +55662,13 @@ function setExpediteDock()
 						service_list = string.format(_("station-comms","%s, probes"),service_list)
 					end
 				else
-					addCommsReply(_("station-comms","Replenish probes (5 rep)"),function()
+					local restock_probes_fast_dock_prompt = {
+						"Replenish probes (5 reputation)",
+						"Restock probes (5 reputation)",
+						"Refill probes (5 reputation)",
+						"Restore probe inventory (5 reputation)",
+					}
+					addCommsReply(tableRemoveRandom(restock_probes_fast_dock_prompt),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.expedite_dock.probes = true
 							if expedite_probes_set == nil or getScenarioTime() > expedite_probes_set + comms_fudge then
@@ -55085,7 +55676,14 @@ function setExpediteDock()
 								expedite_probes_set = getScenarioTime()
 							end
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 							if expedite_probes_back == nil or getScenarioTime() > expedite_probes_back + comms_fudge then
 								addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 								expedite_probes_back = getScenarioTime()
@@ -55119,7 +55717,13 @@ function setExpediteDock()
 							local current_nuke = comms_source:getWeaponStorage("Nuke")
 							if current_nuke < max_nuke then
 								local full_nuke = max_nuke - current_nuke
-								addCommsReply(string.format(_("station-comms","Replenish nukes (%d rep)"),getWeaponCost("Nuke")*full_nuke),function()
+								local replenish_nukes_fast_dock_prompt = {
+									string.format("Replenish nukes (%d reputation)",getWeaponCost("Nuke")*full_nuke),
+									string.format("Restock nukes (%s reputation)",getWeaponCost("Nuke")*full_nuke),
+									string.format("Refill nukes (%s reputation)",getWeaponCost("Nuke")*full_nuke),
+									string.format("Refill nukes (%s reputation, %i nuke(s))",getWeaponCost("Nuke")*full_nuke,full_nuke),
+								}
+								addCommsReply(tableRemoveRandom(replenish_nukes_fast_dock_prompt),function()
 									if comms_source:takeReputationPoints(getWeaponCost("Nuke")*full_nuke) then
 										comms_source.expedite_dock.nuke = full_nuke
 										if expedite_nuke_set == nil or getScenarioTime() > expedite_nuke_set + comms_fudge then
@@ -55127,7 +55731,14 @@ function setExpediteDock()
 											expedite_nuke_set = getScenarioTime()
 										end
 									else
-										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 										if expedite_nuke_back == nil or getScenarioTime() > expedite_nuke_back + comms_fudge then
 											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 											expedite_nuke_back = getScenarioTime()
@@ -55164,7 +55775,13 @@ function setExpediteDock()
 							local current_homing = comms_source:getWeaponStorage("Homing")
 							if current_homing < max_homing then
 								local full_homing = max_homing - current_homing
-								addCommsReply(string.format(_("station-comms","Replenish homing missiles (%d rep)"),getWeaponCost("Homing")*full_homing),function()
+								local refill_homing_fast_dock_prompt = {
+									string.format("Replenish homing missiles (%d reputation)",getWeaponCost("Homing")*full_homing),
+									string.format("Restock homing missiles (%d reputation)",getWeaponCost("Homing")*full_homing),
+									string.format("Refill homing missiles (%d reputation)",getWeaponCost("Homing")*full_homing),
+									string.format("Restore homing missiles inventory (%d rep)",getWeaponCost("Homing")*full_homing),
+								}
+								addCommsReply(tableRemoveRandom(refill_homing_fast_dock_prompt),function()
 									if comms_source:takeReputationPoints(getWeaponCost("Homing")*full_homing) then
 										comms_source.expedite_dock.homing = full_homing
 										if expedite_homing_set == nil or getScenarioTime() > expedite_homing_set + comms_fudge then
@@ -55172,7 +55789,14 @@ function setExpediteDock()
 											expedite_homing_set = getScenarioTime()
 										end
 									else
-										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 										if expedite_homing_back == nil or getScenarioTime() > expedite_homing_back + comms_fudge then
 											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 											expedite_homing_back = getScenarioTime()
@@ -55209,7 +55833,13 @@ function setExpediteDock()
 							local current_emp = comms_source:getWeaponStorage("EMP")
 							if current_emp < max_emp then
 								local full_emp = max_emp - current_emp
-								addCommsReply(string.format(_("station-comms","Replenish EMP missiles (%d rep)"),getWeaponCost("EMP")*full_emp),function()
+								local restock_emp_fast_dock_prompt = {
+									string.format("Replenish EMP missiles (%d reputation)",getWeaponCost("EMP")*full_emp),
+									string.format("Restock EMP missiles (%d reputation)",getWeaponCost("EMP")*full_emp),
+									string.format("Refill EMP missiles (%d reputation)",getWeaponCost("EMP")*full_emp),
+									string.format("Restore EMP missiles inventory (%d rep)",getWeaponCost("EMP")*full_emp),
+								}
+								addCommsReply(tableRemoveRandom(restock_emp_fast_dock_prompt),function()
 									if comms_source:takeReputationPoints(getWeaponCost("EMP")*full_emp) then
 										comms_source.expedite_dock.emp = full_emp
 										if expedite_emp_set == nil or getScenarioTime() > expedite_emp_set + comms_fudge then
@@ -55217,7 +55847,14 @@ function setExpediteDock()
 											expedite_emp_set = getScenarioTime()
 										end
 									else
-										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 										if expedite_emp_back == nil or getScenarioTime() > expedite_emp_back + comms_fudge then
 											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 											expedite_emp_back = getScenarioTime()
@@ -55254,7 +55891,13 @@ function setExpediteDock()
 							local current_mine = comms_source:getWeaponStorage("Mine")
 							if current_mine < max_mine then
 								local full_mine = max_mine - current_mine
-								addCommsReply(string.format(_("station-comms","Replenish mines (%d rep)"),getWeaponCost("Mine")*full_mine),function()
+								local restock_mines_fast_dock_prompt = {
+									string.format("Replenish mines (%d reputation)",getWeaponCost("Mine")*full_mine),
+									string.format("Restock mines (%d reputation)",getWeaponCost("Mine")*full_mine),
+									string.format("Refill mines (%d reputation)",getWeaponCost("Mine")*full_mine),
+									string.format("Restore inventory of mines (%d rep)",getWeaponCost("Mine")*full_mine),
+								}
+								addCommsReply(tableRemoveRandom(restock_mines_fast_dock_prompt),function()
 									if comms_source:takeReputationPoints(getWeaponCost("Mine")*full_mine) then
 										comms_source.expedite_dock.mine = full_mine
 										if expedite_mine_set == nil or getScenarioTime() > expedite_mine_set + comms_fudge then
@@ -55262,7 +55905,14 @@ function setExpediteDock()
 											expedite_mine_set = getScenarioTime()
 										end
 									else
-										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 										if expedite_mine_back == nil or getScenarioTime() > expedite_mine_back + comms_fudge then
 											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 											expedite_mine_back = getScenarioTime()
@@ -55286,7 +55936,7 @@ function setExpediteDock()
 							service_list = string.format(_("station-comms","%s one HVLI missile"),service_list)
 						end
 					else
-						if comms_source.expedite_dock.mine > 1 then
+						if comms_source.expedite_dock.hvli > 1 then
 							service_list = string.format(_("station-comms","%s, %s HVLI missiles"),service_list,comms_source.expedite_dock.hvli)
 						else
 							service_list = string.format(_("station-comms","%s, one HVLI missile"),service_list)
@@ -55299,7 +55949,13 @@ function setExpediteDock()
 							local current_hvli = comms_source:getWeaponStorage("HVLI")
 							if current_hvli < max_hvli then
 								local full_hvli = max_hvli - current_hvli
-								addCommsReply(string.format(_("station-comms","Replenish mines (%d rep)"),getWeaponCost("HVLI")*full_hvli),function()
+								local refill_hvli_quick_dock_prompt = {
+									string.format("Replenish HVLI missiles (%d reputation)",getWeaponCost("HVLI")*full_hvli),
+									string.format("Restock HVLI missiles (%d reputation)",getWeaponCost("HVLI")*full_hvli),
+									string.format("Refill HVLI missiles (%d reputation)",getWeaponCost("HVLI")*full_hvli),
+									string.format("Restore HVLI missiles inventory (%d rep)",getWeaponCost("HVLI")*full_hvli),
+								}
+								addCommsReply(tableRemoveRandom(refill_hvli_quick_dock_prompt),function()
 									if comms_source:takeReputationPoints(getWeaponCost("HVLI")*full_hvli) then
 										comms_source.expedite_dock.hvli = full_hvli
 										if expedite_hvli_set == nil or getScenarioTime() > expedite_hvli_set + comms_fudge then
@@ -55307,7 +55963,14 @@ function setExpediteDock()
 											expedite_hvli_set = getScenarioTime()
 										end
 									else
-										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 										if expedite_hvli_back == nil or getScenarioTime() > expedite_hvli_back + comms_fudge then
 											addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 											expedite_hvli_back = getScenarioTime()
@@ -55350,7 +56013,13 @@ function setExpediteDock()
 						if comms_source:getRepairCrewCount() >= comms_source.maxRepairCrew then
 							hire_cost = hire_cost + comms_target.comms_data.available_repair_crew_cost_excess
 						end
-						addCommsReply(string.format(_("station-comms","Hire one repair crew (%d rep)"),hire_cost),function()
+						local hire_repair_crew_fast_dock_prompt = {
+							string.format("Hire one repair crew (%d reputation)",hire_cost),
+							string.format("Add to repair crew (%d reputation)",hire_cost),
+							string.format("Hire additional repair crew (%d reputation)",hire_cost),
+							string.format("Get one repair crew (%d reputation)",hire_cost),
+						}
+						addCommsReply(tableRemoveRandom(hire_repair_crew_fast_dock_prompt),function()
 							local hire_cost = 0
 							if comms_source:isFriendly(comms_target) then
 								hire_cost = comms_target.comms_data.available_repair_crew_cost_friendly_needy_over_66
@@ -55370,7 +56039,14 @@ function setExpediteDock()
 									expedite_crew_set = getScenarioTime()
 								end
 							else
-								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+								local insufficient_rep_responses = {
+									"Insufficient reputation",
+									"Not enough reputation",
+									"You need more reputation",
+									string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+									"You don't have enough reputation",
+								}
+								setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 								if expedite_crew_back == nil or getScenarioTime() > expedite_crew_back + comms_fudge then
 									addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 									expedite_crew_back = getScenarioTime()
@@ -55411,7 +56087,13 @@ function setExpediteDock()
 						if comms_source:getMaxCoolant() >= comms_source.initialCoolant then
 							coolant_cost = coolant_cost + comms_target.comms_data.coolant_inventory_excess
 						end
-						addCommsReply(string.format(_("station-comms","Get additional coolant (%d rep)"),coolant_cost),function()
+						local get_coolant_fast_dock_prompt = {
+							string.format("Get additional coolant (%d rep)",coolant_cost),
+							string.format("Get more coolant (%d rep)",coolant_cost),
+							string.format("Add coolant (%d rep)",coolant_cost),
+							string.format("Acquire coolant (%d rep)",coolant_cost),
+						}
+						addCommsReply(tableRemoveRandom(get_coolant_fast_dock_prompt),function()
 							local coolant_cost = 0
 							if comms_source:isFriendly(comms_target) then
 								coolant_cost = comms_target.comms_data.coolant_inventory_cost_friendly_needy_over_66
@@ -55431,7 +56113,14 @@ function setExpediteDock()
 									expedite_coolant_set = getScenarioTime()
 								end
 							else
-								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+								local insufficient_rep_responses = {
+									"Insufficient reputation",
+									"Not enough reputation",
+									"You need more reputation",
+									string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+									"You don't have enough reputation",
+								}
+								setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 								if expedite_coolant_back == nil or getScenarioTime() > expedite_coolant_back + comms_fudge then
 									addCommsReply(_("station-comms","Back to expedited dock negotiation"),setExpediteDock)
 									expedite_coolant_back = getScenarioTime()
@@ -55446,16 +56135,29 @@ function setExpediteDock()
 					end
 				end
 				if service_to_add_count > 0 then
+					local more_services_addendum = {
+						"Would you like some additional expedited docking services?",
+						"Do you want to expedite another service?",
+						"Would you like to add to your list of expedited services?",
+						"How about another expedited service?",
+					}
 					if service_list == _("station-comms","Expedited service list:") then
-						out = string.format(_("station-comms","%s\nWould you like some additional expedited docking services?"),out)
+						out = string.format("%s\n%s",out,tableRemoveRandom(more_services_addendum))
 					else
+						out = string.format("%s\n%s.\n%s",out,service_list,tableRemoveRandom(more_services_addendum))
 						out = string.format(_("station-comms","%s\n%s.\nWould you like some additional expedited docking services?"),out,service_list)
 					end
 				else
+					local no_more_services_addendum = {
+						"There are no additional expedited docking services available.",
+						"There are no more expeditable services available.",
+						"We cannot expedite any more services.",
+						"No more services are available for fast dock.",
+					}
 					if service_list == _("station-comms","Expedited service list:") then
-						out = string.format(_("station-comms","%s\nThere are no additional expedited docking services available."),out)					
+						out = string.format("%s\n%s",out,tableRemoveRandom(no_more_services_addendum))
 					else
-						out = string.format(_("station-comms","%s\n%s.\nThere are no additional expedited docking services available."),out,service_list)
+						out = string.format("%s\n%s.\n%s",out,service_list,tableRemoveRandom(no_more_services_addendum))
 					end
 				end
 				setCommsMessage(out)
@@ -55469,7 +56171,13 @@ function setExpediteDock()
 end
 function commercialOptions(calling_function)
 	--	goods, passengers, residents' cargo, other stations
-	addCommsReply(string.format(_("station-comms","Investigate commercial options at %s"),comms_target:getCallSign()),function()
+	local commercial_options_prompt = {
+		string.format("Investigate commercial options at %s",comms_target:getCallSign()),
+		string.format("Look into %s commercial options",comms_target:getCallSign()),
+		string.format("Check out %s commercial options",comms_target:getCallSign()),
+		string.format("Explore commercial options at %s",comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(commercial_options_prompt),function()
 		local good_sale_count = 0
 		local good_sale_list = ""
 		for good, good_data in pairs(comms_target.comms_data.goods) do
@@ -55485,8 +56193,20 @@ function commercialOptions(calling_function)
 		local out = ""
 		if good_sale_count > 0 then
 			out = string.format(_("station-comms","We sell goods (%s)."),good_sale_list)
-			addCommsReply(string.format(_("station-comms","Buy %s"),good_sale_list),function()
-				local sell_out = _("station-comms","Goods for sale (good name, quantity, reputation cost):")
+			local buy_prompt = {
+				string.format("Buy %s",good_sale_list),
+				string.format("Buy %s info",good_sale_list),
+				string.format("Buy %s details",good_sale_list),
+				string.format("Buy %s report",good_sale_list),
+			}
+			addCommsReply(tableRemoveRandom(buy_prompt),function()
+				local sell_header = {
+					"Goods for sale (good name, quantity, reputation cost):",
+					string.format("List of goods being sold by %s:\n(good name, quantity, reputation cost)",comms_target:getCallSign()),
+					string.format("%s sells these goods:\n(good name, quantity, reputation cost)",comms_target:getCallSign()),
+					string.format("You can buy these goods at %s:\n(good name, quantity, reputation cost)",comms_target:getCallSign()),
+				}
+				local sell_out = tableRemoveRandom(sell_header)
 				for good, good_data in pairs(comms_target.comms_data.goods) do
 					sell_out = string.format("%s\n%s, %s, %s",sell_out,good_desc[good],good_data.quantity,good_data.cost)
 				end
@@ -55523,15 +56243,39 @@ function commercialOptions(calling_function)
 			else
 				out = string.format(_("station-comms","%s We buy goods (%s)."),out,good_buy_list)
 			end
-			addCommsReply(string.format(_("station-comms","Sell %s"),good_buy_list),function()
-				local buy_out = string.format(_("station-comms","Goods station %s will buy (good name, reputation):"),comms_target:getCallSign())
+			local sell_prompt = {
+				string.format("Sell %s",good_buy_list),
+				string.format("Sell %s info",good_buy_list),
+				string.format("Sell %s details",good_buy_list),
+				string.format("Sell %s report",good_buy_list),
+			}
+			addCommsReply(tableRemoveRandom(sell_prompt),function()
+				local buy_header = {
+					string.format("Goods station %s will buy (good name, reputation):",comms_target:getCallSign()),
+					string.format("List of goods %s will buy:\n(good name, reputation)",comms_target:getCallSign()),
+					string.format("%s will buy these goods:\n(good name, reputation)",comms_target:getCallSign()),
+					string.format("You can sell these goods to %s:(good name, reputation)",comms_target:getCallSign()),
+				}
+				local buy_out = tableRemoveRandom(buy_header)
 				for good, price in pairs(comms_target.comms_data.buy) do
 					buy_out = string.format("%s\n%s, %s",buy_out,good_desc[good],price)
 				end
 				if match_good_buy_list == "" then
-					buy_out = string.format(_("station-comms","%s\n\nYou do not have any matching goods in your cargo hold."),buy_out)
+					local no_matching_good_addendum = {
+						"You do not have any matching goods in your cargo hold.",
+						"Nothing in your cargo hold matches what they want.",
+						string.format("You have nothing in your cargo hold that %s wants",comms_target:getCallSign()),
+						string.format("%s is not interested in anything in your cargo hold",comms_target:getCallSign()),
+					}
+					buy_out = string.format("%s\n\n%s",buy_out,tableRemoveRandom(no_matching_good_addendum))
 				else
-					buy_out = string.format(_("station-comms","%s\n\nMatching goods in your cargo hold: %s"),buy_out,match_good_buy_list)
+					local matching_good_addendum = {
+						"Matching goods in your cargo hold",
+						string.format("%s would buy these goods",comms_target:getCallSign()),
+						string.format("This cargo matches %s's interests",comms_target:getCallSign()),
+						string.format("%s is interested in this cargo",comms_target:getCallSign()),
+					}
+					buy_out = string.format("%s\n\n%s: %s",buy_out,tableRemoveRandom(matching_good_addendum),match_good_buy_list)
 				end
 				setCommsMessage(buy_out)
 				if commerce_sell_caller_back == nil or getScenarioTime() > commerce_sell_caller_back + comms_fudge then
@@ -55626,11 +56370,29 @@ function commercialOptions(calling_function)
 			end
 		end
 		if out == "" then
-			setCommsMessage(_("station-comms","No commerce options here."))
+			local no_commerce_here = {
+				"No commerce options here.",
+				"There are no commercial options here.",
+				"There's nothing here of commercial interest.",
+				"Nothing commercially interesting here.",
+			}
+			setCommsMessage(tableRemoveRandom(no_commerce_here))
 		else
-			setCommsMessage(string.format(_("station-comms","%s What are you interested in?"),out))
+			local interest_query_addendum = {
+				"What are you interested in?",
+				"Does any of this interest you?",
+				"See anything interesting?",
+				"Are any of these commercial ventures interesting?",
+			}
+			setCommsMessage(string.format("%s\n%s",out,tableRemoveRandom(interest_query_addendum)))
 		end
-		addCommsReply(_("station-comms","What about commerce options at other stations?"),function()
+		local external_commerce = {
+			"What about commerce options at other stations?",
+			"Do you know of commercial options at other stations?",
+			"Tell me about commercial ventures at other stations",
+			"How about commerce at other stations?",
+		}
+		addCommsReply(tableRemoveRandom(external_commerce),function()
 			if comms_target.comms_data.friendlyness > 66 then
 				if comms_target.comms_data.other_station_commerce == nil then
 					local station_pool = {}
@@ -55709,15 +56471,21 @@ function commercialOptions(calling_function)
 								end
 							end
 						end
+						local other_commerce_header = {
+							"This is what I know about commerce options at other stations:",
+							"Here's what I know about commerce at other stations:",
+							"My knowledge of commercial ventures at other stations consists of:",
+							"Here's my summation of what you can find in the way of commerce at other stations:",
+						}
 						if this_station == "" then
 							if other_stations == "" then
-								other_stations = string.format(_("station-comms","This is what I know about commerce options at other stations:\n%s in %s does not buy or sell goods."),station:getCallSign(),station:getSectorName())
+								other_stations = string.format("%s\n%s in %s does not buy or sell goods.",tableRemoveRandom(other_commerce_header),station:getCallSign(),station:getSectorName())
 							else
 								other_stations = string.format(_("station-comms","%s\n%s in %s does not buy or sell goods."),other_stations,station:getCallSign(),station:getSectorName())
 							end
 						else
 							if other_stations == "" then
-								other_stations = string.format(_("station-comms","This is what I know about commerce options at other stations:\n%s."),this_station)
+								other_stations = string.format("%s\n%s",tableRemoveRandom(other_commerce_header),this_station)
 							else
 								other_stations = string.format("%s\n%s.",other_stations,this_station)
 							end
@@ -55725,12 +56493,24 @@ function commercialOptions(calling_function)
 					end
 				end
 				if other_stations == "" then
-					setCommsMessage(_("station-comms","I don't know about commerce options at other stations."))
+					local commercially_clueless = {
+						"I don't know about commerce options at other stations.",
+						"I know nothing about commercial options anywhere else.",
+						string.format("I only know about %s. Other stations are too far away.",comms_target:getCallSign()),
+						string.format("My knowledge does not extend beyond %s.",comms_target:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(commercially_clueless))
 				else
 					setCommsMessage(other_stations)
 				end
 			else
-				setCommsMessage(_("station-comms","I don't know about commerce options at other stations."))
+				local commercially_clueless = {
+					"I don't know about commerce options at other stations.",
+					"I know nothing about commercial options anywhere else.",
+					string.format("I only know about %s. Other stations are too far away.",comms_target:getCallSign()),
+					string.format("My knowledge does not extend beyond %s.",comms_target:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(commercially_clueless))
 			end
 			if commerce_other_caller_back == nil or getScenarioTime() > commerce_other_caller_back + comms_fudge then
 				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
@@ -55753,21 +56533,75 @@ function commercialOptions(calling_function)
 end
 --	circumstantial comms
 function magnasolHeatDiscussion(calling_function)
-	addCommsReply("How can I protect my ship from Magnasol heat?",function()
-		setCommsMessage("There are several ways. Which one are you interested in?")
-		addCommsReply("Activate shields",function()
-			setCommsMessage("If your shields are active, that cuts out about half the heat that Magnasol emits")
+	local magnasol_protection_prompt = {
+		"How can I protect my ship from Magnasol heat?",
+		"What can I do about heat from Magnasol?",
+		string.format("How can I reduce the heat from Magnasol on %s",comms_source:getCallSign()),
+		string.format("Magnasol is roasting %s! What can we do?",comms_source:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(magnasol_protection_prompt),function()
+		local several_heat_ways = {
+			"There are several ways. Which one are you interested in?",
+			"You have a few options. Which one interests you?",
+			"Which of these heat reduction options are you interested in?",
+			"You can reduce Magnasol heat in a number of ways",
+		}
+		setCommsMessage(tableRemoveRandom(several_heat_ways))
+		local shields_duh = {
+			"Activate shields",
+			"Turn on shields",
+			"Your shields can help",
+			"Raise shields",
+		}
+		addCommsReply(tableRemoveRandom(shields_duh),function()
+			local shield_heat_response = {
+				"If your shields are active, that cuts out about half the heat that Magnasol emits",
+				"Raising your shields cuts Magnasol's heat impact in half",
+				"If you put up your shields you'll find that Magnasol's heat is reduced by about half",
+				"Your shields protect you from about half of Magnasol's heat impact",
+			}
+			setCommsMessage(tableRemoveRandom(shield_heat_response))
 			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 			addCommsReply("Back to station communication", commsStation)
 		end)
-		addCommsReply("Increase your distance from Magnasol",function()
-			setCommsMessage("The further you are away from Magnasol, the less impact it has on the heat of your systems. The closer, the hotter.")
+		local run_away_prompt = {
+			"Increase your distance from Magnasol",
+			"Get further away from Magnasol",
+			"Keep your distance from Magnasol",
+			"Stay away from Magnasol",
+		}
+		addCommsReply(tableRemoveRandom(run_away_prompt),function()
+			local distance_explained = {
+				"The further you are away from Magnasol, the less impact it has on the heat of your systems. The closer, the hotter.",
+				string.format("The closer %s gets to Magnasol, the hotter the heat. Conversely, the farther %s is from Magnasol, the less the heat applies.",comms_source:getCallSign(),comms_source:getCallSign()),
+				"The farther away you are from Magnasol, the less its heat impacts your ship systems.",
+				string.format("Move %s 100 units or more away from Magnasol and the heat impact goes away. The closer you are to Magnasol, though, the more the heat impacts %s",comms_source:getCallSign(),comms_source:getCallSign()),
+			}
+			setCommsMessage(tableRemoveRandom(distance_explained))
 			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 			addCommsReply("Back to station communication", commsStation)
 		end)
-		addCommsReply("Get coolant additive",function()
-			setCommsMessage("Each station in the area is continually coming up with different concoctions that can be mixed with coolant to make the coolant more effective against Magnasol's radiance. These concoctions vary in their effectiveness and in the duration of their effectiveness.")
-			addCommsReply("Do you have one of these coolant additives we could try?",function()
+		local get_coolant_additive_prompt = {
+			"Get coolant additive",
+			"Improve coolant performance",
+			"Add performance booster to coolant",
+			"Invest in better coolant",
+		}
+		addCommsReply(tableRemoveRandom(get_coolant_additive_prompt),function()
+			local coolant_additive_explained = {
+				"Each station in the area is continually coming up with different concoctions that can be mixed with coolant to make the coolant more effective against Magnasol's radiance. These concoctions vary in their effectiveness and in the duration of their effectiveness.",
+				"The stations continue to experiment with coolant additives to help protect against Magnasol's radiance. These experimental concoctions vary in their effectiveness and their duration.",
+				"You could try some of the coolant concoctions the stations around here have been working on. The concoctions vary in duration and effectiveness, so they are a temporary but fairly effective solution to Magnasol's heat impact.",
+				"The stations that send ships out to work in this heat continue to experiment with coolant additives to reduce the heat impact from Magnasol. The additives vary in terms of effectiveness and duration, but represent a reasonable short term solution.",
+			}
+			setCommsMessage(tableRemoveRandom(coolant_additive_explained))
+			local try_additive_prompt = {
+				"Do you have one of these coolant additives we could try?",
+				"I don't suppose you have a coolant additive for us?",
+				"Is there a coolant additive concoction available here?",
+				"Have you experimented? If so, can we try your additive?",
+			}
+			addCommsReply(tableRemoveRandom(try_additive_prompt),function()
 				if comms_target.comms_data.coolant_additive == nil then
 					local duration_list = {
 						{value = 2, desc = "a couple of"},
@@ -55782,11 +56616,29 @@ function magnasolHeatDiscussion(calling_function)
 						["exchange"] = mineralGoods[math.random(1,#mineralGoods)],
 					}
 				end
-				setCommsMessage(string.format("We've got a batch of coolant additive that's level %i effective (the higher the level, the better) that'll last %s minutes. We'll provide you some in exchange for %s.",comms_target.comms_data.coolant_additive.effectiveness,comms_target.comms_data.coolant_additive.desc,comms_target.comms_data.coolant_additive.exchange))
+				local coolant_additive_offer = {
+					string.format("We've got a batch of coolant additive that's level %i effective (the higher the level, the better) that'll last %s minutes. We'll provide you some in exchange for %s.",comms_target.comms_data.coolant_additive.effectiveness,comms_target.comms_data.coolant_additive.desc,comms_target.comms_data.coolant_additive.exchange),
+					string.format("We've got some %i level effective coolant additive. The higher the level, the greater the effectiveness. It lasts %s minutes. If you provide us with %s, we'll provide some for you.",comms_target.comms_data.coolant_additive.effectiveness,comms_target.comms_data.coolant_additive.desc,comms_target.comms_data.coolant_additive.exchange),
+					string.format("We'll give you some level %i coolant additive for some %s. It lasts about %s minutes. The greater the level, the more effective the additive, btw.",comms_target.comms_data.coolant_additive.effectiveness,comms_target.comms_data.coolant_additive.exchange,comms_target.comms_data.coolant_additive.desc),
+					string.format("In exchange for %s we can provide our coolant additive which lasts %s minutes and is rated at %i effective (the higher the rating the more effective",comms_target.comms_data.coolant_additive.exchange,comms_target.comms_data.coolant_additive.desc,comms_target.comms_data.coolant_additive.effectiveness),
+				}
+				setCommsMessage(tableRemoveRandom(coolant_additive_offer))
 				if comms_source:isDocked(comms_target) then
-					addCommsReply("That would be great. We'll take some",function()
+					local get_additive = {
+						"That would be great. We'll take some",
+						"Sounds good, Can we get some?",
+						"We could use that. This heat is bad",
+						"We want to try some of your additive",
+					}
+					addCommsReply(tableRemoveRandom(get_additive),function()
 						local exchange_good = comms_target.comms_data.coolant_additive.exchange
 						local function injectCoolantAdditive(exchange_good)
+							local need_good_for_additive = {
+								string.format("We'll need %s before we can provide the coolant additive",exchange_good),
+								string.format("You must provide us with %s before we can provide you the cooland booster",exchange_good),
+								string.format("We will provide you with the coolant additive after you provide us with %s",exchange_good),
+								string.format("Nice try. We need %s before we can give you the coolant booster",exchange_good),
+							}
 							if comms_source.goods ~= nil then
 								if comms_source.goods[exchange_good] ~= nil and comms_source.goods[exchange_good] > 0 then
 									comms_source.goods[exchange_good] = comms_source.goods[exchange_good] - 1
@@ -55817,19 +56669,31 @@ function magnasolHeatDiscussion(calling_function)
 											comms_source:removeCustom(comms_source.coolant_additive_button_plus)
 										end
 									end,41)
-									setCommsMessage(string.format("Thanks for the %s. We've injected the coolant additive into your coolant system",exchange_good))
+									local added_to_coolant_response = {
+										string.format("Thanks for the %s. We've injected the coolant additive into your coolant system",exchange_good),
+										string.format("In exchange for %s, we have added our experimental compound into your coolant system",exchange_good),
+										string.format("The %s will be useful, thanks. Hopefully, our coolant booster will be useful. It's been added to your coolant",exchange_good),
+										string.format("For the %s you provided, we have added our flavor of coolant booster to your coolant system.",exchange_good),
+									}
+									setCommsMessage(tableRemoveRandom(added_to_coolant_response))
 								else
-									setCommsMessage(string.format("We'll need %s before we can provide the coolant additive",exchange_good))
+									setCommsMessage(tableRemoveRandom(need_good_for_additive))
 								end
 							else
-								setCommsMessage(string.format("We'll need %s before we can provide the coolant additive",exchange_good))
+								setCommsMessage(tableRemoveRandom(need_good_for_additive))
 							end
 						end
 						if comms_source.coolant_additive == nil then
 							injectCoolantAdditive(exchange_good)
 						else
-							if comms_source.coolant_additive.expires < getScenarioTime() then
-								setCommsMessage("You've already got a coolant additive. These things don't mix well. We've seen ships explode when they try to mix coolant additives. You'll have to wait until your current coolant additive dissipates")
+							if comms_source.coolant_additive.expires ~= nil and comms_source.coolant_additive.expires < getScenarioTime() then
+								local one_additive_at_a_time = {
+									"You've already got a coolant additive. These things don't mix well. We've seen ships explode when they try to mix coolant additives. You'll have to wait until your current coolant additive dissipates",
+									"Do you want to destroy your ship? You need to wait until your current coolant additive runs out before trying another or your ship will very likely explode",
+									"We can't give you another coolant additive until your current coolant additive expires. Ships have blown up taking stations with them when these coolant boosters were combined.",
+									"We are not going to put this additive in while your current one is still in effect. That could blow up your ship and the station, too",
+								}
+								setCommsMessage(tableRemoveRandom(one_additive_at_a_time))
 							else
 								injectCoolantAdditive(exchange_good)
 							end
@@ -55847,26 +56711,88 @@ function magnasolHeatDiscussion(calling_function)
 	end)
 end
 function riptideHossenfelderDiscussion(calling_function)
-	addCommsReply("I need information on this region",function()
-		setCommsMessage(psamtikStation:getCallSign() .. " is currently in sector " .. psamtikStation:getSectorName() .. " (Lagrange point 2). It houses the Arlenian Xenobiology Institute.\n" ..
-			"Wormhole leading back to Icarus is currently in sector " .. riptideToIcarusWormHole:getSectorName() .. " (Lagrange point 3).\n" ..
-			stationHossenfelder:getCallSign() .. " (us) is currently in sector " .. stationHossenfelder:getSectorName() .. " (Lagrange point 4)\n" ..
-			"Lagrange point 5 can be found by mirroring L4 by the Riptide Alpha - Riptide Gamma axis.\n" ..
-			"Lagrange point 1 is beteen the Riptide Alpha and Riptide Gamma, but there's nothing interesting there.")
+	local info_on_riptide = {
+		"I need information on this region",
+		"Tell me about this region",
+		string.format("I need to know about the area around %s",comms_target:getCallSign()),
+		string.format("What can you tell me about %s's environment",comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(info_on_riptide),function()
+		local psamtik_info = {
+			string.format("%s is currently in sector %s (Lagrange point 2). It houses the Arlenian Xenobiology Institute.",psamtikStation:getCallSign(),psamtikStation:getSectorName()),
+			string.format("At Lagrange point 2 you'll find %s (currently in sector %s). %s hosts the Arlenian Xenobiology Institute.",psamtikStation:getCallSign(),psamtikStation:getSectorName(),psamtikStation:getCallSign()),
+			string.format("The home of the Arlenian Xenobiology Institute is on %s in sector %s (Lagrange point 2).",psamtikStation:getCallSign(),psamtikStation:getSectorName()),
+			string.format("You can find the Arlenian Xenobiology Institute on %s in sector %s (Lagrange point 2).",psamtikStation:getCallSign(),psamtikStation:getSectorName()),
+		}
+		local wormhole_to_Icarus = {
+			string.format("The wormhole leading back to Icarus is currently in sector %s (Lagrange point 3).",riptideToIcarusWormHole:getSectorName()),
+			string.format("The quickest path to Icarus is via the wormhole currently in sector %s (Lagrange point 3).",riptideToIcarusWormHole:getSectorName()),
+			string.format("At Lagrange point 3 is the wormhole leading back to Icarus (currently in sector %s).",riptideToIcarusWormHole:getSectorName()),
+			string.format("The wormhole at Lagrange point 3 is the fastest way to Icarus. It's currently in sector %s.",riptideToIcarusWormHole:getSectorName()),
+		}
+		local hossenfelder_info = {
+			string.format("%s (this station) is currently in sector %s (Lagrange point 4)",stationHossenfelder:getCallSign(),stationHossenfelder:getSectorName()),
+			string.format("We, %s, are currently located in sector %s at Lagrange point 4",stationHossenfelder:getCallSign(),stationHossenfelder:getSectorName()),
+			string.format("If you need to find %s again, just go to Lagrange point 4 (currently in sector %s)",stationHossenfelder:getCallSign(),stationHossenfelder:getSectorName()),
+			string.format("%s (that's us) is at Lagrange point 4 which is currently located in sector %s",stationHossenfelder:getCallSign(),stationHossenfelder:getSectorName()),
+		}
+		local l5_info = {
+			"Lagrange point 5 can be found by mirroring Lagrange point 4 by the Riptide Alpha - Riptide Gamma axis.",
+			"Mirror Lagrange point by the Riptide Alpha to the Riptide Gamma axis to locate Lagrange point 5",
+			"Take the Riptide Alpha to the Riptide Gamma axis and mirror Lagrange point 4 to determine the locatio of Lagrange point 5.",
+			"Determine the Lagrange point 5 location by mirroring Lagrange point 4 via the Riptide Alpha to Riptide Gamma axis.",
+		}
+		local l1_info = {
+			"Lagrange point 1 is between Riptide Alpha and Riptide Gamma, but there's nothing interesting there.",
+			"You can find Lagrange point 1 between Riptide Alpha and Riptide Gamma, but it's not interesting.",
+			"And finally, the uninteresting Lagrange point 1 is between Riptide Alpha and Riptide Gamma.",
+			"To complete the information set, Lagrange point 1 is between Riptide Alpha and Riptide Gamme. There's nothing of interest there.",
+		}
+		setCommsMessage(string.format("%s\n%s\n%s\n%s\n%s",tableRemoveRandom(psamtik_info),tableRemoveRandom(wormhole_to_Icarus),tableRemoveRandom(hossenfelder_info),tableRemoveRandom(l5_info),tableRemoveRandom(l1_info)))
 		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 		addCommsReply("Back to station communication", commsStation)
 	end)
 end
 function lafrinaDiscussion(calling_function)
-	addCommsReply("I need information on the Arlenian stations in the area",function()
-		setCommsMessage("Which station are you interested in?")
+	local lafrina_stations_info_prompt = {
+		"I need information on the Arlenian stations in the area",
+		"Tell me about the Arlenian stations around here",
+		"Can you help me with info on nearby Arlenian stations?",
+		"What do you know about Arlenian stations in the area?",
+	}
+	addCommsReply(tableRemoveRandom(lafrina_stations_info_prompt),function()
+		local which_arlenian_stations = {
+			"Which station are you interested in?",
+			"Which one?",
+			"Pick an Arlenian station",
+			"Which Arlenian station are you interested in?",
+		}
+		setCommsMessage(tableRemoveRandom(which_arlenian_stations))
 		if stationMarielle ~= nil and stationMarielle:isValid() then
 			addCommsReply(string.format("Marielle in %s",stationMarielle:getSectorName()),function()
-				setCommsMessage(string.format("Marielle is located in %s. It is a medium sized station conducting mining and manufacturing operations.\n\nWould you like a waypoint set on Marielle?",stationMarielle:getSectorName()))
-				addCommsReply("Yes",function()
+				local marielle_info = {
+					string.format("Marielle is located in %s. It is a medium sized station conducting mining and manufacturing operations.\n\nWould you like a waypoint set on Marielle?",stationMarielle:getSectorName()),
+					string.format("Marielle is a medium sized station in sector %s. Arlenians conduct mining and manufacturing operations at Marielle.\n\nI can set a waypoint in your system on Marielle if you'd like...",stationMarielle:getSectorName()),
+					string.format("You'll find Marielle in sector %s. It's a medium sized station engaged in mining and manufacturing operations.\n\nShould I set a waypoint on Marielle for you?",stationMarielle:getSectorName()),
+					string.format("Marielle is in sector %s. It's a medium sized station. Marielle does mining and manufacturing.\n\nDo you want me to put a waypoint on Marielle for you?",stationMarielle:getSectorName()),
+				}
+				setCommsMessage(tableRemoveRandom(marielle_info))
+				local yes_waypoint_marielle_prompt = {
+					"Yes",
+					"Yes, please set a waypoint for Marielle",
+					"Yes, a waypoint on Marielle would be great",
+					"A Marielle waypoint would help. Please proceed",
+				}
+				addCommsReply(tableRemoveRandom(yes_waypoint_marielle_prompt),function()
 					local sx, sy = stationMarielle:getPosition()
 					comms_source:commandAddWaypoint(sx, sy)
-					setCommsMessage(string.format("Waypoint %i set on station Marielle",comms_source:getWaypointCount()))
+					local marielle_waypoint_set = {
+						string.format("Waypoint %i set on station Marielle",comms_source:getWaypointCount()),
+						string.format("I set waypoint %i on station Marielle for you",comms_source:getWaypointCount()),
+						string.format("Marielle now has waypoint %i set on it",comms_source:getWaypointCount()),
+						string.format("Waypoint %i set for station Marielle",comms_source:getWaypointCount()),
+					}
+					setCommsMessage(tableRemoveRandom(marielle_waypoint_set))
 					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 					addCommsReply("Back to station communication", commsStation)
 				end)
@@ -55876,11 +56802,29 @@ function lafrinaDiscussion(calling_function)
 		end
 		if stationIlorea ~= nil and stationIlorea:isValid() then
 			addCommsReply(string.format("Ilorea in %s",stationIlorea:getSectorName()),function()
-				setCommsMessage(string.format("Ilorea is located in %s. It is a small station conducting mining operations and providing resupply services for miners and passing ships.\n\nWould you like a waypoint set on Ilorea?",stationIlorea:getSectorName()))
-				addCommsReply("Yes",function()
+				local ilorea_info = {
+					string.format("Ilorea is located in %s. It is a small station conducting mining operations and providing resupply services for miners and passing ships.\n\nWould you like a waypoint set on Ilorea?",stationIlorea:getSectorName()),
+					string.format("Ilorea is a small station in sector %s. Arlenians conduct mining operations and provide resupply services there.\n\nI could set a waypoint on Ilorea if you wish...",stationIlorea:getSectorName()),
+					string.format("You can find Ilorea in sector %s. It's a small mining and resupply station.\n\nShould I set a waypoint on Ilorea for you?",stationIlorea:getSectorName()),
+					string.format("Ilorea is in sector %s. It's a small station. Ilorea mines nearby asteroids and resupplies miners and other ships.\n\nDo you want me to put a waypoint on Ilorea for you?",stationIlorea:getSectorName()),
+				}
+				setCommsMessage(tableRemoveRandom(ilorea_info))
+				local yes_waypoint_ilorea_prompt = {
+					"Yes",
+					"Yes, please set a waypoint for Ilorea",
+					"Yes, a waypoint on Ilorea would be great",
+					"An Ilorea waypoint would help. Please proceed",
+				}
+				addCommsReply(tableRemoveRandom(yes_waypoint_ilorea_prompt),function()
 					local sx, sy = stationIlorea:getPosition()
 					comms_source:commandAddWaypoint(sx, sy)
-					setCommsMessage(string.format("Waypoint %i set on station Ilorea",comms_source:getWaypointCount()))
+					local ilorea_waypoint_set = {
+						string.format("Waypoint %i set on station Ilorea",comms_source:getWaypointCount()),
+						string.format("I set waypoint %i on station Ilorea for you",comms_source:getWaypointCount()),
+						string.format("Ilorea now has waypoint %i set on it",comms_source:getWaypointCount()),
+						string.format("Waypoint %i set for station Ilorea",comms_source:getWaypointCount()),
+					}
+					setCommsMessage(tableRemoveRandom(ilorea_waypoint_set))
 					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 					addCommsReply("Back to station communication", commsStation)
 				end)
@@ -55890,11 +56834,29 @@ function lafrinaDiscussion(calling_function)
 		end
 		if stationRivelle ~= nil and stationRivelle:isValid() then
 			addCommsReply(string.format("Rivelle in %s",stationRivelle:getSectorName()),function()
-				setCommsMessage(string.format("Rivelle is located in %s. It is a small station conducting mining operations.\n\nWould you like a waypoint set on Rivelle?",stationRivelle:getSectorName()))
-				addCommsReply("Yes",function()
+				local rivelle_info = {
+					string.format("Rivelle is located in %s. It is a small station conducting mining operations.\n\nWould you like a waypoint set on Rivelle?",stationRivelle:getSectorName()),
+					string.format("Rivelle is a small station in sector %s. Arlenians conduct mining operations there.\n\nIf you want, I could set a waypoint on Rivelle...",stationRivelle:getSectorName()),
+					string.format("You'll find Rivelle in sector %s. It's a small mining station.\n\nShould I set a waypoint on Rivelle for you?",stationRivelle:getSectorName()),
+					string.format("Rivelle is in sector %s. It's a small station. They mine nearby asteroids and such.\n\nDo you want a waypoint on Rivelle?",stationRivelle:getSectorName()),					
+				}
+				setCommsMessage(tableRemoveRandom(rivelle_info))
+				local yes_waypoint_rivelle_prompt = {
+					"Yes",
+					"Yes, please set a waypoint for Rivelle",
+					"Yes, a waypoint on Rivelle would be great",
+					"A Rivelle waypoint would help. Please proceed",
+				}
+				addCommsReply(tableRemoveRandom(yes_waypoint_rivelle_prompt),function()
 					local sx, sy = stationRivelle:getPosition()
 					comms_source:commandAddWaypoint(sx, sy)
-					setCommsMessage(string.format("Waypoint %i set on station Rivelle",comms_source:getWaypointCount()))
+					local rivelle_waypoint_set = {
+						string.format("Waypoint %i set on station Rivelle",comms_source:getWaypointCount()),
+						string.format("I set waypoint %i on station Rivelle for you",comms_source:getWaypointCount()),
+						string.format("Rivelle now has waypoint %i set on it",comms_source:getWaypointCount()),
+						string.format("Waypoint %i set for station Rivelle",comms_source:getWaypointCount()),
+					}
+					setCommsMessage(tableRemoveRandom(rivelle_waypoint_set))
 					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 					addCommsReply("Back to station communication", commsStation)
 				end)
@@ -55904,11 +56866,29 @@ function lafrinaDiscussion(calling_function)
 		end
 		if stationBorie ~= nil and stationBorie:isValid() then
 			addCommsReply(string.format("Borie in %s",stationBorie:getSectorName()),function()
-				setCommsMessage(string.format("Borie is located in %s. It is a small station conducting mining operations. The Arlenians also indulge in gambling on this station.\n\nWould you like a waypoint set on Borie?",stationBorie:getSectorName()))
-				addCommsReply("Yes",function()
+				local borie_info = {
+					string.format("Borie is located in %s. It is a small station conducting mining operations. The Arlenians also indulge in gambling on this station.\n\nWould you like a waypoint set on Borie?",stationBorie:getSectorName()),
+					string.format("Borie is a small station in sector %s. Arlenians us it as a base for mining and a place for gambling.\n\nI could set a waypoint there for you if you want...",stationBorie:getSectorName()),
+					string.format("You can find Borie in sector %s. It's a small mining and gambling station.\n\nShould I set a waypoint on Borie for you?",stationBorie:getSectorName()),
+					string.format("Borie is in sector %s. It's a small station. It's primary purpose is as a base for mining, but the Arlenians also do some gambling on Borie.\n\nDo you want a waypoint placed on Borie?",stationBorie:getSectorName()),
+				}
+				setCommsMessage(tableRemoveRandom(borie_info))
+				local yes_waypoint_borie_prompt = {
+					"Yes",
+					"Yes, please set a waypoint for Borie",
+					"Yes, a waypoint on Borie would be great",
+					"A Borie waypoint would help. Please proceed",
+				}
+				addCommsReply(tableRemoveRandom(yes_waypoint_borie_prompt),function()
 					local sx, sy = stationBorie:getPosition()
 					comms_source:commandAddWaypoint(sx, sy)
-					setCommsMessage(string.format("Waypoint %i set on station Borie",comms_source:getWaypointCount()))
+					local borie_waypoint_set = {
+						string.format("Waypoint %i set on station Borie",comms_source:getWaypointCount()),
+						string.format("I set waypoint %i on station Borie for you",comms_source:getWaypointCount()),
+						string.format("Borie now has waypoint %i set on it",comms_source:getWaypointCount()),
+						string.format("Waypoint %i set for station Borie",comms_source:getWaypointCount()),
+					}
+					setCommsMessage(tableRemoveRandom(borie_waypoint_set))
 					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 					addCommsReply("Back to station communication", commsStation)
 				end)
@@ -55918,11 +56898,29 @@ function lafrinaDiscussion(calling_function)
 		end
 		if stationLurive ~= nil and stationLurive:isValid() then
 			addCommsReply(string.format("Lurive in %s",stationLurive:getSectorName()),function()
-				setCommsMessage(string.format("Lurive is located in %s. It is a small station conducting mining operations and research.\n\nWould you like a waypoint set on Lurive?",stationLurive:getSectorName()))
-				addCommsReply("Yes",function()
+				local lurive_info = {
+					string.format("Lurive is located in %s. It is a small station conducting mining operations and research.\n\nWould you like a waypoint set on Lurive?",stationLurive:getSectorName()),
+					string.format("Lurive is a small station in sector %s. It conducts mining operations as well as research.\n\nI could set a waypoint there if you wish...",stationLurive:getSectorName()),
+					string.format("You'll find Lurive in sector %s. It's a small station where mining and research occurs.\n\nShould I set a waypoint on Lurive for you?",stationLurive:getSectorName()),
+					string.format("Lurive is in sector %s. It's a small sation. Purpose: mining and research.\n\nDo you want a waypoint placed on Lurive?",stationLurive:getSectorName()),
+				}
+				setCommsMessage(tableRemoveRandom(lurive_info))
+				local yes_waypoint_lurive_prompt = {
+					"Yes",
+					"Yes, please set a waypoint for Lurive",
+					"Yes, a waypoint on Lurive would be great",
+					"A Lurive waypoint would help. Please proceed",
+				}
+				addCommsReply(tableRemoveRandom(yes_waypoint_lurive_prompt),function()
 					local sx, sy = stationLurive:getPosition()
 					comms_source:commandAddWaypoint(sx, sy)
-					setCommsMessage(string.format("Waypoint %i set on station Lurive",comms_source:getWaypointCount()))
+					local lurive_waypoint_set = {
+						string.format("Waypoint %i set on station Lurive",comms_source:getWaypointCount()),
+						string.format("I set waypoint %i on station Lurive for you",comms_source:getWaypointCount()),
+						string.format("Lurive now has waypoint %i set on it",comms_source:getWaypointCount()),
+						string.format("Waypoint %i set for station Lurive",comms_source:getWaypointCount()),
+					}
+					setCommsMessage(tableRemoveRandom(lurive_waypoint_set))
 					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 					addCommsReply("Back to station communication", commsStation)
 				end)
@@ -55932,11 +56930,29 @@ function lafrinaDiscussion(calling_function)
 		end
 		if stationVilairre ~= nil and stationVilairre:isValid() then
 			addCommsReply(string.format("Vilairre currently in %s",stationVilairre:getSectorName()), function()
-				setCommsMessage(string.format("Vilairre is currently located in %s. It is a small station that handles communication and administration for area operations. It orbits the planet named Wilaux.\n\nWould you like a waypoint set on Vilairre?",stationVilairre:getSectorName()))
-				addCommsReply("Yes", function()
+				local vilairre_info = {
+					string.format("Vilairre is currently located in %s. It is a small station that handles communication and administration for area operations. It orbits the planet named Wilaux. Wilaux orbits star Balinor in sector T-13.\n\nWould you like a waypoint set on Vilairre?",stationVilairre:getSectorName()),
+					string.format("Vilairre is a small station currently in sector %s. It handles communication and administration for various area operations. It is in orbit around planet Wilaux which is in turn orbiting Balinor in sector T-13.\n\nI could set a waypoint on Vilairre if you wish...",stationVilairre:getSectorName()),
+					string.format("You'll find Vilairre is currently located in sector %s. It's a small station handling communication and administration. It orbits Wilaux which orbits Balinor in sector T-13.\n\nShould I set a waypoint on Vilairre for you?",stationVilairre:getSectorName()),
+					string.format("Vilairre is currently in sector %s. It's a small station. It handles communication and administration. It orbits planet Wilaux. Wilaux orbits star Balinor in sector T-13.\n\nDo you want me to place a waypoint on Vilairre?",stationVilairre:getSectorName()),
+				}
+				setCommsMessage(tableRemoveRandom(vilairre_info))
+				local yes_waypoint_vilairre_prompt = {
+					"Yes",
+					"Yes, please set a waypoint for Vilairre",
+					"Yes, a waypoint on Vilairre would be great",
+					"A Vilairre waypoint would help. Please proceed",
+				}
+				addCommsReply(tableRemoveRandom(yes_waypoint_vilairre_prompt),function()
 					local sx, sy = stationVilairre:getPosition()
 					comms_source:commandAddWaypoint(sx, sy)
-					setCommsMessage(string.format("Waypoint %i set on station Vilairre. Since Vilairre orbits Wilaux, this waypoint will become rapidly outdated",comms_source:getWaypointCount()))
+					local vilairre_waypoint_set = {
+						string.format("Waypoint %i set on station Vilairre. Since Vilairre orbits Wilaux, this waypoint will become rapidly outdated",comms_source:getWaypointCount()),
+						string.format("I set waypoint %i on station Vilairre. This waypoint will become rapidly outdated since Vilairre orbits Wilaux.",comms_source:getWaypointCount()),
+						string.format("Vilairre now has waypoint %i set on it. Remember, this waypoint will be outdated shortly since the station is in motion.",comms_source:getWaypointCount()),
+						string.format("Waypoint %i has been set for station Vilairre. Note: the waypoint will not move with Vilairre, so it will soon be inaccurate.",comms_source:getWaypointCount()),
+					}
+					setCommsMessage(tableRemoveRandom(vilairre_waypoint_set))
 					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
 					addCommsReply("Back to station communication", commsStation)
 				end)
@@ -56062,35 +57078,73 @@ function handleDockedState()
 		{thresh = 8,	text = string.format(_("station-comms","Hello, starbound emissary. %s's presence is less of a pleasure and more of a cosmic headache. What brings you to %s?"),comms_source:getCallSign(),comms_target:getCallSign())},
 		{thresh = 4,	text = string.format(_("station-comms","Salutations, interstellar nuisance. %s's docking is the last thing we needed. What pressing crisis are you here to address?"),comms_source:getCallSign())},
 	}
+	local prompt_index = #friendly_station_greeting_prompt
 	for i,prompt in ipairs(friendly_station_greeting_prompt) do
 		if comms_target.comms_data.friendlyness > prompt.thresh then
-			oMsg = string.format("%s Communications Portal\n%s",comms_target:getCallSign(),prompt.text)
+			prompt_index = i
 			break
-		else
-			oMsg = string.format(_("station-comms","%s Communications Portal\nWelcome to our lovely station."),comms_target:getCallSign())
 		end
 	end
+	local prompt_pool = {}
+	local lo = prompt_index - 2
+	local hi = prompt_index + 2
+	if prompt_index >= (#friendly_station_greeting_prompt - 2) then
+		lo = #friendly_station_greeting_prompt - 4
+		hi = #friendly_station_greeting_prompt
+	elseif prompt_index <= 3 then
+		lo = 1
+		hi = 5
+	end
+	for i=lo,hi do
+		table.insert(prompt_pool,friendly_station_greeting_prompt[i])
+	end
+	local prompt = tableRemoveRandom(prompt_pool)
+	oMsg = string.format("%s Communications Portal\n%s",comms_target:getCallSign(),prompt.text)
 	setCommsMessage(oMsg)
 	local interactive = false
+	local no_relay_panic_responses = {
+		"No communication officers available due to station emergency.",
+		"Relay officers unavailable during station emergency.",
+		"Relay officers reassigned for station emergency.",
+		"Station emergency precludes response from relay officer.",
+	}
 	if comms_target:areEnemiesInRange(panic_range*1.5) then
 		if comms_target.comms_data.friendlyness > 10 then
-			oMsg = string.format(_("station-comms","%s\nNo communication officers available due to station emergency."),oMsg)
+			oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(no_relay_panic_responses))
 		end
 	elseif comms_target:areEnemiesInRange(panic_range*2) then
 		if comms_target.comms_data.friendlyness > 70 then
-			oMsg = string.format(_("station-comms","%s\nPlease be quick. Sensors detect enemies"),oMsg)
+			local quick_relay_responses = {
+				"Please be quick. Sensors detect enemies.",
+				"I have to go soon since there are enemies nearby.",
+				"Talk fast. Enemies approach.",
+				"Enemies are coming so talk fast.",
+			}
+			oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(quick_relay_responses))
 			interactive = true
 		else
 			if comms_target.comms_data.friendlyness > 20 then
-				oMsg = string.format(_("station-comms","%s\nNo communication officers available due to station emergency."),oMsg)
+				oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(no_relay_panic_responses))
 			end
 		end
 	elseif comms_target:areEnemiesInRange(panic_range*2.5) then
 		if comms_target.comms_data.friendlyness > 20 then
 			if comms_target.comms_data.friendlyness > 60 then
-				oMsg = string.format(_("station-comms","%s\nPlease forgive us if we seem distracted. Our sensors detect enemies within %i units"),oMsg,math.floor(panic_range*2.5/1000))
+				local distracted_units_responses = {
+					string.format("Please forgive us if we seem distracted. Our sensors detect enemies within %i units",math.floor(panic_range*2.5/1000)),
+					string.format("Enemies at %i units. Things might get busy soon. Business?",math.floor(panic_range*2.5/1000)),
+					string.format("A busy day here at %s: Enemies are %s units away and my boss is reviewing emergency procedures. I'm a bit distracted.",comms_target:getCallSign(),math.floor(panic_range*2.5/1000)),
+					string.format("If I seem distracted, it's only because of the enemies showing up at %i units.",math.floor(panic_range*2.5/1000)),
+				}
+				oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(distracted_units_responses))
 			elseif comms_target.comms_data.friendlyness > 25 then
-				oMsg = string.format(_("station-comms","%s\nPlease forgive us if we seem distracted. Our sensors detect enemies nearby."),oMsg)
+				local distracted_responses = {
+					"Please forgive us if we seem distracted. Our sensors detect enemies nearby.",
+					string.format("Enemies are close to %s. We might get busy. Business?",comms_target:getCallSign()),
+					"We're quite busy preparing for enemies: evaluating cross training, checking emergency procedures, etc. I'm a little distracted.",
+					string.format("%s is likely going to be attacked soon. Everyone is running around getting ready, distracting me.",comms_target:getCallSign()),
+				}
+				oMsg = string.format(_("station-comms","%s\n%s"),oMsg,tableRemoveRandom(distracted_responses))
 			end
 			interactive = true
 		end
@@ -56145,7 +57199,13 @@ function androidDockedStationCommsMeat()
 		end
 		if good_count > 0 then
 			if android_docked_station_give_goods == nil or getScenarioTime() > android_docked_station_give_goods + comms_fudge then
-				addCommsReply(_("station-comms","Place goods in deposit hatch"),giveGoodsToStation)
+				local deposit_goods_prompt = {
+					"Place goods in deposit hatch",
+					"Put goods in hatch marked 'deposits'",
+					"Insert goods in external deposit hatch",
+					string.format("Put goods in %s's external storage facility",comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(deposit_goods_prompt),giveGoodsToStation)
 				android_docked_station_give_goods = getScenarioTime()
 			end
 		end
@@ -56185,14 +57245,26 @@ function giveGoodsToStation()
 				if not want_it then
 					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
 				end
-				setCommsMessage(string.format(_("trade-comms", "One %s donated"),good_desc[good]))
+				local donated_confirmed = {
+					string.format("One %s donated",good_desc[good]),
+					string.format("We donated one %s to %s",good_desc[good],comms_target:getCallSign()),
+					string.format("We donated a %s",good_desc[good]),
+					string.format("We provided %s with one %s",comms_target:getCallSign(),good_desc[good]),
+				}
+				setCommsMessage(tableRemoveRandom(donated_confirmed))
 				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
 	if give_goods_to_station_back == nil or getScenarioTime() > give_goods_to_station_back + comms_fudge then
 		if goods_to_give_count == 0 then
-			setCommsMessage(_("trade-comms","No more goods to donate"))
+			local out_of_goods = {
+				"No more goods to donate",
+				"There is nothing left in the cargo hold to donate",
+				"You've got nothing more available to donate",
+				"Your cargo hold is empty, so you cannot donate anything else",
+			}
+			setCommsMessage(tableRemoveRandom(out_of_goods))
 			addCommsReply(_("Back"), commsStation)
 		end
 		addCommsReply(_("Back"), commsStation)
@@ -56203,25 +57275,62 @@ function interactiveDockedStationComms()
 	addCommsReply("Interact with station relay officer on duty",interactiveDockedStationCommsMeat)
 end
 function interactiveDockedStationCommsMeat()
-	setCommsMessage("What can I do for you?")
+	local help_prompts = {
+		"What can I do for you?",
+		"How may I help?",
+		"What do you need or want?",
+		string.format("Go ahead, %s",comms_source:getCallSign()),
+		string.format("How can %s serve you today?",comms_target:getCallSign()),
+	}
+	setCommsMessage(tableRemoveRandom(help_prompts))
 	if interactive_docked_station_information == nil or getScenarioTime() > interactive_docked_station_information + comms_fudge then
-		addCommsReply(_("station-comms","Information"),stationInformation)
+		local information_prompts = {
+			"Information",
+			"I need information",
+			"Ask questions",
+			"I need to know what you know",
+		}
+		addCommsReply(tableRemoveRandom(information_prompts),stationInformation)
 		interactive_docked_station_information = getScenarioTime()
 	end
 	if interactive_docked_station_dispatch == nil or getScenarioTime() > interactive_docked_station_dispatch + comms_fudge then
-		addCommsReply(_("station-comms","Dispatch office"),dispatchOffice)
+		local dispatch_prompts = {
+			"Dispatch office",
+			"Visit the dispatch office",
+			"Check on possible missions",
+			"Start or complete a mission",
+		}
+		addCommsReply(tableRemoveRandom(dispatch_prompts),dispatchOffice)
 		interactive_docked_station_dispatch = getScenarioTime()
 	end
 	if interactive_docked_station_restock == nil or getScenarioTime() > interactive_docked_station_restock + comms_fudge then
-		addCommsReply(_("station-comms","Restock ship"),restockShip)
+		local restock_prompts = {
+			"Restock ship",
+			string.format("Restock %s",comms_source:getCallSign()),
+			"Refill ordnance and other things on the ship",
+			string.format("Replenish supplies on %s",comms_source:getCallSign()),
+		}
+		addCommsReply(tableRemoveRandom(restock_prompts),restockShip)
 		interactive_docked_station_restock = getScenarioTime()
 	end
 	if interactive_docked_station_repair == nil or getScenarioTime() > interactive_docked_station_repair + comms_fudge then
-		addCommsReply(_("station-comms","Repair ship"),repairShip)
+		local repair_ship_prompts = {
+			"Repair ship",
+			string.format("Repair %s",comms_source:getCallSign()),
+			"Fix broken things on the ship",
+			string.format("Conduct repairs on %s",comms_source:getCallSign()),
+		}
+		addCommsReply(tableRemoveRandom(repair_ship_prompts),repairShip)
 		interactive_docked_station_repair = getScenarioTime()
 	end
 	if interactive_docked_station_enhance == nil or getScenarioTime() > interactive_docked_station_enhance + comms_fudge then
-		addCommsReply(_("station-comms","Enhance ship"),enhanceShip)
+		local enhance_ship_prompts = {
+			"Enhance ship",
+			string.format("Enhance %s",comms_source:getCallSign()),
+			"Make improvements to ship",
+			string.format("Improve %s's capabilities",comms_source:getCallSign()),
+		}
+		addCommsReply(tableRemoveRandom(enhance_ship_prompts),enhanceShip)
 		interactive_docked_station_enhance = getScenarioTime()
 	end
 	if isAllowedTo(comms_target.comms_data.services.activatedefensefleet) then
@@ -56276,7 +57385,13 @@ function interactiveDockedStationCommsMeat()
 		interactive_docked_station_unload_pods = getScenarioTime()
 	end
 	if interactive_docked_station_goods_commerce == nil or getScenarioTime() > interactive_docked_station_goods_commerce + comms_fudge then
-		addCommsReply(_("station-comms","Buy, sell, trade goods, etc."),goodsCommerce)
+		local goods_commerce_prompts = {
+			"Buy, sell, trade goods, etc.",
+			"Buy, sell, trade, etc.",
+			"Goods commerce, etc.",
+			"Buy, sell, trade, donate, jettison goods",
+		}
+		addCommsReply(tableRemoveRandom(goods_commerce_prompts),goodsCommerce)
 		interactive_docked_station_goods_commerce = getScenarioTime()
 	end
 	if jump_corridor then
@@ -56313,7 +57428,13 @@ function stationInformation()
 	end
 end
 function stationTalk(calling_function)
-	addCommsReply(_("station-comms","I'm not sure. What do you know?"),function()
+	local what_do_you_know_prompts = {
+		"I'm not sure. What do you know?",
+		"Not sure. Talk to me.",
+		"Unsure. Help me out.",
+		string.format("Well, what does the %s relay officer know?",comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(what_do_you_know_prompts),function()
 		local knowledge_talk_prompt = {
 			_("station-comms","I know about the following:"),
 			_("station-comms","I know these things:"),
@@ -56368,7 +57489,13 @@ function stationTalk(calling_function)
 	end)
 end
 function stationGossip(calling_function)
-	addCommsReply(_("gossip-comms","Gossip"), function()
+	local gossip_prompts = {
+		"Gossip",
+		"What dirty little secrets can you share?",
+		"I'm looking for inside information",
+		"Got any juicy tidbits?",
+	}
+	addCommsReply(tableRemoveRandom(gossip_prompts), function()
 		setCommsMessage(comms_target.comms_data.gossip)
 		if station_gossip_caller_back == nil or getScenarioTime() > station_gossip_caller_back + comms_fudge then
 			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
@@ -56385,7 +57512,13 @@ function stationGossip(calling_function)
 	end)
 end
 function stationGeneralInformation(calling_function)
-	addCommsReply(_("stationGeneralInfo-comms","General information"), function()
+	local general_information_prompts = {
+		"General information",
+		"Regular information",
+		"Standard information",
+		"The usual information",
+	}
+	addCommsReply(tableRemoveRandom(general_information_prompts), function()
 		setCommsMessage(comms_target.comms_data.general_information)
 		if station_general_caller_back == nil or getScenarioTime() > station_general_caller_back + comms_fudge then
 			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
@@ -56402,7 +57535,13 @@ function stationGeneralInformation(calling_function)
 	end)
 end
 function stationHistory(calling_function)
-	addCommsReply(_("stationStory-comms","Station history"), function()
+	local history_prompts = {
+		"Station history",
+		"Station historical archives",
+		string.format("%s history",comms_target:getCallSign()),
+		string.format("Historical information on %s",comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(history_prompts), function()
 		setCommsMessage(comms_target.comms_data.history)
 		if station_history_caller_back == nil or getScenarioTime() > station_history_caller_back + comms_fudge then
 			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
@@ -56419,7 +57558,13 @@ function stationHistory(calling_function)
 	end)
 end
 function dispatchOffice()
-	setCommsMessage(_("station-comms","Which of these missions and/or tasks are you interested in?"))
+	local mission_select_prompts = {
+		"Which of these missions and/or tasks are you interested in?",
+		"Are you interested in any of thises missions/tasks?",
+		"You may select from one of these missions or tasks:",
+		"Do any of these missions or tasks interest you?",
+	}
+	setCommsMessage(tableRemoveRandom(mission_select_prompts))
 	local improvements = {}
 	local msg = ""
 	msg, improvements = catalogImprovements(msg)
@@ -56430,7 +57575,13 @@ function dispatchOffice()
 	local transport_and_cargo_mission_count = transportAndCargoMissions()
 	mission_options_presented_count = mission_options_presented_count + transport_and_cargo_mission_count
 	if mission_options_presented_count == 0 then
-		setCommsMessage(_("station-comms","No missions or tasks available here."))
+		local no_missions_responses = {
+			"No missions or tasks available here.",
+			string.format("No missions or tasks are available here at %s.",comms_target:getCallSign()),
+			string.format("%s has no missions or tasks available.",comms_target:getCallSign()),
+			"There are currently no missions or tasks available here.",
+		}
+		setCommsMessage(tableRemoveRandom(no_missions_responses))
 	end
 	if dispatch_interactive_back == nil or getScenarioTime() > dispatch_interactive_back + comms_fudge then
 		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -56449,12 +57600,30 @@ function transportAndCargoMissions()
 		if comms_source.transport_mission.destination ~= nil and comms_source.transport_mission.destination:isValid() then
 			if comms_source.transport_mission.destination == comms_target then
 				mission_options_presented_count = mission_options_presented_count + 1
-				addCommsReply(string.format(_("station-comms","Deliver %s to %s"),comms_source.transport_mission.character.name,comms_target:getCallSign()),function()
-					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+				local who_destination_prompts = {
+					string.format("Deliver %s to %s",comms_source.transport_mission.character.name,comms_target:getCallSign()),
+					string.format("Escort %s off of %s",comms_source.transport_mission.character.name,comms_source:getCallSign()),
+					string.format("Direct %s off the ship to %s",comms_source.transport_mission.character.name,comms_target:getCallSign()),
+					string.format("Inform %s of arrival at %s",comms_source.transport_mission.character.name,comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(who_destination_prompts),function()
+					if not comms_source:isDocked(comms_target) then
+						local stay_docked_to_disembark = {
+							"You need to stay docked for that action.",
+							string.format("You need to stay docked for %s to disembark.",comms_source.transport_mission.character.name),
+							string.format("You must stay docked long enough for %s to get off of %s on to station %s.",comms_source.transport_mission.character.name,comms_source:getCallSign(),comms_target:getCallSign()),
+							string.format("You undocked before %s could get off the ship.",comms_source.transport_mission.character.name),
+						}
+						setCommsMessage(tableRemoveRandom(stay_docked_to_disembark))
 						return mission_options_presented_count
 					end
-					setCommsMessage(string.format(_("station-comms","%s disembarks at %s and thanks you"),comms_source.transport_mission.character.name,comms_target:getCallSign()))
+					local thanks_for_ride_responses = {
+						string.format("%s disembarks at %s and thanks you",comms_source.transport_mission.character.name,comms_target:getCallSign()),
+						string.format("As %s leaves %s at %s, they turn and say, 'Thanks for the ride.'",comms_source.transport_mission.character.name,comms_source:getCallSign(),comms_target:getCallSign()),
+						string.format("%s thanks you as they walk away from %s down the short connecting tunnel to %s.",comms_source.transport_mission.character.name,comms_source:getCallSign(),comms_target:getCallSign()),
+						string.format("%s disembarks at %s. You hear, 'I'll miss %s,' as footsteps echo back to %s.",comms_source.transport_mission.character.name,comms_target:getCallSign(),comms_source:getCallSign(),comms_source:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(thanks_for_ride_responses))
 					comms_source:addReputationPoints(comms_source.transport_mission.reward)
 					if comms_target.residents == nil then
 						comms_target.residents = {}
@@ -56464,9 +57633,15 @@ function transportAndCargoMissions()
 					addCommsReply(_("Back"), commsStation)
 				end)
 			end
-		else	
-			comms_source:addToShipLog(string.format(_("shipLog","%s disembarks at %s because %s has been destroyed. You receive %s reputation for your efforts"),comms_source.transport_mission.character.name,comms_target:getCallSign(),comms_source.transport_mission.destination_name,comms_source.transport_mission.reward/2),"Yellow")
-			comms_source:addReputationPoints(comms_source.transport_mission.reward/2)
+		else
+			local alternate_disembarkation = {
+				string.format("%s disembarks at %s because %s has been destroyed. You receive %s reputation for your efforts.",comms_source.transport_mission.character.name,comms_target:getCallSign(),comms_source.transport_mission.destination_name,math.floor(comms_source.transport_mission.reward/2)),
+				string.format("%s leaves %s here at %s due to the destruction of %s. You still get %s reputation.",comms_source.transport_mission.character.name,comms_source:getCallSign(),comms_target:getCallSign(),comms_source.transport_mission.destination_name,math.floor(comms_source.transport_mission.reward/2)),
+				string.format("%s, %s's original destination, has been destroyed. %s disembarks here. You get %s reputation for trying.",comms_source.transport_mission.destination_name,comms_source.transport_mission.character.name,comms_source.transport_mission.character.name,math.floor(comms_source.transport_mission.reward/2)),
+				string.format("Since %s has been destroyed, %s gets off here at %s. Your reputation goes up by %s.",comms_source.transport_mission.destination_name,comms_source.transport_mission.character.name,comms_target:getCallSign(),math.floor(comms_source.transport_mission.reward/2)),
+			}
+			comms_source:addToShipLog(tableRemoveRandom(alternate_disembarkation),"Yellow")
+			comms_source:addReputationPoints(math.floor(comms_source.transport_mission.reward/2))
 			if comms_target.residents == nil then
 				comms_target.residents = {}
 			end
@@ -56503,7 +57678,10 @@ function transportAndCargoMissions()
 				if mission_type < 50 then
 					for _, station in ipairs(regionStations) do
 						if station ~= nil and station:isValid() and station ~= comms_target and comms_source:isFriendly(station) then
-							table.insert(destination_pool,station)
+							local station_type = station:getTypeName()
+							if station_type == "Small Station" or station_type == "Medium Station" or station_type == "Large Station" or station_type == "Huge Station" then
+								table.insert(destination_pool,station)
+							end
 						end
 					end
 					mission_target = tableRemoveRandom(destination_pool)
@@ -56558,26 +57736,79 @@ function transportAndCargoMissions()
 		end
 		if comms_target.transport_mission ~= nil then
 			mission_options_presented_count = mission_options_presented_count + 1
-			addCommsReply(_("station-comms","Transport Passenger"),function()
-				local out = string.format(_("station-comms","%s wishes to be transported to %s station %s in sector %s."),comms_target.transport_mission.character.name,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name,comms_target.transport_mission.destination:getSectorName())
-				out = string.format(_("station-comms","%s Transporting %s would increase your reputation by %s."),out,comms_target.transport_mission.character.name,comms_target.transport_mission.reward)
+			local transport_passenger_prompts = {
+				"Transport Passenger",
+				"Give passenger a ride",
+				string.format("Transport %s",comms_target.transport_mission.character.name),
+				"Take on a passenger",
+			}
+			addCommsReply(tableRemoveRandom(transport_passenger_prompts),function()
+				local transport_info = {
+					string.format("%s wishes to be transported to %s station %s in sector %s.",comms_target.transport_mission.character.name,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name,comms_target.transport_mission.destination:getSectorName()),
+					string.format("%s needs a ride to sector %s, specifically to %s station %s.",comms_target.transport_mission.character.name,comms_target.transport_mission.destination:getSectorName(),comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name),
+					string.format("%s needs to get to station %s. It's a %s station in sector %s.",comms_target.transport_mission.character.name,comms_target.transport_mission.destination_name,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination:getSectorName()),
+					string.format("Can you take %s to %s station %s in sector %s?",comms_target.transport_mission.character.name,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name,comms_target.transport_mission.destination:getSectorName()),
+				}
+				local transport_reputation_info = {
+					string.format("Transporting %s would increase your reputation by %s.",comms_target.transport_mission.character.name,comms_target.transport_mission.reward),
+					string.format("If you take %s to %s, you'd increase your reputation by %s.",comms_target.transport_mission.character.name,comms_target.transport_mission.destination_name,comms_target.transport_mission.reward),
+					string.format("You'd get %s reputation if you transported %s.",comms_target.transport_mission.reward,comms_target.transport_mission.character.name),
+					string.format("This transportation mission is worth %s reputation.",comms_target.transport_mission.reward),
+				}
+				local out = string.format("%s %s",tableRemoveRandom(transport_info),tableRemoveRandom(transport_reputation_info))
 				setCommsMessage(out)
-				addCommsReply(string.format(_("station-comms","Agree to transport %s to %s station %s"),comms_target.transport_mission.character.name,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name),function()
+				local transport_agree_prompts = {
+					string.format("Agree to transport %s to %s station %s",comms_target.transport_mission.character.name,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name),
+					string.format("Agree to transport mission to %s in %s",comms_target.transport_mission.destination_name,comms_target.transport_mission.destination:getSectorName()),
+					string.format("%s will transport %s to %s in %s",comms_source:getCallSign(),comms_target.transport_mission.character.name,comms_target.transport_mission.destination_name,comms_target.transport_mission.destination:getSectorName()),
+					string.format("Take on passenger transport mission to %s",comms_target.transport_mission.destination_name),
+				}
+				addCommsReply(tableRemoveRandom(transport_agree_prompts),function()
 					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+						local stay_docked_to_embark = {
+							"You need to stay docked for that action.",
+							string.format("You need to stay docked for %s to board.",comms_source.transport_mission.character.name),
+							string.format("You must stay docked long enough for %s to board %s from station %s.",comms_source.transport_mission.character.name,comms_source:getCallSign(),comms_target:getCallSign()),
+							string.format("You undocked before %s could come aboard.",comms_source.transport_mission.character.name),
+						}
+						setCommsMessage(tableRemoveRandom(stay_docked_to_embark))
 						return mission_options_presented_count
 					end
 					comms_source.transport_mission = comms_target.transport_mission
 					comms_target.transport_mission = nil
-					setCommsMessage(string.format(_("station-comms","You direct %s to guest quarters and say, 'Welcome aboard the %s'"),comms_source.transport_mission.character.name,comms_source:getCallSign()))
+					local boarding_confirmation = {
+						string.format("You direct %s to guest quarters and say, 'Welcome aboard the %s'",comms_source.transport_mission.character.name,comms_source:getCallSign()),
+						string.format("You welcome %s aboard the %s. 'Let me show you our guest quarters.'",comms_source.transport_mission.character.name,comms_source:getCallSign()),
+						string.format("%s boards %s. 'Allow me to show you the guest quarters where you will stay for our journey to %s'",comms_source.transport_mission.character.name,comms_source:getCallSign(),comms_source.transport_mission.destination_name),
+						string.format("%s is aboard. You show %s to %s's guest quarters.",comms_source.transport_mission.character.name,comms_source.transport_mission.character.name,comms_source:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(boarding_confirmation))
 					addCommsReply(_("Back"), commsStation)
 				end)
-				addCommsReply(_("station-comms","Decline transportation request"),function()
+				local decline_transportation_prompts = {
+					"Decline transportation request",
+					"Refuse transportation request",
+					"Decide against transportation mission",
+					"Decline transportation mission",
+				}
+				addCommsReply(tableRemoveRandom(decline_transportation_prompts),function()
+					local refusal_responses = {
+						string.format("You tell %s that you cannot take on any transportation missions at this time.",comms_target.transport_mission.character.name),
+						string.format("You inform %s that you are unable to transport them at this time.",comms_target.transport_mission.character.name),
+						string.format("'Sorry, %s. We can't transport you at this time.'",comms_target.transport_mission.character.name),
+						string.format("'%s can't transport you right now, %s. Sorry about that. Good luck.'",comms_source:getCallSign(),comms_target.transport_mission.character.name),
+					}
+					local mission_gone = {
+						"The offer disappears from the message board.",
+						"The transport mission offer no longer appears on the message board.",
+						string.format("%s removes the transport mission offer from the message board.",comms_target.transport_mission.character.name),
+						string.format("%s gestures and the transport mission offer disappears from the message board.",comms_target.transport_mission.character.name),
+					}
 					if random(1,5) <= 1 then
-						setCommsMessage(string.format(_("station-comms","You tell %s that you cannot take on any transportation missions at this time. The offer disappears from the message board."),comms_target.transport_mission.character.name))
+						setCommsMessage(string.format("%s %s",tableRemoveRandom(refusal_responses),tableRemoveRandom(mission_gone)))
 						comms_target.transport_mission = nil
 					else
-						setCommsMessage(string.format(_("station-comms","You tell %s that you cannot take on any transportation missions at this time."),comms_target.transport_mission.character.name))
+						setCommsMessage(string.format("%s",tableRemoveRandom(refusal_responses)))
 					end
 					addCommsReply(_("Back"), commsStation)
 				end)
@@ -56591,38 +57822,86 @@ function transportAndCargoMissions()
 			if comms_source.cargo_mission.destination ~= nil and comms_source.cargo_mission.destination:isValid() then
 				if comms_source.cargo_mission.destination == comms_target then
 					mission_options_presented_count = mission_options_presented_count + 1
-					addCommsReply(string.format(_("station-comms","Deliver cargo to %s on %s"),comms_source.cargo_mission.character.name,comms_target:getCallSign()),function()
+					local cargo_delivery_prompts = {
+						string.format("Deliver cargo to %s on %s",comms_source.cargo_mission.character.name,comms_target:getCallSign()),
+						string.format("Give cargo to %s here on %s",comms_source.cargo_mission.character.name,comms_target:getCallSign()),
+						string.format("Offload %s's cargo to station %s",comms_source.cargo_mission.character.name,comms_target:getCallSign()),
+						string.format("Unload cargo to %s and inform %s",comms_target:getCallSign(),comms_source.cargo_mission.character.name),
+					}
+					addCommsReply(tableRemoveRandom(cargo_delivery_prompts),function()
 						if not comms_source:isDocked(comms_target) then 
-							setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+							local stay_docked_to_deliver = {
+								"You need to stay docked for that action.",
+								string.format("You need to stay docked to deliver %s's cargo.",comms_source.transport_mission.character.name),
+								string.format("You must stay docked long enough to unload %s's cargo to %s.",comms_source.transport_mission.character.name,comms_target:getCallSign()),
+								string.format("You undocked before we could deliver cargo for %s.",comms_source.transport_mission.character.name),
+							}
+							setCommsMessage(tableRemoveRandom(stay_docked_to_deliver))
 							return
 						end
-						setCommsMessage(string.format(_("station-comms","%s thanks you for retrieving the cargo"),comms_source.cargo_mission.character.name))
+						local cargo_delivery_confirmation_and_thanks = {
+							string.format("%s thanks you for retrieving the cargo.",comms_source.cargo_mission.character.name),
+							string.format("%s says, 'Thanks for bringing me my stuff.'",comms_source.cargo_mission.character.name),
+							string.format("%s grabs the cargo and waves, clearly happy to have it.",comms_source.cargo_mission.character.name),
+							string.format("%s takes receipt of the cargo and is clearly grateful.",comms_source.cargo_mission.character.name),
+						}
+						setCommsMessage(tableRemoveRandom(cargo_delivery_confirmation_and_thanks))
 						comms_source:addReputationPoints(comms_source.cargo_mission.reward)
 						comms_source.cargo_mission = nil
 						addCommsReply(_("Back"), commsStation)
 					end)
 				end
 			else
-				comms_source:addToShipLog(string.format(_("shipLog","Automated systems on %s have informed you of the destruction of station %s. Your mission to deliver cargo for %s to %s is no longer valid. You unloaded the cargo and requested the station authorities handle it for the family of %s. You received %s reputation for your efforts. The mission has been removed from your mission log."),comms_target:getCallSign(),comms_source.cargo_mission.destination_name,comms_source.cargo_mission.character.name,comms_source.cargo_mission.destination_name,comms_source.cargo_mission.character,comms_source.cargo_mission.reward/2),"Yellow")
-				comms_source:addReputationPoints(comms_source.cargo_mission.reward/2)
+				local station_destroyed_mid_mission = {
+					string.format("Automated systems on %s have informed you of the destruction of station %s. Your mission to deliver cargo for %s to %s is no longer valid. You unloaded the cargo and requested the station authorities handle it for the family of %s. You received %s reputation for your efforts. The mission has been removed from your mission log.",comms_target:getCallSign(),comms_source.cargo_mission.destination_name,comms_source.cargo_mission.character.name,comms_source.cargo_mission.destination_name,comms_source.cargo_mission.character,math.floor(comms_source.cargo_mission.reward/2)),
+					string.format("Records on %s inform you that %s has been destroyed. Thus, your cargo mission for %s is no longer valid. You unload the cargo for %s authorities to handle it for %s's family. You receive %s reputation for your efforts. The cargo mission has been removed from your mission log.",comms_target:getCallSign(),comms_source.cargo_mission.destination_name,comms_source.cargo_mission.character.name,comms_target:getCallSign(),comms_source.cargo_mission.character.name,math.floor(comms_source.cargo_mission.reward/2)),
+					string.format("You see on %s's status board that %s was destroyed. So, you can't deliver %s's cargo. You unload it, asking %s's personnel to take care of it for the family of %s. You still get %s reputation. You remove the mission from your task list.",comms_target:getCallSign(),comms_source.cargo_mission.destination_name,comms_source.cargo_mission.character.name,comms_target:getCallSign(),comms_source.cargo_mission.character.name,math.floor(comms_source.cargo_mission.reward/2)),
+					string.format("%s requests %s's cargo on behalf of their family. %s has been destroyed. You unload the cargo and post a message of condolences for %s's family. You receive %s reputation and delete the mission from your task list.",comms_target:getCallSign(),comms_source.cargo_mission.character.name,comms_source.cargo_mission.destination_name,comms_source.cargo_mission.character.name,math.floor(comms_source.cargo_mission.reward/2)),
+				}
+				comms_source:addToShipLog(tableRemoveRandom(station_destroyed_mid_mission),"Yellow")
+				comms_source:addReputationPoints(math.floor(comms_source.cargo_mission.reward/2))
 				comms_source.cargo_mission = nil
 			end
 		else	--cargo not loaded
 			if comms_source.cargo_mission.origin ~= nil and comms_source.cargo_mission.origin:isValid() then
 				if comms_source.cargo_mission.origin == comms_target then
 					mission_options_presented_count = mission_options_presented_count + 1
-					addCommsReply(string.format(_("station-comms","Pick up cargo for %s"),comms_source.cargo_mission.character.name),function()
-						if not comms_source:isDocked(comms_target) then 
-							setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+					local mid_cargo_mission_pickup_prompts = {
+						string.format("Pick up cargo for %s",comms_source.cargo_mission.character.name),
+						string.format("Get cargo for %s",comms_source.cargo_mission.character.name),
+						string.format("Load cargo from %s for %s",comms_target:getCallSign(),comms_source.cargo_mission.character.name),
+						string.format("Load cargo on %s for %s",comms_source:getCallSign(),comms_source.cargo_mission.character.name),
+					}
+					addCommsReply(tableRemoveRandom(mid_cargo_mission_pickup_prompts),function()
+						if not comms_source:isDocked(comms_target) then
+							local stay_docked_to_get_cargo = {
+								"You need to stay docked for that action.",
+								string.format("You need to stay docked to get %s's cargo.",comms_source.transport_mission.character.name),
+								string.format("You must stay docked long enough to load %s's cargo on %s.",comms_source.transport_mission.character.name,comms_source:getCallSign()),
+								string.format("You undocked before we could load cargo for %s.",comms_source.transport_mission.character.name),
+							}
+							setCommsMessage(tableRemoveRandom(stay_docked_to_get_cargo))
 							return
 						end
-						setCommsMessage(string.format(_("station-comms","The cargo for %s has been loaded on %s"),comms_source.cargo_mission.character.name,comms_source:getCallSign()))
+						local cargo_loaded_confirmation = {
+							string.format("The cargo for %s has been loaded on %s.",comms_source.cargo_mission.character.name,comms_source:getCallSign()),
+							string.format("%s's cargo has been loaded from %s to %s.",comms_source.cargo_mission.character.name,comms_target:getCallSign(),comms_source:getCallSign()),
+							string.format("You take receipt of cargo from %s destined for %s.",comms_target:getCallSign(),comms_source.cargo_mission.character.name),
+							string.format("You load %s's cargo from %s",comms_source.cargo_mission.character.name,comms_target:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(cargo_loaded_confirmation))
 						comms_source.cargo_mission.loaded = true
 						addCommsReply(_("Back"), commsStation)
 					end)
 				end
 			else
-				comms_source:addToShipLog(string.format(_("shipLog","Automated systems on %s have informed you of the destruction of station %s. Your mission to retrieve cargo for %s from %s is no longer valid and has been removed from your mission log."),comms_target:getCallSign(),comms_source.cargo_mission.origin_name,comms_source.cargo_mission.character.name,comms_source.cargo_mission.origin_name),"Yellow")
+				local station_destroyed_before_getting_cargo = {
+					string.format("Automated systems on %s have informed you of the destruction of station %s. Your mission to retrieve cargo for %s from %s is no longer valid and has been removed from your mission log.",comms_target:getCallSign(),comms_source.cargo_mission.origin_name,comms_source.cargo_mission.character.name,comms_source.cargo_mission.origin_name),
+					string.format("Records on %s inform you that %s has been destroyed. Thus, your cargo retrieval mission for %s is no longer valid. It's been removed from your mission task list.",comms_target:getCallSign(),comms_source.cargo_mission.origin_name,comms_source.cargo_mission.character.name),
+					string.format("You see on %s's status board that %s was destroyed. So, you can't pick up %s's cargo. You remove the mission from your task list.",comms_target:getCallSign(),comms_source.cargo_mission.origin_name,comms_source.cargo_mission.character.name),
+					string.format("%s informs you that %s was destroyed. This invalidates your mission to get %s's cargo from %s. You delete the mission from your task list and send an explanatory message to %s",comms_target:getCallSign(),comms_source.cargo_mission.origin_name,comms_source.cargo_mission.character.name,comms_source.cargo_mission.origin_name,comms_source.cargo_mission.character.name),
+				}
+				comms_source:addToShipLog(tableRemoveRandom(station_destroyed_before_getting_cargo),"Yellow")
 				if comms_source.cargo_mission.destination:isValid() then
 					table.insert(comms_source.cargo_mission.destination.residents,comms_source.cargo_mission.character)
 				end
@@ -56699,27 +57978,79 @@ function transportAndCargoMissions()
 		end
 		if comms_target.cargo_mission ~= nil then
 			mission_options_presented_count = mission_options_presented_count + 1
-			addCommsReply(_("station-comms","Retrieve Cargo"),function()
-				local out = string.format(_("station-comms","%s wishes you to pick up cargo from %s station %s in sector %s and deliver it here."),comms_target.cargo_mission.character.name,comms_target.cargo_mission.origin:getFaction(),comms_target.cargo_mission.origin_name,comms_target.cargo_mission.origin:getSectorName())
-				out = string.format(_("station-comms","%s Retrieving and delivering this cargo for %s would increase your reputation by %s."),out,comms_target.cargo_mission.character.name,comms_target.cargo_mission.reward)
-				setCommsMessage(out)
-				addCommsReply(string.format(_("station-comms","Agree to retrieve cargo for %s"),comms_target.cargo_mission.character.name),function()
+			local retrieve_cargo_prompts = {
+				"Retrieve Cargo",
+				string.format("Retrieve cargo for %s",comms_target.cargo_mission.character.name),
+				string.format("Get cargo from %s",comms_target.cargo_mission.origin_name),
+				string.format("Get cargo for %s from %s",comms_target.cargo_mission.character.name,comms_target.cargo_mission.origin_name),
+			}
+			addCommsReply(tableRemoveRandom(retrieve_cargo_prompts),function()
+				local cargo_parameters = {
+					string.format("%s wishes you to pick up cargo from %s station %s in sector %s and deliver it here.",comms_target.cargo_mission.character.name,comms_target.cargo_mission.origin:getFaction(),comms_target.cargo_mission.origin_name,comms_target.cargo_mission.origin:getSectorName()),
+					string.format("%s wants to hire you to get cargo from %s station %s in %s and deliver it here (%s).",comms_target.cargo_mission.character.name,comms_target.cargo_mission.origin:getFaction(),comms_target.cargo_mission.origin_name,comms_target.cargo_mission.origin:getSectorName(),comms_target:getCallSign()),
+					string.format("Mission: Get cargo from %s station %s in sector %s for %s and bring it back here.",comms_target.cargo_mission.origin:getFaction(),comms_target.cargo_mission.origin_name,comms_target.cargo_mission.origin:getSectorName(),comms_target.cargo_mission.character.name),
+					string.format("Task: Get cargo for %s from %s and deliver it here. %s is a %s station in sector %s.",comms_target.cargo_mission.character.name,comms_target.cargo_mission.origin_name,comms_target.cargo_mission.origin_name,comms_target.cargo_mission.origin:getFaction(),comms_target.cargo_mission.origin:getSectorName()),
+				}
+				local cargo_mission_reputation = {
+					string.format("Retrieving and delivering this cargo for %s would increase your reputation by %s.",comms_target.cargo_mission.character.name,comms_target.cargo_mission.reward),
+					string.format("Getting this cargo from %s for %s would boost your reputation by %s.",comms_target.cargo_mission.origin_name,comms_target.cargo_mission.character.name,comms_target.cargo_mission.reward),
+					string.format("Your reputation would go up by %s if you completed this cargo mission for %s.",comms_target.cargo_mission.reward,comms_target.cargo_mission.character.name),
+					string.format("You would get %s reputation for getting cargo from %s for %s",comms_target.cargo_mission.reward,comms_target.cargo_mission.origin_name,comms_target.cargo_mission.character.name),
+				}
+				setCommsMessage(string.format("%s %s",tableRemoveRandom(cargo_parameters),tableRemoveRandom(cargo_mission_reputation)))
+				local agree_to_cargo_mission = {
+					string.format("Agree to retrieve cargo for %s",comms_target.cargo_mission.character.name),
+					string.format("Sign up to get cargo for %s",comms_target.cargo_mission.character.name),
+					string.format("Take on mission to get cargo for %s",comms_target.cargo_mission.character.name),
+					string.format("Inform %s that %s will get their cargo",comms_target.cargo_mission.character.name,comms_source:getCallSign())
+				}
+				addCommsReply(tableRemoveRandom(agree_to_cargo_mission),function()
 					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+						local stay_docked_to_start_cargo_mission = {
+							"You need to stay docked for that action.",
+							string.format("You need to stay docked to agree to get %s's cargo.",comms_source.transport_mission.character.name),
+							string.format("You must stay docked long enough to consent to %s's cargo mission.",comms_source.transport_mission.character.name),
+							string.format("You undocked before we could agree to retrieve cargo for %s.",comms_source.transport_mission.character.name),
+						}
+						setCommsMessage(tableRemoveRandom(stay_docked_to_start_cargo_mission))
 						return
 					end
 					comms_source.cargo_mission = comms_target.cargo_mission
 					comms_source.cargo_mission.loaded = false
 					comms_target.cargo_mission = nil
-					setCommsMessage(string.format(_("station-comms","%s thanks you and contacts station %s to let them know that %s will be picking up the cargo."),comms_source.cargo_mission.character.name,comms_source.cargo_mission.origin_name,comms_source:getCallSign()))
+					local cargo_agreement_confirmation = {
+						string.format("%s thanks you and contacts station %s to let them know that %s will be picking up the cargo.",comms_source.cargo_mission.character.name,comms_source.cargo_mission.origin_name,comms_source:getCallSign()),
+						string.format("%s contacts station %s to let them know that %s will be retrieving %s's cargo.",comms_source.cargo_mission.character.name,comms_source.cargo_mission.origin_name,comms_source:getCallSign(),comms_source.cargo_mission.character.name),
+						string.format("%s says, 'Thanks %s. I'll let %s know you're picking up my cargo.'",comms_source.cargo_mission.character.name,comms_source:getCallSign(),comms_source.cargo_mission.origin_name),
+						string.format("%s says, 'I'll let %s know you're coming for my cargo. Thank you %s.'",comms_source.cargo_mission.character.name,comms_source.cargo_mission.origin_name,comms_source:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(cargo_agreement_confirmation))
 					addCommsReply(_("Back"), commsStation)
 				end)
-				addCommsReply(_("station-comms","Decline cargo retrieval request"),function()
+				local decline_cargo_mission = {
+					"Decline cargo retrieval request",
+					"Decline cargo mission",
+					"Refuse cargo retrieval request",
+					"Decide against cargo retrieval request",
+				}
+				addCommsReply(tableRemoveRandom(decline_cargo_mission),function()
+					local cargo_refusal_responses = {
+						string.format("You tell %s that you cannot take on any cargo missions at this time.",comms_target.transport_mission.character.name),
+						string.format("You inform %s that you are unable to get any cargo for them at this time.",comms_target.transport_mission.character.name),
+						string.format("'Sorry, %s. We can't retrieve your cargo at this time.'",comms_target.transport_mission.character.name),
+						string.format("'%s can't get cargo for you you right now, %s. Sorry about that. Good luck.'",comms_source:getCallSign(),comms_target.transport_mission.character.name),
+					}
+					local cargo_mission_gone = {
+						"The offer disappears from the message board.",
+						"The cargo mission offer no longer appears on the message board.",
+						string.format("%s removes the cargo retrieval mission offer from the message board.",comms_target.transport_mission.character.name),
+						string.format("%s gestures and the cargo mission offer disappears from the message board.",comms_target.transport_mission.character.name),
+					}
 					if random(1,5) <= 1 then
-						setCommsMessage(string.format(_("station-comms","You tell %s that you cannot take on any cargo retrieval missions at this time. The offer disappears from the message board."),comms_target.cargo_mission.character.name))
+						setCommsMessage(string.format("%s %s",tableRemoveRandom(cargo_refusal_responses),tableRemoveRandom(cargo_mission_gone)))
 						comms_target.cargo_mission = nil
 					else
-						setCommsMessage(string.format(_("station-comms","You tell %s that you cannot take on any cargo retrieval missions at this time."),comms_target.cargo_mission.character.name))
+						setCommsMessage(tableRemoveRandom(cargo_refusal_responses))
 					end
 					addCommsReply(_("Back"), commsStation)
 				end)
@@ -56823,23 +58154,59 @@ function restockOrdnance()
 	end)
 end
 function handleWeaponRestock(weapon)
-    if not comms_source:isDocked(comms_target) then 
-		setCommsMessage(_("station-comms","You need to stay docked for that action."))
+    if not comms_source:isDocked(comms_target) then
+		local stay_docked_for_weapons_restock = {
+			"You need to stay docked for that action.",
+			string.format("You need to stay docked to get weapon restock from %s.",comms_target:getCallSign()),
+			string.format("You must stay docked long enough to receive ordnance restock from %s.",comms_target:getCallSign()),
+			string.format("You undocked before we could load ordnance from %s.",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(stay_docked_for_weapons_restock))
 		return
 	end
     if not isAllowedTo(comms_data.weapons[weapon]) then
-        if weapon == "Nuke" then setCommsMessage(_("ammo-comms","We do not deal in weapons of mass destruction."))
-        elseif weapon == "EMP" then setCommsMessage(_("ammo-comms","We do not deal in weapons of mass disruption."))
-        else setCommsMessage(_("ammo-comms","We do not deal in those weapons.")) end
+    	local no_nukes_on_principle = {
+    		"We do not deal in weapons of mass destruction.",
+    		"We don't deal in nukes on principle.",
+    		"We don't deal in nukes in protest of their misuse.",
+    		"It's against our beliefs to deal in weapons of mass destruction.",
+    	}
+    	local no_emps_on_principle = {
+    		"We do not deal in weapons of mass disruption.",
+    		"It's against our beliefs to deal in weapons of mass disruption.",
+    		"We don't deal in EMPs on principle.",
+    		"We protest the use of EMPs, so we don't deal in them.",
+    	}
+    	local no_weapon_type_on_principle = {
+    		"We do not deal in those weapons.",
+    		"We do not deal in those weapons on principle.",
+    		"Those weapons are anathema to us, so we don't deal in them.",
+    		"We hate those weapons, so we don't deal in them.",
+    	}
+        if weapon == "Nuke" then setCommsMessage(tableRemoveRandom(no_nukes_on_principle))
+        elseif weapon == "EMP" then setCommsMessage(tableRemoveRansom(no_emps_on_principle))
+        else setCommsMessage(tableRemoveRandom(no_weapon_type_on_principle)) end
         return
     end
     local points_per_item = getWeaponCost(weapon)
     local item_amount = math.floor(comms_source:getWeaponStorageMax(weapon) * comms_data.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage(weapon)
     if item_amount <= 0 then
         if weapon == "Nuke" then
-            setCommsMessage(_("ammo-comms","All nukes are charged and primed for destruction."))
+        	local full_on_nukes = {
+        		"All nukes are charged and primed for destruction.",
+        		"All nukes are already charged and primed for destruction.",
+        		"We double checked and all of your nukes are primed, charged and ready to destroy their targets.",
+        		"Every one of your nukes are already fully prepared for launch. Happy explosions to you!",
+        	}
+            setCommsMessage(tableRemoveRandom(full_on_nukes))
         else
-            setCommsMessage(_("ammo-comms","Sorry, sir, but you are as fully stocked as I can allow."))
+        	local full_on_ordnance = {
+        		"Sorry, sir, but you are as fully stocked as I can allow.",
+        		"Your magazine is already completely full.",
+        		"We can't give you any more because you are already fully loaded.",
+        		string.format("Sorry, but there is no more space on %s for this ordnance type.",comms_source:getCallSign()),
+        	}
+            setCommsMessage(tableRemoveRandom(full_on_ordnance))
         end
         addCommsReply("Back to restock ship",restockShip)
 		addCommsReply(_("Back to station communication"), commsStation)
@@ -56848,17 +58215,48 @@ function handleWeaponRestock(weapon)
 			if comms_source:takeReputationPoints(points_per_item * item_amount) then
 				comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + item_amount)
 				if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
-					setCommsMessage(_("ammo-comms","You are fully loaded and ready to explode things."))
+					local restocked_on_ordnance = {
+						"You are fully loaded and ready to explode things.",
+						"You are fully restocked and ready to make things explode.",
+						string.format("%s's %s magazine has been fully restocked",comms_source:getCallSign(),weapon),
+						string.format("We made sure your %s magazine was completely restocked",weapon),
+					}
+					setCommsMessage(tableRemoveRandom(restocked_on_ordnance))
 				else
-					setCommsMessage(_("ammo-comms","We generously resupplied you with some weapon charges.\nPut them to good use."))
+					local partial_ordnance_restock = {
+						"We generously resupplied you with some weapon charges.",
+						"We gave you some of the ordnance you requested",
+						"You got some of the weapon charges you asked for.",
+						"We were able to provide you with some of the ordnance you requested.",
+					}
+					local good_use = {
+						"Put them to good use.",
+						"Use them well.",
+						"Make good use of them.",
+						"Do the best you can with them.",
+					}
+					setCommsMessage(string.format("%s\n%s",tableRemoveRandom(partial_ordnance_restock),tableRemoveRandom(good_use)))
 				end
 			else
-				setCommsMessage(_("needRep-comms","Not enough reputation."))
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 				return
 			end
 		else
 			if comms_source:getReputationPoints() > points_per_item then
-				setCommsMessage(string.format(_("ammo-comms","You can't afford as many %ss as I'd like to provide to you"),weapon))
+				local complete_refill_unavailable = {
+					string.format("You can't afford as many %ss as I'd like to provide to you",weapon),
+					string.format("A full restock of %s costs more than your current reputation",weapon),
+					string.format("You don't have enough reputation for a full restock of %s",weapon),
+					string.format("%i reputation is not enough for a full restock of %s",math.floor(comms_source:getReputationPoints()),weapon),
+				}
+				setCommsMessage(tableRemoveRandom(complete_refill_unavailable))
 				local max_affordable = math.floor(comms_source:getReputationPoints()/points_per_item)
 				for i=1,max_affordable do
 					addCommsReply(string.format(_("ammo-comms","Get %i (%i x %i = %i reputation)"),i,i,item_amount,i*item_amount),function()
@@ -56866,16 +58264,53 @@ function handleWeaponRestock(weapon)
 						if comms_source:takeReputationPoints(i*item_amount) then
 							comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + i)
 							if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
-								setCommsMessage(_("ammo-comms","You are fully loaded and ready to explode things."))
+								local restocked_on_selected_ordnance = {
+									"We loaded the ordnance you requested so you're ready to explode things.",
+									string.format("We provided the ordnance requested (amount: %i) You are ready to make things explode.",i),
+									string.format("%s's %s magazine has been restocked as requested (amount:%i)",comms_source:getCallSign(),weapon,i),
+									string.format("We stocked your %s magazine (amount: %i)",weapon,i),
+								}
+								setCommsMessage(tableRemoveRandom(restocked_on_selected_ordnance))
 							else
 								if i == 1 then
-									setCommsMessage(_("ammo-comms","We generously resupplied you with one weapon charge.\nPut it to good use."))
+									local single_restock = {
+										"We generously resupplied you with one weapon charge.",
+										"We gave you one of the ordnance type you requested",
+										"You got one weapon charge of the type you asked for.",
+										"We were able to provide you with one of the ordnance type you requested.",
+									}
+									local one_good_use = {
+										"Put it to good use.",
+										"Use it well.",
+										"Make good use of it.",
+										"Do the best you can with it.",
+									}
+									setCommsMessage(string.format("%s\n%s",tableRemoveRandom(single_restock),tableRemoveRandom(one_good_use)))
 								else
-									setCommsMessage(string.format(_("ammo-comms","We generously resupplied you with %i weapon charges.\nPut them to good use."),i))
+									local partial_numeric_ordnance_restock = {
+										string.format("We generously resupplied you with %i weapon charges.",i),
+										string.format("We gave you %i of the ordnance type you requested",i),
+										string.format("You got %i of the weapon charges you asked for.",i),
+										string.format("We were able to provide you with %i of the ordnance type you requested.",i),
+									}
+									local good_use = {
+										"Put them to good use.",
+										"Use them well.",
+										"Make good use of them.",
+										"Do the best you can with them.",
+									}
+									setCommsMessage(string.format("%s\n%s",tableRemoveRandom(partial_numeric_ordnance_restock),tableRemoveRandom(good_use)))
 								end
 							end
 						else
-							setCommsMessage(_("needRep-comms","Not enough reputation."))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						addCommsReply("Back to restock ship",restockShip)
 						addCommsReply(_("Back to station communication"), commsStation)
@@ -56901,7 +58336,13 @@ function getRepairCrewFromStation(relationship)
 	end
 	if comms_target.comms_data.available_repair_crew > 0 then	--station has repair crew available
 		presented_option = true
-		addCommsReply(_("trade-comms","Recruit repair crew member"),function()
+		local get_repair_crew_prompts = {
+			"Recruit repair crew member",
+			"Hire repair crew member",
+			"Get repair crew member",
+			"Add crew member to repair team",
+		}
+		addCommsReply(tableRemoveRandom(get_repair_crew_prompts),function()
 			if comms_target.comms_data.crew_available_delay == nil or getScenarioTime() > comms_target.comms_data.crew_available_delay then
 				local hire_cost = 0
 				if comms_source:isFriendly(comms_target) then
@@ -56915,21 +58356,52 @@ function getRepairCrewFromStation(relationship)
 				if comms_source:getRepairCrewCount() >= comms_source.maxRepairCrew then
 					hire_cost = hire_cost + comms_target.comms_data.available_repair_crew_cost_excess
 				end
-				setCommsMessage(_("trade-comms","We have a repair crew candidate for you to consider"))
-				addCommsReply(string.format(_("trade-comms", "Recruit repair crew member for %i reputation"),hire_cost), function()
-					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+				local consider_repair_crew = {
+					"We have a repair crew candidate for you to consider",
+					"There's a repair crew candidate here for you to consider",
+					"Consider hiring this repair crew candidate",
+					"Would you like to hire this repair crew candidate?",
+				}
+				setCommsMessage(tableRemoveRandom(consider_repair_crew))
+				local recruit_repair_crew_prompt = {
+					string.format("Recruit repair crew member for %i reputation",hire_cost),
+					string.format("Hire repair crew member for %i reputation",hire_cost),
+					string.format("Spend %i reputation to recruit repair crew member",hire_cost),
+					string.format("Spend %i reuptation to hire repair crew member",hire_cost),
+				}
+				addCommsReply(tableRemoveRandom(recruit_repair_crew_prompt), function()
+					if not comms_source:isDocked(comms_target) then
+						local stay_docked_to_get_repair_crew = {
+							"You need to stay docked for that action.",
+							"You need to stay docked to hire repair crew.",
+							string.format("You must stay docked long enough for your repair crew to board %s",comms_source:getCallSign()),
+							string.format("You undocked before the repair crew you wanted to hire could come aboard from %s",comms_target:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(stay_docked_to_get_repair_crew))
 						return
 					end
 					if not comms_source:takeReputationPoints(hire_cost) then
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						local insufficient_rep_responses = {
+							"Insufficient reputation",
+							"Not enough reputation",
+							"You need more reputation",
+							string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+							"You don't have enough reputation",
+						}
+						setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					else
 						comms_source:setRepairCrewCount(comms_source:getRepairCrewCount() + 1)
 						comms_target.comms_data.available_repair_crew = comms_target.comms_data.available_repair_crew - 1
 						if comms_target.comms_data.available_repair_crew <= 0 then
 							comms_target.comms_data.new_repair_crew_delay = getScenarioTime() + random(200,500)
 						end
-						setCommsMessage(_("trade-comms", "Repair crew member hired"))
+						local repair_crew_hired = {
+							"Repair crew member hired",
+							"Repair crew member recruited",
+							string.format("%s has a new repair crew member",comms_source:getCallSign()),
+							string.format("Your new repair crew member boards %s and heads down to damage control",comms_source:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(repair_crew_hired))
 						comms_target.comms_data.crew_available_delay_reason = nil
 					end
 					if hire_crew_caller_back == nil or getScenarioTime() > hire_crew_caller_back + comms_fudge then
@@ -56986,7 +58458,13 @@ function getCoolantFromStation(relationship)
 	end
 	if comms_source.initialCoolant ~= nil and comms_target.comms_data.coolant_inventory > 0 then
 		presented_option = true
-		addCommsReply(_("trade-comms","Purchase Coolant"),function()
+		local get_coolant_prompts = {
+			"Purchase coolant",
+			"Get more coolant",
+			string.format("Get coolant from %s",comms_target:getCallSign()),
+			string.format("Ask for more coolant from %s",comms_target:getCallSign()),
+		}
+		addCommsReply(tableRemoveRandom(get_coolant_prompts),function()
 			if comms_target.comms_data.coolant_inventory_delay == nil or getScenarioTime() > comms_target.comms_data.coolant_inventory_delay then
 				local coolant_cost = 0
 				if comms_source:isFriendly(comms_target) then
@@ -57000,18 +58478,49 @@ function getCoolantFromStation(relationship)
 				if comms_source:getMaxCoolant() >= comms_source.initialCoolant then
 					coolant_cost = coolant_cost + comms_target.comms_data.coolant_inventory_excess
 				end
-				setCommsMessage("So you want to cool off even more, eh?")
-				addCommsReply(string.format("Purchase coolant for %i reputation",coolant_cost),function()
-					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+				local coolant_banter = {
+					"So you want to cool off even more, eh?",
+					"Ship getting too hot for you?",
+					string.format("What makes %s so hot that you need more coolant?",comms_source:getCallSign()),
+					string.format("Is %s experiencing drought conditions?",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(coolant_banter))
+				local purchase_coolant_prompts = {
+					string.format("Purchase coolant for %i reputation",coolant_cost),
+					string.format("Get additional coolant for %i reputation",coolant_cost),
+					string.format("Purchase coolant from %s (%i reputation)",comms_target:getCallSign(),coolant_cost),
+					string.format("Get coolant from %s for %i reputation",comms_target:getCallSign(),coolant_cost),
+				}
+				addCommsReply(tableRemoveRandom(purchase_coolant_prompts),function()
+					if not comms_source:isDocked(comms_target) then
+						local stay_docked_to_get_coolant = {
+							"You need to stay docked for that action.",
+							"You need to stay docked to get coolant.",
+							string.format("You must stay docked long enough for your coolant to be loaded on to %s",comms_source:getCallSign()),
+							string.format("You undocked before the coolant you wanted could be loaded from %s",comms_target:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(stay_docked_to_get_coolant))
 						return
 					end
 					if not comms_source:takeReputationPoints(coolant_cost) then
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						local insufficient_rep_responses = {
+							"Insufficient reputation",
+							"Not enough reputation",
+							"You need more reputation",
+							string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+							"You don't have enough reputation",
+						}
+						setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					else
 						comms_source:setMaxCoolant(comms_source:getMaxCoolant() + 2)
 						comms_target.comms_data.coolant_inventory = comms_target.comms_data.coolant_inventory - 2
-						setCommsMessage(_("trade-comms", "Additional coolant purchased"))
+						local got_coolant_confirmation = {
+							"Additional coolant purchased",
+							"You got more coolant",
+							string.format("%s has loaded additional coolant onto %s",comms_target:getCallSign(),comms_source:getCallSign()),
+							string.format("%s has provided you with some additional coolant",comms_target:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(got_coolant_confirmation))
 						comms_target.comms_data.coolant_delay_reason = nil
 					end
 					if purchase_coolant_caller_back == nil or getScenarioTime() > purchase_coolant_caller_back + comms_fudge then
@@ -57084,8 +58593,20 @@ function repairShip()
 	end
 	if offer_repair then
 		options_presented_count = options_presented_count + 1
-		addCommsReply(_("stationServices-comms", "Repair secondary ship system"),function()
-			setCommsMessage(string.format(_("dockingServicesStatus-comms","What system would you like repaired?\n\nReputation: %i"),math.floor(comms_source:getReputationPoints())))
+		local repair_secondary_prompts = {
+			"Repair secondary ship system",
+			"Make repairs to secondary ship system",
+			"Fix secondary ship system",
+			"Request repairs to secondary ship system",
+		}
+		addCommsReply(tableRemoveRandom(repair_secondary_prompts),function()
+			local which_secondary_system = {
+				"What system would you like repaired?",
+				"What system needs fixing?",
+				"Please identify the secondary system that is in need of repair",
+				string.format("Poor, poor %s. What part of her is hurting now?",comms_source:getCallSign()),
+			}
+			setCommsMessage(tableRemoveRandom(which_secondary_system))
 			local secondary_options_presented_count = 0
 			for i,secondary in ipairs(secondary_system) do
 				if not secondary.ship_avail then
@@ -57093,7 +58614,13 @@ function repairShip()
 						secondary_options_presented_count = secondary_options_presented_count + 1
 						addCommsReply(string.format(secondary.prompt,secondary.cost),function()
 							if not comms_source:isDocked(comms_target) then
-								setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+								local stay_docked_to_get_repaired = {
+									"You need to stay docked for that action.",
+									"You need to stay docked to get repairs.",
+									string.format("You must stay docked long enough for repairs to %s to be completed.",comms_source:getCallSign()),
+									string.format("You undocked before %s could complete the repairs you wanted.",comms_target:getCallSign()),
+								}
+								setCommsMessage(tableRemoveRandom(stay_docked_to_get_repaired))
 								return
 							end
 							if comms_source:takeReputationPoints(secondary.cost) then
@@ -57110,7 +58637,14 @@ function repairShip()
 								end
 								setCommsMessage(secondary.response)
 							else
-								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+								local insufficient_rep_responses = {
+									"Insufficient reputation",
+									"Not enough reputation",
+									"You need more reputation",
+									string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+									"You don't have enough reputation",
+								}
+								setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 							end
 							addCommsReply(_("Back"), commsStation)
 						end)
@@ -57150,8 +58684,20 @@ function repairShip()
 	end
 	if offer_repair then
 		options_presented_count = options_presented_count + 1
-		addCommsReply(_("stationServices-comms","Repair primary ship system"),function()
-			setCommsMessage(_("stationServices-comms","What system would you like repaired?"))
+		local primary_repair_prompt = {
+			"Repair primary ship system",
+			"Make repairs to primary ship system",
+			string.format("Fix primary system on %s",comms_source:getCallSign()),
+			"Fix primary ship system",
+		}
+		addCommsReply(tableRemoveRandom(primary_repair_prompt),function()
+			local what_primary_system = {
+				"What system would you like repaired?",
+				"What system is in need of repair?",
+				string.format("What severe wounds on %s can %s help heal?",comms_source:getCallSign(),comms_target:getCallSign()),
+				string.format("What primary ship system can %s work on to bring %s back into good working order?",comms_target:getCallSign(),comms_source:getCallSign()),
+			}
+			setCommsMessage(tableRemoveRandom(what_primary_system))
 			for index, system in ipairs(system_repair_list) do
 				addCommsReply(string.format(_("stationServices-comms","Repair %s max health up to %.1f%% (%i rep)"),pretty_system[system],comms_target.comms_data.system_repair[system].max*100,comms_target.comms_data.system_repair[system].cost), function()
 					if comms_source:takeReputationPoints(comms_target.comms_data.system_repair[system].cost) then
@@ -57162,9 +58708,22 @@ function repairShip()
 							comms_target.player_system_repair_service[comms_source] = {}
 						end
 						comms_target.player_system_repair_service[comms_source][system] = true
-						setCommsMessage(string.format(_("stationServices-comms","We'll start working on your %s maximum health right away"),pretty_system[system]))
+						local working_on_system = {
+							string.format("We'll start working on your %s maximum health right away.",pretty_system[system]),
+							string.format("We will put %s repair technicians to work on your %s maximum health immediately.",comms_target:getCallSign(),pretty_system[system]),
+							string.format("%s has put repair technicians to work on %s's %s maximum health.",comms_target:getCallSign(),comms_source:getCallSign(),pretty_system[system]),
+							string.format("We put our most qualified repair technicians to work on your %s maximum health.",pretty_system[system]),
+						}
+						setCommsMessage(tableRemoveRandom(working_on_system))
 					else
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						local insufficient_rep_responses = {
+							"Insufficient reputation",
+							"Not enough reputation",
+							"You need more reputation",
+							string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+							"You don't have enough reputation",
+						}
+						setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					end
 					addCommsReply(_("Back"), commsStation)
 				end)
@@ -57172,7 +58731,13 @@ function repairShip()
 		end)
 	end
 	if options_presented_count == 0 then
-		setCommsMessage(_("stationServices-comms","No applicable repair service available"))
+		local no_applicable_repair_service = {
+			"No applicable repair service available",
+			string.format("%s has no repair service that %s can use",comms_target:getCallSign(),comms_source:getCallSign()),
+			"There's no repair service here that applies to your ship",
+			string.format("There's nothing on %s that %s can repair",comms_source:getCallSign(),comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(no_applicable_repair_service))
 	end
 	if repair_ship_interactive_back == nil or getScenarioTime() > repair_ship_interactive_back + comms_fudge then
 		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -57229,7 +58794,13 @@ function enhanceShip()
 		end
 	end
 	if not presented_option then
-		setCommsMessage("No ship enhancements available")
+		local no_applicable_enhancements = {
+			"No ship enhancements available",
+			string.format("%s has no ship enhancements available for %s",comms_target:getCallSign(),comms_source:getCallSign()),
+			string.format("%s cannot benefit from any ship enhancement on %s",comms_source:getCallSign(),comms_target:getCallSign()),
+			string.format("No ship enhancements available for %s on %s",comms_source:getCallSign(),comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(no_applicable_enhancements))
 	end
 	if interactive_docked_station_enhance_back == nil or getScenarioTime() > interactive_docked_station_enhance_back + comms_fudge then
 		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -57246,6 +58817,15 @@ function minorUpgrades()
 	local hull_banner_available = false
 	local way_dist_available = false
 	local max_health_widgets_available = false
+	local proximity_scanner_available = false
+	if comms_target.proximity_scanner == nil then
+		if random(1,100) < 55 then
+			comms_target.proximity_scanner = true
+			comms_target.proximity_scanner_range = math.random(1,5)
+		else
+			comms_target.proximity_scanner = false
+		end
+	end
 	if comms_target.max_health_widgets == nil then
 		if random(1,100) < 50 then
 			comms_target.max_health_widgets = true
@@ -57274,7 +58854,20 @@ function minorUpgrades()
 			comms_target.way_dist = false
 		end
 	end
-	if comms_target.max_health_widgets then
+	if comms_target.proximity_scanner and (comms_source.prox_scan == nil or comms_source.prox_scan < comms_target.proximity_scanner_range) then
+		if comms_target:isFriendly(comms_source) then
+			if comms_target.comms_data.friendlyness > 50 then
+				minor_upgrade_available = true
+				proximity_scanner_available = true
+			end
+		elseif not comms_target:isEnemy(comms_source) then
+			if comms_target.comms_data.friendlyness > 15 then
+				minor_upgrade_available = true
+				proximity_scanner_available = true
+			end
+		end
+	end
+	if comms_target.max_health_widgets and not comms_source.max_health_widgets then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 25 then
 				minor_upgrade_available = true
@@ -57287,7 +58880,7 @@ function minorUpgrades()
 			end
 		end
 	end
-	if comms_target.shield_banner then
+	if comms_target.shield_banner and not comms_source.shield_banner then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 20 then
 				minor_upgrade_available = true
@@ -57300,7 +58893,7 @@ function minorUpgrades()
 			end
 		end
 	end
-	if comms_target.hull_banner then
+	if comms_target.hull_banner and not comms_source.hull_banner then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 30 then
 				minor_upgrade_available = true
@@ -57313,7 +58906,7 @@ function minorUpgrades()
 			end
 		end
 	end
-	if comms_target.way_dist then
+	if comms_target.way_dist and not comms_source.way_dist then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 10 then
 				minor_upgrade_available = true
@@ -57329,19 +58922,138 @@ function minorUpgrades()
 	local presented_option = false
 	if minor_upgrade_available then
 		presented_option = true
-		addCommsReply(_("upgrade-comms","Minor upgrade"),function()
-			setCommsMessage("Which of these are you interested in?")
+		local minor_upgrade_prompt = {
+			"Minor upgrade",
+			"Get a minor upgrade",
+			string.format("Minor upgrade for %s",comms_source:getCallSign()),
+			string.format("Check minor upgrades on %s",comms_target:getCallSign()),
+		}
+		addCommsReply(tableRemoveRandom(minor_upgrade_prompt),function()
+			local minor_upgrades_available = {
+				"Which of these are you interested in?",
+				"What minor upgrades might you be interested in?",
+				"Do any of these minor upgrades interest you?",
+				string.format("Here are some minor upgrades available here on %s. Let me know if any of these seem interesting.",comms_target:getCallSign()),
+			}
+			setCommsMessage(tableRemoveRandom(minor_upgrades_available))
 			string.format("")
+			if proximity_scanner_available then
+				local proximity_scanner_prompt = {
+					"Spare portable automatic proximity scanner",
+					"Detachable automatic proximity scanner",
+					"Off the shelf automatic proximity scanner",
+					"After market automatic proximity scanner",
+				}
+				addCommsReply(tableRemoveRandom(proximity_scanner_prompt),function()
+					local proximity_scanner_explained = {
+						string.format("We've got this portable automatic proximity scanner here. They are very popular. It automatically performs a simple scan on ships in range (%iU). Would you like to have this installed?",comms_target.proximity_scanner_range),
+						string.format("We have an automatic proximity scanner that we are not using. These things are pretty popular right now. When a ship gets in range (%iU), it automatically and instantly performs a simple scan on the ship. Would you like for us to install it on %s?",comms_target.proximity_scanner_range,comms_source:getCallSign()),
+						string.format("Available for a limited time, we have the ever popular automatic proximity scanner. Install this baby and ships are instantly and automatically simple scanned when they get in range (%iU). Do you want it installed?",comms_target.proximity_scanner_range),
+						string.format("The %s quartermaster tells me that there's a spare automatic proximity scanner without a ship designated for installation. These automated proximity scanners are very popular. They instantly and automatically scan ships that are in range (%iU). Would you like it installed on %s?",comms_target:getCallSign(),comms_target.proximity_scanner_range,comms_source:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(proximity_scanner_explained))
+					local price_per_range_unit = 25
+					local install_proximity_scanner = {
+						string.format("We'll take it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+						string.format("Install it, please (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+						string.format("It's perfect! Install it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+						string.format("We could use that. Please install it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+					}
+					addCommsReply(tableRemoveRandom(install_proximity_scanner),function()
+						if comms_source:takeReputationPoints(comms_target.proximity_scanner_range * price_per_range_unit) then
+							local temp_prox_scan = comms_source.prox_scan
+							comms_source.prox_scan = comms_target.proximity_scanner_range
+							if temp_prox_scan ~= nil and temp_prox_scan > 0 then
+								comms_target.proximity_scanner_range = temp_prox_scan
+							else
+								comms_target.proximity_scanner = false
+								comms_target.proximity_scanner_range = nil
+							end
+							local proximity_scanner_installed_confirmation = {
+								"Installed",
+								string.format("%s has installed the automatic proximity scanner",comms_target:getCallSign()),
+								"It's installed",
+								string.format("%s now has an automatic proximity scanner",comms_source:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(proximity_scanner_installed_confirmation))
+						else
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+						end
+						if minor_max_health_gift_enhance_back == nil or getScenarioTime() > minor_max_health_gift_enhance_back + comms_fudge then
+							addCommsReply("Back to enhance ship",enhanceShip)
+							minor_max_health_gift_enhance_back = getScenarioTime()
+						end
+						if minor_max_health_gift_interactive_back == nil or getScenarioTime() > minor_max_health_gift_interactive_back + comms_fudge then
+							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+							minor_max_health_gift_interactive_back = getScenarioTime()
+						end
+						if minor_max_health_gift_comms_back == nil or getScenarioTime() > minor_max_health_gift_comms_back + comms_fudge then
+							addCommsReply(_("Back to station communication"), commsStation)
+							minor_max_health_gift_comms_back = getScenarioTime()
+						end
+					end)
+					if minor_max_health_enhance_back == nil or getScenarioTime() > minor_max_health_enhance_back + comms_fudge then
+						addCommsReply("Back to enhance ship",enhanceShip)
+						minor_max_health_enhance_back = getScenarioTime()
+					end
+					if minor_max_health_interactive_back == nil or getScenarioTime() > minor_max_health_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						minor_max_health_interactive_back = getScenarioTime()
+					end
+					if minor_max_health_comms_back == nil or getScenarioTime() > minor_max_health_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						minor_max_health_comms_back = getScenarioTime()
+					end
+				end)
+			end
 			if max_health_widgets_available then
-				addCommsReply("Spare portable max health diagnostic",function()
-					setCommsMessage("There's a portable max health diagnostic here that we are not using. Engineers use these to keep close watch on severely damaged systems. Would you like to get this for your engineer?")
-					addCommsReply("Yes, that's a great gift (5 reputation)",function()
+				local max_health_widget_prompts = {
+					"Spare portable max health diagnostic",
+					"Detachable max health diagnostic",
+					"Off the shelf max health diagnostic",
+					"After market max health diagnostic",
+				}
+				addCommsReply(tableRemoveRandom(max_health_widget_prompts),function()
+					local max_health_diagnostic_explained = {
+						"There's a portable max health diagnostic here that we are not using. Engineers use these to keep close watch on severely damaged systems. Would you like to get this for your engineer?",
+						"We've got a max health diagnostic unit here that we are not using. Engineers use these things to keep a close eye on systems that have been severely damaged. Do you think your engineer might want this?",
+						"We've got an unused max health diagnostic. It's used by engineers to monitor severely damaged systems. Do you want to get this for your engineer?",
+						"We have a spare max health diagnostic unit. Your engineer can use it to monitor severely damaged systems. Interested?",
+					}
+					setCommsMessage(tableRemoveRandom(max_health_diagnostic_explained))
+					local get_max_health_diagnostic_prompt = {
+						"Yes, that's a great gift (5 reputation)",
+						"Yes! Our engineer would love that (5 reputation)",
+						"We'll take it (5 reputation)",
+						"Please install it (5 reputation)",
+					}
+					addCommsReply(tableRemoveRandom(get_max_health_diagnostic_prompt),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.max_health_widgets = true
 							comms_target.max_health_widgets = false
-							setCommsMessage("Installed")
+							local max_health_installed_confirmation = {
+								"Installed",
+								string.format("%s has installed the max health diagnostic unit",comms_target:getCallSign()),
+								"It's installed",
+								string.format("%s now has a max health diagnostic unit",comms_source:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(max_health_installed_confirmation))
 						else
-							setCommsMessage("Insufficient reputation")
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						if minor_max_health_gift_enhance_back == nil or getScenarioTime() > minor_max_health_gift_enhance_back + comms_fudge then
 							addCommsReply("Back to enhance ship",enhanceShip)
@@ -57371,8 +59083,20 @@ function minorUpgrades()
 				end)
 			end
 			if not comms_target.max_health_widgets and comms_source.max_health_widgets ~= nil and comms_source.max_health_widgets then
-				addCommsReply("Give portable max health diagnostic to repair technicians",function()
-					setCommsMessage("Thanks. They will put it to good use")
+				local chunk_max_health_prompt = {
+					"Give portable max health diagnostic to repair technicians",
+					string.format("Donate max health diagnostic unit to %s",comms_target:getCallSign()),
+					"Remove max health diagnostic unit. Give it to station",
+					string.format("Transfer max health diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(chunk_max_health_prompt),function()
+					local max_health_donation_confirmed = {
+						string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
+						string.format("Max health diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
+						string.format("%s thanks you for the donation of the max health diagnostic unit",comms_target:getCallSign()),
+						string.format("The max health diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(max_health_donation_confirmed))
 					comms_source.max_health_widgets = false
 					comms_target.max_health_widgets = true
 					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
@@ -57391,15 +59115,46 @@ function minorUpgrades()
 				end)
 			end
 			if shield_banner_available then
-				addCommsReply(_("station-comms","Spare portable shield diagnostic"),function()
-					setCommsMessage(_("station-comms","We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
-					addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
+				local shield_diagnostic_prompts = {
+					"Spare portable shield diagnostic",
+					"Detachable shield diagnostic",
+					"Off the shelf shield diagnostic",
+					"After market shield diagnostic",
+				}
+				addCommsReply(tableRemoveRandom(shield_diagnostic_prompts),function()
+					local shield_diagnostic_explained = {
+						"We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?",
+						"We have a shield diagnostic unit without a home. Engineers that prefer raw numbers over the standard percentage values like this tool. Would you like to get this for your engineer?",
+						string.format("There's a shield diagnostic unit here that could be installed on %s. Some engineers like the raw numbers it provides better than the standard percentage values. Do you want it installed for your engineer?",comms_source:getCallSign()),
+						"We've got a shield diagnostic unit without a designated ship installation slot. What does it do? Well, it provides a readout in raw numbers for the state of the shields rather than the typical percentage value. Some engineers prefer the raw numbers. Do you think your engineer might want this tool?",
+					}
+					setCommsMessage(tableRemoveRandom(shield_diagnostic_explained))
+					local install_shield_diagnostic_confirmation_prompt = {
+						"Yes, that's a perfect gift (5 reputation)",
+						"Yes! Our engineer would love that (5 reputation)",
+						"We'll take it (5 reputation)",
+						"Please install it (5 reputation)",
+					}
+					addCommsReply(tableRemoveRandom(install_shield_diagnostic_confirmation_prompt),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.shield_banner = true
 							comms_target.shield_banner = false
-							setCommsMessage(_("station-comms","Installed"))
+							local shield_diagnostic_installed_confirmation = {
+								"Installed",
+								string.format("%s has installed the shield diagnostic unit",comms_target:getCallSign()),
+								"It's installed",
+								string.format("%s now has a shield diagnostic unit",comms_source:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(shield_diagnostic_installed_confirmation))
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						if minor_shield_gift_enhance_back == nil or getScenarioTime() > minor_shield_gift_enhance_back + comms_fudge then
 							addCommsReply("Back to enhance ship",enhanceShip)
@@ -57429,8 +59184,20 @@ function minorUpgrades()
 				end)
 			end
 			if not comms_target.shield_banner and comms_source.shield_banner ~= nil and comms_source.shield_banner then
-				addCommsReply(_("upgrade-comms","Give portable shield diagnostic to repair technicians"),function()
-					setCommsMessage(_("upgrade-comms","Thanks. They will put it to good use."))
+				local remove_shield_diagnostic_prompt = {
+					"Give portable shield diagnostic to repair technicians",
+					string.format("Donate shield diagnostic unit to %s",comms_target:getCallSign()),
+					"Remove shield diagnostic unit. Give it to station",
+					string.format("Transfer shield diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(remove_shield_diagnostic_prompt),function()
+					local shield_diagnostic_donation_confirmed = {
+						string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
+						string.format("Shield diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
+						string.format("%s thanks you for the donation of the shield diagnostic unit",comms_target:getCallSign()),
+						string.format("The shield diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(shield_diagnostic_donation_confirmed))
 					comms_source.shield_banner = false
 					comms_target.shield_banner = true
 					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
@@ -57449,15 +59216,46 @@ function minorUpgrades()
 				end)
 			end
 			if hull_banner_available then
-				addCommsReply(_("station-comms","Get spare portable hull diagnostic"),function()
-					setCommsMessage(_("station-comms","We've got a spare portable hull diagnostic if you're interested. Engineers use these to get raw data on hull status. Why? Well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?"))
-					addCommsReply(_("station-comms","Yes, that's a perfect gift (5 reputation)"),function()
+				local hull_diagnostic_prompts = {
+					"Spare portable hull diagnostic",
+					"Detachable hull diagnostic",
+					"Off the shelf hull diagnostic",
+					"After market hull diagnostic",
+				}
+				addCommsReply(tableRemoveRandom(hull_diagnostic_prompts),function()
+					local hull_diagnostic_explained = {
+						"We've got a spare portable hull diagnostic if you're interested. Engineers use these to get raw data on hull status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?",
+						"We have a hull diagnostic unit without a home. Engineers that prefer raw hull status numbers over the standard percentage values like this tool. Would you like to get this for your engineer?",
+						string.format("There's a hull diagnostic unit here that could be installed on %s. Some engineers like the raw numbers it provides better than the standard percentage values. Do you want it installed for your engineer?",comms_source:getCallSign()),
+						"We've got a hull diagnostic unit without a designated ship installation slot. What does it do? Well, it provides a readout in raw numbers for the state of the hull rather than the typical percentage value. Some engineers prefer the raw numbers. Do you think your engineer might want this tool?",
+					}
+					setCommsMessage(tableRemoveRandom(hull_diagnostic_explained))
+					local install_hull_diagnostic_confirmation_prompt = {
+						"Yes, that's a perfect gift (5 reputation)",
+						"Yes! Our engineer would love that (5 reputation)",
+						"We'll take it (5 reputation)",
+						"Please install it (5 reputation)",
+					}
+					addCommsReply(tableRemoveRandom(install_hull_diagnostic_confirmation_prompt),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.hull_banner = true
 							comms_target.hull_banner = false
-							setCommsMessage(_("station-comms","Installed"))
+							local hull_diagnostic_installed_confirmation = {
+								"Installed",
+								string.format("%s has installed the hull diagnostic unit",comms_target:getCallSign()),
+								"It's installed",
+								string.format("%s now has a hull diagnostic unit",comms_source:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(hull_diagnostic_installed_confirmation))
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						if minor_hull_enhance_gift_back == nil or getScenarioTime() > minor_hull_enhance_gift_back + comms_fudge then
 							addCommsReply("Back to enhance ship",enhanceShip)
@@ -57487,8 +59285,20 @@ function minorUpgrades()
 				end)
 			end
 			if not comms_target.hull_banner and comms_source.hull_banner ~= nil and comms_source.hull_banner then
-				addCommsReply(_("upgrade-comms","Give portable hull diagnostic to repair technicians"),function()
-					setCommsMessage(_("upgrade-comms","Thanks. They will put it to good use."))
+				local remove_hull_diagnostic_prompt = {
+					"Give portable hull diagnostic to repair technicians",
+					string.format("Donate hull diagnostic unit to %s",comms_target:getCallSign()),
+					"Remove hull diagnostic unit. Give it to station",
+					string.format("Transfer hull diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(remove_hull_diagnostic_prompt),function()
+					local hull_diagnostic_donation_confirmed = {
+						string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
+						string.format("Hull diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
+						string.format("%s thanks you for the donation of the hull diagnostic unit",comms_target:getCallSign()),
+						string.format("The hull diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(hull_diagnostic_donation_confirmed))
 					comms_source.hull_banner = false
 					comms_target.hull_banner = true
 					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
@@ -57506,16 +59316,55 @@ function minorUpgrades()
 					end
 				end)
 			end
-			if way_dist_available and not comms_source.way_dist ~= nil then
-				addCommsReply(_("upgrade-comms","Get Spare waypoint distance calculator"),function()
-					setCommsMessage(_("upgrade-comms","We've got a spare portable waypoint distance calculator if you're interested. Helm or Tactical officers use this to get hyper accurate distance calculations for waypoints placed by Relay or Operations. Would you like to get this for helm/tactical?"))
-					addCommsReply(_("upgrade-comms","Yes, that's a perfect gift (5 reputation)"),function()
+			if way_dist_available then
+				local waypoint_distance_calc_prompts = {
+					"Spare waypoint distance calculator",
+					"Detachable waypoint distance calculator",
+					"Off the shelf waypoint distance calculator",
+					"After market waypoint distance calculator",
+				}
+				addCommsReply(tableRemoveRandom(waypoint_distance_calc_prompts),function()
+					local waypoint_distance_calc_explained = {
+						"We've got a spare portable waypoint distance calculator if you're interested. Helm or Tactical officers use this to get hyper accurate distance calculations for waypoints placed by Relay or Operations. Would you like to get this for helm/tactical?",
+						"We have an unused waypoint distance calculator. Your helm or tactical officer could use this to get hyper-accurate distance calculations for any waypoints placed by your relay or operations officer. Would you like this installed for helm/tactical?",
+						"There's a waypoint distance calculator here that could use a home. It's a device used by helm or tactical to calculat hyper accurate distances for waypoints. Interested?",
+						string.format("We have a waypoint distance calculator begging to be installed on %s. Helm or Tactical use it for extremely accurate distance calculations on waypoints placed by Relay or Operations. Would this be useful for you?",comms_source:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(waypoint_distance_calc_explained))
+					local install_waypoint_distance_calc_confirmation_prompt = {
+						"Yes, that's a perfect gift (5 reputation)",
+						"We'll take it (5 reputation)",
+						"Please install it (5 reputation)",
+					}
+					if comms_source:hasPlayerAtPosition("Helms") then
+						if comms_source:hasPlayerAtPosition("Tactical") then
+							table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Helm/Tactical would love that (5 reputation)")
+						else
+							table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Helm would love that (5 reputation)")
+						end
+					elseif comms_source:hasPlayerAtPosition("Tactical") then
+						table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Tactical would love that (5 reputation)")
+					end
+					addCommsReply(tableRemoveRandom(install_waypoint_distance_calc_confirmation_prompt),function()
 						if comms_source:takeReputationPoints(5) then
 							comms_source.way_dist = true
 							comms_target.way_dist = false
-							setCommsMessage(_("upgrade-comms","Installed"))
+							local waypoint_distance_calc_installed_confirmation = {
+								"Installed",
+								string.format("%s has installed the waypoint distance calculator",comms_target:getCallSign()),
+								"It's installed",
+								string.format("%s now has a waypoint distance calculator",comms_source:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(waypoint_distance_calc_installed_confirmation))
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						if minor_calculator_enhance_gift_back == nil or getScenarioTime() > minor_calculator_enhance_gift_back + comms_fudge then
 							addCommsReply("Back to enhance ship",enhanceShip)
@@ -57545,9 +59394,27 @@ function minorUpgrades()
 				end)
 			end
 			if not comms_target.way_dist and comms_source.way_dist ~= nil and comms_source.way_dist then
-				addCommsReply(string.format(_("upgrade-comms","Give waypoint distance calculator to technicians at %s"),comms_target:getCallSign()),function()
-					setCommsMessage(_("upgrade-comms","Not every ship in the fleet has a portable waypoint distance calculator. If you were to give us yours, we could install it on another ship if they wanted it. Would you like to give us your waypoint distance calculator?"))
-					addCommsReply(_("upgrade-comms","Yes, we like to help the fleet (add 5 rep)"),function()
+				local remove_waypoint_dist_calc_prompt = {
+					"Give waypoint distance calculator to repair technicians",
+					string.format("Donate waypoint distance calculator to %s",comms_target:getCallSign()),
+					"Remove waypoint distance calculator. Give it to station",
+					string.format("Transfer waypoint distance calculator from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(remove_waypoint_dist_calc_prompt),function()
+					local waypoint_distance_calculator_explained = {
+						"Not every ship in the fleet has a portable waypoint distance calculator. If you were to give us yours, we could install it on another ship if they wanted it. Would you like to give us your waypoint distance calculator?",
+						"If you were to donate your waypoint distance calculator, we could install it on another ship in the fleet. Not every ship has one, you know. Do you want to give us yours?",
+						"The waypoint distance calculator is not standard equipment on every ship in the fleet. Giving us yours allows us to install it on another ship. Would you like to donate yours? It's for a worthy cause.",
+						"Consider that not every ship has a waypoint distance calculator. We could give another ship in the fleet one if you were to give us yours. What about it?",
+					}
+					setCommsMessage(tableRemoveRandom(waypoint_distance_calculator_explained))
+					local confirm_waypoint_dist_donation_prompt = {
+						"Yes, we like to help the fleet (add 5 rep)",
+						"Yes, we'll donate ours (add 5 rep)",
+						"Ok, we will give you ours (add 5 rep)",
+						"We'll help the fleet and give you ours (add 5 rep)",
+					}
+					addCommsReply(tableRemoveRandom(confirm_waypoint_dist_donation_prompt),function()
 						comms_source:addReputationPoints(5)
 						comms_source.way_dist = false
 						comms_target.way_dist = true
@@ -57558,7 +59425,13 @@ function minorUpgrades()
 							comms_source.way_distance_button_hlm = nil
 							comms_source.way_distance_button_tac = nil
 						end
-						setCommsMessage(_("upgrade-comms","Thanks. I'll be sure to give this to the next fleet member that asks."))
+						local confirm_uninstalled_waypoint_dist_calc = {
+							"Thanks. I'll be sure to give this to the next fleet member that asks.",
+							"You have done the fleet an appreciated service. We'll be sure the waypoint distance calculator gets put to good use.",
+							string.format("The %s will go down in our records as a generous ship. We'll make sure another fleet member gets good use from your waypoint distance calculator",comms_source:getCallSign()),
+							"Your contribution is greatly appreciated. This waypoint distance calculator will make some helm officer very happy",
+						}
+						setCommsMessage(tableRemoveRandom(confirm_uninstalled_waypoint_dist_calc))
 						if minor_calculator_enhance_sell_back == nil or getScenarioTime() > minor_calculator_enhance_sell_back + comms_fudge then
 							addCommsReply("Back to enhance ship",enhanceShip)
 							minor_calculator_enhance_sell_back = getScenarioTime()
@@ -57657,19 +59530,50 @@ function overchargeShipSystems()
 	local option_presented = false
 	if overcharge_available then
 		option_presented = true
-		addCommsReply(_("upgrade-comms","Overcharge system"),function()
-			setCommsMessage("What shall we overcharge for you?")
+		local overcharge_system_prompt = {
+			"Overcharge system",
+			"Overcharge a system",
+			string.format("Overcharge a system on %s",comms_source:getCallSign()),
+			"Inject extra power into a ship system",
+		}
+		addCommsReply(tableRemoveRandom(overcharge_system_prompt),function()
+			local overcharge_what_system = {
+				"What shall we overcharge for you?",
+				"What system shall we overcharge for you",
+				"Into what system shall we inject additional power?",
+				"What system do you want overcharged?",
+			}
+			setCommsMessage(tableRemoveRandom(overcharge_what_system))
 			if jump_overcharge_available then
 				local overcharge_cost = 10
 				if comms_target.comms_data.friendlyness > 66 then
 					overcharge_cost = 5
 				end
-				addCommsReply(string.format(_("upgrade-comms","Overcharge Jump Drive (%i Rep)"),overcharge_cost),function()
+				local overcharge_jump_prompt = {
+					string.format("Overcharge Jump Drive (%i rep)",overcharge_cost),
+					string.format("Overcharge the jump drive (%i rep)",overcharge_cost),
+					string.format("Put extra power in the jump drive (%i rep)",overcharge_cost),
+					string.format("Jump drive (%i reputation)",overcharge_cost),
+				}
+				addCommsReply(tableRemoveRandom(overcharge_jump_prompt),function()
 					if comms_source:takeReputationPoints(overcharge_cost) then
 						comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
-						setCommsMessage(string.format(_("upgrade-comms","Your jump drive has been overcharged to %ik"),math.floor(comms_source:getJumpDriveCharge()/1000)))
+						local jump_drive_overcharged = {
+							string.format("Your jump drive has been overcharged to %ik",math.floor(comms_source:getJumpDriveCharge()/1000)),
+							string.format("%s's jump drive has been overcharged to %ik",comms_source:getCallSign(),math.floor(comms_source:getJumpDriveCharge()/1000)),
+							string.format("We have overcharged your jump drive to %ik",math.floor(comms_source:getJumpDriveCharge()/1000)),
+							string.format("%s's jump drive now has total charge of %ik",comms_source:getCallSign(),math.floor(comms_source:getJumpDriveCharge()/1000)),
+						}
+						setCommsMessage(tableRemoveRandom(jump_drive_overcharged))
 					else
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						local insufficient_rep_responses = {
+							"Insufficient reputation",
+							"Not enough reputation",
+							"You need more reputation",
+							string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+							"You don't have enough reputation",
+						}
+						setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 					end
 					if overcharge_jump_enhance_back == nil or getScenarioTime() > overcharge_jump_enhance_back + comms_fudge then
 						addCommsReply("Back to enhance ship",enhanceShip)
@@ -57701,20 +59605,51 @@ function overchargeShipSystems()
 					end
 				end
 				if comms_source:getReputationPoints() > 2*base_front_shield_overcharge_cost then
-					addCommsReply(string.format(_("upgrade-comms","Overcharge front shield (%i to %i rep)"),base_front_shield_overcharge_cost,base_front_shield_overcharge_cost*4),function()
-						setCommsMessage(_("upgrade-comms","How much of an overcharge would you like on your front shields?"))
+					local front_shield_overcharge_range_prompt = {
+						string.format("Overcharge front shield (%i to %i rep)",base_front_shield_overcharge_cost,base_front_shield_overcharge_cost*4),
+						string.format("Front shield overcharge (%i to %i rep)",base_front_shield_overcharge_cost,base_front_shield_overcharge_cost*4),
+						string.format("Use %i to %i rep to overcharge front shield",base_front_shield_overcharge_cost,base_front_shield_overcharge_cost*4),
+						string.format("Overcharge front shield rep: min:%i, max:%i",base_front_shield_overcharge_cost,base_front_shield_overcharge_cost*4),
+					}
+					addCommsReply(tableRemoveRandom(front_shield_overcharge_range_prompt),function()
+						local overcharge_size_options = {
+							"How much of an overcharge would you like on your front shields?",
+							"How much overcharging should we do on your front shields?",
+							"How much of an overcharge do you want added to your front shields?",
+							"How much power should we inject into your front shields to overcharge them?",
+						}
+						setCommsMessage(tableRemoveRandom(overcharge_size_options))
 						for i=1,4 do
 							if i*base_front_shield_overcharge_cost <= comms_source:getReputationPoints() then
-								addCommsReply(string.format(_("upgrade-comms","%i%% overcharge (%i rep)"),i*5,i*base_front_shield_overcharge_cost),function()
+								local overcharge_amount_prompts = {
+									string.format("%i%% overcharge (%i rep)",i*5,i*base_front_shield_overcharge_cost),
+									string.format("%i%% overcharge (%i reputation",i*5,i*base_front_shield_overcharge_cost),
+									string.format("%i%% overcharge for %i reputation",i*5,i*base_front_shield_overcharge_cost),
+									string.format("Power up to %i%% more (%i rep)",i*5,i*base_front_shield_overcharge_cost),
+								}
+								addCommsReply(tableRemoveRandom(overcharge_amount_prompts),function()
 									if comms_source:takeReputationPoints(i*base_front_shield_overcharge_cost) then
 										if comms_source:getShieldCount() == 1 then
 											comms_source:setShields(comms_source:getShieldMax(0)*(1 + i*5/100))
 										else
 											comms_source:setShields(comms_source:getShieldMax(0)*(1 + i*5/100),comms_source:getShieldLevel(1))
 										end
-										setCommsMessage(_("upgrade-comms","Your front shield has been overcharged"))
+										local overcharge_front_shield_confirmation = {
+											"Your front shield has been overcharged",
+											"Overcharge applied to front shield",
+											string.format("%s's front shield has now been overcharged",comms_source:getCallSign()),
+											"Front shield overcharged as requested",
+										}
+										setCommsMessage(tableRemoveRandom(overcharge_front_shield_confirmation))
 									else
-										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 									end
 									if overcharge_front_shield_enhance_back == nil then
 										overcharge_front_shield_enhance_back = {}
@@ -57742,16 +59677,35 @@ function overchargeShipSystems()
 						end
 					end)
 				else
-					addCommsReply(string.format(_("upgrade-comms","Overcharge front shield (%i rep)"),base_front_shield_overcharge_cost),function()
+					local front_shield_overcharge_single_prompt = {
+						string.format("Overcharge front shield (%i rep)",base_front_shield_overcharge_cost),
+						string.format("Front shield overcharge (%i rep)",base_front_shield_overcharge_cost),
+						string.format("Use %i rep to overcharge front shield",base_front_shield_overcharge_cost),
+						string.format("Overcharge front shield rep: %i",base_front_shield_overcharge_cost),
+					}
+					addCommsReply(tableRemoveRandom(front_shield_overcharge_single_prompt),function()
 						if comms_source:takeReputationPoints(base_front_shield_overcharge_cost) then
 							if comms_source:getShieldCount() == 1 then
 								comms_source:setShields(comms_source:getShieldMax(0)*1.05)
 							else
 								comms_source:setShields(comms_source:getShieldMax(0)*1.05,comms_source:getShieldLevel(1))
 							end
-							setCommsMessage(_("upgrade-comms","Your front shield has been overcharged"))
+							local overcharge_front_shield_confirmation = {
+								"Your front shield has been overcharged",
+								"Overcharge applied to front shield",
+								string.format("%s's front shield has now been overcharged",comms_source:getCallSign()),
+								"Front shield overcharged as requested",
+							}
+							setCommsMessage(tableRemoveRandom(overcharge_front_shield_confirmation))
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						if overcharge_front_shield_enhance_back == nil then
 							overcharge_front_shield_enhance_back = {}
@@ -57793,16 +59747,47 @@ function overchargeShipSystems()
 					end
 				end
 				if comms_source:getReputationPoints() > 2*base_rear_shield_overcharge_cost then
-					addCommsReply(string.format(_("upgrade-comms","Overcharge rear shield (%i to %i rep)"),base_rear_shield_overcharge_cost,base_rear_shield_overcharge_cost*4),function()
-						setCommsMessage(_("upgrade-comms","How much of an overcharge would you like on your rear shields?"))
+					local rear_shield_overcharge_range_prompt = {
+						string.format("Overcharge rear shield (%i to %i rep)",base_rear_shield_overcharge_cost,base_rear_shield_overcharge_cost*4),
+						string.format("Rear shield overcharge (%i to %i rep)",base_rear_shield_overcharge_cost,base_rear_shield_overcharge_cost*4),
+						string.format("Use %i to %i rep to overcharge rear shield",base_rear_shield_overcharge_cost,base_rear_shield_overcharge_cost*4),
+						string.format("Overcharge rear shield rep: min:%i, max:%i",base_rear_shield_overcharge_cost,base_rear_shield_overcharge_cost*4),
+					}
+					addCommsReply(tableRemoveRandom(rear_shield_overcharge_range_prompt),function()
+						local overcharge_rear_size_options = {
+							"How much of an overcharge would you like on your rear shields?",
+							"How much overcharging should we do on your rear shields?",
+							"How much of an overcharge do you want added to your rear shields?",
+							"How much power should we inject into your rear shields to overcharge them?",
+						}
+						setCommsMessage(tableRemoveRandom(overcharge_rear_size_options))
 						for i=1,4 do
 							if i*base_rear_shield_overcharge_cost <= comms_source:getReputationPoints() then
-								addCommsReply(string.format(_("upgrade-comms","%i%% overcharge (%i rep)"),i*5,i*base_rear_shield_overcharge_cost),function()
+								local overcharge_rear_amount_prompts = {
+									string.format("%i%% overcharge (%i rep)",i*5,i*base_rear_shield_overcharge_cost),
+									string.format("%i%% overcharge (%i reputation",i*5,i*base_rear_shield_overcharge_cost),
+									string.format("%i%% overcharge for %i reputation",i*5,i*base_rear_shield_overcharge_cost),
+									string.format("Power up to %i%% more (%i rep)",i*5,i*base_rear_shield_overcharge_cost),
+								}
+								addCommsReply(tableRemoveRandom(overcharge_rear_amount_prompts),function()
 									if comms_source:takeReputationPoints(i*base_rear_shield_overcharge_cost) then
 										comms_source:setShields(comms_source:getShieldLevel(0),comms_source:getShieldMax(1)*(1 + i*5/100))
-										setCommsMessage(_("upgrade-comms","Your rear shield has been overcharged"))
+										local overcharge_rear_shield_confirmation = {
+											"Your rear shield has been overcharged",
+											"Overcharge applied to rear shield",
+											string.format("%s's rear shield has now been overcharged",comms_source:getCallSign()),
+											"Rear shield overcharged as requested",
+										}
+										setCommsMessage(tableRemoveRandom(overcharge_rear_shield_confirmation))
 									else
-										setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+										local insufficient_rep_responses = {
+											"Insufficient reputation",
+											"Not enough reputation",
+											"You need more reputation",
+											string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+											"You don't have enough reputation",
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 									end
 									if overcharge_rear_shield_enhance_back == nil then
 										overcharge_rear_shield_enhance_back = {}
@@ -57830,12 +59815,31 @@ function overchargeShipSystems()
 						end
 					end)
 				else
-					addCommsReply(string.format(_("upgrade-comms","Overcharge rear shield (%i rep)"),base_rear_shield_overcharge_cost),function()
+					local rear_shield_overcharge_single_prompt = {
+						string.format("Overcharge rear shield (%i rep)",base_rear_shield_overcharge_cost),
+						string.format("Rear shield overcharge (%i rep)",base_rear_shield_overcharge_cost),
+						string.format("Use %i rep to overcharge rear shield",base_rear_shield_overcharge_cost),
+						string.format("Overcharge rear shield rep: %i",base_rear_shield_overcharge_cost),
+					}
+					addCommsReply(tableRemoveRandom(rear_shield_overcharge_single_prompt),function()
 						if comms_source:takeReputationPoints(base_rear_shield_overcharge_cost) then
 							comms_source:setShields(comms_source:getShieldLevel(0),comms_source:getShieldMax(1)*1.05)
-							setCommsMessage(_("upgrade-comms","Your rear shield has been overcharged"))
+							local overcharge_rear_shield_confirmation = {
+								"Your rear shield has been overcharged",
+								"Overcharge applied to rear shield",
+								string.format("%s's rear shield has now been overcharged",comms_source:getCallSign()),
+								"Rear shield overcharged as requested",
+							}
+							setCommsMessage(tableRemoveRandom(overcharge_rear_shield_confirmation))
 						else
-							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 						if overcharge_rear_shield_enhance_back == nil then
 							overcharge_rear_shield_enhance_back = {}
@@ -57878,15 +59882,34 @@ function overchargeShipSystems()
 	return option_presented
 end
 function boostSensorsWhileDocked()
-	addCommsReply(string.format("Augment scan range with station sensors while docked (%i rep)",comms_target.comms_data.sensor_boost.cost),function()
+	local temporary_station_sensor_boost_prompt = {
+		string.format("Augment scan range with station sensors while docked (%i rep)",comms_target.comms_data.sensor_boost.cost),
+		string.format("Increase sensor range via station sensors while docked (%i rep)",comms_target.comms_data.sensor_boost.cost),
+		string.format("Tie in to station sensors to boost range while docked (%i rep)",comms_target.comms_data.sensor_boost.cost),
+		string.format("Connect to station sensors in docking bay to boost range (%i rep)",comms_target.comms_data.sensor_boost.cost),
+	}
+	addCommsReply(tableRemoveRandom(temporary_station_sensor_boost_prompt),function()
 		if comms_source:takeReputationPoints(comms_target.comms_data.sensor_boost.cost) then
 			if comms_source.normal_long_range_radar == nil then
 				comms_source.normal_long_range_radar = comms_source:getLongRangeRadarRange()
 			end
 			comms_source.station_sensor_boost = comms_target.comms_data.sensor_boost.value
-			setCommsMessage(string.format("sensors increased by %i units",comms_target.comms_data.sensor_boost.value/1000))
+			local confirm_sensor_boost = {
+				string.format("Sensors increased by %i units",math.floor(comms_target.comms_data.sensor_boost.value/1000)),
+				string.format("Sensor range increased by %i units",math.floor(comms_target.comms_data.sensor_boost.value/1000)),
+				string.format("In conjunction with %s's sensors, our sensor range has been increased by %i units",comms_targe:getCallSign(),math.floor(comms_target.comms_data.sensor_boost.value/1000)),
+				string.format("%s's and %s's sensors in tandem have increased our sensor range by %i units",comms_source:getCallSign(),comms_target:getCallSign(),math.floor(comms_target.comms_data.sensor_boost.value/1000)),
+			}
+			setCommsMessage(tableRemoveRandom(confirm_sensor_boost))
 		else
-			setCommsMessage("Insufficient reputation")
+			local insufficient_rep_responses = {
+				"Insufficient reputation",
+				"Not enough reputation",
+				"You need more reputation",
+				string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+				"You don't have enough reputation",
+			}
+			setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 		end
 		if boost_sensors_enhance_back == nil or getScenarioTime() > boost_sensors_enhance_back + comms_fudge then
 			addCommsReply("Back to enhance ship",enhanceShip)
@@ -57903,17 +59926,42 @@ function boostSensorsWhileDocked()
 	end)
 end
 function increaseSecurityMorale()
-	addCommsReply("Select a morale boosting security training course",function()
-		setCommsMessage("We have access to some training courses for your security officers. They are designed to boost their morale as well as give them some training. Pick one to be downloaded for 5 reputation into your simulation systems if you're interested.")
+	local select_training_prompt = {
+		"Select a morale boosting security training course",
+		"Choose a security training course to boost morale",
+		"Which morale boosting training course would you like?",
+		"What morale boosting security training course do you want?",
+	}
+	addCommsReply(tableRemoveRandom(select_training_prompt),function()
+		local security_morale_training_explained = {
+			"We have access to some training courses for your security officers. They are designed to boost their morale as well as give them some training. Pick one to be downloaded for 5 reputation into your simulation systems if you're interested.",
+			"We have a small library of training courses designed for security officers. They should boost their morale in addition to providing some training. Which one would you like to download into your simulation systems for 5 reputation?",
+			"Would you like one of our training course? We've got some that are designed for security personnel. They are intended to boost morale as well as increase competence. We could transmit one to your simulation system for 5 reputation.",
+			string.format("There are several security officer training courses in %s's library. They're designed to boost morale and competence. Pick one for 5 reputation to run in your simulation systems if you like.",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(security_morale_training_explained))
 		for i,title in ipairs(security_morale_boosters) do
 			addCommsReply(title,function()
 				if comms_source:takeReputationPoints(5) then
-					setCommsMessage(string.format("'%s' has been downloaded. Your security officers are already taking advantage of it",title))
+					local got_the_training_module = {
+						string.format("'%s' has been downloaded. Your security officers are already taking advantage of it",title),
+						string.format("%s has transmitted '%s' to your simulation systems. Our reading show that some of your security team is already using it",comms_target:getCallSign(),title),
+						string.format("%s's simulation systems have downloaded '%s.' At least one of your security officers has already started running it.",comms_source:getCallSign(),title),
+						string.format("'%s' has been downloaded to your simulation systems as requested. Your security officers immediately started running it.",title),
+					}
+					setCommsMessage(tableRemoveRandom(got_the_training_module))
 					security_morale_boosters[i] = security_morale_boosters[#security_morale_boosters]
 					security_morale_boosters[#security_morale_boosters] = nil
 					comms_source.security_morale = 1
 				else
-					setCommsMessage("Insufficient reputation")
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 				end
 				if security_boost_enhance_back == nil then
 					security_boost_enhance_back = {}
@@ -57953,7 +60001,13 @@ function increaseSecurityMorale()
 	end)
 end
 function getSpecialtyProbes()
-	addCommsReply("Get specialty probes",function()
+	local get_specialty_probes_prompt = {
+		"Get specialty probes",
+		"Get some specialty probe kits",
+		"Obtain specialty probes",
+		string.format("Get specialty probes from %s",comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(get_specialty_probes_prompt),function()
 		local specialty_probes = {}
 		if comms_target.comms_data.fast_probes ~= nil and comms_target.comms_data.fast_probes.quantity > 0 then
 			specialty_probes["fast_probes"] = {
@@ -58067,7 +60121,14 @@ function getSpecialtyProbes()
 								end,10)
 							end
 						else
-							setCommsMessage("Insufficient reputation")
+							local insufficient_rep_responses = {
+								"Insufficient reputation",
+								"Not enough reputation",
+								"You need more reputation",
+								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+								"You don't have enough reputation",
+							}
+							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 						end
 					end
 					addCommsReply("Back to enhance ship",enhanceShip)
@@ -58122,12 +60183,41 @@ function getSpecialtyProbes()
 end
 function unloadEscapePods(cost)
 	if cost == nil then
-		addCommsReply("Unload retrieved escape pods",function()
+		local unload_escape_pod_prompt = {
+			"Unload retrieved escape pods",
+			string.format("Offload the escape pods currently on %s",comms_source:getCallSign()),
+			string.format("Release the scape pods into %s's care",comms_target:getCallSign()),
+			string.format("Unload the escape pods that %s retrieved earlier",comms_source:getCallSign()),
+		}
+		addCommsReply(tableRemoveRandom(unload_escape_pod_prompt),function()
+			local pods_aboard = comms_source.max_pods - comms_source.pods
 			comms_source.pods = comms_source.max_pods
-			if comms_source.pods > 1 then
-				setCommsMessage(string.format("Escape pods unloaded and placed in the care of station %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods))
+			if pods_aboard > 1 then
+				local plural_escape_pod_response = {
+					string.format("Escape pods unloaded and placed in the care of station %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+					string.format("%s is now taking care of the escape pods retrieved by %s. With the space freed up, we may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+					string.format("[%s docking bay supervisor]\n'All escape pods unloaded, %s. We'll take care of them from here.'\nUnloading those escape pods frees us up to pick up as many as %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+					string.format("%s has secured all of %s's escape pods. %i open escape pod slots now available.",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+				}
+				setCommsMessage(tableRemoveRandom(plural_escape_pod_response))
 			else
-				setCommsMessage(string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()))
+				if comms_source.max_pods > 1 then
+					local single_unload_plural_available_pods = {
+						string.format("Escape pod unloaded into the care of %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+						string.format("%s is now taking care of the escape pod retrieved by %s. With the space freed up, we may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+						string.format("[%s docking bay supervisor]\n'Your escape pod has been unloaded, %s. We'll take care of it from here.'\nUnloading those escape pods frees us up to pick up as many as %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+						string.format("%s has secured the escape pod from %s. %i open escape pod slots are now available",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+					}
+					setCommsMessage(tableRemoveRandom(single_unload_plural_available_pods))
+				else
+					local single_unload_and_available_pods = {
+						string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()),
+						string.format("%s is now taking care of the escape pod retrieved by %s. We may now retrieve another escape pod.",comms_target:getCallSign(),comms_source:getCallSign()),
+						string.format("[%s docking bay supervisor]\n'We unloaded your escape pod, %s. We'll take care of it from here.'\nWe may now retrieve another escape pod.",comms_target:getCallSign(),comms_source:getCallSign()),
+						string.format("%s has secured the escape pod from %s. You may retrieve another escape pod if you wish.",comms_target:getCallSign(),comms_source:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(single_unload_and_available_pods))
+				end
 			end
 			if free_pod_unload_interactive_back == nil or getScenarioTime() > free_pod_unload_interactive_back + comms_fudge then
 				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -58139,16 +60229,52 @@ function unloadEscapePods(cost)
 			end
 		end)
 	else
-		addCommsReply(string.format("Unload retrieved escape pods (%i rep per pod)",cost),function()
+		local unload_pods_at_cost_prompt = {
+			string.format("Unload retrieved escape pods (%i rep per pod)",cost),
+			string.format("Unload pods to %s (%i rep per pod)",comms_target:getCallSign(),cost),
+			string.format("Unload escape pods (%i reputation per pod)",cost),
+			string.format("Unload retrieved escape pods (%i reputation)",cost*(comms_source.max_pods - comms_source.pods)),
+		}
+		addCommsReply(tableRemoveRandom(unload_pods_at_cost_prompt),function()
 			if comms_source:takeReputationPoints(cost*(comms_source.max_pods - comms_source.pods)) then
+				local pods_aboard = comms_source.max_pods - comms_source.pods
 				comms_source.pods = comms_source.max_pods
-				if comms_source.pods > 1 then
-					setCommsMessage(string.format("Escape pods unloaded and placed in the care of station %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods))
+				if pods_aboard > 1 then
+					local plural_escape_pod_response = {
+						string.format("Escape pods unloaded and placed in the care of station %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+						string.format("%s is now taking care of the escape pods retrieved by %s. With the space freed up, we may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+						string.format("[%s docking bay supervisor]\n'All escape pods unloaded, %s. We'll take care of them from here.'\nUnloading those escape pods frees us up to pick up as many as %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+						string.format("%s has secured all of %s's escape pods. %i open escape pod slots now available.",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+					}
+					setCommsMessage(tableRemoveRandom(plural_escape_pod_response))
 				else
-					setCommsMessage(string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()))
+					if comms_source.max_pods > 1 then
+						local single_unload_plural_available_pods = {
+							string.format("Escape pod unloaded into the care of %s. %s may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+							string.format("%s is now taking care of the escape pod retrieved by %s. With the space freed up, we may now retrieve up to %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+							string.format("[%s docking bay supervisor]\n'Your escape pod has been unloaded, %s. We'll take care of it from here.'\nUnloading those escape pods frees us up to pick up as many as %i escape pods",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+							string.format("%s has secured the escape pod from %s. %i open escape pod slots are now available",comms_target:getCallSign(),comms_source:getCallSign(),comms_source.pods),
+						}
+						setCommsMessage(tableRemoveRandom(single_unload_plural_available_pods))
+					else
+						local single_unload_and_available_pods = {
+							string.format("Escape pod unloaded and placed in the care of station %s. %s may now retrieve one escape pod",comms_target:getCallSign(),comms_source:getCallSign()),
+							string.format("%s is now taking care of the escape pod retrieved by %s. We may now retrieve another escape pod.",comms_target:getCallSign(),comms_source:getCallSign()),
+							string.format("[%s docking bay supervisor]\n'We unloaded your escape pod, %s. We'll take care of it from here.'\nWe may now retrieve another escape pod.",comms_target:getCallSign(),comms_source:getCallSign()),
+							string.format("%s has secured the escape pod from %s. You may retrieve another escape pod if you wish.",comms_target:getCallSign(),comms_source:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(single_unload_and_available_pods))
+					end
 				end
 			else
-				setCommsMessage("Insufficient reputation")
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
 			end
 			if pod_unload_interactive_back == nil or getScenarioTime() > pod_unload_interactive_back + comms_fudge then
 				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -58227,7 +60353,13 @@ function goodsCommerce()
 		if station_sells then
 			commerce_out = string.format(_("trade-comms","%s sells %s."),comms_target:getCallSign(),goods_for_sale)
 			if commerce_buy == nil or getScenarioTime() > commerce_buy + comms_fudge then
-				addCommsReply(_("trade-comms","Buy goods"),buyGoodsFromStation)
+				local buy_goods_prompts = {
+					"Buy goods",
+					"Purchase goods",
+					string.format("Buy goods from %s",comms_target:getCallSign()),
+					string.format("Purchase goods from %s",comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(buy_goods_prompts),buyGoodsFromStation)
 				commerce_buy = getScenarioTime()
 			end
 		end
@@ -58250,7 +60382,13 @@ function goodsCommerce()
 			end
 			if buy_match then
 				if commerce_sell == nil or getScenarioTime() > commerce_sell + comms_fudge then
-					addCommsReply(_("trade-comms","Sell goods"),sellGoodsToStation)
+					local sell_goods_prompts = {
+						"Sell goods",
+						"Sell goods for reputation",
+						string.format("Sell goods to %s",comms_target:getCallSign()),
+						string.format("Sell goods to %s for reputation",comms_target:getCallSign()),
+					}
+					addCommsReply(tableRemoveRandom(sell_goods_prompts),sellGoodsToStation)
 					commerce_sell = getScenarioTime()
 				end
 			end
@@ -58274,7 +60412,13 @@ function goodsCommerce()
 			end
 			if trade_match then
 				if commerce_trade == nil or getScenarioTime() > commerce_trade + comms_fudge then
-					addCommsReply(_("trade-comms","Trade goods"),tradeGoodsWithStation)
+					local trade_goods_prompts = {
+						"Trade goods",
+						"Exchange goods",
+						"Barter goods",
+						string.format("Trade goods with %s",comms_target:getCallSign()),
+					}
+					addCommsReply(tableRemoveRandom(trade_goods_prompts),tradeGoodsWithStation)
 					commerce_trade = getScenarioTime()
 				end
 			end
@@ -58286,17 +60430,41 @@ function goodsCommerce()
 				commerce_out = string.format(_("trade-comms","%s\n%s has %s aboard."),commerce_out,comms_source:getCallSign(),player_goods)
 			end
 			if commerce_jettison == nil or getScenarioTime() > commerce_jettison + comms_fudge then
-				addCommsReply(_("trade-comms","Jettison goods"),jettisonGoodsFromShip)
+				local jettison_goods_prompts = {
+					"Jettison goods",
+					"Throw goods out the airlock",
+					"Dispose of goods",
+					"Destroy goods",
+				}
+				addCommsReply(tableRemoveRandom(jettison_goods_prompts),jettisonGoodsFromShip)
 				commerce_jettison = getScenarioTime()
 			end
 			if commerce_donate == nil or getScenarioTime() > commerce_donate + comms_fudge then
-				addCommsReply(_("trade-comms","Give goods to station"),giveGoodsToStation)
+				local donate_goods_prompts = {
+					"Give goods to station",
+					"Donate goods to station",
+					string.format("Give goods to %s",comms_target:getCallSign()),
+					string.format("Donate goods to %s",comms_target:getCallSign()),
+				}
+				addCommsReply(tableRemoveRandom(donate_goods_prompts),giveGoodsToStation)
 				commerce_donate = getScenarioTime()
 			end
 		end
-		setCommsMessage(string.format(_("trade-comms","%s\nWhich of these actions related to goods do you wish to take?"),commerce_out))
+		local commerce_options_for_goods = {
+			string.format("%s\nWhich of these actions related to goods do you wish to take?",commerce_out),
+			string.format("%s\nWhich of these goods related actions do you want to take?",commerce_out),
+			string.format("%s\nSelect a goods related action",commerce_out),
+			string.format("%s\nIn terms of goods, what would you like to do?",commerce_out),
+		}
+		setCommsMessage(tableRemoveRandom(commerce_options_for_goods))
 	else
-		setCommsMessage(_("trade-comms","No commercial options available"))
+		local no_commerce_options = {
+			"No commercial options available",
+			"Commerce options not available",
+			string.format("No commercial options available at %s",comms_target:getCallSign()),
+			string.format("%s has no available commercial options",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(no_commerce_options))
 	end
 	if commerce_interactive_back == nil or getScenarioTime() > commerce_interactive_back + comms_fudge then
 		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -58316,19 +60484,31 @@ function tradeGoodsWithStation()
 	}
 	setCommsMessage(tableRemoveRandom(trade_goods_prompt))
 	if comms_target.comms_data.trade ~= nil then
-		for trade_good, trade_bool in pairs(comms_target.comms_date.trade) do
+		for trade_good, trade_bool in pairs(comms_target.comms_data.trade) do
 			if comms_source.goods ~= nil then
 				if comms_source.goods[trade_good] ~= nil then
 					if comms_source.goods[trade_good] > 0 then
 						for good, good_data in pairs(comms_target.comms_data.goods) do
 							if good_data.quantity > 0 then
 								addCommsReply(string.format(_("trade-comms","Trade %s for %s"),good_desc[trade_good],good_desc[good]),function()
-									if not comms_source:isDocked(comms_target) then 
-										setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+									if not comms_source:isDocked(comms_target) then
+										local stay_docked_to_trade = {
+											"You need to stay docked for that action.",
+											"You need to stay docked to trade.",
+											string.format("You must stay docked long enough for a trade between %s and %s to be completed.",comms_source:getCallSign(),comms_target:getCallSign()),
+											string.format("You undocked before %s could complete the trade you wanted.",comms_target:getCallSign()),
+										}
+										setCommsMessage(tableRemoveRandom(stay_docked_to_trade))
 										return
 									end
 									if good_data.quantity < 1 then
-										setCommsMessage(_("trade-comms","Insufficient station inventory"))
+										local insufficient_station_inventory = {
+											"Insufficient station inventory",
+											"Not enough inventory on the station",
+											string.format("%s does not have enough inventory",comms_target:getCallSign()),
+											string.format("Not enough inventory on %s",comms_target:getCallSign()),
+										}
+										setCommsMessage(tableRemoveRandom(insufficient_station_inventory))
 									else
 										good_data.quantity = good_data.quantity - 1
 										if comms_source.goods[good] == nil then
@@ -58336,7 +60516,13 @@ function tradeGoodsWithStation()
 										end
 										comms_source.goods[good] = comms_source.goods[good] + 1
 										comms_source.goods[trade_good] = comms_source.goods[trade_good] - 1
-										setCommsMessage(string.format(_("trade-comms","Traded a %s for a %s"),good_desc[trade_good],good_desc[good]))
+										local trade_confirmation = {
+											string.format("Traded a %s for a %s",good_desc[trade_good],good_desc[good]),
+											string.format("You traded one %s for one %s",good_desc[trade_good],good_desc[good]),
+											string.format("%s agreed to trade a %s for a %s",comms_target:getCallSign(),good_desc[trade_good],good_desc[good]),
+											string.format("You successfully traded a %s for a %s",good_desc[trade_good],good_desc[good]),
+										}
+										setCommsMessage(tableRemoveRandom(trade_confirmation))
 										comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(2,5))
 									end
 									addCommsReply(_("trade-comms","Back to trade options"), tradeGoodsWithStation)
@@ -58364,17 +60550,45 @@ function sellGoodsToStation()
 		for good, price in pairs(comms_target.comms_data.buy) do
 			if comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
 				good_match_count = good_match_count + 1
-				addCommsReply(string.format(_("trade-comms", "Sell one %s for %i reputation"),good_desc[good],price), function()
-					if not comms_source:isDocked(comms_target) then 
-						setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+				local sell_a_good_prompt = {
+					string.format("Sell one %s for %i reputation",good_desc[good],price),
+					string.format("Sell a %s for %i reputation",good_desc[good],price),
+					string.format("Sell %s and get %i reputation",good_desc[good],price),
+					string.format("For %s reputation, sell a %s",price,good_desc[good]),
+				}
+				addCommsReply(tableRemoveRandom(sell_a_good_prompt), function()
+					if not comms_source:isDocked(comms_target) then
+						local stay_docked_to_sell = {
+							"You need to stay docked for that action.",
+							"You need to stay docked to sell.",
+							string.format("You must stay docked long enough for a sale between %s and %s to be completed.",comms_source:getCallSign(),comms_target:getCallSign()),
+							string.format("You undocked before %s could complete the sale you requested.",comms_target:getCallSign()),
+						}
+						setCommsMessage(tableRemoveRandom(stay_docked_to_sell))
 						return
 					end
-					local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Reputation price: %i"),good_desc[good],price)
+					local good_type_label = {
+						string.format("Type: %s",good_desc[good]),
+						string.format("Type of good: %s",good_desc[good]),
+						string.format("Good type: %s",good_desc[good]),
+						string.format("Kind of good: %s",good_desc[good]),
+					}
+					local reputation_price_of_good = {
+						string.format("Reputation price: %i",price),
+						string.format("Price in reputation points: %i",price),
+						string.format("Reputation sale price: %i",price),
+						string.format("Priced at %i reputation",price),
+					}
+					local sale_results = {
+						"One sold",
+						"You sold one",
+						string.format("You sold one to %s",comms_target:getCallSign()),
+						string.format("%s bought one from you",comms_target:getCallSign()),
+					}
+					setCommsMessage(string.format("%s, %s\n%s",tableRemoveRandom(good_type_label),tableRemoveRandom(reputation_price_of_good),tableRemoveRandom(sale_results)))
 					comms_source.goods[good] = comms_source.goods[good] - 1
 					comms_source:addReputationPoints(price)
-					goodTransactionMessage = goodTransactionMessage .. _("trade-comms", "\nOne sold")
 					comms_source.cargo = comms_source.cargo + 1
-					setCommsMessage(goodTransactionMessage)
 					addCommsReply(_("trade-comms","Back to sell to station options"),sellGoodsToStation)
 					addCommsReply(_("trade-comms","Back to commercial options"),goodsCommerce)
 					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -58383,10 +60597,22 @@ function sellGoodsToStation()
 			end
 		end
 	else
-		setCommsMessage(_("trade-comms","This station is no longer in the market to buy goods"))
+		local no_goods_to_buy = {
+			"This station is no longer in the market to buy goods",
+			string.format("%s is no longer in the market to buy goods",comms_target:getCallSign()),
+			string.format("%s has left the goods buying market",comms_target:getCallSign()),
+			string.format("%s no longer wants to buy any goods",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(no_goods_to_buy))
 	end
 	if good_match_count == 0 then
-		setCommsMessage(_("trade-comms","You no longer have anything the station is interested in."))
+		local no_matching_sellable_goods = {
+			"You no longer have anything the station is interested in.",
+			string.format("You have nothing %s is interested in.",comms_target:getCallSign()),
+			string.format("%s is not interested in any goods you have.",comms_target:getCallSign()),
+			string.format("[%s purchasing agent]\n'Sorry, %s. You have nothing that interests us.'\nYou hear the sound of a ledger book closing just before the mic cuts off.",comms_target:getCallSign(),comms_source:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(no_matching_sellable_goods))
 	end
 	addCommsReply(_("trade-comms","Back to commercial options"),goodsCommerce)
 	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -58402,18 +60628,73 @@ function buyGoodsFromStation()
 	setCommsMessage(tableRemoveRandom(buy_goods_prompt))
 	if comms_target.comms_data.goods ~= nil then
 		for good, good_data in pairs(comms_target.comms_data.goods) do
-			addCommsReply(string.format(_("trade-comms", "Buy one %s for %i reputation"),good_desc[good],good_data["cost"]), function()
-				if not comms_source:isDocked(comms_target) then 
-					setCommsMessage(_("ammo-comms", "You need to stay docked for that action."))
+			local buy_goods_at_price_prompts = {
+				string.format("Buy one %s for %i reputation",good_desc[good],good_data["cost"]),
+				string.format("Buy a %s for %i reputation",good_desc[good],good_data["cost"]),
+				string.format("Buy %s from %s for %i rep",good_desc[good],comms_target:getCallSign(),good_data["cost"]),
+				string.format("Purchase %s for %i reputation",good_desc[good],good_data["cost"]),
+			}
+			addCommsReply(tableRemoveRandom(buy_goods_at_price_prompts), function()
+				if not comms_source:isDocked(comms_target) then
+					local stay_docked_to_buy = {
+						"You need to stay docked for that action.",
+						"You need to stay docked to buy.",
+						string.format("You must stay docked long enough for a sale between %s and %s to be completed.",comms_target:getCallSign(),comms_source:getCallSign()),
+						string.format("You undocked before %s could complete the sale you requested.",comms_target:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(stay_docked_to_buy))
 					return
 				end
-				local goodTransactionMessage = string.format(_("trade-comms", "Type: %s, Quantity: %i, Rep: %i"),good_desc[good],good_data["quantity"],good_data["cost"])
+				local good_type_label = {
+					string.format("Type: %s",good_desc[good]),
+					string.format("Type of good: %s",good_desc[good]),
+					string.format("Good type: %s",good_desc[good]),
+					string.format("Kind of good: %s",good_desc[good]),
+				}
+				local reputation_price_of_good = {
+					string.format("Reputation price: %i",good_data["cost"]),
+					string.format("Price in reputation points: %i",good_data["cost"]),
+					string.format("Reputation sale price: %i",good_data["cost"]),
+					string.format("Priced at %i reputation",good_data["cost"]),
+				}
+				local quantity_of_good = {
+					string.format("Quantity: %s",good_data["quantity"]),
+					string.format("How much inventory: %s",good_data["quantity"]),
+					string.format("%s's quantity: %s",comms_target:getCallSign(),good_data["quantity"]),
+					string.format("Quantity on hand: %s",good_data["quantity"]),
+				}
+				local purchase_results = {
+					"One bought",
+					"You bought one",
+					string.format("You purchased one from %s",comms_target:getCallSign()),
+					string.format("%s sold one to you",comms_target:getCallSign()),
+				}
+				local goodTransactionMessage = string.format("%s\n%s\n%s",tableRemoveRandom(good_type_label),tableRemoveRandom(reputation_price_of_good),tableRemoveRandom(quantity_of_good))
 				if comms_source.cargo < 1 then
-					goodTransactionMessage = goodTransactionMessage .. _("trade-comms", "\nInsufficient cargo space for purchase")
+					local insufficient_cargo_space_addendum = {
+						"Insufficient cargo space for purchase",
+						"You don't have enough room in your cargo hold",
+						string.format("Insufficient room in %s's cargo hold",comms_source:getCallSign()),
+						string.format("%s does not have enough available cargo space",comms_source:getCallSign()),
+					}
+					goodTransactionMessage = string.format("%s\n%s",goodTransactionMessage,tableRemoveRandom(insufficient_cargo_space_addendum))
 				elseif good_data["cost"] > math.floor(comms_source:getReputationPoints()) then
-					goodTransactionMessage = goodTransactionMessage .. _("needRep-comms", "\nInsufficient reputation for purchase")
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					goodTransactionMessage = string.format("%s\n%s",goodTransactionMessage,tableRemoveRandom(insufficient_rep_responses))
 				elseif good_data["quantity"] < 1 then
-					goodTransactionMessage = goodTransactionMessage .. _("trade-comms", "\nInsufficient station inventory")
+					local insufficient_station_inventory = {
+						"Insufficient station inventory",
+						"Not enough inventory on the station",
+						string.format("%s does not have enough inventory",comms_target:getCallSign()),
+						string.format("Not enough inventory on %s",comms_target:getCallSign()),
+					}
+					goodTransactionMessage = string.format("%s\n%s",goodTransactionMessage,tableRemoveRandom(insufficient_station_inventory))
 				else
 					if comms_source:takeReputationPoints(good_data["cost"]) then
 						comms_source.cargo = comms_source.cargo - 1
@@ -58425,9 +60706,16 @@ function buyGoodsFromStation()
 							comms_source.goods[good] = 0
 						end
 						comms_source.goods[good] = comms_source.goods[good] + 1
-						goodTransactionMessage = goodTransactionMessage .. _("trade-comms", "\npurchased")
+						goodTransactionMessage = string.format("%s\n%s",goodTransactionMessage,tableRemoveRandom(purchase_results))
 					else
-						goodTransactionMessage = goodTransactionMessage .. _("needRep-comms", "\nInsufficient reputation for purchase")
+						local insufficient_rep_responses = {
+							"Insufficient reputation",
+							"Not enough reputation",
+							"You need more reputation",
+							string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+							"You don't have enough reputation",
+						}
+						goodTransactionMessage = string.format("%s\n%s",goodTransactionMessage,tableRemoveRandom(insufficient_rep_responses))
 					end
 				end
 				setCommsMessage(goodTransactionMessage)
@@ -58438,7 +60726,13 @@ function buyGoodsFromStation()
 			end)
 		end
 	else
-		setCommsMessage(_("trade-comms","The station ran out of goods"))
+		local insufficient_station_inventory = {
+			"Insufficient station inventory",
+			"Not enough inventory on the station",
+			string.format("%s does not have enough inventory",comms_target:getCallSign()),
+			string.format("Not enough inventory on %s",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(insufficient_station_inventory))
 	end
 	addCommsReply(_("trade-comms","Back to commercial options"),goodsCommerce)
 	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -58459,7 +60753,13 @@ function jettisonGoodsFromShip()
 			addCommsReply(good_desc[good], function()
 				comms_source.goods[good] = comms_source.goods[good] - 1
 				comms_source.cargo = comms_source.cargo + 1
-				setCommsMessage(string.format(_("trade-comms", "One %s jettisoned"),good_desc[good]))
+				local jettisoned_confirmed = {
+					string.format("One %s jettisoned",good_desc[good]),
+					string.format("One %s has been destroyed",good_desc[good]),
+					string.format("One %s has been tossed out of the airlock",good_desc[good]),
+					string.format("One %s has been placed in the arms of the vacuum of space",good_desc[good]),
+				}
+				setCommsMessage(tableRemoveRandom(jettisoned_confirmed))
 				addCommsReply(_("trade-comms","Back to jettison goods"),jettisonGoodsFromShip)
 				addCommsReply(_("Back to commercial options"), goodsCommerce)
 				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -58468,7 +60768,13 @@ function jettisonGoodsFromShip()
 		end
 	end
 	if goods_to_toss_count == 0 then
-		setCommsMessage(_("trade-comms","No more goods to toss"))
+		local nothing_to_jettison = {
+			"No more goods to toss",
+			"You've got nothing left to jettison",
+			"Your cargo hold is empty so there's nothing else to get rid of",
+			"No more goods to jettison",
+		}
+		setCommsMessage(tableRemoveRandom(nothing_to_jettison))
 		addCommsReply(_("Back to commercial options"), goodsCommerce)
 		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
 		addCommsReply(_("Back to station communication"), commsStation)
@@ -58509,8 +60815,20 @@ function jumpCorridor()
 					break
 				end
 			end
-			addCommsReply("Take jump corridor to another station",function()
-				setCommsMessage("What station would you like to take the jump corridor to?")
+			local take_jump_corridor_prompts = {
+				"Take jump corridor to another station",
+				"Activate jump corridor to another station",
+				"Go to another station via the jump corridor",
+				"Use jump corridor to go to another station",
+			}
+			addCommsReply(tableRemoveRandom(take_jump_corridor_prompts),function()
+				local choose_jump_station = {
+					"What station would you like to take the jump corridor to?",
+					"Select a station as the jump corridor destination",
+					"Select jump corridor destination station",
+					string.format("[%s jump corridor operator]\n'What is your station destination, %s?'\nThe jump corridor operator sounds like a bright and happy sentient being.",comms_target:getCallSign(),comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(choose_jump_station))
 				for name, jc_item in pairs(jump_corridor_list) do
 					if comms_target ~= jc_item.station then
 						addCommsReply(string.format("Take jump corridor to %s",jc_item.station:getCallSign()),function()
@@ -58542,7 +60860,13 @@ function jumpCorridor()
 							if origin_jc_item ~= nil then
 								origin_jc_item.despawn_terrain()
 							end
-							setCommsMessage(string.format("Transferred to %s",jc_item.station:getCallSign()))
+							local jump_journey_complete = {
+								string.format("Transferred to %s",jc_item.station:getCallSign()),
+								string.format("The jump corridor has transferred you to %s",jc_item.station:getCallSign()),
+								string.format("[Automated message]\n'You have arrived at %s. Thank you for using the flagship product of Jump Corridors R Us. We know you have a choice when traveling. We appreciate your business.'",jc_item.station:getCallSign()),
+								string.format("The jump corridor drops you at %s",jc_item.station:getCallSign()),
+							}
+							setCommsMessage(tableRemoveRandom(jump_journey_complete))
 						end)
 					end
 				end
