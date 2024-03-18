@@ -24,7 +24,7 @@ require("utils.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.1.2"
+	scenario_version = "2.1.3"
 	print(string.format("     -----     Scenario: Fermi 500     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	-- 27 types of goods so far
@@ -504,7 +504,7 @@ function showControlCodes(faction_filter)
 	end
 	table.sort(sorted_names)
 	local output = ""
-	for _, name in ipairs(sorted_names) do
+	for i, name in ipairs(sorted_names) do
 		local faction = ""
 		if code_list[name].faction == "Kraylor" then
 			faction = _("msgGM", " (Kraylor)")
@@ -1635,13 +1635,13 @@ function handleDockedState()
 	setCommsMessage(oMsg)
 	missilePresence = 0
 	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
-	for _, missile_type in ipairs(missile_types) do
+	for i, missile_type in ipairs(missile_types) do
 		missilePresence = missilePresence + comms_source:getWeaponStorageMax(missile_type)
 	end
 	if missilePresence > 0 then
 		addCommsReply(_("ammo-comms", "I need ordnance restocked"), function()
 			setCommsMessage(_("ammo-comms", "What type of ordnance?"))
-			for _, missile_type in ipairs(missile_types) do
+			for i, missile_type in ipairs(missile_types) do
 				if comms_source:getWeaponStorageMax(missile_type) > 0 then
 					addCommsReply(string.format(_("ammo-comms", "%s (%d rep each)"), missile_type, getWeaponCost(missile_type)), function()
 						handleWeaponRestock(missile_type)
@@ -1703,7 +1703,7 @@ function handleDockedState()
 				local brochure_stations = ""
 				local sx, sy = comms_target:getPosition()
 				local nearby_objects = getObjectsInRadius(sx,sy,30000)
-				for _, obj in ipairs(nearby_objects) do
+				for i, obj in ipairs(nearby_objects) do
 					if obj.typeName == "SpaceStation" then
 						if not obj:isEnemy(comms_target) then
 							if brochure_stations == "" then
@@ -1721,7 +1721,7 @@ function handleDockedState()
 				local brochure_goods = ""
 				local sx, sy = comms_target:getPosition()
 				local nearby_objects = getObjectsInRadius(sx,sy,30000)
-				for _, obj in ipairs(nearby_objects) do
+				for i, obj in ipairs(nearby_objects) do
 					if obj.typeName == "SpaceStation" then
 						if not obj:isEnemy(comms_target) then
 							if goods[obj] ~= nil then
@@ -1750,7 +1750,7 @@ function handleDockedState()
 				local sx, sy = comms_target:getPosition()
 				local nearby_objects = getObjectsInRadius(sx,sy,50000)
 				local stations_known = 0
-				for _, obj in ipairs(nearby_objects) do
+				for i, obj in ipairs(nearby_objects) do
 					if obj.typeName == "SpaceStation" then
 						if not obj:isEnemy(comms_target) then
 							stations_known = stations_known + 1
@@ -1781,7 +1781,7 @@ function handleDockedState()
 				local nearby_objects = getObjectsInRadius(sx,sy,50000)
 				local button_count = 0
 				local by_goods = {}
-				for _, obj in ipairs(nearby_objects) do
+				for i, obj in ipairs(nearby_objects) do
 					if obj.typeName == "SpaceStation" then
 						if not obj:isEnemy(comms_target) then
 							if goods[obj] ~= nil then
@@ -2527,7 +2527,7 @@ function friendlyComms(comms_data)
 		setCommsMessage(msg);
 		addCommsReply(_("Back"), commsShip)
 	end)
-	for _, obj in ipairs(comms_target:getObjectsInRange(5000)) do
+	for i, obj in ipairs(comms_target:getObjectsInRange(5000)) do
 		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
 			addCommsReply(string.format(_("shipAssist-comms", "Dock at %s"), obj:getCallSign()), function()
 				setCommsMessage(string.format(_("shipAssist-comms", "Docking at %s."), obj:getCallSign()));
@@ -3178,14 +3178,14 @@ function gatherStats(final_score)
 	table.sort(sorted_score_list,function(a,b)
 		return a.rank > b.rank
 	end)
---	for _,item in ipairs(sorted_score_list) do
+--	for i,item in ipairs(sorted_score_list) do
 --		print(item.name, item.drone_points, item.rank)
 --	end
 	if sorted_score_list ~= nil and #sorted_score_list > 0 and player_count > 0 then
 		local prev_value = sorted_score_list[1].rank
 		local place_index = 1
 		local reward_index = 1
-		for _, item in ipairs(sorted_score_list) do
+		for i, item in ipairs(sorted_score_list) do
 			if item.rank ~= prev_value then
 				reward_index = place_index
 			end
@@ -3214,7 +3214,7 @@ function gatherStats(final_score)
 			return a.score > b.score
 		end)
 		print("Score","Place","Drones","Name","Laps","WP Goal")
-		for _, item in ipairs(sorted_stat_list) do
+		for i, item in ipairs(sorted_stat_list) do
 			print(item.score,item.rank_points,item.drone_points,item.name,item.lap_count,item.waypoint_goal)
 		end
 		return stat_list, sorted_stat_list
