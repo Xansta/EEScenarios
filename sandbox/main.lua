@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.27.1"
+	scenario_version = "6.29.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1760,9 +1760,9 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Splinter")		--J
-	makePlayerShipActive("Halberd")			--J
-	makePlayerShipActive("Cobra") 			--J 
+	makePlayerShipActive("George")			--J
+	makePlayerShipActive("Manxman")			--J
+	makePlayerShipActive("Wiggy") 			--J 
 	makePlayerShipActive("Quicksilver")		--W
 	makePlayerShipActive("Devon")			--W
 	makePlayerShipActive("Spike") 			--W 
@@ -2052,6 +2052,7 @@ function setConstants()
 		["Prador"] =						2000,
 		["Predator"] =						200,
 		["Predator V2"] =					200,
+		["Proto-Atlantis"] =				400,
 		["Racer"] =							200,
 		["Ranger"] =						100,
 		["Ranus U"] =						200,
@@ -15412,17 +15413,17 @@ function createKentarStations()
 
 	-- the color far stations
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
-	local gf1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far,"GF1 Y9")
-	gf1zone:setColor(0,128,0):setLabel("F")
---	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
+--	local gf1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far,"GF1 Y9")
+--	gf1zone:setColor(0,128,0):setLabel("F")
+	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GF1.2"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BF1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_far, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_far):setCommsFunction(SwitchToGM))
 
 	-- the mid way "guidance" stations, split to left center and right
 	local guidance_width = 14
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
-	local ggc1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid,"GGC1 Y8")
-	ggc1zone:setColor(0,128,0):setLabel("G")
---	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
+--	local ggc1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid,"GGC1 Y8")
+--	ggc1zone:setColor(0,128,0):setLabel("G")
+	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGC1.2"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  - guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
 	local ggl1zone = squareZone(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid,"GGL1 X8")
@@ -15439,11 +15440,11 @@ function createKentarStations()
 	setBeamColor(dp)
 	dp:setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((0  )/360)*math.pi*2)*outer_defence_dist):setCallSign("DPR1"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
-	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
-	dpg1zone:setColor(0,128,0):setLabel("DPG1")
---	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
---	setBeamColor(dp)
---	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1"):setScanState("fullscan")
+--	local dpg1zone = squareZone(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist, "DPG1 Y9")
+--	dpg1zone:setColor(0,128,0):setLabel("DPG1")
+	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
+	setBeamColor(dp)
+	dp:setPosition(gateway_x + math.sin(((120)/360)*math.pi*2)*outer_defence_dist, gateway_y - math.cos(((120)/360)*math.pi*2)*outer_defence_dist):setCallSign("DPG1.2"):setScanState("fullscan")
 	table.insert(gateway_objects,dp)
 	dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(dp)
@@ -42041,46 +42042,7 @@ function sensorJammer()
 	clearGMFunctions()
 	addGMFunction("-Main Frm Sensor Jam",initialGMFunctions)
 	addGMFunction("-Artifacts",fiddleWithArtifacts)
-	addGMFunction(string.format("%i Jam Range ^ -> %i",sensor_jammer_range/1000,(sensor_jammer_range + 1000)/1000),function()
-		if sensor_jammer_range >= 100000 then
-			addGMMessage("Maximum range of 100 units reached. No action taken")
-		else
-			sensor_jammer_range = sensor_jammer_range + 1000
-		end
-		sensorJammer()
-	end)
-	addGMFunction(string.format("%i Jam Range V -> %i",sensor_jammer_range/1000,(sensor_jammer_range - 1000)/1000),function()
-		if sensor_jammer_range <= 1000 then
-			addGMMessage("Minimum range of 1 unit reached. No action taken")
-		else
-			sensor_jammer_range = sensor_jammer_range - 1000
-		end
-		sensorJammer()
-	end)
-	addGMFunction(string.format("%i Jam Power ^ -> %i",sensor_jammer_impact/1000,(sensor_jammer_impact + 1000)/1000),function()
-		if sensor_jammer_impact >= 100000 then
-			if sensor_jammer_power_units then
-				addGMMessage("Maximum power of 100 units reached. No action taken")
-			else
-				addGMMessage("Maximum power of 100 percent reached. No action taken")
-			end
-		else
-			sensor_jammer_impact = sensor_jammer_impact + 1000
-		end
-		sensorJammer()
-	end)
-	addGMFunction(string.format("%i Jam Power V -> %i",sensor_jammer_impact/1000,(sensor_jammer_impact - 1000)/1000),function()
-		if sensor_jammer_impact <= 1000 then
-			if sensor_jammer_power_units then
-				addGMMessage("Minimum power of 1 unit reached. No action taken")
-			else
-				addGMMessage("Minimum power of 1 percent reached. No action taken")
-			end
-		else
-			sensor_jammer_impact = sensor_jammer_impact - 1000
-		end
-		sensorJammer()
-	end)
+	addGMFunction("+Range and Power",setSensorJammerPowerRange)
 	addGMFunction(string.format("+Scan Complex: %i",sensor_jammer_scan_complexity),setSensorJammerScanComplexity)
 	addGMFunction(string.format("+Scan Depth: %i",sensor_jammer_scan_depth),setSensorJammerScanDepth)
 	local button_label = "Jam Power"
@@ -42102,6 +42064,61 @@ function sensorJammer()
 	else
 		addGMFunction("Place Sensor Jammer",placeSensorJammer)
 	end
+	if gm_click_mode == "sensor jammer origin" then
+		addGMFunction(">Set Jammer Origin<",setSensorJammerOrigin)
+	else
+		button_label = "Launch Sensor Jammer"
+		if gm_click_mode == "launch sensor jammer" then
+			button_label = string.format(">%s<",button_label)
+		end
+		addGMFunction(button_label,launchSensorJammer)
+	end
+end
+function setSensorJammerPowerRange()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Pwr & Rng",initialGMFunctions)
+	addGMFunction("-Artifacts",fiddleWithArtifacts)
+	addGMFunction("-Sensor Jammer",sensorJammer)
+	addGMFunction(string.format("%i Jam Range ^ -> %i",sensor_jammer_range/1000,(sensor_jammer_range + 1000)/1000),function()
+		if sensor_jammer_range >= 100000 then
+			addGMMessage("Maximum range of 100 units reached. No action taken")
+		else
+			sensor_jammer_range = sensor_jammer_range + 1000
+		end
+		setSensorJammerPowerRange()
+	end)
+	addGMFunction(string.format("%i Jam Range V -> %i",sensor_jammer_range/1000,(sensor_jammer_range - 1000)/1000),function()
+		if sensor_jammer_range <= 1000 then
+			addGMMessage("Minimum range of 1 unit reached. No action taken")
+		else
+			sensor_jammer_range = sensor_jammer_range - 1000
+		end
+		setSensorJammerPowerRange()
+	end)
+	addGMFunction(string.format("%i Jam Power ^ -> %i",sensor_jammer_impact/1000,(sensor_jammer_impact + 1000)/1000),function()
+		if sensor_jammer_impact >= 100000 then
+			if sensor_jammer_power_units then
+				addGMMessage("Maximum power of 100 units reached. No action taken")
+			else
+				addGMMessage("Maximum power of 100 percent reached. No action taken")
+			end
+		else
+			sensor_jammer_impact = sensor_jammer_impact + 1000
+		end
+		setSensorJammerPowerRange()
+	end)
+	addGMFunction(string.format("%i Jam Power V -> %i",sensor_jammer_impact/1000,(sensor_jammer_impact - 1000)/1000),function()
+		if sensor_jammer_impact <= 1000 then
+			if sensor_jammer_power_units then
+				addGMMessage("Minimum power of 1 unit reached. No action taken")
+			else
+				addGMMessage("Minimum power of 1 percent reached. No action taken")
+			end
+		else
+			sensor_jammer_impact = sensor_jammer_impact - 1000
+		end
+		setSensorJammerPowerRange()
+	end)
 end
 function setSensorJammerScanComplexity()
 	clearGMFunctions()
@@ -42147,6 +42164,20 @@ function setSensorJammerScanDepth()
 		setSensorJammerScanDepth()
 	end)
 end
+function launchSensorJammer()
+	if gm_click_mode == "launch sensor jammer" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "launch sensor jammer"
+		onGMClick(gmClickLaunchSensorJammer)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   launch sensor jammer\nGM click mode.",prev_mode))
+		end
+	end
+	sensorJammer()
+end
 function placeSensorJammer()
 	if gm_click_mode == "sensor jammer" then
 		gm_click_mode = nil
@@ -42159,6 +42190,53 @@ function placeSensorJammer()
 			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   sensor jammer\nGM click mode.",prev_mode))
 		end
 	end
+	sensorJammer()
+end
+function gmClickLaunchSensorJammer(x,y)
+	--set fleet target
+	launch_sensor_jammer_x = x
+	launch_sensor_jammer_y = y
+	gm_click_mode = "sensor jammer origin"
+	onGMClick(gmClickSetSensorJammerOrigin)
+	sensorJammer()
+end
+function setSensorJammerOrigin()
+	if gm_click_mode == "sensor jammer origin" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "sensor jammer origin"
+		onGMClick(gmClickSetSensorJammerOrigin)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   sensor jammer origin\nGM click mode.",prev_mode))
+		end
+	end
+end
+function gmClickSetSensorJammerOrigin(x,y)
+	-- -main from probes
+	local launched_probe = ScanProbe():setPosition(x,y):setFaction(fleetSpawnFaction):setTarget(launch_sensor_jammer_x,launch_sensor_jammer_y)
+	launched_probe.sensor_jammer_scan_complexity = sensor_jammer_scan_complexity
+	launched_probe.sensor_jammer_scan_depth = sensor_jammer_scan_depth
+	artifactNumber = artifactNumber + math.random(1,4)
+	local random_suffix = string.char(math.random(65,90))
+	launched_probe.jammer_call_sign = string.format("SJ%i%s",artifactNumber,random_suffix)
+	launched_probe.sensor_jammer_range = sensor_jammer_range
+	launched_probe.sensor_jammer_impact = sensor_jammer_impact
+	launched_probe.sensor_jammer_power_units = sensor_jammer_power_units
+	launched_probe:onArrival(function(self,x,y)
+		string.format("")
+		artifactCounter = artifactCounter + 1
+		local sensor_jammer = Artifact():setPosition(x,y):setScanningParameters(self.sensor_jammer_scan_complexity,self.sensor_jammer_scan_depth):setRadarSignatureInfo(.2,.4,.1):setModel("SensorBuoyMKIII"):setDescriptions("Source of unusual emanations","Source of emanations interfering with long range sensors"):setCallSign(self.jammer_call_sign)
+		sensor_jammer:onPickUp(sensorJammerPickupProcess)
+		sensor_jammer_list[self.jammer_call_sign] = sensor_jammer
+		sensor_jammer.jam_range = self.sensor_jammer_range
+		sensor_jammer.jam_impact = self.sensor_jammer_impact
+		sensor_jammer.jam_impact_units = self.sensor_jammer_power_units
+		self:destroy()
+	end)
+	gm_click_mode = nil
+	onGMClick(nil)
 	sensorJammer()
 end
 function gmClickSensorJammer(x,y)
@@ -56652,10 +56730,10 @@ function magnasolHeatDiscussion(calling_function)
 										comms_source.coolant_additive_msg_eng = "coolant_additive_msg_eng"
 										print("expires:",comms_source.coolant_additive.expires)
 										if comms_source.coolant_additive.expires > getScenarioTime() then
-											comms_source:addCustomMessage("Engineering",comms_source.coolant_additive_msg_eng,string.format("Additive functioning.\nEffectiveness level %s.\nExpected remaining duration: %i seconds",comms_source.coolant_additive.effectiveness,math.floor(comms_source.coolant_additive.expires - getScenarioTime())))
-										else
 											comms_source:addCustomMessage("Engineering",comms_source.coolant_additive_msg_eng,"Additive has dissipated")
 											comms_source:removeCustom(comms_source.coolant_additive_button_eng)
+										else
+											comms_source:addCustomMessage("Engineering",comms_source.coolant_additive_msg_eng,string.format("Additive functioning.\nEffectiveness level %s.\nExpected remaining duration: %i seconds",comms_source.coolant_additive.effectiveness,math.floor(comms_source.coolant_additive.expires - getScenarioTime())))
 										end
 									end,41)
 									comms_source.coolant_additive_button_plus = "coolant_additive_button_plus"
@@ -56663,10 +56741,10 @@ function magnasolHeatDiscussion(calling_function)
 										string.format("")
 										comms_source.coolant_additive_msg_eng = "coolant_additive_msg_eng"
 										if comms_source.coolant_additive.expires > getScenarioTime() then
-											comms_source:addCustomMessage("Engineering+",comms_source.coolant_additive_msg_eng,string.format("Additive functioning.\nEffectiveness level %s.\nExpected remaining duration: %i seconds",comms_source.coolant_additive.effectiveness,math.floor(comms_source.coolant_additive.expires - getScenarioTime())))
-										else
 											comms_source:addCustomMessage("Engineering+",comms_source.coolant_additive_msg_eng,"Additive has dissipated")
 											comms_source:removeCustom(comms_source.coolant_additive_button_plus)
+										else
+											comms_source:addCustomMessage("Engineering+",comms_source.coolant_additive_msg_eng,string.format("Additive functioning.\nEffectiveness level %s.\nExpected remaining duration: %i seconds",comms_source.coolant_additive.effectiveness,math.floor(comms_source.coolant_additive.expires - getScenarioTime())))
 										end
 									end,41)
 									local added_to_coolant_response = {
@@ -58102,8 +58180,20 @@ function restockShip()
 	end
 end
 function restockOrdnance()
-	addCommsReply(_("ammo-comms","I need ordnance restocked"), function()
-		setCommsMessage("What type of ordnance do you need?")
+	local ordnance_restock_prompt = {
+		"I need ordnance restocked",
+		"Restock ordnance",
+		string.format("%s needs more ordnance",comms_source:getCallSign()),
+		string.format("Please provide ordnance for %s",comms_source:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(ordnance_restock_prompt), function()
+		local ordnance_type_specification = {
+			"What type of ordnance do you need?",
+			"Specify the type of ordnance desired",
+			string.format("Exactly what kind of ordnance does %s need?",comms_source:getCallSign()),
+			string.format("Identify the ordnance type required for %s",comms_source:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(ordnance_type_specification))
 		local prompts = {
 			["Nuke"] = {
 				_("ammo-comms","Can you supply us with some nukes?"),
@@ -58136,6 +58226,18 @@ function restockOrdnance()
 				addCommsReply(string.format(_("ammo-comms","%s (%d rep each)"),prompts[missile_type][math.random(1,#prompts[missile_type])],getWeaponCost(missile_type)), function()
 					string.format("")
 					handleWeaponRestock(missile_type)
+					if restock_ordnance_restock_ship_back == nil or getScenarioTime() > restock_ordnance_restock_ship_back + comms_fudge then
+						addCommsReply("Back to restock ship",restockShip)
+						restock_ordnance_restock_ship_back = getScenarioTime()
+					end
+					if restock_ordnance_interactive_back == nil or getScenarioTime() > restock_ordnance_interactive_back + comms_fudge then
+						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+						restock_ordnance_interactive_back = getScenarioTime()
+					end
+					if restock_ordnance_comms_back == nil or getScenarioTime() > restock_ordnance_comms_back + comms_fudge then
+						addCommsReply(_("Back to station communication"), commsStation)
+						restock_ordnance_comms_back = getScenarioTime()
+					end
 				end)
 			end
 		end
@@ -58154,6 +58256,7 @@ function restockOrdnance()
 	end)
 end
 function handleWeaponRestock(weapon)
+	local done_with_weapon_restock = false
     if not comms_source:isDocked(comms_target) then
 		local stay_docked_for_weapons_restock = {
 			"You need to stay docked for that action.",
@@ -58162,9 +58265,9 @@ function handleWeaponRestock(weapon)
 			string.format("You undocked before we could load ordnance from %s.",comms_target:getCallSign()),
 		}
 		setCommsMessage(tableRemoveRandom(stay_docked_for_weapons_restock))
-		return
+		done_with_weapon_restock = true
 	end
-    if not isAllowedTo(comms_data.weapons[weapon]) then
+    if not isAllowedTo(comms_data.weapons[weapon]) and not done_with_weapon_restock then
     	local no_nukes_on_principle = {
     		"We do not deal in weapons of mass destruction.",
     		"We don't deal in nukes on principle.",
@@ -58186,143 +58289,145 @@ function handleWeaponRestock(weapon)
         if weapon == "Nuke" then setCommsMessage(tableRemoveRandom(no_nukes_on_principle))
         elseif weapon == "EMP" then setCommsMessage(tableRemoveRansom(no_emps_on_principle))
         else setCommsMessage(tableRemoveRandom(no_weapon_type_on_principle)) end
-        return
+        done_with_weapon_restock = true
     end
-    local points_per_item = getWeaponCost(weapon)
-    local item_amount = math.floor(comms_source:getWeaponStorageMax(weapon) * comms_data.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage(weapon)
-    if item_amount <= 0 then
-        if weapon == "Nuke" then
-        	local full_on_nukes = {
-        		"All nukes are charged and primed for destruction.",
-        		"All nukes are already charged and primed for destruction.",
-        		"We double checked and all of your nukes are primed, charged and ready to destroy their targets.",
-        		"Every one of your nukes are already fully prepared for launch. Happy explosions to you!",
-        	}
-            setCommsMessage(tableRemoveRandom(full_on_nukes))
-        else
-        	local full_on_ordnance = {
-        		"Sorry, sir, but you are as fully stocked as I can allow.",
-        		"Your magazine is already completely full.",
-        		"We can't give you any more because you are already fully loaded.",
-        		string.format("Sorry, but there is no more space on %s for this ordnance type.",comms_source:getCallSign()),
-        	}
-            setCommsMessage(tableRemoveRandom(full_on_ordnance))
-        end
-        addCommsReply("Back to restock ship",restockShip)
-		addCommsReply(_("Back to station communication"), commsStation)
-    else
-		if comms_source:getReputationPoints() > points_per_item * item_amount then
-			if comms_source:takeReputationPoints(points_per_item * item_amount) then
-				comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + item_amount)
-				if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
-					local restocked_on_ordnance = {
-						"You are fully loaded and ready to explode things.",
-						"You are fully restocked and ready to make things explode.",
-						string.format("%s's %s magazine has been fully restocked",comms_source:getCallSign(),weapon),
-						string.format("We made sure your %s magazine was completely restocked",weapon),
-					}
-					setCommsMessage(tableRemoveRandom(restocked_on_ordnance))
-				else
-					local partial_ordnance_restock = {
-						"We generously resupplied you with some weapon charges.",
-						"We gave you some of the ordnance you requested",
-						"You got some of the weapon charges you asked for.",
-						"We were able to provide you with some of the ordnance you requested.",
-					}
-					local good_use = {
-						"Put them to good use.",
-						"Use them well.",
-						"Make good use of them.",
-						"Do the best you can with them.",
-					}
-					setCommsMessage(string.format("%s\n%s",tableRemoveRandom(partial_ordnance_restock),tableRemoveRandom(good_use)))
-				end
-			else
-				local insufficient_rep_responses = {
-					"Insufficient reputation",
-					"Not enough reputation",
-					"You need more reputation",
-					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
-					"You don't have enough reputation",
+    if not done_with_weapon_restock then
+		local points_per_item = getWeaponCost(weapon)
+		local item_amount = math.floor(comms_source:getWeaponStorageMax(weapon) * comms_data.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage(weapon)
+		if item_amount <= 0 then
+			if weapon == "Nuke" then
+				local full_on_nukes = {
+					"All nukes are charged and primed for destruction.",
+					"All nukes are already charged and primed for destruction.",
+					"We double checked and all of your nukes are primed, charged and ready to destroy their targets.",
+					"Every one of your nukes are already fully prepared for launch. Happy explosions to you!",
 				}
-				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
-				return
+				setCommsMessage(tableRemoveRandom(full_on_nukes))
+			else
+				local full_on_ordnance = {
+					"Sorry, sir, but you are as fully stocked as I can allow.",
+					"Your magazine is already completely full.",
+					"We can't give you any more because you are already fully loaded.",
+					string.format("Sorry, but there is no more space on %s for this ordnance type.",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(full_on_ordnance))
 			end
+--			addCommsReply("Back to restock ship",restockShip)
+--			addCommsReply(_("Back to station communication"), commsStation)
 		else
-			if comms_source:getReputationPoints() > points_per_item then
-				local complete_refill_unavailable = {
-					string.format("You can't afford as many %ss as I'd like to provide to you",weapon),
-					string.format("A full restock of %s costs more than your current reputation",weapon),
-					string.format("You don't have enough reputation for a full restock of %s",weapon),
-					string.format("%i reputation is not enough for a full restock of %s",math.floor(comms_source:getReputationPoints()),weapon),
-				}
-				setCommsMessage(tableRemoveRandom(complete_refill_unavailable))
-				local max_affordable = math.floor(comms_source:getReputationPoints()/points_per_item)
-				for i=1,max_affordable do
-					addCommsReply(string.format(_("ammo-comms","Get %i (%i x %i = %i reputation)"),i,i,item_amount,i*item_amount),function()
-						string.format("")
-						if comms_source:takeReputationPoints(i*item_amount) then
-							comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + i)
-							if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
-								local restocked_on_selected_ordnance = {
-									"We loaded the ordnance you requested so you're ready to explode things.",
-									string.format("We provided the ordnance requested (amount: %i) You are ready to make things explode.",i),
-									string.format("%s's %s magazine has been restocked as requested (amount:%i)",comms_source:getCallSign(),weapon,i),
-									string.format("We stocked your %s magazine (amount: %i)",weapon,i),
-								}
-								setCommsMessage(tableRemoveRandom(restocked_on_selected_ordnance))
-							else
-								if i == 1 then
-									local single_restock = {
-										"We generously resupplied you with one weapon charge.",
-										"We gave you one of the ordnance type you requested",
-										"You got one weapon charge of the type you asked for.",
-										"We were able to provide you with one of the ordnance type you requested.",
-									}
-									local one_good_use = {
-										"Put it to good use.",
-										"Use it well.",
-										"Make good use of it.",
-										"Do the best you can with it.",
-									}
-									setCommsMessage(string.format("%s\n%s",tableRemoveRandom(single_restock),tableRemoveRandom(one_good_use)))
-								else
-									local partial_numeric_ordnance_restock = {
-										string.format("We generously resupplied you with %i weapon charges.",i),
-										string.format("We gave you %i of the ordnance type you requested",i),
-										string.format("You got %i of the weapon charges you asked for.",i),
-										string.format("We were able to provide you with %i of the ordnance type you requested.",i),
-									}
-									local good_use = {
-										"Put them to good use.",
-										"Use them well.",
-										"Make good use of them.",
-										"Do the best you can with them.",
-									}
-									setCommsMessage(string.format("%s\n%s",tableRemoveRandom(partial_numeric_ordnance_restock),tableRemoveRandom(good_use)))
-								end
-							end
-						else
-							local insufficient_rep_responses = {
-								"Insufficient reputation",
-								"Not enough reputation",
-								"You need more reputation",
-								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
-								"You don't have enough reputation",
-							}
-							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
-						end
-						addCommsReply("Back to restock ship",restockShip)
-						addCommsReply(_("Back to station communication"), commsStation)
-					end)
+			if comms_source:getReputationPoints() > points_per_item * item_amount then
+				if comms_source:takeReputationPoints(points_per_item * item_amount) then
+					comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + item_amount)
+					if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
+						local restocked_on_ordnance = {
+							"You are fully loaded and ready to explode things.",
+							"You are fully restocked and ready to make things explode.",
+							string.format("%s's %s magazine has been fully restocked",comms_source:getCallSign(),weapon),
+							string.format("We made sure your %s magazine was completely restocked",weapon),
+						}
+						setCommsMessage(tableRemoveRandom(restocked_on_ordnance))
+					else
+						local partial_ordnance_restock = {
+							"We generously resupplied you with some weapon charges.",
+							"We gave you some of the ordnance you requested",
+							"You got some of the weapon charges you asked for.",
+							"We were able to provide you with some of the ordnance you requested.",
+						}
+						local good_use = {
+							"Put them to good use.",
+							"Use them well.",
+							"Make good use of them.",
+							"Do the best you can with them.",
+						}
+						setCommsMessage(string.format("%s\n%s",tableRemoveRandom(partial_ordnance_restock),tableRemoveRandom(good_use)))
+					end
+				else
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+					done_with_weapon_restock = true
 				end
 			else
-				setCommsMessage(_("needRep-comms","Not enough reputation."))
-				addCommsReply("Back to restock ship",restockShip)
-				addCommsReply(_("Back to station communication"), commsStation)
+				if comms_source:getReputationPoints() > points_per_item then
+					local complete_refill_unavailable = {
+						string.format("You can't afford as many %ss as I'd like to provide to you",weapon),
+						string.format("A full restock of %s costs more than your current reputation",weapon),
+						string.format("You don't have enough reputation for a full restock of %s",weapon),
+						string.format("%i reputation is not enough for a full restock of %s",math.floor(comms_source:getReputationPoints()),weapon),
+					}
+					setCommsMessage(tableRemoveRandom(complete_refill_unavailable))
+					local max_affordable = math.floor(comms_source:getReputationPoints()/points_per_item)
+					for i=1,max_affordable do
+						addCommsReply(string.format(_("ammo-comms","Get %i (%i x %i = %i reputation)"),i,i,item_amount,i*item_amount),function()
+							string.format("")
+							if comms_source:takeReputationPoints(i*item_amount) then
+								comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + i)
+								if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
+									local restocked_on_selected_ordnance = {
+										"We loaded the ordnance you requested so you're ready to explode things.",
+										string.format("We provided the ordnance requested (amount: %i) You are ready to make things explode.",i),
+										string.format("%s's %s magazine has been restocked as requested (amount:%i)",comms_source:getCallSign(),weapon,i),
+										string.format("We stocked your %s magazine (amount: %i)",weapon,i),
+									}
+									setCommsMessage(tableRemoveRandom(restocked_on_selected_ordnance))
+								else
+									if i == 1 then
+										local single_restock = {
+											"We generously resupplied you with one weapon charge.",
+											"We gave you one of the ordnance type you requested",
+											"You got one weapon charge of the type you asked for.",
+											"We were able to provide you with one of the ordnance type you requested.",
+										}
+										local one_good_use = {
+											"Put it to good use.",
+											"Use it well.",
+											"Make good use of it.",
+											"Do the best you can with it.",
+										}
+										setCommsMessage(string.format("%s\n%s",tableRemoveRandom(single_restock),tableRemoveRandom(one_good_use)))
+									else
+										local partial_numeric_ordnance_restock = {
+											string.format("We generously resupplied you with %i weapon charges.",i),
+											string.format("We gave you %i of the ordnance type you requested",i),
+											string.format("You got %i of the weapon charges you asked for.",i),
+											string.format("We were able to provide you with %i of the ordnance type you requested.",i),
+										}
+										local good_use = {
+											"Put them to good use.",
+											"Use them well.",
+											"Make good use of them.",
+											"Do the best you can with them.",
+										}
+										setCommsMessage(string.format("%s\n%s",tableRemoveRandom(partial_numeric_ordnance_restock),tableRemoveRandom(good_use)))
+									end
+								end
+							else
+								local insufficient_rep_responses = {
+									"Insufficient reputation",
+									"Not enough reputation",
+									"You need more reputation",
+									string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+									"You don't have enough reputation",
+								}
+								setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+							end
+							addCommsReply("Back to restock ship",restockShip)
+							addCommsReply(_("Back to station communication"), commsStation)
+						end)
+					end
+				else
+					setCommsMessage(_("needRep-comms","Not enough reputation."))
+--					addCommsReply("Back to restock ship",restockShip)
+--					addCommsReply(_("Back to station communication"), commsStation)
+				end
 			end
 		end
-    end
+	end
 end
 function getRepairCrewFromStation(relationship)
 	local presented_option = false
@@ -58811,13 +58916,599 @@ function enhanceShip()
 		interactive_docked_station_enhance_comms_back = getScenarioTime()
 	end
 end
+function presentProximityScanner()
+	local proximity_scanner_prompt = {
+		"Spare portable automatic proximity scanner",
+		"Detachable automatic proximity scanner",
+		"Off the shelf automatic proximity scanner",
+		"After market automatic proximity scanner",
+	}
+	addCommsReply(tableRemoveRandom(proximity_scanner_prompt),function()
+		local proximity_scanner_explained = {
+			string.format("We've got this portable automatic proximity scanner here. They are very popular. It automatically performs a simple scan on ships in range (%iU). Would you like to have this installed?",comms_target.proximity_scanner_range),
+			string.format("We have an automatic proximity scanner that we are not using. These things are pretty popular right now. When a ship gets in range (%iU), it automatically and instantly performs a simple scan on the ship. Would you like for us to install it on %s?",comms_target.proximity_scanner_range,comms_source:getCallSign()),
+			string.format("Available for a limited time, we have the ever popular automatic proximity scanner. Install this baby and ships are instantly and automatically simple scanned when they get in range (%iU). Do you want it installed?",comms_target.proximity_scanner_range),
+			string.format("The %s quartermaster tells me that there's a spare automatic proximity scanner without a ship designated for installation. These automated proximity scanners are very popular. They instantly and automatically scan ships that are in range (%iU). Would you like it installed on %s?",comms_target:getCallSign(),comms_target.proximity_scanner_range,comms_source:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(proximity_scanner_explained))
+		local price_per_range_unit = 25
+		local install_proximity_scanner = {
+			string.format("We'll take it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+			string.format("Install it, please (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+			string.format("It's perfect! Install it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+			string.format("We could use that. Please install it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
+		}
+		addCommsReply(tableRemoveRandom(install_proximity_scanner),function()
+			if comms_source:takeReputationPoints(comms_target.proximity_scanner_range * price_per_range_unit) then
+				local temp_prox_scan = comms_source.prox_scan
+				comms_source.prox_scan = comms_target.proximity_scanner_range
+				if temp_prox_scan ~= nil and temp_prox_scan > 0 then
+					comms_target.proximity_scanner_range = temp_prox_scan
+				else
+					comms_target.proximity_scanner = false
+					comms_target.proximity_scanner_range = nil
+				end
+				local proximity_scanner_installed_confirmation = {
+					"Installed",
+					string.format("%s has installed the automatic proximity scanner",comms_target:getCallSign()),
+					"It's installed",
+					string.format("%s now has an automatic proximity scanner",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(proximity_scanner_installed_confirmation))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+			end
+			if minor_max_health_gift_enhance_back == nil or getScenarioTime() > minor_max_health_gift_enhance_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				minor_max_health_gift_enhance_back = getScenarioTime()
+			end
+			if minor_max_health_gift_interactive_back == nil or getScenarioTime() > minor_max_health_gift_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				minor_max_health_gift_interactive_back = getScenarioTime()
+			end
+			if minor_max_health_gift_comms_back == nil or getScenarioTime() > minor_max_health_gift_comms_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				minor_max_health_gift_comms_back = getScenarioTime()
+			end
+		end)
+		if minor_max_health_enhance_back == nil or getScenarioTime() > minor_max_health_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_max_health_enhance_back = getScenarioTime()
+		end
+		if minor_max_health_interactive_back == nil or getScenarioTime() > minor_max_health_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_max_health_interactive_back = getScenarioTime()
+		end
+		if minor_max_health_comms_back == nil or getScenarioTime() > minor_max_health_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_max_health_comms_back = getScenarioTime()
+		end
+	end)
+end
+function presentMaxHealthWidgets()
+	local max_health_widget_prompts = {
+		"Spare portable max health diagnostic",
+		"Detachable max health diagnostic",
+		"Off the shelf max health diagnostic",
+		"After market max health diagnostic",
+	}
+	addCommsReply(tableRemoveRandom(max_health_widget_prompts),function()
+		local max_health_diagnostic_explained = {
+			"There's a portable max health diagnostic here that we are not using. Engineers use these to keep close watch on severely damaged systems. Would you like to get this for your engineer?",
+			"We've got a max health diagnostic unit here that we are not using. Engineers use these things to keep a close eye on systems that have been severely damaged. Do you think your engineer might want this?",
+			"We've got an unused max health diagnostic. It's used by engineers to monitor severely damaged systems. Do you want to get this for your engineer?",
+			"We have a spare max health diagnostic unit. Your engineer can use it to monitor severely damaged systems. Interested?",
+		}
+		setCommsMessage(tableRemoveRandom(max_health_diagnostic_explained))
+		local get_max_health_diagnostic_prompt = {
+			"Yes, that's a great gift (5 reputation)",
+			"Yes! Our engineer would love that (5 reputation)",
+			"We'll take it (5 reputation)",
+			"Please install it (5 reputation)",
+		}
+		addCommsReply(tableRemoveRandom(get_max_health_diagnostic_prompt),function()
+			if comms_source:takeReputationPoints(5) then
+				comms_source.max_health_widgets = true
+				comms_target.max_health_widgets = false
+				local max_health_installed_confirmation = {
+					"Installed",
+					string.format("%s has installed the max health diagnostic unit",comms_target:getCallSign()),
+					"It's installed",
+					string.format("%s now has a max health diagnostic unit",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(max_health_installed_confirmation))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+			end
+			if minor_max_health_gift_enhance_back == nil or getScenarioTime() > minor_max_health_gift_enhance_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				minor_max_health_gift_enhance_back = getScenarioTime()
+			end
+			if minor_max_health_gift_interactive_back == nil or getScenarioTime() > minor_max_health_gift_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				minor_max_health_gift_interactive_back = getScenarioTime()
+			end
+			if minor_max_health_gift_comms_back == nil or getScenarioTime() > minor_max_health_gift_comms_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				minor_max_health_gift_comms_back = getScenarioTime()
+			end
+		end)
+		if minor_max_health_enhance_back == nil or getScenarioTime() > minor_max_health_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_max_health_enhance_back = getScenarioTime()
+		end
+		if minor_max_health_interactive_back == nil or getScenarioTime() > minor_max_health_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_max_health_interactive_back = getScenarioTime()
+		end
+		if minor_max_health_comms_back == nil or getScenarioTime() > minor_max_health_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_max_health_comms_back = getScenarioTime()
+		end
+	end)
+end
+function presentShieldBanner()
+	local shield_diagnostic_prompts = {
+		"Spare portable shield diagnostic",
+		"Detachable shield diagnostic",
+		"Off the shelf shield diagnostic",
+		"After market shield diagnostic",
+	}
+	addCommsReply(tableRemoveRandom(shield_diagnostic_prompts),function()
+		local shield_diagnostic_explained = {
+			"We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?",
+			"We have a shield diagnostic unit without a home. Engineers that prefer raw numbers over the standard percentage values like this tool. Would you like to get this for your engineer?",
+			string.format("There's a shield diagnostic unit here that could be installed on %s. Some engineers like the raw numbers it provides better than the standard percentage values. Do you want it installed for your engineer?",comms_source:getCallSign()),
+			"We've got a shield diagnostic unit without a designated ship installation slot. What does it do? Well, it provides a readout in raw numbers for the state of the shields rather than the typical percentage value. Some engineers prefer the raw numbers. Do you think your engineer might want this tool?",
+		}
+		setCommsMessage(tableRemoveRandom(shield_diagnostic_explained))
+		local install_shield_diagnostic_confirmation_prompt = {
+			"Yes, that's a perfect gift (5 reputation)",
+			"Yes! Our engineer would love that (5 reputation)",
+			"We'll take it (5 reputation)",
+			"Please install it (5 reputation)",
+		}
+		addCommsReply(tableRemoveRandom(install_shield_diagnostic_confirmation_prompt),function()
+			if comms_source:takeReputationPoints(5) then
+				comms_source.shield_banner = true
+				comms_target.shield_banner = false
+				local shield_diagnostic_installed_confirmation = {
+					"Installed",
+					string.format("%s has installed the shield diagnostic unit",comms_target:getCallSign()),
+					"It's installed",
+					string.format("%s now has a shield diagnostic unit",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(shield_diagnostic_installed_confirmation))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+			end
+			if minor_shield_gift_enhance_back == nil or getScenarioTime() > minor_shield_gift_enhance_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				minor_shield_gift_enhance_back = getScenarioTime()
+			end
+			if minor_shield_gift_interactive_back == nil or getScenarioTime() > minor_shield_gift_interactive_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				minor_shield_gift_interactive_back = getScenarioTime()
+			end
+			if minor_shield_gift_comms_back == nil or getScenarioTime() > minor_shield_gift_comms_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				minor_shield_gift_comms_back = getScenarioTime()
+			end
+		end)
+		if minor_shield_enhance_back == nil or getScenarioTime() > minor_shield_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_shield_enhance_back = getScenarioTime()
+		end
+		if minor_shield_interactive_back == nil or getScenarioTime() > minor_shield_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_shield_interactive_back = getScenarioTime()
+		end
+		if minor_shield_comms_back == nil or getScenarioTime() > minor_shield_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_shield_comms_back = getScenarioTime()
+		end
+	end)
+end
+function presentHullBanner()
+	local hull_diagnostic_prompts = {
+		"Spare portable hull diagnostic",
+		"Detachable hull diagnostic",
+		"Off the shelf hull diagnostic",
+		"After market hull diagnostic",
+	}
+	addCommsReply(tableRemoveRandom(hull_diagnostic_prompts),function()
+		local hull_diagnostic_explained = {
+			"We've got a spare portable hull diagnostic if you're interested. Engineers use these to get raw data on hull status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?",
+			"We have a hull diagnostic unit without a home. Engineers that prefer raw hull status numbers over the standard percentage values like this tool. Would you like to get this for your engineer?",
+			string.format("There's a hull diagnostic unit here that could be installed on %s. Some engineers like the raw numbers it provides better than the standard percentage values. Do you want it installed for your engineer?",comms_source:getCallSign()),
+			"We've got a hull diagnostic unit without a designated ship installation slot. What does it do? Well, it provides a readout in raw numbers for the state of the hull rather than the typical percentage value. Some engineers prefer the raw numbers. Do you think your engineer might want this tool?",
+		}
+		setCommsMessage(tableRemoveRandom(hull_diagnostic_explained))
+		local install_hull_diagnostic_confirmation_prompt = {
+			"Yes, that's a perfect gift (5 reputation)",
+			"Yes! Our engineer would love that (5 reputation)",
+			"We'll take it (5 reputation)",
+			"Please install it (5 reputation)",
+		}
+		addCommsReply(tableRemoveRandom(install_hull_diagnostic_confirmation_prompt),function()
+			if comms_source:takeReputationPoints(5) then
+				comms_source.hull_banner = true
+				comms_target.hull_banner = false
+				local hull_diagnostic_installed_confirmation = {
+					"Installed",
+					string.format("%s has installed the hull diagnostic unit",comms_target:getCallSign()),
+					"It's installed",
+					string.format("%s now has a hull diagnostic unit",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(hull_diagnostic_installed_confirmation))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+			end
+			if minor_hull_enhance_gift_back == nil or getScenarioTime() > minor_hull_enhance_gift_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				minor_hull_enhance_gift_back = getScenarioTime()
+			end
+			if minor_hull_interactive_gift_back == nil or getScenarioTime() > minor_hull_interactive_gift_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				minor_hull_interactive_gift_back = getScenarioTime()
+			end
+			if minor_hull_comms_gift_back == nil or getScenarioTime() > minor_hull_comms_gift_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				minor_hull_comms_gift_back = getScenarioTime()
+			end
+		end)
+		if minor_hull_enhance_back == nil or getScenarioTime() > minor_hull_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_hull_enhance_back = getScenarioTime()
+		end
+		if minor_hull_interactive_back == nil or getScenarioTime() > minor_hull_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_hull_interactive_back = getScenarioTime()
+		end
+		if minor_hull_comms_back == nil or getScenarioTime() > minor_hull_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_hull_comms_back = getScenarioTime()
+		end
+	end)
+end
+function presentWaypointDistanceCalculator()
+	local waypoint_distance_calc_prompts = {
+		"Spare waypoint distance calculator",
+		"Detachable waypoint distance calculator",
+		"Off the shelf waypoint distance calculator",
+		"After market waypoint distance calculator",
+	}
+	addCommsReply(tableRemoveRandom(waypoint_distance_calc_prompts),function()
+		local waypoint_distance_calc_explained = {
+			"We've got a spare portable waypoint distance calculator if you're interested. Helm or Tactical officers use this to get hyper accurate distance calculations for waypoints placed by Relay or Operations. Would you like to get this for helm/tactical?",
+			"We have an unused waypoint distance calculator. Your helm or tactical officer could use this to get hyper-accurate distance calculations for any waypoints placed by your relay or operations officer. Would you like this installed for helm/tactical?",
+			"There's a waypoint distance calculator here that could use a home. It's a device used by helm or tactical to calculat hyper accurate distances for waypoints. Interested?",
+			string.format("We have a waypoint distance calculator begging to be installed on %s. Helm or Tactical use it for extremely accurate distance calculations on waypoints placed by Relay or Operations. Would this be useful for you?",comms_source:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(waypoint_distance_calc_explained))
+		local install_waypoint_distance_calc_confirmation_prompt = {
+			"Yes, that's a perfect gift (5 reputation)",
+			"We'll take it (5 reputation)",
+			"Please install it (5 reputation)",
+		}
+		if comms_source:hasPlayerAtPosition("Helms") then
+			if comms_source:hasPlayerAtPosition("Tactical") then
+				table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Helm/Tactical would love that (5 reputation)")
+			else
+				table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Helm would love that (5 reputation)")
+			end
+		elseif comms_source:hasPlayerAtPosition("Tactical") then
+			table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Tactical would love that (5 reputation)")
+		end
+		addCommsReply(tableRemoveRandom(install_waypoint_distance_calc_confirmation_prompt),function()
+			if comms_source:takeReputationPoints(5) then
+				comms_source.way_dist = true
+				comms_target.way_dist = false
+				local waypoint_distance_calc_installed_confirmation = {
+					"Installed",
+					string.format("%s has installed the waypoint distance calculator",comms_target:getCallSign()),
+					"It's installed",
+					string.format("%s now has a waypoint distance calculator",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableRemoveRandom(waypoint_distance_calc_installed_confirmation))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+			end
+			if minor_calculator_enhance_gift_back == nil or getScenarioTime() > minor_calculator_enhance_gift_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				minor_calculator_enhance_gift_back = getScenarioTime()
+			end
+			if minor_calculator_interactive_gift_back == nil or getScenarioTime() > minor_calculator_interactive_gift_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				minor_calculator_interactive_gift_back = getScenarioTime()
+			end
+			if minor_calculator_comms_gift_back == nil or getScenarioTime() > minor_calculator_comms_gift_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				minor_calculator_comms_gift_back = getScenarioTime()
+			end
+		end)
+		if minor_calculator_enhance_back == nil or getScenarioTime() > minor_calculator_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_calculator_enhance_back = getScenarioTime()
+		end
+		if minor_calculator_interactive_back == nil or getScenarioTime() > minor_calculator_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_calculator_interactive_back = getScenarioTime()
+		end
+		if minor_calculator_comms_back == nil or getScenarioTime() > minor_calculator_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_calculator_comms_back = getScenarioTime()
+		end
+	end)
+end
+function presentBoostSensorRangeWithPower()
+	local boost_sensors_with_power_prompts = {
+		"Sensor power boost",
+		"Funnel power to sensors",
+		"Power boost to sensors",
+		"Use energy to increase sensor range",
+	}
+	addCommsReply(tableRemoveRandom(boost_sensors_with_power_prompts),function()
+		local explain_power_sensor_boost = {
+			"We've got a device that can draw power from your batteries into the sensors in order to increase sensor range. It's a way for Science and Engineering to work together to temporarily give Science better situational awareness. The device draws a significant amount of power when it's enabled, but it can be enabled and disabled according to the situation. The device has three boost levels to add to current sensor range: level 1 = interval, level 2 = interval X 2, level 3 = interval X 3. The higher the level the more power used. Would you like this device installed?",
+			"There is a sensor boosting device here that draws power from the batteries to increase sensor range. Engineering controls whether it is on or off and how strong it is. Science gets a better sensor range while it is enabled. It draws lots of power while enabled, so Engineering should monitor energy use carefully. The device has three boost levels to add to current sensor range: level 1 = interval, level 2 = interval X 2, level 3 = interval X 3. The higher the level the more power used. Interested in installing it?",
+			"We can install a device that uses ship batteries to increase sensor range. Engineering activates the device, sets a level and then Science takes advantage of the increased range. If you install it, be careful since it uses a large amount of power. The device has three boost levels to add to current sensor range: level 1 = interval, level 2 = interval X 2, level 3 = interval X 3. The higher the level the more power used. Interested?",
+			"We've got a sensor range booster available. It siphons a large amount of power out of the batteries into the sensors to increase sensor range. Engineering activates it, sets the level and deactivates it so that Science can take advantage of the longer sensor range. The sensor range booster has three boost levels to add to current sensor range: level 1 = interval, level 2 = interval X 2, level 3 = interval X 3. The higher the level the more power used. Is this something you are interested in having installed?",
+		}
+		setCommsMessage(tableRemoveRandom(explain_power_sensor_boost))
+		for i,sensor_booster in ipairs(comms_target.installable_sensor_boost_ranges) do
+			addCommsReply(string.format("Range interval:%sU Reputation:%s",sensor_booster.interval,sensor_booster.cost),function()
+				if comms_source:takeReputationPoints(sensor_booster.cost) then
+					comms_source.power_sensor_interval = sensor_booster.interval
+					comms_target.installable_sensor_boost_ranges[i] = comms_target.installable_sensor_boost_ranges[#comms_target.installable_sensor_boost_ranges]
+					comms_target.installable_sensor_boost_ranges[#comms_target.installable_sensor_boost_ranges] = nil
+					if #comms_target.installable_sensor_boost_ranges == 0 then
+						comms_target.installable_sensor_boost = false
+					end
+					local sensor_booster_installed_confirmation = {
+						"Installed",
+						string.format("%s has installed the sensor booster device",comms_target:getCallSign()),
+						"It's installed",
+						string.format("%s now has a powered sensor booster",comms_source:getCallSign()),
+					}
+					setCommsMessage(tableRemoveRandom(sensor_booster_installed_confirmation))
+				else
+					local insufficient_rep_responses = {
+						"Insufficient reputation",
+						"Not enough reputation",
+						"You need more reputation",
+						string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+						"You don't have enough reputation",
+					}
+					setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
+				end
+				if minor_boost_sensor_gift_enhance_back == nil or getScenarioTime() > minor_boost_sensor_gift_enhance_back + comms_fudge then
+					addCommsReply("Back to enhance ship",enhanceShip)
+					minor_boost_sensor_gift_enhance_back = getScenarioTime()
+				end
+				if minor_boost_sensor_gift_interactive_back == nil or getScenarioTime() > minor_boost_sensor_gift_interactive_back + comms_fudge then
+					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+					minor_boost_sensor_gift_interactive_back = getScenarioTime()
+				end
+				if minor_boost_sensor_gift_comms_back == nil or getScenarioTime() > minor_boost_sensor_gift_comms_back + comms_fudge then
+					addCommsReply(_("Back to station communication"), commsStation)
+					minor_boost_sensor_gift_comms_back = getScenarioTime()
+				end
+			end)
+		end
+		if minor_boost_sensor_gift_enhance_back == nil or getScenarioTime() > minor_boost_sensor_gift_enhance_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_boost_sensor_gift_enhance_back = getScenarioTime()
+		end
+		if minor_boost_sensor_gift_interactive_back == nil or getScenarioTime() > minor_boost_sensor_gift_interactive_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_boost_sensor_gift_interactive_back = getScenarioTime()
+		end
+		if minor_boost_sensor_gift_comms_back == nil or getScenarioTime() > minor_boost_sensor_gift_comms_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_boost_sensor_gift_comms_back = getScenarioTime()
+		end
+	end)
+end
+function presentReturnMaxHealthWidgets()
+	local chunk_max_health_prompt = {
+		"Give portable max health diagnostic to repair technicians",
+		string.format("Donate max health diagnostic unit to %s",comms_target:getCallSign()),
+		"Remove max health diagnostic unit. Give it to station",
+		string.format("Transfer max health diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(chunk_max_health_prompt),function()
+		local max_health_donation_confirmed = {
+			string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
+			string.format("Max health diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
+			string.format("%s thanks you for the donation of the max health diagnostic unit",comms_target:getCallSign()),
+			string.format("The max health diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(max_health_donation_confirmed))
+		comms_source.max_health_widgets = false
+		comms_target.max_health_widgets = true
+		comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
+		if minor_max_health_enhance_return_back == nil or getScenarioTime() > minor_max_health_enhance_return_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_max_health_enhance_return_back = getScenarioTime()
+		end
+		if minor_max_health_interactive_return_back == nil or getScenarioTime() > minor_max_health_interactive_return_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_max_health_interactive_return_back = getScenarioTime()
+		end
+		if minor_max_health_comms_return_back == nil or getScenarioTime() > minor_max_health_comms_return_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_max_health_comms_return_back = getScenarioTime()
+		end
+	end)
+end
+function presentReturnShieldBanner()
+	local remove_shield_diagnostic_prompt = {
+		"Give portable shield diagnostic to repair technicians",
+		string.format("Donate shield diagnostic unit to %s",comms_target:getCallSign()),
+		"Remove shield diagnostic unit. Give it to station",
+		string.format("Transfer shield diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(remove_shield_diagnostic_prompt),function()
+		local shield_diagnostic_donation_confirmed = {
+			string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
+			string.format("Shield diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
+			string.format("%s thanks you for the donation of the shield diagnostic unit",comms_target:getCallSign()),
+			string.format("The shield diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(shield_diagnostic_donation_confirmed))
+		comms_source.shield_banner = false
+		comms_target.shield_banner = true
+		comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
+		if minor_shield_enhance_return_back == nil or getScenarioTime() > minor_shield_enhance_return_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_shield_enhance_return_back = getScenarioTime()
+		end
+		if minor_shield_interactive_return_back == nil or getScenarioTime() > minor_shield_interactive_return_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_shield_interactive_return_back = getScenarioTime()
+		end
+		if minor_shield_comms_return_back == nil or getScenarioTime() > minor_shield_comms_return_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_shield_comms_return_back = getScenarioTime()
+		end
+	end)
+end
+function presentReturnHullBanner()
+	local remove_hull_diagnostic_prompt = {
+		"Give portable hull diagnostic to repair technicians",
+		string.format("Donate hull diagnostic unit to %s",comms_target:getCallSign()),
+		"Remove hull diagnostic unit. Give it to station",
+		string.format("Transfer hull diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(remove_hull_diagnostic_prompt),function()
+		local hull_diagnostic_donation_confirmed = {
+			string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
+			string.format("Hull diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
+			string.format("%s thanks you for the donation of the hull diagnostic unit",comms_target:getCallSign()),
+			string.format("The hull diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableRemoveRandom(hull_diagnostic_donation_confirmed))
+		comms_source.hull_banner = false
+		comms_target.hull_banner = true
+		comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
+		if minor_hull_enhance_return_back == nil or getScenarioTime() > minor_hull_enhance_return_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_hull_enhance_return_back = getScenarioTime()
+		end
+		if minor_hull_interactive_return_back == nil or getScenarioTime() > minor_hull_interactive_return_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_hull_interactive_return_back = getScenarioTime()
+		end
+		if minor_hull_comms_return_back == nil or getScenarioTime() > minor_hull_comms_return_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_hull_comms_return_back = getScenarioTime()
+		end
+	end)
+end
+function presentReturnWaypointDistanceCalculator()
+	local remove_waypoint_dist_calc_prompt = {
+		"Give waypoint distance calculator to repair technicians",
+		string.format("Donate waypoint distance calculator to %s",comms_target:getCallSign()),
+		"Remove waypoint distance calculator. Give it to station",
+		string.format("Transfer waypoint distance calculator from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
+	}
+	addCommsReply(tableRemoveRandom(remove_waypoint_dist_calc_prompt),function()
+		local waypoint_distance_calculator_explained = {
+			"Not every ship in the fleet has a portable waypoint distance calculator. If you were to give us yours, we could install it on another ship if they wanted it. Would you like to give us your waypoint distance calculator?",
+			"If you were to donate your waypoint distance calculator, we could install it on another ship in the fleet. Not every ship has one, you know. Do you want to give us yours?",
+			"The waypoint distance calculator is not standard equipment on every ship in the fleet. Giving us yours allows us to install it on another ship. Would you like to donate yours? It's for a worthy cause.",
+			"Consider that not every ship has a waypoint distance calculator. We could give another ship in the fleet one if you were to give us yours. What about it?",
+		}
+		setCommsMessage(tableRemoveRandom(waypoint_distance_calculator_explained))
+		local confirm_waypoint_dist_donation_prompt = {
+			"Yes, we like to help the fleet (add 5 rep)",
+			"Yes, we'll donate ours (add 5 rep)",
+			"Ok, we will give you ours (add 5 rep)",
+			"We'll help the fleet and give you ours (add 5 rep)",
+		}
+		addCommsReply(tableRemoveRandom(confirm_waypoint_dist_donation_prompt),function()
+			comms_source:addReputationPoints(5)
+			comms_source.way_dist = false
+			comms_target.way_dist = true
+			comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
+			if comms_source.way_distance_button_hlm ~= nil then
+				comms_source:removeCustom(comms_source.way_distance_button_hlm)
+				comms_source:removeCustom(comms_source.way_distance_button_tac)
+				comms_source.way_distance_button_hlm = nil
+				comms_source.way_distance_button_tac = nil
+			end
+			local confirm_uninstalled_waypoint_dist_calc = {
+				"Thanks. I'll be sure to give this to the next fleet member that asks.",
+				"You have done the fleet an appreciated service. We'll be sure the waypoint distance calculator gets put to good use.",
+				string.format("The %s will go down in our records as a generous ship. We'll make sure another fleet member gets good use from your waypoint distance calculator",comms_source:getCallSign()),
+				"Your contribution is greatly appreciated. This waypoint distance calculator will make some helm officer very happy",
+			}
+			setCommsMessage(tableRemoveRandom(confirm_uninstalled_waypoint_dist_calc))
+			if minor_calculator_enhance_sell_back == nil or getScenarioTime() > minor_calculator_enhance_sell_back + comms_fudge then
+				addCommsReply("Back to enhance ship",enhanceShip)
+				minor_calculator_enhance_sell_back = getScenarioTime()
+			end
+			if minor_calculator_interactive_sell_back == nil or getScenarioTime() > minor_calculator_interactive_sell_back + comms_fudge then
+				addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+				minor_calculator_interactive_sell_back = getScenarioTime()
+			end
+			if minor_calculator_comms_sell_back == nil or getScenarioTime() > minor_calculator_comms_sell_back + comms_fudge then
+				addCommsReply(_("Back to station communication"), commsStation)
+				minor_calculator_comms_sell_back = getScenarioTime()
+			end
+		end)
+		if minor_calculator_enhance_return_back == nil or getScenarioTime() > minor_calculator_enhance_return_back + comms_fudge then
+			addCommsReply("Back to enhance ship",enhanceShip)
+			minor_calculator_enhance_return_back = getScenarioTime()
+		end
+		if minor_calculator_interactive_return_back == nil or getScenarioTime() > minor_calculator_interactive_return_back + comms_fudge then
+			addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+			minor_calculator_interactive_return_back = getScenarioTime()
+		end
+		if minor_calculator_comms_return_back == nil or getScenarioTime() > minor_calculator_comms_return_back + comms_fudge then
+			addCommsReply(_("Back to station communication"), commsStation)
+			minor_calculator_comms_return_back = getScenarioTime()
+		end
+	end)
+end
 function minorUpgrades()
-	local minor_upgrade_available = false
-	local shield_banner_available = false
-	local hull_banner_available = false
-	local way_dist_available = false
-	local max_health_widgets_available = false
-	local proximity_scanner_available = false
+	--	set minor upgrade present or not at station if not yet set
 	if comms_target.proximity_scanner == nil then
 		if random(1,100) < 55 then
 			comms_target.proximity_scanner = true
@@ -58854,73 +59545,105 @@ function minorUpgrades()
 			comms_target.way_dist = false
 		end
 	end
+	if comms_target.installable_sensor_boost == nil then
+		if random(1,100) < 32 then
+			comms_target.installable_sensor_boost = true
+			comms_target.installable_sensor_boost_ranges = {}
+			local sensor_boost_ranges_pool = {}
+			for i=5,9,.5 do
+				table.insert(sensor_boost_ranges_pool,{interval = i,cost=math.random(3,6)*2*i})
+			end
+			for i=1,3 do
+				table.insert(comms_target.installable_sensor_boost_ranges,tableRemoveRandom(sensor_boost_ranges_pool))
+			end
+		else
+			comms_target.installable_sensor_boost = false
+		end
+	end
+	--	set minor upgrade available list based on presence at station, presence on ship and relationship
+	local minor_upgrade_choices = {}
+	if comms_target.installable_sensor_boost and (comms_source.power_sensor_interval == nil or comms_source.power_sensor_interval == 0) then
+		if comms_target:isFriendly(comms_source) then
+			if comms_target.comms_data.friendlyness > 30 then
+				table.insert(minor_upgrade_choices,presentBoostSensorRangeWithPower)
+			end
+		elseif not comms_target:isEnemy(comms_source) then
+			if comms_target.comms_data.friendlyness > 40 then
+				table.insert(minor_upgrade_choices,presentBoostSensorRangeWithPower)
+			end
+		end
+	end
 	if comms_target.proximity_scanner and (comms_source.prox_scan == nil or comms_source.prox_scan < comms_target.proximity_scanner_range) then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 50 then
-				minor_upgrade_available = true
-				proximity_scanner_available = true
+				table.insert(minor_upgrade_choices,presentProximityScanner)
 			end
 		elseif not comms_target:isEnemy(comms_source) then
 			if comms_target.comms_data.friendlyness > 15 then
-				minor_upgrade_available = true
-				proximity_scanner_available = true
+				table.insert(minor_upgrade_choices,presentProximityScanner)
 			end
 		end
 	end
 	if comms_target.max_health_widgets and not comms_source.max_health_widgets then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 25 then
-				minor_upgrade_available = true
-				max_health_widgets_available = true
+				table.insert(minor_upgrade_choices,presentMaxHealthWidgets)
 			end
 		elseif not comms_target:isEnemy(comms_source) then
 			if comms_target.comms_data.friendlyness > 45 then
-				minor_upgrade_available = true
-				max_health_widgets_available = true
+				table.insert(minor_upgrade_choices,presentMaxHealthWidgets)
 			end
 		end
 	end
 	if comms_target.shield_banner and not comms_source.shield_banner then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 20 then
-				minor_upgrade_available = true
-				shield_banner_available = true
+				table.insert(minor_upgrade_choices,presentShieldBanner)
 			end
 		elseif not comms_target:isEnemy(comms_source) then
 			if comms_target.comms_data.friendlyness > 50 then
-				minor_upgrade_available = true
-				shield_banner_available = true
+				table.insert(minor_upgrade_choices,presentShieldBanner)
 			end
 		end
 	end
 	if comms_target.hull_banner and not comms_source.hull_banner then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 30 then
-				minor_upgrade_available = true
-				hull_banner_available = true
+				table.insert(minor_upgrade_choices,presentHullBanner)
 			end
 		elseif not comms_target:isEnemy(comms_source) then
 			if comms_target.comms_data.friendlyness > 60 then
-				minor_upgrade_available = true
-				hull_banner_available = true
+				table.insert(minor_upgrade_choices,presentHullBanner)
 			end
 		end
 	end
 	if comms_target.way_dist and not comms_source.way_dist then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 10 then
-				minor_upgrade_available = true
-				way_dist_available = true
+				table.insert(minor_upgrade_choices,presentWaypointDistanceCalculator)
 			end
 		elseif not comms_target:isEnemy(comms_source) then
 			if comms_target.comms_data.friendlyness > 20 then
-				minor_upgrade_available = true
-				way_dist_available = true
+				table.insert(minor_upgrade_choices,presentWaypointDistanceCalculator)
 			end
 		end
 	end
+	--	set minor upgrade returns available list
+	local return_minor_upgrade_choices = {}
+	if not comms_target.max_health_widgets and comms_source.max_health_widgets ~= nil and comms_source.max_health_widgets then
+		table.insert(return_minor_upgrade_choices,presentReturnMaxHealthWidgets)
+	end
+	if not comms_target.shield_banner and comms_source.shield_banner ~= nil and comms_source.shield_banner then
+		table.insert(return_minor_upgrade_choices,presentReturnShieldBanner)
+	end
+	if not comms_target.hull_banner and comms_source.hull_banner ~= nil and comms_source.hull_banner then
+		table.insert(return_minor_upgrade_choices,presentReturnHullBanner)
+	end
+	if not comms_target.way_dist and comms_source.way_dist ~= nil and comms_source.way_dist then
+		table.insert(return_minor_upgrade_choices,presentReturnWaypointDistanceCalculator)
+	end
 	local presented_option = false
-	if minor_upgrade_available then
+	if #minor_upgrade_choices + #return_minor_upgrade_choices > 0 then
 		presented_option = true
 		local minor_upgrade_prompt = {
 			"Minor upgrade",
@@ -58937,527 +59660,23 @@ function minorUpgrades()
 			}
 			setCommsMessage(tableRemoveRandom(minor_upgrades_available))
 			string.format("")
-			if proximity_scanner_available then
-				local proximity_scanner_prompt = {
-					"Spare portable automatic proximity scanner",
-					"Detachable automatic proximity scanner",
-					"Off the shelf automatic proximity scanner",
-					"After market automatic proximity scanner",
-				}
-				addCommsReply(tableRemoveRandom(proximity_scanner_prompt),function()
-					local proximity_scanner_explained = {
-						string.format("We've got this portable automatic proximity scanner here. They are very popular. It automatically performs a simple scan on ships in range (%iU). Would you like to have this installed?",comms_target.proximity_scanner_range),
-						string.format("We have an automatic proximity scanner that we are not using. These things are pretty popular right now. When a ship gets in range (%iU), it automatically and instantly performs a simple scan on the ship. Would you like for us to install it on %s?",comms_target.proximity_scanner_range,comms_source:getCallSign()),
-						string.format("Available for a limited time, we have the ever popular automatic proximity scanner. Install this baby and ships are instantly and automatically simple scanned when they get in range (%iU). Do you want it installed?",comms_target.proximity_scanner_range),
-						string.format("The %s quartermaster tells me that there's a spare automatic proximity scanner without a ship designated for installation. These automated proximity scanners are very popular. They instantly and automatically scan ships that are in range (%iU). Would you like it installed on %s?",comms_target:getCallSign(),comms_target.proximity_scanner_range,comms_source:getCallSign()),
-					}
-					setCommsMessage(tableRemoveRandom(proximity_scanner_explained))
-					local price_per_range_unit = 25
-					local install_proximity_scanner = {
-						string.format("We'll take it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
-						string.format("Install it, please (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
-						string.format("It's perfect! Install it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
-						string.format("We could use that. Please install it (%i reputation)",comms_target.proximity_scanner_range * price_per_range_unit),
-					}
-					addCommsReply(tableRemoveRandom(install_proximity_scanner),function()
-						if comms_source:takeReputationPoints(comms_target.proximity_scanner_range * price_per_range_unit) then
-							local temp_prox_scan = comms_source.prox_scan
-							comms_source.prox_scan = comms_target.proximity_scanner_range
-							if temp_prox_scan ~= nil and temp_prox_scan > 0 then
-								comms_target.proximity_scanner_range = temp_prox_scan
-							else
-								comms_target.proximity_scanner = false
-								comms_target.proximity_scanner_range = nil
-							end
-							local proximity_scanner_installed_confirmation = {
-								"Installed",
-								string.format("%s has installed the automatic proximity scanner",comms_target:getCallSign()),
-								"It's installed",
-								string.format("%s now has an automatic proximity scanner",comms_source:getCallSign()),
-							}
-							setCommsMessage(tableRemoveRandom(proximity_scanner_installed_confirmation))
-						else
-							local insufficient_rep_responses = {
-								"Insufficient reputation",
-								"Not enough reputation",
-								"You need more reputation",
-								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
-								"You don't have enough reputation",
-							}
-							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
-						end
-						if minor_max_health_gift_enhance_back == nil or getScenarioTime() > minor_max_health_gift_enhance_back + comms_fudge then
-							addCommsReply("Back to enhance ship",enhanceShip)
-							minor_max_health_gift_enhance_back = getScenarioTime()
-						end
-						if minor_max_health_gift_interactive_back == nil or getScenarioTime() > minor_max_health_gift_interactive_back + comms_fudge then
-							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-							minor_max_health_gift_interactive_back = getScenarioTime()
-						end
-						if minor_max_health_gift_comms_back == nil or getScenarioTime() > minor_max_health_gift_comms_back + comms_fudge then
-							addCommsReply(_("Back to station communication"), commsStation)
-							minor_max_health_gift_comms_back = getScenarioTime()
-						end
-					end)
-					if minor_max_health_enhance_back == nil or getScenarioTime() > minor_max_health_enhance_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_max_health_enhance_back = getScenarioTime()
-					end
-					if minor_max_health_interactive_back == nil or getScenarioTime() > minor_max_health_interactive_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_max_health_interactive_back = getScenarioTime()
-					end
-					if minor_max_health_comms_back == nil or getScenarioTime() > minor_max_health_comms_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_max_health_comms_back = getScenarioTime()
-					end
-				end)
+			local upgrades_presented_count = 0
+			for i=1,3 do
+				local present_upgrade = tableRemoveRandom(minor_upgrade_choices)
+				if present_upgrade ~= nil then
+					present_upgrade()
+					upgrades_presented_count = upgrades_presented_count + 1
+				end
 			end
-			if max_health_widgets_available then
-				local max_health_widget_prompts = {
-					"Spare portable max health diagnostic",
-					"Detachable max health diagnostic",
-					"Off the shelf max health diagnostic",
-					"After market max health diagnostic",
-				}
-				addCommsReply(tableRemoveRandom(max_health_widget_prompts),function()
-					local max_health_diagnostic_explained = {
-						"There's a portable max health diagnostic here that we are not using. Engineers use these to keep close watch on severely damaged systems. Would you like to get this for your engineer?",
-						"We've got a max health diagnostic unit here that we are not using. Engineers use these things to keep a close eye on systems that have been severely damaged. Do you think your engineer might want this?",
-						"We've got an unused max health diagnostic. It's used by engineers to monitor severely damaged systems. Do you want to get this for your engineer?",
-						"We have a spare max health diagnostic unit. Your engineer can use it to monitor severely damaged systems. Interested?",
-					}
-					setCommsMessage(tableRemoveRandom(max_health_diagnostic_explained))
-					local get_max_health_diagnostic_prompt = {
-						"Yes, that's a great gift (5 reputation)",
-						"Yes! Our engineer would love that (5 reputation)",
-						"We'll take it (5 reputation)",
-						"Please install it (5 reputation)",
-					}
-					addCommsReply(tableRemoveRandom(get_max_health_diagnostic_prompt),function()
-						if comms_source:takeReputationPoints(5) then
-							comms_source.max_health_widgets = true
-							comms_target.max_health_widgets = false
-							local max_health_installed_confirmation = {
-								"Installed",
-								string.format("%s has installed the max health diagnostic unit",comms_target:getCallSign()),
-								"It's installed",
-								string.format("%s now has a max health diagnostic unit",comms_source:getCallSign()),
-							}
-							setCommsMessage(tableRemoveRandom(max_health_installed_confirmation))
-						else
-							local insufficient_rep_responses = {
-								"Insufficient reputation",
-								"Not enough reputation",
-								"You need more reputation",
-								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
-								"You don't have enough reputation",
-							}
-							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
-						end
-						if minor_max_health_gift_enhance_back == nil or getScenarioTime() > minor_max_health_gift_enhance_back + comms_fudge then
-							addCommsReply("Back to enhance ship",enhanceShip)
-							minor_max_health_gift_enhance_back = getScenarioTime()
-						end
-						if minor_max_health_gift_interactive_back == nil or getScenarioTime() > minor_max_health_gift_interactive_back + comms_fudge then
-							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-							minor_max_health_gift_interactive_back = getScenarioTime()
-						end
-						if minor_max_health_gift_comms_back == nil or getScenarioTime() > minor_max_health_gift_comms_back + comms_fudge then
-							addCommsReply(_("Back to station communication"), commsStation)
-							minor_max_health_gift_comms_back = getScenarioTime()
-						end
-					end)
-					if minor_max_health_enhance_back == nil or getScenarioTime() > minor_max_health_enhance_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_max_health_enhance_back = getScenarioTime()
+			if upgrades_presented_count < 3 then
+				--give back options
+				local presentation_slots_remaining = 3 - upgrades_presented_count
+				for i=1,presentation_slots_remaining do
+					local present_return_upgrade = tableRemoveRandom(return_minor_upgrade_choices)
+					if present_return_upgrade ~= nil then
+						present_return_upgrade()
 					end
-					if minor_max_health_interactive_back == nil or getScenarioTime() > minor_max_health_interactive_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_max_health_interactive_back = getScenarioTime()
-					end
-					if minor_max_health_comms_back == nil or getScenarioTime() > minor_max_health_comms_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_max_health_comms_back = getScenarioTime()
-					end
-				end)
-			end
-			if not comms_target.max_health_widgets and comms_source.max_health_widgets ~= nil and comms_source.max_health_widgets then
-				local chunk_max_health_prompt = {
-					"Give portable max health diagnostic to repair technicians",
-					string.format("Donate max health diagnostic unit to %s",comms_target:getCallSign()),
-					"Remove max health diagnostic unit. Give it to station",
-					string.format("Transfer max health diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
-				}
-				addCommsReply(tableRemoveRandom(chunk_max_health_prompt),function()
-					local max_health_donation_confirmed = {
-						string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
-						string.format("Max health diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
-						string.format("%s thanks you for the donation of the max health diagnostic unit",comms_target:getCallSign()),
-						string.format("The max health diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
-					}
-					setCommsMessage(tableRemoveRandom(max_health_donation_confirmed))
-					comms_source.max_health_widgets = false
-					comms_target.max_health_widgets = true
-					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
-					if minor_max_health_enhance_return_back == nil or getScenarioTime() > minor_max_health_enhance_return_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_max_health_enhance_return_back = getScenarioTime()
-					end
-					if minor_max_health_interactive_return_back == nil or getScenarioTime() > minor_max_health_interactive_return_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_max_health_interactive_return_back = getScenarioTime()
-					end
-					if minor_max_health_comms_return_back == nil or getScenarioTime() > minor_max_health_comms_return_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_max_health_comms_return_back = getScenarioTime()
-					end
-				end)
-			end
-			if shield_banner_available then
-				local shield_diagnostic_prompts = {
-					"Spare portable shield diagnostic",
-					"Detachable shield diagnostic",
-					"Off the shelf shield diagnostic",
-					"After market shield diagnostic",
-				}
-				addCommsReply(tableRemoveRandom(shield_diagnostic_prompts),function()
-					local shield_diagnostic_explained = {
-						"We've got a spare portable shield diagnostic if you're interested. Engineers use these to get raw data on shield status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?",
-						"We have a shield diagnostic unit without a home. Engineers that prefer raw numbers over the standard percentage values like this tool. Would you like to get this for your engineer?",
-						string.format("There's a shield diagnostic unit here that could be installed on %s. Some engineers like the raw numbers it provides better than the standard percentage values. Do you want it installed for your engineer?",comms_source:getCallSign()),
-						"We've got a shield diagnostic unit without a designated ship installation slot. What does it do? Well, it provides a readout in raw numbers for the state of the shields rather than the typical percentage value. Some engineers prefer the raw numbers. Do you think your engineer might want this tool?",
-					}
-					setCommsMessage(tableRemoveRandom(shield_diagnostic_explained))
-					local install_shield_diagnostic_confirmation_prompt = {
-						"Yes, that's a perfect gift (5 reputation)",
-						"Yes! Our engineer would love that (5 reputation)",
-						"We'll take it (5 reputation)",
-						"Please install it (5 reputation)",
-					}
-					addCommsReply(tableRemoveRandom(install_shield_diagnostic_confirmation_prompt),function()
-						if comms_source:takeReputationPoints(5) then
-							comms_source.shield_banner = true
-							comms_target.shield_banner = false
-							local shield_diagnostic_installed_confirmation = {
-								"Installed",
-								string.format("%s has installed the shield diagnostic unit",comms_target:getCallSign()),
-								"It's installed",
-								string.format("%s now has a shield diagnostic unit",comms_source:getCallSign()),
-							}
-							setCommsMessage(tableRemoveRandom(shield_diagnostic_installed_confirmation))
-						else
-							local insufficient_rep_responses = {
-								"Insufficient reputation",
-								"Not enough reputation",
-								"You need more reputation",
-								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
-								"You don't have enough reputation",
-							}
-							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
-						end
-						if minor_shield_gift_enhance_back == nil or getScenarioTime() > minor_shield_gift_enhance_back + comms_fudge then
-							addCommsReply("Back to enhance ship",enhanceShip)
-							minor_shield_gift_enhance_back = getScenarioTime()
-						end
-						if minor_shield_gift_interactive_back == nil or getScenarioTime() > minor_shield_gift_interactive_back + comms_fudge then
-							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-							minor_shield_gift_interactive_back = getScenarioTime()
-						end
-						if minor_shield_gift_comms_back == nil or getScenarioTime() > minor_shield_gift_comms_back + comms_fudge then
-							addCommsReply(_("Back to station communication"), commsStation)
-							minor_shield_gift_comms_back = getScenarioTime()
-						end
-					end)
-					if minor_shield_enhance_back == nil or getScenarioTime() > minor_shield_enhance_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_shield_enhance_back = getScenarioTime()
-					end
-					if minor_shield_interactive_back == nil or getScenarioTime() > minor_shield_interactive_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_shield_interactive_back = getScenarioTime()
-					end
-					if minor_shield_comms_back == nil or getScenarioTime() > minor_shield_comms_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_shield_comms_back = getScenarioTime()
-					end
-				end)
-			end
-			if not comms_target.shield_banner and comms_source.shield_banner ~= nil and comms_source.shield_banner then
-				local remove_shield_diagnostic_prompt = {
-					"Give portable shield diagnostic to repair technicians",
-					string.format("Donate shield diagnostic unit to %s",comms_target:getCallSign()),
-					"Remove shield diagnostic unit. Give it to station",
-					string.format("Transfer shield diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
-				}
-				addCommsReply(tableRemoveRandom(remove_shield_diagnostic_prompt),function()
-					local shield_diagnostic_donation_confirmed = {
-						string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
-						string.format("Shield diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
-						string.format("%s thanks you for the donation of the shield diagnostic unit",comms_target:getCallSign()),
-						string.format("The shield diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
-					}
-					setCommsMessage(tableRemoveRandom(shield_diagnostic_donation_confirmed))
-					comms_source.shield_banner = false
-					comms_target.shield_banner = true
-					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
-					if minor_shield_enhance_return_back == nil or getScenarioTime() > minor_shield_enhance_return_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_shield_enhance_return_back = getScenarioTime()
-					end
-					if minor_shield_interactive_return_back == nil or getScenarioTime() > minor_shield_interactive_return_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_shield_interactive_return_back = getScenarioTime()
-					end
-					if minor_shield_comms_return_back == nil or getScenarioTime() > minor_shield_comms_return_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_shield_comms_return_back = getScenarioTime()
-					end
-				end)
-			end
-			if hull_banner_available then
-				local hull_diagnostic_prompts = {
-					"Spare portable hull diagnostic",
-					"Detachable hull diagnostic",
-					"Off the shelf hull diagnostic",
-					"After market hull diagnostic",
-				}
-				addCommsReply(tableRemoveRandom(hull_diagnostic_prompts),function()
-					local hull_diagnostic_explained = {
-						"We've got a spare portable hull diagnostic if you're interested. Engineers use these to get raw data on hull status. Why? well, sometimes they prefer the raw numbers over the normal percentages that appear. Would you like to get this for your engineer?",
-						"We have a hull diagnostic unit without a home. Engineers that prefer raw hull status numbers over the standard percentage values like this tool. Would you like to get this for your engineer?",
-						string.format("There's a hull diagnostic unit here that could be installed on %s. Some engineers like the raw numbers it provides better than the standard percentage values. Do you want it installed for your engineer?",comms_source:getCallSign()),
-						"We've got a hull diagnostic unit without a designated ship installation slot. What does it do? Well, it provides a readout in raw numbers for the state of the hull rather than the typical percentage value. Some engineers prefer the raw numbers. Do you think your engineer might want this tool?",
-					}
-					setCommsMessage(tableRemoveRandom(hull_diagnostic_explained))
-					local install_hull_diagnostic_confirmation_prompt = {
-						"Yes, that's a perfect gift (5 reputation)",
-						"Yes! Our engineer would love that (5 reputation)",
-						"We'll take it (5 reputation)",
-						"Please install it (5 reputation)",
-					}
-					addCommsReply(tableRemoveRandom(install_hull_diagnostic_confirmation_prompt),function()
-						if comms_source:takeReputationPoints(5) then
-							comms_source.hull_banner = true
-							comms_target.hull_banner = false
-							local hull_diagnostic_installed_confirmation = {
-								"Installed",
-								string.format("%s has installed the hull diagnostic unit",comms_target:getCallSign()),
-								"It's installed",
-								string.format("%s now has a hull diagnostic unit",comms_source:getCallSign()),
-							}
-							setCommsMessage(tableRemoveRandom(hull_diagnostic_installed_confirmation))
-						else
-							local insufficient_rep_responses = {
-								"Insufficient reputation",
-								"Not enough reputation",
-								"You need more reputation",
-								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
-								"You don't have enough reputation",
-							}
-							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
-						end
-						if minor_hull_enhance_gift_back == nil or getScenarioTime() > minor_hull_enhance_gift_back + comms_fudge then
-							addCommsReply("Back to enhance ship",enhanceShip)
-							minor_hull_enhance_gift_back = getScenarioTime()
-						end
-						if minor_hull_interactive_gift_back == nil or getScenarioTime() > minor_hull_interactive_gift_back + comms_fudge then
-							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-							minor_hull_interactive_gift_back = getScenarioTime()
-						end
-						if minor_hull_comms_gift_back == nil or getScenarioTime() > minor_hull_comms_gift_back + comms_fudge then
-							addCommsReply(_("Back to station communication"), commsStation)
-							minor_hull_comms_gift_back = getScenarioTime()
-						end
-					end)
-					if minor_hull_enhance_back == nil or getScenarioTime() > minor_hull_enhance_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_hull_enhance_back = getScenarioTime()
-					end
-					if minor_hull_interactive_back == nil or getScenarioTime() > minor_hull_interactive_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_hull_interactive_back = getScenarioTime()
-					end
-					if minor_hull_comms_back == nil or getScenarioTime() > minor_hull_comms_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_hull_comms_back = getScenarioTime()
-					end
-				end)
-			end
-			if not comms_target.hull_banner and comms_source.hull_banner ~= nil and comms_source.hull_banner then
-				local remove_hull_diagnostic_prompt = {
-					"Give portable hull diagnostic to repair technicians",
-					string.format("Donate hull diagnostic unit to %s",comms_target:getCallSign()),
-					"Remove hull diagnostic unit. Give it to station",
-					string.format("Transfer hull diagnostic unit from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
-				}
-				addCommsReply(tableRemoveRandom(remove_hull_diagnostic_prompt),function()
-					local hull_diagnostic_donation_confirmed = {
-						string.format("%s thanks you and says they will put it to good use.",comms_target:getCallSign()),
-						string.format("Hull diagnostic unit uninstalled from %s. The technicians at %s say, 'Thanks %s. There are a number of other ships that have been asking for this.'",comms_source:getCallSign(),comms_target:getCallSign(),comms_source:getCallSign()),
-						string.format("%s thanks you for the donation of the hull diagnostic unit",comms_target:getCallSign()),
-						string.format("The hull diagnostic unit has been transferred from your ship to the parts inventory on station %s. They express their gratitude for your donation.",comms_target:getCallSign()),
-					}
-					setCommsMessage(tableRemoveRandom(hull_diagnostic_donation_confirmed))
-					comms_source.hull_banner = false
-					comms_target.hull_banner = true
-					comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
-					if minor_hull_enhance_return_back == nil or getScenarioTime() > minor_hull_enhance_return_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_hull_enhance_return_back = getScenarioTime()
-					end
-					if minor_hull_interactive_return_back == nil or getScenarioTime() > minor_hull_interactive_return_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_hull_interactive_return_back = getScenarioTime()
-					end
-					if minor_hull_comms_return_back == nil or getScenarioTime() > minor_hull_comms_return_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_hull_comms_return_back = getScenarioTime()
-					end
-				end)
-			end
-			if way_dist_available then
-				local waypoint_distance_calc_prompts = {
-					"Spare waypoint distance calculator",
-					"Detachable waypoint distance calculator",
-					"Off the shelf waypoint distance calculator",
-					"After market waypoint distance calculator",
-				}
-				addCommsReply(tableRemoveRandom(waypoint_distance_calc_prompts),function()
-					local waypoint_distance_calc_explained = {
-						"We've got a spare portable waypoint distance calculator if you're interested. Helm or Tactical officers use this to get hyper accurate distance calculations for waypoints placed by Relay or Operations. Would you like to get this for helm/tactical?",
-						"We have an unused waypoint distance calculator. Your helm or tactical officer could use this to get hyper-accurate distance calculations for any waypoints placed by your relay or operations officer. Would you like this installed for helm/tactical?",
-						"There's a waypoint distance calculator here that could use a home. It's a device used by helm or tactical to calculat hyper accurate distances for waypoints. Interested?",
-						string.format("We have a waypoint distance calculator begging to be installed on %s. Helm or Tactical use it for extremely accurate distance calculations on waypoints placed by Relay or Operations. Would this be useful for you?",comms_source:getCallSign()),
-					}
-					setCommsMessage(tableRemoveRandom(waypoint_distance_calc_explained))
-					local install_waypoint_distance_calc_confirmation_prompt = {
-						"Yes, that's a perfect gift (5 reputation)",
-						"We'll take it (5 reputation)",
-						"Please install it (5 reputation)",
-					}
-					if comms_source:hasPlayerAtPosition("Helms") then
-						if comms_source:hasPlayerAtPosition("Tactical") then
-							table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Helm/Tactical would love that (5 reputation)")
-						else
-							table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Helm would love that (5 reputation)")
-						end
-					elseif comms_source:hasPlayerAtPosition("Tactical") then
-						table.insert(install_waypoint_distance_calc_confirmation_prompt,"Yes! Tactical would love that (5 reputation)")
-					end
-					addCommsReply(tableRemoveRandom(install_waypoint_distance_calc_confirmation_prompt),function()
-						if comms_source:takeReputationPoints(5) then
-							comms_source.way_dist = true
-							comms_target.way_dist = false
-							local waypoint_distance_calc_installed_confirmation = {
-								"Installed",
-								string.format("%s has installed the waypoint distance calculator",comms_target:getCallSign()),
-								"It's installed",
-								string.format("%s now has a waypoint distance calculator",comms_source:getCallSign()),
-							}
-							setCommsMessage(tableRemoveRandom(waypoint_distance_calc_installed_confirmation))
-						else
-							local insufficient_rep_responses = {
-								"Insufficient reputation",
-								"Not enough reputation",
-								"You need more reputation",
-								string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
-								"You don't have enough reputation",
-							}
-							setCommsMessage(tableRemoveRandom(insufficient_rep_responses))
-						end
-						if minor_calculator_enhance_gift_back == nil or getScenarioTime() > minor_calculator_enhance_gift_back + comms_fudge then
-							addCommsReply("Back to enhance ship",enhanceShip)
-							minor_calculator_enhance_gift_back = getScenarioTime()
-						end
-						if minor_calculator_interactive_gift_back == nil or getScenarioTime() > minor_calculator_interactive_gift_back + comms_fudge then
-							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-							minor_calculator_interactive_gift_back = getScenarioTime()
-						end
-						if minor_calculator_comms_gift_back == nil or getScenarioTime() > minor_calculator_comms_gift_back + comms_fudge then
-							addCommsReply(_("Back to station communication"), commsStation)
-							minor_calculator_comms_gift_back = getScenarioTime()
-						end
-					end)
-					if minor_calculator_enhance_back == nil or getScenarioTime() > minor_calculator_enhance_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_calculator_enhance_back = getScenarioTime()
-					end
-					if minor_calculator_interactive_back == nil or getScenarioTime() > minor_calculator_interactive_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_calculator_interactive_back = getScenarioTime()
-					end
-					if minor_calculator_comms_back == nil or getScenarioTime() > minor_calculator_comms_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_calculator_comms_back = getScenarioTime()
-					end
-				end)
-			end
-			if not comms_target.way_dist and comms_source.way_dist ~= nil and comms_source.way_dist then
-				local remove_waypoint_dist_calc_prompt = {
-					"Give waypoint distance calculator to repair technicians",
-					string.format("Donate waypoint distance calculator to %s",comms_target:getCallSign()),
-					"Remove waypoint distance calculator. Give it to station",
-					string.format("Transfer waypoint distance calculator from %s to station %s",comms_source:getCallSign(),comms_target:getCallSign()),
-				}
-				addCommsReply(tableRemoveRandom(remove_waypoint_dist_calc_prompt),function()
-					local waypoint_distance_calculator_explained = {
-						"Not every ship in the fleet has a portable waypoint distance calculator. If you were to give us yours, we could install it on another ship if they wanted it. Would you like to give us your waypoint distance calculator?",
-						"If you were to donate your waypoint distance calculator, we could install it on another ship in the fleet. Not every ship has one, you know. Do you want to give us yours?",
-						"The waypoint distance calculator is not standard equipment on every ship in the fleet. Giving us yours allows us to install it on another ship. Would you like to donate yours? It's for a worthy cause.",
-						"Consider that not every ship has a waypoint distance calculator. We could give another ship in the fleet one if you were to give us yours. What about it?",
-					}
-					setCommsMessage(tableRemoveRandom(waypoint_distance_calculator_explained))
-					local confirm_waypoint_dist_donation_prompt = {
-						"Yes, we like to help the fleet (add 5 rep)",
-						"Yes, we'll donate ours (add 5 rep)",
-						"Ok, we will give you ours (add 5 rep)",
-						"We'll help the fleet and give you ours (add 5 rep)",
-					}
-					addCommsReply(tableRemoveRandom(confirm_waypoint_dist_donation_prompt),function()
-						comms_source:addReputationPoints(5)
-						comms_source.way_dist = false
-						comms_target.way_dist = true
-						comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
-						if comms_source.way_distance_button_hlm ~= nil then
-							comms_source:removeCustom(comms_source.way_distance_button_hlm)
-							comms_source:removeCustom(comms_source.way_distance_button_tac)
-							comms_source.way_distance_button_hlm = nil
-							comms_source.way_distance_button_tac = nil
-						end
-						local confirm_uninstalled_waypoint_dist_calc = {
-							"Thanks. I'll be sure to give this to the next fleet member that asks.",
-							"You have done the fleet an appreciated service. We'll be sure the waypoint distance calculator gets put to good use.",
-							string.format("The %s will go down in our records as a generous ship. We'll make sure another fleet member gets good use from your waypoint distance calculator",comms_source:getCallSign()),
-							"Your contribution is greatly appreciated. This waypoint distance calculator will make some helm officer very happy",
-						}
-						setCommsMessage(tableRemoveRandom(confirm_uninstalled_waypoint_dist_calc))
-						if minor_calculator_enhance_sell_back == nil or getScenarioTime() > minor_calculator_enhance_sell_back + comms_fudge then
-							addCommsReply("Back to enhance ship",enhanceShip)
-							minor_calculator_enhance_sell_back = getScenarioTime()
-						end
-						if minor_calculator_interactive_sell_back == nil or getScenarioTime() > minor_calculator_interactive_sell_back + comms_fudge then
-							addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-							minor_calculator_interactive_sell_back = getScenarioTime()
-						end
-						if minor_calculator_comms_sell_back == nil or getScenarioTime() > minor_calculator_comms_sell_back + comms_fudge then
-							addCommsReply(_("Back to station communication"), commsStation)
-							minor_calculator_comms_sell_back = getScenarioTime()
-						end
-					end)
-					if minor_calculator_enhance_return_back == nil or getScenarioTime() > minor_calculator_enhance_return_back + comms_fudge then
-						addCommsReply("Back to enhance ship",enhanceShip)
-						minor_calculator_enhance_return_back = getScenarioTime()
-					end
-					if minor_calculator_interactive_return_back == nil or getScenarioTime() > minor_calculator_interactive_return_back + comms_fudge then
-						addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
-						minor_calculator_interactive_return_back = getScenarioTime()
-					end
-					if minor_calculator_comms_return_back == nil or getScenarioTime() > minor_calculator_comms_return_back + comms_fudge then
-						addCommsReply(_("Back to station communication"), commsStation)
-						minor_calculator_comms_return_back = getScenarioTime()
-					end
-				end)
+				end
 			end
 			if minor_enhance_back == nil or getScenarioTime() > minor_enhance_back + comms_fudge then
 				addCommsReply("Back to enhance ship",enhanceShip)
@@ -63791,7 +64010,10 @@ function updatePlayerLongRangeSensors(delta,p)
 			updatePowerSensorButtons(p)
 		elseif p.power_sensor_state == "enabled" then
 			base_range = base_range + (1000 * p.power_sensor_interval * p.power_sensor_level)
-			p:setEnergyLevel(p:getEnergyLevel() - delta*p.power_sensor_level*2)
+			local power_decrement = delta*p.power_sensor_level*2
+--			print("boost sensor power drain value:",power_decrement,"before energy:",p:getEnergyLevel())
+			p:setEnergyLevel(p:getEnergyLevel() - power_decrement)
+--			print("after:",p:getEnergyLevel())
 		end
 	else
 		if p.power_sensor_state ~= nil then
